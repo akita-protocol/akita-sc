@@ -3,7 +3,7 @@ import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typ
 import { AssetHolding } from "@algorandfoundation/algorand-typescript/op";
 import { ONE_DAY } from "../../../social/constants";
 import { DIVISOR } from "../../../utils/constants";
-import { ERR_INVALID_PAYMENT } from "../../../utils/errors";
+import { ERR_INVALID_ASSET, ERR_INVALID_PAYMENT } from "../../../utils/errors";
 import { arc58OptInAndSend, calcPercent, getEscrow, getRekeyIndex, getSpendingAccount, mustGetEscrowInfo, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions";
 import { ERR_ESCROW_DOES_NOT_EXIST, ERR_FORBIDDEN } from "../../account/errors";
 import { ERR_ALREADY_OPTED_IN } from "../optin/errors";
@@ -241,7 +241,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
     assert(allocatable, ERR_ESCROW_NOT_ALLOCATABLE)
 
     const latestWindow: uint64 = Global.latestTimestamp - ((Global.latestTimestamp - creationDate) % ONE_DAY)
-    assert(latestWindow >= lastDisbursement, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT)
+    assert(latestWindow > lastDisbursement, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT)
 
     this.escrows({ wallet, escrow }).value.phase = EscrowDisbursementPhaseAllocation
     this.escrows({ wallet, escrow }).value.lastDisbursement = latestWindow
@@ -273,9 +273,14 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
       const asset = ids[i]
       assert(!this.receiveAssets({ escrow: escrowID, asset }).exists, ERR_ASSET_ALREADY_ALLOCATED)
 
-      const balance: uint64 = asset === 0
-        ? op.balance(Global.currentApplicationAddress) - Global.minBalance
-        : AssetHolding.assetBalance(sender, asset)[0]
+      let balance: uint64 = 0
+      let optedIn: boolean = false;
+      if (asset === 0) {
+        balance = op.balance(sender) - sender.minBalance
+      } else {
+        ([balance, optedIn] = AssetHolding.assetBalance(sender, asset));
+        assert(optedIn, ERR_INVALID_ASSET)
+      }
 
       let remaining: uint64 = balance
       for (let j: uint64 = 0; j < splits.length; j++) {
@@ -300,8 +305,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
             amount = value
             break
           case SplitDistributionTypePercentage:
-            // Calculate percentage on remaining balance (after flat amounts)
-            amount = calcPercent(remaining, value)
+            amount = calcPercent(balance, value)
             break
           case SplitDistributionTypeRemainder:
             // Remainder gets whatever is left

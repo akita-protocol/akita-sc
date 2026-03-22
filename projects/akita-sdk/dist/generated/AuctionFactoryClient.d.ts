@@ -71,9 +71,9 @@ export type AuctionFactoryArgs = {
             marketplace: string;
             weightsListCount: bigint | number;
         };
-        'newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': {
+        'newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': {
+            prizeBoxTransferTxn: AppMethodCallTransactionArgument;
             payment: AppMethodCallTransactionArgument;
-            prizeBoxId: bigint | number;
             bidAssetId: bigint | number;
             bidFee: bigint | number;
             startingBid: bigint | number;
@@ -90,9 +90,10 @@ export type AuctionFactoryArgs = {
         'cancelAuction(uint64)void': {
             appId: bigint | number;
         };
-        'newAuctionCost(bool,uint64,uint64)uint64': {
+        'newAuctionCost(bool,uint64,uint64,uint64)uint64': {
             isPrizeBox: boolean;
             bidAssetId: bigint | number;
+            prizeAssetId: bigint | number;
             weightsListCount: bigint | number;
         };
         'initBoxedContract(string,uint64)void': {
@@ -135,10 +136,10 @@ export type AuctionFactoryArgs = {
     tuple: {
         'create(string,string,uint64,uint64)void': [version: string, childVersion: string, akitaDao: bigint | number, akitaDaoEscrow: bigint | number];
         'newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, name: string, proof: Uint8Array[], bidAssetId: bigint | number, bidFee: bigint | number, startingBid: bigint | number, bidMinimumIncrease: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
-        'newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [payment: AppMethodCallTransactionArgument, prizeBoxId: bigint | number, bidAssetId: bigint | number, bidFee: bigint | number, startingBid: bigint | number, bidMinimumIncrease: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
+        'newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [prizeBoxTransferTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, bidAssetId: bigint | number, bidFee: bigint | number, startingBid: bigint | number, bidMinimumIncrease: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
         'deleteAuctionApp(uint64)void': [appId: bigint | number];
         'cancelAuction(uint64)void': [appId: bigint | number];
-        'newAuctionCost(bool,uint64,uint64)uint64': [isPrizeBox: boolean, bidAssetId: bigint | number, weightsListCount: bigint | number];
+        'newAuctionCost(bool,uint64,uint64,uint64)uint64': [isPrizeBox: boolean, bidAssetId: bigint | number, prizeAssetId: bigint | number, weightsListCount: bigint | number];
         'initBoxedContract(string,uint64)void': [version: string, size: bigint | number];
         'loadBoxedContract(uint64,byte[])void': [offset: bigint | number, data: Uint8Array];
         'deleteBoxedContract()void': [];
@@ -157,10 +158,10 @@ export type AuctionFactoryArgs = {
 export type AuctionFactoryReturns = {
     'create(string,string,uint64,uint64)void': void;
     'newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
-    'newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
+    'newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
     'deleteAuctionApp(uint64)void': void;
     'cancelAuction(uint64)void': void;
-    'newAuctionCost(bool,uint64,uint64)uint64': bigint;
+    'newAuctionCost(bool,uint64,uint64,uint64)uint64': bigint;
     'initBoxedContract(string,uint64)void': void;
     'loadBoxedContract(uint64,byte[])void': void;
     'deleteBoxedContract()void': void;
@@ -187,10 +188,10 @@ export type AuctionFactoryTypes = {
         argsObj: AuctionFactoryArgs['obj']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
         argsTuple: AuctionFactoryArgs['tuple']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
         returns: AuctionFactoryReturns['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
-    }> & Record<'newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64' | 'newPrizeBoxAuction', {
-        argsObj: AuctionFactoryArgs['obj']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
-        argsTuple: AuctionFactoryArgs['tuple']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
-        returns: AuctionFactoryReturns['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+    }> & Record<'newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64' | 'newPrizeBoxAuction', {
+        argsObj: AuctionFactoryArgs['obj']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        argsTuple: AuctionFactoryArgs['tuple']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        returns: AuctionFactoryReturns['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
     }> & Record<'deleteAuctionApp(uint64)void' | 'deleteAuctionApp', {
         argsObj: AuctionFactoryArgs['obj']['deleteAuctionApp(uint64)void'];
         argsTuple: AuctionFactoryArgs['tuple']['deleteAuctionApp(uint64)void'];
@@ -199,10 +200,10 @@ export type AuctionFactoryTypes = {
         argsObj: AuctionFactoryArgs['obj']['cancelAuction(uint64)void'];
         argsTuple: AuctionFactoryArgs['tuple']['cancelAuction(uint64)void'];
         returns: AuctionFactoryReturns['cancelAuction(uint64)void'];
-    }> & Record<'newAuctionCost(bool,uint64,uint64)uint64' | 'newAuctionCost', {
-        argsObj: AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64)uint64'];
-        argsTuple: AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64)uint64'];
-        returns: AuctionFactoryReturns['newAuctionCost(bool,uint64,uint64)uint64'];
+    }> & Record<'newAuctionCost(bool,uint64,uint64,uint64)uint64' | 'newAuctionCost', {
+        argsObj: AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64'];
+        argsTuple: AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64,uint64)uint64'];
+        returns: AuctionFactoryReturns['newAuctionCost(bool,uint64,uint64,uint64)uint64'];
     }> & Record<'initBoxedContract(string,uint64)void' | 'initBoxedContract', {
         argsObj: AuctionFactoryArgs['obj']['initBoxedContract(string,uint64)void'];
         argsTuple: AuctionFactoryArgs['tuple']['initBoxedContract(string,uint64)void'];
@@ -427,12 +428,12 @@ export declare abstract class AuctionFactoryParamsFactory {
      */
     static newAuction(params: CallParams<AuctionFactoryArgs['obj']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method
+     * Constructs a no op call for the newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static newPrizeBoxAuction(params: CallParams<AuctionFactoryArgs['obj']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static newPrizeBoxAuction(params: CallParams<AuctionFactoryArgs['obj']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the deleteAuctionApp(uint64)void ABI method
      *
@@ -448,12 +449,12 @@ export declare abstract class AuctionFactoryParamsFactory {
      */
     static cancelAuction(params: CallParams<AuctionFactoryArgs['obj']['cancelAuction(uint64)void'] | AuctionFactoryArgs['tuple']['cancelAuction(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the newAuctionCost(bool,uint64,uint64)uint64 ABI method
+     * Constructs a no op call for the newAuctionCost(bool,uint64,uint64,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static newAuctionCost(params: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static newAuctionCost(params: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the initBoxedContract(string,uint64)void ABI method
      *
@@ -1066,12 +1067,12 @@ export declare class AuctionFactoryClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1093,14 +1094,14 @@ export declare class AuctionFactoryClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64)uint64"]> & {
+        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1232,12 +1233,12 @@ export declare class AuctionFactoryClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1271,14 +1272,14 @@ export declare class AuctionFactoryClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64)uint64"]> & {
+        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1471,15 +1472,15 @@ export declare class AuctionFactoryClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & SendParams & {
+        newPrizeBoxAuction: (params: CallParams<AuctionFactoryArgs["obj"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | AuctionFactoryReturns["newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
+            return: (undefined | AuctionFactoryReturns["newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1525,17 +1526,17 @@ export declare class AuctionFactoryClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64)uint64"]> & SendParams & {
+        newAuctionCost: (params: CallParams<AuctionFactoryArgs["obj"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"] | AuctionFactoryArgs["tuple"]["newAuctionCost(bool,uint64,uint64,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | AuctionFactoryReturns["newAuctionCost(bool,uint64,uint64)uint64"]);
+            return: (undefined | AuctionFactoryReturns["newAuctionCost(bool,uint64,uint64,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1721,14 +1722,14 @@ export declare class AuctionFactoryClient {
      */
     clone(params: CloneAppClientParams): AuctionFactoryClient;
     /**
-     * Makes a readonly (simulated) call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64)uint64` ABI method.
+     * Makes a readonly (simulated) call to the AuctionFactory smart contract using the `newAuctionCost(bool,uint64,uint64,uint64)uint64` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    newAuctionCost(params: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64)uint64']>): Promise<bigint>;
+    newAuctionCost(params: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64,uint64)uint64']>): Promise<bigint>;
     /**
      * Makes a readonly (simulated) call to the AuctionFactory smart contract using the `optInCost(uint64)uint64` ABI method.
      *
@@ -1802,13 +1803,13 @@ export type AuctionFactoryComposer<TReturns extends [...any[]] = []> = {
      */
     newAuction(params?: CallParams<AuctionFactoryArgs['obj']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
     /**
-     * Calls the newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method.
+     * Calls the newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    newPrizeBoxAuction(params?: CallParams<AuctionFactoryArgs['obj']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
+    newPrizeBoxAuction(params?: CallParams<AuctionFactoryArgs['obj']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionFactoryArgs['tuple']['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
     /**
      * Calls the deleteAuctionApp(uint64)void ABI method.
      *
@@ -1826,13 +1827,13 @@ export type AuctionFactoryComposer<TReturns extends [...any[]] = []> = {
      */
     cancelAuction(params?: CallParams<AuctionFactoryArgs['obj']['cancelAuction(uint64)void'] | AuctionFactoryArgs['tuple']['cancelAuction(uint64)void']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['cancelAuction(uint64)void'] | undefined]>;
     /**
-     * Calls the newAuctionCost(bool,uint64,uint64)uint64 ABI method.
+     * Calls the newAuctionCost(bool,uint64,uint64,uint64)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    newAuctionCost(params?: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64)uint64']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['newAuctionCost(bool,uint64,uint64)uint64'] | undefined]>;
+    newAuctionCost(params?: CallParams<AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64'] | AuctionFactoryArgs['tuple']['newAuctionCost(bool,uint64,uint64,uint64)uint64']>): AuctionFactoryComposer<[...TReturns, AuctionFactoryReturns['newAuctionCost(bool,uint64,uint64,uint64)uint64'] | undefined]>;
     /**
      * Calls the initBoxedContract(string,uint64)void ABI method.
      *

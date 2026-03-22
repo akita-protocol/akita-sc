@@ -10,6 +10,7 @@ import type { AkitaSocial } from "./contract.algo"
 import type { AkitaSocialModeration } from "./moderation.algo"
 import { ERR_ALREADY_FOLLOWING, ERR_AUTOMATED_ACCOUNT, ERR_BANNED, ERR_BLOCKED, ERR_HAS_GATE, ERR_NOT_FOLLOWING, ERR_SELF_BLOCK, ERR_SELF_FOLLOW } from "./errors"
 import { BlockListKey, FollowsKey, MetaValue } from "./types"
+import { ERR_USER_NOT_BLOCKED } from "../subscriptions/errors"
 
 export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseContract) {
 
@@ -114,6 +115,7 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
     assert(!this.isBanned(Txn.sender), ERR_BANNED)
 
     const blocksKey = this.blk(Txn.sender, address)
+    assert(this.blocks(blocksKey).exists, ERR_USER_NOT_BLOCKED)
     this.blocks(blocksKey).delete()
 
     itxn

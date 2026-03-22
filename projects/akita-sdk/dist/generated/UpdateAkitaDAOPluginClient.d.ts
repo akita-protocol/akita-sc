@@ -40,7 +40,8 @@ export type UpdateAkitaDaoPluginArgs = {
      * The object representation of the arguments for each method
      */
     obj: {
-        'create(uint64,byte[])void': {
+        'create(string,uint64,byte[])void': {
+            version: string;
             akitaDao: bigint | number;
             clearProgram: Uint8Array;
         };
@@ -104,7 +105,7 @@ export type UpdateAkitaDaoPluginArgs = {
      * The tuple representation of the arguments for each method
      */
     tuple: {
-        'create(uint64,byte[])void': [akitaDao: bigint | number, clearProgram: Uint8Array];
+        'create(string,uint64,byte[])void': [version: string, akitaDao: bigint | number, clearProgram: Uint8Array];
         'setClearProgram(uint64,bool,byte[])void': [wallet: bigint | number, rekeyBack: boolean, clearProgram: Uint8Array];
         'initBoxedContract(uint64,string,uint64)void': [wallet: bigint | number, version: string, size: bigint | number];
         'loadBoxedContract(uint64,uint64,byte[])void': [wallet: bigint | number, offset: bigint | number, data: Uint8Array];
@@ -120,7 +121,7 @@ export type UpdateAkitaDaoPluginArgs = {
  * The return type for each method
  */
 export type UpdateAkitaDaoPluginReturns = {
-    'create(uint64,byte[])void': void;
+    'create(string,uint64,byte[])void': void;
     'setClearProgram(uint64,bool,byte[])void': void;
     'initBoxedContract(uint64,string,uint64)void': void;
     'loadBoxedContract(uint64,uint64,byte[])void': void;
@@ -138,10 +139,10 @@ export type UpdateAkitaDaoPluginTypes = {
     /**
      * Maps method signatures / names to their argument and return types.
      */
-    methods: Record<'create(uint64,byte[])void' | 'create', {
-        argsObj: UpdateAkitaDaoPluginArgs['obj']['create(uint64,byte[])void'];
-        argsTuple: UpdateAkitaDaoPluginArgs['tuple']['create(uint64,byte[])void'];
-        returns: UpdateAkitaDaoPluginReturns['create(uint64,byte[])void'];
+    methods: Record<'create(string,uint64,byte[])void' | 'create', {
+        argsObj: UpdateAkitaDaoPluginArgs['obj']['create(string,uint64,byte[])void'];
+        argsTuple: UpdateAkitaDaoPluginArgs['tuple']['create(string,uint64,byte[])void'];
+        returns: UpdateAkitaDaoPluginReturns['create(string,uint64,byte[])void'];
     }> & Record<'setClearProgram(uint64,bool,byte[])void' | 'setClearProgram', {
         argsObj: UpdateAkitaDaoPluginArgs['obj']['setClearProgram(uint64,bool,byte[])void'];
         argsTuple: UpdateAkitaDaoPluginArgs['tuple']['setClearProgram(uint64,bool,byte[])void'];
@@ -185,6 +186,10 @@ export type UpdateAkitaDaoPluginTypes = {
     state: {
         global: {
             keys: {
+                /**
+                 * the current version of the contract
+                 */
+                version: string;
                 /**
                  * the app ID of the Akita DAO
                  */
@@ -232,12 +237,12 @@ export type BoxKeysState = UpdateAkitaDaoPluginTypes['state']['box']['keys'];
 /**
  * Defines supported create method params for this smart contract
  */
-export type UpdateAkitaDaoPluginCreateCallParams = Expand<CallParams<UpdateAkitaDaoPluginArgs['obj']['create(uint64,byte[])void'] | UpdateAkitaDaoPluginArgs['tuple']['create(uint64,byte[])void']> & {
+export type UpdateAkitaDaoPluginCreateCallParams = Expand<CallParams<UpdateAkitaDaoPluginArgs['obj']['create(string,uint64,byte[])void'] | UpdateAkitaDaoPluginArgs['tuple']['create(string,uint64,byte[])void']> & {
     method: 'create';
 } & {
     onComplete?: OnApplicationComplete.NoOpOC;
-} & CreateSchema> | Expand<CallParams<UpdateAkitaDaoPluginArgs['obj']['create(uint64,byte[])void'] | UpdateAkitaDaoPluginArgs['tuple']['create(uint64,byte[])void']> & {
-    method: 'create(uint64,byte[])void';
+} & CreateSchema> | Expand<CallParams<UpdateAkitaDaoPluginArgs['obj']['create(string,uint64,byte[])void'] | UpdateAkitaDaoPluginArgs['tuple']['create(string,uint64,byte[])void']> & {
+    method: 'create(string,uint64,byte[])void';
 } & {
     onComplete?: OnApplicationComplete.NoOpOC;
 } & CreateSchema>;
@@ -283,12 +288,12 @@ export declare abstract class UpdateAkitaDaoPluginParamsFactory {
             onComplete?: OnApplicationComplete.NoOpOC;
         };
         /**
-         * Constructs create ABI call params for the UpdateAkitaDAOPlugin smart contract using the create(uint64,byte[])void ABI method
+         * Constructs create ABI call params for the UpdateAkitaDAOPlugin smart contract using the create(string,uint64,byte[])void ABI method
          *
          * @param params Parameters for the call
          * @returns An `AppClientMethodCallParams` object for the call
          */
-        create(params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(uint64,byte[])void"]> & AppClientCompilationParams & {
+        create(params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(string,uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(string,uint64,byte[])void"]> & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }): AppClientMethodCallParams & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
@@ -512,12 +517,12 @@ export declare class UpdateAkitaDaoPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using the create(uint64,byte[])void ABI method.
+             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using the create(string,uint64,byte[])void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create params
              */
-            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(string,uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(string,uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 deployTimeParams: import("@algorandfoundation/algokit-utils/types/app").TealTemplateParams | undefined;
@@ -616,12 +621,12 @@ export declare class UpdateAkitaDaoPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using the create(uint64,byte[])void ABI method.
+             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using the create(string,uint64,byte[])void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create transaction
              */
-            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(string,uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(string,uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 transactions: Transaction[];
@@ -639,16 +644,16 @@ export declare class UpdateAkitaDaoPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using an ABI method call using the create(uint64,byte[])void ABI method.
+             * Creates a new instance of the UpdateAkitaDAOPlugin smart contract using an ABI method call using the create(string,uint64,byte[])void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create result
              */
-            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
+            create: (params: CallParams<UpdateAkitaDaoPluginArgs["obj"]["create(string,uint64,byte[])void"] | UpdateAkitaDaoPluginArgs["tuple"]["create(string,uint64,byte[])void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 result: {
-                    return: (undefined | UpdateAkitaDaoPluginReturns["create(uint64,byte[])void"]);
+                    return: (undefined | UpdateAkitaDaoPluginReturns["create(string,uint64,byte[])void"]);
                     compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
                     compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
                     appId: bigint;
@@ -1164,6 +1169,10 @@ export declare class UpdateAkitaDaoPluginClient {
              * Get all current keyed values from global state
              */
             getAll: () => Promise<Partial<Expand<GlobalKeysState>>>;
+            /**
+             * Get the current value of the version key in global state
+             */
+            version: () => Promise<string | undefined>;
             /**
              * Get the current value of the akitaDAO key in global state
              */

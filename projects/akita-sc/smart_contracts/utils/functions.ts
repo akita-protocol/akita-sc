@@ -13,7 +13,7 @@ import { MinDisbursementsMBR, UserAllocationMBR } from "../rewards/constants"
 import { UserAllocation } from "../rewards/types"
 import { STAKING_TYPE_LOCK } from "../staking/types"
 import { CreatorRoyaltyDefault, CreatorRoyaltyMaximumSingle, DIVISOR, IMPACT_DIVISOR, ONE_DAY, ONE_WEEK, ONE_YEAR_IN_DAYS } from "./constants"
-import { ERR_ASSETS_AND_AMOUNTS_MISMATCH, ERR_INVALID_PERCENTAGE, ERR_INVALID_PERCENTAGE_OF_ARGS, ERR_NOT_A_PRIZE_BOX } from "./errors"
+import { ERR_ASSETS_AND_AMOUNTS_MISMATCH, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN, ERR_INVALID_PERCENTAGE, ERR_INVALID_PERCENTAGE_OF_ARGS, ERR_NOT_A_PRIZE_BOX } from "./errors"
 import { FunderInfo } from "./types/mbr"
 import { Proof } from "./types/merkles"
 import { ReferralPaymentInfo } from "./types/referral"
@@ -30,6 +30,10 @@ import { AkitaSocialImpact } from "../social/impact.algo"
 import { PoolGlobalStateKeyGateID } from "../staking-pool/constants"
 import type { Staking } from "../staking/contract.algo"
 import type { AssetInbox } from "./types/asset-inbox"
+
+export function controls(sender: Account): boolean {
+  return sender.authAddress === Global.currentApplicationAddress
+}
 
 export function getDAOARC58Wallet(akitaDAO: Application): Application {
   const [walletID] = op.AppGlobal.getExUint64(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWallet))
@@ -489,7 +493,30 @@ export function costInstantDisbursement(akitaDAO: Application, asset: uint64, al
   return cost
 }
 
-export function createInstantDisbursement(akitaDAO: Application, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: UserAllocation[], sum: uint64): { id: uint64, cost: uint64 } {
+/**
+ * Calculate the MBR cost for N single-allocation disbursements.
+ * Does NOT include rewards app asset opt-in — use rewardsOptInCost separately per unique asset.
+ */
+export function disbursementCost(count: uint64): uint64 {
+  return (MinDisbursementsMBR + UserAllocationMBR) * count
+}
+
+/**
+ * Returns the cost to opt the rewards app into an asset, or 0 if already opted in or asset is ALGO.
+ * Call once per unique asset to avoid double-counting — the rewards app never opts out.
+ */
+export function rewardsOptInCost(akitaDAO: Application, asset: uint64): uint64 {
+  if (asset !== 0) {
+    const rewardsApp = getAkitaAppList(akitaDAO).rewards
+    if (!Application(rewardsApp).address.isOptedIn(Asset(asset))) {
+      return Global.assetOptInMinBalance
+    }
+  }
+  return 0
+}
+
+export function createInstantDisbursement(akitaDAO: Application, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: UserAllocation[], sum: uint64, closeOut: boolean): { id: uint64, cost: uint64 } {
+  assert(asset !== 0 || closeOut === false, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN)
   const rewardsApp = getAkitaAppList(akitaDAO).rewards
 
   let id: uint64 = 0
@@ -522,6 +549,16 @@ export function createInstantDisbursement(akitaDAO: Application, asset: uint64, 
       })
     }
 
+    const transferTxn = itxn.assetTransfer({
+      assetReceiver: Application(rewardsApp).address,
+      assetAmount: sum,
+      xferAsset: asset
+    })
+
+    if (closeOut) {
+      transferTxn.set({ assetCloseTo: Application(rewardsApp).address })
+    }
+
     id = abiCall<typeof Rewards.prototype.createInstantAsaDisbursement>({
       appId: rewardsApp,
       args: [
@@ -529,11 +566,7 @@ export function createInstantDisbursement(akitaDAO: Application, asset: uint64, 
           receiver: Application(rewardsApp).address,
           amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
         }),
-        itxn.assetTransfer({
-          assetReceiver: Application(rewardsApp).address,
-          assetAmount: sum,
-          xferAsset: asset
-        }),
+        transferTxn,
         timeToUnlock,
         expiration,
         allocations
@@ -575,7 +608,8 @@ export function sendReferralPayment(akitaDAO: Application, asset: uint64, amount
       Global.latestTimestamp,
       (Global.latestTimestamp + ONE_WEEK),
       [{ address: referrer, amount: referralFee }],
-      referralFee
+      referralFee,
+      false
     )
 
     return { leftover: (amount - referralFee), referralMbr }

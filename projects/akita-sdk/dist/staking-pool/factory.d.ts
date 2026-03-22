@@ -34,10 +34,6 @@ export declare class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryCli
      */
     deletePool({ sender, signer, appId }: DeletePoolParams): Promise<void>;
     /**
-     * Sets the escrow app ID for the factory.
-     */
-    setEscrow({ sender, signer, escrow }: MaybeSigner & StakingPoolFactoryContractArgs['setEscrow(uint64)void']): Promise<void>;
-    /**
      * Gets MBR (Minimum Balance Requirement) data for pool operations.
      */
     getMbr({ winningTickets }: StakingPoolMbrParams): Promise<StakingPoolMbrData>;

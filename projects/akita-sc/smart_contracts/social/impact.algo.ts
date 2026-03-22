@@ -5,7 +5,7 @@ import { ERR_NOT_AKITA_DAO } from "../errors";
 import { Staking } from "../staking/contract.algo";
 import { STAKING_TYPE_SOFT } from "../staking/types";
 import { Subscriptions } from "../subscriptions/contract.algo";
-import { AkitaBaseContract } from "../utils/base-contracts/base";
+import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/base";
 import { AkitaCollectionsPrefixAKC, AkitaCollectionsPrefixAOG, AkitaNFTCreatorAddress } from "../utils/constants";
 import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDGlobalStateKeysTimeChanged, NFDGlobalStateKeysVersion, NFDMetaKeyVerifiedAddresses, NFDMetaKeyVerifiedDiscord, NFDMetaKeyVerifiedDomain, NFDMetaKeyVerifiedTelegram, NFDMetaKeyVerifiedTwitter } from "../utils/constants/nfd";
 import { ERR_INVALID_PAYMENT } from "../utils/errors";
@@ -17,7 +17,7 @@ import type { AkitaSocial } from "./contract.algo";
 import { ERR_INVALID_NFD, ERR_NFD_CHANGED, ERR_NOT_A_SUBSCRIPTION, ERR_NOT_AN_AKITA_NFT, ERR_NOT_AN_NFD, ERR_NOT_SOCIAL, ERR_USER_DOES_NOT_OWN_NFD, ERR_USER_DOES_NOT_OWN_NFT } from "./errors";
 import { AkitaSocialImpactMBRData, ImpactMetaValue } from "./types";
 
-export class AkitaSocialImpact extends AkitaBaseContract {
+export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
   // BOXES ----------------------------------------------------------------------------------------    
 
@@ -194,7 +194,7 @@ export class AkitaSocialImpact extends AkitaBaseContract {
 
     const subscriptionState = this.isSubscribed(account, subscriptionIndex)
 
-    if (!subscriptionState.active) {
+    if (!subscriptionState.active || !this.subscriptionStateModifier(subscriptionState.serviceID).exists) {
       return subscriberImpact
     }
 

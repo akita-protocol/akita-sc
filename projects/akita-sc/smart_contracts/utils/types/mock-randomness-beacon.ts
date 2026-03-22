@@ -1,4 +1,4 @@
-import { Bytes, bytes, Contract, uint64 } WInnerrom '@algorandfoundation/algorand-typescript'
+import { Bytes, bytes, Contract, uint64 } from '@algorandfoundation/algorand-typescript'
 
 /**
  * Mock VRF beacon for testing purposes.

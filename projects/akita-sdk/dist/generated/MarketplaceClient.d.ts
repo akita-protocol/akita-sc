@@ -58,9 +58,9 @@ export type MarketplaceArgs = {
             name: string;
             proof: Uint8Array[];
         };
-        'listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64': {
+        'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64': {
+            prizeBoxTransferTxn: AppMethodCallTransactionArgument;
             payment: AppMethodCallTransactionArgument;
-            prizeId: bigint | number;
             price: bigint | number;
             paymentAsset: bigint | number;
             expiration: bigint | number;
@@ -132,7 +132,7 @@ export type MarketplaceArgs = {
     tuple: {
         'create(string,string,uint64,uint64)void': [version: string, childVersion: string, akitaDao: bigint | number, akitaDaoEscrow: bigint | number];
         'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[]];
-        'listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64': [payment: AppMethodCallTransactionArgument, prizeId: bigint | number, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string];
+        'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64': [prizeBoxTransferTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, reservedFor: string, gateId: bigint | number, marketplace: string];
         'gatedPurchase(pay,appl,uint64,address)void': [payment: AppMethodCallTransactionArgument | undefined, gateTxn: AppMethodCallTransactionArgument, appId: bigint | number, marketplace: string];
         'purchase(pay,uint64,address)void': [payment: AppMethodCallTransactionArgument, appId: bigint | number, marketplace: string];
         'gatedPurchaseAsa(axfer,appl,uint64,address)void': [assetXfer: AppMethodCallTransactionArgument | undefined, gateTxn: AppMethodCallTransactionArgument, appId: bigint | number, marketplace: string];
@@ -155,7 +155,7 @@ export type MarketplaceArgs = {
 export type MarketplaceReturns = {
     'create(string,string,uint64,uint64)void': void;
     'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64': bigint;
-    'listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64': bigint;
+    'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64': bigint;
     'gatedPurchase(pay,appl,uint64,address)void': void;
     'purchase(pay,uint64,address)void': void;
     'gatedPurchaseAsa(axfer,appl,uint64,address)void': void;
@@ -186,10 +186,10 @@ export type MarketplaceTypes = {
         argsObj: MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
         argsTuple: MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
         returns: MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'];
-    }> & Record<'listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64' | 'listPrizeBox', {
-        argsObj: MarketplaceArgs['obj']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'];
-        argsTuple: MarketplaceArgs['tuple']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'];
-        returns: MarketplaceReturns['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'];
+    }> & Record<'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64' | 'listPrizeBox', {
+        argsObj: MarketplaceArgs['obj']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'];
+        argsTuple: MarketplaceArgs['tuple']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'];
+        returns: MarketplaceReturns['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'];
     }> & Record<'gatedPurchase(pay,appl,uint64,address)void' | 'gatedPurchase', {
         argsObj: MarketplaceArgs['obj']['gatedPurchase(pay,appl,uint64,address)void'];
         argsTuple: MarketplaceArgs['tuple']['gatedPurchase(pay,appl,uint64,address)void'];
@@ -430,12 +430,12 @@ export declare abstract class MarketplaceParamsFactory {
      */
     static list(params: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64 ABI method
+     * Constructs a no op call for the listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static listPrizeBox(params: CallParams<MarketplaceArgs['obj']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'] | MarketplaceArgs['tuple']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static listPrizeBox(params: CallParams<MarketplaceArgs['obj']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'] | MarketplaceArgs['tuple']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the gatedPurchase(pay,appl,uint64,address)void ABI method
      *
@@ -1076,12 +1076,12 @@ export declare class MarketplaceClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Marketplace smart contract using the `listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"]> & {
+        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1247,12 +1247,12 @@ export declare class MarketplaceClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Marketplace smart contract using the `listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"]> & {
+        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1495,15 +1495,15 @@ export declare class MarketplaceClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Marketplace smart contract using the `listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
+         * Makes a call to the Marketplace smart contract using the `listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"]> & SendParams & {
+        listPrizeBox: (params: CallParams<MarketplaceArgs["obj"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"] | MarketplaceArgs["tuple"]["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | MarketplaceReturns["listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64"]);
+            return: (undefined | MarketplaceReturns["listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1822,13 +1822,13 @@ export type MarketplaceComposer<TReturns extends [...any[]] = []> = {
      */
     list(params?: CallParams<MarketplaceArgs['obj']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | MarketplaceArgs['tuple']['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'] | undefined]>;
     /**
-     * Calls the listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64 ABI method.
+     * Calls the listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    listPrizeBox(params?: CallParams<MarketplaceArgs['obj']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'] | MarketplaceArgs['tuple']['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['listPrizeBox(pay,uint64,uint64,uint64,uint64,address,uint64,address)uint64'] | undefined]>;
+    listPrizeBox(params?: CallParams<MarketplaceArgs['obj']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'] | MarketplaceArgs['tuple']['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64']>): MarketplaceComposer<[...TReturns, MarketplaceReturns['listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64'] | undefined]>;
     /**
      * Calls the gatedPurchase(pay,appl,uint64,address)void ABI method.
      *

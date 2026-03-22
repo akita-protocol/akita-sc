@@ -114,13 +114,13 @@ describe('Marketplace SDK', () => {
   describe('MarketplaceSDK', () => {
     describe('listCost()', () => {
       test('should return cost for ALGO payment listing', () => {
-        const cost = akitaUniverse.marketplace.listCost(true)
+        const cost = akitaUniverse.marketplace.listCost({ isAlgoPayment: true })
         expect(cost).toBeGreaterThan(0n)
       })
 
       test('should return higher cost for ASA payment listing', () => {
-        const algoCost = akitaUniverse.marketplace.listCost(true)
-        const asaCost = akitaUniverse.marketplace.listCost(false)
+        const algoCost = akitaUniverse.marketplace.listCost({ isAlgoPayment: true })
+        const asaCost = akitaUniverse.marketplace.listCost({ isAlgoPayment: false })
         expect(asaCost).toBeGreaterThan(algoCost)
       })
     })

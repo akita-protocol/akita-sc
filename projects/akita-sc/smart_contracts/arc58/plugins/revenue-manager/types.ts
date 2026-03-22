@@ -9,7 +9,6 @@ export type WalletEscrowKey = {
 export type EscrowDisbursementPhase = Uint8
 
 export const EscrowDisbursementPhaseIdle: EscrowDisbursementPhase = new Uint8(0)
-export const EscrowDisbursementPhasePreparation: EscrowDisbursementPhase = new Uint8(10)
 export const EscrowDisbursementPhaseAllocation: EscrowDisbursementPhase = new Uint8(20)
 export const EscrowDisbursementPhaseFinalization: EscrowDisbursementPhase = new Uint8(30)
 

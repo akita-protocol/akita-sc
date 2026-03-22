@@ -297,7 +297,7 @@ check:
     // const appId = getAkitaAppList(this.akitaDAO.value).staking
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:40
+    // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     pushbytes "aal"
     app_global_get_ex

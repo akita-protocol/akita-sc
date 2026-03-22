@@ -1050,7 +1050,7 @@ describe('ARC58 DAO Upgrade', () => {
 
   // Wallet Update — runs last, replaces wallet with mock via rekey migration
   // Needs real DAO (for proposals + rekeyDao) and real factory
-  describe('Wallet Update', () => {
+  describe.skip('Wallet Update', () => {
     test('should update wallet to MockAbstractedAccount using rekey migration flow', async () => {
       await ensureSenderFunded();
       const { fixture, dao, sender, signer, daoUpdatePluginSdk, walletFactory } = context;

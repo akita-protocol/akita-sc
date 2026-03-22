@@ -7,7 +7,6 @@ export const ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER = 'Split value must b
 export const ERR_SPLITS_OR_REF_REQUIRED = 'Either splits or a split reference must be provided'
 export const ERR_SPLIT_REF_NOT_FOUND = 'Referenced splits not found in target contract'
 export const ERR_REMAINDER_MUST_BE_LAST = 'Remainder split must be the last split'
-export const ERR_ONLY_ONE_REMAINDER_ALLOWED = 'Only one remainder split is allowed'
 export const ERR_PERCENTAGE_EXCEEDS_100 = 'Total percentage splits exceed 100%'
 export const ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER = 'Percentage splits cannot total 100% when using a remainder'
 export const ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER = 'Flat amounts with percentages require a remainder or 100% total'

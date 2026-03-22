@@ -2,7 +2,7 @@ import { BaseSDK } from "../base";
 import { RaffleFactoryClient, RaffleFactoryArgs } from '../generated/RaffleFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { RaffleSDK } from "./index";
-import { NewRaffleParams, NewPrizeBoxRaffleParams, DeleteRaffleParams } from "./types";
+import { NewRaffleParams, DeleteRaffleParams } from "./types";
 export type RaffleFactoryContractArgs = RaffleFactoryArgs["obj"];
 /**
  * SDK for interacting with the Raffle Factory contract.
@@ -11,15 +11,12 @@ export type RaffleFactoryContractArgs = RaffleFactoryArgs["obj"];
 export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
     constructor(params: NewContractSDKParams);
     /**
-     * Creates a new raffle with an ASA prize and returns a RaffleSDK instance.
+     * Creates a new raffle and returns a RaffleSDK instance.
+     * Use `isPrizeBox: true` with `prizeBoxId` for PrizeBox prizes,
+     * or omit/set `isPrizeBox: false` with `prizeAsset` and `prizeAmount` for ASA prizes.
      * @returns RaffleSDK for the newly created raffle
      */
-    newRaffle({ sender, signer, prizeAsset, prizeAmount, ticketAsset, startTimestamp, endTimestamp, minTickets, maxTickets, gateId, marketplace, name, proof, weightsListCount, }: NewRaffleParams): Promise<RaffleSDK>;
-    /**
-     * Creates a new raffle with a PrizeBox as the prize.
-     * @returns RaffleSDK for the newly created raffle
-     */
-    newPrizeBoxRaffle({ sender, signer, prizeBox, ticketAsset, startTimestamp, endTimestamp, minTickets, maxTickets, gateId, marketplace, weightsListCount, }: NewPrizeBoxRaffleParams): Promise<RaffleSDK>;
+    newRaffle({ sender, signer, isPrizeBox, ticketAsset, startTimestamp, endTimestamp, minTickets, maxTickets, gateId, marketplace, weightsListCount, ...rest }: NewRaffleParams): Promise<RaffleSDK>;
     /**
      * Gets a RaffleSDK instance for an existing raffle.
      * @param appId - The app ID of the raffle
@@ -29,17 +26,26 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
         appId: bigint;
     }): RaffleSDK;
     /**
+     * Checks if the rewards app is already opted into the given asset.
+     * Returns 0n if opted in (no cost needed), 100_000n if not.
+     */
+    private getRewardsOptInCost;
+    /**
      * Gets the cost to create a new raffle.
      * @param isPrizeBox - Whether the prize is a PrizeBox
      * @param isAlgoTicket - Whether tickets are paid in ALGO (ticketAsset === 0)
      * @param weightsListCount - Number of weights boxes
      * @param raffleCreationFee - Optional: the raffle creation fee from the DAO (default: 10 ALGO)
+     * @param prizeRewardsOptInCost - Rewards app opt-in cost for the prize asset (default: 100,000, pass 0 if already opted in)
+     * @param ticketRewardsOptInCost - Rewards app opt-in cost for the ticket asset (default: 100,000, pass 0 if already opted in)
      */
-    cost({ isPrizeBox, isAlgoTicket, weightsListCount, raffleCreationFee }?: {
+    cost({ isPrizeBox, isAlgoTicket, weightsListCount, raffleCreationFee, prizeRewardsOptInCost, ticketRewardsOptInCost }?: {
         isPrizeBox?: boolean;
         isAlgoTicket?: boolean;
         weightsListCount?: bigint | number;
         raffleCreationFee?: bigint;
+        prizeRewardsOptInCost?: bigint;
+        ticketRewardsOptInCost?: bigint;
     }): bigint;
     /**
      * Deletes a raffle created by this factory.

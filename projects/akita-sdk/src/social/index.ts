@@ -1743,20 +1743,9 @@ export class SocialSDK {
   }: MaybeSigner & { address: string }): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    const mbrAmount = this.calculateModeratorMBR();
-
-    const mbrPayment = this.algorand.createTransaction.payment({
-      ...sendParams,
-      amount: microAlgo(mbrAmount),
-      receiver: this.moderationClient.appAddress,
-    });
-
     await this.moderationClient.send.addModerator({
       ...sendParams,
-      args: {
-        mbrPayment,
-        address,
-      },
+      args: { address },
     });
   }
 
@@ -1789,18 +1778,9 @@ export class SocialSDK {
   }: MaybeSigner & { address: string; expiration: bigint | number }): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    const mbrAmount = this.calculateBanMBR();
-
-    const mbrPayment = this.algorand.createTransaction.payment({
-      ...sendParams,
-      amount: microAlgo(mbrAmount),
-      receiver: this.moderationClient.appAddress,
-    });
-
     await this.moderationClient.send.ban({
       ...sendParams,
       args: {
-        mbrPayment,
         address,
         expiration,
       },
@@ -1872,18 +1852,9 @@ export class SocialSDK {
   }: MaybeSigner & { actionAppId: bigint | number; content: Uint8Array }): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    const mbrAmount = this.calculateActionMBR();
-
-    const mbrPayment = this.algorand.createTransaction.payment({
-      ...sendParams,
-      amount: microAlgo(mbrAmount),
-      receiver: this.moderationClient.appAddress,
-    });
-
     await this.moderationClient.send.addAction({
       ...sendParams,
       args: {
-        mbrPayment,
         actionAppId,
         content,
       },

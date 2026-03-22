@@ -65,9 +65,6 @@ export type StakingPoolFactoryArgs = {
             akitaDao: bigint | number;
             akitaDaoEscrow: bigint | number;
         };
-        'setEscrow(uint64)void': {
-            escrow: bigint | number;
-        };
         'newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64': {
             payment: AppMethodCallTransactionArgument;
             title: string;
@@ -124,7 +121,6 @@ export type StakingPoolFactoryArgs = {
      */
     tuple: {
         'create(string,string,uint64,uint64)void': [version: string, childVersion: string, akitaDao: bigint | number, akitaDaoEscrow: bigint | number];
-        'setEscrow(uint64)void': [escrow: bigint | number];
         'newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64': [payment: AppMethodCallTransactionArgument, title: string, type: bigint | number, marketplace: string, stakeKey: RootKey, minimumStakeAmount: bigint | number, allowLateSignups: boolean, gateId: bigint | number, maxEntries: bigint | number];
         'deletePool(uint64)void': [appId: bigint | number];
         'newPoolCost()uint64': [];
@@ -145,7 +141,6 @@ export type StakingPoolFactoryArgs = {
  */
 export type StakingPoolFactoryReturns = {
     'create(string,string,uint64,uint64)void': void;
-    'setEscrow(uint64)void': void;
     'newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64': bigint;
     'deletePool(uint64)void': void;
     'newPoolCost()uint64': bigint;
@@ -171,10 +166,6 @@ export type StakingPoolFactoryTypes = {
         argsObj: StakingPoolFactoryArgs['obj']['create(string,string,uint64,uint64)void'];
         argsTuple: StakingPoolFactoryArgs['tuple']['create(string,string,uint64,uint64)void'];
         returns: StakingPoolFactoryReturns['create(string,string,uint64,uint64)void'];
-    }> & Record<'setEscrow(uint64)void' | 'setEscrow', {
-        argsObj: StakingPoolFactoryArgs['obj']['setEscrow(uint64)void'];
-        argsTuple: StakingPoolFactoryArgs['tuple']['setEscrow(uint64)void'];
-        returns: StakingPoolFactoryReturns['setEscrow(uint64)void'];
     }> & Record<'newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64' | 'newPool', {
         argsObj: StakingPoolFactoryArgs['obj']['newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64'];
         argsTuple: StakingPoolFactoryArgs['tuple']['newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64'];
@@ -406,13 +397,6 @@ export declare abstract class StakingPoolFactoryParamsFactory {
          */
         update(params: CallParams<StakingPoolFactoryArgs["obj"]["update(string)void"] | StakingPoolFactoryArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
     };
-    /**
-     * Constructs a no op call for the setEscrow(uint64)void ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static setEscrow(params: CallParams<StakingPoolFactoryArgs['obj']['setEscrow(uint64)void'] | StakingPoolFactoryArgs['tuple']['setEscrow(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64 ABI method
      *
@@ -1037,15 +1021,6 @@ export declare class StakingPoolFactoryClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => import("@algorandfoundation/algokit-utils/types/composer").AppCallParams;
         /**
-         * Makes a call to the StakingPoolFactory smart contract using the `setEscrow(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        setEscrow: (params: CallParams<StakingPoolFactoryArgs["obj"]["setEscrow(uint64)void"] | StakingPoolFactoryArgs["tuple"]["setEscrow(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
          * Makes a call to the StakingPoolFactory smart contract using the `newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1189,19 +1164,6 @@ export declare class StakingPoolFactoryClient {
          * @returns The clearState result
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => Promise<Transaction>;
-        /**
-         * Makes a call to the StakingPoolFactory smart contract using the `setEscrow(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        setEscrow: (params: CallParams<StakingPoolFactoryArgs["obj"]["setEscrow(uint64)void"] | StakingPoolFactoryArgs["tuple"]["setEscrow(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
         /**
          * Makes a call to the StakingPoolFactory smart contract using the `newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64` ABI method.
          *
@@ -1409,24 +1371,6 @@ export declare class StakingPoolFactoryClient {
             confirmation: modelsv2.PendingTransactionResponse;
             transaction: Transaction;
             return?: ABIReturn | undefined;
-        }>;
-        /**
-         * Makes a call to the StakingPoolFactory smart contract using the `setEscrow(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        setEscrow: (params: CallParams<StakingPoolFactoryArgs["obj"]["setEscrow(uint64)void"] | StakingPoolFactoryArgs["tuple"]["setEscrow(uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | StakingPoolFactoryReturns["setEscrow(uint64)void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
         }>;
         /**
          * Makes a call to the StakingPoolFactory smart contract using the `newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64` ABI method.
@@ -1733,14 +1677,6 @@ export declare class StakingPoolFactoryClient {
     newGroup(): StakingPoolFactoryComposer;
 }
 export type StakingPoolFactoryComposer<TReturns extends [...any[]] = []> = {
-    /**
-     * Calls the setEscrow(uint64)void ABI method.
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    setEscrow(params?: CallParams<StakingPoolFactoryArgs['obj']['setEscrow(uint64)void'] | StakingPoolFactoryArgs['tuple']['setEscrow(uint64)void']>): StakingPoolFactoryComposer<[...TReturns, StakingPoolFactoryReturns['setEscrow(uint64)void'] | undefined]>;
     /**
      * Calls the newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64 ABI method.
      *

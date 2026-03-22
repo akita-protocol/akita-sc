@@ -139,6 +139,7 @@ describe('Auction SDK', () => {
         const cost = await akitaUniverse.auctionFactory.cost({
           isPrizeBox: false,
           bidAssetId: 0n,
+          prizeAssetId: 0n,
           weightsListCount: 0n,
         })
         expect(cost).toBeGreaterThan(0n)
@@ -148,11 +149,13 @@ describe('Auction SDK', () => {
         const costNoWeights = await akitaUniverse.auctionFactory.cost({
           isPrizeBox: false,
           bidAssetId: 0n,
+          prizeAssetId: 0n,
           weightsListCount: 0n,
         })
         const costWithWeights = await akitaUniverse.auctionFactory.cost({
           isPrizeBox: false,
           bidAssetId: 0n,
+          prizeAssetId: 0n,
           weightsListCount: 1n,
         })
         expect(costWithWeights).toBeGreaterThan(costNoWeights)

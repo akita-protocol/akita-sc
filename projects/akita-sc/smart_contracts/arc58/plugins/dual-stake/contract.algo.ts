@@ -41,7 +41,7 @@ export class DualStakePlugin extends Contract {
       })
     )
 
-    const rate = abiCall<typeof DualStake.prototype.get_rate>({ sender }).returnValue
+    const rate = abiCall<typeof DualStake.prototype.get_rate>({ sender, appId }).returnValue
 
     if (rate > 0) {
 

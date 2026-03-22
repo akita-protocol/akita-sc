@@ -28,20 +28,20 @@ main_create_NoOp@11:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:321
+    // smart_contracts/utils/functions.ts:325
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:322
+    // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:323
+    // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:326
+    // smart_contracts/utils/functions.ts:330
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -182,16 +182,16 @@ newPool:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 9
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -208,7 +208,7 @@ newPool:
     // const fees = getStakingFees(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:74
+    // smart_contracts/utils/functions.ts:78
     // const [stakingFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysStakingFees))
     pushbytes "staking_fees"
     app_global_get_ex
@@ -420,16 +420,16 @@ initPool:
     assert // application exists
     ==
     assert // Not a valid pool
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -524,16 +524,16 @@ deletePool:
     uncover 2
     ==
     assert // Not a valid pool
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -647,16 +647,16 @@ addReward:
     assert // application exists
     ==
     assert // Not a valid pool
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     swap
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -1166,16 +1166,16 @@ finalizePool:
     assert // application exists
     ==
     assert // Not a valid pool
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 5
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -1241,7 +1241,6 @@ finalizePool:
 
 // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts::StakingPoolPlugin.enter[routing]() -> void:
 enter:
-    intc_0 // 0
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:224-230
     // enter(
     //   wallet: Application,
@@ -1299,16 +1298,16 @@ enter:
     assert // application exists
     ==
     assert // Not a valid pool
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     dig 1
-    // smart_contracts/utils/functions.ts:163
+    // smart_contracts/utils/functions.ts:167
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     pushbytes "controlled_address"
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
@@ -1316,16 +1315,16 @@ enter:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -1333,16 +1332,16 @@ enter:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:169-172
+    // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:171
+    // smart_contracts/utils/functions.ts:175
     // Bytes(AbstractAccountGlobalStateKeysReferrer)
     pushbytes "referrer"
-    // smart_contracts/utils/functions.ts:169-172
+    // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
@@ -1350,12 +1349,12 @@ enter:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:258
+    // smart_contracts/utils/functions.ts:262
     // walletAddress: wallet.address,
     uncover 4
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:257-262
+    // smart_contracts/utils/functions.ts:261-266
     // return {
     //   walletAddress: wallet.address,
     //   origin,
@@ -1384,7 +1383,7 @@ enter:
     pushint 50600 // 50600
     *
     cover 2
-    // smart_contracts/utils/functions.ts:243
+    // smart_contracts/utils/functions.ts:247
     // return op.AppGlobal.getExUint64(appId, Bytes(PoolGlobalStateKeyGateID))[0]
     dig 1
     pushbytes "gate_id"
@@ -1439,17 +1438,11 @@ enter_after_if_else@4:
     // receiver: appId.address,
     dig 6
     app_params_get AppAddress
-    swap
-    bury 11
     assert // application exists
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:255
-    // if (gateID !== 0 && args.length > 0) {
-    dup
-    bz enter_else_body@10
-    dig 4
-    intc_0 // 0
-    extract_uint16
-    bz enter_else_body@10
+    // if (gateID !== 0) {
+    dig 1
+    bz enter_else_body@9
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:258
     // const { gate } = getAkitaAppList(this.akitaDAO.value)
     intc_0 // 0
@@ -1460,7 +1453,7 @@ enter_after_if_else@4:
     // const { gate } = getAkitaAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:40
+    // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     pushbytes "aal"
     app_global_get_ex
@@ -1471,7 +1464,7 @@ enter_after_if_else@4:
     extract_uint64
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:265
     // gateID,
-    dig 1
+    dig 2
     itob
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:270-279
     // abiCall<typeof StakingPool.prototype.gatedEnter>({
@@ -1485,9 +1478,9 @@ enter_after_if_else@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    dig 3
+    dig 4
     itxn_field Amount
-    dig 11
+    uncover 2
     itxn_field Receiver
     dig 4
     dup
@@ -1576,7 +1569,7 @@ enter_after_if_else@4:
     itxn_field Fee
     itxn_submit
 
-enter_after_if_else@13:
+enter_after_if_else@12:
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:224-230
     // enter(
     //   wallet: Application,
@@ -1588,7 +1581,7 @@ enter_after_if_else@13:
     intc_1 // 1
     return
 
-enter_else_body@10:
+enter_else_body@9:
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:281-289
     // abiCall<typeof StakingPool.prototype.enter>({
     //   sender,
@@ -1600,9 +1593,8 @@ enter_else_body@10:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    dig 1
+    dig 2
     itxn_field Amount
-    dig 9
     itxn_field Receiver
     dig 2
     dup
@@ -1656,7 +1648,7 @@ enter_else_body@10:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    b enter_after_if_else@13
+    b enter_after_if_else@12
 
 
 // smart_contracts/staking-pool/base.ts::BaseStakingPool.mbr[routing]() -> void:

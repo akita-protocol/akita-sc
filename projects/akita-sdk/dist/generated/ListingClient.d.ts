@@ -48,7 +48,7 @@ export type ListingArgs = {
      * The object representation of the arguments for each method
      */
     obj: {
-        'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void': {
+        'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void': {
             prize: bigint | number;
             isPrizeBox: boolean;
             price: bigint | number;
@@ -62,6 +62,7 @@ export type ListingArgs = {
             marketplace: string;
             version: string;
             akitaDao: bigint | number;
+            akitaDaoEscrow: bigint | number;
         };
         'purchase(pay,address,address)void': {
             /**
@@ -104,7 +105,7 @@ export type ListingArgs = {
      * The tuple representation of the arguments for each method
      */
     tuple: {
-        'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void': [prize: bigint | number, isPrizeBox: boolean, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, seller: string, funder: FunderInfo, reservedFor: string, creatorRoyalty: bigint | number, gateId: bigint | number, marketplace: string, version: string, akitaDao: bigint | number];
+        'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void': [prize: bigint | number, isPrizeBox: boolean, price: bigint | number, paymentAsset: bigint | number, expiration: bigint | number, seller: string, funder: FunderInfo, reservedFor: string, creatorRoyalty: bigint | number, gateId: bigint | number, marketplace: string, version: string, akitaDao: bigint | number, akitaDaoEscrow: bigint | number];
         'purchase(pay,address,address)void': [payment: AppMethodCallTransactionArgument, buyer: string, marketplace: string];
         'purchaseAsa(axfer,address,address)void': [assetXfer: AppMethodCallTransactionArgument, buyer: string, marketplace: string];
         'delist(address)void': [caller: string];
@@ -118,7 +119,7 @@ export type ListingArgs = {
  * The return type for each method
  */
 export type ListingReturns = {
-    'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void': void;
+    'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void': void;
     'purchase(pay,address,address)void': void;
     'purchaseAsa(axfer,address,address)void': void;
     'delist(address)void': void;
@@ -134,10 +135,10 @@ export type ListingTypes = {
     /**
      * Maps method signatures / names to their argument and return types.
      */
-    methods: Record<'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void' | 'create', {
-        argsObj: ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void'];
-        argsTuple: ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void'];
-        returns: ListingReturns['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void'];
+    methods: Record<'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void' | 'create', {
+        argsObj: ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void'];
+        argsTuple: ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void'];
+        returns: ListingReturns['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void'];
     }> & Record<'purchase(pay,address,address)void' | 'purchase', {
         argsObj: ListingArgs['obj']['purchase(pay,address,address)void'];
         argsTuple: ListingArgs['tuple']['purchase(pay,address,address)void'];
@@ -225,6 +226,10 @@ export type ListingTypes = {
                  */
                 marketplaceRoyalties: bigint;
                 /**
+                 * the app ID for the akita DAO escrow
+                 */
+                akitaDaoEscrow: bigint;
+                /**
                  * the current version of the contract
                  */
                 version: string;
@@ -264,12 +269,12 @@ export type GlobalKeysState = ListingTypes['state']['global']['keys'];
 /**
  * Defines supported create method params for this smart contract
  */
-export type ListingCreateCallParams = Expand<CallParams<ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void'] | ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void']> & {
+export type ListingCreateCallParams = Expand<CallParams<ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void'] | ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void']> & {
     method: 'create';
 } & {
     onComplete?: OnApplicationComplete.NoOpOC;
-} & CreateSchema> | Expand<CallParams<ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void'] | ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void']> & {
-    method: 'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void';
+} & CreateSchema> | Expand<CallParams<ListingArgs['obj']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void'] | ListingArgs['tuple']['create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void']> & {
+    method: 'create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void';
 } & {
     onComplete?: OnApplicationComplete.NoOpOC;
 } & CreateSchema>;
@@ -331,12 +336,12 @@ export declare abstract class ListingParamsFactory {
             onComplete?: OnApplicationComplete.NoOpOC;
         };
         /**
-         * Constructs create ABI call params for the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void ABI method
+         * Constructs create ABI call params for the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void ABI method
          *
          * @param params Parameters for the call
          * @returns An `AppClientMethodCallParams` object for the call
          */
-        create(params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"]> & AppClientCompilationParams & {
+        create(params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"]> & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }): AppClientMethodCallParams & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
@@ -565,14 +570,14 @@ export declare class ListingFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void ABI method.
+             * Creates a new instance of the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void ABI method.
              *
              * create the listing application
              *
              * @param params The params for the smart contract call
              * @returns The create params
              */
-            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 deployTimeParams: import("@algorandfoundation/algokit-utils/types/app").TealTemplateParams | undefined;
@@ -838,14 +843,14 @@ export declare class ListingFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void ABI method.
+             * Creates a new instance of the Listing smart contract using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void ABI method.
              *
              * create the listing application
              *
              * @param params The params for the smart contract call
              * @returns The create transaction
              */
-            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 transactions: Transaction[];
@@ -863,18 +868,18 @@ export declare class ListingFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Listing smart contract using an ABI method call using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void ABI method.
+             * Creates a new instance of the Listing smart contract using an ABI method call using the create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void ABI method.
              *
              * create the listing application
              *
              * @param params The params for the smart contract call
              * @returns The create result
              */
-            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
+            create: (params: CallParams<ListingArgs["obj"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"] | ListingArgs["tuple"]["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
                 onComplete?: OnApplicationComplete.NoOpOC;
             }) => Promise<{
                 result: {
-                    return: (undefined | ListingReturns["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64)void"]);
+                    return: (undefined | ListingReturns["create(uint64,bool,uint64,uint64,uint64,address,(address,uint64),address,uint64,uint64,address,string,uint64,uint64)void"]);
                     compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
                     compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
                     appId: bigint;
@@ -1339,6 +1344,10 @@ export declare class ListingClient {
              * Get the current value of the marketplaceRoyalties key in global state
              */
             marketplaceRoyalties: () => Promise<bigint | undefined>;
+            /**
+             * Get the current value of the akitaDAOEscrow key in global state
+             */
+            akitaDaoEscrow: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the version key in global state
              */

@@ -34,20 +34,20 @@ main_create_NoOp@9:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:321
+    // smart_contracts/utils/functions.ts:325
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:322
+    // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:323
+    // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:326
+    // smart_contracts/utils/functions.ts:330
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -174,16 +174,16 @@ new:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 7
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_2 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -374,16 +374,16 @@ deleteBoxes:
     len
     ==
     assert // invalid number of bytes for (len+uint8[32][])
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 3
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_2 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -494,16 +494,16 @@ vote:
     dup
     cover 3
     cover 5
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     dup
-    // smart_contracts/utils/functions.ts:163
+    // smart_contracts/utils/functions.ts:167
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     pushbytes "controlled_address"
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
@@ -511,16 +511,16 @@ vote:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dup
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_2 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -528,16 +528,16 @@ vote:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:169-172
+    // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
     dup
-    // smart_contracts/utils/functions.ts:171
+    // smart_contracts/utils/functions.ts:175
     // Bytes(AbstractAccountGlobalStateKeysReferrer)
     pushbytes "referrer"
-    // smart_contracts/utils/functions.ts:169-172
+    // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
@@ -545,11 +545,11 @@ vote:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/utils/functions.ts:258
+    // smart_contracts/utils/functions.ts:262
     // walletAddress: wallet.address,
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:257-262
+    // smart_contracts/utils/functions.ts:261-266
     // return {
     //   walletAddress: wallet.address,
     //   origin,
@@ -607,7 +607,7 @@ vote:
     // const gate = getAkitaAppList(this.akitaDAO.value).gate
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:40
+    // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     pushbytes "aal"
     app_global_get_ex

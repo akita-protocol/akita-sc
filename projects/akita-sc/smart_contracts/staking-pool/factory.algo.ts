@@ -29,11 +29,6 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
     this.akitaDAOEscrow.value = akitaDAOEscrow
   }
 
-  setEscrow(escrow: uint64): void {
-    assert(this.akitaDAO.value.address === Txn.sender, ERR_NOT_CREATOR)
-    this.akitaDAOEscrow.value = Application(escrow)
-  }
-
   // POOL FACTORY METHODS -------------------------------------------------------------------------
 
   newPool(

@@ -1,12 +1,14 @@
-import { Account, Application, assert, assertMatch, Bytes, Global, gtxn, itxn, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abimethod, compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { Account, Application, Asset, assert, assertMatch, Bytes, Global, gtxn, itxn, OnCompleteAction, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
+import { AkitaDAOEscrowAccountMarketplace } from '../arc58/dao/constants'
 import { ERR_HAS_GATE } from '../social/errors'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER } from '../utils/errors'
-import { gateCheck, getFunder, getWalletIDUsingAkitaDAO, originOrTxnSender, royalties } from '../utils/functions'
+import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
+import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
+import { disbursementCost, gateCheck, getFunder, getPrizeBoxOwner, getWalletIDUsingAkitaDAO, originOrTxnSender, rewardsOptInCost, royalties, splitOptInCount } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { ListingGlobalStateKeyGateID } from './constants'
 import { ERR_NOT_A_LISTING, ERR_PRICE_TOO_LOW } from './errors'
+import type { PrizeBox } from '../prize-box/contract.algo'
 
 // CONTRACT IMPORTS
 import { FactoryContract } from '../utils/base-contracts/factory'
@@ -43,6 +45,7 @@ export class Marketplace extends FactoryContract {
   ): uint64 {
     /** lowest split is 4 */
     assert(price >= 4, ERR_PRICE_TOO_LOW)
+    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     const isAlgoPayment = paymentAsset === 0
     const optinMBR: uint64 = isAlgoPayment
@@ -51,9 +54,26 @@ export class Marketplace extends FactoryContract {
 
     const listing = compileArc4(Listing)
 
-    const childAppMBR: uint64 = Global.minBalance + optinMBR
+    // Worst-case disbursement MBR:
+    // 1 for prize transfer (prize asset)
+    // 1 for referral payment (in payment asset)
+    // ASA payment disbursements when payment is ASA:
+    //   4 total (creator, marketplace x2, seller) — akita escrow opted in by factory
+    let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, assetXfer.xferAsset.id)
+    if (isAlgoPayment) {
+      disbursementMBR += disbursementCost(1)
+    } else {
+      disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
+    }
+
+    // Cost to opt akita escrow into payment asset (if not already opted in)
+    const escrowOptInCost: uint64 = isAlgoPayment
+      ? 0
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, Asset(paymentAsset))
+
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const totalMBR: uint64 = (
-      MIN_PROGRAM_PAGES +
+      MAX_PROGRAM_PAGES +
       (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
       childAppMBR
@@ -73,6 +93,7 @@ export class Marketplace extends FactoryContract {
     assertMatch(
       assetXfer,
       {
+        sender: Txn.sender,
         assetReceiver: Global.currentApplicationAddress,
         assetAmount: { greaterThan: 0 },
       },
@@ -80,6 +101,9 @@ export class Marketplace extends FactoryContract {
     )
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
+
+    // Read approval program from box storage
+    const approvalProgram = this.boxedContract.extract(0, this.boxedContract.length)
 
     // mint listing contract
     const listingApp = listing.call
@@ -98,16 +122,19 @@ export class Marketplace extends FactoryContract {
           marketplace,
           this.childContractVersion.value,
           this.akitaDAO.value,
+          this.akitaDAOEscrow.value,
         ],
+        approvalProgram: [approvalProgram],
+        clearStateProgram: listing.clearStateProgram,
       })
       .itxn
       .createdApp
 
-    // Fund child app with base minBalance first
+    // Fund child app with base minBalance + disbursement MBR
     itxn
       .payment({
         receiver: listingApp.address,
-        amount: Global.minBalance
+        amount: Global.minBalance + disbursementMBR
       })
       .submit()
 
@@ -144,14 +171,19 @@ export class Marketplace extends FactoryContract {
           paymentAsset,
         ],
       })
+
+      // ensure akita escrow is opted into payment asset for fee collection
+      if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(paymentAsset))) {
+        this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountMarketplace, Asset(paymentAsset), 0)
+      }
     }
 
     return listingApp.id
   }
 
   listPrizeBox(
+    prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     payment: gtxn.PaymentTxn,
-    prizeID: uint64,
     price: uint64,
     paymentAsset: uint64,
     expiration: uint64,
@@ -159,8 +191,118 @@ export class Marketplace extends FactoryContract {
     gateID: uint64,
     marketplace: Account,
   ): uint64 {
-    // TODO: implement this
-    return 0
+    assert(price >= 4, ERR_PRICE_TOO_LOW)
+    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+
+    assert((
+      prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
+      prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
+    ), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
+    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+
+    const isAlgoPayment = paymentAsset === 0
+    const optinMBR: uint64 = isAlgoPayment
+      ? 0
+      : Global.assetOptInMinBalance
+
+    const listing = compileArc4(Listing)
+
+    // Worst-case disbursement MBR for prize box listing:
+    // No prize disbursement (prize box transfer, not ASA)
+    // 1 for referral payment (in payment asset)
+    // ASA payment disbursements when payment is ASA:
+    //   3 total (marketplace x2, seller) — no creator royalty for prize boxes, akita escrow opted in by factory
+    let disbursementMBR: uint64 = 0
+    if (isAlgoPayment) {
+      disbursementMBR = disbursementCost(1)
+    } else {
+      disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
+    }
+
+    // Cost to opt akita escrow into payment asset (if not already opted in)
+    const escrowOptInCost: uint64 = isAlgoPayment
+      ? 0
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, Asset(paymentAsset))
+
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
+    const totalMBR: uint64 = (
+      MAX_PROGRAM_PAGES +
+      (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
+      childAppMBR
+    )
+
+    assertMatch(
+      payment,
+      {
+        receiver: Global.currentApplicationAddress,
+        amount: totalMBR
+      },
+      ERR_INVALID_PAYMENT
+    )
+
+    // Read approval program from box storage
+    const approvalProgram = this.boxedContract.extract(0, this.boxedContract.length)
+
+    // mint listing contract
+    const listingApp = listing.call
+      .create({
+        args: [
+          prizeBoxTransferTxn.appId.id,
+          true,
+          price,
+          paymentAsset,
+          expiration,
+          Txn.sender,
+          { account: payment.sender, amount: totalMBR },
+          reservedFor,
+          0,
+          gateID,
+          marketplace,
+          this.childContractVersion.value,
+          this.akitaDAO.value,
+          this.akitaDAOEscrow.value,
+        ],
+        approvalProgram: [approvalProgram],
+        clearStateProgram: listing.clearStateProgram,
+      })
+      .itxn
+      .createdApp
+
+    // Fund child app with base minBalance + disbursement MBR
+    itxn
+      .payment({
+        receiver: listingApp.address,
+        amount: Global.minBalance + disbursementMBR
+      })
+      .submit()
+
+    // Transfer prize box ownership to the listing app
+    abiCall<typeof PrizeBox.prototype.transfer>({
+      appId: prizeBoxTransferTxn.appId,
+      args: [listingApp.address],
+    })
+
+    if (!isAlgoPayment) {
+      // optin child contract to payment asset
+      listing.call.optin({
+        appId: listingApp,
+        args: [
+          itxn.payment({
+            receiver: listingApp.address,
+            amount: optinMBR,
+          }),
+          paymentAsset,
+        ],
+      })
+
+      // ensure akita escrow is opted into payment asset for fee collection
+      if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(paymentAsset))) {
+        this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountMarketplace, Asset(paymentAsset), 0)
+      }
+    }
+
+    return listingApp.id
   }
 
   gatedPurchase(
@@ -249,7 +391,41 @@ export class Marketplace extends FactoryContract {
     appId: Application,
     marketplace: Account,
   ): void {
-    // TODO: implement this method
+    const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
+    const origin = originOrTxnSender(wallet)
+
+    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
+    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID))
+    assertMatch(
+      assetXfer,
+      {
+        assetReceiver: Global.currentApplicationAddress,
+        assetAmount: { greaterThan: 0 },
+      },
+      ERR_INVALID_TRANSFER
+    )
+
+    // Get funder info BEFORE purchase call (which deletes the app)
+    const { account: receiver, amount } = getFunder(appId)
+
+    const listing = compileArc4(Listing)
+    listing.call.purchaseAsa({
+      appId,
+      args: [
+        itxn.assetTransfer({
+          assetReceiver: appId.address,
+          assetAmount: assetXfer.assetAmount,
+          xferAsset: assetXfer.xferAsset,
+        }),
+        Txn.sender,
+        marketplace
+      ],
+    })
+
+    itxn
+      .payment({ amount, receiver })
+      .submit()
   }
 
   purchaseAsa(

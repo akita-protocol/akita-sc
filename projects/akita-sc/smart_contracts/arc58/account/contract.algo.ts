@@ -860,7 +860,7 @@ export class AbstractedAccount extends Contract {
     method: bytes<4>
   ): boolean {
     if (global) {
-      this.pluginCallAllowed(plugin, Global.zeroAddress, escrow, method);
+      return this.pluginCallAllowed(plugin, Global.zeroAddress, escrow, method);
     }
     return this.pluginCallAllowed(plugin, address, escrow, method);
   }

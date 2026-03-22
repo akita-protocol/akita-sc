@@ -18,7 +18,7 @@ import {
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, methodSelector, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { AkitaDAOEscrowAccountRaffles } from '../arc58/dao/constants'
 import { GateArgs } from '../gates/types'
@@ -28,7 +28,7 @@ import {
   ERR_INVALID_PAYMENT,
   ERR_INVALID_TRANSFER,
 } from '../utils/errors'
-import { arc59OptInAndSend, calcPercent, gateCall, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender } from '../utils/functions'
+import { calcPercent, createInstantDisbursement, gateCall, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
 import { RandomnessBeacon } from '../utils/types/randomness-beacon'
@@ -52,6 +52,7 @@ import {
   RaffleGlobalStateKeyMinTickets,
   RaffleGlobalStateKeyPrize,
   RaffleGlobalStateKeyPrizeClaimed,
+  RaffleGlobalStateKeyRaffleRound,
   RaffleGlobalStateKeyRefundMBRCursor,
   RaffleGlobalStateKeySalt,
   RaffleGlobalStateKeySeller,
@@ -84,7 +85,9 @@ import {
   ERR_TICKET_ASSET_NOT_ALGO,
   ERR_WINNER_ALREADY_DRAWN,
   ERR_WINNER_ALREADY_FOUND,
+  ERR_REFUNDS_NOT_COMPLETE,
   ERR_WINNER_NOT_FOUND,
+  ERR_BAD_METHOD_GATE_NEEDED,
 } from './errors'
 import { EntryData, FindWinnerCursors, RaffleState } from './types'
 
@@ -119,11 +122,11 @@ export class Raffle extends classes(
   /** The maximum number of tickets users can enter the raffle with */
   maxTickets = GlobalState<uint64>({ key: RaffleGlobalStateKeyMaxTickets })
   /** The number of entries for the raffle */
-  entryCount = GlobalState<uint64>({ key: RaffleGlobalStateKeyEntryCount })
+  entryCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyEntryCount })
   /** The number of tickets entered into the raffle */
-  ticketCount = GlobalState<uint64>({ key: RaffleGlobalStateKeyTicketCount })
+  ticketCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyTicketCount })
   /** the winning ticket */
-  winningTicket = GlobalState<uint64>({ key: RaffleGlobalStateKeyWinningTicket })
+  winningTicket = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyWinningTicket })
   /** the winning address of the raffle */
   winner = GlobalState<Account>({ key: RaffleGlobalStateKeyWinner })
   /** the prize for the raffle if prizeBox is true prize represents the app id of the prize box, otherwise the asset being raffled */
@@ -131,7 +134,7 @@ export class Raffle extends classes(
   /** whether or not the prize is an asset or a prize box */
   isPrizeBox = GlobalState<boolean>({ key: RaffleGlobalStateKeyIsPrizeBox })
   /** Indicator for whether the prize has been claimed */
-  prizeClaimed = GlobalState<boolean>({ key: RaffleGlobalStateKeyPrizeClaimed })
+  prizeClaimed = GlobalState<boolean>({ initialValue: false, key: RaffleGlobalStateKeyPrizeClaimed })
   /** the amount the creator will get for the sale */
   creatorRoyalty = GlobalState<uint64>({ key: RaffleGlobalStateKeyCreatorRoyalty })
   /** the gate to use for the raffle */
@@ -143,11 +146,11 @@ export class Raffle extends classes(
   /** the minimum impact tax for the raffle */
   akitaRoyalty = GlobalState<uint64>({ key: RaffleGlobalStateKeyAkitaRoyalty })
   /** counter for how many times we've failed to get rng from the beacon */
-  vrfFailureCount = GlobalState<uint64>({ key: RaffleGlobalStateKeyVRFFailureCount })
+  vrfFailureCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyVRFFailureCount })
   /** The id's of the raffle entries */
-  entryID = GlobalState<uint64>({ key: RaffleGlobalStateKeyEntryID })
+  entryID = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyEntryID })
   /** the number of boxes allocated to tracking weights */
-  weightsBoxCount = GlobalState<uint64>({ key: RaffleGlobalStateKeyWeightsBoxCount })
+  weightsBoxCount = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyWeightsBoxCount })
   /** totals for each box of weights for our skip list */
   weightTotals = GlobalState<arc4.StaticArray<arc4.Uint64, 15>>({
     key: RaffleGlobalStateKeyWeightTotals,
@@ -159,9 +162,11 @@ export class Raffle extends classes(
    */
   findWinnerCursors = GlobalState<FindWinnerCursors>({ key: RaffleGlobalStateKeyFindWinnersCursor })
   /** cursor to track iteration of MBR refunds */
-  refundMBRCursor = GlobalState<uint64>({ key: RaffleGlobalStateKeyRefundMBRCursor })
+  refundMBRCursor = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyRefundMBRCursor })
   /** the transaction id of the create application call for salting our VRF call */
   salt = GlobalState<bytes>({ key: RaffleGlobalStateKeySalt })
+  /** the round captured when raffle() is first called, used for VRF */
+  raffleRound = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyRaffleRound })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -185,7 +190,7 @@ export class Raffle extends classes(
       }
 
       startingIndex += ChunkSize
-      currentRangeStart += boxStake + 1
+      currentRangeStart += boxStake
     }
 
     return [startingIndex, currentRangeStart]
@@ -238,7 +243,7 @@ export class Raffle extends classes(
     endTimestamp: uint64,
     seller: Account,
     funder: FunderInfo,
-    creatorRoyalty: uint64, // TODO: implement royalty
+    creatorRoyalty: uint64,
     minTickets: uint64,
     maxTickets: uint64,
     gateID: uint64,
@@ -260,13 +265,10 @@ export class Raffle extends classes(
     this.endTimestamp.value = endTimestamp
     this.seller.value = seller
     this.funder.value = clone(funder)
+    this.creatorRoyalty.value = creatorRoyalty
     this.minTickets.value = minTickets
     this.maxTickets.value = maxTickets
-    this.entryCount.value = 0
-    this.ticketCount.value = 0
-    this.winningTicket.value = 0
     this.winner.value = Global.zeroAddress
-    this.prizeClaimed.value = false
     this.gateID.value = gateID
     this.marketplace.value = marketplace
     this.akitaDAO.value = akitaDAO
@@ -279,11 +281,9 @@ export class Raffle extends classes(
     const impact = getUserImpact(this.akitaDAO.value, this.seller.value)
     this.akitaRoyalty.value = impactRange(impact, fees.raffleSaleImpactTaxMin, fees.raffleSaleImpactTaxMax)
 
-    this.entryID.value = 0
-    this.weightsBoxCount.value = 0
     this.weightTotals.value = new arc4.StaticArray<Uint64, 15>()
-    this.refundMBRCursor.value = 0
-    this.vrfFailureCount.value = 0
+    this.salt.value = Txn.txId
+    this.findWinnerCursors.value = { index: 0, amountIndex: 1 }
   }
 
   init(payment: gtxn.PaymentTxn, weightListLength: uint64) {
@@ -311,14 +311,15 @@ export class Raffle extends classes(
   }
 
   refundMBR(iterationAmount: uint64): void {
-    const totalCap: uint64 = this.entryCount.value - 1
+    /** make sure the prize has been claimed before refunding MBR */
+    assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
     /** make sure we've already found the winner of the raffle */
     assert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
     /** make sure we haven't already refunded all MBR */
-    assert(totalCap !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
+    assert(this.entryCount.value !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
 
     const startingIndex = this.refundMBRCursor.value
-    const remainder: uint64 = totalCap - this.refundMBRCursor.value
+    const remainder: uint64 = this.entryCount.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
     const costs = this.mbr()
@@ -327,7 +328,7 @@ export class Raffle extends classes(
     const opUpIterationAmount: uint64 = iterationAmount * 100
     ensureBudget(opUpIterationAmount)
 
-    for (let i = startingIndex; i < iterationAmount; i += 1) {
+    for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
       const { account } = this.entries(i).value
       this.entries(i).delete()
       this.entriesByAddress(account).delete()
@@ -367,24 +368,26 @@ export class Raffle extends classes(
   deleteApplication(): void {
     assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
     assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
-    assert(this.entryCount.value - 1 !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
+    assert(this.entryCount.value === this.refundMBRCursor.value, ERR_REFUNDS_NOT_COMPLETE)
     assert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_WEIGHTS_BOXES)
   }
 
   // RAFFLE METHODS -------------------------------------------------------------------------------
 
+  gatedEnter(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, marketplace: Account): void {
+    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    this.enter(payment, marketplace)
+  }
+
   enter(
     payment: gtxn.PaymentTxn,
-    marketplace: Account,
-    args: GateArgs
+    marketplace: Account
   ): void {
     assert(this.isLive(), ERR_NOT_LIVE)
     assert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
 
     if (this.gateID.value !== 0) {
-      const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-      const origin = originOrTxnSender(wallet)
-      assert(gateCall(this.akitaDAO.value, origin, this.gateID.value, args), ERR_FAILED_GATE)
+      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnter>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
     assert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
@@ -421,19 +424,21 @@ export class Raffle extends classes(
     this.ticketCount.value += amount
   }
 
+  gatedEnterAsa(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, marketplace: Account): void {
+    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    this.enterAsa(payment, assetXfer, marketplace)
+  }
+
   enterAsa(
     payment: gtxn.PaymentTxn,
     assetXfer: gtxn.AssetTransferTxn,
-    marketplace: Account,
-    args: GateArgs
+    marketplace: Account
   ): void {
     assert(this.isLive(), ERR_NOT_LIVE)
     assert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
 
     if (this.gateID.value !== 0) {
-      const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-      const origin = originOrTxnSender(wallet)
-      assert(gateCall(this.akitaDAO.value, origin, this.gateID.value, args), ERR_FAILED_GATE)
+      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnterAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
     assert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
@@ -479,14 +484,18 @@ export class Raffle extends classes(
     this.ticketCount.value += amount
   }
 
-  add(payment: gtxn.PaymentTxn, args: GateArgs): void {
+  gatedAdd(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn): void {
+    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    this.add(payment)
+  }
+  
+  add(payment: gtxn.PaymentTxn): void {
     assert(this.isLive(), ERR_NOT_LIVE)
     assert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
 
+    // if our gate is enabled, this method must be triggered from the gated method instead of directly
     if (this.gateID.value !== 0) {
-      const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-      const origin = originOrTxnSender(wallet)
-      assert(gateCall(this.akitaDAO.value, origin, this.gateID.value, args), ERR_FAILED_GATE)
+      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAdd>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
     assert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
@@ -511,22 +520,22 @@ export class Raffle extends classes(
     this.weights(loc / ChunkSize).value[loc % ChunkSize] = newWeights
     const boxAmount = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + payment.amount)
     this.weightTotals.value[loc / ChunkSize] = boxAmount
-    this.ticketCount.value += amount.asUint64()
+    this.ticketCount.value += payment.amount
   }
 
   gatedAddAsa(gateTxn: gtxn.ApplicationCallTxn, assetXfer: gtxn.AssetTransferTxn): void {
-
+    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    this.addAsa(assetXfer)
   }
 
-  addAsa(assetXfer: gtxn.AssetTransferTxn, args: GateArgs): void {
+  addAsa(assetXfer: gtxn.AssetTransferTxn): void {
     assert(this.isLive(), ERR_NOT_LIVE)
     assert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
 
-    // if (this.gateID.value !== 0) {
-    //   const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-    //   const origin = originOrTxnSender(wallet)
-    //   assert(gateCall(this.akitaDAO.value, origin, this.gateID.value, args), ERR_FAILED_GATE)
-    // }
+    // if our gate is enabled, this method must be triggered from the gated method instead of directly
+    if (this.gateID.value !== 0) {
+      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAddAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
+    }
 
     assert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
 
@@ -551,14 +560,19 @@ export class Raffle extends classes(
     this.weights(loc / ChunkSize).value[loc % ChunkSize] = newWeights
     const boxAmount = new Uint64(this.weightTotals.value[loc / ChunkSize].asUint64() + assetXfer.assetAmount)
     this.weightTotals.value[loc / ChunkSize] = boxAmount
-    this.ticketCount.value += amount.asUint64()
+    this.ticketCount.value += assetXfer.assetAmount
   }
 
   raffle(): void {
-
-    const roundToUse: uint64 = this.endTimestamp.value + 1 + (4 * this.vrfFailureCount.value)
-    assert(Global.round >= roundToUse + 8, ERR_NOT_ENOUGH_TIME)
+    assert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
     assert(this.winningTicket.value === 0, ERR_WINNER_ALREADY_DRAWN)
+
+    if (this.raffleRound.value === 0) {
+      this.raffleRound.value = Global.round - 8
+    }
+
+    const roundToUse: uint64 = this.raffleRound.value + (4 * this.vrfFailureCount.value)
+    assert(Global.round >= roundToUse + 8, ERR_NOT_ENOUGH_TIME)
 
     const seed = abiCall<typeof RandomnessBeacon.prototype.get>({
       appId: getOtherAppList(this.akitaDAO.value).vrfBeacon,
@@ -597,17 +611,23 @@ export class Raffle extends classes(
     const remainder: uint64 = this.entryCount.value - startingIndex
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
+    const chunkOffset: uint64 = startingIndex % ChunkSize
+    const remainingInChunk: uint64 = ChunkSize - chunkOffset
+    if (iterationAmount > remainingInChunk) {
+      iterationAmount = remainingInChunk
+    }
+
     const weight = clone(this.weights(startingIndex / ChunkSize).value)
 
     const opUpIterationAmount: uint64 = iterationAmount * 40
     ensureBudget(opUpIterationAmount)
 
     for (let i: uint64 = 0; i < iterationAmount; i += 1) {
-      currentRangeEnd = currentRangeStart + weight[i].asUint64()
-      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value <= currentRangeEnd) {
-        this.winner.value = this.entries(startingIndex + i + 1).value.account
+      currentRangeEnd = currentRangeStart + weight[chunkOffset + i].asUint64()
+      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value < currentRangeEnd) {
+        this.winner.value = this.entries(startingIndex + i).value.account
       }
-      currentRangeStart = currentRangeEnd + 1
+      currentRangeStart = currentRangeEnd
     }
 
     this.findWinnerCursors.value.index += iterationAmount
@@ -635,10 +655,12 @@ export class Raffle extends classes(
           })
           .submit()
       } else {
-        arc59OptInAndSend(
+        createInstantDisbursement(
           this.akitaDAO.value,
-          this.winner.value,
           this.prize.value,
+          0,
+          MAX_UINT64,
+          [{ address: this.winner.value, amount: prizeAmount }],
           prizeAmount,
           true
         )
@@ -662,10 +684,16 @@ export class Raffle extends classes(
           .submit()
       }
 
+      // pay akita fee (referral + escrow)
+      let leftover: uint64 = amounts.akita
+      if (amounts.akita > 0) {
+        ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, amounts.akita))
+      }
+
       itxn
         .payment({
           receiver: this.akitaDAOEscrow.value.address,
-          amount: amounts.akita,
+          amount: leftover,
         })
         .submit()
 
@@ -702,21 +730,29 @@ export class Raffle extends classes(
             })
             .submit()
         } else {
-          arc59OptInAndSend(
+          createInstantDisbursement(
             this.akitaDAO.value,
-            Asset(this.prize.value).creator,
             this.ticketAsset.value.id,
+            0,
+            MAX_UINT64,
+            [{ address: Asset(this.prize.value).creator, amount: amounts.creator }],
             amounts.creator,
             false
           )
         }
       }
 
+      // pay akita fee (referral + escrow)
+      let leftover: uint64 = amounts.akita
+      if (amounts.akita > 0) {
+        ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.ticketAsset.value.id, amounts.akita))
+      }
+
       if (this.akitaDAOEscrow.value.address.isOptedIn(this.ticketAsset.value)) {
         itxn
           .assetTransfer({
             assetReceiver: this.akitaDAOEscrow.value.address,
-            assetAmount: amounts.akita,
+            assetAmount: leftover,
             xferAsset: this.ticketAsset.value,
           })
           .submit()
@@ -724,7 +760,7 @@ export class Raffle extends classes(
         this.optAkitaEscrowInAndSend(
           AkitaDAOEscrowAccountRaffles,
           this.ticketAsset.value,
-          amounts.akita,
+          leftover,
         )
       }
 
@@ -737,10 +773,12 @@ export class Raffle extends classes(
           })
           .submit()
       } else {
-        arc59OptInAndSend(
+        createInstantDisbursement(
           this.akitaDAO.value,
-          this.marketplace.value,
           this.ticketAsset.value.id,
+          0,
+          MAX_UINT64,
+          [{ address: this.marketplace.value, amount: amounts.marketplace }],
           amounts.marketplace,
           false
         )
@@ -755,10 +793,12 @@ export class Raffle extends classes(
           })
           .submit()
       } else {
-        arc59OptInAndSend(
+        createInstantDisbursement(
           this.akitaDAO.value,
-          marketplace,
           this.ticketAsset.value.id,
+          0,
+          MAX_UINT64,
+          [{ address: marketplace, amount: amounts.marketplace }],
           amounts.marketplace,
           false
         )
@@ -768,18 +808,19 @@ export class Raffle extends classes(
         itxn
           .assetTransfer({
             assetReceiver: this.seller.value,
-            assetCloseTo: this.seller.value,
-            assetAmount: this.ticketCount.value,
+            assetAmount: amounts.seller,
             xferAsset: this.ticketAsset.value,
           })
           .submit()
       } else {
-        arc59OptInAndSend(
+        createInstantDisbursement(
           this.akitaDAO.value,
-          this.seller.value,
           this.ticketAsset.value.id,
-          this.ticketCount.value,
-          true
+          0,
+          MAX_UINT64,
+          [{ address: this.seller.value, amount: amounts.seller }],
+          amounts.seller,
+          false
         )
       }
     }

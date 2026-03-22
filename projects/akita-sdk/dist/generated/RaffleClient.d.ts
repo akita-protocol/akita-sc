@@ -120,28 +120,39 @@ export type RaffleArgs = {
         };
         'clearWeightsBoxes()uint64': Record<string, never>;
         'deleteApplication()void': Record<string, never>;
-        'enter(pay,address,byte[][])void': {
+        'gatedEnter(appl,pay,address)void': {
+            gateTxn: AppMethodCallTransactionArgument;
             payment: AppMethodCallTransactionArgument;
             marketplace: string;
-            args: Uint8Array[];
         };
-        'enterAsa(pay,axfer,address,byte[][])void': {
+        'enter(pay,address)void': {
+            payment: AppMethodCallTransactionArgument;
+            marketplace: string;
+        };
+        'gatedEnterAsa(appl,pay,axfer,address)void': {
+            gateTxn: AppMethodCallTransactionArgument;
             payment: AppMethodCallTransactionArgument;
             assetXfer: AppMethodCallTransactionArgument;
             marketplace: string;
-            args: Uint8Array[];
         };
-        'add(pay,byte[][])void': {
+        'enterAsa(pay,axfer,address)void': {
             payment: AppMethodCallTransactionArgument;
-            args: Uint8Array[];
+            assetXfer: AppMethodCallTransactionArgument;
+            marketplace: string;
+        };
+        'gatedAdd(appl,pay)void': {
+            gateTxn: AppMethodCallTransactionArgument;
+            payment: AppMethodCallTransactionArgument;
+        };
+        'add(pay)void': {
+            payment: AppMethodCallTransactionArgument;
         };
         'gatedAddAsa(appl,axfer)void': {
             gateTxn: AppMethodCallTransactionArgument;
             assetXfer: AppMethodCallTransactionArgument;
         };
-        'addAsa(axfer,byte[][])void': {
+        'addAsa(axfer)void': {
             assetXfer: AppMethodCallTransactionArgument;
-            args: Uint8Array[];
         };
         'raffle()void': Record<string, never>;
         'findWinner(uint64)void': {
@@ -181,11 +192,14 @@ export type RaffleArgs = {
         'refundMBR(uint64)void': [iterationAmount: bigint | number];
         'clearWeightsBoxes()uint64': [];
         'deleteApplication()void': [];
-        'enter(pay,address,byte[][])void': [payment: AppMethodCallTransactionArgument, marketplace: string, args: Uint8Array[]];
-        'enterAsa(pay,axfer,address,byte[][])void': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, marketplace: string, args: Uint8Array[]];
-        'add(pay,byte[][])void': [payment: AppMethodCallTransactionArgument, args: Uint8Array[]];
+        'gatedEnter(appl,pay,address)void': [gateTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, marketplace: string];
+        'enter(pay,address)void': [payment: AppMethodCallTransactionArgument, marketplace: string];
+        'gatedEnterAsa(appl,pay,axfer,address)void': [gateTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, marketplace: string];
+        'enterAsa(pay,axfer,address)void': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, marketplace: string];
+        'gatedAdd(appl,pay)void': [gateTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument];
+        'add(pay)void': [payment: AppMethodCallTransactionArgument];
         'gatedAddAsa(appl,axfer)void': [gateTxn: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument];
-        'addAsa(axfer,byte[][])void': [assetXfer: AppMethodCallTransactionArgument, args: Uint8Array[]];
+        'addAsa(axfer)void': [assetXfer: AppMethodCallTransactionArgument];
         'raffle()void': [];
         'findWinner(uint64)void': [iterationAmount: bigint | number];
         'claimRafflePrize()void': [];
@@ -208,11 +222,14 @@ export type RaffleReturns = {
     'refundMBR(uint64)void': void;
     'clearWeightsBoxes()uint64': bigint;
     'deleteApplication()void': void;
-    'enter(pay,address,byte[][])void': void;
-    'enterAsa(pay,axfer,address,byte[][])void': void;
-    'add(pay,byte[][])void': void;
+    'gatedEnter(appl,pay,address)void': void;
+    'enter(pay,address)void': void;
+    'gatedEnterAsa(appl,pay,axfer,address)void': void;
+    'enterAsa(pay,axfer,address)void': void;
+    'gatedAdd(appl,pay)void': void;
+    'add(pay)void': void;
     'gatedAddAsa(appl,axfer)void': void;
-    'addAsa(axfer,byte[][])void': void;
+    'addAsa(axfer)void': void;
     'raffle()void': void;
     'findWinner(uint64)void': void;
     'claimRafflePrize()void': void;
@@ -252,26 +269,38 @@ export type RaffleTypes = {
         argsObj: RaffleArgs['obj']['deleteApplication()void'];
         argsTuple: RaffleArgs['tuple']['deleteApplication()void'];
         returns: RaffleReturns['deleteApplication()void'];
-    }> & Record<'enter(pay,address,byte[][])void' | 'enter', {
-        argsObj: RaffleArgs['obj']['enter(pay,address,byte[][])void'];
-        argsTuple: RaffleArgs['tuple']['enter(pay,address,byte[][])void'];
-        returns: RaffleReturns['enter(pay,address,byte[][])void'];
-    }> & Record<'enterAsa(pay,axfer,address,byte[][])void' | 'enterAsa', {
-        argsObj: RaffleArgs['obj']['enterAsa(pay,axfer,address,byte[][])void'];
-        argsTuple: RaffleArgs['tuple']['enterAsa(pay,axfer,address,byte[][])void'];
-        returns: RaffleReturns['enterAsa(pay,axfer,address,byte[][])void'];
-    }> & Record<'add(pay,byte[][])void' | 'add', {
-        argsObj: RaffleArgs['obj']['add(pay,byte[][])void'];
-        argsTuple: RaffleArgs['tuple']['add(pay,byte[][])void'];
-        returns: RaffleReturns['add(pay,byte[][])void'];
+    }> & Record<'gatedEnter(appl,pay,address)void' | 'gatedEnter', {
+        argsObj: RaffleArgs['obj']['gatedEnter(appl,pay,address)void'];
+        argsTuple: RaffleArgs['tuple']['gatedEnter(appl,pay,address)void'];
+        returns: RaffleReturns['gatedEnter(appl,pay,address)void'];
+    }> & Record<'enter(pay,address)void' | 'enter', {
+        argsObj: RaffleArgs['obj']['enter(pay,address)void'];
+        argsTuple: RaffleArgs['tuple']['enter(pay,address)void'];
+        returns: RaffleReturns['enter(pay,address)void'];
+    }> & Record<'gatedEnterAsa(appl,pay,axfer,address)void' | 'gatedEnterAsa', {
+        argsObj: RaffleArgs['obj']['gatedEnterAsa(appl,pay,axfer,address)void'];
+        argsTuple: RaffleArgs['tuple']['gatedEnterAsa(appl,pay,axfer,address)void'];
+        returns: RaffleReturns['gatedEnterAsa(appl,pay,axfer,address)void'];
+    }> & Record<'enterAsa(pay,axfer,address)void' | 'enterAsa', {
+        argsObj: RaffleArgs['obj']['enterAsa(pay,axfer,address)void'];
+        argsTuple: RaffleArgs['tuple']['enterAsa(pay,axfer,address)void'];
+        returns: RaffleReturns['enterAsa(pay,axfer,address)void'];
+    }> & Record<'gatedAdd(appl,pay)void' | 'gatedAdd', {
+        argsObj: RaffleArgs['obj']['gatedAdd(appl,pay)void'];
+        argsTuple: RaffleArgs['tuple']['gatedAdd(appl,pay)void'];
+        returns: RaffleReturns['gatedAdd(appl,pay)void'];
+    }> & Record<'add(pay)void' | 'add', {
+        argsObj: RaffleArgs['obj']['add(pay)void'];
+        argsTuple: RaffleArgs['tuple']['add(pay)void'];
+        returns: RaffleReturns['add(pay)void'];
     }> & Record<'gatedAddAsa(appl,axfer)void' | 'gatedAddAsa', {
         argsObj: RaffleArgs['obj']['gatedAddAsa(appl,axfer)void'];
         argsTuple: RaffleArgs['tuple']['gatedAddAsa(appl,axfer)void'];
         returns: RaffleReturns['gatedAddAsa(appl,axfer)void'];
-    }> & Record<'addAsa(axfer,byte[][])void' | 'addAsa', {
-        argsObj: RaffleArgs['obj']['addAsa(axfer,byte[][])void'];
-        argsTuple: RaffleArgs['tuple']['addAsa(axfer,byte[][])void'];
-        returns: RaffleReturns['addAsa(axfer,byte[][])void'];
+    }> & Record<'addAsa(axfer)void' | 'addAsa', {
+        argsObj: RaffleArgs['obj']['addAsa(axfer)void'];
+        argsTuple: RaffleArgs['tuple']['addAsa(axfer)void'];
+        returns: RaffleReturns['addAsa(axfer)void'];
     }> & Record<'raffle()void' | 'raffle', {
         argsObj: RaffleArgs['obj']['raffle()void'];
         argsTuple: RaffleArgs['tuple']['raffle()void'];
@@ -429,6 +458,10 @@ export type RaffleTypes = {
                  * the transaction id of the create application call for salting our VRF call
                  */
                 salt: BinaryState;
+                /**
+                 * the round captured when raffle() is first called, used for VRF
+                 */
+                raffleRound: bigint;
                 /**
                  * the app ID for the akita DAO escrow to use
                  */
@@ -674,26 +707,47 @@ export declare abstract class RaffleParamsFactory {
      */
     static clearWeightsBoxes(params: CallParams<RaffleArgs['obj']['clearWeightsBoxes()uint64'] | RaffleArgs['tuple']['clearWeightsBoxes()uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the enter(pay,address,byte[][])void ABI method
+     * Constructs a no op call for the gatedEnter(appl,pay,address)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static enter(params: CallParams<RaffleArgs['obj']['enter(pay,address,byte[][])void'] | RaffleArgs['tuple']['enter(pay,address,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static gatedEnter(params: CallParams<RaffleArgs['obj']['gatedEnter(appl,pay,address)void'] | RaffleArgs['tuple']['gatedEnter(appl,pay,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the enterAsa(pay,axfer,address,byte[][])void ABI method
+     * Constructs a no op call for the enter(pay,address)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static enterAsa(params: CallParams<RaffleArgs['obj']['enterAsa(pay,axfer,address,byte[][])void'] | RaffleArgs['tuple']['enterAsa(pay,axfer,address,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static enter(params: CallParams<RaffleArgs['obj']['enter(pay,address)void'] | RaffleArgs['tuple']['enter(pay,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the add(pay,byte[][])void ABI method
+     * Constructs a no op call for the gatedEnterAsa(appl,pay,axfer,address)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static add(params: CallParams<RaffleArgs['obj']['add(pay,byte[][])void'] | RaffleArgs['tuple']['add(pay,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static gatedEnterAsa(params: CallParams<RaffleArgs['obj']['gatedEnterAsa(appl,pay,axfer,address)void'] | RaffleArgs['tuple']['gatedEnterAsa(appl,pay,axfer,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the enterAsa(pay,axfer,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static enterAsa(params: CallParams<RaffleArgs['obj']['enterAsa(pay,axfer,address)void'] | RaffleArgs['tuple']['enterAsa(pay,axfer,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the gatedAdd(appl,pay)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static gatedAdd(params: CallParams<RaffleArgs['obj']['gatedAdd(appl,pay)void'] | RaffleArgs['tuple']['gatedAdd(appl,pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the add(pay)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static add(params: CallParams<RaffleArgs['obj']['add(pay)void'] | RaffleArgs['tuple']['add(pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the gatedAddAsa(appl,axfer)void ABI method
      *
@@ -702,12 +756,12 @@ export declare abstract class RaffleParamsFactory {
      */
     static gatedAddAsa(params: CallParams<RaffleArgs['obj']['gatedAddAsa(appl,axfer)void'] | RaffleArgs['tuple']['gatedAddAsa(appl,axfer)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the addAsa(axfer,byte[][])void ABI method
+     * Constructs a no op call for the addAsa(axfer)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static addAsa(params: CallParams<RaffleArgs['obj']['addAsa(axfer,byte[][])void'] | RaffleArgs['tuple']['addAsa(axfer,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static addAsa(params: CallParams<RaffleArgs['obj']['addAsa(axfer)void'] | RaffleArgs['tuple']['addAsa(axfer)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the raffle()void ABI method
      *
@@ -1442,30 +1496,57 @@ export declare class RaffleClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Raffle smart contract using the `enter(pay,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnter(appl,pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address,byte[][])void"] | RaffleArgs["tuple"]["enter(pay,address,byte[][])void"]> & {
+        gatedEnter: (params: CallParams<RaffleArgs["obj"]["gatedEnter(appl,pay,address)void"] | RaffleArgs["tuple"]["gatedEnter(appl,pay,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `enter(pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address,byte[][])void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address,byte[][])void"]> & {
+        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address)void"] | RaffleArgs["tuple"]["enter(pay,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Raffle smart contract using the `add(pay,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnterAsa(appl,pay,axfer,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        add: (params: CallParams<RaffleArgs["obj"]["add(pay,byte[][])void"] | RaffleArgs["tuple"]["add(pay,byte[][])void"]> & {
+        gatedEnterAsa: (params: CallParams<RaffleArgs["obj"]["gatedEnterAsa(appl,pay,axfer,address)void"] | RaffleArgs["tuple"]["gatedEnterAsa(appl,pay,axfer,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address)void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Raffle smart contract using the `gatedAdd(appl,pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        gatedAdd: (params: CallParams<RaffleArgs["obj"]["gatedAdd(appl,pay)void"] | RaffleArgs["tuple"]["gatedAdd(appl,pay)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the Raffle smart contract using the `add(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        add: (params: CallParams<RaffleArgs["obj"]["add(pay)void"] | RaffleArgs["tuple"]["add(pay)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1478,12 +1559,12 @@ export declare class RaffleClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the Raffle smart contract using the `addAsa(axfer,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `addAsa(axfer)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer,byte[][])void"] | RaffleArgs["tuple"]["addAsa(axfer,byte[][])void"]> & {
+        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer)void"] | RaffleArgs["tuple"]["addAsa(axfer)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1666,12 +1747,12 @@ export declare class RaffleClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `enter(pay,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnter(appl,pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address,byte[][])void"] | RaffleArgs["tuple"]["enter(pay,address,byte[][])void"]> & {
+        gatedEnter: (params: CallParams<RaffleArgs["obj"]["gatedEnter(appl,pay,address)void"] | RaffleArgs["tuple"]["gatedEnter(appl,pay,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1679,12 +1760,12 @@ export declare class RaffleClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `enter(pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address,byte[][])void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address,byte[][])void"]> & {
+        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address)void"] | RaffleArgs["tuple"]["enter(pay,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1692,12 +1773,51 @@ export declare class RaffleClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `add(pay,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnterAsa(appl,pay,axfer,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        add: (params: CallParams<RaffleArgs["obj"]["add(pay,byte[][])void"] | RaffleArgs["tuple"]["add(pay,byte[][])void"]> & {
+        gatedEnterAsa: (params: CallParams<RaffleArgs["obj"]["gatedEnterAsa(appl,pay,axfer,address)void"] | RaffleArgs["tuple"]["gatedEnterAsa(appl,pay,axfer,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address)void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `gatedAdd(appl,pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        gatedAdd: (params: CallParams<RaffleArgs["obj"]["gatedAdd(appl,pay)void"] | RaffleArgs["tuple"]["gatedAdd(appl,pay)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `add(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        add: (params: CallParams<RaffleArgs["obj"]["add(pay)void"] | RaffleArgs["tuple"]["add(pay)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1718,12 +1838,12 @@ export declare class RaffleClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `addAsa(axfer,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `addAsa(axfer)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer,byte[][])void"] | RaffleArgs["tuple"]["addAsa(axfer,byte[][])void"]> & {
+        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer)void"] | RaffleArgs["tuple"]["addAsa(axfer)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1986,15 +2106,15 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `enter(pay,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnter(appl,pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address,byte[][])void"] | RaffleArgs["tuple"]["enter(pay,address,byte[][])void"]> & SendParams & {
+        gatedEnter: (params: CallParams<RaffleArgs["obj"]["gatedEnter(appl,pay,address)void"] | RaffleArgs["tuple"]["gatedEnter(appl,pay,address)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | RaffleReturns["enter(pay,address,byte[][])void"]);
+            return: (undefined | RaffleReturns["gatedEnter(appl,pay,address)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2004,15 +2124,15 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `enter(pay,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address,byte[][])void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address,byte[][])void"]> & SendParams & {
+        enter: (params: CallParams<RaffleArgs["obj"]["enter(pay,address)void"] | RaffleArgs["tuple"]["enter(pay,address)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | RaffleReturns["enterAsa(pay,axfer,address,byte[][])void"]);
+            return: (undefined | RaffleReturns["enter(pay,address)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2022,15 +2142,69 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `add(pay,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `gatedEnterAsa(appl,pay,axfer,address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        add: (params: CallParams<RaffleArgs["obj"]["add(pay,byte[][])void"] | RaffleArgs["tuple"]["add(pay,byte[][])void"]> & SendParams & {
+        gatedEnterAsa: (params: CallParams<RaffleArgs["obj"]["gatedEnterAsa(appl,pay,axfer,address)void"] | RaffleArgs["tuple"]["gatedEnterAsa(appl,pay,axfer,address)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | RaffleReturns["add(pay,byte[][])void"]);
+            return: (undefined | RaffleReturns["gatedEnterAsa(appl,pay,axfer,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `enterAsa(pay,axfer,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        enterAsa: (params: CallParams<RaffleArgs["obj"]["enterAsa(pay,axfer,address)void"] | RaffleArgs["tuple"]["enterAsa(pay,axfer,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | RaffleReturns["enterAsa(pay,axfer,address)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `gatedAdd(appl,pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        gatedAdd: (params: CallParams<RaffleArgs["obj"]["gatedAdd(appl,pay)void"] | RaffleArgs["tuple"]["gatedAdd(appl,pay)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | RaffleReturns["gatedAdd(appl,pay)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Raffle smart contract using the `add(pay)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        add: (params: CallParams<RaffleArgs["obj"]["add(pay)void"] | RaffleArgs["tuple"]["add(pay)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | RaffleReturns["add(pay)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2058,15 +2232,15 @@ export declare class RaffleClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Raffle smart contract using the `addAsa(axfer,byte[][])void` ABI method.
+         * Makes a call to the Raffle smart contract using the `addAsa(axfer)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer,byte[][])void"] | RaffleArgs["tuple"]["addAsa(axfer,byte[][])void"]> & SendParams & {
+        addAsa: (params: CallParams<RaffleArgs["obj"]["addAsa(axfer)void"] | RaffleArgs["tuple"]["addAsa(axfer)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | RaffleReturns["addAsa(axfer,byte[][])void"]);
+            return: (undefined | RaffleReturns["addAsa(axfer)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2400,6 +2574,10 @@ export declare class RaffleClient {
              */
             salt: () => Promise<BinaryState>;
             /**
+             * Get the current value of the raffleRound key in global state
+             */
+            raffleRound: () => Promise<bigint | undefined>;
+            /**
              * Get the current value of the akitaDAOEscrow key in global state
              */
             akitaDaoEscrow: () => Promise<bigint | undefined>;
@@ -2493,29 +2671,53 @@ export type RaffleComposer<TReturns extends [...any[]] = []> = {
      */
     clearWeightsBoxes(params?: CallParams<RaffleArgs['obj']['clearWeightsBoxes()uint64'] | RaffleArgs['tuple']['clearWeightsBoxes()uint64']>): RaffleComposer<[...TReturns, RaffleReturns['clearWeightsBoxes()uint64'] | undefined]>;
     /**
-     * Calls the enter(pay,address,byte[][])void ABI method.
+     * Calls the gatedEnter(appl,pay,address)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    enter(params?: CallParams<RaffleArgs['obj']['enter(pay,address,byte[][])void'] | RaffleArgs['tuple']['enter(pay,address,byte[][])void']>): RaffleComposer<[...TReturns, RaffleReturns['enter(pay,address,byte[][])void'] | undefined]>;
+    gatedEnter(params?: CallParams<RaffleArgs['obj']['gatedEnter(appl,pay,address)void'] | RaffleArgs['tuple']['gatedEnter(appl,pay,address)void']>): RaffleComposer<[...TReturns, RaffleReturns['gatedEnter(appl,pay,address)void'] | undefined]>;
     /**
-     * Calls the enterAsa(pay,axfer,address,byte[][])void ABI method.
+     * Calls the enter(pay,address)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    enterAsa(params?: CallParams<RaffleArgs['obj']['enterAsa(pay,axfer,address,byte[][])void'] | RaffleArgs['tuple']['enterAsa(pay,axfer,address,byte[][])void']>): RaffleComposer<[...TReturns, RaffleReturns['enterAsa(pay,axfer,address,byte[][])void'] | undefined]>;
+    enter(params?: CallParams<RaffleArgs['obj']['enter(pay,address)void'] | RaffleArgs['tuple']['enter(pay,address)void']>): RaffleComposer<[...TReturns, RaffleReturns['enter(pay,address)void'] | undefined]>;
     /**
-     * Calls the add(pay,byte[][])void ABI method.
+     * Calls the gatedEnterAsa(appl,pay,axfer,address)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    add(params?: CallParams<RaffleArgs['obj']['add(pay,byte[][])void'] | RaffleArgs['tuple']['add(pay,byte[][])void']>): RaffleComposer<[...TReturns, RaffleReturns['add(pay,byte[][])void'] | undefined]>;
+    gatedEnterAsa(params?: CallParams<RaffleArgs['obj']['gatedEnterAsa(appl,pay,axfer,address)void'] | RaffleArgs['tuple']['gatedEnterAsa(appl,pay,axfer,address)void']>): RaffleComposer<[...TReturns, RaffleReturns['gatedEnterAsa(appl,pay,axfer,address)void'] | undefined]>;
+    /**
+     * Calls the enterAsa(pay,axfer,address)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    enterAsa(params?: CallParams<RaffleArgs['obj']['enterAsa(pay,axfer,address)void'] | RaffleArgs['tuple']['enterAsa(pay,axfer,address)void']>): RaffleComposer<[...TReturns, RaffleReturns['enterAsa(pay,axfer,address)void'] | undefined]>;
+    /**
+     * Calls the gatedAdd(appl,pay)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    gatedAdd(params?: CallParams<RaffleArgs['obj']['gatedAdd(appl,pay)void'] | RaffleArgs['tuple']['gatedAdd(appl,pay)void']>): RaffleComposer<[...TReturns, RaffleReturns['gatedAdd(appl,pay)void'] | undefined]>;
+    /**
+     * Calls the add(pay)void ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    add(params?: CallParams<RaffleArgs['obj']['add(pay)void'] | RaffleArgs['tuple']['add(pay)void']>): RaffleComposer<[...TReturns, RaffleReturns['add(pay)void'] | undefined]>;
     /**
      * Calls the gatedAddAsa(appl,axfer)void ABI method.
      *
@@ -2525,13 +2727,13 @@ export type RaffleComposer<TReturns extends [...any[]] = []> = {
      */
     gatedAddAsa(params?: CallParams<RaffleArgs['obj']['gatedAddAsa(appl,axfer)void'] | RaffleArgs['tuple']['gatedAddAsa(appl,axfer)void']>): RaffleComposer<[...TReturns, RaffleReturns['gatedAddAsa(appl,axfer)void'] | undefined]>;
     /**
-     * Calls the addAsa(axfer,byte[][])void ABI method.
+     * Calls the addAsa(axfer)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    addAsa(params?: CallParams<RaffleArgs['obj']['addAsa(axfer,byte[][])void'] | RaffleArgs['tuple']['addAsa(axfer,byte[][])void']>): RaffleComposer<[...TReturns, RaffleReturns['addAsa(axfer,byte[][])void'] | undefined]>;
+    addAsa(params?: CallParams<RaffleArgs['obj']['addAsa(axfer)void'] | RaffleArgs['tuple']['addAsa(axfer)void']>): RaffleComposer<[...TReturns, RaffleReturns['addAsa(axfer)void'] | undefined]>;
     /**
      * Calls the raffle()void ABI method.
      *

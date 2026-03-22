@@ -1,18 +1,20 @@
-import { Account, Application, assert, Asset, Bytes, GlobalState, itxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, assert, Asset, Bytes, GlobalState, itxn, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { GateMustCheckAbiMethod } from '../../../gates/constants'
 import { GateArgs } from '../../../gates/types'
 import { ListingGlobalStateKeyGateID, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice } from '../../../marketplace/constants'
 import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../../../utils/constants'
-import { getAccounts, getAkitaAppList, getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import { Proof } from '../../../utils/types/merkles'
 import { MarketplacePluginGlobalStateKeyFactory } from './constants'
+import { ERR_NOT_PRIZE_BOX_OWNER } from '../../../utils/errors'
 import { ERR_LISTING_CREATOR_NOT_MARKETPLACE, ERR_NOT_ENOUGH_ASSET } from './errors'
 
 // CONTRACT IMPORTS
 import { Listing } from '../../../marketplace/listing.algo'
 import type { Marketplace } from '../../../marketplace/marketplace.algo'
+import type { PrizeBox } from '../../../prize-box/contract.algo'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
 
 
@@ -122,6 +124,86 @@ export class MarketplacePlugin extends AkitaBaseContract {
         marketplace,
         name,
         proof,
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+      fee: 0,
+    }).returnValue
+  }
+
+  listPrizeBox(
+    wallet: Application,
+    rekeyBack: boolean,
+    prizeBox: Application,
+    price: uint64,
+    paymentAsset: uint64, // 0 | Asset
+    expiration: uint64,
+    reservedFor: Account,
+    gateID: uint64,
+    marketplace: Account
+  ): uint64 {
+    const sender = getSpendingAccount(wallet)
+
+    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+
+    const prizeBoxTransferTxn = itxn.applicationCall({
+      sender,
+      appId: prizeBox,
+      onCompletion: OnCompleteAction.NoOp,
+      appArgs: [
+        methodSelector<typeof PrizeBox.prototype.transfer>(),
+        this.factory.value.address
+      ],
+    })
+
+    if (!this.factory.value.address.isOptedIn(Asset(paymentAsset))) {
+      const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
+        sender,
+        appId: this.factory.value,
+        args: [Asset(paymentAsset)]
+      }).returnValue
+
+      abiCall<typeof Marketplace.prototype.optIn>({
+        sender,
+        appId: this.factory.value,
+        args: [
+          itxn.payment({
+            sender,
+            receiver: this.factory.value.address,
+            amount: optinMBR
+          }),
+          Asset(paymentAsset),
+        ]
+      })
+    }
+
+    const optinMBR: uint64 = paymentAsset === 0 ? 0 : Global.assetOptInMinBalance
+
+    const listing = compileArc4(Listing)
+
+    const childContractMBR: uint64 = (
+      MIN_PROGRAM_PAGES +
+      (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
+      Global.minBalance +
+      optinMBR
+    )
+
+    return abiCall<typeof Marketplace.prototype.listPrizeBox>({
+      sender,
+      appId: this.factory.value,
+      args: [
+        prizeBoxTransferTxn,
+        itxn.payment({
+          sender,
+          receiver: this.factory.value.address,
+          amount: childContractMBR
+        }),
+        price,
+        paymentAsset,
+        expiration,
+        reservedFor,
+        gateID,
+        marketplace,
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
       fee: 0,

@@ -98,7 +98,7 @@ export class StakingPowerGate extends AkitaBaseContract {
     )
 
     const params = decodeArc4<StakingPowerGateRegistryInfo>(args)
-    assert(params.op.asUint64() <= 6, ERR_BAD_OPERATION)
+    assert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id

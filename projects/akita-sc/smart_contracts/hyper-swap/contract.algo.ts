@@ -8,18 +8,18 @@ import { arc58OptInAndSend, getAkitaAppList, getPluginAppList } from '../utils/f
 import { RefundValue } from '../utils/types/mbr'
 import { Proof } from '../utils/types/merkles'
 import { HyperSwapBoxPrefixHashes, HyperSwapBoxPrefixOffers, HyperSwapBoxPrefixParticipants, HyperSwapGlobalStateKeyOfferCursor, STATE_CANCEL_COMPLETED, STATE_CANCELLED, STATE_COMPLETED, STATE_DISBURSING, STATE_ESCROWING, STATE_OFFERED } from './constants'
-import { ERR_BAD_ROOTS, ERR_CANT_VERIFY_LEAF, ERR_INVALID_STATE, ERR_NOT_A_PARTICIPANT, ERR_OFFER_EXPIRED, ERR_RECEIVER_NOT_OPTED_IN } from './errors'
+import { ERR_BAD_ROOTS, ERR_CANT_VERIFY_LEAF, ERR_INVALID_STATE, ERR_NOT_A_PARTICIPANT, ERR_NOT_ACCEPTED, ERR_OFFER_EXPIRED, ERR_RECEIVER_NOT_OPTED_IN } from './errors'
 import { HashKey, OfferValue, ParticipantKey } from './types'
 
 // CONTRACT IMPORTS
 import type { AbstractedAccount } from '../arc58/account/contract.algo'
 import type { MetaMerkles } from '../meta-merkles/contract.algo'
-import { AkitaBaseContract } from '../utils/base-contracts/base'
+import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/base'
 import { ContractWithOptIn } from '../utils/base-contracts/optin'
 import { BaseHyperSwap } from './base'
 
 
-export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, ContractWithOptIn) {
+export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContract, ContractWithOptIn) {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
 
@@ -49,6 +49,7 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
   create(version: string, akitaDAO: Application): void {
     this.version.value = version
     this.akitaDAO.value = akitaDAO
+    this.offerCursor.value = 0
   }
 
   // HYPER SWAP METHODS ---------------------------------------------------------------------------
@@ -73,6 +74,7 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
     expiration: uint64
   ) {
     assert(root !== participantsRoot, ERR_BAD_ROOTS)
+    assert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
 
     // const orig = getOrigin(this.spendingAccountFactory.value.id)
     const costs = this.mbr()
@@ -393,6 +395,8 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
         // receiver not opted in - try ARC58 opt-in if they have an ARC58 wallet
         assert(receiverWallet !== 0, ERR_RECEIVER_NOT_OPTED_IN)
         assert(Application(receiverWallet).address === receiver, 'receiverWallet address mismatch')
+        // ensure sufficient MBR was escrowed to cover the opt-in cost
+        assert(refundAmount >= Global.assetOptInMinBalance, ERR_RECEIVER_NOT_OPTED_IN)
 
         // verify the ARC58 wallet allows opt-in from this plugin
         const optinPlugin = getPluginAppList(this.akitaDAO.value).optin
@@ -457,11 +461,19 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
   cancel(id: uint64, proof: Proof) {
     // ensure the offer exists
     assert(this.offers(id).exists)
-    const { state, participantsRoot, escrowed, root } = this.offers(id).value
-    // ensure we're in a cancellable state
-    assert(state === STATE_OFFERED || state === STATE_ESCROWING)
+    const { state, participantsRoot, escrowed, root, expiration } = this.offers(id).value
+    // ensure we're in a cancellable state (DISBURSING only cancellable after expiration)
+    assert(
+      state === STATE_OFFERED || state === STATE_ESCROWING ||
+      (state === STATE_DISBURSING && expiration <= Global.latestTimestamp),
+      ERR_INVALID_STATE
+    )
 
-    // ensure they are a participant
+    // ensure the sender has accepted this offer
+    const senderParticipantKey = { id, address: Txn.sender }
+    assert(this.participants(senderParticipantKey).exists, ERR_NOT_ACCEPTED)
+
+    // ensure they are a participant in the merkle tree
     const isParticipant = abiCall<typeof MetaMerkles.prototype.verify>({
       appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
       args: [
@@ -474,8 +486,12 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
     }).returnValue
 
     assert(isParticipant, ERR_NOT_A_PARTICIPANT)
-    // set the state to cancelled
-    this.offers(id).value.state = STATE_CANCELLED
+    // set the state to cancelled (or cancel_completed if nothing is escrowed)
+    if (escrowed === 0) {
+      this.offers(id).value.state = STATE_CANCEL_COMPLETED
+    } else {
+      this.offers(id).value.state = STATE_CANCELLED
+    }
   }
 
   /**
@@ -566,9 +582,9 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
     assert(this.offers(id).exists)
     const { state, expiration, acceptances } = this.offers(id).value
 
-    // can only cleanup if completed, cancel_completed, or expired (while in OFFERED state)
+    // can only cleanup if completed, cancel_completed, or expired (while in OFFERED or ESCROWING state)
     const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
-    const isExpired = state === STATE_OFFERED && expiration <= Global.latestTimestamp
+    const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
     assert(isCompleted || isExpired, ERR_INVALID_STATE)
 
     const participantKey: ParticipantKey = { id, address: participant }
@@ -599,9 +615,9 @@ export class HyperSwap extends classes(BaseHyperSwap, AkitaBaseContract, Contrac
     assert(this.offers(id).exists)
     const { state, expiration, acceptances } = this.offers(id).value
 
-    // can only cleanup if completed, cancel_completed, or expired (while in OFFERED state)
+    // can only cleanup if completed, cancel_completed, or expired (while in OFFERED or ESCROWING state)
     const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
-    const isExpired = state === STATE_OFFERED && expiration <= Global.latestTimestamp
+    const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
     assert(isCompleted || isExpired, ERR_INVALID_STATE)
 
     // ensure all participant boxes have been cleaned up

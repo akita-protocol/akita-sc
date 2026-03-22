@@ -253,10 +253,6 @@ export type HyperSwapArgs = {
              */
             id: bigint | number;
         };
-        'updateAkitaDAO(uint64)void': {
-            akitaDao: bigint | number;
-        };
-        'opUp()void': Record<string, never>;
         'optIn(pay,uint64)void': {
             /**
              * The payment transaction
@@ -267,6 +263,13 @@ export type HyperSwapArgs = {
              */
             asset: bigint | number;
         };
+        'update(string)void': {
+            newVersion: string;
+        };
+        'updateAkitaDAO(uint64)void': {
+            akitaDao: bigint | number;
+        };
+        'opUp()void': Record<string, never>;
         'mbr()(uint64,uint64,uint64,(uint64,uint64))': Record<string, never>;
     };
     /**
@@ -283,9 +286,10 @@ export type HyperSwapArgs = {
         'withdraw(uint64,address,uint64,uint64,byte[32][])void': [id: bigint | number, receiver: string, asset: bigint | number, amount: bigint | number, proof: Uint8Array[]];
         'cleanupParticipant(uint64,address)void': [id: bigint | number, participant: string];
         'cleanupOffer(uint64)void': [id: bigint | number];
+        'optIn(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
+        'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
-        'optIn(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
         'mbr()(uint64,uint64,uint64,(uint64,uint64))': [];
     };
 };
@@ -303,9 +307,10 @@ export type HyperSwapReturns = {
     'withdraw(uint64,address,uint64,uint64,byte[32][])void': void;
     'cleanupParticipant(uint64,address)void': void;
     'cleanupOffer(uint64)void': void;
+    'optIn(pay,uint64)void': void;
+    'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
-    'optIn(pay,uint64)void': void;
     'mbr()(uint64,uint64,uint64,(uint64,uint64))': HyperSwapMbrData;
 };
 /**
@@ -355,6 +360,14 @@ export type HyperSwapTypes = {
         argsObj: HyperSwapArgs['obj']['cleanupOffer(uint64)void'];
         argsTuple: HyperSwapArgs['tuple']['cleanupOffer(uint64)void'];
         returns: HyperSwapReturns['cleanupOffer(uint64)void'];
+    }> & Record<'optIn(pay,uint64)void' | 'optIn', {
+        argsObj: HyperSwapArgs['obj']['optIn(pay,uint64)void'];
+        argsTuple: HyperSwapArgs['tuple']['optIn(pay,uint64)void'];
+        returns: HyperSwapReturns['optIn(pay,uint64)void'];
+    }> & Record<'update(string)void' | 'update', {
+        argsObj: HyperSwapArgs['obj']['update(string)void'];
+        argsTuple: HyperSwapArgs['tuple']['update(string)void'];
+        returns: HyperSwapReturns['update(string)void'];
     }> & Record<'updateAkitaDAO(uint64)void' | 'updateAkitaDAO', {
         argsObj: HyperSwapArgs['obj']['updateAkitaDAO(uint64)void'];
         argsTuple: HyperSwapArgs['tuple']['updateAkitaDAO(uint64)void'];
@@ -363,10 +376,6 @@ export type HyperSwapTypes = {
         argsObj: HyperSwapArgs['obj']['opUp()void'];
         argsTuple: HyperSwapArgs['tuple']['opUp()void'];
         returns: HyperSwapReturns['opUp()void'];
-    }> & Record<'optIn(pay,uint64)void' | 'optIn', {
-        argsObj: HyperSwapArgs['obj']['optIn(pay,uint64)void'];
-        argsTuple: HyperSwapArgs['tuple']['optIn(pay,uint64)void'];
-        returns: HyperSwapReturns['optIn(pay,uint64)void'];
     }> & Record<'mbr()(uint64,uint64,uint64,(uint64,uint64))' | 'mbr', {
         argsObj: HyperSwapArgs['obj']['mbr()(uint64,uint64,uint64,(uint64,uint64))'];
         argsTuple: HyperSwapArgs['tuple']['mbr()(uint64,uint64,uint64,(uint64,uint64))'];
@@ -456,6 +465,14 @@ export type HyperSwapCreateCallParams = Expand<CallParams<HyperSwapArgs['obj']['
     onComplete?: OnApplicationComplete.NoOpOC;
 } & CreateSchema>;
 /**
+ * Defines supported update method params for this smart contract
+ */
+export type HyperSwapUpdateCallParams = Expand<CallParams<HyperSwapArgs['obj']['update(string)void'] | HyperSwapArgs['tuple']['update(string)void']> & {
+    method: 'update';
+}> | Expand<CallParams<HyperSwapArgs['obj']['update(string)void'] | HyperSwapArgs['tuple']['update(string)void']> & {
+    method: 'update(string)void';
+}>;
+/**
  * Defines arguments required for the deploy method.
  */
 export type HyperSwapDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
@@ -463,6 +480,10 @@ export type HyperSwapDeployParams = Expand<Omit<AppFactoryDeployParams, 'createP
      * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
      */
     createParams?: HyperSwapCreateCallParams;
+    /**
+     * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    updateParams?: HyperSwapUpdateCallParams;
 }>;
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the HyperSwap smart contract
@@ -507,6 +528,40 @@ export declare abstract class HyperSwapParamsFactory {
         }): AppClientMethodCallParams & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         };
+    };
+    /**
+     * Gets available update ABI call param factories
+     */
+    static get update(): {
+        _resolveByMethod<TParams extends HyperSwapUpdateCallParams & {
+            method: string;
+        }>(params: TParams): {
+            maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount) | undefined;
+            rekeyTo?: (string | Address) | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete | undefined;
+            accountReferences?: (string | Address)[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference | import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier)[] | undefined;
+            sender?: (Address | string) | undefined;
+            method: string;
+            args?: (import("algosdk").ABIValue | import("@algorandfoundation/algokit-utils/types/app-arc56").ABIStruct | AppMethodCallTransactionArgument | undefined)[] | undefined;
+        } & AppClientCompilationParams;
+        /**
+         * Constructs update ABI call params for the HyperSwap smart contract using the update(string)void ABI method
+         *
+         * @param params Parameters for the call
+         * @returns An `AppClientMethodCallParams` object for the call
+         */
+        update(params: CallParams<HyperSwapArgs["obj"]["update(string)void"] | HyperSwapArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
     };
     /**
      * Constructs a no op call for the offer(pay,byte[32],uint64,byte[32],uint64,uint64)void ABI method
@@ -592,6 +647,15 @@ export declare abstract class HyperSwapParamsFactory {
      */
     static cleanupOffer(params: CallParams<HyperSwapArgs['obj']['cleanupOffer(uint64)void'] | HyperSwapArgs['tuple']['cleanupOffer(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the optIn(pay,uint64)void ABI method
+     *
+     * optin tells the contract to opt into an asa
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static optIn(params: CallParams<HyperSwapArgs['obj']['optIn(pay,uint64)void'] | HyperSwapArgs['tuple']['optIn(pay,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
      *
      * @param params Parameters for the call
@@ -605,15 +669,6 @@ export declare abstract class HyperSwapParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static opUp(params: CallParams<HyperSwapArgs['obj']['opUp()void'] | HyperSwapArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the optIn(pay,uint64)void ABI method
-     *
-     * optin tells the contract to opt into an asa
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static optIn(params: CallParams<HyperSwapArgs['obj']['optIn(pay,uint64)void'] | HyperSwapArgs['tuple']['optIn(pay,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the mbr()(uint64,uint64,uint64,(uint64,uint64)) ABI method
      *
@@ -860,6 +915,91 @@ export declare class HyperSwapFactory {
                 onComplete: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC;
             }>;
         };
+        /**
+         * Gets available deployUpdate methods
+         */
+        deployUpdate: {
+            /**
+             * Updates an existing instance of the HyperSwap smart contract using the update(string)void ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The deployUpdate params
+             */
+            update: (params: CallParams<HyperSwapArgs["obj"]["update(string)void"] | HyperSwapArgs["tuple"]["update(string)void"]> & AppClientCompilationParams) => {
+                maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                note?: string | Uint8Array | undefined;
+                signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                onComplete?: OnApplicationComplete | undefined;
+                lease?: string | Uint8Array | undefined;
+                rekeyTo?: string | Address | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                accountReferences?: (string | Address)[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                sender?: string | Address | undefined;
+                method: string;
+                args?: (import("algosdk").ABIValue | AppMethodCallTransactionArgument | import("@algorandfoundation/algokit-utils/types/app-arc56").ABIStruct | undefined)[] | undefined;
+            } & {
+                sender: Address;
+                signer: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                method: import("@algorandfoundation/algokit-utils/types/app-arc56").Arc56Method;
+                args: (Transaction | import("algosdk").ABIValue | import("algosdk").TransactionWithSigner | Promise<Transaction> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    note?: string | Uint8Array | undefined;
+                    args?: Uint8Array[] | undefined;
+                    signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                    onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC | undefined;
+                    lease?: string | Uint8Array | undefined;
+                    rekeyTo?: string | Address | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                    rekeyTo?: string | Address | undefined;
+                    note?: string | Uint8Array | undefined;
+                    lease?: string | Uint8Array | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/types/composer").AppMethodCallParams> | undefined)[] | undefined;
+                onComplete: OnApplicationComplete.UpdateApplicationOC;
+            };
+        };
     };
     /**
      * Create transactions for the current app
@@ -974,6 +1114,99 @@ export declare class HyperSwapClient {
      */
     readonly params: {
         /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the HyperSwap smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update params
+             */
+            update: (params: CallParams<HyperSwapArgs["obj"]["update(string)void"] | HyperSwapArgs["tuple"]["update(string)void"]> & AppClientCompilationParams) => Promise<{
+                approvalProgram: Uint8Array;
+                clearStateProgram: Uint8Array;
+                compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
+                compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
+                maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                note?: string | Uint8Array | undefined;
+                signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                onComplete?: OnApplicationComplete | undefined;
+                lease?: string | Uint8Array | undefined;
+                rekeyTo?: string | Address | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                accountReferences?: (string | Address)[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                sender?: string | Address | undefined;
+                method: string;
+                args?: (import("algosdk").ABIValue | AppMethodCallTransactionArgument | import("@algorandfoundation/algokit-utils/types/app-arc56").ABIStruct | undefined)[] | undefined;
+                deployTimeParams?: import("@algorandfoundation/algokit-utils/types/app").TealTemplateParams | undefined;
+                updatable?: boolean | undefined;
+                deletable?: boolean | undefined;
+            } & {
+                appId: bigint;
+                sender: Address;
+                signer: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                method: import("@algorandfoundation/algokit-utils/types/app-arc56").Arc56Method;
+                onComplete: OnApplicationComplete.UpdateApplicationOC;
+                args: (Transaction | import("algosdk").ABIValue | import("algosdk").TransactionWithSigner | Promise<Transaction> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    note?: string | Uint8Array | undefined;
+                    args?: Uint8Array[] | undefined;
+                    signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                    onComplete?: OnApplicationComplete.NoOpOC | OnApplicationComplete.OptInOC | OnApplicationComplete.CloseOutOC | OnApplicationComplete.UpdateApplicationOC | OnApplicationComplete.DeleteApplicationOC | undefined;
+                    lease?: string | Uint8Array | undefined;
+                    rekeyTo?: string | Address | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<{
+                    sender: string | Address;
+                    signer?: TransactionSigner | import("@algorandfoundation/algokit-utils/types/account").TransactionSignerAccount | undefined;
+                    rekeyTo?: string | Address | undefined;
+                    note?: string | Uint8Array | undefined;
+                    lease?: string | Uint8Array | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils/types/amount").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplicationOC | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: (string | Address)[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils/types/app-manager").BoxIdentifier | import("@algorandfoundation/algokit-utils/types/app-manager").BoxReference)[] | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/types/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/types/composer").AppMethodCallParams> | undefined)[] | undefined;
+            }>;
+        };
+        /**
          * Makes a clear_state call to an existing instance of the HyperSwap smart contract.
          *
          * @param params The params for the bare (raw) call
@@ -1082,6 +1315,17 @@ export declare class HyperSwapClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
+         *
+         * optin tells the contract to opt into an asa
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `updateAkitaDAO(uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1100,17 +1344,6 @@ export declare class HyperSwapClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
-         *
-         * optin tells the contract to opt into an asa
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<AppCallMethodCall>;
-        /**
          * Makes a call to the HyperSwap smart contract using the `mbr()(uint64,uint64,uint64,(uint64,uint64))` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1126,6 +1359,22 @@ export declare class HyperSwapClient {
      * Create transactions for the current app
      */
     readonly createTransaction: {
+        /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the HyperSwap smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update transaction
+             */
+            update: (params: CallParams<HyperSwapArgs["obj"]["update(string)void"] | HyperSwapArgs["tuple"]["update(string)void"]> & AppClientCompilationParams) => Promise<{
+                transactions: Transaction[];
+                methodCalls: Map<number, import("algosdk").ABIMethod>;
+                signers: Map<number, TransactionSigner>;
+            }>;
+        };
         /**
          * Makes a clear_state call to an existing instance of the HyperSwap smart contract.
          *
@@ -1271,6 +1520,21 @@ export declare class HyperSwapClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
+         *
+         * optin tells the contract to opt into an asa
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `updateAkitaDAO(uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1297,21 +1561,6 @@ export declare class HyperSwapClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
-         *
-         * optin tells the contract to opt into an asa
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("algosdk").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
          * Makes a call to the HyperSwap smart contract using the `mbr()(uint64,uint64,uint64,(uint64,uint64))` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1331,6 +1580,29 @@ export declare class HyperSwapClient {
      * Send calls to the current app
      */
     readonly send: {
+        /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the HyperSwap smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update result
+             */
+            update: (params: CallParams<HyperSwapArgs["obj"]["update(string)void"] | HyperSwapArgs["tuple"]["update(string)void"]> & AppClientCompilationParams & SendParams) => Promise<{
+                return: (undefined | HyperSwapReturns["update(string)void"]);
+                compiledApproval?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
+                compiledClear?: import("@algorandfoundation/algokit-utils/types/app").CompiledTeal | undefined;
+                groupId: string;
+                txIds: string[];
+                returns?: ABIReturn[] | undefined;
+                confirmations: modelsv2.PendingTransactionResponse[];
+                transactions: Transaction[];
+                confirmation: modelsv2.PendingTransactionResponse;
+                transaction: Transaction;
+            }>;
+        };
         /**
          * Makes a clear_state call to an existing instance of the HyperSwap smart contract.
          *
@@ -1530,6 +1802,26 @@ export declare class HyperSwapClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
+         *
+         * optin tells the contract to opt into an asa
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | HyperSwapReturns["optIn(pay,uint64)void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the HyperSwap smart contract using the `updateAkitaDAO(uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1557,26 +1849,6 @@ export declare class HyperSwapClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | HyperSwapReturns["opUp()void"]);
-            groupId: string;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: modelsv2.PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: modelsv2.PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the HyperSwap smart contract using the `optIn(pay,uint64)void` ABI method.
-         *
-         * optin tells the contract to opt into an asa
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        optIn: (params: CallParams<HyperSwapArgs["obj"]["optIn(pay,uint64)void"] | HyperSwapArgs["tuple"]["optIn(pay,uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOpOC;
-        }) => Promise<{
-            return: (undefined | HyperSwapReturns["optIn(pay,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1792,6 +2064,16 @@ export type HyperSwapComposer<TReturns extends [...any[]] = []> = {
      */
     cleanupOffer(params?: CallParams<HyperSwapArgs['obj']['cleanupOffer(uint64)void'] | HyperSwapArgs['tuple']['cleanupOffer(uint64)void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['cleanupOffer(uint64)void'] | undefined]>;
     /**
+     * Calls the optIn(pay,uint64)void ABI method.
+     *
+     * optin tells the contract to opt into an asa
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    optIn(params?: CallParams<HyperSwapArgs['obj']['optIn(pay,uint64)void'] | HyperSwapArgs['tuple']['optIn(pay,uint64)void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['optIn(pay,uint64)void'] | undefined]>;
+    /**
      * Calls the updateAkitaDAO(uint64)void ABI method.
      *
      * @param args The arguments for the contract call
@@ -1808,16 +2090,6 @@ export type HyperSwapComposer<TReturns extends [...any[]] = []> = {
      */
     opUp(params?: CallParams<HyperSwapArgs['obj']['opUp()void'] | HyperSwapArgs['tuple']['opUp()void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['opUp()void'] | undefined]>;
     /**
-     * Calls the optIn(pay,uint64)void ABI method.
-     *
-     * optin tells the contract to opt into an asa
-     *
-     * @param args The arguments for the contract call
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    optIn(params?: CallParams<HyperSwapArgs['obj']['optIn(pay,uint64)void'] | HyperSwapArgs['tuple']['optIn(pay,uint64)void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['optIn(pay,uint64)void'] | undefined]>;
-    /**
      * Calls the mbr()(uint64,uint64,uint64,(uint64,uint64)) ABI method.
      *
      * @param args The arguments for the contract call
@@ -1825,6 +2097,19 @@ export type HyperSwapComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     mbr(params?: CallParams<HyperSwapArgs['obj']['mbr()(uint64,uint64,uint64,(uint64,uint64))'] | HyperSwapArgs['tuple']['mbr()(uint64,uint64,uint64,(uint64,uint64))']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['mbr()(uint64,uint64,uint64,(uint64,uint64))'] | undefined]>;
+    /**
+     * Gets available update methods
+     */
+    readonly update: {
+        /**
+         * Updates an existing instance of the HyperSwap smart contract using the update(string)void ABI method.
+         *
+         * @param args The arguments for the smart contract call
+         * @param params Any additional parameters for the call
+         * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+         */
+        update(params?: CallParams<HyperSwapArgs['obj']['update(string)void'] | HyperSwapArgs['tuple']['update(string)void']>): HyperSwapComposer<[...TReturns, HyperSwapReturns['update(string)void'] | undefined]>;
+    };
     /**
      * Makes a clear_state call to an existing instance of the HyperSwap smart contract.
      *

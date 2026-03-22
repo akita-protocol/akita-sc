@@ -179,7 +179,7 @@ Wallet plugins extend abstracted account functionality:
 | `stakingPoolFactory` | `751971794` | `3368391029` |
 | `subscriptions` | `751971779` | `3368389628` |
 | `rewards` | `751971741` | `3368388985` |
-| `hyperSwap` | `751971956` | `3368394471` |
+| `hyperSwap` | `757503297` | `3488065730` |
 | `marketplace` | `751971922` | `3368394180` |
 | `auctionFactory` | `751971901` | `3368393933` |
 
@@ -189,7 +189,7 @@ Wallet plugins extend abstracted account functionality:
 |----------|---------|---------|
 | `social` | `751971872` | `3368393551` |
 | `socialGraph` | `754162173` | `3414941676` |
-| `socialImpact` | `751971843` | `3368393419` |
+| `socialImpact` | `757498720` | `3487942274` |
 | `socialModeration` | `751971873` | `3368393629` |
 | `pollFactory` | `751971931` | `3368394268` |
 | `raffleFactory` | `751971928` | `3368394210` |
@@ -199,7 +199,7 @@ Wallet plugins extend abstracted account functionality:
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `gate` | `751971953` | `3368394436` |
+| `gate` | `757500594` | `3487979365` |
 | `metaMerkles` | `751971947` | `3368394372` |
 
 ### Plugins
@@ -209,24 +209,24 @@ Wallet plugins extend abstracted account functionality:
 | `optInPlugin` | `751968346` | `3368398585` |
 | `payPlugin` | `751968379` | `3368399056` |
 | `asaMintPlugin` | `751968373` | `3368398964` |
-| `auctionPlugin` | `751972301` | `3368399217` |
+| `auctionPlugin` | `757503999` | `3488090697` |
 | `daoPlugin` | `751972311` | `3368399317` |
-| `dualStakePlugin` | `751972317` | `3368399386` |
+| `dualStakePlugin` | `757504668` | `3488114453` |
 | `gatePlugin` | `751972318` | `3368399411` |
 | `hyperSwapPlugin` | `751972295` | `3368399121` |
-| `marketplacePlugin` | `751968424` | `3368399474` |
+| `marketplacePlugin` | `757504090` | `3488095775` |
 | `nfdPlugin` | `751972324` | `3368399559` |
 | `paySiloPlugin` | `751972334` | `3368399670` |
 | `paySiloFactoryPlugin` | `751968441` | `3368399704` |
 | `pollPlugin` | `751972340` | `3368399770` |
-| `rafflePlugin` | `751972341` | `3368399868` |
-| `revenueManagerPlugin` | `751972084` | `3368395771` |
+| `rafflePlugin` | `757504189` | `3488098470` |
+| `revenueManagerPlugin` | `757504722` | `3488128159` |
 | `rewardsPlugin` | `751972347` | `3368399956` |
-| `socialPlugin` | `755645846` | `3453609510` |
+| `socialPlugin` | `757504312` | `3488102691` |
 | `stakingPlugin` | `751972363` | `3368400044` |
-| `stakingPoolPlugin` | `751972365` | `3368400148` |
+| `stakingPoolPlugin` | `757504244` | `3488100384` |
 | `subscriptionsPlugin` | `752474150` | `3378296099` |
-| `updatePlugin` | `755638741` | `3453512910` |
+| `updatePlugin` | `757505426` | `3488161934` |
 
 ### Sub-Gates
 
@@ -239,14 +239,14 @@ Wallet plugins extend abstracted account functionality:
 | `nfdGate` | `751971977` | `3368394599` |
 | `nfdRootGate` | `751971966` | `3368394594` |
 | `pollGate` | `751971963` | `3368394595` |
-| `socialActivityGate` | `751971965` | `3368394606` |
-| `socialFollowerCountGate` | `751971970` | `3368394601` |
+| `socialActivityGate` | `757500595` | `3487979397` |
+| `socialFollowerCountGate` | `757500596` | `3487979460` |
 | `socialFollowerIndexGate` | `754162353` | `3414942860` |
 | `socialImpactGate` | `751971971` | `3368394605` |
-| `socialModeratorGate` | `751971972` | `3368394602` |
+| `socialModeratorGate` | `757500598` | `3487979491` |
 | `stakingAmountGate` | `751971968` | `3368394603` |
-| `stakingPowerGate` | `751971973` | `3368394600` |
-| `subscriptionGate` | `751971974` | `3368394593` |
+| `stakingPowerGate` | `757500610` | `3487979550` |
+| `subscriptionGate` | `757500614` | `3487979601` |
 | `subscriptionStreakGate` | `751971976` | `3368394607` |
 
 ### Assets

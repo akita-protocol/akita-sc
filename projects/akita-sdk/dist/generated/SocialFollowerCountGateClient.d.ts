@@ -710,6 +710,8 @@ export declare class SocialFollowerCountGateClient {
         /**
          * Makes a call to the SocialFollowerCountGate smart contract using the `getRegistrationShape((uint8,uint64))(uint8,uint64)` ABI method.
          *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
          * @param params The params for the smart contract call
          * @returns The call params
          */
@@ -798,6 +800,8 @@ export declare class SocialFollowerCountGateClient {
         }>;
         /**
          * Makes a call to the SocialFollowerCountGate smart contract using the `getRegistrationShape((uint8,uint64))(uint8,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -928,6 +932,8 @@ export declare class SocialFollowerCountGateClient {
         /**
          * Makes a call to the SocialFollowerCountGate smart contract using the `getRegistrationShape((uint8,uint64))(uint8,uint64)` ABI method.
          *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
          * @param params The params for the smart contract call
          * @returns The call result
          */
@@ -1007,6 +1013,15 @@ export declare class SocialFollowerCountGateClient {
      * @returns A new app client with the altered params
      */
     clone(params: CloneAppClientParams): SocialFollowerCountGateClient;
+    /**
+     * Makes a readonly (simulated) call to the SocialFollowerCountGate smart contract using the `getRegistrationShape((uint8,uint64))(uint8,uint64)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getRegistrationShape(params: CallParams<SocialFollowerCountGateArgs['obj']['getRegistrationShape((uint8,uint64))(uint8,uint64)'] | SocialFollowerCountGateArgs['tuple']['getRegistrationShape((uint8,uint64))(uint8,uint64)']>): Promise<OperatorAndValue>;
     /**
      * Makes a readonly (simulated) call to the SocialFollowerCountGate smart contract using the `getEntry(uint64)byte[]` ABI method.
      *

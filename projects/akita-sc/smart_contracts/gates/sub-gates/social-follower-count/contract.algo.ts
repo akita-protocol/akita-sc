@@ -48,7 +48,7 @@ export class SocialFollowerCountGate extends AkitaBaseContract {
   private followerCountGate(user: Account, op: Operator, value: uint64): boolean {
 
     const meta = abiCall<typeof AkitaSocial.prototype.getMeta>({
-      appId: getAkitaSocialAppList(this.akitaDAO.value).impact,
+      appId: getAkitaSocialAppList(this.akitaDAO.value).graph,
       args: [user],
     }).returnValue
 
@@ -99,6 +99,7 @@ export class SocialFollowerCountGate extends AkitaBaseContract {
     return this.followerCountGate(caller, op, value)
   }
 
+  @abimethod({ readonly: true })
   getRegistrationShape(shape: OperatorAndValue): OperatorAndValue {
     return shape
   }

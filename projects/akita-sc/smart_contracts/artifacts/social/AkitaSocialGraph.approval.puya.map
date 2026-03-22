@@ -6,7 +6,7 @@
     "../../utils/base-contracts/base.ts",
     "../../utils/functions.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -1198,6 +1198,44 @@
       ]
     },
     "328": {
+      "op": "dup",
+      "defined_out": [
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "box_prefixed_key%0#0 (copy)"
+      ]
+    },
+    "329": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "box_prefixed_key%0#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "_%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "330": {
+      "op": "bury 1",
+      "stack_out": [
+        "box_prefixed_key%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "332": {
+      "error": "User is not blocked",
+      "op": "assert // User is not blocked",
+      "stack_out": [
+        "box_prefixed_key%0#0"
+      ]
+    },
+    "333": {
       "op": "box_del",
       "defined_out": [
         "{box_del}"
@@ -1206,14 +1244,14 @@
         "{box_del}"
       ]
     },
-    "329": {
+    "334": {
       "op": "pop",
       "stack_out": []
     },
-    "330": {
+    "335": {
       "op": "itxn_begin"
     },
-    "331": {
+    "336": {
       "op": "txn Sender",
       "defined_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0"
@@ -1222,7 +1260,7 @@
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "333": {
+    "338": {
       "op": "bytec_2 // \"\"",
       "defined_out": [
         "\"\"",
@@ -1233,7 +1271,7 @@
         "\"\""
       ]
     },
-    "334": {
+    "339": {
       "callsub": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "op": "callsub smart_contracts/social/base.ts::BaseSocial.mbr",
       "defined_out": [
@@ -1245,7 +1283,7 @@
         "tmp%5#0"
       ]
     },
-    "337": {
+    "342": {
       "op": "pushint 8 // 8",
       "defined_out": [
         "8",
@@ -1258,7 +1296,7 @@
         "8"
       ]
     },
-    "339": {
+    "344": {
       "op": "extract_uint64",
       "defined_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0",
@@ -1269,17 +1307,17 @@
         "values%0#0"
       ]
     },
-    "340": {
+    "345": {
       "op": "itxn_field Amount",
       "stack_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "342": {
+    "347": {
       "op": "itxn_field Receiver",
       "stack_out": []
     },
-    "344": {
+    "349": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -1288,11 +1326,11 @@
         "1"
       ]
     },
-    "345": {
+    "350": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "347": {
+    "352": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -1301,24 +1339,24 @@
         "0"
       ]
     },
-    "348": {
+    "353": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "350": {
+    "355": {
       "op": "itxn_submit"
     },
-    "351": {
+    "356": {
       "op": "intc_1 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "352": {
+    "357": {
       "op": "return",
       "stack_out": []
     },
-    "353": {
+    "358": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.gatedFollow[routing]",
       "params": {},
       "block": "gatedFollow",
@@ -1331,7 +1369,7 @@
         "tmp%0#0"
       ]
     },
-    "355": {
+    "360": {
       "op": "pushint 2 // 2",
       "defined_out": [
         "2",
@@ -1342,7 +1380,7 @@
         "2"
       ]
     },
-    "357": {
+    "362": {
       "op": "-",
       "defined_out": [
         "mbrPayment#0"
@@ -1351,7 +1389,7 @@
         "mbrPayment#0"
       ]
     },
-    "358": {
+    "363": {
       "op": "dup",
       "defined_out": [
         "mbrPayment#0"
@@ -1361,7 +1399,7 @@
         "mbrPayment#0"
       ]
     },
-    "359": {
+    "364": {
       "op": "gtxns TypeEnum",
       "defined_out": [
         "gtxn_type%0#0",
@@ -1372,7 +1410,7 @@
         "gtxn_type%0#0"
       ]
     },
-    "361": {
+    "366": {
       "op": "intc_1 // pay",
       "defined_out": [
         "gtxn_type%0#0",
@@ -1385,7 +1423,7 @@
         "pay"
       ]
     },
-    "362": {
+    "367": {
       "op": "==",
       "defined_out": [
         "gtxn_type_matches%0#0",
@@ -1396,14 +1434,14 @@
         "gtxn_type_matches%0#0"
       ]
     },
-    "363": {
+    "368": {
       "error": "transaction type is pay",
       "op": "assert // transaction type is pay",
       "stack_out": [
         "mbrPayment#0"
       ]
     },
-    "364": {
+    "369": {
       "op": "txn GroupIndex",
       "defined_out": [
         "mbrPayment#0",
@@ -1414,7 +1452,7 @@
         "tmp%1#0"
       ]
     },
-    "366": {
+    "371": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -1427,7 +1465,7 @@
         "1"
       ]
     },
-    "367": {
+    "372": {
       "op": "-",
       "defined_out": [
         "gateTxn#0",
@@ -1438,7 +1476,7 @@
         "gateTxn#0"
       ]
     },
-    "368": {
+    "373": {
       "op": "dupn 2",
       "defined_out": [
         "gateTxn#0",
@@ -1452,7 +1490,7 @@
         "gateTxn#0 (copy)"
       ]
     },
-    "370": {
+    "375": {
       "op": "gtxns TypeEnum",
       "defined_out": [
         "gateTxn#0",
@@ -1466,7 +1504,7 @@
         "gtxn_type%1#0"
       ]
     },
-    "372": {
+    "377": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl",
@@ -1482,7 +1520,7 @@
         "appl"
       ]
     },
-    "374": {
+    "379": {
       "op": "==",
       "defined_out": [
         "gateTxn#0",
@@ -1496,7 +1534,7 @@
         "gtxn_type_matches%1#0"
       ]
     },
-    "375": {
+    "380": {
       "error": "transaction type is appl",
       "op": "assert // transaction type is appl",
       "stack_out": [
@@ -1505,10 +1543,10 @@
         "gateTxn#0"
       ]
     },
-    "376": {
+    "381": {
       "op": "txna ApplicationArgs 1"
     },
-    "379": {
+    "384": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -1523,7 +1561,7 @@
         "address#0"
       ]
     },
-    "380": {
+    "385": {
       "op": "cover 2",
       "defined_out": [
         "address#0",
@@ -1538,7 +1576,7 @@
         "address#0"
       ]
     },
-    "382": {
+    "387": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -1555,7 +1593,7 @@
         "address#0 (copy)"
       ]
     },
-    "383": {
+    "388": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -1572,7 +1610,7 @@
         "len%0#0"
       ]
     },
-    "384": {
+    "389": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -1591,7 +1629,7 @@
         "32"
       ]
     },
-    "385": {
+    "390": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -1608,7 +1646,7 @@
         "eq%0#0"
       ]
     },
-    "386": {
+    "391": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -1619,7 +1657,7 @@
         "address#0"
       ]
     },
-    "387": {
+    "392": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "op": "callsub getMeta",
       "defined_out": [
@@ -1636,7 +1674,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "390": {
+    "395": {
       "op": "extract 50 8",
       "defined_out": [
         "address#0",
@@ -1652,7 +1690,7 @@
         "aggregate%extract%0#0"
       ]
     },
-    "393": {
+    "398": {
       "op": "swap",
       "defined_out": [
         "address#0",
@@ -1668,7 +1706,7 @@
         "gateTxn#0"
       ]
     },
-    "394": {
+    "399": {
       "op": "intc_0 // 0",
       "stack_out": [
         "mbrPayment#0",
@@ -1679,7 +1717,7 @@
         "0"
       ]
     },
-    "395": {
+    "400": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -1699,7 +1737,7 @@
         "\"akita_dao\""
       ]
     },
-    "396": {
+    "401": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -1719,7 +1757,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "397": {
+    "402": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -1731,7 +1769,7 @@
         "akitaDAO#0"
       ]
     },
-    "398": {
+    "403": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
@@ -1751,7 +1789,7 @@
         "caller#0"
       ]
     },
-    "400": {
+    "405": {
       "op": "cover 2",
       "defined_out": [
         "address#0",
@@ -1771,7 +1809,7 @@
         "akitaDAO#0"
       ]
     },
-    "402": {
+    "407": {
       "op": "swap",
       "stack_out": [
         "mbrPayment#0",
@@ -1783,7 +1821,7 @@
         "gateTxn#0"
       ]
     },
-    "403": {
+    "408": {
       "op": "gtxns ApplicationID",
       "stack_out": [
         "mbrPayment#0",
@@ -1795,7 +1833,7 @@
         "tmp%0#0"
       ]
     },
-    "405": {
+    "410": {
       "op": "swap",
       "stack_out": [
         "mbrPayment#0",
@@ -1807,7 +1845,7 @@
         "akitaDAO#0"
       ]
     },
-    "406": {
+    "411": {
       "op": "pushbytes \"aal\"",
       "defined_out": [
         "\"aal\"",
@@ -1830,7 +1868,7 @@
         "\"aal\""
       ]
     },
-    "411": {
+    "416": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -1853,7 +1891,7 @@
         "awst_tmp%1#1"
       ]
     },
-    "412": {
+    "417": {
       "op": "pop",
       "stack_out": [
         "mbrPayment#0",
@@ -1865,7 +1903,7 @@
         "appListBytes#0"
       ]
     },
-    "413": {
+    "418": {
       "op": "pushint 40 // 40",
       "defined_out": [
         "40",
@@ -1888,7 +1926,7 @@
         "40"
       ]
     },
-    "415": {
+    "420": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -1909,7 +1947,7 @@
         "values%0#0"
       ]
     },
-    "416": {
+    "421": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -1928,7 +1966,7 @@
         "tmp%2#2"
       ]
     },
-    "417": {
+    "422": {
       "op": "bz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -1938,7 +1976,7 @@
         "caller#0"
       ]
     },
-    "420": {
+    "425": {
       "op": "dig 3",
       "stack_out": [
         "mbrPayment#0",
@@ -1949,7 +1987,7 @@
         "gateTxn#0"
       ]
     },
-    "422": {
+    "427": {
       "op": "gtxns OnCompletion",
       "defined_out": [
         "address#0",
@@ -1968,7 +2006,7 @@
         "tmp%3#2"
       ]
     },
-    "424": {
+    "429": {
       "op": "bnz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -1978,7 +2016,7 @@
         "caller#0"
       ]
     },
-    "427": {
+    "432": {
       "op": "dig 3",
       "stack_out": [
         "mbrPayment#0",
@@ -1989,7 +2027,7 @@
         "gateTxn#0"
       ]
     },
-    "429": {
+    "434": {
       "op": "gtxns NumAppArgs",
       "defined_out": [
         "address#0",
@@ -2008,7 +2046,7 @@
         "tmp%5#0"
       ]
     },
-    "431": {
+    "436": {
       "op": "pushint 4 // 4",
       "defined_out": [
         "4",
@@ -2029,7 +2067,7 @@
         "4"
       ]
     },
-    "433": {
+    "438": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -2048,7 +2086,7 @@
         "tmp%6#0"
       ]
     },
-    "434": {
+    "439": {
       "op": "bz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -2058,7 +2096,7 @@
         "caller#0"
       ]
     },
-    "437": {
+    "442": {
       "op": "dig 3",
       "stack_out": [
         "mbrPayment#0",
@@ -2069,7 +2107,7 @@
         "gateTxn#0"
       ]
     },
-    "439": {
+    "444": {
       "op": "intc_0 // 0",
       "stack_out": [
         "mbrPayment#0",
@@ -2081,7 +2119,7 @@
         "0"
       ]
     },
-    "440": {
+    "445": {
       "op": "gtxnsas ApplicationArgs",
       "defined_out": [
         "address#0",
@@ -2100,7 +2138,7 @@
         "tmp%7#1"
       ]
     },
-    "442": {
+    "447": {
       "op": "pushbytes 0x43922655 // method \"mustCheck(address,uint64,byte[][])void\"",
       "defined_out": [
         "Method(mustCheck(address,uint64,byte[][])void)",
@@ -2121,7 +2159,7 @@
         "Method(mustCheck(address,uint64,byte[][])void)"
       ]
     },
-    "448": {
+    "453": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -2140,7 +2178,7 @@
         "tmp%8#1"
       ]
     },
-    "449": {
+    "454": {
       "op": "bz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -2150,7 +2188,7 @@
         "caller#0"
       ]
     },
-    "452": {
+    "457": {
       "op": "dig 3",
       "stack_out": [
         "mbrPayment#0",
@@ -2161,7 +2199,7 @@
         "gateTxn#0"
       ]
     },
-    "454": {
+    "459": {
       "op": "intc_1 // 1",
       "stack_out": [
         "mbrPayment#0",
@@ -2173,7 +2211,7 @@
         "1"
       ]
     },
-    "455": {
+    "460": {
       "op": "gtxnsas ApplicationArgs",
       "defined_out": [
         "address#0",
@@ -2192,7 +2230,7 @@
         "tmp%9#0"
       ]
     },
-    "457": {
+    "462": {
       "op": "dig 1",
       "stack_out": [
         "mbrPayment#0",
@@ -2204,7 +2242,7 @@
         "caller#0"
       ]
     },
-    "459": {
+    "464": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -2223,7 +2261,7 @@
         "tmp%10#0"
       ]
     },
-    "460": {
+    "465": {
       "op": "bz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -2233,7 +2271,7 @@
         "caller#0"
       ]
     },
-    "463": {
+    "468": {
       "op": "dig 3",
       "stack_out": [
         "mbrPayment#0",
@@ -2244,7 +2282,7 @@
         "gateTxn#0"
       ]
     },
-    "465": {
+    "470": {
       "op": "pushint 2 // 2",
       "stack_out": [
         "mbrPayment#0",
@@ -2256,7 +2294,7 @@
         "2"
       ]
     },
-    "467": {
+    "472": {
       "op": "gtxnsas ApplicationArgs",
       "defined_out": [
         "address#0",
@@ -2275,7 +2313,7 @@
         "tmp%11#0"
       ]
     },
-    "469": {
+    "474": {
       "op": "dig 2",
       "stack_out": [
         "mbrPayment#0",
@@ -2287,7 +2325,7 @@
         "aggregate%extract%0#0"
       ]
     },
-    "471": {
+    "476": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -2306,7 +2344,7 @@
         "tmp%13#0"
       ]
     },
-    "472": {
+    "477": {
       "op": "bz gatedFollow_bool_false@8",
       "stack_out": [
         "mbrPayment#0",
@@ -2316,7 +2354,7 @@
         "caller#0"
       ]
     },
-    "475": {
+    "480": {
       "op": "intc_1 // 1",
       "defined_out": [
         "address#0",
@@ -2335,7 +2373,7 @@
         "and_result%0#0"
       ]
     },
-    "476": {
+    "481": {
       "error": "Gate check failed",
       "block": "gatedFollow_bool_merge@9",
       "stack_in": [
@@ -2356,7 +2394,7 @@
         "caller#0"
       ]
     },
-    "477": {
+    "482": {
       "op": "bytec_2 // \"\"",
       "defined_out": [
         "\"\""
@@ -2370,7 +2408,7 @@
         "\"\""
       ]
     },
-    "478": {
+    "483": {
       "callsub": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "op": "callsub smart_contracts/social/base.ts::BaseSocial.mbr",
       "defined_out": [
@@ -2385,7 +2423,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "481": {
+    "486": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2401,7 +2439,7 @@
         "0"
       ]
     },
-    "482": {
+    "487": {
       "op": "extract_uint64",
       "defined_out": [
         "follows#0"
@@ -2415,7 +2453,7 @@
         "follows#0"
       ]
     },
-    "483": {
+    "488": {
       "op": "dig 5",
       "defined_out": [
         "follows#0",
@@ -2431,7 +2469,7 @@
         "mbrPayment#0"
       ]
     },
-    "485": {
+    "490": {
       "op": "dup",
       "defined_out": [
         "follows#0",
@@ -2449,7 +2487,7 @@
         "mbrPayment#0 (copy)"
       ]
     },
-    "486": {
+    "491": {
       "op": "gtxns Receiver",
       "defined_out": [
         "follows#0",
@@ -2467,7 +2505,7 @@
         "tmp%2#1"
       ]
     },
-    "488": {
+    "493": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "follows#0",
@@ -2487,7 +2525,7 @@
         "tmp%3#1"
       ]
     },
-    "490": {
+    "495": {
       "op": "==",
       "defined_out": [
         "follows#0",
@@ -2505,7 +2543,7 @@
         "tmp%4#0"
       ]
     },
-    "491": {
+    "496": {
       "op": "swap",
       "stack_out": [
         "mbrPayment#0",
@@ -2518,7 +2556,7 @@
         "mbrPayment#0"
       ]
     },
-    "492": {
+    "497": {
       "op": "gtxns Amount",
       "defined_out": [
         "follows#0",
@@ -2537,7 +2575,7 @@
         "tmp%5#0"
       ]
     },
-    "494": {
+    "499": {
       "op": "uncover 2",
       "stack_out": [
         "mbrPayment#0",
@@ -2550,7 +2588,7 @@
         "follows#0"
       ]
     },
-    "496": {
+    "501": {
       "op": "==",
       "defined_out": [
         "mbrPayment#0",
@@ -2567,7 +2605,7 @@
         "tmp%6#0"
       ]
     },
-    "497": {
+    "502": {
       "op": "&&",
       "defined_out": [
         "mbrPayment#0",
@@ -2582,7 +2620,7 @@
         "tmp%7#0"
       ]
     },
-    "498": {
+    "503": {
       "error": "Invalid payment",
       "op": "assert // Invalid payment",
       "stack_out": [
@@ -2593,7 +2631,7 @@
         "caller#0"
       ]
     },
-    "499": {
+    "504": {
       "op": "txn Sender",
       "defined_out": [
         "mbrPayment#0",
@@ -2608,7 +2646,7 @@
         "tmp%8#0"
       ]
     },
-    "501": {
+    "506": {
       "op": "dig 3",
       "defined_out": [
         "address#0",
@@ -2625,7 +2663,7 @@
         "address#0"
       ]
     },
-    "503": {
+    "508": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.createFollow",
       "op": "callsub createFollow",
       "stack_out": [
@@ -2636,7 +2674,7 @@
         "caller#0"
       ]
     },
-    "506": {
+    "511": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -2652,7 +2690,7 @@
         "1"
       ]
     },
-    "507": {
+    "512": {
       "op": "return",
       "stack_out": [
         "mbrPayment#0",
@@ -2662,7 +2700,7 @@
         "caller#0"
       ]
     },
-    "508": {
+    "513": {
       "block": "gatedFollow_bool_false@8",
       "stack_in": [
         "mbrPayment#0",
@@ -2684,10 +2722,10 @@
         "and_result%0#0"
       ]
     },
-    "509": {
+    "514": {
       "op": "b gatedFollow_bool_merge@9"
     },
-    "512": {
+    "517": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.follow[routing]",
       "params": {},
       "block": "follow",
@@ -2700,7 +2738,7 @@
         "tmp%0#0"
       ]
     },
-    "514": {
+    "519": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -2711,7 +2749,7 @@
         "1"
       ]
     },
-    "515": {
+    "520": {
       "op": "-",
       "defined_out": [
         "mbrPayment#0"
@@ -2720,7 +2758,7 @@
         "mbrPayment#0"
       ]
     },
-    "516": {
+    "521": {
       "op": "dup",
       "defined_out": [
         "mbrPayment#0",
@@ -2731,7 +2769,7 @@
         "mbrPayment#0 (copy)"
       ]
     },
-    "517": {
+    "522": {
       "op": "gtxns TypeEnum",
       "defined_out": [
         "gtxn_type%0#0",
@@ -2742,7 +2780,7 @@
         "gtxn_type%0#0"
       ]
     },
-    "519": {
+    "524": {
       "op": "intc_1 // pay",
       "defined_out": [
         "gtxn_type%0#0",
@@ -2755,7 +2793,7 @@
         "pay"
       ]
     },
-    "520": {
+    "525": {
       "op": "==",
       "defined_out": [
         "gtxn_type_matches%0#0",
@@ -2766,14 +2804,14 @@
         "gtxn_type_matches%0#0"
       ]
     },
-    "521": {
+    "526": {
       "error": "transaction type is pay",
       "op": "assert // transaction type is pay",
       "stack_out": [
         "mbrPayment#0"
       ]
     },
-    "522": {
+    "527": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "address#0",
@@ -2784,7 +2822,7 @@
         "address#0"
       ]
     },
-    "525": {
+    "530": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -2797,7 +2835,7 @@
         "address#0 (copy)"
       ]
     },
-    "526": {
+    "531": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -2810,7 +2848,7 @@
         "len%0#0"
       ]
     },
-    "527": {
+    "532": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -2825,7 +2863,7 @@
         "32"
       ]
     },
-    "528": {
+    "533": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -2838,7 +2876,7 @@
         "eq%0#0"
       ]
     },
-    "529": {
+    "534": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -2846,7 +2884,7 @@
         "address#0"
       ]
     },
-    "530": {
+    "535": {
       "op": "dup",
       "stack_out": [
         "mbrPayment#0",
@@ -2854,7 +2892,7 @@
         "address#0 (copy)"
       ]
     },
-    "531": {
+    "536": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "op": "callsub getMeta",
       "defined_out": [
@@ -2868,7 +2906,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "534": {
+    "539": {
       "op": "pushint 50 // 50",
       "defined_out": [
         "50",
@@ -2883,7 +2921,7 @@
         "50"
       ]
     },
-    "536": {
+    "541": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -2896,7 +2934,7 @@
         "followGateID#0"
       ]
     },
-    "537": {
+    "542": {
       "op": "!",
       "defined_out": [
         "address#0",
@@ -2909,7 +2947,7 @@
         "tmp%0#1"
       ]
     },
-    "538": {
+    "543": {
       "error": "This has a gate",
       "op": "assert // This has a gate",
       "stack_out": [
@@ -2917,7 +2955,7 @@
         "address#0"
       ]
     },
-    "539": {
+    "544": {
       "op": "bytec_2 // \"\"",
       "defined_out": [
         "\"\"",
@@ -2930,7 +2968,7 @@
         "\"\""
       ]
     },
-    "540": {
+    "545": {
       "callsub": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "op": "callsub smart_contracts/social/base.ts::BaseSocial.mbr",
       "defined_out": [
@@ -2944,7 +2982,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "543": {
+    "548": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2959,7 +2997,7 @@
         "0"
       ]
     },
-    "544": {
+    "549": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -2972,7 +3010,7 @@
         "follows#0"
       ]
     },
-    "545": {
+    "550": {
       "op": "dig 2",
       "stack_out": [
         "mbrPayment#0",
@@ -2981,7 +3019,7 @@
         "mbrPayment#0 (copy)"
       ]
     },
-    "547": {
+    "552": {
       "op": "gtxns Receiver",
       "defined_out": [
         "address#0",
@@ -2996,7 +3034,7 @@
         "tmp%1#1"
       ]
     },
-    "549": {
+    "554": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "address#0",
@@ -3013,7 +3051,7 @@
         "tmp%2#1"
       ]
     },
-    "551": {
+    "556": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -3028,7 +3066,7 @@
         "tmp%3#0"
       ]
     },
-    "552": {
+    "557": {
       "op": "uncover 3",
       "stack_out": [
         "address#0",
@@ -3037,7 +3075,7 @@
         "mbrPayment#0"
       ]
     },
-    "554": {
+    "559": {
       "op": "gtxns Amount",
       "defined_out": [
         "address#0",
@@ -3052,7 +3090,7 @@
         "tmp%4#0"
       ]
     },
-    "556": {
+    "561": {
       "op": "uncover 2",
       "stack_out": [
         "address#0",
@@ -3061,7 +3099,7 @@
         "follows#0"
       ]
     },
-    "558": {
+    "563": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -3074,7 +3112,7 @@
         "tmp%5#0"
       ]
     },
-    "559": {
+    "564": {
       "op": "&&",
       "defined_out": [
         "address#0",
@@ -3085,14 +3123,14 @@
         "tmp%6#0"
       ]
     },
-    "560": {
+    "565": {
       "error": "Invalid payment",
       "op": "assert // Invalid payment",
       "stack_out": [
         "address#0"
       ]
     },
-    "561": {
+    "566": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
@@ -3103,29 +3141,29 @@
         "tmp%7#0"
       ]
     },
-    "563": {
+    "568": {
       "op": "swap",
       "stack_out": [
         "tmp%7#0",
         "address#0"
       ]
     },
-    "564": {
+    "569": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.createFollow",
       "op": "callsub createFollow",
       "stack_out": []
     },
-    "567": {
+    "572": {
       "op": "intc_1 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "568": {
+    "573": {
       "op": "return",
       "stack_out": []
     },
-    "569": {
+    "574": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.unfollow[routing]",
       "params": {},
       "block": "unfollow",
@@ -3138,7 +3176,7 @@
         "address#0"
       ]
     },
-    "572": {
+    "577": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -3149,7 +3187,7 @@
         "address#0 (copy)"
       ]
     },
-    "573": {
+    "578": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -3160,7 +3198,7 @@
         "len%0#0"
       ]
     },
-    "574": {
+    "579": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -3173,7 +3211,7 @@
         "32"
       ]
     },
-    "575": {
+    "580": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -3184,14 +3222,14 @@
         "eq%0#0"
       ]
     },
-    "576": {
+    "581": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
         "address#0"
       ]
     },
-    "577": {
+    "582": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
@@ -3202,7 +3240,7 @@
         "tmp%0#1"
       ]
     },
-    "579": {
+    "584": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isBanned",
       "op": "callsub isBanned",
       "defined_out": [
@@ -3214,7 +3252,7 @@
         "tmp%1#1"
       ]
     },
-    "582": {
+    "587": {
       "op": "!",
       "defined_out": [
         "address#0",
@@ -3225,17 +3263,17 @@
         "tmp%2#0"
       ]
     },
-    "583": {
+    "588": {
       "error": "This account is banned",
       "op": "assert // This account is banned",
       "stack_out": [
         "address#0"
       ]
     },
-    "584": {
+    "589": {
       "op": "dup"
     },
-    "585": {
+    "590": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
@@ -3248,7 +3286,7 @@
         "tmp%3#0"
       ]
     },
-    "587": {
+    "592": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.flw",
       "op": "callsub flw",
       "defined_out": [
@@ -3260,7 +3298,7 @@
         "followsKey#0"
       ]
     },
-    "590": {
+    "595": {
       "op": "bytec 4 // \"f\"",
       "defined_out": [
         "\"f\"",
@@ -3273,7 +3311,7 @@
         "\"f\""
       ]
     },
-    "592": {
+    "597": {
       "op": "swap",
       "stack_out": [
         "address#0",
@@ -3281,7 +3319,7 @@
         "followsKey#0"
       ]
     },
-    "593": {
+    "598": {
       "op": "concat",
       "defined_out": [
         "address#0",
@@ -3292,7 +3330,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "594": {
+    "599": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -3305,7 +3343,7 @@
         "box_prefixed_key%0#0 (copy)"
       ]
     },
-    "595": {
+    "600": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -3320,7 +3358,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "596": {
+    "601": {
       "op": "bury 1",
       "stack_out": [
         "address#0",
@@ -3328,7 +3366,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "598": {
+    "603": {
       "error": "Not following this user",
       "op": "assert // Not following this user",
       "stack_out": [
@@ -3336,7 +3374,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "599": {
+    "604": {
       "op": "dig 1",
       "stack_out": [
         "address#0",
@@ -3344,7 +3382,7 @@
         "address#0 (copy)"
       ]
     },
-    "601": {
+    "606": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "op": "callsub getMeta",
       "defined_out": [
@@ -3358,7 +3396,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "604": {
+    "609": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -3373,7 +3411,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "605": {
+    "610": {
       "op": "pushint 41 // 41",
       "defined_out": [
         "41",
@@ -3390,7 +3428,7 @@
         "41"
       ]
     },
-    "607": {
+    "612": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -3405,7 +3443,7 @@
         "followerCount#0"
       ]
     },
-    "608": {
+    "613": {
       "op": "swap",
       "stack_out": [
         "address#0",
@@ -3414,7 +3452,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "609": {
+    "614": {
       "op": "pushint 33 // 33",
       "defined_out": [
         "33",
@@ -3431,7 +3469,7 @@
         "33"
       ]
     },
-    "611": {
+    "616": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -3446,7 +3484,7 @@
         "followerIndex#0"
       ]
     },
-    "612": {
+    "617": {
       "op": "swap",
       "stack_out": [
         "address#0",
@@ -3455,7 +3493,7 @@
         "followerCount#0"
       ]
     },
-    "613": {
+    "618": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -3472,7 +3510,7 @@
         "1"
       ]
     },
-    "614": {
+    "619": {
       "op": "-",
       "defined_out": [
         "address#0",
@@ -3487,7 +3525,7 @@
         "tmp%5#0"
       ]
     },
-    "615": {
+    "620": {
       "op": "uncover 3",
       "stack_out": [
         "box_prefixed_key%0#0",
@@ -3496,7 +3534,7 @@
         "address#0"
       ]
     },
-    "617": {
+    "622": {
       "op": "cover 2",
       "stack_out": [
         "box_prefixed_key%0#0",
@@ -3505,14 +3543,14 @@
         "tmp%5#0"
       ]
     },
-    "619": {
+    "624": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.updateFollowerMeta",
       "op": "callsub updateFollowerMeta",
       "stack_out": [
         "box_prefixed_key%0#0"
       ]
     },
-    "622": {
+    "627": {
       "op": "box_del",
       "defined_out": [
         "{box_del}"
@@ -3521,14 +3559,14 @@
         "{box_del}"
       ]
     },
-    "623": {
+    "628": {
       "op": "pop",
       "stack_out": []
     },
-    "624": {
+    "629": {
       "op": "itxn_begin"
     },
-    "625": {
+    "630": {
       "op": "txn Sender",
       "defined_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0"
@@ -3537,7 +3575,7 @@
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "627": {
+    "632": {
       "op": "bytec_2 // \"\"",
       "defined_out": [
         "\"\"",
@@ -3548,7 +3586,7 @@
         "\"\""
       ]
     },
-    "628": {
+    "633": {
       "callsub": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "op": "callsub smart_contracts/social/base.ts::BaseSocial.mbr",
       "defined_out": [
@@ -3560,7 +3598,7 @@
         "tmp%6#0"
       ]
     },
-    "631": {
+    "636": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -3573,7 +3611,7 @@
         "0"
       ]
     },
-    "632": {
+    "637": {
       "op": "extract_uint64",
       "defined_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0",
@@ -3584,50 +3622,50 @@
         "values%2#0"
       ]
     },
-    "633": {
+    "638": {
       "op": "itxn_field Amount",
       "stack_out": [
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "635": {
+    "640": {
       "op": "itxn_field Receiver",
       "stack_out": []
     },
-    "637": {
+    "642": {
       "op": "intc_1 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "638": {
+    "643": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "640": {
+    "645": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "641": {
+    "646": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "643": {
+    "648": {
       "op": "itxn_submit"
     },
-    "644": {
+    "649": {
       "op": "intc_1 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "645": {
+    "650": {
       "op": "return",
       "stack_out": []
     },
-    "646": {
+    "651": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isBlocked[routing]",
       "params": {},
       "block": "isBlocked",
@@ -3640,7 +3678,7 @@
         "user#0"
       ]
     },
-    "649": {
+    "654": {
       "op": "dup",
       "defined_out": [
         "user#0",
@@ -3651,7 +3689,7 @@
         "user#0 (copy)"
       ]
     },
-    "650": {
+    "655": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -3662,7 +3700,7 @@
         "len%0#0"
       ]
     },
-    "651": {
+    "656": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -3675,7 +3713,7 @@
         "32"
       ]
     },
-    "652": {
+    "657": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3686,14 +3724,14 @@
         "eq%0#0"
       ]
     },
-    "653": {
+    "658": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
         "user#0"
       ]
     },
-    "654": {
+    "659": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "blocked#0",
@@ -3704,7 +3742,7 @@
         "blocked#0"
       ]
     },
-    "657": {
+    "662": {
       "op": "dup",
       "defined_out": [
         "blocked#0",
@@ -3717,7 +3755,7 @@
         "blocked#0 (copy)"
       ]
     },
-    "658": {
+    "663": {
       "op": "len",
       "defined_out": [
         "blocked#0",
@@ -3730,7 +3768,7 @@
         "len%1#0"
       ]
     },
-    "659": {
+    "664": {
       "op": "intc_3 // 32",
       "stack_out": [
         "user#0",
@@ -3739,7 +3777,7 @@
         "32"
       ]
     },
-    "660": {
+    "665": {
       "op": "==",
       "defined_out": [
         "blocked#0",
@@ -3752,7 +3790,7 @@
         "eq%1#0"
       ]
     },
-    "661": {
+    "666": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -3760,7 +3798,7 @@
         "blocked#0"
       ]
     },
-    "662": {
+    "667": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.blk",
       "op": "callsub blk",
       "defined_out": [
@@ -3770,7 +3808,7 @@
         "blocksKey#0"
       ]
     },
-    "665": {
+    "670": {
       "op": "bytec_3 // \"b\"",
       "defined_out": [
         "\"b\"",
@@ -3781,14 +3819,14 @@
         "\"b\""
       ]
     },
-    "666": {
+    "671": {
       "op": "swap",
       "stack_out": [
         "\"b\"",
         "blocksKey#0"
       ]
     },
-    "667": {
+    "672": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0"
@@ -3797,7 +3835,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "668": {
+    "673": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -3808,13 +3846,13 @@
         "maybe_exists%0#0"
       ]
     },
-    "669": {
+    "674": {
       "op": "bury 1",
       "stack_out": [
         "maybe_exists%0#0"
       ]
     },
-    "671": {
+    "676": {
       "op": "pushbytes 0x00",
       "defined_out": [
         "0x00",
@@ -3825,7 +3863,7 @@
         "0x00"
       ]
     },
-    "674": {
+    "679": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -3838,7 +3876,7 @@
         "0"
       ]
     },
-    "675": {
+    "680": {
       "op": "uncover 2",
       "stack_out": [
         "0x00",
@@ -3846,7 +3884,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "677": {
+    "682": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0"
@@ -3855,7 +3893,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "678": {
+    "683": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -3866,14 +3904,14 @@
         "0x151f7c75"
       ]
     },
-    "679": {
+    "684": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "680": {
+    "685": {
       "op": "concat",
       "defined_out": [
         "tmp%6#0"
@@ -3882,11 +3920,11 @@
         "tmp%6#0"
       ]
     },
-    "681": {
+    "686": {
       "op": "log",
       "stack_out": []
     },
-    "682": {
+    "687": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -3895,11 +3933,11 @@
         "1"
       ]
     },
-    "683": {
+    "688": {
       "op": "return",
       "stack_out": []
     },
-    "684": {
+    "689": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isFollowing[routing]",
       "params": {},
       "block": "isFollowing",
@@ -3912,7 +3950,7 @@
         "follower#0"
       ]
     },
-    "687": {
+    "692": {
       "op": "dup",
       "defined_out": [
         "follower#0",
@@ -3923,7 +3961,7 @@
         "follower#0 (copy)"
       ]
     },
-    "688": {
+    "693": {
       "op": "len",
       "defined_out": [
         "follower#0",
@@ -3934,7 +3972,7 @@
         "len%0#0"
       ]
     },
-    "689": {
+    "694": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -3947,7 +3985,7 @@
         "32"
       ]
     },
-    "690": {
+    "695": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3958,14 +3996,14 @@
         "eq%0#0"
       ]
     },
-    "691": {
+    "696": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
         "follower#0"
       ]
     },
-    "692": {
+    "697": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "follower#0",
@@ -3976,7 +4014,7 @@
         "user#0"
       ]
     },
-    "695": {
+    "700": {
       "op": "dup",
       "defined_out": [
         "follower#0",
@@ -3989,7 +4027,7 @@
         "user#0 (copy)"
       ]
     },
-    "696": {
+    "701": {
       "op": "len",
       "defined_out": [
         "follower#0",
@@ -4002,7 +4040,7 @@
         "len%1#0"
       ]
     },
-    "697": {
+    "702": {
       "op": "intc_3 // 32",
       "stack_out": [
         "follower#0",
@@ -4011,7 +4049,7 @@
         "32"
       ]
     },
-    "698": {
+    "703": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -4024,7 +4062,7 @@
         "eq%1#0"
       ]
     },
-    "699": {
+    "704": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -4032,14 +4070,14 @@
         "user#0"
       ]
     },
-    "700": {
+    "705": {
       "op": "swap",
       "stack_out": [
         "user#0",
         "follower#0"
       ]
     },
-    "701": {
+    "706": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.flw",
       "op": "callsub flw",
       "defined_out": [
@@ -4049,7 +4087,7 @@
         "followsKey#0"
       ]
     },
-    "704": {
+    "709": {
       "op": "bytec 4 // \"f\"",
       "defined_out": [
         "\"f\"",
@@ -4060,14 +4098,14 @@
         "\"f\""
       ]
     },
-    "706": {
+    "711": {
       "op": "swap",
       "stack_out": [
         "\"f\"",
         "followsKey#0"
       ]
     },
-    "707": {
+    "712": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0"
@@ -4076,7 +4114,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "708": {
+    "713": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -4087,13 +4125,13 @@
         "maybe_exists%0#0"
       ]
     },
-    "709": {
+    "714": {
       "op": "bury 1",
       "stack_out": [
         "maybe_exists%0#0"
       ]
     },
-    "711": {
+    "716": {
       "op": "pushbytes 0x00",
       "defined_out": [
         "0x00",
@@ -4104,7 +4142,7 @@
         "0x00"
       ]
     },
-    "714": {
+    "719": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4117,7 +4155,7 @@
         "0"
       ]
     },
-    "715": {
+    "720": {
       "op": "uncover 2",
       "stack_out": [
         "0x00",
@@ -4125,7 +4163,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "717": {
+    "722": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0"
@@ -4134,7 +4172,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "718": {
+    "723": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4145,14 +4183,14 @@
         "0x151f7c75"
       ]
     },
-    "719": {
+    "724": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "720": {
+    "725": {
       "op": "concat",
       "defined_out": [
         "tmp%6#0"
@@ -4161,11 +4199,11 @@
         "tmp%6#0"
       ]
     },
-    "721": {
+    "726": {
       "op": "log",
       "stack_out": []
     },
-    "722": {
+    "727": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4174,11 +4212,11 @@
         "1"
       ]
     },
-    "723": {
+    "728": {
       "op": "return",
       "stack_out": []
     },
-    "724": {
+    "729": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getFollowIndex[routing]",
       "params": {},
       "block": "getFollowIndex",
@@ -4191,7 +4229,7 @@
         "follower#0"
       ]
     },
-    "727": {
+    "732": {
       "op": "dup",
       "defined_out": [
         "follower#0",
@@ -4202,7 +4240,7 @@
         "follower#0 (copy)"
       ]
     },
-    "728": {
+    "733": {
       "op": "len",
       "defined_out": [
         "follower#0",
@@ -4213,7 +4251,7 @@
         "len%0#0"
       ]
     },
-    "729": {
+    "734": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -4226,7 +4264,7 @@
         "32"
       ]
     },
-    "730": {
+    "735": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4237,14 +4275,14 @@
         "eq%0#0"
       ]
     },
-    "731": {
+    "736": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
         "follower#0"
       ]
     },
-    "732": {
+    "737": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "follower#0",
@@ -4255,7 +4293,7 @@
         "user#0"
       ]
     },
-    "735": {
+    "740": {
       "op": "dup",
       "defined_out": [
         "follower#0",
@@ -4268,7 +4306,7 @@
         "user#0 (copy)"
       ]
     },
-    "736": {
+    "741": {
       "op": "len",
       "defined_out": [
         "follower#0",
@@ -4281,7 +4319,7 @@
         "len%1#0"
       ]
     },
-    "737": {
+    "742": {
       "op": "intc_3 // 32",
       "stack_out": [
         "follower#0",
@@ -4290,7 +4328,7 @@
         "32"
       ]
     },
-    "738": {
+    "743": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -4303,7 +4341,7 @@
         "eq%1#0"
       ]
     },
-    "739": {
+    "744": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -4311,14 +4349,14 @@
         "user#0"
       ]
     },
-    "740": {
+    "745": {
       "op": "swap",
       "stack_out": [
         "user#0",
         "follower#0"
       ]
     },
-    "741": {
+    "746": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.flw",
       "op": "callsub flw",
       "defined_out": [
@@ -4328,7 +4366,7 @@
         "followsKey#0"
       ]
     },
-    "744": {
+    "749": {
       "op": "bytec 4 // \"f\"",
       "defined_out": [
         "\"f\"",
@@ -4339,14 +4377,14 @@
         "\"f\""
       ]
     },
-    "746": {
+    "751": {
       "op": "swap",
       "stack_out": [
         "\"f\"",
         "followsKey#0"
       ]
     },
-    "747": {
+    "752": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0"
@@ -4355,7 +4393,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "748": {
+    "753": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -4366,14 +4404,14 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "749": {
+    "754": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
         "aggregate%box_get%0#0"
       ]
     },
-    "750": {
+    "755": {
       "op": "btoi",
       "defined_out": [
         "maybe_value_converted%0#0"
@@ -4382,7 +4420,7 @@
         "maybe_value_converted%0#0"
       ]
     },
-    "751": {
+    "756": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0"
@@ -4391,7 +4429,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "752": {
+    "757": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4402,14 +4440,14 @@
         "0x151f7c75"
       ]
     },
-    "753": {
+    "758": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "754": {
+    "759": {
       "op": "concat",
       "defined_out": [
         "tmp%6#0"
@@ -4418,11 +4456,11 @@
         "tmp%6#0"
       ]
     },
-    "755": {
+    "760": {
       "op": "log",
       "stack_out": []
     },
-    "756": {
+    "761": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4431,11 +4469,11 @@
         "1"
       ]
     },
-    "757": {
+    "762": {
       "op": "return",
       "stack_out": []
     },
-    "758": {
+    "763": {
       "subroutine": "smart_contracts/social/base.ts::BaseSocial.mbr[routing]",
       "params": {},
       "block": "mbr",
@@ -4448,7 +4486,7 @@
         "tmp%0#0"
       ]
     },
-    "761": {
+    "766": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -4459,7 +4497,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "762": {
+    "767": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4472,7 +4510,7 @@
         "0"
       ]
     },
-    "763": {
+    "768": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -4483,7 +4521,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "764": {
+    "769": {
       "op": "pushint 2 // 2",
       "defined_out": [
         "2",
@@ -4496,7 +4534,7 @@
         "2"
       ]
     },
-    "766": {
+    "771": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -4507,7 +4545,7 @@
         "add%0#0"
       ]
     },
-    "767": {
+    "772": {
       "op": "dig 1",
       "stack_out": [
         "tmp%0#0",
@@ -4515,7 +4553,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "769": {
+    "774": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -4528,7 +4566,7 @@
         "len%0#0"
       ]
     },
-    "770": {
+    "775": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4539,14 +4577,14 @@
         "eq%0#0"
       ]
     },
-    "771": {
+    "776": {
       "error": "invalid number of bytes for (len+uint8[])",
       "op": "assert // invalid number of bytes for (len+uint8[])",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "772": {
+    "777": {
       "op": "extract 2 0",
       "defined_out": [
         "tmp%1#0"
@@ -4555,7 +4593,7 @@
         "tmp%1#0"
       ]
     },
-    "775": {
+    "780": {
       "callsub": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "op": "callsub smart_contracts/social/base.ts::BaseSocial.mbr",
       "defined_out": [
@@ -4565,7 +4603,7 @@
         "tmp%2#0"
       ]
     },
-    "778": {
+    "783": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4576,14 +4614,14 @@
         "0x151f7c75"
       ]
     },
-    "779": {
+    "784": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "tmp%2#0"
       ]
     },
-    "780": {
+    "785": {
       "op": "concat",
       "defined_out": [
         "tmp%3#0"
@@ -4592,11 +4630,11 @@
         "tmp%3#0"
       ]
     },
-    "781": {
+    "786": {
       "op": "log",
       "stack_out": []
     },
-    "782": {
+    "787": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4605,11 +4643,11 @@
         "1"
       ]
     },
-    "783": {
+    "788": {
       "op": "return",
       "stack_out": []
     },
-    "784": {
+    "789": {
       "subroutine": "smart_contracts/social/base.ts::BaseSocial.payWallMbr[routing]",
       "params": {},
       "block": "payWallMbr",
@@ -4622,7 +4660,7 @@
         "paywall#0"
       ]
     },
-    "787": {
+    "792": {
       "op": "dup",
       "defined_out": [
         "paywall#0",
@@ -4633,7 +4671,7 @@
         "paywall#0 (copy)"
       ]
     },
-    "788": {
+    "793": {
       "op": "pushint 2 // 2",
       "defined_out": [
         "2",
@@ -4646,7 +4684,7 @@
         "2"
       ]
     },
-    "790": {
+    "795": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -4657,7 +4695,7 @@
         "aggregate%extract_uint16%0#0"
       ]
     },
-    "791": {
+    "796": {
       "op": "dig 1",
       "stack_out": [
         "paywall#0",
@@ -4665,7 +4703,7 @@
         "paywall#0 (copy)"
       ]
     },
-    "793": {
+    "798": {
       "op": "len",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -4678,7 +4716,7 @@
         "aggregate%len%0#0"
       ]
     },
-    "794": {
+    "799": {
       "op": "dig 2",
       "stack_out": [
         "paywall#0",
@@ -4687,7 +4725,7 @@
         "paywall#0 (copy)"
       ]
     },
-    "796": {
+    "801": {
       "op": "dig 2",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -4704,7 +4742,7 @@
         "aggregate%extract_uint16%0#0 (copy)"
       ]
     },
-    "798": {
+    "803": {
       "op": "uncover 2",
       "stack_out": [
         "paywall#0",
@@ -4714,7 +4752,7 @@
         "aggregate%len%0#0"
       ]
     },
-    "800": {
+    "805": {
       "op": "substring3",
       "defined_out": [
         "aggregate%extract_uint16%0#0",
@@ -4727,7 +4765,7 @@
         "aggregate%substring3%0#0"
       ]
     },
-    "801": {
+    "806": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4742,7 +4780,7 @@
         "0"
       ]
     },
-    "802": {
+    "807": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -4755,7 +4793,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "803": {
+    "808": {
       "op": "dig 2",
       "stack_out": [
         "paywall#0",
@@ -4764,7 +4802,7 @@
         "paywall#0 (copy)"
       ]
     },
-    "805": {
+    "810": {
       "op": "intc_0 // 0",
       "stack_out": [
         "paywall#0",
@@ -4774,7 +4812,7 @@
         "0"
       ]
     },
-    "806": {
+    "811": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -4789,7 +4827,7 @@
         "aggregate%extract_uint16%1#0"
       ]
     },
-    "807": {
+    "812": {
       "op": "uncover 3",
       "stack_out": [
         "aggregate%extract_uint16%0#0",
@@ -4798,7 +4836,7 @@
         "paywall#0"
       ]
     },
-    "809": {
+    "814": {
       "op": "swap",
       "stack_out": [
         "aggregate%extract_uint16%0#0",
@@ -4807,7 +4845,7 @@
         "aggregate%extract_uint16%1#0"
       ]
     },
-    "810": {
+    "815": {
       "op": "uncover 3",
       "stack_out": [
         "aggregate%array_length%0#0",
@@ -4816,7 +4854,7 @@
         "aggregate%extract_uint16%0#0"
       ]
     },
-    "812": {
+    "817": {
       "op": "substring3",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -4827,7 +4865,7 @@
         "aggregate%substring3%1#0"
       ]
     },
-    "813": {
+    "818": {
       "op": "intc_0 // 0",
       "stack_out": [
         "aggregate%array_length%0#0",
@@ -4835,7 +4873,7 @@
         "0"
       ]
     },
-    "814": {
+    "819": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -4846,7 +4884,7 @@
         "aggregate%array_length%1#0"
       ]
     },
-    "815": {
+    "820": {
       "op": "+",
       "defined_out": [
         "tmp%2#1"
@@ -4855,7 +4893,7 @@
         "tmp%2#1"
       ]
     },
-    "816": {
+    "821": {
       "op": "pushint 6800 // 6800",
       "defined_out": [
         "6800",
@@ -4866,7 +4904,7 @@
         "6800"
       ]
     },
-    "819": {
+    "824": {
       "op": "*",
       "defined_out": [
         "tmp%4#0"
@@ -4875,7 +4913,7 @@
         "tmp%4#0"
       ]
     },
-    "820": {
+    "825": {
       "op": "pushint 5200 // 5200",
       "defined_out": [
         "5200",
@@ -4886,7 +4924,7 @@
         "5200"
       ]
     },
-    "823": {
+    "828": {
       "op": "+",
       "defined_out": [
         "tmp%5#0"
@@ -4895,7 +4933,7 @@
         "tmp%5#0"
       ]
     },
-    "824": {
+    "829": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0"
@@ -4904,7 +4942,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "825": {
+    "830": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4915,14 +4953,14 @@
         "0x151f7c75"
       ]
     },
-    "826": {
+    "831": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "827": {
+    "832": {
       "op": "concat",
       "defined_out": [
         "tmp%3#0"
@@ -4931,11 +4969,11 @@
         "tmp%3#0"
       ]
     },
-    "828": {
+    "833": {
       "op": "log",
       "stack_out": []
     },
-    "829": {
+    "834": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4944,11 +4982,11 @@
         "1"
       ]
     },
-    "830": {
+    "835": {
       "op": "return",
       "stack_out": []
     },
-    "831": {
+    "836": {
       "subroutine": "smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements[routing]",
       "params": {},
       "block": "checkTipMbrRequirements",
@@ -4961,7 +4999,7 @@
         "tmp%0#0"
       ]
     },
-    "834": {
+    "839": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -4972,7 +5010,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "835": {
+    "840": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -4983,7 +5021,7 @@
         "len%0#0"
       ]
     },
-    "836": {
+    "841": {
       "op": "pushint 8 // 8",
       "defined_out": [
         "8",
@@ -4996,7 +5034,7 @@
         "8"
       ]
     },
-    "838": {
+    "843": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -5007,14 +5045,14 @@
         "eq%0#0"
       ]
     },
-    "839": {
+    "844": {
       "error": "invalid number of bytes for uint64",
       "op": "assert // invalid number of bytes for uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "840": {
+    "845": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -5023,7 +5061,7 @@
         "akitaDAO#0"
       ]
     },
-    "841": {
+    "846": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0"
@@ -5033,7 +5071,7 @@
         "akitaDAO#0"
       ]
     },
-    "842": {
+    "847": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "akitaDAO#0",
@@ -5045,7 +5083,7 @@
         "creator#0"
       ]
     },
-    "845": {
+    "850": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -5059,7 +5097,7 @@
         "creator#0 (copy)"
       ]
     },
-    "846": {
+    "851": {
       "op": "len",
       "defined_out": [
         "akitaDAO#0",
@@ -5073,7 +5111,7 @@
         "len%1#0"
       ]
     },
-    "847": {
+    "852": {
       "op": "intc_3 // 32",
       "defined_out": [
         "32",
@@ -5089,7 +5127,7 @@
         "32"
       ]
     },
-    "848": {
+    "853": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -5103,7 +5141,7 @@
         "eq%1#0"
       ]
     },
-    "849": {
+    "854": {
       "error": "invalid number of bytes for uint8[32]",
       "op": "assert // invalid number of bytes for uint8[32]",
       "stack_out": [
@@ -5112,7 +5150,7 @@
         "creator#0"
       ]
     },
-    "850": {
+    "855": {
       "op": "txna ApplicationArgs 3",
       "defined_out": [
         "akitaDAO#0",
@@ -5126,7 +5164,7 @@
         "tmp%4#0"
       ]
     },
-    "853": {
+    "858": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -5142,7 +5180,7 @@
         "tmp%4#0 (copy)"
       ]
     },
-    "854": {
+    "859": {
       "op": "len",
       "defined_out": [
         "akitaDAO#0",
@@ -5158,7 +5196,7 @@
         "len%2#0"
       ]
     },
-    "855": {
+    "860": {
       "op": "pushint 8 // 8",
       "stack_out": [
         "akitaDAO#0",
@@ -5169,7 +5207,7 @@
         "8"
       ]
     },
-    "857": {
+    "862": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -5185,7 +5223,7 @@
         "eq%2#0"
       ]
     },
-    "858": {
+    "863": {
       "error": "invalid number of bytes for uint64",
       "op": "assert // invalid number of bytes for uint64",
       "stack_out": [
@@ -5195,7 +5233,7 @@
         "tmp%4#0"
       ]
     },
-    "859": {
+    "864": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0",
@@ -5209,7 +5247,7 @@
         "wallet#0"
       ]
     },
-    "860": {
+    "865": {
       "op": "cover 2",
       "defined_out": [
         "akitaDAO#0",
@@ -5223,7 +5261,7 @@
         "creator#0"
       ]
     },
-    "862": {
+    "867": {
       "op": "swap",
       "stack_out": [
         "akitaDAO#0",
@@ -5232,7 +5270,7 @@
         "akitaDAO#0"
       ]
     },
-    "863": {
+    "868": {
       "op": "pushbytes \"akita_assets\"",
       "defined_out": [
         "\"akita_assets\"",
@@ -5248,7 +5286,7 @@
         "\"akita_assets\""
       ]
     },
-    "877": {
+    "882": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaAssetsBytes#0",
@@ -5265,7 +5303,7 @@
         "tmp%1#3"
       ]
     },
-    "878": {
+    "883": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -5274,7 +5312,7 @@
         "akitaAssetsBytes#0"
       ]
     },
-    "879": {
+    "884": {
       "op": "intc_0 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -5284,7 +5322,7 @@
         "0"
       ]
     },
-    "880": {
+    "885": {
       "op": "extract_uint64",
       "defined_out": [
         "akitaDAO#0",
@@ -5299,7 +5337,7 @@
         "akta#0"
       ]
     },
-    "881": {
+    "886": {
       "op": "asset_holding_get AssetBalance",
       "defined_out": [
         "akitaDAO#0",
@@ -5314,7 +5352,7 @@
         "tmp%2#1"
       ]
     },
-    "883": {
+    "888": {
       "op": "bury 1",
       "stack_out": [
         "akitaDAO#0",
@@ -5322,14 +5360,14 @@
         "tmp%2#1"
       ]
     },
-    "885": {
+    "890": {
       "op": "bnz checkTipMbrRequirements_after_if_else@6",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "888": {
+    "893": {
       "op": "dup",
       "stack_out": [
         "akitaDAO#0",
@@ -5337,17 +5375,17 @@
         "wallet#0"
       ]
     },
-    "889": {
+    "894": {
       "op": "bz checkTipMbrRequirements_after_if_else@6",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "892": {
+    "897": {
       "op": "itxn_begin"
     },
-    "893": {
+    "898": {
       "op": "dig 1",
       "stack_out": [
         "akitaDAO#0",
@@ -5355,7 +5393,7 @@
         "akitaDAO#0"
       ]
     },
-    "895": {
+    "900": {
       "op": "bytec 7 // \"pal\"",
       "defined_out": [
         "\"pal\"",
@@ -5369,7 +5407,7 @@
         "\"pal\""
       ]
     },
-    "897": {
+    "902": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -5384,7 +5422,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "898": {
+    "903": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -5392,7 +5430,7 @@
         "pluginAppListBytes#0"
       ]
     },
-    "899": {
+    "904": {
       "op": "extract 0 8",
       "defined_out": [
         "aggregate%extract%1#0",
@@ -5405,7 +5443,7 @@
         "aggregate%extract%1#0"
       ]
     },
-    "902": {
+    "907": {
       "op": "global ZeroAddress",
       "defined_out": [
         "aggregate%extract%1#0",
@@ -5420,7 +5458,7 @@
         "tmp%3#2"
       ]
     },
-    "904": {
+    "909": {
       "op": "pushbytes 0x4727af21 // method \"arc58_canCall(uint64,bool,address,string,byte[4])bool\"",
       "defined_out": [
         "Method(arc58_canCall(uint64,bool,address,string,byte[4])bool)",
@@ -5437,7 +5475,7 @@
         "Method(arc58_canCall(uint64,bool,address,string,byte[4])bool)"
       ]
     },
-    "910": {
+    "915": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
@@ -5446,7 +5484,7 @@
         "tmp%3#2"
       ]
     },
-    "912": {
+    "917": {
       "op": "swap",
       "stack_out": [
         "akitaDAO#0",
@@ -5455,7 +5493,7 @@
         "aggregate%extract%1#0"
       ]
     },
-    "913": {
+    "918": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
@@ -5463,7 +5501,7 @@
         "tmp%3#2"
       ]
     },
-    "915": {
+    "920": {
       "op": "pushbytes 0x80",
       "defined_out": [
         "0x80",
@@ -5478,7 +5516,7 @@
         "0x80"
       ]
     },
-    "918": {
+    "923": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
@@ -5486,14 +5524,14 @@
         "tmp%3#2"
       ]
     },
-    "920": {
+    "925": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "922": {
+    "927": {
       "op": "pushbytes 0x0000",
       "defined_out": [
         "0x0000",
@@ -5506,14 +5544,14 @@
         "0x0000"
       ]
     },
-    "926": {
+    "931": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "928": {
+    "933": {
       "op": "pushbytes 0x6835e3bc // method \"optIn(uint64,bool,uint64[],pay)void\"",
       "defined_out": [
         "Method(optIn(uint64,bool,uint64[],pay)void)",
@@ -5526,14 +5564,14 @@
         "Method(optIn(uint64,bool,uint64[],pay)void)"
       ]
     },
-    "934": {
+    "939": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "936": {
+    "941": {
       "op": "dup",
       "stack_out": [
         "akitaDAO#0",
@@ -5541,14 +5579,14 @@
         "wallet#0"
       ]
     },
-    "937": {
+    "942": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "939": {
+    "944": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "akitaDAO#0",
@@ -5561,14 +5599,14 @@
         "appl"
       ]
     },
-    "941": {
+    "946": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "943": {
+    "948": {
       "op": "intc_0 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -5576,17 +5614,17 @@
         "0"
       ]
     },
-    "944": {
+    "949": {
       "op": "itxn_field Fee",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "946": {
+    "951": {
       "op": "itxn_submit"
     },
-    "947": {
+    "952": {
       "op": "itxn LastLog",
       "defined_out": [
         "akitaDAO#0",
@@ -5599,7 +5637,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "949": {
+    "954": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -5614,7 +5652,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "950": {
+    "955": {
       "op": "extract 4 0",
       "defined_out": [
         "akitaDAO#0",
@@ -5629,7 +5667,7 @@
         "tmp%7#0"
       ]
     },
-    "953": {
+    "958": {
       "op": "swap",
       "stack_out": [
         "akitaDAO#0",
@@ -5638,7 +5676,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "954": {
+    "959": {
       "op": "extract 0 4",
       "defined_out": [
         "akitaDAO#0",
@@ -5653,7 +5691,7 @@
         "tmp%8#0"
       ]
     },
-    "957": {
+    "962": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -5670,7 +5708,7 @@
         "0x151f7c75"
       ]
     },
-    "958": {
+    "963": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -5685,7 +5723,7 @@
         "tmp%9#0"
       ]
     },
-    "959": {
+    "964": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -5694,7 +5732,7 @@
         "tmp%7#0"
       ]
     },
-    "960": {
+    "965": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -5709,7 +5747,7 @@
         "tmp%7#0 (copy)"
       ]
     },
-    "961": {
+    "966": {
       "op": "len",
       "stack_out": [
         "akitaDAO#0",
@@ -5718,7 +5756,7 @@
         "len%0#0"
       ]
     },
-    "962": {
+    "967": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -5735,7 +5773,7 @@
         "1"
       ]
     },
-    "963": {
+    "968": {
       "op": "==",
       "stack_out": [
         "akitaDAO#0",
@@ -5744,7 +5782,7 @@
         "eq%0#0"
       ]
     },
-    "964": {
+    "969": {
       "error": "invalid number of bytes for bool8",
       "op": "assert // invalid number of bytes for bool8",
       "stack_out": [
@@ -5753,7 +5791,7 @@
         "tmp%7#0"
       ]
     },
-    "965": {
+    "970": {
       "op": "intc_0 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -5762,7 +5800,7 @@
         "0"
       ]
     },
-    "966": {
+    "971": {
       "op": "getbit",
       "defined_out": [
         "akitaDAO#0",
@@ -5775,14 +5813,14 @@
         "canCallArc58OptIn#0"
       ]
     },
-    "967": {
+    "972": {
       "op": "bz checkTipMbrRequirements_after_if_else@6",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "970": {
+    "975": {
       "op": "global AssetOptInMinBalance",
       "defined_out": [
         "akitaDAO#0",
@@ -5795,7 +5833,7 @@
         "tmp%5#1"
       ]
     },
-    "972": {
+    "977": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -5808,7 +5846,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "973": {
+    "978": {
       "op": "pushbytes 0x14",
       "defined_out": [
         "0x14",
@@ -5823,7 +5861,7 @@
         "0x14"
       ]
     },
-    "976": {
+    "981": {
       "op": "swap",
       "stack_out": [
         "akitaDAO#0",
@@ -5832,7 +5870,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "977": {
+    "982": {
       "op": "concat",
       "defined_out": [
         "akitaDAO#0",
@@ -5845,7 +5883,7 @@
         "tmp%6#0"
       ]
     },
-    "978": {
+    "983": {
       "block": "checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7",
       "stack_in": [
         "akitaDAO#0",
@@ -5863,7 +5901,7 @@
         "0x151f7c75"
       ]
     },
-    "979": {
+    "984": {
       "op": "swap",
       "defined_out": [
         "0x151f7c75",
@@ -5876,7 +5914,7 @@
         "tmp%6#0"
       ]
     },
-    "980": {
+    "985": {
       "op": "concat",
       "defined_out": [
         "tmp%7#0"
@@ -5887,14 +5925,14 @@
         "tmp%7#0"
       ]
     },
-    "981": {
+    "986": {
       "op": "log",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "982": {
+    "987": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -5905,14 +5943,14 @@
         "1"
       ]
     },
-    "983": {
+    "988": {
       "op": "return",
       "stack_out": [
         "akitaDAO#0",
         "wallet#0"
       ]
     },
-    "984": {
+    "989": {
       "block": "checkTipMbrRequirements_after_if_else@6",
       "stack_in": [
         "akitaDAO#0",
@@ -5928,10 +5966,10 @@
         "tmp%6#0"
       ]
     },
-    "995": {
+    "1000": {
       "op": "b checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7"
     },
-    "998": {
+    "1003": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]",
       "params": {},
       "block": "update",
@@ -5944,7 +5982,7 @@
         "tmp%0#0"
       ]
     },
-    "1001": {
+    "1006": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -5955,7 +5993,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1002": {
+    "1007": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -5968,7 +6006,7 @@
         "0"
       ]
     },
-    "1003": {
+    "1008": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -5979,7 +6017,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "1004": {
+    "1009": {
       "op": "pushint 2 // 2",
       "defined_out": [
         "2",
@@ -5992,7 +6030,7 @@
         "2"
       ]
     },
-    "1006": {
+    "1011": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -6003,7 +6041,7 @@
         "add%0#0"
       ]
     },
-    "1007": {
+    "1012": {
       "op": "dig 1",
       "stack_out": [
         "tmp%0#0",
@@ -6011,7 +6049,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1009": {
+    "1014": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -6024,7 +6062,7 @@
         "len%0#0"
       ]
     },
-    "1010": {
+    "1015": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -6035,14 +6073,14 @@
         "eq%0#0"
       ]
     },
-    "1011": {
+    "1016": {
       "error": "invalid number of bytes for (len+utf8[])",
       "op": "assert // invalid number of bytes for (len+utf8[])",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "1012": {
+    "1017": {
       "op": "extract 2 0",
       "defined_out": [
         "newVersion#0"
@@ -6051,7 +6089,7 @@
         "newVersion#0"
       ]
     },
-    "1015": {
+    "1020": {
       "op": "txn Sender",
       "defined_out": [
         "newVersion#0",
@@ -6062,7 +6100,7 @@
         "tmp%0#1"
       ]
     },
-    "1017": {
+    "1022": {
       "op": "intc_0 // 0",
       "stack_out": [
         "newVersion#0",
@@ -6070,7 +6108,7 @@
         "0"
       ]
     },
-    "1018": {
+    "1023": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -6085,7 +6123,7 @@
         "\"akita_dao\""
       ]
     },
-    "1019": {
+    "1024": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -6100,7 +6138,7 @@
         "maybe_exists%0#1"
       ]
     },
-    "1020": {
+    "1025": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -6109,7 +6147,7 @@
         "akitaDAO#0"
       ]
     },
-    "1021": {
+    "1026": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -6124,7 +6162,7 @@
         "akitaDAO#0 (copy)"
       ]
     },
-    "1022": {
+    "1027": {
       "op": "bytec 8 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -6141,7 +6179,7 @@
         "\"wallet\""
       ]
     },
-    "1024": {
+    "1029": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -6158,7 +6196,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1025": {
+    "1030": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
@@ -6167,7 +6205,7 @@
         "walletID#0"
       ]
     },
-    "1026": {
+    "1031": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -6184,7 +6222,7 @@
         "check%0#0"
       ]
     },
-    "1028": {
+    "1033": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -6194,7 +6232,7 @@
         "value%0#0"
       ]
     },
-    "1029": {
+    "1034": {
       "op": "uncover 2",
       "stack_out": [
         "newVersion#0",
@@ -6203,7 +6241,7 @@
         "tmp%0#1"
       ]
     },
-    "1031": {
+    "1036": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -6216,7 +6254,7 @@
         "tmp%2#0"
       ]
     },
-    "1032": {
+    "1037": {
       "error": "Only the Akita DAO can call this function",
       "op": "assert // Only the Akita DAO can call this function",
       "stack_out": [
@@ -6224,7 +6262,7 @@
         "akitaDAO#0"
       ]
     },
-    "1033": {
+    "1038": {
       "op": "bytec 7 // \"pal\"",
       "defined_out": [
         "\"pal\"",
@@ -6237,7 +6275,7 @@
         "\"pal\""
       ]
     },
-    "1035": {
+    "1040": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6250,14 +6288,14 @@
         "awst_tmp%1#0"
       ]
     },
-    "1036": {
+    "1041": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
         "pluginAppListBytes#0"
       ]
     },
-    "1037": {
+    "1042": {
       "op": "intc_2 // 16",
       "defined_out": [
         "16",
@@ -6270,7 +6308,7 @@
         "16"
       ]
     },
-    "1038": {
+    "1043": {
       "op": "extract_uint64",
       "defined_out": [
         "newVersion#0",
@@ -6281,7 +6319,7 @@
         "updatePlugin#0"
       ]
     },
-    "1039": {
+    "1044": {
       "op": "global CallerApplicationID",
       "defined_out": [
         "newVersion#0",
@@ -6294,7 +6332,7 @@
         "tmp%4#0"
       ]
     },
-    "1041": {
+    "1046": {
       "op": "==",
       "defined_out": [
         "newVersion#0",
@@ -6305,14 +6343,14 @@
         "tmp%5#0"
       ]
     },
-    "1042": {
+    "1047": {
       "error": "Invalid app upgrade",
       "op": "assert // Invalid app upgrade",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1043": {
+    "1048": {
       "op": "bytec 6 // \"version\"",
       "defined_out": [
         "\"version\"",
@@ -6323,18 +6361,18 @@
         "\"version\""
       ]
     },
-    "1045": {
+    "1050": {
       "op": "swap",
       "stack_out": [
         "\"version\"",
         "newVersion#0"
       ]
     },
-    "1046": {
+    "1051": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "1047": {
+    "1052": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -6343,11 +6381,11 @@
         "1"
       ]
     },
-    "1048": {
+    "1053": {
       "op": "return",
       "stack_out": []
     },
-    "1049": {
+    "1054": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]",
       "params": {},
       "block": "updateAkitaDAO",
@@ -6360,7 +6398,7 @@
         "tmp%0#0"
       ]
     },
-    "1052": {
+    "1057": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -6371,7 +6409,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1053": {
+    "1058": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -6382,7 +6420,7 @@
         "len%0#0"
       ]
     },
-    "1054": {
+    "1059": {
       "op": "pushint 8 // 8",
       "defined_out": [
         "8",
@@ -6395,7 +6433,7 @@
         "8"
       ]
     },
-    "1056": {
+    "1061": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -6406,14 +6444,14 @@
         "eq%0#0"
       ]
     },
-    "1057": {
+    "1062": {
       "error": "invalid number of bytes for uint64",
       "op": "assert // invalid number of bytes for uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "1058": {
+    "1063": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -6422,7 +6460,7 @@
         "akitaDAO#0"
       ]
     },
-    "1059": {
+    "1064": {
       "op": "txn Sender",
       "defined_out": [
         "akitaDAO#0",
@@ -6433,7 +6471,7 @@
         "tmp%0#1"
       ]
     },
-    "1061": {
+    "1066": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -6446,7 +6484,7 @@
         "0"
       ]
     },
-    "1062": {
+    "1067": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -6461,7 +6499,7 @@
         "\"akita_dao\""
       ]
     },
-    "1063": {
+    "1068": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -6476,7 +6514,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1064": {
+    "1069": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -6485,7 +6523,7 @@
         "maybe_value%0#0"
       ]
     },
-    "1065": {
+    "1070": {
       "op": "bytec 8 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -6500,7 +6538,7 @@
         "\"wallet\""
       ]
     },
-    "1067": {
+    "1072": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -6515,7 +6553,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1068": {
+    "1073": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -6523,7 +6561,7 @@
         "walletID#0"
       ]
     },
-    "1069": {
+    "1074": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -6538,7 +6576,7 @@
         "check%0#0"
       ]
     },
-    "1071": {
+    "1076": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -6547,7 +6585,7 @@
         "value%0#0"
       ]
     },
-    "1072": {
+    "1077": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -6558,32 +6596,32 @@
         "tmp%2#0"
       ]
     },
-    "1073": {
+    "1078": {
       "error": "Only the Akita DAO can call this function",
       "op": "assert // Only the Akita DAO can call this function",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1074": {
+    "1079": {
       "op": "bytec_1 // \"akita_dao\"",
       "stack_out": [
         "akitaDAO#0",
         "\"akita_dao\""
       ]
     },
-    "1075": {
+    "1080": {
       "op": "swap",
       "stack_out": [
         "\"akita_dao\"",
         "akitaDAO#0"
       ]
     },
-    "1076": {
+    "1081": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "1077": {
+    "1082": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -6592,11 +6630,11 @@
         "1"
       ]
     },
-    "1078": {
+    "1083": {
       "op": "return",
       "stack_out": []
     },
-    "1079": {
+    "1084": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isBanned",
       "params": {
         "account#0": "bytes"
@@ -6605,7 +6643,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "1082": {
+    "1087": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -6614,7 +6652,7 @@
         "0"
       ]
     },
-    "1083": {
+    "1088": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -6625,7 +6663,7 @@
         "\"akita_dao\""
       ]
     },
-    "1084": {
+    "1089": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -6636,14 +6674,14 @@
         "maybe_exists%0#0"
       ]
     },
-    "1085": {
+    "1090": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1086": {
+    "1091": {
       "op": "bytec 5 // \"sal\"",
       "defined_out": [
         "\"sal\"",
@@ -6654,7 +6692,7 @@
         "\"sal\""
       ]
     },
-    "1088": {
+    "1093": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -6665,13 +6703,13 @@
         "awst_tmp%1#1"
       ]
     },
-    "1089": {
+    "1094": {
       "op": "pop",
       "stack_out": [
         "appListBytes#0"
       ]
     },
-    "1090": {
+    "1095": {
       "op": "pushint 24 // 24",
       "defined_out": [
         "24",
@@ -6682,7 +6720,7 @@
         "24"
       ]
     },
-    "1092": {
+    "1097": {
       "op": "extract_uint64",
       "defined_out": [
         "moderation#0"
@@ -6691,10 +6729,10 @@
         "moderation#0"
       ]
     },
-    "1093": {
+    "1098": {
       "op": "itxn_begin"
     },
-    "1094": {
+    "1099": {
       "op": "pushbytes 0x84269c78 // method \"isBanned(address)bool\"",
       "defined_out": [
         "Method(isBanned(address)bool)",
@@ -6705,13 +6743,13 @@
         "Method(isBanned(address)bool)"
       ]
     },
-    "1100": {
+    "1105": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "moderation#0"
       ]
     },
-    "1102": {
+    "1107": {
       "op": "frame_dig -1",
       "defined_out": [
         "account#0 (copy)",
@@ -6722,17 +6760,17 @@
         "account#0 (copy)"
       ]
     },
-    "1104": {
+    "1109": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "moderation#0"
       ]
     },
-    "1106": {
+    "1111": {
       "op": "itxn_field ApplicationID",
       "stack_out": []
     },
-    "1108": {
+    "1113": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -6741,24 +6779,24 @@
         "appl"
       ]
     },
-    "1110": {
+    "1115": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "1112": {
+    "1117": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "1113": {
+    "1118": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "1115": {
+    "1120": {
       "op": "itxn_submit"
     },
-    "1116": {
+    "1121": {
       "op": "itxn LastLog",
       "defined_out": [
         "awst_tmp%1#0"
@@ -6767,7 +6805,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1118": {
+    "1123": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6778,7 +6816,7 @@
         "awst_tmp%1#0 (copy)"
       ]
     },
-    "1119": {
+    "1124": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6789,14 +6827,14 @@
         "tmp%1#0"
       ]
     },
-    "1122": {
+    "1127": {
       "op": "swap",
       "stack_out": [
         "tmp%1#0",
         "awst_tmp%1#0"
       ]
     },
-    "1123": {
+    "1128": {
       "op": "extract 0 4",
       "defined_out": [
         "tmp%1#0",
@@ -6807,7 +6845,7 @@
         "tmp%2#0"
       ]
     },
-    "1126": {
+    "1131": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -6820,7 +6858,7 @@
         "0x151f7c75"
       ]
     },
-    "1127": {
+    "1132": {
       "op": "==",
       "defined_out": [
         "tmp%1#0",
@@ -6831,14 +6869,14 @@
         "tmp%3#0"
       ]
     },
-    "1128": {
+    "1133": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
         "tmp%1#0"
       ]
     },
-    "1129": {
+    "1134": {
       "op": "dup",
       "defined_out": [
         "tmp%1#0",
@@ -6849,7 +6887,7 @@
         "tmp%1#0 (copy)"
       ]
     },
-    "1130": {
+    "1135": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -6860,7 +6898,7 @@
         "len%0#0"
       ]
     },
-    "1131": {
+    "1136": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -6873,7 +6911,7 @@
         "1"
       ]
     },
-    "1132": {
+    "1137": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -6884,21 +6922,21 @@
         "eq%0#0"
       ]
     },
-    "1133": {
+    "1138": {
       "error": "invalid number of bytes for bool8",
       "op": "assert // invalid number of bytes for bool8",
       "stack_out": [
         "tmp%1#0"
       ]
     },
-    "1134": {
+    "1139": {
       "op": "intc_0 // 0",
       "stack_out": [
         "tmp%1#0",
         "0"
       ]
     },
-    "1135": {
+    "1140": {
       "op": "getbit",
       "defined_out": [
         "aggregate%get_bit%0#0"
@@ -6907,11 +6945,11 @@
         "aggregate%get_bit%0#0"
       ]
     },
-    "1136": {
+    "1141": {
       "retsub": true,
       "op": "retsub"
     },
-    "1137": {
+    "1142": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.blk",
       "params": {
         "userAddress#0": "bytes",
@@ -6921,7 +6959,7 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "1140": {
+    "1145": {
       "op": "frame_dig -2",
       "defined_out": [
         "userAddress#0 (copy)"
@@ -6930,7 +6968,7 @@
         "userAddress#0 (copy)"
       ]
     },
-    "1142": {
+    "1147": {
       "op": "len",
       "defined_out": [
         "length%0#0"
@@ -6939,7 +6977,7 @@
         "length%0#0"
       ]
     },
-    "1143": {
+    "1148": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -6950,7 +6988,7 @@
         "0"
       ]
     },
-    "1144": {
+    "1149": {
       "op": "dig 1",
       "defined_out": [
         "0",
@@ -6963,7 +7001,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1146": {
+    "1151": {
       "op": ">=",
       "defined_out": [
         "is_out_of_bounds%0#0",
@@ -6974,7 +7012,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1147": {
+    "1152": {
       "op": "intc_0 // 0",
       "stack_out": [
         "length%0#0",
@@ -6982,7 +7020,7 @@
         "0"
       ]
     },
-    "1148": {
+    "1153": {
       "op": "dig 2",
       "stack_out": [
         "length%0#0",
@@ -6991,7 +7029,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1150": {
+    "1155": {
       "op": "uncover 2",
       "stack_out": [
         "length%0#0",
@@ -7000,7 +7038,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1152": {
+    "1157": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
@@ -7011,7 +7049,7 @@
         "bounded_index%0#0"
       ]
     },
-    "1153": {
+    "1158": {
       "op": "intc_2 // 16",
       "defined_out": [
         "16",
@@ -7024,7 +7062,7 @@
         "16"
       ]
     },
-    "1154": {
+    "1159": {
       "op": "dig 2",
       "stack_out": [
         "length%0#0",
@@ -7033,7 +7071,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1156": {
+    "1161": {
       "op": ">=",
       "defined_out": [
         "bounded_index%0#0",
@@ -7046,7 +7084,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1157": {
+    "1162": {
       "op": "intc_2 // 16",
       "stack_out": [
         "length%0#0",
@@ -7055,7 +7093,7 @@
         "16"
       ]
     },
-    "1158": {
+    "1163": {
       "op": "uncover 3",
       "stack_out": [
         "bounded_index%0#0",
@@ -7064,7 +7102,7 @@
         "length%0#0"
       ]
     },
-    "1160": {
+    "1165": {
       "op": "uncover 2",
       "stack_out": [
         "bounded_index%0#0",
@@ -7073,7 +7111,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1162": {
+    "1167": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
@@ -7084,7 +7122,7 @@
         "bounded_index%1#0"
       ]
     },
-    "1163": {
+    "1168": {
       "op": "frame_dig -2",
       "stack_out": [
         "bounded_index%0#0",
@@ -7092,7 +7130,7 @@
         "userAddress#0 (copy)"
       ]
     },
-    "1165": {
+    "1170": {
       "op": "cover 2",
       "stack_out": [
         "userAddress#0 (copy)",
@@ -7100,7 +7138,7 @@
         "bounded_index%1#0"
       ]
     },
-    "1167": {
+    "1172": {
       "op": "substring3",
       "defined_out": [
         "user#0"
@@ -7109,7 +7147,7 @@
         "user#0"
       ]
     },
-    "1168": {
+    "1173": {
       "op": "dup",
       "defined_out": [
         "user#0",
@@ -7120,7 +7158,7 @@
         "user#0 (copy)"
       ]
     },
-    "1169": {
+    "1174": {
       "op": "len",
       "defined_out": [
         "tmp%0#0",
@@ -7131,7 +7169,7 @@
         "tmp%0#0"
       ]
     },
-    "1170": {
+    "1175": {
       "op": "intc_2 // 16",
       "stack_out": [
         "user#0",
@@ -7139,7 +7177,7 @@
         "16"
       ]
     },
-    "1171": {
+    "1176": {
       "op": "==",
       "defined_out": [
         "tmp%1#0",
@@ -7150,14 +7188,14 @@
         "tmp%1#0"
       ]
     },
-    "1172": {
+    "1177": {
       "error": "Length must be 16",
       "op": "assert // Length must be 16",
       "stack_out": [
         "user#0"
       ]
     },
-    "1173": {
+    "1178": {
       "op": "frame_dig -1",
       "defined_out": [
         "blockedAddress#0 (copy)",
@@ -7168,7 +7206,7 @@
         "blockedAddress#0 (copy)"
       ]
     },
-    "1175": {
+    "1180": {
       "op": "len",
       "defined_out": [
         "length%1#0",
@@ -7179,7 +7217,7 @@
         "length%1#0"
       ]
     },
-    "1176": {
+    "1181": {
       "op": "intc_0 // 0",
       "stack_out": [
         "user#0",
@@ -7187,7 +7225,7 @@
         "0"
       ]
     },
-    "1177": {
+    "1182": {
       "op": "dig 1",
       "defined_out": [
         "0",
@@ -7202,7 +7240,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1179": {
+    "1184": {
       "op": ">=",
       "defined_out": [
         "is_out_of_bounds%2#0",
@@ -7215,7 +7253,7 @@
         "is_out_of_bounds%2#0"
       ]
     },
-    "1180": {
+    "1185": {
       "op": "intc_0 // 0",
       "stack_out": [
         "user#0",
@@ -7224,7 +7262,7 @@
         "0"
       ]
     },
-    "1181": {
+    "1186": {
       "op": "dig 2",
       "stack_out": [
         "user#0",
@@ -7234,7 +7272,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1183": {
+    "1188": {
       "op": "uncover 2",
       "stack_out": [
         "user#0",
@@ -7244,7 +7282,7 @@
         "is_out_of_bounds%2#0"
       ]
     },
-    "1185": {
+    "1190": {
       "op": "select",
       "defined_out": [
         "bounded_index%2#0",
@@ -7257,7 +7295,7 @@
         "bounded_index%2#0"
       ]
     },
-    "1186": {
+    "1191": {
       "op": "intc_2 // 16",
       "stack_out": [
         "user#0",
@@ -7266,7 +7304,7 @@
         "16"
       ]
     },
-    "1187": {
+    "1192": {
       "op": "dig 2",
       "stack_out": [
         "user#0",
@@ -7276,7 +7314,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1189": {
+    "1194": {
       "op": ">=",
       "defined_out": [
         "bounded_index%2#0",
@@ -7291,7 +7329,7 @@
         "is_out_of_bounds%3#0"
       ]
     },
-    "1190": {
+    "1195": {
       "op": "intc_2 // 16",
       "stack_out": [
         "user#0",
@@ -7301,7 +7339,7 @@
         "16"
       ]
     },
-    "1191": {
+    "1196": {
       "op": "uncover 3",
       "stack_out": [
         "user#0",
@@ -7311,7 +7349,7 @@
         "length%1#0"
       ]
     },
-    "1193": {
+    "1198": {
       "op": "uncover 2",
       "stack_out": [
         "user#0",
@@ -7321,7 +7359,7 @@
         "is_out_of_bounds%3#0"
       ]
     },
-    "1195": {
+    "1200": {
       "op": "select",
       "defined_out": [
         "bounded_index%2#0",
@@ -7334,7 +7372,7 @@
         "bounded_index%3#0"
       ]
     },
-    "1196": {
+    "1201": {
       "op": "frame_dig -1",
       "stack_out": [
         "user#0",
@@ -7343,7 +7381,7 @@
         "blockedAddress#0 (copy)"
       ]
     },
-    "1198": {
+    "1203": {
       "op": "cover 2",
       "stack_out": [
         "user#0",
@@ -7352,7 +7390,7 @@
         "bounded_index%3#0"
       ]
     },
-    "1200": {
+    "1205": {
       "op": "substring3",
       "defined_out": [
         "blocked#0",
@@ -7363,7 +7401,7 @@
         "blocked#0"
       ]
     },
-    "1201": {
+    "1206": {
       "op": "dup",
       "defined_out": [
         "blocked#0",
@@ -7376,7 +7414,7 @@
         "blocked#0 (copy)"
       ]
     },
-    "1202": {
+    "1207": {
       "op": "len",
       "defined_out": [
         "blocked#0",
@@ -7389,7 +7427,7 @@
         "tmp%2#0"
       ]
     },
-    "1203": {
+    "1208": {
       "op": "intc_2 // 16",
       "stack_out": [
         "user#0",
@@ -7398,7 +7436,7 @@
         "16"
       ]
     },
-    "1204": {
+    "1209": {
       "op": "==",
       "defined_out": [
         "blocked#0",
@@ -7411,7 +7449,7 @@
         "tmp%3#0"
       ]
     },
-    "1205": {
+    "1210": {
       "error": "Length must be 16",
       "op": "assert // Length must be 16",
       "stack_out": [
@@ -7419,7 +7457,7 @@
         "blocked#0"
       ]
     },
-    "1206": {
+    "1211": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0"
@@ -7428,11 +7466,11 @@
         "aggregate%head%1#0"
       ]
     },
-    "1207": {
+    "1212": {
       "retsub": true,
       "op": "retsub"
     },
-    "1208": {
+    "1213": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.flw",
       "params": {
         "user#0": "bytes",
@@ -7442,7 +7480,7 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "1211": {
+    "1216": {
       "op": "frame_dig -2",
       "defined_out": [
         "user#0 (copy)"
@@ -7451,7 +7489,7 @@
         "user#0 (copy)"
       ]
     },
-    "1213": {
+    "1218": {
       "op": "len",
       "defined_out": [
         "length%0#0"
@@ -7460,7 +7498,7 @@
         "length%0#0"
       ]
     },
-    "1214": {
+    "1219": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -7471,7 +7509,7 @@
         "0"
       ]
     },
-    "1215": {
+    "1220": {
       "op": "dig 1",
       "defined_out": [
         "0",
@@ -7484,7 +7522,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1217": {
+    "1222": {
       "op": ">=",
       "defined_out": [
         "is_out_of_bounds%0#0",
@@ -7495,7 +7533,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1218": {
+    "1223": {
       "op": "intc_0 // 0",
       "stack_out": [
         "length%0#0",
@@ -7503,7 +7541,7 @@
         "0"
       ]
     },
-    "1219": {
+    "1224": {
       "op": "dig 2",
       "stack_out": [
         "length%0#0",
@@ -7512,7 +7550,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1221": {
+    "1226": {
       "op": "uncover 2",
       "stack_out": [
         "length%0#0",
@@ -7521,7 +7559,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1223": {
+    "1228": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
@@ -7532,7 +7570,7 @@
         "bounded_index%0#0"
       ]
     },
-    "1224": {
+    "1229": {
       "op": "intc_2 // 16",
       "defined_out": [
         "16",
@@ -7545,7 +7583,7 @@
         "16"
       ]
     },
-    "1225": {
+    "1230": {
       "op": "dig 2",
       "stack_out": [
         "length%0#0",
@@ -7554,7 +7592,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1227": {
+    "1232": {
       "op": ">=",
       "defined_out": [
         "bounded_index%0#0",
@@ -7567,7 +7605,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1228": {
+    "1233": {
       "op": "intc_2 // 16",
       "stack_out": [
         "length%0#0",
@@ -7576,7 +7614,7 @@
         "16"
       ]
     },
-    "1229": {
+    "1234": {
       "op": "uncover 3",
       "stack_out": [
         "bounded_index%0#0",
@@ -7585,7 +7623,7 @@
         "length%0#0"
       ]
     },
-    "1231": {
+    "1236": {
       "op": "uncover 2",
       "stack_out": [
         "bounded_index%0#0",
@@ -7594,7 +7632,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1233": {
+    "1238": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
@@ -7605,7 +7643,7 @@
         "bounded_index%1#0"
       ]
     },
-    "1234": {
+    "1239": {
       "op": "frame_dig -2",
       "stack_out": [
         "bounded_index%0#0",
@@ -7613,7 +7651,7 @@
         "user#0 (copy)"
       ]
     },
-    "1236": {
+    "1241": {
       "op": "cover 2",
       "stack_out": [
         "user#0 (copy)",
@@ -7621,7 +7659,7 @@
         "bounded_index%1#0"
       ]
     },
-    "1238": {
+    "1243": {
       "op": "substring3",
       "defined_out": [
         "userBytes#0"
@@ -7630,7 +7668,7 @@
         "userBytes#0"
       ]
     },
-    "1239": {
+    "1244": {
       "op": "dup",
       "defined_out": [
         "userBytes#0",
@@ -7641,7 +7679,7 @@
         "userBytes#0 (copy)"
       ]
     },
-    "1240": {
+    "1245": {
       "op": "len",
       "defined_out": [
         "tmp%0#0",
@@ -7652,7 +7690,7 @@
         "tmp%0#0"
       ]
     },
-    "1241": {
+    "1246": {
       "op": "intc_2 // 16",
       "stack_out": [
         "userBytes#0",
@@ -7660,7 +7698,7 @@
         "16"
       ]
     },
-    "1242": {
+    "1247": {
       "op": "==",
       "defined_out": [
         "tmp%1#0",
@@ -7671,14 +7709,14 @@
         "tmp%1#0"
       ]
     },
-    "1243": {
+    "1248": {
       "error": "Length must be 16",
       "op": "assert // Length must be 16",
       "stack_out": [
         "userBytes#0"
       ]
     },
-    "1244": {
+    "1249": {
       "op": "frame_dig -1",
       "defined_out": [
         "follower#0 (copy)",
@@ -7689,7 +7727,7 @@
         "follower#0 (copy)"
       ]
     },
-    "1246": {
+    "1251": {
       "op": "len",
       "defined_out": [
         "length%1#0",
@@ -7700,7 +7738,7 @@
         "length%1#0"
       ]
     },
-    "1247": {
+    "1252": {
       "op": "intc_0 // 0",
       "stack_out": [
         "userBytes#0",
@@ -7708,7 +7746,7 @@
         "0"
       ]
     },
-    "1248": {
+    "1253": {
       "op": "dig 1",
       "defined_out": [
         "0",
@@ -7723,7 +7761,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1250": {
+    "1255": {
       "op": ">=",
       "defined_out": [
         "is_out_of_bounds%2#0",
@@ -7736,7 +7774,7 @@
         "is_out_of_bounds%2#0"
       ]
     },
-    "1251": {
+    "1256": {
       "op": "intc_0 // 0",
       "stack_out": [
         "userBytes#0",
@@ -7745,7 +7783,7 @@
         "0"
       ]
     },
-    "1252": {
+    "1257": {
       "op": "dig 2",
       "stack_out": [
         "userBytes#0",
@@ -7755,7 +7793,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1254": {
+    "1259": {
       "op": "uncover 2",
       "stack_out": [
         "userBytes#0",
@@ -7765,7 +7803,7 @@
         "is_out_of_bounds%2#0"
       ]
     },
-    "1256": {
+    "1261": {
       "op": "select",
       "defined_out": [
         "bounded_index%2#0",
@@ -7778,7 +7816,7 @@
         "bounded_index%2#0"
       ]
     },
-    "1257": {
+    "1262": {
       "op": "intc_2 // 16",
       "stack_out": [
         "userBytes#0",
@@ -7787,7 +7825,7 @@
         "16"
       ]
     },
-    "1258": {
+    "1263": {
       "op": "dig 2",
       "stack_out": [
         "userBytes#0",
@@ -7797,7 +7835,7 @@
         "length%1#0 (copy)"
       ]
     },
-    "1260": {
+    "1265": {
       "op": ">=",
       "defined_out": [
         "bounded_index%2#0",
@@ -7812,7 +7850,7 @@
         "is_out_of_bounds%3#0"
       ]
     },
-    "1261": {
+    "1266": {
       "op": "intc_2 // 16",
       "stack_out": [
         "userBytes#0",
@@ -7822,7 +7860,7 @@
         "16"
       ]
     },
-    "1262": {
+    "1267": {
       "op": "uncover 3",
       "stack_out": [
         "userBytes#0",
@@ -7832,7 +7870,7 @@
         "length%1#0"
       ]
     },
-    "1264": {
+    "1269": {
       "op": "uncover 2",
       "stack_out": [
         "userBytes#0",
@@ -7842,7 +7880,7 @@
         "is_out_of_bounds%3#0"
       ]
     },
-    "1266": {
+    "1271": {
       "op": "select",
       "defined_out": [
         "bounded_index%2#0",
@@ -7855,7 +7893,7 @@
         "bounded_index%3#0"
       ]
     },
-    "1267": {
+    "1272": {
       "op": "frame_dig -1",
       "stack_out": [
         "userBytes#0",
@@ -7864,7 +7902,7 @@
         "follower#0 (copy)"
       ]
     },
-    "1269": {
+    "1274": {
       "op": "cover 2",
       "stack_out": [
         "userBytes#0",
@@ -7873,7 +7911,7 @@
         "bounded_index%3#0"
       ]
     },
-    "1271": {
+    "1276": {
       "op": "substring3",
       "defined_out": [
         "followerBytes#0",
@@ -7884,7 +7922,7 @@
         "followerBytes#0"
       ]
     },
-    "1272": {
+    "1277": {
       "op": "dup",
       "defined_out": [
         "followerBytes#0",
@@ -7897,7 +7935,7 @@
         "followerBytes#0 (copy)"
       ]
     },
-    "1273": {
+    "1278": {
       "op": "len",
       "defined_out": [
         "followerBytes#0",
@@ -7910,7 +7948,7 @@
         "tmp%2#0"
       ]
     },
-    "1274": {
+    "1279": {
       "op": "intc_2 // 16",
       "stack_out": [
         "userBytes#0",
@@ -7919,7 +7957,7 @@
         "16"
       ]
     },
-    "1275": {
+    "1280": {
       "op": "==",
       "defined_out": [
         "followerBytes#0",
@@ -7932,7 +7970,7 @@
         "tmp%3#0"
       ]
     },
-    "1276": {
+    "1281": {
       "error": "Length must be 16",
       "op": "assert // Length must be 16",
       "stack_out": [
@@ -7940,7 +7978,7 @@
         "followerBytes#0"
       ]
     },
-    "1277": {
+    "1282": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0"
@@ -7949,11 +7987,11 @@
         "aggregate%head%1#0"
       ]
     },
-    "1278": {
+    "1283": {
       "retsub": true,
       "op": "retsub"
     },
-    "1279": {
+    "1284": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "params": {
         "address#0": "bytes"
@@ -7962,7 +8000,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "1282": {
+    "1287": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -7971,7 +8009,7 @@
         "0"
       ]
     },
-    "1283": {
+    "1288": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -7982,7 +8020,7 @@
         "\"akita_dao\""
       ]
     },
-    "1284": {
+    "1289": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -7993,14 +8031,14 @@
         "maybe_exists%0#0"
       ]
     },
-    "1285": {
+    "1290": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1286": {
+    "1291": {
       "op": "bytec 5 // \"sal\"",
       "defined_out": [
         "\"sal\"",
@@ -8011,7 +8049,7 @@
         "\"sal\""
       ]
     },
-    "1288": {
+    "1293": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -8022,20 +8060,20 @@
         "awst_tmp%1#1"
       ]
     },
-    "1289": {
+    "1294": {
       "op": "pop",
       "stack_out": [
         "appListBytes#0"
       ]
     },
-    "1290": {
+    "1295": {
       "op": "intc_0 // 0",
       "stack_out": [
         "appListBytes#0",
         "0"
       ]
     },
-    "1291": {
+    "1296": {
       "op": "extract_uint64",
       "defined_out": [
         "social#0"
@@ -8044,10 +8082,10 @@
         "social#0"
       ]
     },
-    "1292": {
+    "1297": {
       "op": "itxn_begin"
     },
-    "1293": {
+    "1298": {
       "op": "pushbytes 0x739ea70b // method \"getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64)\"",
       "defined_out": [
         "Method(getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64))",
@@ -8058,13 +8096,13 @@
         "Method(getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64))"
       ]
     },
-    "1299": {
+    "1304": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0"
       ]
     },
-    "1301": {
+    "1306": {
       "op": "frame_dig -1",
       "defined_out": [
         "address#0 (copy)",
@@ -8075,17 +8113,17 @@
         "address#0 (copy)"
       ]
     },
-    "1303": {
+    "1308": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0"
       ]
     },
-    "1305": {
+    "1310": {
       "op": "itxn_field ApplicationID",
       "stack_out": []
     },
-    "1307": {
+    "1312": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -8094,24 +8132,24 @@
         "appl"
       ]
     },
-    "1309": {
+    "1314": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "1311": {
+    "1316": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "1312": {
+    "1317": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "1314": {
+    "1319": {
       "op": "itxn_submit"
     },
-    "1315": {
+    "1320": {
       "op": "itxn LastLog",
       "defined_out": [
         "awst_tmp%1#0"
@@ -8120,7 +8158,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1317": {
+    "1322": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%1#0",
@@ -8131,7 +8169,7 @@
         "awst_tmp%1#0 (copy)"
       ]
     },
-    "1318": {
+    "1323": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%1#0",
@@ -8142,14 +8180,14 @@
         "tmp%1#0"
       ]
     },
-    "1321": {
+    "1326": {
       "op": "swap",
       "stack_out": [
         "tmp%1#0",
         "awst_tmp%1#0"
       ]
     },
-    "1322": {
+    "1327": {
       "op": "extract 0 4",
       "defined_out": [
         "tmp%1#0",
@@ -8160,7 +8198,7 @@
         "tmp%2#0"
       ]
     },
-    "1325": {
+    "1330": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -8173,7 +8211,7 @@
         "0x151f7c75"
       ]
     },
-    "1326": {
+    "1331": {
       "op": "==",
       "defined_out": [
         "tmp%1#0",
@@ -8184,14 +8222,14 @@
         "tmp%3#0"
       ]
     },
-    "1327": {
+    "1332": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
         "tmp%1#0"
       ]
     },
-    "1328": {
+    "1333": {
       "op": "dup",
       "defined_out": [
         "tmp%1#0",
@@ -8202,7 +8240,7 @@
         "tmp%1#0 (copy)"
       ]
     },
-    "1329": {
+    "1334": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -8213,7 +8251,7 @@
         "len%0#0"
       ]
     },
-    "1330": {
+    "1335": {
       "op": "pushint 74 // 74",
       "defined_out": [
         "74",
@@ -8226,7 +8264,7 @@
         "74"
       ]
     },
-    "1332": {
+    "1337": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -8237,18 +8275,18 @@
         "eq%0#0"
       ]
     },
-    "1333": {
+    "1338": {
       "error": "invalid number of bytes for (bool1,uint64,uint64,uint64,uint64,uint64,uint64,bool1,uint64,uint64,uint64)",
       "op": "assert // invalid number of bytes for (bool1,uint64,uint64,uint64,uint64,uint64,uint64,bool1,uint64,uint64,uint64)",
       "stack_out": [
         "tmp%1#0"
       ]
     },
-    "1334": {
+    "1339": {
       "retsub": true,
       "op": "retsub"
     },
-    "1335": {
+    "1340": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.updateFollowerMeta",
       "params": {
         "account#0": "bytes",
@@ -8259,7 +8297,7 @@
       "stack_in": [],
       "op": "proto 3 0"
     },
-    "1338": {
+    "1343": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -8268,7 +8306,7 @@
         "0"
       ]
     },
-    "1339": {
+    "1344": {
       "op": "bytec_1 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -8279,7 +8317,7 @@
         "\"akita_dao\""
       ]
     },
-    "1340": {
+    "1345": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -8290,14 +8328,14 @@
         "maybe_exists%0#0"
       ]
     },
-    "1341": {
+    "1346": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1342": {
+    "1347": {
       "op": "bytec 5 // \"sal\"",
       "defined_out": [
         "\"sal\"",
@@ -8308,7 +8346,7 @@
         "\"sal\""
       ]
     },
-    "1344": {
+    "1349": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -8319,20 +8357,20 @@
         "awst_tmp%1#0"
       ]
     },
-    "1345": {
+    "1350": {
       "op": "pop",
       "stack_out": [
         "appListBytes#0"
       ]
     },
-    "1346": {
+    "1351": {
       "op": "intc_0 // 0",
       "stack_out": [
         "appListBytes#0",
         "0"
       ]
     },
-    "1347": {
+    "1352": {
       "op": "extract_uint64",
       "defined_out": [
         "social#0"
@@ -8341,10 +8379,10 @@
         "social#0"
       ]
     },
-    "1348": {
+    "1353": {
       "op": "itxn_begin"
     },
-    "1349": {
+    "1354": {
       "op": "frame_dig -2",
       "defined_out": [
         "newFollowerIndex#0 (copy)",
@@ -8355,7 +8393,7 @@
         "newFollowerIndex#0 (copy)"
       ]
     },
-    "1351": {
+    "1356": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -8366,7 +8404,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1352": {
+    "1357": {
       "op": "frame_dig -1",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -8379,7 +8417,7 @@
         "newFollowerCount#0 (copy)"
       ]
     },
-    "1354": {
+    "1359": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -8392,7 +8430,7 @@
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "1355": {
+    "1360": {
       "op": "pushbytes 0x3306b32a // method \"updateFollowerMeta(address,uint64,uint64)void\"",
       "defined_out": [
         "Method(updateFollowerMeta(address,uint64,uint64)void)",
@@ -8407,7 +8445,7 @@
         "Method(updateFollowerMeta(address,uint64,uint64)void)"
       ]
     },
-    "1361": {
+    "1366": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0",
@@ -8415,7 +8453,7 @@
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "1363": {
+    "1368": {
       "op": "frame_dig -3",
       "defined_out": [
         "account#0 (copy)",
@@ -8430,7 +8468,7 @@
         "account#0 (copy)"
       ]
     },
-    "1365": {
+    "1370": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0",
@@ -8438,7 +8476,7 @@
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "1367": {
+    "1372": {
       "op": "swap",
       "stack_out": [
         "social#0",
@@ -8446,24 +8484,24 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1368": {
+    "1373": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0",
         "aggregate%val_as_bytes%1#0"
       ]
     },
-    "1370": {
+    "1375": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "social#0"
       ]
     },
-    "1372": {
+    "1377": {
       "op": "itxn_field ApplicationID",
       "stack_out": []
     },
-    "1374": {
+    "1379": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -8472,28 +8510,28 @@
         "appl"
       ]
     },
-    "1376": {
+    "1381": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "1378": {
+    "1383": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "1379": {
+    "1384": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "1381": {
+    "1386": {
       "op": "itxn_submit"
     },
-    "1382": {
+    "1387": {
       "retsub": true,
       "op": "retsub"
     },
-    "1383": {
+    "1388": {
       "subroutine": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.createFollow",
       "params": {
         "sender#0": "bytes",
@@ -8503,7 +8541,7 @@
       "stack_in": [],
       "op": "proto 2 0"
     },
-    "1386": {
+    "1391": {
       "op": "frame_dig -2",
       "defined_out": [
         "sender#0 (copy)"
@@ -8512,7 +8550,7 @@
         "sender#0 (copy)"
       ]
     },
-    "1388": {
+    "1393": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isBanned",
       "op": "callsub isBanned",
       "defined_out": [
@@ -8522,7 +8560,7 @@
         "tmp%0#0"
       ]
     },
-    "1391": {
+    "1396": {
       "op": "!",
       "defined_out": [
         "tmp%1#0"
@@ -8531,12 +8569,12 @@
         "tmp%1#0"
       ]
     },
-    "1392": {
+    "1397": {
       "error": "This account is banned",
       "op": "assert // This account is banned",
       "stack_out": []
     },
-    "1393": {
+    "1398": {
       "op": "frame_dig -1",
       "defined_out": [
         "address#0 (copy)"
@@ -8545,14 +8583,14 @@
         "address#0 (copy)"
       ]
     },
-    "1395": {
+    "1400": {
       "op": "frame_dig -2",
       "stack_out": [
         "address#0 (copy)",
         "sender#0 (copy)"
       ]
     },
-    "1397": {
+    "1402": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.blk",
       "op": "callsub blk",
       "defined_out": [
@@ -8562,7 +8600,7 @@
         "blocksKey#0"
       ]
     },
-    "1400": {
+    "1405": {
       "op": "bytec_3 // \"b\"",
       "defined_out": [
         "\"b\"",
@@ -8573,14 +8611,14 @@
         "\"b\""
       ]
     },
-    "1401": {
+    "1406": {
       "op": "swap",
       "stack_out": [
         "\"b\"",
         "blocksKey#0"
       ]
     },
-    "1402": {
+    "1407": {
       "op": "concat",
       "defined_out": [
         "box_prefixed_key%0#0"
@@ -8589,7 +8627,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "1403": {
+    "1408": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -8600,13 +8638,13 @@
         "maybe_exists%0#0"
       ]
     },
-    "1404": {
+    "1409": {
       "op": "bury 1",
       "stack_out": [
         "maybe_exists%0#0"
       ]
     },
-    "1406": {
+    "1411": {
       "op": "!",
       "defined_out": [
         "tmp%3#0"
@@ -8615,25 +8653,25 @@
         "tmp%3#0"
       ]
     },
-    "1407": {
+    "1412": {
       "error": "This account is blocked by the user",
       "op": "assert // This account is blocked by the user",
       "stack_out": []
     },
-    "1408": {
+    "1413": {
       "op": "frame_dig -2",
       "stack_out": [
         "sender#0 (copy)"
       ]
     },
-    "1410": {
+    "1415": {
       "op": "frame_dig -1",
       "stack_out": [
         "sender#0 (copy)",
         "address#0 (copy)"
       ]
     },
-    "1412": {
+    "1417": {
       "op": "!=",
       "defined_out": [
         "tmp%4#0"
@@ -8642,18 +8680,18 @@
         "tmp%4#0"
       ]
     },
-    "1413": {
+    "1418": {
       "error": "You cannot follow yourself",
       "op": "assert // You cannot follow yourself",
       "stack_out": []
     },
-    "1414": {
+    "1419": {
       "op": "frame_dig -2",
       "stack_out": [
         "sender#0 (copy)"
       ]
     },
-    "1416": {
+    "1421": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "op": "callsub getMeta",
       "defined_out": [
@@ -8663,7 +8701,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "1419": {
+    "1424": {
       "op": "pushint 392 // 392",
       "defined_out": [
         "392",
@@ -8674,7 +8712,7 @@
         "392"
       ]
     },
-    "1422": {
+    "1427": {
       "op": "getbit",
       "defined_out": [
         "automated#0"
@@ -8683,7 +8721,7 @@
         "automated#0"
       ]
     },
-    "1423": {
+    "1428": {
       "op": "!",
       "defined_out": [
         "tmp%5#0"
@@ -8692,25 +8730,25 @@
         "tmp%5#0"
       ]
     },
-    "1424": {
+    "1429": {
       "error": "This is an automated account",
       "op": "assert // This is an automated account",
       "stack_out": []
     },
-    "1425": {
+    "1430": {
       "op": "frame_dig -1",
       "stack_out": [
         "address#0 (copy)"
       ]
     },
-    "1427": {
+    "1432": {
       "op": "frame_dig -2",
       "stack_out": [
         "address#0 (copy)",
         "sender#0 (copy)"
       ]
     },
-    "1429": {
+    "1434": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.flw",
       "op": "callsub flw",
       "defined_out": [
@@ -8720,7 +8758,7 @@
         "followsKey#0"
       ]
     },
-    "1432": {
+    "1437": {
       "op": "bytec 4 // \"f\"",
       "defined_out": [
         "\"f\"",
@@ -8731,20 +8769,20 @@
         "\"f\""
       ]
     },
-    "1434": {
+    "1439": {
       "op": "swap",
       "stack_out": [
         "\"f\"",
         "followsKey#0"
       ]
     },
-    "1435": {
+    "1440": {
       "op": "concat",
       "stack_out": [
         "box_prefixed_key%0#0"
       ]
     },
-    "1436": {
+    "1441": {
       "op": "dup",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8755,7 +8793,7 @@
         "box_prefixed_key%0#0 (copy)"
       ]
     },
-    "1437": {
+    "1442": {
       "op": "box_len",
       "stack_out": [
         "box_prefixed_key%0#0",
@@ -8763,14 +8801,14 @@
         "maybe_exists%0#0"
       ]
     },
-    "1438": {
+    "1443": {
       "op": "bury 1",
       "stack_out": [
         "box_prefixed_key%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "1440": {
+    "1445": {
       "op": "!",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8781,21 +8819,21 @@
         "tmp%7#0"
       ]
     },
-    "1441": {
+    "1446": {
       "error": "Already following this user",
       "op": "assert // Already following this user",
       "stack_out": [
         "box_prefixed_key%0#0"
       ]
     },
-    "1442": {
+    "1447": {
       "op": "frame_dig -1",
       "stack_out": [
         "box_prefixed_key%0#0",
         "address#0 (copy)"
       ]
     },
-    "1444": {
+    "1449": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.getMeta",
       "op": "callsub getMeta",
       "defined_out": [
@@ -8807,7 +8845,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1447": {
+    "1452": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%1#0",
@@ -8820,7 +8858,7 @@
         "awst_tmp%1#0 (copy)"
       ]
     },
-    "1448": {
+    "1453": {
       "op": "pushint 41 // 41",
       "defined_out": [
         "41",
@@ -8835,7 +8873,7 @@
         "41"
       ]
     },
-    "1450": {
+    "1455": {
       "op": "extract_uint64",
       "defined_out": [
         "awst_tmp%1#0",
@@ -8848,7 +8886,7 @@
         "followerCount#0"
       ]
     },
-    "1451": {
+    "1456": {
       "op": "swap",
       "stack_out": [
         "box_prefixed_key%0#0",
@@ -8856,7 +8894,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1452": {
+    "1457": {
       "op": "pushint 33 // 33",
       "defined_out": [
         "33",
@@ -8871,7 +8909,7 @@
         "33"
       ]
     },
-    "1454": {
+    "1459": {
       "op": "extract_uint64",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8884,7 +8922,7 @@
         "followerIndex#0"
       ]
     },
-    "1455": {
+    "1460": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -8899,7 +8937,7 @@
         "1"
       ]
     },
-    "1456": {
+    "1461": {
       "op": "+",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8912,7 +8950,7 @@
         "tmp%8#0"
       ]
     },
-    "1457": {
+    "1462": {
       "op": "dup",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8927,7 +8965,7 @@
         "tmp%8#0 (copy)"
       ]
     },
-    "1458": {
+    "1463": {
       "op": "itob",
       "defined_out": [
         "box_prefixed_key%0#0",
@@ -8942,7 +8980,7 @@
         "encoded_value%0#0"
       ]
     },
-    "1459": {
+    "1464": {
       "op": "uncover 3",
       "stack_out": [
         "followerCount#0",
@@ -8951,7 +8989,7 @@
         "box_prefixed_key%0#0"
       ]
     },
-    "1461": {
+    "1466": {
       "op": "swap",
       "stack_out": [
         "followerCount#0",
@@ -8960,21 +8998,21 @@
         "encoded_value%0#0"
       ]
     },
-    "1462": {
+    "1467": {
       "op": "box_put",
       "stack_out": [
         "followerCount#0",
         "tmp%8#0"
       ]
     },
-    "1463": {
+    "1468": {
       "op": "swap",
       "stack_out": [
         "tmp%8#0",
         "followerCount#0"
       ]
     },
-    "1464": {
+    "1469": {
       "op": "intc_1 // 1",
       "stack_out": [
         "tmp%8#0",
@@ -8982,7 +9020,7 @@
         "1"
       ]
     },
-    "1465": {
+    "1470": {
       "op": "+",
       "defined_out": [
         "tmp%10#0",
@@ -8993,7 +9031,7 @@
         "tmp%10#0"
       ]
     },
-    "1466": {
+    "1471": {
       "op": "frame_dig -1",
       "stack_out": [
         "tmp%8#0",
@@ -9001,7 +9039,7 @@
         "address#0 (copy)"
       ]
     },
-    "1468": {
+    "1473": {
       "op": "cover 2",
       "stack_out": [
         "address#0 (copy)",
@@ -9009,16 +9047,16 @@
         "tmp%10#0"
       ]
     },
-    "1470": {
+    "1475": {
       "callsub": "smart_contracts/social/graph.algo.ts::AkitaSocialGraph.updateFollowerMeta",
       "op": "callsub updateFollowerMeta",
       "stack_out": []
     },
-    "1473": {
+    "1478": {
       "retsub": true,
       "op": "retsub"
     },
-    "1474": {
+    "1479": {
       "subroutine": "smart_contracts/social/base.ts::BaseSocial.mbr",
       "params": {
         "ref#0": "bytes"
@@ -9027,7 +9065,7 @@
       "stack_in": [],
       "op": "proto 1 1"
     },
-    "1477": {
+    "1482": {
       "op": "frame_dig -1",
       "defined_out": [
         "ref#0 (copy)"
@@ -9036,7 +9074,7 @@
         "ref#0 (copy)"
       ]
     },
-    "1479": {
+    "1484": {
       "op": "len",
       "defined_out": [
         "tmp%0#0"
@@ -9045,7 +9083,7 @@
         "tmp%0#0"
       ]
     },
-    "1480": {
+    "1485": {
       "op": "pushint 400 // 400",
       "defined_out": [
         "400",
@@ -9056,7 +9094,7 @@
         "400"
       ]
     },
-    "1483": {
+    "1488": {
       "op": "*",
       "defined_out": [
         "tmp%1#0"
@@ -9065,7 +9103,7 @@
         "tmp%1#0"
       ]
     },
-    "1484": {
+    "1489": {
       "op": "pushint 40100 // 40100",
       "defined_out": [
         "40100",
@@ -9076,7 +9114,7 @@
         "40100"
       ]
     },
-    "1488": {
+    "1493": {
       "op": "+",
       "defined_out": [
         "tmp%2#0"
@@ -9085,7 +9123,7 @@
         "tmp%2#0"
       ]
     },
-    "1489": {
+    "1494": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%2#0"
@@ -9094,7 +9132,7 @@
         "aggregate%val_as_bytes%2#0"
       ]
     },
-    "1490": {
+    "1495": {
       "op": "pushbytes 0x0000000000007bd40000000000003d54",
       "defined_out": [
         "0x0000000000007bd40000000000003d54",
@@ -9105,14 +9143,14 @@
         "0x0000000000007bd40000000000003d54"
       ]
     },
-    "1508": {
+    "1513": {
       "op": "swap",
       "stack_out": [
         "0x0000000000007bd40000000000003d54",
         "aggregate%val_as_bytes%2#0"
       ]
     },
-    "1509": {
+    "1514": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%2#0"
@@ -9121,7 +9159,7 @@
         "aggregate%head%2#0"
       ]
     },
-    "1510": {
+    "1515": {
       "op": "pushint 19300 // 19300",
       "defined_out": [
         "19300",
@@ -9132,7 +9170,7 @@
         "19300"
       ]
     },
-    "1514": {
+    "1519": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%2#0",
@@ -9143,14 +9181,14 @@
         "aggregate%val_as_bytes%3#0"
       ]
     },
-    "1515": {
+    "1520": {
       "op": "swap",
       "stack_out": [
         "aggregate%val_as_bytes%3#0",
         "aggregate%head%2#0"
       ]
     },
-    "1516": {
+    "1521": {
       "op": "dig 1",
       "defined_out": [
         "aggregate%head%2#0",
@@ -9163,7 +9201,7 @@
         "aggregate%val_as_bytes%3#0 (copy)"
       ]
     },
-    "1518": {
+    "1523": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%3#0",
@@ -9174,14 +9212,14 @@
         "aggregate%head%3#0"
       ]
     },
-    "1519": {
+    "1524": {
       "op": "swap",
       "stack_out": [
         "aggregate%head%3#0",
         "aggregate%val_as_bytes%3#0"
       ]
     },
-    "1520": {
+    "1525": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%4#0"
@@ -9190,7 +9228,7 @@
         "aggregate%head%4#0"
       ]
     },
-    "1521": {
+    "1526": {
       "op": "pushint 22100 // 22100",
       "defined_out": [
         "22100",
@@ -9201,7 +9239,7 @@
         "22100"
       ]
     },
-    "1525": {
+    "1530": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%4#0",
@@ -9212,7 +9250,7 @@
         "aggregate%val_as_bytes%5#0"
       ]
     },
-    "1526": {
+    "1531": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%5#0"
@@ -9221,7 +9259,7 @@
         "aggregate%head%5#0"
       ]
     },
-    "1527": {
+    "1532": {
       "op": "pushint 18900 // 18900",
       "defined_out": [
         "18900",
@@ -9232,7 +9270,7 @@
         "18900"
       ]
     },
-    "1531": {
+    "1536": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%5#0",
@@ -9243,14 +9281,14 @@
         "aggregate%val_as_bytes%6#0"
       ]
     },
-    "1532": {
+    "1537": {
       "op": "swap",
       "stack_out": [
         "aggregate%val_as_bytes%6#0",
         "aggregate%head%5#0"
       ]
     },
-    "1533": {
+    "1538": {
       "op": "dig 1",
       "defined_out": [
         "aggregate%head%5#0",
@@ -9263,7 +9301,7 @@
         "aggregate%val_as_bytes%6#0 (copy)"
       ]
     },
-    "1535": {
+    "1540": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%6#0",
@@ -9274,7 +9312,7 @@
         "aggregate%head%6#0"
       ]
     },
-    "1536": {
+    "1541": {
       "op": "pushint 45300 // 45300",
       "defined_out": [
         "45300",
@@ -9287,7 +9325,7 @@
         "45300"
       ]
     },
-    "1540": {
+    "1545": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%6#0",
@@ -9300,7 +9338,7 @@
         "aggregate%val_as_bytes%7#0"
       ]
     },
-    "1541": {
+    "1546": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%7#0",
@@ -9311,7 +9349,7 @@
         "aggregate%head%7#0"
       ]
     },
-    "1542": {
+    "1547": {
       "op": "dig 1",
       "stack_out": [
         "aggregate%val_as_bytes%6#0",
@@ -9319,7 +9357,7 @@
         "aggregate%val_as_bytes%6#0 (copy)"
       ]
     },
-    "1544": {
+    "1549": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%8#0",
@@ -9330,14 +9368,14 @@
         "aggregate%head%8#0"
       ]
     },
-    "1545": {
+    "1550": {
       "op": "swap",
       "stack_out": [
         "aggregate%head%8#0",
         "aggregate%val_as_bytes%6#0"
       ]
     },
-    "1546": {
+    "1551": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%9#0"
@@ -9346,7 +9384,7 @@
         "aggregate%head%9#0"
       ]
     },
-    "1547": {
+    "1552": {
       "op": "pushint 29700 // 29700",
       "defined_out": [
         "29700",
@@ -9357,7 +9395,7 @@
         "29700"
       ]
     },
-    "1551": {
+    "1556": {
       "op": "itob",
       "defined_out": [
         "aggregate%head%9#0",
@@ -9368,7 +9406,7 @@
         "aggregate%val_as_bytes%10#0"
       ]
     },
-    "1552": {
+    "1557": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%10#0"
@@ -9377,7 +9415,7 @@
         "aggregate%head%10#0"
       ]
     },
-    "1553": {
+    "1558": {
       "retsub": true,
       "op": "retsub"
     }

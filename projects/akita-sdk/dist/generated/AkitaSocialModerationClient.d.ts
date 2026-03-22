@@ -59,15 +59,13 @@ export type AkitaSocialModerationArgs = {
             version: string;
             akitaDao: bigint | number;
         };
-        'addModerator(pay,address)void': {
-            mbrPayment: AppMethodCallTransactionArgument;
+        'addModerator(address)void': {
             address: string;
         };
         'removeModerator(address)void': {
             address: string;
         };
-        'ban(pay,address,uint64)void': {
-            mbrPayment: AppMethodCallTransactionArgument;
+        'ban(address,uint64)void': {
             address: string;
             expiration: bigint | number;
         };
@@ -80,8 +78,7 @@ export type AkitaSocialModerationArgs = {
         'unflagPost(byte[32])void': {
             ref: Uint8Array;
         };
-        'addAction(pay,uint64,byte[36])void': {
-            mbrPayment: AppMethodCallTransactionArgument;
+        'addAction(uint64,byte[36])void': {
             actionAppId: bigint | number;
             content: Uint8Array;
         };
@@ -110,13 +107,13 @@ export type AkitaSocialModerationArgs = {
      */
     tuple: {
         'create(string,uint64)void': [version: string, akitaDao: bigint | number];
-        'addModerator(pay,address)void': [mbrPayment: AppMethodCallTransactionArgument, address: string];
+        'addModerator(address)void': [address: string];
         'removeModerator(address)void': [address: string];
-        'ban(pay,address,uint64)void': [mbrPayment: AppMethodCallTransactionArgument, address: string, expiration: bigint | number];
+        'ban(address,uint64)void': [address: string, expiration: bigint | number];
         'unban(address)void': [address: string];
         'flagPost(byte[32])void': [ref: Uint8Array];
         'unflagPost(byte[32])void': [ref: Uint8Array];
-        'addAction(pay,uint64,byte[36])void': [mbrPayment: AppMethodCallTransactionArgument, actionAppId: bigint | number, content: Uint8Array];
+        'addAction(uint64,byte[36])void': [actionAppId: bigint | number, content: Uint8Array];
         'removeAction(uint64)void': [actionAppId: bigint | number];
         'isBanned(address)bool': [account: string];
         'isModerator(address)bool': [account: string];
@@ -131,13 +128,13 @@ export type AkitaSocialModerationArgs = {
  */
 export type AkitaSocialModerationReturns = {
     'create(string,uint64)void': void;
-    'addModerator(pay,address)void': void;
+    'addModerator(address)void': void;
     'removeModerator(address)void': void;
-    'ban(pay,address,uint64)void': void;
+    'ban(address,uint64)void': void;
     'unban(address)void': void;
     'flagPost(byte[32])void': void;
     'unflagPost(byte[32])void': void;
-    'addAction(pay,uint64,byte[36])void': void;
+    'addAction(uint64,byte[36])void': void;
     'removeAction(uint64)void': void;
     'isBanned(address)bool': boolean;
     'isModerator(address)bool': boolean;
@@ -157,18 +154,18 @@ export type AkitaSocialModerationTypes = {
         argsObj: AkitaSocialModerationArgs['obj']['create(string,uint64)void'];
         argsTuple: AkitaSocialModerationArgs['tuple']['create(string,uint64)void'];
         returns: AkitaSocialModerationReturns['create(string,uint64)void'];
-    }> & Record<'addModerator(pay,address)void' | 'addModerator', {
-        argsObj: AkitaSocialModerationArgs['obj']['addModerator(pay,address)void'];
-        argsTuple: AkitaSocialModerationArgs['tuple']['addModerator(pay,address)void'];
-        returns: AkitaSocialModerationReturns['addModerator(pay,address)void'];
+    }> & Record<'addModerator(address)void' | 'addModerator', {
+        argsObj: AkitaSocialModerationArgs['obj']['addModerator(address)void'];
+        argsTuple: AkitaSocialModerationArgs['tuple']['addModerator(address)void'];
+        returns: AkitaSocialModerationReturns['addModerator(address)void'];
     }> & Record<'removeModerator(address)void' | 'removeModerator', {
         argsObj: AkitaSocialModerationArgs['obj']['removeModerator(address)void'];
         argsTuple: AkitaSocialModerationArgs['tuple']['removeModerator(address)void'];
         returns: AkitaSocialModerationReturns['removeModerator(address)void'];
-    }> & Record<'ban(pay,address,uint64)void' | 'ban', {
-        argsObj: AkitaSocialModerationArgs['obj']['ban(pay,address,uint64)void'];
-        argsTuple: AkitaSocialModerationArgs['tuple']['ban(pay,address,uint64)void'];
-        returns: AkitaSocialModerationReturns['ban(pay,address,uint64)void'];
+    }> & Record<'ban(address,uint64)void' | 'ban', {
+        argsObj: AkitaSocialModerationArgs['obj']['ban(address,uint64)void'];
+        argsTuple: AkitaSocialModerationArgs['tuple']['ban(address,uint64)void'];
+        returns: AkitaSocialModerationReturns['ban(address,uint64)void'];
     }> & Record<'unban(address)void' | 'unban', {
         argsObj: AkitaSocialModerationArgs['obj']['unban(address)void'];
         argsTuple: AkitaSocialModerationArgs['tuple']['unban(address)void'];
@@ -181,10 +178,10 @@ export type AkitaSocialModerationTypes = {
         argsObj: AkitaSocialModerationArgs['obj']['unflagPost(byte[32])void'];
         argsTuple: AkitaSocialModerationArgs['tuple']['unflagPost(byte[32])void'];
         returns: AkitaSocialModerationReturns['unflagPost(byte[32])void'];
-    }> & Record<'addAction(pay,uint64,byte[36])void' | 'addAction', {
-        argsObj: AkitaSocialModerationArgs['obj']['addAction(pay,uint64,byte[36])void'];
-        argsTuple: AkitaSocialModerationArgs['tuple']['addAction(pay,uint64,byte[36])void'];
-        returns: AkitaSocialModerationReturns['addAction(pay,uint64,byte[36])void'];
+    }> & Record<'addAction(uint64,byte[36])void' | 'addAction', {
+        argsObj: AkitaSocialModerationArgs['obj']['addAction(uint64,byte[36])void'];
+        argsTuple: AkitaSocialModerationArgs['tuple']['addAction(uint64,byte[36])void'];
+        returns: AkitaSocialModerationReturns['addAction(uint64,byte[36])void'];
     }> & Record<'removeAction(uint64)void' | 'removeAction', {
         argsObj: AkitaSocialModerationArgs['obj']['removeAction(uint64)void'];
         argsTuple: AkitaSocialModerationArgs['tuple']['removeAction(uint64)void'];
@@ -393,12 +390,12 @@ export declare abstract class AkitaSocialModerationParamsFactory {
         update(params: CallParams<AkitaSocialModerationArgs["obj"]["update(string)void"] | AkitaSocialModerationArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
     };
     /**
-     * Constructs a no op call for the addModerator(pay,address)void ABI method
+     * Constructs a no op call for the addModerator(address)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static addModerator(params: CallParams<AkitaSocialModerationArgs['obj']['addModerator(pay,address)void'] | AkitaSocialModerationArgs['tuple']['addModerator(pay,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static addModerator(params: CallParams<AkitaSocialModerationArgs['obj']['addModerator(address)void'] | AkitaSocialModerationArgs['tuple']['addModerator(address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the removeModerator(address)void ABI method
      *
@@ -407,12 +404,12 @@ export declare abstract class AkitaSocialModerationParamsFactory {
      */
     static removeModerator(params: CallParams<AkitaSocialModerationArgs['obj']['removeModerator(address)void'] | AkitaSocialModerationArgs['tuple']['removeModerator(address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the ban(pay,address,uint64)void ABI method
+     * Constructs a no op call for the ban(address,uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static ban(params: CallParams<AkitaSocialModerationArgs['obj']['ban(pay,address,uint64)void'] | AkitaSocialModerationArgs['tuple']['ban(pay,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static ban(params: CallParams<AkitaSocialModerationArgs['obj']['ban(address,uint64)void'] | AkitaSocialModerationArgs['tuple']['ban(address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the unban(address)void ABI method
      *
@@ -435,12 +432,12 @@ export declare abstract class AkitaSocialModerationParamsFactory {
      */
     static unflagPost(params: CallParams<AkitaSocialModerationArgs['obj']['unflagPost(byte[32])void'] | AkitaSocialModerationArgs['tuple']['unflagPost(byte[32])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the addAction(pay,uint64,byte[36])void ABI method
+     * Constructs a no op call for the addAction(uint64,byte[36])void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static addAction(params: CallParams<AkitaSocialModerationArgs['obj']['addAction(pay,uint64,byte[36])void'] | AkitaSocialModerationArgs['tuple']['addAction(pay,uint64,byte[36])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static addAction(params: CallParams<AkitaSocialModerationArgs['obj']['addAction(uint64,byte[36])void'] | AkitaSocialModerationArgs['tuple']['addAction(uint64,byte[36])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the removeAction(uint64)void ABI method
      *
@@ -1021,12 +1018,12 @@ export declare class AkitaSocialModerationClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => import("@algorandfoundation/algokit-utils/types/composer").AppCallParams;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(pay,address)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(pay,address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(pay,address)void"]> & {
+        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1039,12 +1036,12 @@ export declare class AkitaSocialModerationClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `ban(pay,address,uint64)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `ban(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(pay,address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(pay,address,uint64)void"]> & {
+        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1075,12 +1072,12 @@ export declare class AkitaSocialModerationClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(pay,uint64,byte[36])void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(uint64,byte[36])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(pay,uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(pay,uint64,byte[36])void"]> & {
+        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(uint64,byte[36])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1172,12 +1169,12 @@ export declare class AkitaSocialModerationClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => Promise<Transaction>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(pay,address)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(pay,address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(pay,address)void"]> & {
+        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(address)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1198,12 +1195,12 @@ export declare class AkitaSocialModerationClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `ban(pay,address,uint64)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `ban(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(pay,address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(pay,address,uint64)void"]> & {
+        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(address,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1250,12 +1247,12 @@ export declare class AkitaSocialModerationClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(pay,uint64,byte[36])void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(uint64,byte[36])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(pay,uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(pay,uint64,byte[36])void"]> & {
+        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(uint64,byte[36])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1391,15 +1388,15 @@ export declare class AkitaSocialModerationClient {
             return?: ABIReturn | undefined;
         }>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(pay,address)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addModerator(address)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(pay,address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(pay,address)void"]> & SendParams & {
+        addModerator: (params: CallParams<AkitaSocialModerationArgs["obj"]["addModerator(address)void"] | AkitaSocialModerationArgs["tuple"]["addModerator(address)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | AkitaSocialModerationReturns["addModerator(pay,address)void"]);
+            return: (undefined | AkitaSocialModerationReturns["addModerator(address)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1427,15 +1424,15 @@ export declare class AkitaSocialModerationClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `ban(pay,address,uint64)void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `ban(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(pay,address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(pay,address,uint64)void"]> & SendParams & {
+        ban: (params: CallParams<AkitaSocialModerationArgs["obj"]["ban(address,uint64)void"] | AkitaSocialModerationArgs["tuple"]["ban(address,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | AkitaSocialModerationReturns["ban(pay,address,uint64)void"]);
+            return: (undefined | AkitaSocialModerationReturns["ban(address,uint64)void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1499,15 +1496,15 @@ export declare class AkitaSocialModerationClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(pay,uint64,byte[36])void` ABI method.
+         * Makes a call to the AkitaSocialModeration smart contract using the `addAction(uint64,byte[36])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(pay,uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(pay,uint64,byte[36])void"]> & SendParams & {
+        addAction: (params: CallParams<AkitaSocialModerationArgs["obj"]["addAction(uint64,byte[36])void"] | AkitaSocialModerationArgs["tuple"]["addAction(uint64,byte[36])void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | AkitaSocialModerationReturns["addAction(pay,uint64,byte[36])void"]);
+            return: (undefined | AkitaSocialModerationReturns["addAction(uint64,byte[36])void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1739,13 +1736,13 @@ export declare class AkitaSocialModerationClient {
 }
 export type AkitaSocialModerationComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the addModerator(pay,address)void ABI method.
+     * Calls the addModerator(address)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    addModerator(params?: CallParams<AkitaSocialModerationArgs['obj']['addModerator(pay,address)void'] | AkitaSocialModerationArgs['tuple']['addModerator(pay,address)void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['addModerator(pay,address)void'] | undefined]>;
+    addModerator(params?: CallParams<AkitaSocialModerationArgs['obj']['addModerator(address)void'] | AkitaSocialModerationArgs['tuple']['addModerator(address)void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['addModerator(address)void'] | undefined]>;
     /**
      * Calls the removeModerator(address)void ABI method.
      *
@@ -1755,13 +1752,13 @@ export type AkitaSocialModerationComposer<TReturns extends [...any[]] = []> = {
      */
     removeModerator(params?: CallParams<AkitaSocialModerationArgs['obj']['removeModerator(address)void'] | AkitaSocialModerationArgs['tuple']['removeModerator(address)void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['removeModerator(address)void'] | undefined]>;
     /**
-     * Calls the ban(pay,address,uint64)void ABI method.
+     * Calls the ban(address,uint64)void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    ban(params?: CallParams<AkitaSocialModerationArgs['obj']['ban(pay,address,uint64)void'] | AkitaSocialModerationArgs['tuple']['ban(pay,address,uint64)void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['ban(pay,address,uint64)void'] | undefined]>;
+    ban(params?: CallParams<AkitaSocialModerationArgs['obj']['ban(address,uint64)void'] | AkitaSocialModerationArgs['tuple']['ban(address,uint64)void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['ban(address,uint64)void'] | undefined]>;
     /**
      * Calls the unban(address)void ABI method.
      *
@@ -1787,13 +1784,13 @@ export type AkitaSocialModerationComposer<TReturns extends [...any[]] = []> = {
      */
     unflagPost(params?: CallParams<AkitaSocialModerationArgs['obj']['unflagPost(byte[32])void'] | AkitaSocialModerationArgs['tuple']['unflagPost(byte[32])void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['unflagPost(byte[32])void'] | undefined]>;
     /**
-     * Calls the addAction(pay,uint64,byte[36])void ABI method.
+     * Calls the addAction(uint64,byte[36])void ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    addAction(params?: CallParams<AkitaSocialModerationArgs['obj']['addAction(pay,uint64,byte[36])void'] | AkitaSocialModerationArgs['tuple']['addAction(pay,uint64,byte[36])void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['addAction(pay,uint64,byte[36])void'] | undefined]>;
+    addAction(params?: CallParams<AkitaSocialModerationArgs['obj']['addAction(uint64,byte[36])void'] | AkitaSocialModerationArgs['tuple']['addAction(uint64,byte[36])void']>): AkitaSocialModerationComposer<[...TReturns, AkitaSocialModerationReturns['addAction(uint64,byte[36])void'] | undefined]>;
     /**
      * Calls the removeAction(uint64)void ABI method.
      *

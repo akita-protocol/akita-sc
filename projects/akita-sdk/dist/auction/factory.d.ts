@@ -27,11 +27,7 @@ export declare class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     /**
      * Gets the cost to create a new auction.
      */
-    cost({ isPrizeBox, bidAssetId, weightsListCount }: {
-        isPrizeBox: boolean;
-        bidAssetId: bigint | number;
-        weightsListCount: bigint | number;
-    }): Promise<bigint>;
+    cost({ isPrizeBox, bidAssetId, prizeAssetId, weightsListCount }: AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64']): Promise<bigint>;
     optIn({ sender, signer, asset }: OptInParams): Promise<void>;
     /**
      * Deletes an auction after all cleanup is complete.

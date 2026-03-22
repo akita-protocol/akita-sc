@@ -28,20 +28,20 @@ main_create_NoOp@6:
 
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:321
+    // smart_contracts/utils/functions.ts:325
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:322
+    // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:323
+    // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:326
+    // smart_contracts/utils/functions.ts:330
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -120,16 +120,16 @@ mint:
     dup
     cover 2
     cover 3
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     uncover 2
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -167,12 +167,13 @@ mint:
     itxn_begin
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:39
     // receiver: appId.address,
+    dup
     app_params_get AppAddress
     assert // application exists
-    uncover 2
+    uncover 3
     itxn_field Amount
     itxn_field Receiver
-    dup
+    dig 1
     itxn_field Sender
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:37-41
     // itxn.payment({
@@ -185,10 +186,11 @@ mint:
     intc_0 // 0
     itxn_field Fee
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:44
-    // const rate = abiCall<typeof DualStake.prototype.get_rate>({ sender }).returnValue
+    // const rate = abiCall<typeof DualStake.prototype.get_rate>({ sender, appId }).returnValue
     itxn_begin
     pushbytes 0x8d44d1f3 // method "get_rate()uint64"
     itxn_field ApplicationArgs
+    itxn_field ApplicationID
     itxn_field Sender
     intc_3 // appl
     itxn_field TypeEnum
@@ -401,16 +403,16 @@ redeem:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
     dig 2
-    // smart_contracts/utils/functions.ts:268
+    // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:266-269
+    // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)

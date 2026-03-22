@@ -10,11 +10,11 @@ import {
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
-import { getFunder, getNFTFees, getPrizeBoxOwner, royalties } from '../utils/functions'
+import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
+import { disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { BaseRaffle } from './base'
 import { ERR_NOT_A_RAFFLE } from './errors'
@@ -56,7 +56,27 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     }
 
     const costs = this.mbr()
-    const childAppMBR: uint64 = Global.minBalance + optinMBR
+
+    // Worst-case disbursement MBR:
+    // 1 for referral payment (in ticket asset)
+    // 1 for prize transfer (when not prize box)
+    // up to 4 for ASA ticket payments (creator, marketplace x2, seller) when ticket is ASA
+    // 3 for prize box (no creator royalty)
+    let disbursementMBR: uint64 = 0
+    if (!isPrizeBox) {
+      disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeID)
+      if (isAlgoTicket) {
+        disbursementMBR += disbursementCost(1)
+      } else {
+        disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+      }
+    } else if (isAlgoTicket) {
+      disbursementMBR = disbursementCost(1)
+    } else {
+      disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    }
+
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR
     const weightsMBR: uint64 = (weightsListCount * costs.weights)
     const fees = getNFTFees(this.akitaDAO.value)
 
@@ -109,11 +129,11 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
       .itxn
       .createdApp
 
-    // Fund child app with base minBalance first
+    // Fund child app with base minBalance + disbursement MBR
     itxn
       .payment({
         receiver: appId.address,
-        amount: Global.minBalance
+        amount: Global.minBalance + disbursementMBR
       })
       .submit()
 
@@ -225,8 +245,8 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
   }
 
   newPrizeBoxRaffle(
+    prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     payment: gtxn.PaymentTxn,
-    prizeBox: Application,
     ticketAsset: uint64,
     startTimestamp: uint64,
     endTimestamp: uint64,
@@ -237,12 +257,13 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     weightsListCount: uint64
   ): uint64 {
 
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    assert(prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>(), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
+    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
 
     const raffleApp = this.createChildApp(
       true,
       payment,
-      prizeBox.id,
+      prizeBoxTransferTxn.appId.id,
       ticketAsset,
       startTimestamp,
       endTimestamp,
@@ -254,10 +275,8 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
       weightsListCount
     )
 
-    // Note: init is already called by createChildApp, so we don't call it again
-
     abiCall<typeof PrizeBox.prototype.transfer>({
-      appId: prizeBox.id,
+      appId: prizeBoxTransferTxn.appId,
       args: [raffleApp.address],
     })
 

@@ -3,7 +3,7 @@ import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/
 import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getAkitaAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_REGISTRY_ARG } from '../../errors'
 import { SubscriptionGateRegistryMBR } from './constants'
 import { SubscriptionGateRegistryInfo } from './types'
 
@@ -42,6 +42,9 @@ export class SubscriptionGate extends AkitaBaseContract {
       appId: getAkitaAppList(this.akitaDAO.value).subscriptions,
       args: [{address, id}],
     }).returnValue
+    if (!info.exists) {
+      return false
+    }
 
     const toMerchant = info.recipient === merchant
 
@@ -88,6 +91,7 @@ export class SubscriptionGate extends AkitaBaseContract {
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
     assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    assert(this.registry(registryID).exists, ERR_INVALID_REGISTRY_ARG)
     const { merchant, id } = clone(this.registry(registryID).value)
     return this.subscriptionGate(caller, merchant, id)
   }

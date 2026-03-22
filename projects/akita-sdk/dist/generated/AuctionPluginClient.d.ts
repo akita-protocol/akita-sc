@@ -72,6 +72,20 @@ export type AuctionPluginArgs = {
             marketplace: string;
             weightsListCount: bigint | number;
         };
+        'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            prizeBox: bigint | number;
+            bidAssetId: bigint | number;
+            bidFee: bigint | number;
+            startingBid: bigint | number;
+            bidMinimumIncrease: bigint | number;
+            startTimestamp: bigint | number;
+            endTimestamp: bigint | number;
+            gateId: bigint | number;
+            marketplace: string;
+            weightsListCount: bigint | number;
+        };
         'clearWeightsBoxes(uint64,bool,uint64,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -140,6 +154,7 @@ export type AuctionPluginArgs = {
     tuple: {
         'create(string,uint64,uint64)void': [version: string, factory: bigint | number, akitaDao: bigint | number];
         'new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, prizeId: bigint | number, prizeAmount: bigint | number, name: string, proof: Uint8Array[], bidAssetId: bigint | number, bidFee: bigint | number, startingBid: bigint | number, bidMinimumIncrease: bigint | number, startTimestamp: bigint | number, endtimestamp: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
+        'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, prizeBox: bigint | number, bidAssetId: bigint | number, bidFee: bigint | number, startingBid: bigint | number, bidMinimumIncrease: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
         'clearWeightsBoxes(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, auctionAppId: bigint | number, iterationAmount: bigint | number];
         'deleteAuctionApp(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number];
         'bid(uint64,bool,uint64,uint64,byte[][],address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, amount: bigint | number, args: Uint8Array[], marketplace: string];
@@ -161,6 +176,7 @@ export type AuctionPluginArgs = {
 export type AuctionPluginReturns = {
     'create(string,uint64,uint64)void': void;
     'new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
+    'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
     'clearWeightsBoxes(uint64,bool,uint64,uint64)void': void;
     'deleteAuctionApp(uint64,bool,uint64)void': void;
     'bid(uint64,bool,uint64,uint64,byte[][],address)void': void;
@@ -190,6 +206,10 @@ export type AuctionPluginTypes = {
         argsObj: AuctionPluginArgs['obj']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
         argsTuple: AuctionPluginArgs['tuple']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
         returns: AuctionPluginReturns['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+    }> & Record<'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64' | 'listPrizeBox', {
+        argsObj: AuctionPluginArgs['obj']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        argsTuple: AuctionPluginArgs['tuple']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        returns: AuctionPluginReturns['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
     }> & Record<'clearWeightsBoxes(uint64,bool,uint64,uint64)void' | 'clearWeightsBoxes', {
         argsObj: AuctionPluginArgs['obj']['clearWeightsBoxes(uint64,bool,uint64,uint64)void'];
         argsTuple: AuctionPluginArgs['tuple']['clearWeightsBoxes(uint64,bool,uint64,uint64)void'];
@@ -408,6 +428,13 @@ export declare abstract class AuctionPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static new(params: CallParams<AuctionPluginArgs['obj']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionPluginArgs['tuple']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static listPrizeBox(params: CallParams<AuctionPluginArgs['obj']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionPluginArgs['tuple']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the clearWeightsBoxes(uint64,bool,uint64,uint64)void ABI method
      *
@@ -958,6 +985,15 @@ export declare class AuctionPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the AuctionPlugin smart contract using the `listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        listPrizeBox: (params: CallParams<AuctionPluginArgs["obj"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionPluginArgs["tuple"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the AuctionPlugin smart contract using the `clearWeightsBoxes(uint64,bool,uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1102,6 +1138,19 @@ export declare class AuctionPluginClient {
          * @returns The call transaction
          */
         new: (params: CallParams<AuctionPluginArgs["obj"]["new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionPluginArgs["tuple"]["new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AuctionPlugin smart contract using the `listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        listPrizeBox: (params: CallParams<AuctionPluginArgs["obj"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionPluginArgs["tuple"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1318,6 +1367,24 @@ export declare class AuctionPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | AuctionPluginReturns["new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AuctionPlugin smart contract using the `listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        listPrizeBox: (params: CallParams<AuctionPluginArgs["obj"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | AuctionPluginArgs["tuple"]["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | AuctionPluginReturns["listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1598,6 +1665,14 @@ export type AuctionPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     new (params?: CallParams<AuctionPluginArgs['obj']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionPluginArgs['tuple']['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): AuctionPluginComposer<[...TReturns, AuctionPluginReturns['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
+    /**
+     * Calls the listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method.
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    listPrizeBox(params?: CallParams<AuctionPluginArgs['obj']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | AuctionPluginArgs['tuple']['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): AuctionPluginComposer<[...TReturns, AuctionPluginReturns['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
     /**
      * Calls the clearWeightsBoxes(uint64,bool,uint64,uint64)void ABI method.
      *

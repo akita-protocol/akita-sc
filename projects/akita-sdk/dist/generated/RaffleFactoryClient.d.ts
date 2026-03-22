@@ -69,9 +69,9 @@ export type RaffleFactoryArgs = {
             proof: Uint8Array[];
             weightsListCount: bigint | number;
         };
-        'newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': {
+        'newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': {
+            prizeBoxTransferTxn: AppMethodCallTransactionArgument;
             payment: AppMethodCallTransactionArgument;
-            prizeBox: bigint | number;
             ticketAsset: bigint | number;
             startTimestamp: bigint | number;
             endTimestamp: bigint | number;
@@ -124,7 +124,7 @@ export type RaffleFactoryArgs = {
     tuple: {
         'create(string,string,uint64,uint64)void': [version: string, childVersion: string, akitaDao: bigint | number, akitaDaoEscrow: bigint | number];
         'newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, ticketAsset: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, minTickets: bigint | number, maxTickets: bigint | number, gateId: bigint | number, marketplace: string, name: string, proof: Uint8Array[], weightsListCount: bigint | number];
-        'newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [payment: AppMethodCallTransactionArgument, prizeBox: bigint | number, ticketAsset: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, minTickets: bigint | number, maxTickets: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
+        'newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': [prizeBoxTransferTxn: AppMethodCallTransactionArgument, payment: AppMethodCallTransactionArgument, ticketAsset: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number, minTickets: bigint | number, maxTickets: bigint | number, gateId: bigint | number, marketplace: string, weightsListCount: bigint | number];
         'deleteRaffle(uint64)void': [appId: bigint | number];
         'initBoxedContract(string,uint64)void': [version: string, size: bigint | number];
         'loadBoxedContract(uint64,byte[])void': [offset: bigint | number, data: Uint8Array];
@@ -144,7 +144,7 @@ export type RaffleFactoryArgs = {
 export type RaffleFactoryReturns = {
     'create(string,string,uint64,uint64)void': void;
     'newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64': bigint;
-    'newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
+    'newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64': bigint;
     'deleteRaffle(uint64)void': void;
     'initBoxedContract(string,uint64)void': void;
     'loadBoxedContract(uint64,byte[])void': void;
@@ -172,10 +172,10 @@ export type RaffleFactoryTypes = {
         argsObj: RaffleFactoryArgs['obj']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'];
         argsTuple: RaffleFactoryArgs['tuple']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'];
         returns: RaffleFactoryReturns['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'];
-    }> & Record<'newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64' | 'newPrizeBoxRaffle', {
-        argsObj: RaffleFactoryArgs['obj']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
-        argsTuple: RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
-        returns: RaffleFactoryReturns['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+    }> & Record<'newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64' | 'newPrizeBoxRaffle', {
+        argsObj: RaffleFactoryArgs['obj']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        argsTuple: RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
+        returns: RaffleFactoryReturns['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'];
     }> & Record<'deleteRaffle(uint64)void' | 'deleteRaffle', {
         argsObj: RaffleFactoryArgs['obj']['deleteRaffle(uint64)void'];
         argsTuple: RaffleFactoryArgs['tuple']['deleteRaffle(uint64)void'];
@@ -404,12 +404,12 @@ export declare abstract class RaffleFactoryParamsFactory {
      */
     static newRaffle(params: CallParams<RaffleFactoryArgs['obj']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'] | RaffleFactoryArgs['tuple']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method
+     * Constructs a no op call for the newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static newPrizeBoxRaffle(params: CallParams<RaffleFactoryArgs['obj']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static newPrizeBoxRaffle(params: CallParams<RaffleFactoryArgs['obj']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the deleteRaffle(uint64)void ABI method
      *
@@ -1029,12 +1029,12 @@ export declare class RaffleFactoryClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
@@ -1175,12 +1175,12 @@ export declare class RaffleFactoryClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
+        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1386,15 +1386,15 @@ export declare class RaffleFactoryClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
+         * Makes a call to the RaffleFactory smart contract using the `newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & SendParams & {
+        newPrizeBoxRaffle: (params: CallParams<RaffleFactoryArgs["obj"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"] | RaffleFactoryArgs["tuple"]["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
-            return: (undefined | RaffleFactoryReturns["newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
+            return: (undefined | RaffleFactoryReturns["newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1670,13 +1670,13 @@ export type RaffleFactoryComposer<TReturns extends [...any[]] = []> = {
      */
     newRaffle(params?: CallParams<RaffleFactoryArgs['obj']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'] | RaffleFactoryArgs['tuple']['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64']>): RaffleFactoryComposer<[...TReturns, RaffleFactoryReturns['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'] | undefined]>;
     /**
-     * Calls the newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method.
+     * Calls the newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    newPrizeBoxRaffle(params?: CallParams<RaffleFactoryArgs['obj']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): RaffleFactoryComposer<[...TReturns, RaffleFactoryReturns['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
+    newPrizeBoxRaffle(params?: CallParams<RaffleFactoryArgs['obj']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | RaffleFactoryArgs['tuple']['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64']>): RaffleFactoryComposer<[...TReturns, RaffleFactoryReturns['newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'] | undefined]>;
     /**
      * Calls the deleteRaffle(uint64)void ABI method.
      *

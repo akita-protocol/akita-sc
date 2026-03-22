@@ -452,13 +452,22 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     const hasAlgoFundsRequest = fundsRequest.length > 0 && fundsRequest.some(fr => fr.asset === 0n);
 
-    // When fundsRequest includes ALGO, inflate for simulation (coverFees reimburses
-    // Txn.fee from the escrow, so the escrow needs extra during simulation when fees
-    // are set to maxFee). After simulation we deflate to the real calculated fee.
+    // Check if any plugin in this call has coverFees enabled.
+    // When coverFees is true, the contract reimburses Txn.fee from the escrow,
+    // so we need to inflate the ALGO fundsRequest for simulation (when fees are maxFee)
+    // and then deflate to the real calculated fee after simulation.
+    const { global = false, calls } = params;
+    const firstPluginAppId = calls[0]('').appId;
+    const callerAddr = global
+      ? ALGORAND_ZERO_ADDRESS_STRING
+      : (sendParams.sender instanceof Address ? sendParams.sender.toString() : sendParams.sender as string);
+    const hasCoverFees = this.plugins.get({ plugin: firstPluginAppId, caller: callerAddr, escrow })?.coverFees ?? false;
+
     const suggestedParams = await this.client.algorand.getSuggestedParams();
     const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
 
-    const buildFundsRequest = hasAlgoFundsRequest
+    const shouldInflate = hasAlgoFundsRequest && hasCoverFees;
+    const buildFundsRequest = shouldInflate
       ? fundsRequest.map(fr => fr.asset === 0n ? { ...fr, amount: fr.amount + MAX_SIM_FEE } : fr)
       : fundsRequest;
 
@@ -467,7 +476,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     let result: GroupReturn;
 
-    if (consolidateFees || hasAlgoFundsRequest) {
+    if (consolidateFees || shouldInflate) {
       // Build the ATC from the group
       const atc = (await (await group.composer()).build()).atc;
       const appliedAtc = forceProperties(atc, {
@@ -498,9 +507,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       const feeGroup = populatedAtc.clone().buildGroup();
       const totalFees = feeGroup.reduce((acc, txn) => acc + txn.txn.fee, 0n);
 
-      // Deflate the fundsRequest: replace inflated MAX_SIM_FEE with real totalFees
+      // Deflate the fundsRequest: replace inflated MAX_SIM_FEE with real totalFees.
+      // Only needed when coverFees is enabled (shouldInflate is true).
       let finalAtc = populatedAtc;
-      if (hasAlgoFundsRequest) {
+      if (shouldInflate) {
         const modifiedGroup = populatedAtc.clone().buildGroup();
         const rekeyTxn = modifiedGroup[0] as any;
         const appArgs = rekeyTxn.txn.applicationCall.appArgs as Uint8Array[];

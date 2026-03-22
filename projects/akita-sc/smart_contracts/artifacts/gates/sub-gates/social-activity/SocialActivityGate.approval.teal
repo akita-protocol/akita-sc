@@ -51,7 +51,7 @@ main_create_NoOp@13:
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.create[routing]() -> void:
 create:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:68
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:71
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -74,18 +74,18 @@ create:
     // smart_contracts/utils/base-contracts/base.ts:27
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:70
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:73
     // this.version.value = version
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:29
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:71
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:74
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:68
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:71
     // @abimethod({ onCreate: 'require' })
     intc_0 // 1
     return
@@ -93,7 +93,7 @@ create:
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.cost[routing]() -> void:
 cost:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:76
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:79
     // cost(args: bytes): uint64 {
     txna ApplicationArgs 1
     dup
@@ -113,7 +113,7 @@ cost:
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.register[routing]() -> void:
 register:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:80
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:83
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     txn GroupIndex
     intc_0 // 1
@@ -134,14 +134,14 @@ register:
     ==
     assert // invalid number of bytes for (len+uint8[])
     extract 2 0
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:81
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:84
     // assert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
     dup
     len
     pushint 9 // 9
     ==
     assert // Invalid number of arguments
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:82-89
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:85-92
     // assertMatch(
     //   mbrPayment,
     //   {
@@ -152,10 +152,10 @@ register:
     // )
     dig 1
     gtxns Receiver
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:85
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:88
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:82-89
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:85-92
     // assertMatch(
     //   mbrPayment,
     //   {
@@ -167,10 +167,10 @@ register:
     ==
     uncover 2
     gtxns Amount
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:86
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:89
     // amount: OperatorAndValueRegistryMBR
     pushint 9300 // 9300
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:82-89
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:85-92
     // assertMatch(
     //   mbrPayment,
     //   {
@@ -204,13 +204,13 @@ register:
     // this.registryCursor.value += 1
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:92
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:95
     // this.registry(id).value = decodeArc4<OperatorAndValue>(args)
     itob
     dup
     uncover 2
     box_put
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:80
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:83
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     bytec_0 // 0x151f7c75
     swap
@@ -222,7 +222,7 @@ register:
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.check[routing]() -> void:
 check:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:96
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
     dup
@@ -248,23 +248,23 @@ check:
     ==
     assert // invalid number of bytes for (len+uint8[])
     extract 2 0
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:97
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:100
     // assert(args.length === 0, ERR_INVALID_ARG_COUNT)
     len
     !
     assert // Invalid number of arguments
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:98
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:101
     // const { op, value } = clone(this.registry(registryID).value)
     itob
     box_get
     assert // Box must have value
     dup
     extract 0 1
-    dup
     cover 2
-    cover 3
     intc_0 // 1
     extract_uint64
+    dup
+    cover 2
     // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:48-51
     // const { lastActive } = abiCall<typeof AkitaSocial.prototype.getMeta>({
     //   appId: getAkitaSocialAppList(this.akitaDAO.value).social,
@@ -281,7 +281,7 @@ check:
     // appId: getAkitaSocialAppList(this.akitaDAO.value).social,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:45
+    // smart_contracts/utils/functions.ts:49
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     pushbytes "sal"
     app_global_get_ex
@@ -297,7 +297,7 @@ check:
     // }).returnValue
     pushbytes 0x739ea70b // method "getMeta(address)(bool,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
-    uncover 3
+    uncover 2
     itxn_field ApplicationArgs
     itxn_field ApplicationID
     pushint 6 // appl
@@ -319,23 +319,35 @@ check:
     assert // invalid number of bytes for (bool1,uint64,uint64,uint64,uint64,uint64,uint64,bool1,uint64,uint64,uint64)
     pushint 29 // 29
     extract_uint64
-    cover 2
+    swap
     // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:53
-    // const since: uint64 = Global.latestTimestamp - value
+    // let since: uint64 = 0
+    intc_1 // 0
+    swap
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:54
+    // if (value <= Global.latestTimestamp) {
     global LatestTimestamp
-    swap
+    <=
+    bz check_after_if_else@3
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:55
+    // since = Global.latestTimestamp - value
+    global LatestTimestamp
+    dig 3
     -
-    swap
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:56
+    bury 1
+
+check_after_if_else@3:
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:59
     // case Equal: return lastActive === since
+    dig 3
     pushbytes 0x0a
     ==
-    bz check_after_if_else@3
+    bz check_after_if_else@5
     dup2
     ==
 
-check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:96
+check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16:
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     pushbytes 0x00
     intc_1 // 0
@@ -348,83 +360,83 @@ check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.alg
     intc_0 // 1
     return
 
-check_after_if_else@3:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:57
-    // case NotEqual: return lastActive !== since
-    dig 2
-    pushbytes 0x14
-    ==
-    bz check_after_if_else@5
-    dup2
-    !=
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
-    // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
-
 check_after_if_else@5:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:58
-    // case LessThan: return lastActive < since
-    dig 2
-    pushbytes 0x1e
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:60
+    // case NotEqual: return lastActive !== since
+    dig 3
+    pushbytes 0x14
     ==
     bz check_after_if_else@7
     dup2
-    <
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
+    !=
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
     // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
 
 check_after_if_else@7:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:59
-    // case LessThanOrEqualTo: return lastActive <= since
-    dig 2
-    pushbytes 0x28
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:61
+    // case LessThan: return lastActive < since
+    dig 3
+    pushbytes 0x1e
     ==
     bz check_after_if_else@9
     dup2
-    <=
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
+    <
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
     // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
 
 check_after_if_else@9:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:60
-    // case GreaterThan: return lastActive > since
-    dig 2
-    pushbytes 0x32
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:62
+    // case LessThanOrEqualTo: return lastActive <= since
+    dig 3
+    pushbytes 0x28
     ==
     bz check_after_if_else@11
     dup2
-    >
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
+    <=
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
     // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
 
 check_after_if_else@11:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:61
-    // case GreaterThanOrEqualTo: return lastActive >= since
-    dig 2
-    pushbytes 0x3c
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:63
+    // case GreaterThan: return lastActive > since
+    dig 3
+    pushbytes 0x32
     ==
     bz check_after_if_else@13
     dup2
-    >=
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
+    >
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
     // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
 
 check_after_if_else@13:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:62
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:64
+    // case GreaterThanOrEqualTo: return lastActive >= since
+    dig 3
+    pushbytes 0x3c
+    ==
+    bz check_after_if_else@15
+    dup2
+    >=
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
+    // return this.activityGate(caller, op, value)
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
+
+check_after_if_else@15:
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:65
     // default: return false
     intc_1 // 0
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:99
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
     // return this.activityGate(caller, op, value)
-    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@14
+    b check_after_inlined_smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.activityGate@16
 
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.getRegistrationShape[routing]() -> void:
 getRegistrationShape:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:102
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:105
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -442,7 +454,7 @@ getRegistrationShape:
 
 // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts::SocialActivityGate.getEntry[routing]() -> void:
 getEntry:
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:107
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:110
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -451,12 +463,12 @@ getEntry:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:109
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:112
     // return encodeArc4(this.registry(registryID).value)
     itob
     box_get
     assert // Box must have value
-    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:107
+    // smart_contracts/gates/sub-gates/social-activity/contract.algo.ts:110
     // @abimethod({ readonly: true })
     dup
     len

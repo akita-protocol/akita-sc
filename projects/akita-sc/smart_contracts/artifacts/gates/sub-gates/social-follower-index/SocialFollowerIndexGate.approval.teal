@@ -282,7 +282,7 @@ check:
     // const graph = getAkitaSocialAppList(this.akitaDAO.value).graph
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:45
+    // smart_contracts/utils/functions.ts:49
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
     pushbytes "sal"
     app_global_get_ex

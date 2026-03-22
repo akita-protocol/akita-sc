@@ -50,7 +50,10 @@ export class SocialActivityGate extends AkitaBaseContract {
       args: [user],
     }).returnValue
 
-    const since: uint64 = Global.latestTimestamp - value
+    let since: uint64 = 0
+    if (value <= Global.latestTimestamp) {
+      since = Global.latestTimestamp - value
+    }
 
     switch (op) {
       case Equal: return lastActive === since

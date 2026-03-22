@@ -22,7 +22,7 @@ export type ListParams = BaseListParams & ({
     /** Whether listing a PrizeBox */
     isPrizeBox: true;
     /** The PrizeBox app ID */
-    prizeId: bigint | number;
+    prizeBoxId: bigint | number;
 } | {
     /** Whether listing a PrizeBox */
     isPrizeBox?: false;

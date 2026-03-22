@@ -238,7 +238,7 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     amount,
     marketplace,
     isAsa = false,
-    proofs = [],
+    gateTxn,
     ...rest
   }: EnterParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -266,15 +266,17 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      group.enterAsa({
-        ...sendParams,
-        args: {
-          payment,
-          assetXfer,
-          marketplace,
-          args: proofs,
-        },
-      });
+      if (gateTxn) {
+        group.gatedEnterAsa({
+          ...sendParams,
+          args: { gateTxn, payment, assetXfer, marketplace },
+        });
+      } else {
+        group.enterAsa({
+          ...sendParams,
+          args: { payment, assetXfer, marketplace },
+        });
+      }
     } else {
       const payment = await this.client.algorand.createTransaction.payment({
         ...sendParams,
@@ -282,18 +284,20 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      group.enter({
-        ...sendParams,
-        args: {
-          payment,
-          marketplace,
-          args: proofs,
-        },
-      });
+      if (gateTxn) {
+        group.gatedEnter({
+          ...sendParams,
+          args: { gateTxn, payment, marketplace },
+        });
+      } else {
+        group.enter({
+          ...sendParams,
+          args: { payment, marketplace },
+        });
+      }
     }
 
     // Add opUps to increase app reference limit
-    // enter + payment (and possibly assetXfer) = 2-3 transactions, so we can add up to 13-14 opUps
     for (let i = 0; i < 10; i++) {
       group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
     }
@@ -310,7 +314,7 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     signer,
     amount,
     isAsa = false,
-    proofs = [],
+    gateTxn,
     ...rest
   }: AddParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -328,13 +332,17 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      group.addAsa({
-        ...sendParams,
-        args: {
-          assetXfer,
-          args: proofs,
-        },
-      });
+      if (gateTxn) {
+        group.gatedAddAsa({
+          ...sendParams,
+          args: { gateTxn, assetXfer },
+        });
+      } else {
+        group.addAsa({
+          ...sendParams,
+          args: { assetXfer },
+        });
+      }
     } else {
       const payment = await this.client.algorand.createTransaction.payment({
         ...sendParams,
@@ -342,17 +350,20 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      group.add({
-        ...sendParams,
-        args: {
-          payment,
-          args: proofs,
-        },
-      });
+      if (gateTxn) {
+        group.gatedAdd({
+          ...sendParams,
+          args: { gateTxn, payment },
+        });
+      } else {
+        group.add({
+          ...sendParams,
+          args: { payment },
+        });
+      }
     }
 
     // Add opUps to increase app reference limit
-    // add + payment (and possibly assetXfer) = 2-3 transactions, so we can add up to 13-14 opUps
     for (let i = 0; i < 10; i++) {
       group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
     }

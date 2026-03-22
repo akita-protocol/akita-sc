@@ -146,19 +146,6 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
   }
 
   /**
-   * Sets the escrow app ID for the factory.
-   */
-  async setEscrow({ sender, signer, escrow }: MaybeSigner & StakingPoolFactoryContractArgs['setEscrow(uint64)void']): Promise<void> {
-
-    const sendParams = this.getSendParams({ sender, signer });
-
-    await this.client.send.setEscrow({
-      ...sendParams,
-      args: { escrow }
-    });
-  }
-
-  /**
    * Gets MBR (Minimum Balance Requirement) data for pool operations.
    */
   async getMbr({ winningTickets }: StakingPoolMbrParams): Promise<StakingPoolMbrData> {

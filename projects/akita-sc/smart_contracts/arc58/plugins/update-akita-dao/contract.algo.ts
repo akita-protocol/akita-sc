@@ -1,6 +1,6 @@
 import { Application, assert, Box, Bytes, bytes, Global, GlobalState, gtxn, itxnCompose, OnCompleteAction, op, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod, Contract, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
-import { GlobalStateKeyAkitaDAO, GlobalStateKeyChildContractVersion, GlobalStateKeyClearProgram } from "../../../constants"
+import { GlobalStateKeyAkitaDAO, GlobalStateKeyChildContractVersion, GlobalStateKeyClearProgram, GlobalStateKeyVersion } from "../../../constants"
 import { BoxKeyBoxedContract, FactoryContract } from "../../../utils/base-contracts/factory"
 import { ERR_CONTRACT_NOT_SET, ERR_INVALID_CALL_ORDER } from "../../../utils/errors"
 import { getAkitaAppList, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions"
@@ -16,6 +16,8 @@ const FACTORY_LOAD_CHUNK_SIZE: uint64 = 2032
 
 export class UpdateAkitaDAOPlugin extends Contract {
 
+  /** the current version of the contract */
+  version = GlobalState<string>({ key: GlobalStateKeyVersion })
   /** the app ID of the Akita DAO */
   akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
 
@@ -31,14 +33,17 @@ export class UpdateAkitaDAOPlugin extends Contract {
   }
 
   @abimethod({ onCreate: 'require' })
-  create(akitaDAO: Application, clearProgram: bytes): void {
+  create(version: string, akitaDAO: Application, clearProgram: bytes): void {
+    this.version.value = version
     this.akitaDAO.value = akitaDAO
     this.clearProgram.value = clearProgram
   }
 
   setClearProgram(wallet: Application, rekeyBack: boolean, clearProgram: bytes): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     this.clearProgram.value = clearProgram
 
@@ -47,7 +52,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
 
   initBoxedContract(wallet: Application, version: string, size: uint64): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     this.childContractVersion.value = version
 
@@ -60,7 +67,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
 
   loadBoxedContract(wallet: Application, offset: uint64, data: bytes): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     // max chunk size is 2026 bytes
     // ABI encoding overhead: [selector:4][wallet:8][offset:8][data_length:2] = 22 bytes
@@ -81,7 +90,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
 
   deleteBoxedContract(wallet: Application, rekeyBack: boolean): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     this.boxedContract.delete()
 
@@ -90,7 +101,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
 
   updateApp(wallet: Application, rekeyBack: boolean, appId: Application): void {
     const sender = getSpendingAccount(wallet)
-
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
     // require the new contract to be uploaded in the same txn group
     // the call before must be a call to loadBoxedContract
     const txn = gtxn.Transaction(Txn.groupIndex - 1)
@@ -133,6 +146,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
     newAkitaDAOAppID: Application
   ): void {
     const sender = getSpendingAccount(wallet)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.updateAkitaDAO>({
       sender,
@@ -149,6 +165,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
     newEscrow: Application
   ): void {
     const sender = getSpendingAccount(wallet)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.updateAkitaDAOEscrow>({
       sender,
@@ -164,7 +183,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
     app: Application
   ): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     const appId = getAkitaAppList(this.akitaDAO.value).wallet
 
@@ -196,7 +217,9 @@ export class UpdateAkitaDAOPlugin extends Contract {
     factoryAppId: Application
   ): void {
     const sender = getSpendingAccount(wallet)
-    assert(sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    const daoWallet = this.getAkitaDAOWallet()
+    assert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
+    assert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
 
     // Require the contract to be uploaded in the same txn group
     // The call before must be a call to loadBoxedContract on this plugin

@@ -12,7 +12,7 @@ export type NewAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newAuctio
     prizeAsset: bigint | number;
     prizeAmount: bigint | number;
 });
-export type NewPrizeBoxAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment'>;
+export type NewPrizeBoxAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment'>;
 export type DeleteAuctionParams = MaybeSigner & FactoryContractArgs['deleteAuctionApp(uint64)void'];
 export type CancelAuctionParams = MaybeSigner & FactoryContractArgs['cancelAuction(uint64)void'];
 type AuctionContractArgs = AuctionArgs["obj"];

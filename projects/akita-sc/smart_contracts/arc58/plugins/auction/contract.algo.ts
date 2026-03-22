@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, assert, Asset, Bytes, GlobalState, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, assert, Asset, Bytes, GlobalState, itxn, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, btoi, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
@@ -6,7 +6,8 @@ import { AuctionGlobalStateKeyBidAsset, AuctionGlobalStateKeyBidFee, AuctionGlob
 import { GateMustCheckAbiMethod } from "../../../gates/constants"
 import { GateArgs } from "../../../gates/types"
 import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../../../utils/constants"
-import { getAccounts, getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { ERR_NOT_PRIZE_BOX_OWNER } from "../../../utils/errors"
 import { Proof } from "../../../utils/types/merkles"
 import { AuctionPluginGlobalStateKeyFactory } from "./constants"
 import { ERR_AUCTION_PRIZE_CANNOT_BE_ALGO, ERR_CREATOR_NOT_AUCTION_FACTORY, ERR_NOT_ENOUGH_ASSET } from "./errors"
@@ -15,6 +16,7 @@ import { ERR_AUCTION_PRIZE_CANNOT_BE_ALGO, ERR_CREATOR_NOT_AUCTION_FACTORY, ERR_
 import { BaseAuction } from "../../../auction/base"
 import { Auction } from "../../../auction/contract.algo"
 import type { AuctionFactory } from "../../../auction/factory.algo"
+import type { PrizeBox } from "../../../prize-box/contract.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 
 
@@ -141,6 +143,85 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     }).returnValue
 
     return newAuction
+  }
+
+  listPrizeBox(
+    wallet: Application,
+    rekeyBack: boolean,
+    prizeBox: Application,
+    bidAssetID: uint64,
+    bidFee: uint64,
+    startingBid: uint64,
+    bidMinimumIncrease: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64,
+  ): uint64 {
+    const sender = getSpendingAccount(wallet)
+
+    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+
+    const prizeBoxTransferTxn = itxn.applicationCall({
+      sender,
+      appId: prizeBox,
+      onCompletion: OnCompleteAction.NoOp,
+      appArgs: [
+        methodSelector<typeof PrizeBox.prototype.transfer>(),
+        this.factory.value.address,
+      ],
+    })
+
+    if (bidAssetID !== 0 && !this.factory.value.address.isOptedIn(Asset(bidAssetID))) {
+      abiCall<typeof AuctionFactory.prototype.optIn>({
+        sender,
+        appId: this.factory.value,
+        args: [
+          itxn.payment({
+            sender,
+            receiver: this.factory.value.address,
+            amount: Global.assetOptInMinBalance,
+          }),
+          Asset(bidAssetID),
+        ],
+      })
+    }
+
+    const isAlgoBid = bidAssetID === 0
+    const bidOptinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
+    const costs = this.mbr()
+    const auction = compileArc4(Auction)
+    const totalMBR: uint64 = (
+      MAX_PROGRAM_PAGES +
+      (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
+      bidOptinMBR +
+      (weightsListCount * costs.weights)
+    )
+
+    return abiCall<typeof AuctionFactory.prototype.newPrizeBoxAuction>({
+      sender,
+      appId: this.factory.value,
+      args: [
+        prizeBoxTransferTxn,
+        itxn.payment({
+          sender,
+          receiver: this.factory.value.address,
+          amount: totalMBR,
+        }),
+        bidAssetID,
+        bidFee,
+        startingBid,
+        bidMinimumIncrease,
+        startTimestamp,
+        endTimestamp,
+        gateID,
+        marketplace,
+        weightsListCount,
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    }).returnValue
   }
 
   clearWeightsBoxes(

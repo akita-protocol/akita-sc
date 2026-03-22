@@ -1,11 +1,12 @@
 import { Account, Application, assert, assertMatch, Asset, clone, Global, GlobalState, gtxn, itxn, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
+import { MAX_UINT64 } from '../utils/constants'
 import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER } from '../utils/errors'
-import { arc59OptInAndSend, calcPercent, getNFTFees, getUserImpact, impactRange } from '../utils/functions'
+import { calcPercent, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPayment } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
-import { ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeySeller } from './constants'
+import { ListingGlobalStateKeyAkitaDAOEscrow, ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeySeller } from './constants'
 import { ERR_INVALID_EXPIRATION, ERR_LISTING_EXPIRED, ERR_MUST_BE_CALLED_FROM_FACTORY, ERR_MUST_BE_SELLER, ERR_ONLY_SELLER_CAN_DELIST, ERR_PAYMENT_ASSET_MUST_BE_ALGO, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO, ERR_RESERVED_FOR_DIFFERENT_ADDRESS } from './errors'
 
 // CONTRACT IMPORTS
@@ -53,6 +54,8 @@ export class Listing extends classes(
   marketplace = GlobalState<Account>({ key: ListingGlobalStateKeyMarketplace })
   /** the amount the marketplaces will get for the sale */
   marketplaceRoyalties = GlobalState<uint64>({ key: ListingGlobalStateKeyMarketplaceRoyalties })
+  /** the app ID for the akita DAO escrow */
+  akitaDAOEscrow = GlobalState<Application>({ key: ListingGlobalStateKeyAkitaDAOEscrow })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
@@ -104,10 +107,12 @@ export class Listing extends classes(
         xferAsset: prizeAsset,
       }).submit()
     } else {
-      arc59OptInAndSend(
+      createInstantDisbursement(
         this.akitaDAO.value,
-        buyer,
         prizeAsset.id,
+        0,
+        MAX_UINT64,
+        [{ address: buyer, amount: prizeAsset.balance(Global.currentApplicationAddress) }],
         prizeAsset.balance(Global.currentApplicationAddress),
         true
       )
@@ -117,57 +122,107 @@ export class Listing extends classes(
   private completeAlgoPayments(marketplace: Account): void {
     // get the royalty payment amounts
     const amounts = this.getAmounts(this.price.value)
-    const assetPrize = Asset(this.prize.value)
 
-    // pay the creator
-    const creatorPay = itxn.payment({
-      amount: amounts.creator,
-      receiver: assetPrize.creator,
-    })
+    // pay akita fee (referral + escrow)
+    let leftover: uint64 = amounts.akita
+    if (amounts.akita > 0) {
+      ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, amounts.akita))
+    }
+
+    itxn
+      .payment({
+        receiver: this.akitaDAOEscrow.value.address,
+        amount: leftover,
+      })
+      .submit()
 
     // pay listing marketplace
-    const marketplacePay = itxn.payment({
-      amount: amounts.marketplace,
-      receiver: this.marketplace.value,
-    })
+    itxn
+      .payment({
+        amount: amounts.marketplace,
+        receiver: this.marketplace.value,
+      })
+      .submit()
 
     // pay buying marketplace
-    const buyingMarketplacePay = itxn.payment({
-      amount: amounts.marketplace,
-      receiver: marketplace,
-    })
+    itxn
+      .payment({
+        amount: amounts.marketplace,
+        receiver: marketplace,
+      })
+      .submit()
 
-    // pay the seller
-    const sellerPay = itxn.payment({
-      amount: amounts.seller,
-      note: String(assetPrize.name) + ' Sold',
-    })
+    // pay seller
+    if (this.isPrizeBox.value) {
+      itxn
+        .payment({
+          amount: amounts.seller,
+          receiver: this.seller.value,
+        })
+        .submit()
+    } else {
+      const assetPrize = Asset(this.prize.value)
 
-    itxn.submitGroup(creatorPay, marketplacePay, buyingMarketplacePay, sellerPay)
+      // pay the creator
+      itxn
+        .payment({
+          amount: amounts.creator,
+          receiver: assetPrize.creator,
+        })
+        .submit()
+
+      // pay the seller
+      itxn
+        .payment({
+          amount: amounts.seller,
+          note: String(assetPrize.name) + ' Sold',
+          receiver: this.seller.value,
+        })
+        .submit()
+    }
   }
 
   private completeAsaPayments(marketplace: Account): void {
     // get the royalty payment amounts
     const amounts = this.getAmounts(this.price.value)
-    const assetPrize = Asset(this.prize.value)
 
-    // pay the creator
-    if (assetPrize.creator.isOptedIn(this.paymentAsset.value)) {
-      itxn
-        .assetTransfer({
-          assetReceiver: assetPrize.creator,
-          assetAmount: amounts.creator,
-          xferAsset: this.paymentAsset.value,
-        })
-        .submit()
-    } else {
-      arc59OptInAndSend(
-        this.akitaDAO.value,
-        assetPrize.creator,
-        this.paymentAsset.value.id,
-        amounts.creator,
-        false
-      )
+    // pay akita fee (referral + escrow)
+    let leftover: uint64 = amounts.akita
+    if (amounts.akita > 0) {
+      ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.paymentAsset.value.id, amounts.akita))
+    }
+
+    itxn
+      .assetTransfer({
+        assetReceiver: this.akitaDAOEscrow.value.address,
+        assetAmount: leftover,
+        xferAsset: this.paymentAsset.value,
+      })
+      .submit()
+
+    // pay the creator (only for regular ASAs — prize boxes have no creator royalty)
+    if (!this.isPrizeBox.value) {
+      const assetPrize = Asset(this.prize.value)
+
+      if (assetPrize.creator.isOptedIn(this.paymentAsset.value)) {
+        itxn
+          .assetTransfer({
+            assetReceiver: assetPrize.creator,
+            assetAmount: amounts.creator,
+            xferAsset: this.paymentAsset.value,
+          })
+          .submit()
+      } else {
+        createInstantDisbursement(
+          this.akitaDAO.value,
+          this.paymentAsset.value.id,
+          0,
+          MAX_UINT64,
+          [{ address: assetPrize.creator, amount: amounts.creator }],
+          amounts.creator,
+          false
+        )
+      }
     }
 
     // pay listing marketplace
@@ -180,10 +235,12 @@ export class Listing extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(
+      createInstantDisbursement(
         this.akitaDAO.value,
-        this.marketplace.value,
         this.paymentAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: this.marketplace.value, amount: amounts.marketplace }],
         amounts.marketplace,
         false
       )
@@ -199,10 +256,12 @@ export class Listing extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(
+      createInstantDisbursement(
         this.akitaDAO.value,
-        marketplace,
         this.paymentAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: marketplace, amount: amounts.marketplace }],
         amounts.marketplace,
         false
       )
@@ -217,12 +276,14 @@ export class Listing extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(
+      createInstantDisbursement(
         this.akitaDAO.value,
-        this.seller.value,
         this.paymentAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: this.seller.value, amount: amounts.seller }],
         amounts.seller,
-        true
+        false
       )
     }
   }
@@ -244,7 +305,8 @@ export class Listing extends classes(
     gateID: uint64,
     marketplace: Account,
     version: string,
-    akitaDAO: Application
+    akitaDAO: Application,
+    akitaDAOEscrow: Application
   ): void {
     assert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
 
@@ -262,6 +324,7 @@ export class Listing extends classes(
     this.marketplace.value = marketplace
     this.version.value = version
     this.akitaDAO.value = akitaDAO
+    this.akitaDAOEscrow.value = akitaDAOEscrow
 
     // internal variables
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).marketplaceComposablePercentage
@@ -304,6 +367,9 @@ export class Listing extends classes(
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAlgoPayments(marketplace)
+    itxn
+      .payment({ closeRemainderTo: Global.creatorAddress })
+      .submit()
   }
 
   /**
@@ -339,6 +405,9 @@ export class Listing extends classes(
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAsaPayments(marketplace)
+    itxn
+      .payment({ closeRemainderTo: Global.creatorAddress })
+      .submit()
   }
 
   /** Deletes the app and returns the asset/mbr to the seller */
@@ -353,7 +422,7 @@ export class Listing extends classes(
     })
 
     const payment = itxn.payment({
-      closeRemainderTo: this.seller.value,
+      closeRemainderTo: Global.creatorAddress,
     })
 
     if (!(this.paymentAsset.value.id === 0)) {

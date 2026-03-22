@@ -252,7 +252,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
       amount: total
     })
 
-    if (gateID !== 0 && args.length > 0) {
+    if (gateID !== 0) {
       // We're forced to manually construct an app call here because the abiCall<typeof Gate.prototype.mustCheck>
       // method immediately invokes & is not passable as an arg to the other call
       const { gate } = getAkitaAppList(this.akitaDAO.value)

@@ -27,10 +27,24 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         appId: bigint;
     }): ListingSDK;
     /**
-     * Gets the cost to create a new listing.
-     * @param isAlgoPayment - Whether the listing will accept ALGO as payment
+     * Checks if the rewards app is already opted into the given asset.
+     * Returns 0n if opted in (no cost needed), 100_000n if not.
      */
-    listCost(isAlgoPayment?: boolean): bigint;
+    private getRewardsOptInCost;
+    /**
+     * Gets the cost to create a new listing.
+     * @param isPrizeBox - Whether the prize is a PrizeBox
+     * @param isAlgoPayment - Whether the listing will accept ALGO as payment
+     * @param prizeRewardsOptInCost - Rewards app opt-in cost for the prize asset (default: 100,000, pass 0 if already opted in)
+     * @param paymentRewardsOptInCost - Rewards app opt-in cost for the payment asset (default: 100,000, pass 0 if already opted in)
+     */
+    listCost({ isPrizeBox, isAlgoPayment, prizeRewardsOptInCost, paymentRewardsOptInCost, escrowOptInCost }?: {
+        isPrizeBox?: boolean;
+        isAlgoPayment?: boolean;
+        prizeRewardsOptInCost?: bigint;
+        paymentRewardsOptInCost?: bigint;
+        escrowOptInCost?: bigint;
+    }): bigint;
     /**
      * Purchases a listing.
      * Use `isAsa: true` with `paymentAsset` and `paymentAmount` for ASA payments, otherwise ALGO is used.

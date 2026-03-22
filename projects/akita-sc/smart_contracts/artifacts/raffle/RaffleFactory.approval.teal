@@ -3,8 +3,8 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 2 50000
-    bytecblock "akita_dao" "bc" "akita_escrow" "wallet" 0x151f7c75 0xc53b32cc "version" "child_contract_version" 0x3ea11832 "aal"
+    intcblock 0 1 8 2 60600 50000
+    bytecblock "akita_dao" "bc" "akita_escrow" "wallet" 0x151f7c75 "aal" 0xc53b32cc "version" "child_contract_version" 0x3ea11832 0xadf92ae4
     // smart_contracts/raffle/factory.algo.ts:27
     // export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     pushbytes 0xea9180dd // method "update(string)void"
@@ -19,8 +19,8 @@ main_switch_case_next@5:
     assert // OnCompletion must be NoOp
     txn ApplicationID
     bz main_create_NoOp@20
-    pushbytess 0x18584f20 0x2924565e 0x91dd3c75 // method "newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64", method "newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64", method "deleteRaffle(uint64)void"
-    bytec 5 // method "initBoxedContract(string,uint64)void"
+    pushbytess 0x18584f20 0x3b723b81 0x91dd3c75 // method "newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64", method "newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64", method "deleteRaffle(uint64)void"
+    bytec 6 // method "initBoxedContract(string,uint64)void"
     pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0x1ead20a9 0x33e92c94 0x854dede0 0xd9a35fa4 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow(uint64)void", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr()(uint64,uint64,uint64)"
     txna ApplicationArgs 0
     match newRaffle newPrizeBoxRaffle deleteRaffle initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@17 main_mbr_route@18
@@ -60,41 +60,80 @@ main_update_route@4:
     b update
 
 
+// smart_contracts/utils/functions.ts::rewardsOptInCost(akitaDAO: uint64, asset: uint64) -> uint64:
+rewardsOptInCost:
+    // smart_contracts/utils/functions.ts:508
+    // export function rewardsOptInCost(akitaDAO: Application, asset: uint64): uint64 {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:509
+    // if (asset !== 0) {
+    frame_dig -1
+    bz rewardsOptInCost_after_if_else@4
+    // smart_contracts/utils/functions.ts:44
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    frame_dig -2
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:510
+    // const rewardsApp = getAkitaAppList(akitaDAO).rewards
+    intc_2 // 8
+    extract_uint64
+    // smart_contracts/utils/functions.ts:511
+    // if (!Application(rewardsApp).address.isOptedIn(Asset(asset))) {
+    app_params_get AppAddress
+    assert // application exists
+    frame_dig -1
+    asset_holding_get AssetBalance
+    bury 1
+    bnz rewardsOptInCost_after_if_else@4
+    // smart_contracts/utils/functions.ts:512
+    // return Global.assetOptInMinBalance
+    global AssetOptInMinBalance
+    retsub
+
+rewardsOptInCost_after_if_else@4:
+    // smart_contracts/utils/functions.ts:515
+    // return 0
+    intc_0 // 0
+    retsub
+
+
 // smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
 splitOptInCount:
-    // smart_contracts/utils/functions.ts:587
+    // smart_contracts/utils/functions.ts:621
     // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
     proto 3 1
-    // smart_contracts/utils/functions.ts:588
+    // smart_contracts/utils/functions.ts:622
     // let count: uint64 = 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:590
+    // smart_contracts/utils/functions.ts:624
     // if (!escrow.isOptedIn(asset)) {
     frame_dig -2
     frame_dig -1
     asset_holding_get AssetBalance
     bury 1
     bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:99
+    // smart_contracts/utils/functions.ts:103
     // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
     frame_dig -3
     pushbytes "revenue_splits"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:594
+    // smart_contracts/utils/functions.ts:628
     // count += splits.length
     intc_0 // 0
     extract_uint16
-    // smart_contracts/utils/functions.ts:591
+    // smart_contracts/utils/functions.ts:625
     // count += 1
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:594
+    // smart_contracts/utils/functions.ts:628
     // count += splits.length
     +
     frame_bury 0
 
 splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:597
+    // smart_contracts/utils/functions.ts:631
     // return count
     frame_dig 0
     swap
@@ -103,7 +142,7 @@ splitOptInCount_after_if_else@2:
 
 // smart_contracts/raffle/factory.algo.ts::RaffleFactory.create[routing]() -> void:
 create:
-    // smart_contracts/raffle/factory.algo.ts:149
+    // smart_contracts/raffle/factory.algo.ts:169
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -143,33 +182,33 @@ create:
     btoi
     // smart_contracts/utils/base-contracts/base.ts:27
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 6 // "version"
-    // smart_contracts/raffle/factory.algo.ts:151
+    bytec 7 // "version"
+    // smart_contracts/raffle/factory.algo.ts:171
     // this.version.value = version
     uncover 4
     app_global_put
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
-    bytec 7 // "child_contract_version"
-    // smart_contracts/raffle/factory.algo.ts:152
+    bytec 8 // "child_contract_version"
+    // smart_contracts/raffle/factory.algo.ts:172
     // this.childContractVersion.value = childVersion
     uncover 3
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:29
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/raffle/factory.algo.ts:153
+    // smart_contracts/raffle/factory.algo.ts:173
     // this.akitaDAO.value = akitaDAO
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:65
     // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
     bytec_2 // "akita_escrow"
-    // smart_contracts/raffle/factory.algo.ts:154
+    // smart_contracts/raffle/factory.algo.ts:174
     // this.akitaDAOEscrow.value = akitaDAOEscrow
     swap
     app_global_put
-    // smart_contracts/raffle/factory.algo.ts:149
+    // smart_contracts/raffle/factory.algo.ts:169
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -178,7 +217,7 @@ create:
 // smart_contracts/raffle/factory.algo.ts::RaffleFactory.newRaffle[routing]() -> void:
 newRaffle:
     intc_0 // 0
-    // smart_contracts/raffle/factory.algo.ts:159-172
+    // smart_contracts/raffle/factory.algo.ts:179-192
     // newRaffle(
     //   payment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -299,7 +338,7 @@ newRaffle:
     assert // invalid number of bytes for uint64
     btoi
     cover 2
-    // smart_contracts/raffle/factory.algo.ts:175-182
+    // smart_contracts/raffle/factory.algo.ts:195-202
     // assertMatch(
     //   assetXfer,
     //   {
@@ -310,10 +349,10 @@ newRaffle:
     // )
     dig 1
     gtxns AssetReceiver
-    // smart_contracts/raffle/factory.algo.ts:178
+    // smart_contracts/raffle/factory.algo.ts:198
     // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/raffle/factory.algo.ts:175-182
+    // smart_contracts/raffle/factory.algo.ts:195-202
     // assertMatch(
     //   assetXfer,
     //   {
@@ -329,13 +368,13 @@ newRaffle:
     cover 4
     &&
     assert // Invalid transfer
-    // smart_contracts/raffle/factory.algo.ts:184
+    // smart_contracts/raffle/factory.algo.ts:204
     // const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:29
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/raffle/factory.algo.ts:184
+    // smart_contracts/raffle/factory.algo.ts:204
     // const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
     app_global_get_ex
     swap
@@ -344,23 +383,23 @@ newRaffle:
     swap
     gtxns XferAsset
     swap
-    // smart_contracts/utils/functions.ts:414
+    // smart_contracts/utils/functions.ts:418
     // let creatorRoyalty: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/utils/functions.ts:416
+    // smart_contracts/utils/functions.ts:420
     // if (!(proof.length > 0)) {
     bnz newRaffle_after_if_else@3
-    // smart_contracts/utils/functions.ts:417
+    // smart_contracts/utils/functions.ts:421
     // return CreatorRoyaltyDefault
     pushint 5000 // 5000
     bury 1
 
 newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
-    // smart_contracts/raffle/factory.algo.ts:187
+    // smart_contracts/raffle/factory.algo.ts:207
     // false,
     intc_0 // 0
-    // smart_contracts/raffle/factory.algo.ts:186-199
+    // smart_contracts/raffle/factory.algo.ts:206-219
     // const raffleApp = this.createChildApp(
     //   false,
     //   payment,
@@ -389,7 +428,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     dig 18
     dig 16
     callsub createChildApp
-    // smart_contracts/raffle/factory.algo.ts:204-213
+    // smart_contracts/raffle/factory.algo.ts:224-233
     // raffle.call.optin({
     //   appId: raffleApp,
     //   args: [
@@ -401,17 +440,17 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:208
+    // smart_contracts/raffle/factory.algo.ts:228
     // receiver: raffleApp.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/raffle/factory.algo.ts:209
+    // smart_contracts/raffle/factory.algo.ts:229
     // amount: Global.assetOptInMinBalance,
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:207-210
+    // smart_contracts/raffle/factory.algo.ts:227-230
     // itxn.payment({
     //   receiver: raffleApp.address,
     //   amount: Global.assetOptInMinBalance,
@@ -420,7 +459,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:204-213
+    // smart_contracts/raffle/factory.algo.ts:224-233
     // raffle.call.optin({
     //   appId: raffleApp,
     //   args: [
@@ -432,11 +471,11 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     //   ],
     // })
     itxn_next
-    // smart_contracts/raffle/factory.algo.ts:211
+    // smart_contracts/raffle/factory.algo.ts:231
     // assetXfer.xferAsset.id,
     dig 1
     itob
-    // smart_contracts/raffle/factory.algo.ts:204-213
+    // smart_contracts/raffle/factory.algo.ts:224-233
     // raffle.call.optin({
     //   appId: raffleApp,
     //   args: [
@@ -447,7 +486,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     //     assetXfer.xferAsset.id,
     //   ],
     // })
-    bytec 8 // method "optin(pay,uint64)void"
+    bytec 9 // method "optin(pay,uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_0 // 0
@@ -459,7 +498,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:216-222
+    // smart_contracts/raffle/factory.algo.ts:236-242
     // itxn
     //   .assetTransfer({
     //     assetReceiver: raffleApp.address,
@@ -468,7 +507,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:218
+    // smart_contracts/raffle/factory.algo.ts:238
     // assetReceiver: raffleApp.address,
     dup
     app_params_get AppAddress
@@ -478,7 +517,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     dig 5
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    // smart_contracts/raffle/factory.algo.ts:216-221
+    // smart_contracts/raffle/factory.algo.ts:236-241
     // itxn
     //   .assetTransfer({
     //     assetReceiver: raffleApp.address,
@@ -489,7 +528,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:216-222
+    // smart_contracts/raffle/factory.algo.ts:236-242
     // itxn
     //   .assetTransfer({
     //     assetReceiver: raffleApp.address,
@@ -498,7 +537,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:159-172
+    // smart_contracts/raffle/factory.algo.ts:179-192
     // newRaffle(
     //   payment: gtxn.PaymentTxn,
     //   assetXfer: gtxn.AssetTransferTxn,
@@ -522,7 +561,7 @@ newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
     return
 
 newRaffle_after_if_else@3:
-    // smart_contracts/utils/functions.ts:421-431
+    // smart_contracts/utils/functions.ts:425-435
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -535,33 +574,33 @@ newRaffle_after_if_else@3:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:40
+    // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     dig 2
-    bytec 9 // "aal"
+    bytec 5 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:422
+    // smart_contracts/utils/functions.ts:426
     // appId: getAkitaAppList(akitaDAO).metaMerkles,
     pushint 72 // 72
     extract_uint64
-    // smart_contracts/utils/functions.ts:424
+    // smart_contracts/utils/functions.ts:428
     // asset.creator,
     dig 2
     dup
     asset_params_get AssetCreator
     assert // asset exists
-    // smart_contracts/utils/functions.ts:426
+    // smart_contracts/utils/functions.ts:430
     // sha256(sha256(itob(asset.id))),
     swap
     itob
     sha256
     sha256
-    // smart_contracts/utils/functions.ts:428
+    // smart_contracts/utils/functions.ts:432
     // 1,
     intc_1 // 1
     itob
-    // smart_contracts/utils/functions.ts:421-431
+    // smart_contracts/utils/functions.ts:425-435
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -584,12 +623,12 @@ newRaffle_after_if_else@3:
     dig 7
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:429
+    // smart_contracts/utils/functions.ts:433
     // 'royalty',
     pushbytes 0x0007726f79616c7479
     itxn_field ApplicationArgs
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:421-431
+    // smart_contracts/utils/functions.ts:425-435
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -626,38 +665,38 @@ newRaffle_after_if_else@3:
     extract 6 0
     dup
     bury 17
-    // smart_contracts/utils/functions.ts:433
+    // smart_contracts/utils/functions.ts:437
     // if (Bytes(creatorRoyaltyString).length > 0) {
     len
     bz newRaffle_after_if_else@5
-    // smart_contracts/utils/functions.ts:434
+    // smart_contracts/utils/functions.ts:438
     // creatorRoyalty = btoi(Bytes(creatorRoyaltyString))
     dig 15
     btoi
     bury 1
 
 newRaffle_after_if_else@5:
-    // smart_contracts/utils/functions.ts:437
+    // smart_contracts/utils/functions.ts:441
     // if (creatorRoyalty > CreatorRoyaltyMaximumSingle) {
     dup
-    intc 4 // 50000
+    intc 5 // 50000
     >
     bz newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8
-    // smart_contracts/utils/functions.ts:438
+    // smart_contracts/utils/functions.ts:442
     // return CreatorRoyaltyMaximumSingle
-    intc 4 // 50000
+    intc 5 // 50000
     bury 1
-    // smart_contracts/raffle/factory.algo.ts:184
+    // smart_contracts/raffle/factory.algo.ts:204
     // const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
     b newRaffle_after_inlined_smart_contracts/utils/functions.ts::royalties@8
 
 
 // smart_contracts/raffle/factory.algo.ts::RaffleFactory.newPrizeBoxRaffle[routing]() -> void:
 newPrizeBoxRaffle:
-    // smart_contracts/raffle/factory.algo.ts:227-238
+    // smart_contracts/raffle/factory.algo.ts:247-258
     // newPrizeBoxRaffle(
+    //   prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     //   payment: gtxn.PaymentTxn,
-    //   prizeBox: Application,
     //   ticketAsset: uint64,
     //   startTimestamp: uint64,
     //   endTimestamp: uint64,
@@ -667,6 +706,14 @@ newPrizeBoxRaffle:
     //   marketplace: Account,
     //   weightsListCount: uint64
     // ): uint64 {
+    txn GroupIndex
+    intc_3 // 2
+    -
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
     txn GroupIndex
     intc_1 // 1
     -
@@ -720,45 +767,48 @@ newPrizeBoxRaffle:
     txna ApplicationArgs 7
     dup
     len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for uint64
-    btoi
-    txna ApplicationArgs 8
-    dup
-    len
     pushint 32 // 32
     ==
     assert // invalid number of bytes for uint8[32]
-    txna ApplicationArgs 9
+    txna ApplicationArgs 8
     dup
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/raffle/factory.algo.ts:240
-    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    // smart_contracts/raffle/factory.algo.ts:260
+    // assert(prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>(), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
+    dig 9
+    intc_0 // 0
+    gtxnsas ApplicationArgs
+    bytec 10 // method "transfer(address)void"
+    ==
+    assert // Bad method prize box transfer needed
+    // smart_contracts/raffle/factory.algo.ts:261
+    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:29
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/raffle/factory.algo.ts:240
-    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    // smart_contracts/raffle/factory.algo.ts:261
+    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:445
+    uncover 10
+    gtxns ApplicationID
+    // smart_contracts/utils/functions.ts:449
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, ERR_NOT_A_PRIZE_BOX)
-    dig 9
+    dup
     app_params_get AppCreator
     assert // application exists
-    // smart_contracts/utils/functions.ts:40
+    // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    swap
-    bytec 9 // "aal"
+    uncover 2
+    bytec 5 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:445
+    // smart_contracts/utils/functions.ts:449
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, ERR_NOT_A_PRIZE_BOX)
     pushint 24 // 24
     extract_uint64
@@ -766,25 +816,25 @@ newPrizeBoxRaffle:
     assert // application exists
     ==
     assert // Not a prize box
-    // smart_contracts/utils/functions.ts:446
+    // smart_contracts/utils/functions.ts:450
     // const [ownerBytes] = op.AppGlobal.getExBytes(prizeBox, Bytes(PrizeBoxGlobalStateKeyOwner))
-    dig 8
+    dup
     pushbytes "owner"
     app_global_get_ex
     pop
-    // smart_contracts/raffle/factory.algo.ts:240
-    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    // smart_contracts/raffle/factory.algo.ts:261
+    // assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
     global CurrentApplicationAddress
     ==
     assert // Not prize box owner
-    // smart_contracts/raffle/factory.algo.ts:243
+    // smart_contracts/raffle/factory.algo.ts:264
     // true,
     intc_1 // 1
-    // smart_contracts/raffle/factory.algo.ts:242-255
+    // smart_contracts/raffle/factory.algo.ts:263-276
     // const raffleApp = this.createChildApp(
     //   true,
     //   payment,
-    //   prizeBox.id,
+    //   prizeBoxTransferTxn.appId.id,
     //   ticketAsset,
     //   startTimestamp,
     //   endTimestamp,
@@ -796,18 +846,18 @@ newPrizeBoxRaffle:
     //   weightsListCount
     // )
     uncover 10
-    dig 10
-    uncover 10
-    uncover 10
-    uncover 10
-    // smart_contracts/raffle/factory.algo.ts:249
+    dig 2
+    uncover 11
+    uncover 11
+    uncover 11
+    // smart_contracts/raffle/factory.algo.ts:270
     // 0,
     intc_0 // 0
-    // smart_contracts/raffle/factory.algo.ts:242-255
+    // smart_contracts/raffle/factory.algo.ts:263-276
     // const raffleApp = this.createChildApp(
     //   true,
     //   payment,
-    //   prizeBox.id,
+    //   prizeBoxTransferTxn.appId.id,
     //   ticketAsset,
     //   startTimestamp,
     //   endTimestamp,
@@ -818,29 +868,29 @@ newPrizeBoxRaffle:
     //   marketplace,
     //   weightsListCount
     // )
-    uncover 11
-    uncover 11
-    uncover 11
-    uncover 11
-    uncover 11
+    uncover 12
+    uncover 12
+    uncover 12
+    uncover 12
+    uncover 12
     callsub createChildApp
-    // smart_contracts/raffle/factory.algo.ts:259-262
+    // smart_contracts/raffle/factory.algo.ts:278-281
     // abiCall<typeof PrizeBox.prototype.transfer>({
-    //   appId: prizeBox.id,
+    //   appId: prizeBoxTransferTxn.appId,
     //   args: [raffleApp.address],
     // })
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:261
+    // smart_contracts/raffle/factory.algo.ts:280
     // args: [raffleApp.address],
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/raffle/factory.algo.ts:259-262
+    // smart_contracts/raffle/factory.algo.ts:278-281
     // abiCall<typeof PrizeBox.prototype.transfer>({
-    //   appId: prizeBox.id,
+    //   appId: prizeBoxTransferTxn.appId,
     //   args: [raffleApp.address],
     // })
-    pushbytes 0xadf92ae4 // method "transfer(address)void"
+    bytec 10 // method "transfer(address)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     swap
@@ -850,10 +900,10 @@ newPrizeBoxRaffle:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:227-238
+    // smart_contracts/raffle/factory.algo.ts:247-258
     // newPrizeBoxRaffle(
+    //   prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     //   payment: gtxn.PaymentTxn,
-    //   prizeBox: Application,
     //   ticketAsset: uint64,
     //   startTimestamp: uint64,
     //   endTimestamp: uint64,
@@ -874,7 +924,7 @@ newPrizeBoxRaffle:
 
 // smart_contracts/raffle/factory.algo.ts::RaffleFactory.deleteRaffle[routing]() -> void:
 deleteRaffle:
-    // smart_contracts/raffle/factory.algo.ts:267
+    // smart_contracts/raffle/factory.algo.ts:286
     // deleteRaffle(appId: Application): void {
     txna ApplicationArgs 1
     dup
@@ -883,7 +933,7 @@ deleteRaffle:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/raffle/factory.algo.ts:268
+    // smart_contracts/raffle/factory.algo.ts:287
     // assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_RAFFLE)
     dup
     app_params_get AppCreator
@@ -891,20 +941,20 @@ deleteRaffle:
     global CurrentApplicationAddress
     ==
     assert // Not a raffle
-    // smart_contracts/utils/functions.ts:451
+    // smart_contracts/utils/functions.ts:455
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     dup
     pushbytes "funder"
     app_global_get_ex
     pop
-    // smart_contracts/raffle/factory.algo.ts:271
+    // smart_contracts/raffle/factory.algo.ts:290
     // const { account: receiver, amount } = getFunder(appId)
     dup
     extract 0 32
     swap
     pushint 32 // 32
     extract_uint64
-    // smart_contracts/raffle/factory.algo.ts:274
+    // smart_contracts/raffle/factory.algo.ts:293
     // raffle.call.deleteApplication({ appId })
     itxn_begin
     pushbytes 0x2487c32c // method "deleteApplication()void"
@@ -918,26 +968,26 @@ deleteRaffle:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:276-278
+    // smart_contracts/raffle/factory.algo.ts:295-297
     // itxn
     //   .payment({ amount, receiver })
     //   .submit()
     itxn_begin
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:276-277
+    // smart_contracts/raffle/factory.algo.ts:295-296
     // itxn
     //   .payment({ amount, receiver })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:276-278
+    // smart_contracts/raffle/factory.algo.ts:295-297
     // itxn
     //   .payment({ amount, receiver })
     //   .submit()
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:267
+    // smart_contracts/raffle/factory.algo.ts:286
     // deleteRaffle(appId: Application): void {
     intc_1 // 1
     return
@@ -968,7 +1018,7 @@ initBoxedContract:
     swap
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
-    bytec 7 // "child_contract_version"
+    bytec 8 // "child_contract_version"
     // smart_contracts/utils/base-contracts/factory.ts:43
     // this.childContractVersion.value = version
     swap
@@ -1116,7 +1166,7 @@ loadBoxedContract:
     dup
     intc_0 // 0
     gtxnsas ApplicationArgs
-    bytec 5 // method "initBoxedContract(string,uint64)void"
+    bytec 6 // method "initBoxedContract(string,uint64)void"
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-61
     // txn.type === TransactionType.ApplicationCall
@@ -1482,7 +1532,7 @@ update:
     uncover 2
     ==
     assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/functions.ts:50
+    // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     pushbytes "pal"
     app_global_get_ex
@@ -1498,7 +1548,7 @@ update:
     assert // Invalid app upgrade
     // smart_contracts/utils/base-contracts/base.ts:27
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 6 // "version"
+    bytec 7 // "version"
     // smart_contracts/utils/base-contracts/base.ts:53
     // this.version.value = newVersion
     swap
@@ -1606,12 +1656,48 @@ createChildApp_after_if_else@2:
     frame_bury 3
 
 createChildApp_after_if_else@4:
-    // smart_contracts/raffle/factory.algo.ts:59
-    // const childAppMBR: uint64 = Global.minBalance + optinMBR
+    // smart_contracts/raffle/factory.algo.ts:66
+    // if (!isPrizeBox) {
+    frame_dig -12
+    bnz createChildApp_else_body@9
+    // smart_contracts/raffle/factory.algo.ts:67
+    // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeID)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:29
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/raffle/factory.algo.ts:67
+    // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeID)
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -10
+    callsub rewardsOptInCost
+    // smart_contracts/utils/functions.ts:501
+    // return (MinDisbursementsMBR + UserAllocationMBR) * count
+    intc 4 // 60600
+    // smart_contracts/raffle/factory.algo.ts:67
+    // disbursementMBR += disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, prizeID)
+    +
+    // smart_contracts/raffle/factory.algo.ts:68
+    // if (isAlgoTicket) {
+    frame_dig -9
+    bnz createChildApp_else_body@7
+    // smart_contracts/utils/functions.ts:501
+    // return (MinDisbursementsMBR + UserAllocationMBR) * count
+    intc 4 // 60600
+    // smart_contracts/raffle/factory.algo.ts:69
+    // disbursementMBR += disbursementCost(1)
+    +
+
+createChildApp_after_if_else@13:
+    // smart_contracts/raffle/factory.algo.ts:79
+    // const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR
     global MinBalance
     frame_dig 3
     +
-    // smart_contracts/raffle/factory.algo.ts:60
+    dig 1
+    +
+    // smart_contracts/raffle/factory.algo.ts:80
     // const weightsMBR: uint64 = (weightsListCount * costs.weights)
     frame_dig -1
     pushint 13113300 // 13113300
@@ -1619,35 +1705,35 @@ createChildApp_after_if_else@4:
     dup
     cover 2
     frame_bury 2
-    // smart_contracts/raffle/factory.algo.ts:61
+    // smart_contracts/raffle/factory.algo.ts:81
     // const fees = getNFTFees(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:29
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/raffle/factory.algo.ts:61
+    // smart_contracts/raffle/factory.algo.ts:81
     // const fees = getNFTFees(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:89
+    // smart_contracts/utils/functions.ts:93
     // const [nftFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysNFTFees))
     dup
     pushbytes "nft_fees"
     app_global_get_ex
     pop
-    // smart_contracts/raffle/factory.algo.ts:66
+    // smart_contracts/raffle/factory.algo.ts:86
     // fees.raffleCreationFee +
     pushint 88 // 88
     extract_uint64
-    // smart_contracts/raffle/factory.algo.ts:66-69
+    // smart_contracts/raffle/factory.algo.ts:86-89
     // fees.raffleCreationFee +
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * raffle.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * raffle.globalBytes) +
     dup
-    pushint 1398500 // 1398500
+    pushint 1427000 // 1427000
     +
-    // smart_contracts/raffle/factory.algo.ts:66-70
+    // smart_contracts/raffle/factory.algo.ts:86-90
     // fees.raffleCreationFee +
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * raffle.globalUints) +
@@ -1655,7 +1741,7 @@ createChildApp_after_if_else@4:
     // childAppMBR +
     uncover 3
     +
-    // smart_contracts/raffle/factory.algo.ts:66-71
+    // smart_contracts/raffle/factory.algo.ts:86-91
     // fees.raffleCreationFee +
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * raffle.globalUints) +
@@ -1664,7 +1750,7 @@ createChildApp_after_if_else@4:
     // weightsMBR
     uncover 3
     +
-    // smart_contracts/raffle/factory.algo.ts:74-81
+    // smart_contracts/raffle/factory.algo.ts:94-101
     // assertMatch(
     //   payment,
     //   {
@@ -1675,10 +1761,10 @@ createChildApp_after_if_else@4:
     // )
     frame_dig -11
     gtxns Receiver
-    // smart_contracts/raffle/factory.algo.ts:77
+    // smart_contracts/raffle/factory.algo.ts:97
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/raffle/factory.algo.ts:74-81
+    // smart_contracts/raffle/factory.algo.ts:94-101
     // assertMatch(
     //   payment,
     //   {
@@ -1694,7 +1780,7 @@ createChildApp_after_if_else@4:
     ==
     &&
     assert // Invalid payment
-    // smart_contracts/raffle/factory.algo.ts:83-88
+    // smart_contracts/raffle/factory.algo.ts:103-108
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.address,
@@ -1702,13 +1788,13 @@ createChildApp_after_if_else@4:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:85
+    // smart_contracts/raffle/factory.algo.ts:105
     // receiver: this.akitaDAOEscrow.value.address,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:65
     // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
     bytec_2 // "akita_escrow"
-    // smart_contracts/raffle/factory.algo.ts:85
+    // smart_contracts/raffle/factory.algo.ts:105
     // receiver: this.akitaDAOEscrow.value.address,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1718,7 +1804,7 @@ createChildApp_after_if_else@4:
     uncover 3
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:83-87
+    // smart_contracts/raffle/factory.algo.ts:103-107
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.address,
@@ -1728,7 +1814,7 @@ createChildApp_after_if_else@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:83-88
+    // smart_contracts/raffle/factory.algo.ts:103-108
     // itxn
     //   .payment({
     //     receiver: this.akitaDAOEscrow.value.address,
@@ -1736,7 +1822,7 @@ createChildApp_after_if_else@4:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:90-108
+    // smart_contracts/raffle/factory.algo.ts:110-128
     // const appId = raffle.call
     //   .create({
     //     args: [
@@ -1757,65 +1843,65 @@ createChildApp_after_if_else@4:
     //     ],
     //   })
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:93
+    // smart_contracts/raffle/factory.algo.ts:113
     // prizeID,
     frame_dig -10
     itob
-    // smart_contracts/raffle/factory.algo.ts:94
+    // smart_contracts/raffle/factory.algo.ts:114
     // isPrizeBox,
     pushbytes 0x00
     intc_0 // 0
     frame_dig -12
     setbit
-    // smart_contracts/raffle/factory.algo.ts:95
+    // smart_contracts/raffle/factory.algo.ts:115
     // ticketAsset,
     frame_dig -9
     itob
     dup
     frame_bury 0
-    // smart_contracts/raffle/factory.algo.ts:96
+    // smart_contracts/raffle/factory.algo.ts:116
     // startTimestamp,
     frame_dig -8
     itob
-    // smart_contracts/raffle/factory.algo.ts:97
+    // smart_contracts/raffle/factory.algo.ts:117
     // endTimestamp,
     frame_dig -7
     itob
-    // smart_contracts/raffle/factory.algo.ts:98
+    // smart_contracts/raffle/factory.algo.ts:118
     // Txn.sender,
     txn Sender
-    // smart_contracts/raffle/factory.algo.ts:99
+    // smart_contracts/raffle/factory.algo.ts:119
     // { account: payment.sender, amount: totalMBR },
     frame_dig -11
     gtxns Sender
     uncover 8
     itob
     concat
-    // smart_contracts/raffle/factory.algo.ts:100
+    // smart_contracts/raffle/factory.algo.ts:120
     // creatorRoyalty,
     frame_dig -6
     itob
-    // smart_contracts/raffle/factory.algo.ts:101
+    // smart_contracts/raffle/factory.algo.ts:121
     // minTickets,
     frame_dig -5
     itob
-    // smart_contracts/raffle/factory.algo.ts:102
+    // smart_contracts/raffle/factory.algo.ts:122
     // maxTickets,
     frame_dig -4
     itob
-    // smart_contracts/raffle/factory.algo.ts:103
+    // smart_contracts/raffle/factory.algo.ts:123
     // gateID,
     frame_dig -3
     itob
-    // smart_contracts/raffle/factory.algo.ts:105
+    // smart_contracts/raffle/factory.algo.ts:125
     // this.akitaDAO.value,
     uncover 12
     itob
-    // smart_contracts/raffle/factory.algo.ts:106
+    // smart_contracts/raffle/factory.algo.ts:126
     // this.akitaDAOEscrow.value,
     uncover 12
     itob
-    // smart_contracts/raffle/factory.algo.ts:90-108
+    // smart_contracts/raffle/factory.algo.ts:110-128
     // const appId = raffle.call
     //   .create({
     //     args: [
@@ -1864,21 +1950,21 @@ createChildApp_after_if_else@4:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/raffle/factory.algo.ts:63
+    // smart_contracts/raffle/factory.algo.ts:83
     // const raffle = compileArc4(Raffle)
     intc_3 // 2
     itxn_field ExtraProgramPages
     intc_2 // 8
     itxn_field GlobalNumByteSlice
-    pushint 21 // 21
+    pushint 22 // 22
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyANAAEIBIAgoI0Grf7V5NSF/ahYqIsDz4Keu+/v3oIU0YKeu+/v3oIU/////w/Ur6AG////////////ASYjDHRpY2tldF9hc3NldAlha2l0YV9kYW8MdGlja2V0X2NvdW50C2VudHJ5X2NvdW50Bndpbm5lcgQVH3x1BXByaXplCHdfdG90YWxzAWEOd2lubmluZ190aWNrZXQHZ2F0ZV9pZAxha2l0YV9lc2Nyb3cRd2VpZ2h0c19ib3hfY291bnQGc2VsbGVyAXcLbWF4X3RpY2tldHMNcHJpemVfY2xhaW1lZBFyZWZ1bmRfbWJyX2N1cnNvcg1lbmRfdGltZXN0YW1wC21hcmtldHBsYWNlEXZyZl9mYWlsdXJlX2NvdW50AWUGd2FsbGV0FW1hcmtldHBsYWNlX3JveWFsdGllcwNvYWwMaXNfcHJpemVfYm94D3N0YXJ0X3RpbWVzdGFtcA1ha2l0YV9yb3lhbHR5E2ZpbmRfd2lubmVyX2N1cnNvcnMPY3JlYXRvcl9yb3lhbHR5AwaBAQttaW5fdGlja2V0cwhlbnRyeV9pZAIAAANwYWyCAgQkh8MsBOqRgN02GgCOAgDLAMAxGRREMRhBAKmCEgS9cUjQBPLOL0YELJQlFASXOcu2BOOiHVIEBUowIARju7c1BEghIcMEaWUB3gS9GyfRBGX8qYsEj6ShYASeVybxBB6tIKkEM+kslASFTe3gBNmjX6QEPqEYMjYaAI4SBDkElAUNBX4GRQcqB9UH6QhyClILcRAQECEQtREOACIAARErAIAcFR98dQAAAAAAAHvUAAAAAADIF9QAAAAAAABJ1LAjQyNDgATiLgOSNhoAjgECWAAxGSUSMRgQREIQljEZgQUSMRgQREIFFYoCAIv+gQoIiwAyDA1BACqxgQayEIEFshknHrIeJx6yH4v/jQIACwAEs0L/2zIAsgFC//UisgFC/++JigEBi/+BEpGL/xuBG5EhChqL/4E7kUqRTBwjHkUBgR8aTwJMkCEKGhmJigEBMQCL/0AABIsATImL/4ASY29udHJvbGxlZF9hZGRyZXNzZUhC/+OKAgGL/icYZUiBGFuxgAQ8Gm8zshqL/7IashiBBrIQIrIBs7Q+SVcEAEsBVwAEJwUSREkiWYECCEwVEkRXBgBJFUlBAAeLASQTQQAEIowAiYsAF0L/94oEArGL/IADYWFsZUiBKFuL/haABCAPdCGyGov9shqyGov/shqyGIEGshAisgGztD5JVwQATFcABCcFEkRJFSMSRCJTi/+JigUAgABHAiKL+ycYZUiBEFtHAnIITE4CRLGL/RZJTgKABMqo2qWyGov8shqyGrIYgQayECKyAbO0PklXBABLAVcABCcFEkRJFYEZEkRLAYEMW0lOAk4DgYABU04CSwFXFQhOAkyBFVtMQAAFiwpBABOxiweLCgiyCIsFsgcjshAisgGziwhAABmxgAToVAgQshqLBrIaiwSyGIEGshAisgGzI4wCI4wAIowBi/9BAA0jjAEijAAijAKLBYwDsYsBQQAEiwOyFYv9shGLAEEABIv+shKLAkEABIsFshQlshAisgG2gAQIUx7XshqL/LIaiwmyGosEshiBBrIQIrIBs7cBPklXBABMVwAEJwUSRBWBIBJEiYAARwI2GgFJFSQSRBc2GgJJFSMSRCJTNhoDSRUkEkQXSU4DNhoESRUkEkQXTgM2GgVJFSQSRBdOAzYaBklOBBWBIBJENhoHSU4EFYEoEkQ2GggVJBJENhoJSRUkEkQXTgM2GgpJFSQSRBdOAzYaC0kVJBJEF04DNhoMSU4EFYEgEkQ2Gg1JFSQSRBdOAzYaDkkVJBJEF04DMg1EJwZPA2cnGU8CZ0EABksKcQBERChLC2cnGksKSU4CZ0sJDEEA7EsIMgcNQQDkI0QnEksJZycNSwhngAZmdW5kZXJLB2cnH0sGZycPSwVnKyJnKiJnJwkiZycEMgNnJxAiZycKSwRnJxNLA2cpSwJnJwtLAWciKWVEgAhuZnRfZmVlc2VISYFwWycXTGciKWVEIicNZUSxTIADc2FsZUiBEFuABNV0uxCyGrIYshqBBrIQIrIBs7Q+SVcEAExXAAQnBRJESRUkEkQXSUUQSwGBYFtFDkyBaFtFDiMNQQAvSw0jCUsNSUsOCU8CC4HoBwoJJxtMZycgImcnDCJngXivJwdMZycRImcnFCJnI0MjQv/RIkL/GTEWIwlJOBAjEkQ2GgFJFSQSRBdJTgIxADIJEkRJJQ9ESYEQDERJIQsLSwI4BzIKEk8DOAhPAhIQRCcMTGciSUsCDEEAFEcCFicOTFCBgIACuUgjCEUBQv/lI0M2GgFJFSQSRBciK2VEIwkiJwRlRDIDE0QiJxFlREoTRExLAQlJSwMNTE8DTwJNSU4CgWQLIoj7fUlLAgxBACxHAhYnFUxQSb5EVwAgTLxIJwhLAVC8SLGyByEHsggjshAisgGzIwhFAUL/zSInEWVESwIIJxFMZyNDIicQZUREIiInDGVESwENQQAbIicMZUQjCUsBSU4CCRYnDkxQvEgjCEUBQv/aIicMZUQhCwuxMglLAbIIsgcjshAisgGzJwwiZxYnBUxQsCNDMQAyCRJEIicQZUREIitlRCMJIicRZUQTRCInDGVEFEMxFiMJSTgQIxJENhoBSRWBIBJENhoCiAvRRCIoZUQURCInCmVEQQAfIillRDEAiPsoiPr8IillRCInCmVETE4CSwOI+2pIRCcIMQBQvUUBFERLAkk4BzIKEkw4CCInD2VEIQcISwEPTwIQRCIrZUQxAEsEUEsBFicVSwFQTwK/JwgxAFBMv0whBwlJFksCIQQKSRYnDkxQTwQhBBgkC08DuyInB2VETCQLSltLAwgWXScHTGciK2VEIwgrTGciKmVECCpMZyNDMRaBAglJOBAjEkQxFiMJSTgQJRJENhoBSRWBIBJENhoCiAr/RCIoZUREIicKZURBAB8iKWVEMQCI+leI+isiKWVEIicKZURMTgJLA4j6mUhEJwgxAFC9RQEUREsDSTgHMgoSTDgIIQcSEERLAkk4FDIKEksBOBEiKGVEEhBMOBIiJw9lREsBD08CEEQiK2VEMQBLBFBLARYnFUsBUE8CvycIMQBQTL9LARZLASEECkkWJw5MUE8DIQQYJAtPA7siJwdlREwkC0pbSwMIFl0nB0xnIitlRCMIK0xnIiplRAgqTGcjQzEWIwlJOBAjEkQ2GgGICi5EIihlRBREIicKZURBAB8iKWVEMQCI+YWI+VkiKWVEIicKZURMTgJLA4j5x0hEJwgxAFC9RQFEJwgxAFC+RBdJIQQKSRYnDkxQTwIhBBgkC0okuksFSTgHMgoSTDgIIicPZURPAxdMSwEJSwIPTwMQRElLAggWTwRPBE8CuyInB2VETwMkC0pbTwQIFl0nB0xnIiplRAgqTGcjQzEWgQIJOBCBBhJEMRYjCTgQJRJDMRYjCUk4ECUSRIgJckQiKGVESUQnCDEAUL1FAUQnCDEAUL5EF0khBApJFicOTFBPAiEEGCQLSiS6SwU4FDIKEksGOBFPBhIQTwU4EiInD2VETwMXTEsBCUsCD08DEERJSwIIFk8ETwRPArsiJwdlRE8DJAtKW08ECBZdJwdMZyIqZUQIKkxnI0MiRwKAAEcHIicSZUQjCCInFGVEJQsIMgZLASQID0QiJwllRBREsSIpZUQnGGVIIltMFiKABHNhbHRlREkVFlcGAkxQgAQYk5LFshpMshqyGrIYgQayECKyAbO0PklXBABLAVcABCcFEkRJIlmBAghMFRJEVwYASRVJQAANIicUZUQjCCcUTGcjQyJLAUlOAg8iSwJPAk2BEEsCD4EQTwNPAk1LA04CUkkVgRASREkiWyIhBh1FAUkhCB5FAU8CHkUBIQYdRQEhCB5OAkhPAiRbTCEJHkUBHkUBIQYdRQEhCR5FAUwWTBZQRQwiKmVMSU4CRQVEIQwMQQAGSwIjCEUDJyFFDUsCQQDQSwJJIw1EIwlJRQsjDURLCUkcIx5FAUwYRQQiRQdLC0ULSwYjDEEAjEsKSSJbSUUHIQYdRQEhCB5JTgJFDEhMJFtFB0AAaYGihbz23t+9hShLBkkhBh1FAU8CHkUBSwoWTBZQSwaI9qGBIJBPAoj2mRkWUElXABBMgRBbSUUKSwUPQQAmSwhLCxgjCBZLDklPAlBMIlkjCBZXBgJcAEUOSwcjCEUIRQtC/3dFC0L/eSEJQv+cSwqAAgASUEsNUEmBEFlLARVSgQJbJwlMZ0L+riEMRQpC/zcigABJNhoBSRUkEkQXMgciJxJlRA1EIicJZUREIicEZUQyAxJEIiccZURJIltMJFsiIicMZURLAQ1BANkiJwdlREsBJAtbSUUHIicJZURLA08CCAxBAKZLAhZLAhZQSSJbSU4CRQUkW0UDIitlREsBCUlLBklOAw1MTgJNSU4CRQYhBAoWJw5MUEUIgSgLIoj1ZSJFAUlLBAxBAEhJJAtLB0wkuhdLAklPAghFBiInCWVEDkEAICInCWVESwUOQQAVSwJLAQgjCBYnFUxQvkRXACAnBExnSwQjCEUCSSMIRQFC/7EiJxxlREkiW0sFCBZcAEsCFlwIJxxMZyNDSwIhBAhFA0sFIwhLAghFAkkjCEUBQv8cSwIWSwIWUEL/PyJJgABHCyInBGVEMgMTRCInEGVEFEQiJxllREEENbEiJwZlRCInBGVEgASt+SrkshqyGrIYgQayECKyAbMiKmVMRQtEIicZZUQiRQhAAC4iJx1lREEAJiInHWVESSEFDkRLCh0hBZdJRQhAABAiJx1lREEACEsJQQADI0UHIkUMIicbZURBAB4iJxtlREkhBQ5ESwodIQWXSUUNQAAISwlBAAMjRQwiRQYiJxdlREEAJiInF2VESSEFDkRLCh0hBZdJRQdAABAiJxdlREEACEsJQQADI0UGSwZJSw1JTgMIgQJLCUlOBQsISw1MCUwWTwIWUE8CFlBMFlBFDiInBGVEJwhMUL5EFxYnFUxQvkRXICBFDSIoZURAAHxLDSJbSUUEQQAWsSInBmVEcQtESwOyCLIHI7IQIrIBs7EiJwtlRHIIREsOSU4CJFuyCLIHI7IQIrIBs7EiJxNlREsBgRBbSbIITLIHI7IQIrIBs7GyCEsNsgcjshAisgGzsSInDWVETIEYW7IIsgcjshAisgGzJxAjZyNDSw0iW0lFA0EALyInBmVEcQtEIihlRHAARQFBAoaxIicGZURxC0QiKGVEshFLArISshQlshAisgGzIicLZURyCEQiKGVEcABFAUEA77EiJwtlRHIIREsOJFsiKGVEshGyErIUJbIQIrIBsyInE2VEIihlRHAARQFBAKixIicTZURLDoEQWyIoZUSyEbISshQlshAisgGzIihlREsNTHAARQ==)
+    pushbytes base64(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GmVEQQAmIicaZURJIQUOREsLHSEFl0lFB0AAECInGmVEQQAISwpBAAMjRQZLB0lLDklOAwiBAksJSU4FCwhLDkwJTBZPAhZQTwIWUEwWUEUPIicEZUQnCExQvkQXFicWTFC+RFcgIEUOIihlREAAjEsOIltJRQRBABaxIicFZURxC0RLA7IIsgcjshAisgGzSw4kW0lBAAwiKWVEIk8CiPZlIluxIicMZURyCESyB7III7IQIrIBs7EiJxVlREsPSU4CgRBbSbIITLIHI7IQIrIBs7GyCEsOsgcjshAisgGzsSInD2VETIEYW7IIsgcjshAisgGzJw0jZyNDSw4iW0lFA0EALyInBWVEcQtEIihlRHAARQFBAtOxIicFZURxC0QiKGVEshFLArISshQlshAisgGzSw4kW0lFCEEAESIpZUQiKGVESwiI9bsiW0UHIicMZURyCEQiKGVEcABFAUEBKbEiJwxlRHIIRCIoZUSyEUsHshKyFCWyECKyAbMiJxVlRCIoZURwAEUBQQDNsSInFWVESw+BEFsiKGVEshGyErIUJbIQIrIBsyIoZURLDkxwAEUBQQB4sUsOgRBbIihlRLIRshJLDbIUJbIQIrIBsyInD2VEIihlRHAARQFBAB+xIicPZURLD4EYWyIoZQ==)
     itxn_field ApprovalProgramPages
-    pushbytes base64(AUEAYrFLDYEQWyIoZUSyEbISSwyyFCWyECKyAbMiJw1lRCIoZURwAEUBQQAhsSInDWVEIiplRCIoZUSyEbISSbIVshQlshAisgGzQv8MIillRCInDWVEIihlRCIqZUQjiPNpQv70IillRCIoZURLD4EQW08CSw9PA08DIojzTUL/myIpZUQiJxNlRCIoZURLEIEQWyKI8zRC/1siKGVMSU4CRQtESw4kW0ULIillTElOAkUOREknFmVISU4CRQRJJyJlSElXCAhMJFtFCEwnFmVIsYAEokA937IagBEAAQACAAtyZXZfcmFmZmxlc7IashiBBrIQIrIBs7Q+SVcEAEsBVwAEJwUSREkiWYEJC4ECCEwVEkRXBgkiW0lEIicLZURMSwESRLGABFgv84KyGkyyGoABgLIagA0AC3Jldl9yYWZmbGVzshqACgABAAAAAAAAAACyGichshpMshiBBrIQIrIBcghEIkUKTHAARQFAABpLCoAOcmV2ZW51ZV9zcGxpdHNlSCJZIwhFCDIQSwgLtiInC2VEcghEsgeyCCOyECKyAbZHAhZLChaAAgABTFCABGg147yyGkyyGoABgLIashpLBLIYgQayECKyAbaABGzD9gayGrIYgQayECKyAUsJQQAZtiInC2VEcghESwmyEUsKshKyFCWyECKyAbNC/cciKWVEIicGZURxC0QiKGVESwQiiPGzQv19MgoiJwZlRExLAXAASEUGIicEZURMcABFAUEAGbEiJwRlRCInBmVEshGyFSWyECKyAbNC+7UiKWVEIicEZUQiJwZlREsHI4jxZ0L7nogBVYABACJPAlQnBUxQsCNDIihlRCInGmVEIicSZUQiJw1lRCInH2VEIicPZUQiK2VEIiplRCInCWVEIicEZUQiJwZlRCInEGVEIicKZUQiJxRlRCInIGVEIicRZURPDxZPDxZQTw4WUE8NUE8MFlBPCxZQTwoWUE8JFlBPCBZQTwdQTwYWUIABACJPB1RQTwQWUE8DFlBPAhZQTBZQJwVMULAjQzYaAUkVJBJEFzEAIillRCcWZUhyCEQSRCcLTGcjQzYaAUkiWYECCEsBFRJEVwIAMQAiKWVESScWZUhyCERPAhJEJyJlSIEQWzINEkSAB3ZlcnNpb25MZyNDNhoBSRUkEkQXMQAiKWVEJxZlSHIIRBJEKUxnI0MxFiMJSTgQIxJENhoBSRUkEkQXMQAyCRJESwE4BzIKEk8COAgyEBIQRLEyCkyyESKyErIUJbIQIrIBsyNDMgciJxplRA9BAA0yByInEmVEDkEAAiOJIok=)
+    pushbytes base64(RLIRshKyFCWyECKyAbNC/vUiKWVEIihlRCInD2VESxGBGFtJFk8CTFAnDkxQTwNPAyIhBk8ETwUiiPN7RgJC/sUiKWVEIihlREsQgRBbSRZLEUxQJw5MUE8DTwMiIQZPBE8FIojzUEYCQv92IillRCIoZUQiJxVlREsRgRBbSRZPAkxQJw5MUE8DTwMiIQZPBE8FIojzIEYCQv8fIihlTElOAkUMRCIpZUxJTgJFD0RJJxdlSElOAkUESScqZUhJVwgITCRbRQhMJxdlSLGABKJAPd+yGoARAAEAAgALcmV2X3JhZmZsZXOyGrIYgQayECKyAbO0PklXBABLAVcABCcJEkRJIlmBCQuBAghMFRJEVwYJIltJRCInDGVETEsBEkSxgARYL/OCshpMshqAAYCyGoANAAtyZXZfcmFmZmxlc7IagAoAAQAAAAAAAAAAshonKbIaTLIYgQayECKyAXIIRCJFC0xwAEUBQAAaSwuADnJldmVudWVfc3BsaXRzZUgiWSMIRQkyEEsJC7YiJwxlRHIIRLIHsggjshAisgG2RwIWSwsWJw5MUIAEaDXjvLIaTLIagAGAshqyGksEshiBBrIQIrIBtoAEbMP2BrIashiBBrIQIrIBSwZBABm2IicMZURyCERLCrIRSweyErIUJbIQIrIBs0L9kyIpZUQiKGVEIicFZURxC0RLBElOAhZQJw5MUE8DTwMiIQZPBE8FIojxkUYCQv0aMgoiJwVlRExLAXAASEUGIicEZURMcABFAUEAGbEiJwRlRCInBWVEshGyFSWyECKyAbNC+0IiKWVEIicFZUQiJwRlREsHSU4CFlAnDkxQTwNPAyIhBk8ETwUjiPEvRgJC+xWIA7WAAQAiTwJUJwlMULAjQyIoZUQiJx1lRCInFGVEIicPZUQiJydlRCInEmVEIitlRCIqZUQiJwplRCInBGVEIicFZUQiJw1lRCInBmVEIicTZUQiJx9lRCInEWVETw8WTw8WUE8OFlBPDVBPDBZQTwsWUE8KFlBPCRZQTwgWUE8HUE8GFlCAAQAiTwdUUE8EFlBPAxZQTwIWUEwWUCcJTFCwI0M2GgFJFSQSRBcxACIpZUQnF2VIcghEEkQnDExnI0M2GgFJIlmBAghLARUSRFcCADEAIillREknF2VIcghETwISRCcqZUiBEFsyDRJEgAd2ZXJzaW9uTGcjQzYaAUkVJBJEFzEAIillRCcXZUhyCEQSRClMZyNDMRYjCUk4ECMSRDYaAUkVJBJEFzEAMgkSREsBOAcyChJPAjgIMhASEESxMgpMshEishKyFCWyECKyAbMjQ4oCAIgCWkQiKGVEFEQiJwZlREEAByLAGicgEkQnCDEAUL1FARREi/44BzIKEov+OAgiJxJlRCEICEsBD08CEEQiK2VEMQCL/1BLARYnFksBUE8CvycIMQBQTL9MIQgJSRZLAiEECkkWJxBMUE8EIQQYJAtPA7siJwdlREwkC0pbSwMIFl0nB0xnIitlRCMIK0xnIiplRAgqTGeJigMAiAG/RCIoZUREIicGZURBAAciwBonIRJEJwgxAFC9RQEURIv9OAcyChKL/TgIIQgSEESL/jgUMgoSi/44ESIoZUQSEIv+OBIiJxJlREsBD08CEEQiK2VEMQCL/1BLARYnFksBUE8CvycIMQBQTL9LARZLASEECkkWJxBMUE8DIQQYJAtPA7siJwdlREwkC0pbSwMIFl0nB0xnIitlRCMIK0xnIiplRAgqTGeJigEAiAERRCIoZUQURCInBmVEQQAHIsAaJyISRCcIMQBQvUUBRCcIMQBQvkQXSSEECkkWJxBMUE8CIQQYJAtKJLqL/zgHMgoSi/84CCInEmVETwMXTEsBCUsCD08DEERLAQgWTwNPA08CuyInB2VETwIkC0pbSwMIFl0nB0xnIiplRAgqTGeJigEAiACKRCIoZUREIicGZURBAAciwBonIxJEJwgxAFC9RQFEJwgxAFC+RBdJIQQKSRYnEExQTwIhBBgkC0okuov/OBQyChKL/zgRIihlRBIQi/84EiInEmVETwMXTEsBCUsCD08DEERLAQgWTwNPA08CuyInB2VETwIkC0pbSwMIFl0nB0xnIiplRAgqTGeJMgciJx1lRA9BAA0yByInFGVEDkEAAiOJIok=)
     itxn_field ApprovalProgramPages
-    // smart_contracts/raffle/factory.algo.ts:90-108
+    // smart_contracts/raffle/factory.algo.ts:110-128
     // const appId = raffle.call
     //   .create({
     //     args: [
@@ -1905,7 +1991,7 @@ createChildApp_after_if_else@4:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:90-110
+    // smart_contracts/raffle/factory.algo.ts:110-130
     // const appId = raffle.call
     //   .create({
     //     args: [
@@ -1930,46 +2016,48 @@ createChildApp_after_if_else@4:
     gitxn 0 CreatedApplicationID
     dup
     frame_bury 1
-    // smart_contracts/raffle/factory.algo.ts:113-118
+    // smart_contracts/raffle/factory.algo.ts:133-138
     // itxn
     //   .payment({
     //     receiver: appId.address,
-    //     amount: Global.minBalance
+    //     amount: Global.minBalance + disbursementMBR
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:115
+    // smart_contracts/raffle/factory.algo.ts:135
     // receiver: appId.address,
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/raffle/factory.algo.ts:116
-    // amount: Global.minBalance
+    // smart_contracts/raffle/factory.algo.ts:136
+    // amount: Global.minBalance + disbursementMBR
     global MinBalance
+    uncover 2
+    +
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:113-117
+    // smart_contracts/raffle/factory.algo.ts:133-137
     // itxn
     //   .payment({
     //     receiver: appId.address,
-    //     amount: Global.minBalance
+    //     amount: Global.minBalance + disbursementMBR
     //   })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:113-118
+    // smart_contracts/raffle/factory.algo.ts:133-138
     // itxn
     //   .payment({
     //     receiver: appId.address,
-    //     amount: Global.minBalance
+    //     amount: Global.minBalance + disbursementMBR
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:120
+    // smart_contracts/raffle/factory.algo.ts:140
     // if (!isAlgoTicket) {
     frame_dig -9
-    bz createChildApp_after_if_else@11
-    // smart_contracts/raffle/factory.algo.ts:121-130
+    bz createChildApp_after_if_else@20
+    // smart_contracts/raffle/factory.algo.ts:141-150
     // raffle.call.optin({
     //   appId,
     //   args: [
@@ -1981,18 +2069,18 @@ createChildApp_after_if_else@4:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:125
+    // smart_contracts/raffle/factory.algo.ts:145
     // receiver: appId.address,
     frame_dig 1
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/raffle/factory.algo.ts:126
+    // smart_contracts/raffle/factory.algo.ts:146
     // amount: Global.assetOptInMinBalance,
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:124-127
+    // smart_contracts/raffle/factory.algo.ts:144-147
     // itxn.payment({
     //   receiver: appId.address,
     //   amount: Global.assetOptInMinBalance,
@@ -2001,7 +2089,7 @@ createChildApp_after_if_else@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:121-130
+    // smart_contracts/raffle/factory.algo.ts:141-150
     // raffle.call.optin({
     //   appId,
     //   args: [
@@ -2013,7 +2101,7 @@ createChildApp_after_if_else@4:
     //   ],
     // })
     itxn_next
-    bytec 8 // method "optin(pay,uint64)void"
+    bytec 9 // method "optin(pay,uint64)void"
     itxn_field ApplicationArgs
     frame_dig 0
     itxn_field ApplicationArgs
@@ -2026,8 +2114,8 @@ createChildApp_after_if_else@4:
     itxn_field Fee
     itxn_submit
 
-createChildApp_after_if_else@11:
-    // smart_contracts/raffle/factory.algo.ts:133-142
+createChildApp_after_if_else@20:
+    // smart_contracts/raffle/factory.algo.ts:153-162
     // raffle.call.init({
     //   appId,
     //   args: [
@@ -2039,7 +2127,7 @@ createChildApp_after_if_else@11:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/raffle/factory.algo.ts:137
+    // smart_contracts/raffle/factory.algo.ts:157
     // receiver: appId.address,
     frame_dig 1
     dup
@@ -2048,7 +2136,7 @@ createChildApp_after_if_else@11:
     frame_dig 2
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/raffle/factory.algo.ts:136-139
+    // smart_contracts/raffle/factory.algo.ts:156-159
     // itxn.payment({
     //   receiver: appId.address,
     //   amount: weightsMBR,
@@ -2057,7 +2145,7 @@ createChildApp_after_if_else@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/raffle/factory.algo.ts:133-142
+    // smart_contracts/raffle/factory.algo.ts:153-162
     // raffle.call.init({
     //   appId,
     //   args: [
@@ -2069,11 +2157,11 @@ createChildApp_after_if_else@11:
     //   ],
     // })
     itxn_next
-    // smart_contracts/raffle/factory.algo.ts:140
+    // smart_contracts/raffle/factory.algo.ts:160
     // weightsListCount,
     frame_dig -1
     itob
-    // smart_contracts/raffle/factory.algo.ts:133-142
+    // smart_contracts/raffle/factory.algo.ts:153-162
     // raffle.call.init({
     //   appId,
     //   args: [
@@ -2096,7 +2184,60 @@ createChildApp_after_if_else@11:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/raffle/factory.algo.ts:144
+    // smart_contracts/raffle/factory.algo.ts:164
     // return appId
     frame_bury 0
     retsub
+
+createChildApp_else_body@7:
+    // smart_contracts/raffle/factory.algo.ts:71
+    // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:29
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/raffle/factory.algo.ts:71
+    // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -9
+    callsub rewardsOptInCost
+    // smart_contracts/utils/functions.ts:501
+    // return (MinDisbursementsMBR + UserAllocationMBR) * count
+    pushint 303000 // 303000
+    // smart_contracts/raffle/factory.algo.ts:71
+    // disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    +
+    +
+    b createChildApp_after_if_else@13
+
+createChildApp_else_body@9:
+    // smart_contracts/raffle/factory.algo.ts:73
+    // } else if (isAlgoTicket) {
+    frame_dig -9
+    bnz createChildApp_else_body@11
+    // smart_contracts/utils/functions.ts:501
+    // return (MinDisbursementsMBR + UserAllocationMBR) * count
+    intc 4 // 60600
+    b createChildApp_after_if_else@13
+
+createChildApp_else_body@11:
+    // smart_contracts/raffle/factory.algo.ts:76
+    // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:29
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/raffle/factory.algo.ts:76
+    // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -9
+    callsub rewardsOptInCost
+    // smart_contracts/utils/functions.ts:501
+    // return (MinDisbursementsMBR + UserAllocationMBR) * count
+    pushint 242400 // 242400
+    // smart_contracts/raffle/factory.algo.ts:76
+    // disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, ticketAsset)
+    +
+    b createChildApp_after_if_else@13

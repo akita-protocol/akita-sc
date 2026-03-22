@@ -52,7 +52,10 @@ export class SocialModeratorGate extends AkitaBaseContract {
       return false
     }
 
-    const since: uint64 = Global.latestTimestamp - value
+    let since: uint64 = 0
+    if (value <= Global.latestTimestamp) {
+      since = Global.latestTimestamp - value
+    }
 
     switch (op) {
       case Equal: return lastActive === since

@@ -5,7 +5,7 @@ import { AkitaDAOEscrowAccountAuctions } from '../arc58/dao/constants'
 import { ERR_HAS_GATE } from '../social/errors'
 import { MAX_UINT64 } from '../utils/constants'
 import { ERR_FAILED_GATE, ERR_INVALID_APP, ERR_INVALID_ASSET, ERR_INVALID_PAYMENT } from '../utils/errors'
-import { arc59OptInAndSend, calcPercent, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
+import { calcPercent, createInstantDisbursement, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
@@ -68,26 +68,26 @@ export class Auction extends classes(
   /** the gate ID to use to check if the user is qualified to bid in the auction */
   gateID = GlobalState<uint64>({ key: AuctionGlobalStateKeyGateID })
   /** counter for how many times we've failed to get rng from the beacon */
-  vrfFailureCount = GlobalState<uint64>({ key: AuctionGlobalStateKeyVRFFailureCount })
+  vrfFailureCount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyVRFFailureCount })
   /** the number of bids that have been refunded */
-  refundCount = GlobalState<uint64>({ key: AuctionGlobalStateKeyRefundCount })
+  refundCount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyRefundCount })
   /** the total sum of all bids */
   bidTotal = GlobalState<Uint128>({ key: AuctionGlobalStateKeyBidTotal })
   /** the total sum of all highest bids */
-  weightedBidTotal = GlobalState<uint64>({ key: AuctionGlobalStateKeyWeightedBidTotal })
+  weightedBidTotal = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyWeightedBidTotal })
   /** highest bid the contract has received thus far */
-  highestBid = GlobalState<uint64>({ key: AuctionGlobalStateKeyHighestBid })
+  highestBid = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyHighestBid })
   /** the id or index of the last bid */
-  bidID = GlobalState<uint64>({ key: AuctionGlobalStateKeyBidID })
+  bidID = GlobalState<uint64>({ initialValue: 1, key: AuctionGlobalStateKeyBidID })
   /** the total amount collected for the loser raffle */
-  raffleAmount = GlobalState<uint64>({ key: AuctionGlobalStateKeyRaffleAmount })
+  raffleAmount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyRaffleAmount })
   /** whether the raffle winner has claimed their prize */
-  rafflePrizeClaimed = GlobalState<boolean>({ key: AuctionGlobalStateKeyRafflePrizeClaimed })
+  rafflePrizeClaimed = GlobalState<boolean>({ initialValue: false, key: AuctionGlobalStateKeyRafflePrizeClaimed })
   /**
    * we count how many unique addresses bid so we can
    * properly get each bids % of the total bid amount
    */
-  uniqueAddressCount = GlobalState<uint64>({ key: AuctionGlobalStateKeyUniqueAddressCount })
+  uniqueAddressCount = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyUniqueAddressCount })
   /** the number of boxes allocated to tracking weights */
   weightsBoxCount = GlobalState<uint64>({ key: AuctionGlobalStateKeyWeightsBoxCount })
   /** totals for each box of weights for our skip list */
@@ -99,13 +99,13 @@ export class Auction extends classes(
    */
   findWinnerCursors = GlobalState<FindWinnerCursors>({ key: AuctionGlobalStateKeyFindWinnerCursors })
   /** cursor to track iteration of MBR refunds */
-  refundMBRCursor = GlobalState<uint64>({ key: AuctionGlobalStateKeyRefundMBRCursor })
+  refundMBRCursor = GlobalState<uint64>({ initialValue: 1, key: AuctionGlobalStateKeyRefundMBRCursor })
   /**
    * we get the winning number from the randomness beacon
    * after the auction ends & we have ran findWinner
    * to compile our list
    */
-  winningTicket = GlobalState<uint64>({ key: AuctionGlobalStateKeyWinningTicket })
+  winningTicket = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyWinningTicket })
   /** the winning address of the raffle */
   raffleWinner = GlobalState<Account>({ key: AuctionGlobalStateKeyRaffleWinner })
   /** salt for randomness */
@@ -114,7 +114,7 @@ export class Auction extends classes(
    * the round captured when raffle() is first called after auction ends
    * used for VRF since round times are dynamic and we need a deterministic round
    */
-  raffleRound = GlobalState<uint64>({ key: AuctionGlobalStateKeyRaffleRound })
+  raffleRound = GlobalState<uint64>({ initialValue: 0, key: AuctionGlobalStateKeyRaffleRound })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -250,10 +250,12 @@ export class Auction extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(
+      createInstantDisbursement(
         this.akitaDAO.value,
-        buyer,
         this.prize.value,
+        0,
+        MAX_UINT64,
+        [{ address: buyer, amount: prizeAmount }],
         prizeAmount,
         true
       )
@@ -263,21 +265,12 @@ export class Auction extends classes(
   private completeAlgoPayments(amount: uint64, buySideMarketplace: Account): void {
     // get the royalty payment amounts
     const { creator, akita, marketplace, seller } = this.getAmounts(amount)
-    const akitaAmount: uint64 = !this.isPrizeBox.value ? (akita + creator) : akita
-
-    if (this.isPrizeBox.value) {
-      itxn
-        .payment({
-          receiver: Asset(this.prize.value).creator,
-          amount: creator,
-        })
-        .submit()
-    }
+    // we dont pay royalties on prize boxes, creator fees roll into akita fee in those cases
+    const akitaAmount: uint64 = this.isPrizeBox.value ? (akita + creator) : akita 
 
     let leftover: uint64 = akitaAmount;
-    let referralMbr: uint64 = 0;
     if (akitaAmount > 0) {
-      ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, akitaAmount))
+      ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, akitaAmount))
     }
 
     itxn
@@ -310,35 +303,27 @@ export class Auction extends classes(
         amount: seller,
       })
       .submit()
+
+    // pay royalties
+    if (!this.isPrizeBox.value) {
+      itxn
+        .payment({
+          receiver: Asset(this.prize.value).creator,
+          amount: creator,
+        })
+        .submit()
+    }
   }
 
   private completeAsaPayments(amount: uint64, buySideMarketplace: Account): void {
     // get the royalty payment amounts
     const { creator, akita, marketplace, seller } = this.getAmounts(amount)
-    // we dont pay royalties on prize boxes
-    const akitaAmount: uint64 = !this.isPrizeBox.value ? akita : (akita + creator)
-
-    // pay the creator
-    if (!this.isPrizeBox.value && Asset(this.prize.value).creator.isOptedIn(this.bidAsset.value)) {
-      itxn
-        .assetTransfer({
-          assetReceiver: Asset(this.prize.value).creator,
-          assetAmount: creator,
-          xferAsset: this.bidAsset.value,
-        })
-        .submit()
-    } else if (!this.isPrizeBox.value) {
-      arc59OptInAndSend(this.akitaDAO.value,
-        Asset(this.prize.value).creator,
-        this.bidAsset.value.id,
-        creator,
-        false
-      )
-    }
+    // we dont pay royalties on prize boxes, creator fees roll into akita fee in those cases
+    const akitaAmount: uint64 = this.isPrizeBox.value ? (akita + creator) : akita 
 
     let leftover: uint64 = akitaAmount;
     if (akitaAmount > 0) {
-      ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, akitaAmount))
+      ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.bidAsset.value.id, akitaAmount))
     }
 
     // pay akita
@@ -368,9 +353,12 @@ export class Auction extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(this.akitaDAO.value,
-        this.marketplace.value,
+      createInstantDisbursement(
+        this.akitaDAO.value,
         this.bidAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: this.marketplace.value, amount: marketplace }],
         marketplace,
         false
       )
@@ -386,9 +374,12 @@ export class Auction extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(this.akitaDAO.value,
-        buySideMarketplace,
+      createInstantDisbursement(
+        this.akitaDAO.value,
         this.bidAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: buySideMarketplace, amount: marketplace }],
         marketplace,
         false
       )
@@ -404,12 +395,38 @@ export class Auction extends classes(
         })
         .submit()
     } else {
-      arc59OptInAndSend(this.akitaDAO.value,
-        this.seller.value,
+      createInstantDisbursement(
+        this.akitaDAO.value,
         this.bidAsset.value.id,
+        0,
+        MAX_UINT64,
+        [{ address: this.seller.value, amount: seller }],
         seller,
         false
       )
+    }
+
+    // pay royalties
+    if (!this.isPrizeBox.value) {
+      if (Asset(this.prize.value).creator.isOptedIn(this.bidAsset.value)) {
+        itxn
+          .assetTransfer({
+            assetReceiver: Asset(this.prize.value).creator,
+            assetAmount: creator,
+            xferAsset: this.bidAsset.value,
+          })
+          .submit()
+      } else {
+        createInstantDisbursement(
+          this.akitaDAO.value,
+          this.bidAsset.value.id,
+          0,
+          MAX_UINT64,
+          [{ address: Asset(this.prize.value).creator, amount: creator }],
+          creator,
+          false
+        )
+      }
     }
   }
 
@@ -423,7 +440,7 @@ export class Auction extends classes(
       }
 
       startingIndex += ChunkSize
-      currentRangeStart += boxStake + 1
+      currentRangeStart += boxStake
     }
 
     return [startingIndex, currentRangeStart]
@@ -569,20 +586,9 @@ export class Auction extends classes(
     this.version.value = version
 
     // internal variables
-    this.vrfFailureCount.value = 0
-    this.refundCount.value = 0
-    this.weightedBidTotal.value = 0
-    this.highestBid.value = 0
-    this.bidID.value = 1
-    this.raffleAmount.value = 0
-    this.rafflePrizeClaimed.value = false
-    this.uniqueAddressCount.value = 0
     this.weightTotals.value = new StaticArray<Uint64, 15>()
-    this.findWinnerCursors.value = { startingIndex: 0, currentRangeStart: 0 }
-    this.refundMBRCursor.value = 0
-    this.winningTicket.value = 0
+    this.findWinnerCursors.value = { startingIndex: 0, currentRangeStart: 1 }
     this.raffleWinner.value = Global.zeroAddress
-    this.raffleRound.value = 0
     this.salt.value = Txn.txId
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).auctionComposablePercentage
   }
@@ -613,12 +619,38 @@ export class Auction extends classes(
   @abimethod({ allowActions: 'DeleteApplication' })
   deleteApplication(): void {
     assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(this.refundCount.value === this.bidID.value + 1)
+    // bidID is "next bid id"; refundable bids are all except the latest (winning) bid
+    const expectedRefundCount: uint64 = this.bidID.value > 1 ? this.bidID.value - 2 : 0
+    assert(this.refundCount.value === expectedRefundCount, ERR_NOT_ALL_REFUNDS_COMPLETE)
     assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
     assert(this.rafflePrizeClaimed.value, ERR_RAFFLE_WINNER_HAS_NOT_CLAIMED)
     const refundsComplete = this.bidID.value === this.refundMBRCursor.value
     assert(refundsComplete, ERR_NOT_ALL_REFUNDS_COMPLETE)
     assert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_HIGHEST_BIDS_BOXES)
+
+    if (!this.isPrizeBox.value) {
+      itxn
+        .assetTransfer({
+          assetCloseTo: Global.creatorAddress,
+          xferAsset: this.prize.value,
+        })
+        .submit()
+    }
+
+    if (this.bidAsset.value.id !== 0) {
+      itxn
+        .assetTransfer({
+          assetCloseTo: Global.creatorAddress,
+          xferAsset: this.bidAsset.value,
+        })
+        .submit()
+    }
+
+    itxn
+      .payment({
+        closeRemainderTo: Global.creatorAddress,
+      })
+      .submit()
   }
 
   /**
@@ -631,18 +663,34 @@ export class Auction extends classes(
     assert(Global.latestTimestamp < this.startTimestamp.value)
     assert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_HIGHEST_BIDS_BOXES)
 
-    const closePrizeTxn = itxn.assetTransfer({
-      assetCloseTo: this.seller.value,
-      xferAsset: this.prize.value,
-    })
+    if (this.isPrizeBox.value) {
+      abiCall<typeof PrizeBox.prototype.transfer>({
+        appId: this.prize.value,
+        args: [this.seller.value],
+      })
+    } else {
+      itxn
+        .assetTransfer({
+          assetCloseTo: this.seller.value,
+          xferAsset: this.prize.value,
+        })
+        .submit()
+    }
 
-    const closeMBRTxn = itxn.payment({
-      receiver: this.seller.value,
-      closeRemainderTo: this.seller.value,
-      amount: 0,
-    })
+    if (this.bidAsset.value.id !== 0) {
+      itxn
+        .assetTransfer({
+          assetCloseTo: Global.creatorAddress,
+          xferAsset: this.bidAsset.value,
+        })
+        .submit()
+    }
 
-    itxn.submitGroup(closePrizeTxn, closeMBRTxn)
+    itxn
+      .payment({
+        closeRemainderTo: Global.creatorAddress,
+      })
+      .submit()
   }
 
   // AUCTION METHODS ------------------------------------------------------------------------------
@@ -695,8 +743,8 @@ export class Auction extends classes(
   }
 
   refundBid(id: uint64): void {
-    // make sure were not refunding the last bid
-    assert(id < this.bidID.value, ERR_CANNOT_REFUND_MOST_RECENT_BID)
+    // make sure were not refunding the winning (most recent) bid
+    assert(id < this.bidID.value - 1, ERR_CANNOT_REFUND_MOST_RECENT_BID)
     // make sure the bid exists
     assert(this.bids(id).exists, ERR_BID_NOT_FOUND)
     // get bid info
@@ -780,30 +828,31 @@ export class Auction extends classes(
     let currentRangeStart = winningBoxInfo[1]
     let currentRangeEnd: uint64 = 0
 
-    /**
-     * minus 2 because the auction winner is not participating in the raffle
-     * and to account for index 0 being the starting bid
-     */
-    const remainder: uint64 = (this.uniqueAddressCount.value - 2) - startingIndex
+    const remainder: uint64 = this.uniqueAddressCount.value - startingIndex
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
+
+    const chunkOffset: uint64 = startingIndex % ChunkSize
+    const remainingInChunk: uint64 = ChunkSize - chunkOffset
+    if (iterationAmount > remainingInChunk) {
+      iterationAmount = remainingInChunk
+    }
 
     const weight = clone(this.weights(startingIndex / ChunkSize).value)
 
     ensureBudget((iterationAmount * 60))
 
     for (let i: uint64 = 0; i < iterationAmount; i += 1) {
-      const amount = weight[i].asUint64()
+      const amount = weight[chunkOffset + i].asUint64()
       if (amount === this.highestBid.value) {
-        currentRangeEnd = currentRangeStart + amount
-        currentRangeStart = currentRangeEnd + 1
+        currentRangeStart += amount
         continue
       }
 
       currentRangeEnd = currentRangeStart + amount
-      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value <= currentRangeEnd) {
-        this.raffleWinner.value = this.locations(startingIndex + i + 1).value
+      if (this.winningTicket.value >= currentRangeStart && this.winningTicket.value < currentRangeEnd) {
+        this.raffleWinner.value = this.locations(startingIndex + i).value
       }
-      currentRangeStart = currentRangeEnd + 1
+      currentRangeStart = currentRangeEnd
     }
 
     this.findWinnerCursors.value = {
@@ -827,10 +876,10 @@ export class Auction extends classes(
 
     const { bids, bidsByAddress, locations } = this.mbr()
 
-    for (let i = startingIndex; i < iterationAmount; i += 1) {
+    for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
 
       const { refunded, account } = this.bids(i).value
-      if (!refunded) {
+      if (!refunded && i !== this.bidID.value - 1) {
         this.refundBid(i)
       }
 
@@ -905,11 +954,12 @@ export class Auction extends classes(
       // the user must have been opted in to participate
       // if they opt out before claiming prize its on them
       // to opt back in
-      itxn.assetTransfer({
-        assetReceiver: this.akitaDAOEscrow.value.address,
-        assetAmount: akitaFee,
-        xferAsset: this.bidAsset.value,
-      })
+      itxn
+        .assetTransfer({
+          assetReceiver: this.akitaDAOEscrow.value.address,
+          assetAmount: akitaFee,
+          xferAsset: this.bidAsset.value,
+        })
         .submit()
 
       itxn

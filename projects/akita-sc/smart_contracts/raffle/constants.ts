@@ -25,6 +25,7 @@ export const RaffleGlobalStateKeyWeightTotals = 'w_totals'
 export const RaffleGlobalStateKeyFindWinnersCursor = 'find_winner_cursors'
 export const RaffleGlobalStateKeyRefundMBRCursor = 'refund_mbr_cursor'
 export const RaffleGlobalStateKeySalt = 'salt'
+export const RaffleGlobalStateKeyRaffleRound = 'raffle_round'
 
 export const RaffleBoxPrefixEntries = 'e'
 export const RaffleBoxPrefixWeights = 'w'

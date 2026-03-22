@@ -857,16 +857,10 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
-    const mbrPayment = itxn.payment({
-      sender,
-      receiver: Application(moderation).address,
-      amount: this.mbr(op.bzero(0)).moderators
-    })
-
     abiCall<typeof AkitaSocialModeration.prototype.addModerator>({
       sender,
       appId: moderation,
-      args: [mbrPayment, address],
+      args: [address],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
 
@@ -899,16 +893,10 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
-    const mbrPayment = itxn.payment({
-      sender,
-      receiver: Application(moderation).address,
-      amount: this.mbr(op.bzero(0)).banned
-    })
-
     abiCall<typeof AkitaSocialModeration.prototype.ban>({
       sender,
       appId: moderation,
-      args: [mbrPayment, address, expiration],
+      args: [address, expiration],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }
@@ -974,17 +962,10 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
     const { moderation } = getAkitaSocialAppList(this.akitaDAO.value)
 
-    const mbrPayment = itxn.payment({
-      sender,
-      receiver: Application(moderation).address,
-      amount: this.mbr(op.bzero(0)).actions
-    })
-
     abiCall<typeof AkitaSocialModeration.prototype.addAction>({
       sender,
       appId: moderation,
       args: [
-        mbrPayment,
         actionAppID,
         content
       ],

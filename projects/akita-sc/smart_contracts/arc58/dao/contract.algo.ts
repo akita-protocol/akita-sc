@@ -858,6 +858,7 @@ export class AkitaDAO extends Contract {
 
     assert(total <= feesPaid, ERR_PAYMENT_REQUIRED)
 
+    this.validateActions(actions)
     this.createOrUpdateProposal(id, cid, actions, origin, total, power)
   }
 
@@ -879,6 +880,7 @@ export class AkitaDAO extends Contract {
       ERR_INVALID_PAYMENT
     )
 
+    this.validateActions(actions)
     this.createOrUpdateProposal(id, cid, actions, origin, total, power)
   }
 
@@ -977,9 +979,8 @@ export class AkitaDAO extends Contract {
   finalizeProposal(proposalID: uint64): void {
     assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
 
-    const { status, creator, votes: { approvals, rejections, abstains }, votingTs, actions } = clone(this.proposals(proposalID).value)
+    const { status, votes: { approvals, rejections, abstains }, votingTs, actions } = clone(this.proposals(proposalID).value)
 
-    assert(Txn.sender === creator, ERR_INCORRECT_SENDER)
     assert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
 
     // get total lock staked

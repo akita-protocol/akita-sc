@@ -1,3 +1,4 @@
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
 import { MaybeSigner } from "../types";
 import {
   RaffleArgs,
@@ -24,20 +25,45 @@ export type EntryWithTickets = EntryData & {
 // Factory Types
 type FactoryContractArgs = RaffleFactoryArgs["obj"];
 
-export type NewRaffleParams = MaybeSigner & Omit<
-  FactoryContractArgs['newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64'],
-  'payment' | 'assetXfer'
-> & {
-  /** The asset ID to transfer as the prize */
-  prizeAsset: bigint | number;
-  /** The amount of the prize asset to transfer */
-  prizeAmount: bigint | number;
+type BaseNewRaffleParams = MaybeSigner & {
+  /** The ticket asset ID (0 for ALGO) */
+  ticketAsset: bigint | number;
+  /** Start timestamp for the raffle */
+  startTimestamp: bigint | number;
+  /** End timestamp for the raffle */
+  endTimestamp: bigint | number;
+  /** Minimum number of tickets per entry */
+  minTickets: bigint | number;
+  /** Maximum number of tickets per entry */
+  maxTickets: bigint | number;
+  /** Gate app ID for gated raffles (0 for none) */
+  gateId: bigint | number;
+  /** Marketplace address for royalties */
+  marketplace: string;
+  /** Number of weights boxes to allocate */
+  weightsListCount: bigint | number;
 };
 
-export type NewPrizeBoxRaffleParams = MaybeSigner & Omit<
-  FactoryContractArgs['newPrizeBoxRaffle(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'],
-  'payment'
->;
+export type NewRaffleParams = BaseNewRaffleParams & (
+  | {
+      /** Whether the prize is a PrizeBox */
+      isPrizeBox: true;
+      /** The PrizeBox app ID */
+      prizeBoxId: bigint | number;
+    }
+  | {
+      /** Whether the prize is a PrizeBox */
+      isPrizeBox?: false;
+      /** The asset ID to transfer as the prize */
+      prizeAsset: bigint | number;
+      /** The amount of the prize asset to transfer */
+      prizeAmount: bigint | number;
+      /** Name of the asset for royalties */
+      name: string;
+      /** Merkle proof for royalties */
+      proof: Uint8Array[];
+    }
+);
 
 export type DeleteRaffleParams = MaybeSigner & FactoryContractArgs['deleteRaffle(uint64)void'];
 
@@ -54,8 +80,8 @@ type BaseEnterParams = MaybeSigner & {
   amount: bigint | number;
   /** Marketplace address for referrals */
   marketplace: string;
-  /** Optional merkle proofs for gated raffles */
-  proofs?: Uint8Array[];
+  /** Optional gate transaction for gated raffles */
+  gateTxn?: AppCallMethodCall;
 };
 
 export type EnterParams = BaseEnterParams & (
@@ -74,8 +100,8 @@ export type EnterParams = BaseEnterParams & (
 type BaseAddParams = MaybeSigner & {
   /** Additional tickets to add */
   amount: bigint | number;
-  /** Optional merkle proofs for gated raffles */
-  proofs?: Uint8Array[];
+  /** Optional gate transaction for gated raffles */
+  gateTxn?: AppCallMethodCall;
 };
 
 export type AddParams = BaseAddParams & (

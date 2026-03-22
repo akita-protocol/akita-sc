@@ -31,10 +31,10 @@ import {
   isValidPluginSDK,
   isWindowAllowance,
   newWallet
-} from "../chunk-Y34KL4UO.mjs";
+} from "../chunk-ZABE6CV7.mjs";
 import "../chunk-ZRCAYT2V.mjs";
-import "../chunk-JXQTRU3Z.mjs";
-import "../chunk-WBPQYKCD.mjs";
+import "../chunk-CC6LCTVW.mjs";
+import "../chunk-C3Q3DYPD.mjs";
 import "../chunk-V3TNOMIB.mjs";
 import "../chunk-BJTO5JO5.mjs";
 export {

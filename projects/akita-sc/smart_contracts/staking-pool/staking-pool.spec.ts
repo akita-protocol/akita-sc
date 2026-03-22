@@ -2196,18 +2196,7 @@ describe('Staking Pool Contract', () => {
     })
   })
 
-  describe('Factory setEscrow', () => {
-    test('should fail setEscrow from non-DAO address', async () => {
-      // setEscrow should only be callable by the DAO contract
-      await expect(
-        factorySDK.client.send.setEscrow({
-          sender: creator.addr,
-          signer: makeBasicAccountTransactionSigner(creator),
-          args: { escrow: 12345n }, // Some arbitrary app ID
-        })
-      ).rejects.toThrow()
-    })
-
+  describe('Factory escrow', () => {
     test('should verify factory has escrow configured', async () => {
       // The factory should have an escrow set during Akita Universe setup
       // We verify by checking the global state

@@ -69,10 +69,10 @@ main_update_route@4:
 
 // smart_contracts/utils/functions.ts::wideRatio(numerators: bytes, denominators: bytes) -> uint64:
 wideRatio:
-    // smart_contracts/utils/functions.ts:113
+    // smart_contracts/utils/functions.ts:117
     // export function wideRatio(numerators: [uint64, uint64], denominators: [uint64, uint64]): uint64 {
     proto 2 1
-    // smart_contracts/utils/functions.ts:114
+    // smart_contracts/utils/functions.ts:118
     // assert(denominators[0] > 0 && denominators[1] > 0, ERR_INVALID_PERCENTAGE)
     frame_dig -1
     intc_0 // 0
@@ -86,10 +86,10 @@ wideRatio:
     intc_1 // 1
 
 wideRatio_bool_merge@4:
-    // smart_contracts/utils/functions.ts:114
+    // smart_contracts/utils/functions.ts:118
     // assert(denominators[0] > 0 && denominators[1] > 0, ERR_INVALID_PERCENTAGE)
     assert // Invalid percentage
-    // smart_contracts/utils/functions.ts:115
+    // smart_contracts/utils/functions.ts:119
     // const [overflow, result] = op.divmodw(...op.mulw(...numerators), ...op.mulw(...denominators))
     frame_dig -2
     intc_0 // 0
@@ -106,11 +106,11 @@ wideRatio_bool_merge@4:
     divmodw
     popn 2
     swap
-    // smart_contracts/utils/functions.ts:116
+    // smart_contracts/utils/functions.ts:120
     // assert(overflow === 0, ERR_INVALID_PERCENTAGE)
     !
     assert // Invalid percentage
-    // smart_contracts/utils/functions.ts:117
+    // smart_contracts/utils/functions.ts:121
     // return result
     swap
     retsub
@@ -122,11 +122,11 @@ wideRatio_bool_false@3:
 
 // smart_contracts/utils/functions.ts::getOrigin(escrowFactory: uint64, address: bytes) -> bytes:
 getOrigin:
-    // smart_contracts/utils/functions.ts:194
+    // smart_contracts/utils/functions.ts:198
     // export function getOrigin(escrowFactory: uint64, address: Account): Account {
     proto 2 1
     bytec_3 // ""
-    // smart_contracts/utils/functions.ts:182-185
+    // smart_contracts/utils/functions.ts:186-189
     // const data = abiCall<typeof EscrowFactory.prototype.get>({
     //   appId: escrowFactory,
     //   args: [address]
@@ -162,7 +162,7 @@ getOrigin:
     assert // invalid number of bytes for (len+uint8[])
     extract 6 0
     dup
-    // smart_contracts/utils/functions.ts:187
+    // smart_contracts/utils/functions.ts:191
     // if (Bytes(data).length === 0 || Bytes(data).length !== 8) {
     len
     dup
@@ -173,62 +173,62 @@ getOrigin:
     bz getOrigin_after_if_else@8
 
 getOrigin_if_body@7:
-    // smart_contracts/utils/functions.ts:188
+    // smart_contracts/utils/functions.ts:192
     // return 0
     intc_0 // 0
     frame_bury 0
 
 getOrigin_after_inlined_smart_contracts/utils/functions.ts::getWalletID@9:
-    // smart_contracts/utils/functions.ts:197
+    // smart_contracts/utils/functions.ts:201
     // if (wallet === 0) {
     frame_dig 0
     bnz getOrigin_after_if_else@2
-    // smart_contracts/utils/functions.ts:198
+    // smart_contracts/utils/functions.ts:202
     // return Txn.sender
     txn Sender
     frame_bury 0
     retsub
 
 getOrigin_after_if_else@2:
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     frame_dig 0
-    // smart_contracts/utils/functions.ts:163
+    // smart_contracts/utils/functions.ts:167
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     pushbytes "controlled_address"
-    // smart_contracts/utils/functions.ts:161-164
+    // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:201
+    // smart_contracts/utils/functions.ts:205
     // return getOriginAccount(Application(wallet))
     frame_bury 0
     retsub
 
 getOrigin_after_if_else@8:
-    // smart_contracts/utils/functions.ts:191
+    // smart_contracts/utils/functions.ts:195
     // return btoi(data)
     frame_dig 1
     btoi
     frame_bury 0
-    // smart_contracts/utils/functions.ts:195
+    // smart_contracts/utils/functions.ts:199
     // const wallet = getWalletID(escrowFactory, address)
     b getOrigin_after_inlined_smart_contracts/utils/functions.ts::getWalletID@9
 
 
 // smart_contracts/utils/functions.ts::getStakingPower(stakingApp: uint64, user: bytes, asset: uint64) -> uint64:
 getStakingPower:
-    // smart_contracts/utils/functions.ts:455
+    // smart_contracts/utils/functions.ts:459
     // export function getStakingPower(stakingApp: uint64, user: Account, asset: uint64): uint64 {
     proto 3 1
     bytec_3 // ""
-    // smart_contracts/utils/functions.ts:456-465
+    // smart_contracts/utils/functions.ts:460-469
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -240,23 +240,23 @@ getStakingPower:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:460-463
+    // smart_contracts/utils/functions.ts:464-467
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
     // },
     frame_dig -1
     itob
-    // smart_contracts/utils/functions.ts:462
+    // smart_contracts/utils/functions.ts:466
     // type: STAKING_TYPE_LOCK,
     bytec 8 // 0x28
-    // smart_contracts/utils/functions.ts:460-463
+    // smart_contracts/utils/functions.ts:464-467
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
     // },
     concat
-    // smart_contracts/utils/functions.ts:456-465
+    // smart_contracts/utils/functions.ts:460-469
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -292,45 +292,45 @@ getStakingPower:
     ==
     assert // invalid number of bytes for (uint64,uint64,uint64)
     pushint 20 // 20
-    // smart_contracts/utils/functions.ts:467
+    // smart_contracts/utils/functions.ts:471
     // if (info.expiration <= Global.latestTimestamp) {
     extract_uint64
     dup
     global LatestTimestamp
     <=
     bz getStakingPower_after_if_else@3
-    // smart_contracts/utils/functions.ts:468
+    // smart_contracts/utils/functions.ts:472
     // return 0
     intc_0 // 0
     frame_bury 0
     retsub
 
 getStakingPower_after_if_else@3:
-    // smart_contracts/utils/functions.ts:471
+    // smart_contracts/utils/functions.ts:475
     // const remainingTime: uint64 = info.expiration - Global.latestTimestamp
     frame_dig 2
     global LatestTimestamp
     -
     dup
     frame_bury 0
-    // smart_contracts/utils/functions.ts:473
+    // smart_contracts/utils/functions.ts:477
     // if (remainingTime < ONE_WEEK) {
     pushint 604800 // 604800
     <
     bz getStakingPower_after_if_else@5
-    // smart_contracts/utils/functions.ts:474
+    // smart_contracts/utils/functions.ts:478
     // return 0
     intc_0 // 0
     frame_bury 0
     retsub
 
 getStakingPower_after_if_else@5:
-    // smart_contracts/utils/functions.ts:477
+    // smart_contracts/utils/functions.ts:481
     // const remainingDays: uint64 = remainingTime / ONE_DAY
     frame_dig 0
     pushint 86400 // 86400
     /
-    // smart_contracts/utils/functions.ts:478
+    // smart_contracts/utils/functions.ts:482
     // return op.divw(...op.mulw(wideRatio([info.amount, 1_000_000], [ONE_YEAR_IN_DAYS, 1_000_000]), remainingDays), 1_000_000)
     frame_dig 1
     extract 4 8
@@ -3742,7 +3742,7 @@ finalizeProposal_after_if_else@5:
     // smart_contracts/arc58/dao-deployable/contract.algo.ts:1117
     // if (rejections > 0) {
     bz finalizeProposal_else_body@7
-    // smart_contracts/utils/functions.ts:109
+    // smart_contracts/utils/functions.ts:113
     // assert(a < b, ERR_INVALID_PERCENTAGE_OF_ARGS)
     dig 7
     dup
@@ -3751,7 +3751,7 @@ finalizeProposal_after_if_else@5:
     cover 3
     <
     assert // Invalid percentage of args
-    // smart_contracts/utils/functions.ts:110
+    // smart_contracts/utils/functions.ts:114
     // return op.divw(...op.mulw(a, DIVISOR), b)
     intc 4 // 100000
     mulw
@@ -3781,13 +3781,13 @@ finalizeProposal_after_if_else@8:
     +
     >
     assert // Voting duration not met
-    // smart_contracts/utils/functions.ts:104
+    // smart_contracts/utils/functions.ts:108
     // assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
     dig 1
     intc 4 // 100000
     <=
     assert // Invalid percentage
-    // smart_contracts/utils/functions.ts:105
+    // smart_contracts/utils/functions.ts:109
     // return op.divw(...op.mulw(a, p), DIVISOR)
     dig 3
     uncover 2

@@ -966,6 +966,7 @@ export class StakingPool extends classes(
   }
 
   enter(payment: gtxn.PaymentTxn, entries: StakeEntry[]): void {
+    assert(this.gateID.value === 0, 'gate id is set')
     this.createPoolEntries(payment, entries, [])
   }
 

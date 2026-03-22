@@ -238,9 +238,10 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       }
     }
 
+    const needsSubscriptionsListBoxMbr = !this.subscriptionslist(Txn.sender).exists
     const subscriptionID = this.newSubscriptionID(Txn.sender)
     const subscriptionKey: SubscriptionKey = { address: Txn.sender, id: subscriptionID }
-    if (subscriptionID === 0) {
+    if (needsSubscriptionsListBoxMbr) {
       mbrAmount += costs.subscriptionslist
     }
 
@@ -333,10 +334,11 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       }
     }
 
+    const needsSubscriptionsListBoxMbr = !this.subscriptionslist(Txn.sender).exists
     const subscriptionID = this.newSubscriptionID(Txn.sender)
     const subscriptionKey = { address: Txn.sender, id: subscriptionID }
 
-    if (subscriptionID === 0) {
+    if (needsSubscriptionsListBoxMbr) {
       mbrAmount += costs.subscriptionslist
     }
 
@@ -514,6 +516,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     highlightMessage: Uint8,
     highlightColor: bytes<3>
   ): uint64 {
+    const needsServicesListBoxMbr = !this.serviceslist(Txn.sender).exists
     const id = this.newServiceID(Txn.sender)
     const boxKey: ServicesKey = { address: Txn.sender, id }
 
@@ -529,10 +532,14 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const costs = this.mbr()
 
     let requiredAmount: uint64 = serviceCreationFee + costs.services
+    if (needsServicesListBoxMbr) {
+      requiredAmount += costs.serviceslist
+    }
     if (asset !== 0) {
       assert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
 
       if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(asset))) {
+        requiredAmount += Global.assetOptInMinBalance
         this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountSubscriptions, Asset(asset), 0)
       }
     }
@@ -891,7 +898,8 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     let mbrRefund: uint64 = costs.subscriptions
     if (sub.serviceID > 0) {
       const { passes } = this.services({ address: sub.recipient, id: sub.serviceID }).value
-      if (passes > 0) {
+      if (passes > 0 && this.passes({ address: Txn.sender, id: sub.serviceID }).exists) {
+        this.passes({ address: Txn.sender, id: sub.serviceID }).delete()
         mbrRefund += costs.passes
       }
     }
@@ -1085,9 +1093,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
     const costs = this.mbr()
 
-    // Note: Escrow opt-in costs are NOT included here because they are paid
-    // via inner transactions from the contract's balance in newService()
-    const requiredAmount: uint64 = serviceCreationFee + costs.services
+    let requiredAmount: uint64 = serviceCreationFee + costs.services
+    if (!this.serviceslist(Txn.sender).exists) {
+      requiredAmount += costs.serviceslist
+    }
+    if (asset !== 0 && !this.akitaDAOEscrow.value.address.isOptedIn(Asset(asset))) {
+      requiredAmount += Global.assetOptInMinBalance
+    }
 
     const referralCost = referralFee(this.akitaDAO.value, asset)
 
@@ -1116,9 +1128,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       }
     }
 
-    const subscriptionID = this.newSubscriptionID(Txn.sender)
-
-    if (subscriptionID === 0) {
+    if (!this.subscriptionslist(Txn.sender).exists) {
       mbrAmount += costs.subscriptionslist
     }
 

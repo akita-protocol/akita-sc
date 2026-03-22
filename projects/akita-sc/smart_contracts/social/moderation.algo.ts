@@ -1,12 +1,11 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, Global, gtxn, itxn, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, assert, BoxMap, bytes, Global, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { ERR_NOT_AKITA_DAO } from '../errors'
 import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/base'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
 import { getAkitaSocialAppList } from '../utils/functions'
 import { CID } from '../utils/types/base'
-import { ActionsMBR, AkitaSocialBoxPrefixActions, AkitaSocialBoxPrefixBanned, AkitaSocialBoxPrefixModerators, BannedMBR, ModeratorsMBR } from './constants'
-import { ERR_ALREADY_A_MODERATOR, ERR_ALREADY_AN_ACTION, ERR_ALREADY_BANNED, ERR_NOT_A_MODERATOR } from './errors'
+import { AkitaSocialBoxPrefixActions, AkitaSocialBoxPrefixBanned, AkitaSocialBoxPrefixModerators } from './constants'
+import { ERR_ALREADY_A_MODERATOR, ERR_ALREADY_AN_ACTION, ERR_ALREADY_BANNED, ERR_NOT_A_MODERATOR, ERR_USER_NOT_BANNED } from './errors'
 import { Action } from './types'
 
 // CONTRACT IMPORTS
@@ -33,62 +32,28 @@ export class AkitaSocialModeration extends UpgradeableAkitaBaseContract {
 
   // MODERATION METHODS ---------------------------------------------------------------------------
 
-  addModerator(mbrPayment: gtxn.PaymentTxn, address: Account): void {
+  addModerator(address: Account): void {
     assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     assert(!this.moderators(address).exists, ERR_ALREADY_A_MODERATOR)
-
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: ModeratorsMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
-
     this.moderators(address).create()
   }
 
   removeModerator(address: Account): void {
     assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     assert(this.moderators(address).exists, ERR_NOT_A_MODERATOR)
-
     this.moderators(address).delete()
-
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: ModeratorsMBR
-      })
-      .submit()
   }
 
-  ban(mbrPayment: gtxn.PaymentTxn, address: Account, expiration: uint64): void {
+  ban(address: Account, expiration: uint64): void {
     assert(this.moderators(Txn.sender).exists, ERR_NOT_A_MODERATOR)
     assert(!this.banned(address).exists, ERR_ALREADY_BANNED)
-
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: BannedMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
-
     this.banned(address).value = expiration
   }
 
   unban(address: Account): void {
     assert(this.moderators(Txn.sender).exists, ERR_NOT_A_MODERATOR)
+    assert(this.banned(address).exists, ERR_USER_NOT_BANNED)
     this.banned(address).delete()
-
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: BannedMBR
-      })
-      .submit()
   }
 
   flagPost(ref: bytes<32>): void {
@@ -111,34 +76,16 @@ export class AkitaSocialModeration extends UpgradeableAkitaBaseContract {
     })
   }
 
-  addAction(mbrPayment: gtxn.PaymentTxn, actionAppID: uint64, content: CID): void {
+  addAction(actionAppID: uint64, content: CID): void {
     assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     assert(!this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
-
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: ActionsMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
-
     this.actions(actionAppID).value = { content }
   }
 
   removeAction(actionAppID: uint64): void {
     assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     assert(this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
-
     this.actions(actionAppID).delete()
-
-    itxn
-      .payment({
-        receiver: Txn.sender,
-        amount: ActionsMBR
-      })
-      .submit()
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------

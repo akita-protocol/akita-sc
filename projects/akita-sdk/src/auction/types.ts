@@ -23,7 +23,7 @@ export type NewAuctionParams = MaybeSigner & Omit<
 )
 
 export type NewPrizeBoxAuctionParams = MaybeSigner & Omit<
-  FactoryContractArgs['newPrizeBoxAuction(pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'],
+  FactoryContractArgs['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'],
   'payment'
 >;
 

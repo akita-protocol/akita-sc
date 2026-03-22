@@ -1,0 +1,13 @@
+{
+  "name": "@akta/plugin",
+  "version": "0.1.0",
+  "description": "Utility library for building ARC-58 abstract account plugins with PuyaTs",
+  "main": "index.ts",
+  "license": "ISC",
+  "dependencies": {
+    "@algorandfoundation/puya-ts": "^1.1.0-beta.4"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

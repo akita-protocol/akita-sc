@@ -10,11 +10,11 @@ import { MaybeSigner, NewContractSDKParams } from "../types";
 import { AuctionSDK } from "./index";
 import {
   NewAuctionParams,
-  NewPrizeBoxAuctionParams,
   DeleteAuctionParams,
   CancelAuctionParams,
   OptInParams,
 } from "./types";
+import { PrizeBoxFactorySDK } from "../prize-box";
 
 export type AuctionFactoryContractArgs = AuctionFactoryArgs["obj"];
 
@@ -53,8 +53,10 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
+    const prizeAsset = isPrizeBox ? 0n : (rest as Exclude<NewAuctionParams, { isPrizeBox: true }>).prizeAsset;
+
     // Get the cost for creating a new auction
-    const cost = await this.cost({ isPrizeBox, bidAssetId, weightsListCount });
+    const cost = await this.cost({ isPrizeBox, bidAssetId, prizeAssetId: BigInt(prizeAsset), weightsListCount });
 
     const payment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -70,13 +72,22 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     if (isPrizeBox) {
       const { prizeBoxId } = rest as Exclude<NewAuctionParams, { isPrizeBox: false }>;
 
+      const prizeBoxSDK = new PrizeBoxFactorySDK({ algorand: this.algorand, factoryParams: {}}).get({ appId: BigInt(prizeBoxId) })
+      const prizeBoxTransferTxn = (await prizeBoxSDK.client.createTransaction.transfer({
+        sender,
+        signer,
+        args: {
+          newOwner: this.client.appAddress.toString()
+        }
+      })).transactions[0];
+
       if (needsOpUp) {
         const group = this.client.newGroup();
         group.newPrizeBoxAuction({
           ...sendParams,
           args: {
+            prizeBoxTransferTxn,
             payment,
-            prizeBoxId,
             bidAssetId,
             bidFee,
             startingBid,
@@ -99,8 +110,8 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
         ({ return: appId } = await this.client.send.newPrizeBoxAuction({
           ...sendParams,
           args: {
+            prizeBoxTransferTxn,
             payment,
-            prizeBoxId,
             bidAssetId,
             bidFee,
             startingBid,
@@ -206,8 +217,8 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
   /**
    * Gets the cost to create a new auction.
    */
-  async cost({ isPrizeBox, bidAssetId, weightsListCount }: { isPrizeBox: boolean, bidAssetId: bigint | number, weightsListCount: bigint | number }): Promise<bigint> {
-    return await this.client.newAuctionCost({ args: { isPrizeBox, bidAssetId, weightsListCount } });
+  async cost({ isPrizeBox, bidAssetId, prizeAssetId, weightsListCount }: AuctionFactoryArgs['obj']['newAuctionCost(bool,uint64,uint64,uint64)uint64']): Promise<bigint> {
+    return await this.client.newAuctionCost({ args: { isPrizeBox, bidAssetId, prizeAssetId, weightsListCount } });
   }
 
   async optIn({ sender, signer, asset }: OptInParams): Promise<void> {

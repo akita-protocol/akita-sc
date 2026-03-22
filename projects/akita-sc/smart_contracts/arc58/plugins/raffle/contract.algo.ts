@@ -1,5 +1,5 @@
-import { abimethod, Account, Application, assert, Asset, Bytes, GlobalState, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript"
-import { abiCall, compileArc4 } from "@algorandfoundation/algorand-typescript/arc4"
+import { abimethod, Account, Application, assert, Asset, Bytes, GlobalState, itxn, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abiCall, compileArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, btoi, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
 import { GateArgs } from "../../../gates/types"
@@ -180,10 +180,14 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
 
     assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
 
-    abiCall<typeof PrizeBox.prototype.transfer>({
+    const prizeBoxTransferTxn = itxn.applicationCall({
       sender,
       appId: prizeBox,
-      args: [this.factory.value.address],
+      onCompletion: OnCompleteAction.NoOp,
+      appArgs: [
+        methodSelector<typeof PrizeBox.prototype.transfer>(),
+        this.factory.value.address
+      ],
     })
 
     let optinMBR: uint64 = 0
@@ -212,8 +216,8 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
       sender,
       appId: this.factory.value,
       args: [
+        prizeBoxTransferTxn,
         mbrTxn,
-        prizeBox,
         ticketAssetID,
         startTimestamp,
         endTimestamp,
@@ -255,8 +259,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
             receiver: appId.address,
             amount: amount + mbr,
           }),
-          marketplace,
-          args,
+          marketplace
         ],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
@@ -276,8 +279,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
             assetAmount: amount,
             xferAsset: ticketAsset,
           }),
-          marketplace,
-          args,
+          marketplace
         ],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
@@ -305,8 +307,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
             sender,
             receiver: appId.address,
             amount: amount,
-          }),
-          args,
+          })
         ],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
@@ -320,8 +321,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
             assetReceiver: appId.address,
             assetAmount: amount,
             xferAsset: ticketAsset,
-          }),
-          args,
+          })
         ],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })

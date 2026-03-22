@@ -46,6 +46,7 @@ import {
   ERR_INVALID_VOTE,
   ERR_INVALID_VOTE_COUNT,
   ERR_INVALID_VOTE_OPTION,
+  ERR_NOT_VOTED,
   ERR_POLL_ACTIVE,
   ERR_POLL_ENDED,
 } from './errors'
@@ -100,23 +101,27 @@ export class Poll extends AkitaBaseContract {
 
     if (this.type.value === SingleChoice || this.type.value === SingleChoiceImpact) {
       assert(votes.length === 1, ERR_INVALID_VOTE_COUNT)
+      assert(votes[0] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
 
       if (votes[0] === 0) {
-        this.votesOne.value += 1
+        this.votesOne.value += impact
       } else if (votes[0] === 1) {
-        this.votesTwo.value += 1
+        this.votesTwo.value += impact
       } else if (votes[0] === 2) {
-        this.votesThree.value += 1
+        this.votesThree.value += impact
       } else if (votes[0] === 3) {
-        this.votesFour.value += 1
+        this.votesFour.value += impact
       } else if (votes[0] === 4) {
-        this.votesFive.value += 1
+        this.votesFive.value += impact
       }
     } else {
       assert(votes.length <= this.maxSelected.value, ERR_INVALID_VOTE_COUNT)
 
       for (let i: uint64 = 0; i < votes.length; i += 1) {
         assert(votes[i] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
+        for (let j: uint64 = i + 1; j < votes.length; j += 1) {
+          assert(votes[i] !== votes[j], ERR_INVALID_VOTE_OPTION)
+        }
 
         if (votes[i] === 0) {
           this.votesOne.value += impact
@@ -189,6 +194,7 @@ export class Poll extends AkitaBaseContract {
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
 
+      assert(this.votes(addresses[i]).exists, ERR_NOT_VOTED)
       this.votes(addresses[i]).delete()
 
       itxn

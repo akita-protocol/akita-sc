@@ -117,29 +117,14 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
 
   // GATE METHODS ---------------------------------------------------------------------------------
 
-  // addApp(appID: uint64): void {
-  //   assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-  //   assert(appID !== 0, ERR_INVALID_APP_ID)
-  //   assert(!this.appRegistry(appID).exists, ERR_APP_ALREADY_EXISTS)
-  //   this.appRegistry(appID).create()
-  // }
-
-  // removeApp(appID: uint64): void {
-  //   assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-  //   assert(this.appRegistry(appID).exists, ERR_INVALID_APP_ID)
-  //   this.appRegistry(appID).delete()
-  // }
-
   register(payment: gtxn.PaymentTxn, filters: GateFilter[], args: GateArgs): uint64 {
 
-    const mbrCosts = this.mbr(filters.length)
-    // let requiredCosts = mbrCosts.appRegistry
-    let requiredCosts: uint64 = 0
+    const mbrCosts = this.mbr(filters.length).gateRegistry
+    let requiredCosts: uint64 = mbrCosts
     let entries: GateFilterEntry[] = []
     let lastFilterLayer: uint64 = 0
 
     for (let i: uint64 = 0; i < filters.length; i += 1) {
-      // assert(this.appRegistry(filters[i].app).exists)
       assert(filters[i].layer >= lastFilterLayer)
       lastFilterLayer = filters[i].layer
 
@@ -191,9 +176,8 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
 
   @abimethod({ readonly: true })
   cost(filters: GateFilter[], args: GateArgs): uint64 {
-    const mbrCosts = this.mbr(filters.length)
-    // let requiredCosts = mbrCosts.appRegistry
-    let requiredCosts: uint64 = 0
+    const mbrCosts = this.mbr(filters.length).gateRegistry
+    let requiredCosts: uint64 = mbrCosts
     for (let i: uint64 = 0; i < filters.length; i += 1) {
       const cost = abiCall<typeof MockGate.prototype.cost>({
         appId: filters[i].app,

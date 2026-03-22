@@ -1,4 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
+import algosdk from "algosdk";
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import {
@@ -13,6 +14,7 @@ import {
   PurchaseParams,
   DelistParams,
 } from "./types";
+import { PrizeBoxFactorySDK } from "../prize-box";
 
 export * from "./listing";
 export * from "./types";
@@ -51,9 +53,14 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Get the cost for creating a new listing
+    // Get the cost for creating a new listing, dynamically querying rewards opt-in state
     const isAlgoPayment = BigInt(paymentAsset) === 0n;
-    const cost = this.listCost(isAlgoPayment);
+    const prizeId = isPrizeBox ? 0n : BigInt((rest as { asset: bigint | number }).asset);
+    const [prizeRewardsOptInCost, paymentRewardsOptInCost] = await Promise.all([
+      this.getRewardsOptInCost(prizeId),
+      this.getRewardsOptInCost(BigInt(paymentAsset)),
+    ]);
+    const cost = this.listCost({ isPrizeBox, isAlgoPayment, prizeRewardsOptInCost, paymentRewardsOptInCost });
 
     const payment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -64,13 +71,22 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     let appId: bigint | undefined;
 
     if (isPrizeBox) {
-      const { prizeId } = rest as Extract<ListParams, { isPrizeBox: true }>;
+      const { prizeBoxId } = rest as Extract<ListParams, { isPrizeBox: true }>;
+
+      const prizeBoxSDK = new PrizeBoxFactorySDK({ algorand: this.algorand, factoryParams: {}}).get({ appId: BigInt(prizeBoxId) })
+      const prizeBoxTransferTxn = (await prizeBoxSDK.client.createTransaction.transfer({
+        sender,
+        signer,
+        args: {
+          newOwner: this.client.appAddress.toString()
+        }
+      })).transactions[0];
 
       ({ return: appId } = await this.client.send.listPrizeBox({
         ...sendParams,
         args: {
+          prizeBoxTransferTxn,
           payment,
-          prizeId,
           price,
           paymentAsset,
           expiration,
@@ -137,18 +153,88 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
   }
 
   /**
-   * Gets the cost to create a new listing.
-   * @param isAlgoPayment - Whether the listing will accept ALGO as payment
+   * Checks if the rewards app is already opted into the given asset.
+   * Returns 0n if opted in (no cost needed), 100_000n if not.
    */
-  listCost(isAlgoPayment: boolean = true): bigint {
+  private async getRewardsOptInCost(assetId: bigint | number): Promise<bigint> {
+    const asset = BigInt(assetId);
+    if (asset === 0n) return 0n;
+
+    try {
+      const akitaDaoAppId = await this.client.state.global.akitaDao();
+      if (!akitaDaoAppId) return 100_000n;
+
+      const algod = this.algorand.client.algod;
+      const daoApp = await algod.getApplicationByID(akitaDaoAppId).do();
+      const globalState = daoApp.params.globalState;
+      if (!globalState) return 100_000n;
+
+      // Find the 'aal' (akitaAppList) key in AkitaDAO global state
+      const aalKey = new TextEncoder().encode('aal');
+      const aalEntry = globalState.find(
+        (kv) => kv.key.length === aalKey.length && kv.key.every((b, i) => b === aalKey[i])
+      );
+      if (!aalEntry || aalEntry.value.type !== 1) return 100_000n;
+
+      // Extract rewards app ID (2nd uint64 in ABI-encoded AkitaAppList, bytes 8-15)
+      const aalBytes = aalEntry.value.bytes;
+      if (aalBytes.length < 16) return 100_000n;
+      const view = new DataView(aalBytes.buffer, aalBytes.byteOffset, aalBytes.byteLength);
+      const rewardsAppId = view.getBigUint64(8);
+      if (rewardsAppId === 0n) return 100_000n;
+
+      // Check if rewards app address is already opted into the asset
+      const rewardsAddress = algosdk.getApplicationAddress(rewardsAppId).toString();
+      const response = await algod.accountAssetInformation(rewardsAddress, asset).do();
+      return response.assetHolding ? 0n : 100_000n;
+    } catch {
+      // If any lookup fails (e.g. 404 not opted in), assume cost is needed
+      return 100_000n;
+    }
+  }
+
+  /**
+   * Gets the cost to create a new listing.
+   * @param isPrizeBox - Whether the prize is a PrizeBox
+   * @param isAlgoPayment - Whether the listing will accept ALGO as payment
+   * @param prizeRewardsOptInCost - Rewards app opt-in cost for the prize asset (default: 100,000, pass 0 if already opted in)
+   * @param paymentRewardsOptInCost - Rewards app opt-in cost for the payment asset (default: 100,000, pass 0 if already opted in)
+   */
+  listCost({ isPrizeBox = false, isAlgoPayment = true, prizeRewardsOptInCost = 100_000n, paymentRewardsOptInCost = 100_000n, escrowOptInCost = 0n }: { isPrizeBox?: boolean, isAlgoPayment?: boolean, prizeRewardsOptInCost?: bigint, paymentRewardsOptInCost?: bigint, escrowOptInCost?: bigint } = {}): bigint {
     // Base cost: MIN_PROGRAM_PAGES + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
-    const baseCost = 606_500n;
-    // Global.minBalance for the child app
+    const baseCost = 635_000n;
     const minBalance = 100_000n;
-    // Asset opt-in MBR (1x for ALGO payment, 2x for ASA payment)
-    const optinMbr = isAlgoPayment ? 100_000n : 200_000n;
-    
-    return baseCost + minBalance + optinMbr;
+    const assetOptInMinBalance = 100_000n;
+    const perDisbursement = 60_600n; // MinDisbursementsMBR + UserAllocationMBR
+
+    // Asset opt-in MBR for the child contract
+    const optinMbr = isPrizeBox
+      ? (isAlgoPayment ? 0n : assetOptInMinBalance)
+      : (isAlgoPayment ? assetOptInMinBalance : assetOptInMinBalance * 2n);
+
+    // Disbursement MBR
+    let disbursementMbr = 0n;
+    if (!isPrizeBox) {
+      // 1 prize + 1 referral + (4 ASA payments if ASA)
+      disbursementMbr += perDisbursement + prizeRewardsOptInCost; // prize
+      if (isAlgoPayment) {
+        disbursementMbr += perDisbursement; // referral (ALGO)
+      } else {
+        disbursementMbr += perDisbursement * 5n + paymentRewardsOptInCost; // referral + 4 ASA payments
+      }
+    } else {
+      // 1 referral + (3 ASA payments if ASA)
+      if (isAlgoPayment) {
+        disbursementMbr = perDisbursement; // referral (ALGO)
+      } else {
+        disbursementMbr = perDisbursement * 4n + paymentRewardsOptInCost; // referral + 3 ASA payments
+      }
+    }
+
+    // Escrow opt-in cost for ASA payments (factory opts escrow into payment asset)
+    const escrowCost = isAlgoPayment ? 0n : escrowOptInCost;
+
+    return baseCost + minBalance + optinMbr + disbursementMbr + escrowCost;
   }
 
   // ========== Purchase Methods ==========

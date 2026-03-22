@@ -54,39 +54,39 @@ main_update_route@2:
 
 // smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
 splitOptInCount:
-    // smart_contracts/utils/functions.ts:587
+    // smart_contracts/utils/functions.ts:621
     // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
     proto 3 1
-    // smart_contracts/utils/functions.ts:588
+    // smart_contracts/utils/functions.ts:622
     // let count: uint64 = 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:590
+    // smart_contracts/utils/functions.ts:624
     // if (!escrow.isOptedIn(asset)) {
     frame_dig -2
     frame_dig -1
     asset_holding_get AssetBalance
     bury 1
     bnz splitOptInCount_after_if_else@2
-    // smart_contracts/utils/functions.ts:99
+    // smart_contracts/utils/functions.ts:103
     // const [splitsBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysRevenueSplits))
     frame_dig -3
     pushbytes "revenue_splits"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:594
+    // smart_contracts/utils/functions.ts:628
     // count += splits.length
     intc_0 // 0
     extract_uint16
-    // smart_contracts/utils/functions.ts:591
+    // smart_contracts/utils/functions.ts:625
     // count += 1
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:594
+    // smart_contracts/utils/functions.ts:628
     // count += splits.length
     +
     frame_bury 0
 
 splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:597
+    // smart_contracts/utils/functions.ts:631
     // return count
     frame_dig 0
     swap
@@ -334,7 +334,7 @@ new:
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(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)
+    pushbytes base64(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)
     itxn_field ApprovalProgramPages
     // smart_contracts/poll/factory.algo.ts:40-51
     // const mint = poll.call
@@ -993,7 +993,7 @@ update:
     uncover 2
     ==
     assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/functions.ts:50
+    // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     pushbytes "pal"
     app_global_get_ex

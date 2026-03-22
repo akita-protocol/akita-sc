@@ -62,12 +62,12 @@ export declare class RaffleSDK extends BaseSDK<RaffleClient> {
      * Enters the raffle with tickets.
      * Use `isAsa: true` and `ticketAsset` for ASA tickets, otherwise ALGO is used.
      */
-    enter({ sender, signer, amount, marketplace, isAsa, proofs, ...rest }: EnterParams): Promise<void>;
+    enter({ sender, signer, amount, marketplace, isAsa, gateTxn, ...rest }: EnterParams): Promise<void>;
     /**
      * Adds more tickets to an existing entry.
      * Use `isAsa: true` and `ticketAsset` for ASA tickets, otherwise ALGO is used.
      */
-    add({ sender, signer, amount, isAsa, proofs, ...rest }: AddParams): Promise<void>;
+    add({ sender, signer, amount, isAsa, gateTxn, ...rest }: AddParams): Promise<void>;
     /**
      * Triggers the raffle to draw the winning ticket number.
      * Can only be called after the raffle has ended.
