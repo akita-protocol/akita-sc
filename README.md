@@ -23,40 +23,40 @@ Akita is a modular smart contract platform featuring ARC-58 abstracted accounts,
 
 ## System Modules
 
-### 🔐 ARC-58 Abstracted Accounts
+### ARC-58 Abstracted Accounts
 
 Smart contract wallets implementing ARC-58 standard with support for:
 - Multi-key authentication (Ed25519, secp256r1 passkeys)
 - Plugin-based extensibility
 - Factory pattern for wallet deployment
 
-### 🏛️ DAO
+### DAO
 
 Decentralized autonomous organization contract for:
 - Governance and voting
 - Administrative operations
 - Protocol parameter management
 
-### 💰 Staking
+### Staking
 
 Flexible staking system with:
 - **Staking Contract** — Core staking logic with time-weighted rewards
 - **Staking Pool Factory** — Deploy isolated staking pools with custom parameters
 
-### 🔄 Subscriptions
+### Subscriptions
 
 Recurring payment and membership system:
 - Subscription tiers and streaks
 - Service declaration & parameter locking
 - Subscription-gated access control
 
-### 🎁 Rewards
+### Rewards
 
 Free public good for token distribution:
 - Group distributions
 - Claimable rewards w/ expirations
 
-### 🌐 Social
+### Social
 
 Decentralized social primitives:
 - **Social Contract** — Core social interactions
@@ -64,21 +64,21 @@ Decentralized social primitives:
 - **Social Impact** — Reputation and engagement scoring
 - **Social Moderation** — Community moderation tools
 
-### 🛒 Marketplace
+### Marketplace
 
 NFT and ASA marketplace:
 - Listing creation and management
 - Buy/sell operations
 - Double-sided marketplace incentivizing site integration
 
-### 🔨 Auctions
+### Auctions
 
 Auction system with factory pattern:
 - Bid fees for weighted raffle mechanics
 - Double-sided marketplace incentivizing site integration
 - Multi-dapp participation support
 
-### 🎟️ Raffles
+### Raffles
 
 Verifiable random raffles:
 
@@ -86,18 +86,18 @@ Verifiable random raffles:
 - VRF-based winner selection
 - Double-sided marketplace incentivizing site integration
 
-### 📊 Polls
+### Polls
 
 On-chain voting and polling:
 - Multiple choice polls
 - Time-bounded voting
 - Gate-restricted participation
 
-### 📦 Prize Boxes
+### Prize Boxes
 
 Bundle assets for sale, auction, or raffle as a single package.
 
-### 🚪 Gates
+### Gates
 
 Composable access control system with 16 sub-gates:
 
@@ -120,11 +120,11 @@ Composable access control system with 16 sub-gates:
 | `subscriptionGate` | Active subscription verification |
 | `subscriptionStreakGate` | Subscription streak requirements |
 
-### 🔄 HyperSwap
+### HyperSwap
 
 Peer-to-peer swap engine supporting practically limitless unique assets and parties in a simulated atomic transaction group.
 
-### 🌳 Meta Merkles
+### Meta Merkles
 
 On-chain metadata contract using merkle roots as namespaces for efficient metadata about sets of assets, addresses, apps, and more. Ingestible by other contracts for composable data verification.
 
@@ -298,6 +298,14 @@ import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 ```
 
 See [`projects/akita-sdk`](./projects/akita-sdk) for full documentation.
+
+---
+
+## Plugin Development Kit
+
+The `@akta/plugin` package (`akita-plugin`) provides a utility library for building ARC-58 abstract account plugins with PuyaTs. It includes the base contract, types, constants, and helper functions needed to develop custom plugins that extend abstracted account functionality.
+
+See [`projects/akita-plugin`](./projects/akita-plugin) for details.
 
 ---
 
