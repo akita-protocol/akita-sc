@@ -1,18 +1,18 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true});
 
-var _chunkKMVWSUUIjs = require('../chunk-KMVWSUUI.js');
+var _chunkZBVJPS4Yjs = require('../chunk-ZBVJPS4Y.js');
 
 
-var _chunkVARI5DBWjs = require('../chunk-VARI5DBW.js');
+var _chunkB3ANVNAWjs = require('../chunk-B3ANVNAW.js');
 require('../chunk-56YZPYCL.js');
 require('../chunk-B2QFHBQD.js');
-require('../chunk-XASWHIKG.js');
-require('../chunk-4M6IGGNM.js');
+require('../chunk-MDSBD67B.js');
+require('../chunk-UWAIIBII.js');
 require('../chunk-2WS6GQO5.js');
 require('../chunk-DGUM43GV.js');
 
 // src/dao-deployable/index.ts
-var AkitaDaoDeployableSDK = class extends _chunkKMVWSUUIjs.AkitaDaoSDK {
+var AkitaDaoDeployableSDK = class extends _chunkZBVJPS4Yjs.AkitaDaoSDK {
   constructor(params) {
     super(params);
   }
@@ -29,7 +29,7 @@ var AkitaDaoDeployableSDK = class extends _chunkKMVWSUUIjs.AkitaDaoSDK {
     if (result.returns === void 0) {
       throw new Error("Failed to setup Akita DAO");
     }
-    this.wallet = new (0, _chunkVARI5DBWjs.WalletSDK)({
+    this.wallet = new (0, _chunkB3ANVNAWjs.WalletSDK)({
       algorand: this.algorand,
       factoryParams: {
         appId: result.returns[0],
@@ -44,5 +44,5 @@ var AkitaDaoDeployableSDK = class extends _chunkKMVWSUUIjs.AkitaDaoSDK {
 
 
 
-exports.AkitaDaoDeployableSDK = AkitaDaoDeployableSDK; exports.AkitaDaoSDK = _chunkKMVWSUUIjs.AkitaDaoSDK;
+exports.AkitaDaoDeployableSDK = AkitaDaoDeployableSDK; exports.AkitaDaoSDK = _chunkZBVJPS4Yjs.AkitaDaoSDK;
 //# sourceMappingURL=index.js.map

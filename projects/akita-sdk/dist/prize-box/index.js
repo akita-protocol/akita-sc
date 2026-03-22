@@ -2,14 +2,14 @@
 
 
 
-var _chunkRZUZCM44js = require('../chunk-RZUZCM44.js');
-require('../chunk-XASWHIKG.js');
-require('../chunk-4M6IGGNM.js');
+var _chunkSQH64QTIjs = require('../chunk-SQH64QTI.js');
+require('../chunk-MDSBD67B.js');
+require('../chunk-UWAIIBII.js');
 require('../chunk-2WS6GQO5.js');
 require('../chunk-DGUM43GV.js');
 
 
 
 
-exports.PrizeBoxFactorySDK = _chunkRZUZCM44js.PrizeBoxFactorySDK; exports.PrizeBoxSDK = _chunkRZUZCM44js.PrizeBoxSDK; exports.newPrizeBox = _chunkRZUZCM44js.newPrizeBox;
+exports.PrizeBoxFactorySDK = _chunkSQH64QTIjs.PrizeBoxFactorySDK; exports.PrizeBoxSDK = _chunkSQH64QTIjs.PrizeBoxSDK; exports.newPrizeBox = _chunkSQH64QTIjs.newPrizeBox;
 //# sourceMappingURL=index.js.map
