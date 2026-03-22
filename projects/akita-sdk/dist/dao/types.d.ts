@@ -57,6 +57,8 @@ export type ProposalAction<TClient extends SDKClient> = ({
     escrow: string;
 } | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields;
+} | {
+    type: ProposalActionEnum.UpdateWallet;
 });
 export declare enum SplitDistributionType {
     Flat = 10,
@@ -162,7 +164,9 @@ export type DecodedProposalAction = (({
     type: ProposalActionEnum.ToggleEscrowLock;
 } & ProposalToggleEscrowLock) | ({
     type: ProposalActionEnum.UpdateFields;
-} & ProposalUpdateField));
+} & ProposalUpdateField) | {
+    type: ProposalActionEnum.UpdateWallet;
+});
 /**
  * Decoded proposal with typed actions
  */

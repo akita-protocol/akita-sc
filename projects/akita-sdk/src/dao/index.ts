@@ -586,6 +586,11 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
           structType = 'ProposalUpdateField';
           break;
         }
+        case ProposalActionEnum.UpdateWallet: {
+          // No data needed — the DAO contract calls factory.updateWallet(wallet) directly
+          preppedActions.push([typedAction.type, new Uint8Array()])
+          continue;
+        }
         default: {
           throw new Error(`Unsupported proposal action type`);
         }
@@ -862,6 +867,8 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         return 'ProposalToggleEscrowLock';
       case ProposalActionEnum.UpdateFields:
         return 'ProposalUpdateField';
+      case ProposalActionEnum.UpdateWallet:
+        return '';  // No struct — empty data
       default:
         throw new Error(`Unknown proposal action type: ${actionType}`);
     }
@@ -922,6 +929,9 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       case ProposalActionEnum.UpdateFields: {
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalUpdateField;
         return { type: ProposalActionEnum.UpdateFields, ...decoded };
+      }
+      case ProposalActionEnum.UpdateWallet: {
+        return { type: ProposalActionEnum.UpdateWallet };
       }
       default:
         throw new Error(`Unknown proposal action type: ${actionType}`);

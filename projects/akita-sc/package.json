@@ -73,7 +73,8 @@
     "update:raffle": "ts-node --transpile-only scripts/update-raffle.ts",
     "update:staking-pool": "ts-node --transpile-only scripts/update-staking-pool.ts",
     "update:poll": "ts-node --transpile-only scripts/update-poll.ts",
-    "update:wallet": "ts-node --transpile-only scripts/update-wallet.ts",
+    "update:wallet-factory": "ts-node --transpile-only scripts/update-wallet-factory.ts",
+    "update:dao-wallet": "ts-node --transpile-only scripts/update-dao-wallet.ts",
     "update:akta-asset": "ts-node --transpile-only scripts/update-akta-asset.ts",
     "fix:pay-plugin": "ts-node --transpile-only scripts/fix-pay-plugin.ts",
     

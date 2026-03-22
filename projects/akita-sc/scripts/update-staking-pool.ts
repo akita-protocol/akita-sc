@@ -13,6 +13,7 @@
 
 import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
 import { StakingPoolFactoryFactory } from '../smart_contracts/artifacts/staking-pool/StakingPoolFactoryClient'
+import { StakingPoolFactory } from '../smart_contracts/artifacts/staking-pool/StakingPoolClient'
 
 runScript(async () => {
   const options = parseBaseArgs('update-staking-pool.ts')
@@ -26,6 +27,7 @@ runScript(async () => {
       leasePrefix: 'sp_upg',
       appIdKey: 'stakingPoolFactory',
       createFactory: (p) => new StakingPoolFactoryFactory(p),
+      childFactory: (p) => new StakingPoolFactory(p),
     },
   ])
 })

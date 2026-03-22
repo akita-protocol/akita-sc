@@ -91,6 +91,9 @@ export type ProposalAction<TClient extends SDKClient> = (
   | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields
   }
+  | {
+    type: ProposalActionEnum.UpdateWallet
+  }
 )
 
 // [[bigint | number, string], bigint | number, bigint | number][]
@@ -177,6 +180,7 @@ export type DecodedProposalAction = (
   | ({ type: ProposalActionEnum.NewEscrow } & ProposalNewEscrow)
   | ({ type: ProposalActionEnum.ToggleEscrowLock } & ProposalToggleEscrowLock)
   | ({ type: ProposalActionEnum.UpdateFields } & ProposalUpdateField)
+  | { type: ProposalActionEnum.UpdateWallet }
 )
 
 /**

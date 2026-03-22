@@ -10,7 +10,8 @@ export declare enum ProposalActionEnum {
     RemoveAllowances = 60,
     NewEscrow = 70,
     ToggleEscrowLock = 71,
-    UpdateFields = 80
+    UpdateFields = 80,
+    UpdateWallet = 90
 }
 export declare const EMPTY_CID: Buffer<ArrayBuffer>;
 export declare const DAOProposalVotesMBR: bigint;

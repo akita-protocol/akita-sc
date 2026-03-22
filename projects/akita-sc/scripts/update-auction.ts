@@ -13,6 +13,7 @@
 
 import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
 import { AuctionFactoryFactory } from '../smart_contracts/artifacts/auction/AuctionFactoryClient'
+import { AuctionFactory } from '../smart_contracts/artifacts/auction/AuctionClient'
 
 runScript(async () => {
   const options = parseBaseArgs('update-auction.ts')
@@ -26,6 +27,7 @@ runScript(async () => {
       leasePrefix: 'af_upg',
       appIdKey: 'auctionFactory',
       createFactory: (p) => new AuctionFactoryFactory(p),
+      childFactory: (p) => new AuctionFactory(p),
     },
   ])
 })

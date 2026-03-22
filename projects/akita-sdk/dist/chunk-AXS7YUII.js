@@ -1079,6 +1079,7 @@ var ProposalActionEnum = /* @__PURE__ */ ((ProposalActionEnum2) => {
   ProposalActionEnum2[ProposalActionEnum2["NewEscrow"] = 70] = "NewEscrow";
   ProposalActionEnum2[ProposalActionEnum2["ToggleEscrowLock"] = 71] = "ToggleEscrowLock";
   ProposalActionEnum2[ProposalActionEnum2["UpdateFields"] = 80] = "UpdateFields";
+  ProposalActionEnum2[ProposalActionEnum2["UpdateWallet"] = 90] = "UpdateWallet";
   return ProposalActionEnum2;
 })(ProposalActionEnum || {});
 var EMPTY_CID = Buffer.from("xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
@@ -1560,6 +1561,10 @@ var AkitaDaoSDK = (_class2 = class extends _chunkMDSBD67Bjs.BaseSDK {
           structType = "ProposalUpdateField";
           break;
         }
+        case 90 /* UpdateWallet */: {
+          preppedActions.push([typedAction.type, new Uint8Array()]);
+          continue;
+        }
         default: {
           throw new Error(`Unsupported proposal action type`);
         }
@@ -1775,6 +1780,9 @@ var AkitaDaoSDK = (_class2 = class extends _chunkMDSBD67Bjs.BaseSDK {
         return "ProposalToggleEscrowLock";
       case 80 /* UpdateFields */:
         return "ProposalUpdateField";
+      case 90 /* UpdateWallet */:
+        return "";
+      // No struct — empty data
       default:
         throw new Error(`Unknown proposal action type: ${actionType}`);
     }
@@ -1834,6 +1842,9 @@ var AkitaDaoSDK = (_class2 = class extends _chunkMDSBD67Bjs.BaseSDK {
         const decoded = _apparc56.getABIDecodedValue.call(void 0, actionData, structType, structs);
         return { type: 80 /* UpdateFields */, ...decoded };
       }
+      case 90 /* UpdateWallet */: {
+        return { type: 90 /* UpdateWallet */ };
+      }
       default:
         throw new Error(`Unknown proposal action type: ${actionType}`);
     }
@@ -1870,4 +1881,4 @@ var AkitaDaoSDK = (_class2 = class extends _chunkMDSBD67Bjs.BaseSDK {
 
 
 exports.SplitDistributionType = SplitDistributionType; exports.SplitsToTuples = SplitsToTuples; exports.ProposalActionEnum = ProposalActionEnum; exports.EMPTY_CID = EMPTY_CID; exports.DAOProposalVotesMBR = DAOProposalVotesMBR; exports.AkitaDaoSDK = AkitaDaoSDK;
-//# sourceMappingURL=chunk-ZBVJPS4Y.js.map
+//# sourceMappingURL=chunk-AXS7YUII.js.map

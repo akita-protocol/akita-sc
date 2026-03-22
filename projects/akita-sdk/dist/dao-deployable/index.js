@@ -1,6 +1,6 @@
 "use strict";Object.defineProperty(exports, "__esModule", {value: true});
 
-var _chunkZBVJPS4Yjs = require('../chunk-ZBVJPS4Y.js');
+var _chunkAXS7YUIIjs = require('../chunk-AXS7YUII.js');
 
 
 var _chunkB3ANVNAWjs = require('../chunk-B3ANVNAW.js');
@@ -12,7 +12,7 @@ require('../chunk-2WS6GQO5.js');
 require('../chunk-DGUM43GV.js');
 
 // src/dao-deployable/index.ts
-var AkitaDaoDeployableSDK = class extends _chunkZBVJPS4Yjs.AkitaDaoSDK {
+var AkitaDaoDeployableSDK = class extends _chunkAXS7YUIIjs.AkitaDaoSDK {
   constructor(params) {
     super(params);
   }
@@ -44,5 +44,5 @@ var AkitaDaoDeployableSDK = class extends _chunkZBVJPS4Yjs.AkitaDaoSDK {
 
 
 
-exports.AkitaDaoDeployableSDK = AkitaDaoDeployableSDK; exports.AkitaDaoSDK = _chunkZBVJPS4Yjs.AkitaDaoSDK;
+exports.AkitaDaoDeployableSDK = AkitaDaoDeployableSDK; exports.AkitaDaoSDK = _chunkAXS7YUIIjs.AkitaDaoSDK;
 //# sourceMappingURL=index.js.map
