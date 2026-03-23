@@ -336,7 +336,12 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       }
     }
 
-    const length = await (await group.composer()).count()
+    // Use the manually computed count rather than calling group.composer().count().
+    // count() triggers buildTransactions() internally, which conflicts with the
+    // subsequent build() call in usePlugin when ABI transaction-type arguments
+    // (like `pay` in optIn) are present.
+    const opUpsAdded = (totalOpUpCount > 0 && hasSigner && opUpLimit > 0) ? opUpLimit : 0;
+    const length = actualTxnCount + opUpsAdded;
     const plugins = [...new Set(segments.map(s => s.appId))];
 
     return { plugins, caller, useRounds: lastUseRounds, length, group, sendParams: sendParams as ExpandedSendParamsWithSigner }
@@ -522,11 +527,11 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         );
 
         const rebuiltAtc = new algosdk.AtomicTransactionComposer();
-        modifiedGroup.forEach((t: any) => {
+        modifiedGroup.forEach((t) => {
           t.txn['group'] = undefined;
           rebuiltAtc.addTransaction(t);
         });
-        (rebuiltAtc as any)['methodCalls'] = (populatedAtc as any)['methodCalls'];
+        rebuiltAtc['methodCalls'] = populatedAtc['methodCalls'];
         sendAtc = rebuiltAtc;
       }
 

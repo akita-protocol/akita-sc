@@ -31,7 +31,7 @@ import {
   isValidPluginSDK,
   isWindowAllowance,
   newWallet
-} from "../chunk-OQQGOPE6.mjs";
+} from "../chunk-TYELKHE6.mjs";
 import "../chunk-ZRCAYT2V.mjs";
 import "../chunk-CEMSVQ3F.mjs";
 import "../chunk-GKUXQYJ2.mjs";

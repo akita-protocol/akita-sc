@@ -5,8 +5,8 @@ import {
   ProposalActionEnum,
   SplitDistributionType,
   SplitsToTuples
-} from "../chunk-AQ6PNPVW.mjs";
-import "../chunk-OQQGOPE6.mjs";
+} from "../chunk-XPFN2BBS.mjs";
+import "../chunk-TYELKHE6.mjs";
 import "../chunk-ZRCAYT2V.mjs";
 import "../chunk-P4YWTMZR.mjs";
 import "../chunk-CEMSVQ3F.mjs";
