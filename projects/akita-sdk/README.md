@@ -1,274 +1,183 @@
-# ARC58 Wallet SDK
+# @akta/sdk
 
-A TypeScript SDK for interacting with ARC58 Abstracted Accounts on the Algorand blockchain. This SDK provides a high-level interface for creating and managing smart contract wallets with plugin-based functionality, escrow management, and spending allowances.
-
-## Table of Contents
-
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Core Concepts](#core-concepts)
-- [Creating Wallets](#creating-wallets)
-- [Managing Plugins](#managing-plugins)
-- [Using Plugins](#using-plugins)
-- [Escrow Management](#escrow-management)
-- [Allowances](#allowances)
-- [Profile Management](#profile-management)
-- [Advanced Features](#advanced-features)
-- [Available Plugins](#available-plugins)
-- [Configuration](#configuration)
-- [API Reference](#api-reference)
+TypeScript SDK for the Akita protocol on Algorand. Provides high-level interfaces for ARC58 abstracted account wallets, social features, rewards, auctions, staking, subscriptions, and more.
 
 ## Installation
 
 ```bash
-npm install akita-sdk
+npm install @akta/sdk
 # or
-pnpm add akita-sdk
+pnpm add @akta/sdk
+```
+
+**Peer dependencies:**
+
+```bash
+npm install algosdk @algorandfoundation/algokit-utils
+```
+
+## Modules
+
+The SDK is organized into sub-path exports. Import only what you need:
+
+```typescript
+import { WalletSDK, WalletFactorySDK, PayPluginSDK } from '@akta/sdk/wallet'
+import { SocialSDK } from '@akta/sdk/social'
+import { RewardsSDK } from '@akta/sdk/rewards'
+import { AuctionSDK, AuctionFactorySDK } from '@akta/sdk/auction'
+import { AkitaDaoSDK } from '@akta/sdk/dao'
+import { StakingSDK } from '@akta/sdk/staking'
+import { StakingPoolSDK, StakingPoolFactorySDK } from '@akta/sdk/staking-pool'
+import { SubscriptionsSDK } from '@akta/sdk/subscriptions'
+import { MarketplaceSDK } from '@akta/sdk/marketplace'
+import { EscrowSDK, EscrowFactorySDK } from '@akta/sdk/escrow'
+import { PollSDK, PollFactorySDK } from '@akta/sdk/poll'
+import { RaffleSDK, RaffleFactorySDK } from '@akta/sdk/raffle'
+import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akta/sdk/prize-box'
+import { GateSDK } from '@akta/sdk/gates'
+import { HyperSwapSDK } from '@akta/sdk/hyper-swap'
+import { MetaMerklesSDK } from '@akta/sdk/meta-merkles'
+```
+
+Or import everything from the root:
+
+```typescript
+import { WalletSDK, SocialSDK, RewardsSDK, getNetworkAppIds } from '@akta/sdk'
 ```
 
 ## Quick Start
 
 ```typescript
-import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils';
-import { newWallet, PayPluginSDK, WalletSDK } from 'akita-sdk/wallet';
+import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
+import { newWallet, PayPluginSDK } from '@akta/sdk/wallet'
 
-// Initialize Algorand client
-const algorand = AlgorandClient.fromEnvironment();
+const algorand = AlgorandClient.fromEnvironment()
 
-// Create a new wallet
+// Create a wallet
 const wallet = await newWallet({
   algorand,
-  factoryParams: {
-    appId: WALLET_FACTORY_APP_ID,
-    defaultSender: myAddress,
-    defaultSigner: mySigner,
-  },
+  factoryParams: { appId: WALLET_FACTORY_APP_ID, defaultSender: myAddress, defaultSigner: mySigner },
   sender: myAddress,
   signer: mySigner,
   nickname: 'my_wallet',
-});
+})
 
-// Initialize a plugin SDK
-const payPlugin = new PayPluginSDK({
-  factoryParams: { appId: PAY_PLUGIN_APP_ID },
-  algorand,
-});
+// Install a plugin
+const payPlugin = new PayPluginSDK({ factoryParams: { appId: PAY_PLUGIN_APP_ID }, algorand })
+await wallet.addPlugin({ client: payPlugin, global: true })
 
-// Calculate MBR and fund the wallet for plugins
-const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(mbr.plugins + 1_000_000n) // MBR + 1 ALGO for payments
-});
-
-// Add the plugin to your wallet (global access)
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-});
-
-// Send a payment through the wallet
+// Send a payment
 await wallet.usePlugin({
   global: true,
+  consolidateFees: true,
   calls: [
     payPlugin.pay({
-      payments: [
-        { receiver: recipientAddress, amount: 1_000_000n, asset: 0n }
-      ],
+      payments: [{ receiver: recipientAddress, amount: 1_000_000n, asset: 0n }],
     }),
   ],
-});
+})
 ```
 
-## Core Concepts
+## Configuration
 
-### Abstracted Accounts (ARC58)
+### Network Detection
 
-ARC58 wallets are smart contract-based accounts that provide:
-
-- **Plugin System**: Modular functionality through installable plugins
-- **Escrow Management**: Isolated spending pools for different purposes
-- **Allowances**: Fine-grained spending limits and rate controls
-- **Execution Keys**: Pre-authorized transaction batches
-
-### SDK Components
-
-| Component | Description |
-|-----------|-------------|
-| `WalletFactorySDK` | Creates new wallet instances |
-| `WalletSDK` | Main wallet interface for all operations |
-| `PayPluginSDK`, etc. | Plugin-specific SDKs for transactions |
-
-## Creating Wallets
-
-### Using the `newWallet` Helper
-
-The recommended approach combines creation and registration:
+The SDK automatically detects the network from the AlgorandClient URL, environment variables, or explicit configuration:
 
 ```typescript
-import { newWallet, WalletSDK } from 'akita-sdk/wallet';
+import { setCurrentNetwork, getCurrentNetwork, getNetworkAppIds } from '@akta/sdk'
 
-const wallet: WalletSDK = await newWallet({
-  algorand,
-  factoryParams: {
-    appId: walletFactory.appId,
-    defaultSender: sender,
-    defaultSigner: signer,
-  },
-  readerAccount: sender,         // Account used for read-only queries
-  sender: sender,
-  signer: signer,
-  nickname: 'test_wallet',
-  admin: customAdmin,            // Optional: defaults to sender
-  referrer: referrerAddress,     // Optional: for referral tracking
-});
+setCurrentNetwork('mainnet')
+const network = getCurrentNetwork() // 'mainnet' | 'testnet' | 'localnet'
 
-// Verify wallet was created
-expect(wallet.client.appId).toBeGreaterThan(0n);
-
-// Check wallet state
-const walletState = await wallet.client.state.global.getAll();
-console.log('Admin:', walletState.admin);
-console.log('Nickname:', walletState.nickname);
-console.log('Controlled Address:', walletState.controlledAddress);
+// Get all app IDs for the current network
+const appIds = getNetworkAppIds()
 ```
 
-### Using the Factory Directly
+### Environment Variables
+
+```bash
+ALGORAND_NETWORK=mainnet
+WALLET_FACTORY_APP_ID=123456789
+PAY_PLUGIN_APP_ID=123456791
+# ... etc
+```
+
+### SDK Construction Pattern
+
+All SDKs follow the same construction pattern:
 
 ```typescript
-import { WalletFactorySDK } from 'akita-sdk/wallet';
+const sdk = new SomeSDK({
+  algorand,                              // AlgorandClient instance
+  factoryParams: { appId: APP_ID },      // App ID (or resolved from env/network)
+  readerAccount: readOnlyAddress,        // Optional: for read-only queries
+})
+```
 
-const factory = new WalletFactorySDK({
-  factoryParams: { appId: WALLET_FACTORY_APP_ID },
+App IDs resolve in order: explicit param > environment variable > network config.
+
+---
+
+## Wallet (ARC58 Abstracted Accounts)
+
+The wallet module is the core of the SDK. ARC58 wallets are smart contract accounts with a plugin system, escrow management, and spending allowances.
+
+### Creating Wallets
+
+```typescript
+import { newWallet, WalletFactorySDK } from '@akta/sdk/wallet'
+
+// Recommended: newWallet helper (creates + registers in one call)
+const wallet = await newWallet({
   algorand,
-});
-
-// Check creation cost
-const cost = await factory.cost();
-console.log('Wallet creation cost:', cost, 'microAlgos');
-
-// Create a new wallet
-const wallet = await factory.new({
-  sender: myAddress,
-  signer: mySigner,
+  factoryParams: { appId: WALLET_FACTORY_APP_ID, defaultSender: sender, defaultSigner: signer },
+  sender, signer,
   nickname: 'my_wallet',
-  admin: adminAddress,        // Optional: defaults to sender
-  referrer: referrerAddress,  // Optional: for referral tracking
-});
+  admin: customAdmin,       // Optional: defaults to sender
+  referrer: referrerAddr,   // Optional: referral tracking
+})
 
-// Register the wallet with the escrow factory
-await wallet.register({ escrow: '' });
+// Or use the factory directly
+const factory = new WalletFactorySDK({ factoryParams: { appId: WALLET_FACTORY_APP_ID }, algorand })
+const wallet = await factory.new({ sender, signer, nickname: 'my_wallet' })
+await wallet.register({ escrow: '' })
+
+// Get an existing wallet
+const existing = await factory.get({ appId: existingWalletAppId })
 ```
 
-### Getting an Existing Wallet
+### Managing Plugins
 
 ```typescript
-const wallet = await factory.get({ appId: existingWalletAppId });
-```
+import { PayPluginSDK, OptInPluginSDK, AsaMintPluginSDK } from '@akta/sdk/wallet'
 
-## Managing Plugins
+const payPlugin = new PayPluginSDK({ factoryParams: { appId: PAY_PLUGIN_APP_ID }, algorand })
 
-### Funding the Wallet for Plugins
+// Calculate and fund MBR
+const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
+await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins) })
 
-Before adding plugins, calculate and fund the minimum balance requirement:
+// Add a global plugin (anyone can use)
+await wallet.addPlugin({ client: payPlugin, global: true })
 
-```typescript
-// Calculate MBR for plugins
-const mbr = await wallet.getMbr({
-  escrow: '',           // Empty string for main wallet, or escrow name
-  methodCount: 0n,      // Number of method restrictions
-  plugin: '',           // Plugin identifier
-  groups: 0n            // Number of execution key groups
-});
-
-// Fund the wallet
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(mbr.plugins)
-});
-```
-
-### Adding a Global Plugin
-
-Global plugins can be used by anyone through the wallet:
-
-```typescript
-import { PayPluginSDK } from 'akita-sdk/wallet';
-
-const payPlugin = new PayPluginSDK({
-  factoryParams: { appId: PAY_PLUGIN_APP_ID },
-  algorand,
-});
-
-// Add plugin with global access (no method restrictions)
+// Add a caller-specific plugin with cooldown
 await wallet.addPlugin({
   client: payPlugin,
-  global: true,
-});
-
-// Verify plugin was added
-const plugins = await wallet.getPlugins();
-expect(plugins.size).toBe(1);
-```
-
-### Adding a Caller-Specific Plugin
-
-Restrict plugin usage to a specific address:
-
-```typescript
-const mbr = await wallet.getMbr({
-  escrow: '',
-  methodCount: 1n,  // One method restriction
-  plugin: '',
-  groups: 0n
-});
-
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(mbr.plugins)
-});
-
-await wallet.addPlugin({
-  client: payPlugin,
-  caller: userAddress,  // Only this address can use the plugin
-  methods: [
-    { name: payPlugin.pay(), cooldown: 0n }
-  ]
-});
-```
-
-### Adding a Plugin with Cooldown
-
-```typescript
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  cooldown: 100n,      // 100 second/round cooldown between uses
-  useRounds: true,     // Use round numbers instead of timestamps
-});
-```
-
-### Adding a Plugin with Method Cooldown
-
-```typescript
-await wallet.addPlugin({
-  client: payPlugin,
-  caller: sender,
+  caller: userAddress,
   useRounds: true,
-  methods: [
-    { name: payPlugin.pay(), cooldown: 100n },  // 100 round cooldown per method
-  ]
-});
+  methods: [{ name: payPlugin.pay(), cooldown: 100n }],
+})
+
+// Remove a plugin
+await wallet.removePlugin({
+  plugin: payPlugin.appId,
+  caller: ALGORAND_ZERO_ADDRESS_STRING,
+  escrow: '',
+})
 ```
 
-### Plugin with Expiration
-
-```typescript
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  lastValid: 0n,  // Plugin expires immediately (for testing)
-});
-```
-
-### Plugin Options Reference
+**Plugin options:**
 
 | Option | Type | Description |
 |--------|------|-------------|
@@ -286,672 +195,431 @@ await wallet.addPlugin({
 | `lastValid` | `bigint` | Plugin expiration round |
 | `admin` | `boolean` | Grant admin privileges |
 
-### Removing a Plugin
+### Using Plugins
 
 ```typescript
-await wallet.removePlugin({
-  plugin: payPlugin.appId,
-  caller: ALGORAND_ZERO_ADDRESS_STRING,  // For global plugins
-  escrow: '',
-});
-```
-
-### Querying Plugins
-
-```typescript
-// Get all plugins
-const plugins = await wallet.getPlugins();
-
-// Get a specific plugin by key
-const pluginInfo = wallet.plugins.get({
-  plugin: payPlugin.appId,
-  caller: ALGORAND_ZERO_ADDRESS_STRING,
-  escrow: ''
-});
-
-// Check plugin state
-expect(pluginInfo).toBeDefined();
-expect(pluginInfo.lastCalled).toBeGreaterThan(0n);
-```
-
-## Using Plugins
-
-### Basic Payment (ALGO)
-
-```typescript
-// Fund wallet for payment
-const paymentAmount = 1_000_000n; // 1 ALGO
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(paymentAmount)
-});
-
-// Send payment
-const results = await wallet.usePlugin({
-  global: true,
-  calls: [
-    payPlugin.pay({
-      payments: [{
-        receiver: recipientAddress,
-        asset: 0n,  // 0 = ALGO
-        amount: paymentAmount,
-      }]
-    }),
-  ]
-});
-
-expect(results.txIds.length).toBeGreaterThan(0);
-```
-
-### Asset (ASA) Payment
-
-```typescript
-// First mint an asset
-const mintResults = await wallet.usePlugin({
-  global: true,
-  calls: [
-    asaMintPlugin.mint({
-      assets: [{
-        assetName: 'Test Token',
-        unitName: 'TEST',
-        total: 1_000_000_000_000n,
-        decimals: 6n,
-        manager: wallet.client.appAddress.toString(),
-        reserve: wallet.client.appAddress.toString(),
-        freeze: ALGORAND_ZERO_ADDRESS_STRING,
-        clawback: ALGORAND_ZERO_ADDRESS_STRING,
-        defaultFrozen: false,
-        url: 'https://test.token',
-      }]
-    }),
-  ]
-});
-
-const assetId = mintResults.returns[1][0];
-
-// Send ASA payment
+// ALGO payment
 await wallet.usePlugin({
   global: true,
+  consolidateFees: true,
   calls: [
     payPlugin.pay({
-      payments: [{
-        receiver: recipientAddress,
-        asset: assetId,
-        amount: 100_000_000n,  // 100 tokens
-      }]
+      payments: [{ receiver: recipientAddress, asset: 0n, amount: 1_000_000n }],
     }),
-  ]
-});
-```
+  ],
+})
 
-### Multiple Payments in One Call
-
-```typescript
+// Multiple payments in one call
 await wallet.usePlugin({
   global: true,
+  consolidateFees: true,
   calls: [
     payPlugin.pay({
       payments: [
         { receiver: receiver1, asset: 0n, amount: 500_000n },
-        { receiver: receiver2, asset: 0n, amount: 750_000n },
-      ]
+        { receiver: receiver2, asset: assetId, amount: 100_000_000n },
+      ],
     }),
-  ]
-});
-```
+  ],
+})
 
-### Mixed ALGO and ASA Payments
-
-```typescript
+// Mint an asset
 await wallet.usePlugin({
   global: true,
-  calls: [
-    payPlugin.pay({
-      payments: [
-        { receiver: recipient, asset: 0n, amount: 500_000n },      // ALGO
-        { receiver: recipient, asset: assetId, amount: 50_000_000n }, // ASA
-      ]
-    }),
-  ]
-});
-```
-
-### Caller-Specific Plugin Usage
-
-```typescript
-// Use plugin as specific caller (not global)
-await wallet.usePlugin({
-  sender: userAddress,
-  signer: userSigner,
-  calls: [
-    payPlugin.pay({
-      payments: [{
-        receiver: recipient,
-        amount: paymentAmount,
-        asset: 0n,
-      }]
-    })
-  ]
-});
-```
-
-### Minting Assets
-
-```typescript
-import { AsaMintPluginSDK } from 'akita-sdk/wallet';
-
-const asaMintPlugin = new AsaMintPluginSDK({
-  factoryParams: { appId: ASA_MINT_PLUGIN_APP_ID },
-  algorand,
-});
-
-await wallet.addPlugin({ client: asaMintPlugin, global: true });
-
-const results = await wallet.usePlugin({
-  global: true,
+  consolidateFees: true,
   calls: [
     asaMintPlugin.mint({
       assets: [{
-        assetName: 'Test Akita',
-        unitName: 'TAKTA',
-        total: 1_000_000_000_000n,
-        decimals: 6n,
+        assetName: 'Token', unitName: 'TKN', total: 1_000_000_000_000n, decimals: 6n,
         manager: wallet.client.appAddress.toString(),
         reserve: wallet.client.appAddress.toString(),
         freeze: ALGORAND_ZERO_ADDRESS_STRING,
         clawback: ALGORAND_ZERO_ADDRESS_STRING,
-        defaultFrozen: false,
-        url: 'https://akita.community',
-      }]
+        defaultFrozen: false, url: 'https://example.com',
+      }],
     }),
-  ]
-});
-
-const assetId = results.returns[1][0];
-expect(assetId).toBeGreaterThan(0n);
-```
-
-### Opting Into Assets
-
-```typescript
-import { OptInPluginSDK } from 'akita-sdk/wallet';
-
-const optInPlugin = new OptInPluginSDK({
-  factoryParams: { appId: OPTIN_PLUGIN_APP_ID },
-  algorand,
-});
-
-await wallet.addPlugin({ client: optInPlugin, global: true });
-
-await wallet.usePlugin({
-  global: true,
-  calls: [optInPlugin.optIn({ assets: [assetId] })]
-});
-
-// Verify wallet now holds the asset
-const walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-expect(walletInfo?.assets?.length).toBe(1);
-```
-
-## Escrow Management
-
-Escrows are isolated spending pools within the wallet.
-
-### Creating an Escrow with a Plugin
-
-Escrows are auto-created when adding plugins with an escrow name:
-
-```typescript
-const escrow = 'mint_account';
-const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost)
-});
-
-await wallet.addPlugin({
-  client: asaMintPlugin,
-  global: true,
-  escrow,  // Creates escrow if it doesn't exist
-});
-
-// Get escrow info
-const escrowInfo = await wallet.getEscrow(escrow);
-const escrowAddress = getApplicationAddress(escrowInfo.id).toString();
-```
-
-### Using Plugins with Escrow
-
-```typescript
-await wallet.usePlugin({
-  escrow: 'mint_account',
-  global: true,
-  calls: [
-    asaMintPlugin.mint({
-      assets: [{
-        assetName: 'Test Token',
-        unitName: 'TEST',
-        total: 1_000_000_000_000n,
-        decimals: 6n,
-        manager: escrowAddress,
-        reserve: escrowAddress,
-        freeze: ALGORAND_ZERO_ADDRESS_STRING,
-        clawback: ALGORAND_ZERO_ADDRESS_STRING,
-        defaultFrozen: false,
-        url: 'https://test.token',
-      }]
-    }),
-  ]
-});
-```
-
-### Other Escrow Operations
-
-```typescript
-// Get all escrows
-const escrows = await wallet.getEscrows();
-
-// Lock/unlock an escrow
-await wallet.toggleEscrowLock({ name: 'savings' });
-
-// Opt escrow into assets
-await wallet.optinEscrow({
-  name: 'savings',
-  assets: [assetId1, assetId2],
-});
-
-// Reclaim funds from escrow
-await wallet.reclaimFunds({
-  name: 'savings',
-  funds: [
-    [0n, 1_000_000n, false],      // [assetId, amount, closeOut]
-    [assetId1, 500_000n, true],   // Close out the asset position
   ],
-});
-```
+})
 
-## Allowances
-
-Allowances define spending limits for escrow-based plugins.
-
-### Flat Allowance
-
-A one-time spending limit:
-
-```typescript
-const escrow = 'flat_allowance';
-const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-
-const asset = 0n;
-const allowed = 10_000_000n;  // 10 ALGO limit
-
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(allowed + mbr.plugins + mbr.newEscrowMintCost + mbr.allowances)
-});
-
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  escrow,
-  allowances: [{
-    type: 'flat',
-    asset,
-    amount: allowed
-  }]
-});
-
-// Use allowance with funds request
-const amount = 6_000_000n;
+// Opt into assets
 await wallet.usePlugin({
-  escrow,
   global: true,
-  calls: [
-    payPlugin.pay({
-      payments: [{ receiver: recipient, amount, asset }]
-    })
-  ],
-  fundsRequest: [{ amount, asset }]
-});
-
-// Check allowance state
-const allowanceInfo = wallet.allowances.get({ asset, escrow });
-if (isFlatAllowance(allowanceInfo)) {
-  expect(allowanceInfo.spent).toEqual(amount);
-}
+  calls: [optInPlugin.optIn({ assets: [assetId] })],
+})
 ```
 
-### Window Allowance
+### Available Wallet Plugins
 
-Spending limit that resets periodically:
+| Plugin | Import | Description |
+|--------|--------|-------------|
+| `PayPluginSDK` | `@akta/sdk/wallet` | ALGO and ASA payments |
+| `OptInPluginSDK` | `@akta/sdk/wallet` | Asset opt-ins |
+| `AsaMintPluginSDK` | `@akta/sdk/wallet` | ASA creation and configuration |
+| `DAOPluginSDK` | `@akta/sdk/wallet` | DAO governance operations |
+| `SocialPluginSDK` | `@akta/sdk/wallet` | Social features (posts, follows, votes) |
+| `StakingPluginSDK` | `@akta/sdk/wallet` | Staking operations |
+| `StakingPoolPluginSDK` | `@akta/sdk/wallet` | Staking pool interactions |
+| `MarketplacePluginSDK` | `@akta/sdk/wallet` | NFT marketplace operations |
+| `AuctionPluginSDK` | `@akta/sdk/wallet` | Auction operations |
+| `RafflePluginSDK` | `@akta/sdk/wallet` | Raffle participation |
+| `PollPluginSDK` | `@akta/sdk/wallet` | Voting and polls |
+| `RewardsPluginSDK` | `@akta/sdk/wallet` | Rewards distribution and claiming |
+| `SubscriptionsPluginSDK` | `@akta/sdk/wallet` | Subscription management |
+| `HyperSwapPluginSDK` | `@akta/sdk/wallet` | Token swaps |
+| `GatePluginSDK` | `@akta/sdk/wallet` | Access control gates |
+| `NFDPluginSDK` | `@akta/sdk/wallet` | NFD (NFDomains) integration |
+
+### Escrow Management
+
+Escrows are isolated spending pools within a wallet:
 
 ```typescript
-import { isWindowAllowance } from 'akita-sdk/wallet';
+// Create escrow by adding a plugin with an escrow name
+await wallet.addPlugin({ client: asaMintPlugin, global: true, escrow: 'mint_account' })
 
-const escrow = 'window_allowance';
-const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
+// Query escrows
+const escrows = await wallet.getEscrows()
+const escrowInfo = await wallet.getEscrow('mint_account')
 
-const allowed = 10_000_000n;
+// Lock/unlock, opt-in, and reclaim funds
+await wallet.toggleEscrowLock({ name: 'savings' })
+await wallet.optinEscrow({ name: 'savings', assets: [assetId] })
+await wallet.reclaimFunds({ name: 'savings', funds: [[0n, 1_000_000n, false]] })
+```
 
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo((allowed * 2n) + mbr.plugins + mbr.newEscrowMintCost + mbr.allowances)
-});
+### Allowances
 
+Fine-grained spending limits for escrow-based plugins:
+
+```typescript
+import { isFlatAllowance, isWindowAllowance, isDripAllowance } from '@akta/sdk/wallet'
+
+// Flat: one-time spending limit
 await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  escrow,
-  allowances: [{
-    type: 'window',
-    asset: 0n,
-    amount: allowed,      // 10 ALGO per window
-    interval: 100n,       // 100 rounds per window
-    useRounds: true
-  }]
-});
+  client: payPlugin, global: true, escrow: 'budget',
+  allowances: [{ type: 'flat', asset: 0n, amount: 10_000_000n }],
+})
 
-// First payment succeeds
+// Window: resets periodically
+await wallet.addPlugin({
+  client: payPlugin, global: true, escrow: 'monthly',
+  allowances: [{ type: 'window', asset: 0n, amount: 10_000_000n, interval: 100n, useRounds: true }],
+})
+
+// Drip: continuous accrual
+await wallet.addPlugin({
+  client: payPlugin, global: true, escrow: 'salary',
+  allowances: [{ type: 'drip', asset: 0n, rate: 1_000_000n, interval: 10n, max: 10_000_000n, useRounds: true }],
+})
+
+// Use with funds request
 await wallet.usePlugin({
-  escrow,
-  global: true,
-  calls: [payPlugin.pay({ payments: [{ receiver, amount: 6_000_000n, asset: 0n }] })],
-  fundsRequest: [{ amount: 6_000_000n, asset: 0n }]
-});
-
-// Second payment exceeds window allowance - fails
-try {
-  await wallet.usePlugin({
-    escrow,
-    global: true,
-    calls: [payPlugin.pay({ payments: [{ receiver, amount: 6_000_000n, asset: 0n }] })],
-    fundsRequest: [{ amount: 6_000_000n, asset: 0n }]
-  });
-} catch (e) {
-  // ERR_ALLOWANCE_EXCEEDED
-}
-
-// After 100+ rounds, allowance resets and payment succeeds again
+  escrow: 'budget', global: true,
+  calls: [payPlugin.pay({ payments: [{ receiver, amount: 5_000_000n, asset: 0n }] })],
+  fundsRequest: [{ amount: 5_000_000n, asset: 0n }],
+})
 ```
 
-### Drip Allowance
+### Cost Estimation
 
-Continuous accrual of spending power:
-
-```typescript
-import { isDripAllowance } from 'akita-sdk/wallet';
-
-const escrow = 'drip_allowance';
-const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
-
-const max = 10_000_000n;
-
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo((max * 2n) + mbr.plugins + mbr.newEscrowMintCost + mbr.allowances)
-});
-
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  escrow,
-  allowances: [{
-    type: 'drip',
-    asset: 0n,
-    rate: 1_000_000n,     // 1 ALGO per interval
-    interval: 10n,        // Every 10 rounds
-    max,                  // Maximum accumulation: 10 ALGO
-    useRounds: true
-  }]
-});
-
-// Spend some of the initial max allowance
-await wallet.usePlugin({
-  escrow,
-  global: true,
-  calls: [payPlugin.pay({ payments: [{ receiver, amount: 6_000_000n, asset: 0n }] })],
-  fundsRequest: [{ amount: 6_000_000n, asset: 0n }]
-});
-
-// Check drip state
-const allowanceInfo = wallet.allowances.get({ asset: 0n, escrow });
-if (isDripAllowance(allowanceInfo)) {
-  expect(allowanceInfo.lastLeftover).toEqual(max - 6_000_000n);  // 4 ALGO remaining
-}
-
-// After 20 rounds, 2 ALGO drips back (20 / 10 * 1_000_000)
-// Total available: 4 ALGO + 2 ALGO = 6 ALGO
-```
-
-## Profile Management
-
-Set wallet profile information stored on-chain:
-
-```typescript
-await wallet.setNickname({ nickname: 'alice_wallet' });
-await wallet.setAvatar({ avatar: avatarAssetId });
-await wallet.setBanner({ banner: bannerAssetId });
-await wallet.setBio({ bio: 'My awesome wallet!' });
-```
-
-## Advanced Features
-
-### Execution Keys (Pre-authorized Transactions)
-
-Build and authorize transaction batches for future execution by third parties:
-
-```typescript
-// Fund wallet for execution key MBR
-const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 2n });
-const paymentAmount = 1_000_000n;
-
-await wallet.client.appClient.fundAppAccount({
-  amount: microAlgo(mbr.plugins + mbr.executions + paymentAmount)
-});
-
-// Add plugin with execution key requirement
-await wallet.addPlugin({
-  client: payPlugin,
-  global: true,
-  useExecutionKey: true,
-  useRounds: true
-});
-
-// Build execution groups
-const { lease, firstValid, lastValid, ids: groups, atcs } = await wallet.build.usePlugin({
-  sender: executorAddress,
-  signer: executorSigner,
-  lease: 'my_lease',
-  windowSize: 2000n,      // Valid for 2000 rounds
-  global: true,
-  calls: [
-    payPlugin.pay({
-      payments: [{
-        receiver: recipient,
-        amount: paymentAmount,
-        asset: 0n,
-      }]
-    })
-  ]
-});
-
-// Register the execution key
-await wallet.addExecutionKey({ lease, groups, firstValid, lastValid });
-
-// Third party can now execute the pre-built transaction
-await atcs[0].submit(algorand.client.algod);
-
-// Remove execution key when done
-await wallet.removeExecutionKey({ lease });
-```
-
-### Prepared Transactions (Cost Estimation)
-
-Preview costs before sending:
+Preview transaction costs before sending:
 
 ```typescript
 const prepared = await wallet.prepare.usePlugin({
   global: true,
-  calls: [
-    payPlugin.pay({
-      payments: [{ receiver: recipient, amount: 1_000_000n, asset: 0n }],
-    }),
-  ],
-});
+  calls: [payPlugin.pay({ payments: [{ receiver, amount: 1_000_000n, asset: 0n }] })],
+})
 
-console.log('Network fees:', prepared.expectedCost.networkFees);
-console.log('Inner txn fees:', prepared.expectedCost.innerTxnFees);
-console.log('Total cost:', prepared.expectedCost.total);
-console.log('Was simulated:', prepared.simulated);
+console.log('Network fees:', prepared.expectedCost.networkFees)
+console.log('Total cost:', prepared.expectedCost.totalAlgo)
 
-// Send when ready
-const result = await prepared.send();
+const result = await prepared.send()
 ```
 
-### Admin Operations
+### Execution Keys
+
+Pre-authorize transaction batches for future execution:
 
 ```typescript
-// Change wallet admin
-await wallet.changeAdmin({ newAdmin: newAdminAddress });
+const { lease, firstValid, lastValid, ids: groups, atcs } = await wallet.build.usePlugin({
+  sender: executorAddress, signer: executorSigner,
+  lease: 'my_lease', windowSize: 2000n,
+  global: true,
+  calls: [payPlugin.pay({ payments: [{ receiver, amount: 1_000_000n, asset: 0n }] })],
+})
 
-// Get current admin
-const admin = await wallet.getAdmin();
+await wallet.addExecutionKey({ lease, groups, firstValid, lastValid })
 
-// Verify auth address is correct
-await wallet.verifyAuthAddress();
+// Third party executes later
+await atcs[0].submit(algorand.client.algod)
 ```
 
-### Querying Wallet State
+### Profile and Admin
 
 ```typescript
-// Get all global state
-const state = await wallet.getGlobalState();
-console.log('Admin:', state.admin);
-console.log('Nickname:', state.nickname);
-console.log('Controlled Address:', state.controlledAddress);
-console.log('Last User Interaction:', state.lastUserInteraction);
-console.log('Factory App:', state.factoryApp);
-
-// Get wallet balances
-const balances = await wallet.balance([0n, assetId1, assetId2]);
-
-// Get account information
-const walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-console.log('Balance:', walletInfo.balance.microAlgos);
-console.log('Min Balance:', walletInfo.minBalance.microAlgos);
-console.log('Assets:', walletInfo.assets?.length);
+await wallet.setNickname({ nickname: 'alice' })
+await wallet.setAvatar({ avatar: avatarAssetId })
+await wallet.setBanner({ banner: bannerAssetId })
+await wallet.setBio({ bio: 'Hello world' })
+await wallet.changeAdmin({ newAdmin: newAdminAddress })
 ```
 
-## Available Plugins
+---
 
-The SDK includes pre-built plugins for common operations:
+## Social
 
-| Plugin | Description |
-|--------|-------------|
-| `PayPluginSDK` | Send ALGO and ASA payments |
-| `OptInPluginSDK` | Opt into assets |
-| `AsaMintPluginSDK` | Create and configure ASAs |
-| `DAOPluginSDK` | DAO governance operations |
-| `SocialPluginSDK` | Social features (posts, follows) |
-| `StakingPluginSDK` | Staking operations |
-| `StakingPoolPluginSDK` | Staking pool interactions |
-| `MarketplacePluginSDK` | NFT marketplace operations |
-| `AuctionPluginSDK` | Auction operations |
-| `RafflePluginSDK` | Raffle participation |
-| `PollPluginSDK` | Voting and polls |
-| `RewardsPluginSDK` | Rewards distribution |
-| `SubscriptionsPluginSDK` | Subscription management |
-| `HyperSwapPluginSDK` | Token swaps |
-| `GatePluginSDK` | Access control gates |
-| `NFDPluginSDK` | NFD (NFDomains) integration |
-
-### Plugin SDK Pattern
-
-All plugins follow a consistent pattern:
+On-chain social features including posts, votes, follows, reactions, and user profiles.
 
 ```typescript
-import { SomePluginSDK } from 'akita-sdk/wallet';
+import { SocialSDK } from '@akta/sdk/social'
 
-const plugin = new SomePluginSDK({
-  factoryParams: { appId: PLUGIN_APP_ID },
-  algorand,
-});
+const social = new SocialSDK({ factoryParams: { appId: SOCIAL_APP_ID }, algorand })
 
-// Get method selector (for addPlugin method restrictions)
-const selector = plugin.someMethod();
+// Read state
+const fees = await social.getSocialFees()
+const meta = await social.getMeta(userAddress)
+const post = await social.getPost(postRef)
+const isFollowing = await social.isFollowing(follower, user)
+const impact = await social.getUserImpact(address)
+const isBanned = await social.isBanned(account)
 
-// Execute method (for usePlugin calls)
-const call = plugin.someMethod({
-  // method-specific args...
-});
+// Write (typically called through wallet.usePlugin with SocialPluginSDK)
+// Direct calls for admin operations:
+await social.ban({ address: spammer })
+await social.unban({ address: spammer })
+await social.flagPost({ ref: postRef })
 ```
 
-## Configuration
+Social actions (post, vote, follow, react) are typically performed through the wallet's plugin system using `SocialPluginSDK`.
 
-### Network Detection
+---
 
-The SDK automatically detects the network from:
+## Rewards
 
-1. Explicitly set network via `setCurrentNetwork()`
-2. `ALGORAND_NETWORK` environment variable
-3. AlgorandClient URL patterns
+Create and manage reward disbursements with on-chain allocation tracking.
 
 ```typescript
-import { setCurrentNetwork, getCurrentNetwork } from 'akita-sdk';
+import { RewardsSDK } from '@akta/sdk/rewards'
 
-setCurrentNetwork('mainnet');
-const network = getCurrentNetwork();  // 'mainnet' | 'testnet' | 'localnet'
+const rewards = new RewardsSDK({ factoryParams: { appId: REWARDS_APP_ID }, algorand })
+
+// Read state
+const state = await rewards.getState()
+const disbursement = await rewards.getDisbursement(disbursementId)
+const disbursements = await rewards.getDisbursements()
+const allocation = await rewards.getUserAllocation(address, disbursementId, assetId)
+const hasAlloc = await rewards.hasAllocation(address, disbursementId, assetId)
+
+// Admin: create and manage disbursements
+const id = await rewards.createDisbursement({ title: 'Q1 Rewards', note: '...' })
+await rewards.createUserAllocations({ disbursementId: id, allocations: [...] })
+await rewards.createAsaUserAllocations({ disbursementId: id, asset: assetId, allocations: [...] })
+await rewards.finalizeDisbursement({ disbursementId: id })
+
+// Claiming (typically done through wallet.usePlugin with RewardsPluginSDK)
 ```
 
-### Environment Variables
+---
 
-Configure app IDs via environment variables:
+## Auctions
 
-```bash
-ALGORAND_NETWORK=mainnet
-WALLET_FACTORY_APP_ID=123456789
-WALLET_APP_ID=123456790
-PAY_PLUGIN_APP_ID=123456791
-OPTIN_PLUGIN_APP_ID=123456792
-```
-
-### Network-Specific App IDs
+Create and manage auctions with bidding, raffle, and prize claiming.
 
 ```typescript
-import { MAINNET_APP_IDS, TESTNET_APP_IDS, getNetworkAppIds } from 'akita-sdk';
+import { AuctionSDK, AuctionFactorySDK } from '@akta/sdk/auction'
 
-const appIds = getNetworkAppIds();
-console.log('Wallet Factory:', appIds.WALLET_FACTORY_APP_ID);
+const factory = new AuctionFactorySDK({ factoryParams: { appId: AUCTION_FACTORY_APP_ID }, algorand })
+
+// Create an auction
+const auction = await factory.new({ ...auctionParams })
+
+// Read state
+const state = await auction.state()
+const isLive = await auction.isLive()
+const bid = await auction.getBid(bidId)
+const minBid = await auction.getMinimumBidAmount()
+
+// Participate (typically through wallet plugin)
+await auction.bid({ amount: 5_000_000n })
+await auction.claimPrize()
 ```
 
-## API Reference
+---
 
-### WalletFactorySDK
+## DAO
 
-| Method | Description |
-|--------|-------------|
-| `new(params)` | Create a new wallet |
-| `get({ appId })` | Get existing wallet by app ID |
-| `cost()` | Get wallet creation cost |
+Governance proposals with voting and execution.
 
-### WalletSDK
+```typescript
+import { AkitaDaoSDK } from '@akta/sdk/dao'
 
-#### Core Methods
+const dao = new AkitaDaoSDK({ factoryParams: { appId: DAO_APP_ID }, algorand })
+
+const state = await dao.getGlobalState()
+const proposal = await dao.getProposal(proposalId)
+const cost = await dao.proposalCost({ actions: [...] })
+
+await dao.newProposal({ title: '...', actions: [...] })
+await dao.voteProposal({ proposalId, vote: true })
+await dao.finalizeProposal(proposalId)
+await dao.executeProposal(proposalId)
+```
+
+---
+
+## Staking
+
+Asset staking with escrow-based reward tracking.
+
+```typescript
+import { StakingSDK } from '@akta/sdk/staking'
+import { StakingPoolSDK, StakingPoolFactorySDK } from '@akta/sdk/staking-pool'
+
+const staking = new StakingSDK({ factoryParams: { appId: STAKING_APP_ID }, algorand })
+
+const check = await staking.softCheck({ address, asset: assetId })
+const timeLeft = await staking.getTimeLeft({ address, asset: assetId })
+const stakeInfo = await staking.getInfo({ address, stake: stakeId })
+```
+
+---
+
+## Subscriptions
+
+On-chain subscription services with recurring payment support.
+
+```typescript
+import { SubscriptionsSDK } from '@akta/sdk/subscriptions'
+
+const subs = new SubscriptionsSDK({ factoryParams: { appId: SUBS_APP_ID }, algorand })
+
+const serviceCost = await subs.newServiceCost()
+const subCost = await subs.newSubscriptionCost({ asset: 0n, amount: 1_000_000n })
+const isBlocked = await subs.isBlocked(address, blockedAddress)
+```
+
+---
+
+## Other Modules
+
+### Marketplace
+
+NFT marketplace listings and sales.
+
+```typescript
+import { MarketplaceSDK } from '@akta/sdk/marketplace'
+```
+
+### Polls
+
+On-chain voting polls.
+
+```typescript
+import { PollSDK, PollFactorySDK } from '@akta/sdk/poll'
+```
+
+### Raffles
+
+Weighted raffle drawings.
+
+```typescript
+import { RaffleSDK, RaffleFactorySDK } from '@akta/sdk/raffle'
+```
+
+### Prize Boxes
+
+Prize storage and distribution containers.
+
+```typescript
+import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akta/sdk/prize-box'
+```
+
+### Gates
+
+Access control and token gating.
+
+```typescript
+import { GateSDK } from '@akta/sdk/gates'
+```
+
+### HyperSwap
+
+Atomic asset swaps.
+
+```typescript
+import { HyperSwapSDK } from '@akta/sdk/hyper-swap'
+```
+
+### Meta Merkles
+
+Merkle proof verification for airdrops and allowlists.
+
+```typescript
+import { MetaMerklesSDK } from '@akta/sdk/meta-merkles'
+```
+
+---
+
+## Akita Connect
+
+Protocol for cross-device agent installation and wallet connection.
+
+```typescript
+import { encodeConnectUri, decodeConnectUri } from '@akta/sdk/connect'
+import type { AkitaConnectUri, AgentInstallRequest, ConnectRequest, ConnectResponse } from '@akta/sdk/connect'
+
+// Encode a connect URI for QR codes
+const uri = encodeConnectUri({ origin: 'https://signal.akita.community', requestId: 'uuid-here' })
+
+// Decode a scanned URI
+const { origin, requestId } = decodeConnectUri(uri)
+```
+
+### Agent Install Request
+
+```typescript
+const request: AgentInstallRequest = {
+  type: 'agent-install',
+  v: 2,
+  agent: { name: 'My Agent', address: agentAddress },
+  network: 'mainnet',
+  escrowName: 'agent_escrow',
+  newAgentAccount: true,
+  plugins: [{ appId: '123', methods: ['pay'], global: true }],
+  allowances: [{ asset: '0', type: 'drip', amount: '1000000', interval: '100', useRounds: true }],
+}
+```
+
+---
+
+## WalletSDK API Reference
+
+### Core
+
 | Method | Description |
 |--------|-------------|
 | `register({ escrow })` | Register wallet with escrow factory |
 | `verifyAuthAddress()` | Verify wallet auth address |
 | `changeAdmin({ newAdmin })` | Change wallet admin |
 | `getMbr(params)` | Calculate MBR requirements |
+| `getGlobalState()` | Get all global state |
+| `getAdmin()` | Get admin address |
+| `balance(assets)` | Get asset balances |
 
-#### Plugin Management
+### Plugins
+
 | Method | Description |
 |--------|-------------|
 | `addPlugin(params)` | Install a plugin |
 | `usePlugin(params)` | Execute plugin operations |
 | `removePlugin(params)` | Remove a plugin |
-| `getPlugins()` | Get all plugins |
+| `getPlugins()` | Get all installed plugins |
 | `getPluginByKey(key)` | Get plugin by key |
 | `getNamedPlugins()` | Get named plugins map |
-| `getPluginByName(name)` | Get plugin by name |
+| `canCall(params)` | Check if methods are callable |
 
-#### Escrow Management
+### Escrows
+
 | Method | Description |
 |--------|-------------|
 | `newEscrow({ name })` | Create new escrow |
@@ -961,7 +629,8 @@ console.log('Wallet Factory:', appIds.WALLET_FACTORY_APP_ID);
 | `optinEscrow({ name, assets })` | Opt escrow into assets |
 | `reclaimFunds({ name, funds })` | Reclaim funds from escrow |
 
-#### Allowance Management
+### Allowances
+
 | Method | Description |
 |--------|-------------|
 | `addAllowances({ escrow, allowances })` | Add spending allowances |
@@ -969,7 +638,8 @@ console.log('Wallet Factory:', appIds.WALLET_FACTORY_APP_ID);
 | `getAllowances()` | Get all allowances |
 | `getAllowance(key)` | Get specific allowance |
 
-#### Profile Management
+### Profile
+
 | Method | Description |
 |--------|-------------|
 | `setNickname({ nickname })` | Set wallet nickname |
@@ -977,48 +647,22 @@ console.log('Wallet Factory:', appIds.WALLET_FACTORY_APP_ID);
 | `setBanner({ banner })` | Set banner asset ID |
 | `setBio({ bio })` | Set bio text |
 
-#### Execution Keys
+### Execution Keys
+
 | Method | Description |
 |--------|-------------|
-| `addExecutionKey(params)` | Add execution key |
+| `addExecutionKey(params)` | Register pre-authorized transactions |
 | `removeExecutionKey({ lease })` | Remove execution key |
 | `getExecutions()` | Get all executions |
 | `getExecution(lease)` | Get execution by lease |
 
-#### State Queries
+### Advanced
+
 | Method | Description |
 |--------|-------------|
-| `getGlobalState()` | Get all global state |
-| `getAdmin()` | Get admin address |
-| `balance(assets)` | Get asset balances |
-
-#### Advanced
-| Method | Description |
-|--------|-------------|
-| `prepare.usePlugin(params)` | Prepare with cost estimation |
-| `build.usePlugin(params)` | Build execution groups |
-
-## Type Guards
-
-```typescript
-import { isFlatAllowance, isWindowAllowance, isDripAllowance } from 'akita-sdk/wallet';
-
-const allowance = wallet.allowances.get({ asset: 0n, escrow: 'my_escrow' });
-
-if (isFlatAllowance(allowance)) {
-  console.log('Spent:', allowance.spent, 'of', allowance.amount);
-}
-
-if (isWindowAllowance(allowance)) {
-  console.log('Spent this window:', allowance.spent);
-  console.log('Window interval:', allowance.interval);
-}
-
-if (isDripAllowance(allowance)) {
-  console.log('Leftover:', allowance.lastLeftover);
-  console.log('Drip rate:', allowance.rate, 'per', allowance.interval);
-}
-```
+| `prepare.usePlugin(params)` | Simulate and estimate costs |
+| `build.usePlugin(params)` | Build execution groups for deferred execution |
+| `group()` | Get a `WalletGroupComposer` for manual group building |
 
 ## License
 
