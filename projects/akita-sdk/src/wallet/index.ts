@@ -474,42 +474,42 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     const { plugins, caller, length, group, sendParams: preparedSendParams } =
       await this.prepareUsePlugin({ ...params, fundsRequest: buildFundsRequest });
 
-    let result: GroupReturn;
+    // Build ATC and populate resources via simulation for all paths.
+    // prepareGroupWithCost handles cross-transaction reference spreading,
+    // which AlgoKit's standard send() does not — without it, a single
+    // transaction can exceed the per-txn reference limit of 8.
+    const atc = (await (await group.composer()).build()).atc;
+    const appliedAtc = forceProperties(atc, {
+      sender: preparedSendParams.sender,
+      signer: preparedSendParams.signer
+    });
 
+    const maxFees = (consolidateFees || shouldInflate)
+      ? new Map<number, AlgoAmount>(Array.from({ length }, (_, i) => [i, microAlgo(MAX_SIM_FEE)]))
+      : undefined;
+
+    const { atc: populatedAtc } = await prepareGroupWithCost(
+      appliedAtc,
+      this.client.algorand.client.algod,
+      {
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true
+      },
+      {
+        ...(maxFees && { maxFees }),
+        suggestedParams
+      }
+    );
+
+    // When consolidating fees, move all fees to the first transaction
+    // and optionally deflate the inflated fundsRequest.
+    let sendAtc = populatedAtc;
     if (consolidateFees || shouldInflate) {
-      // Build the ATC from the group
-      const atc = (await (await group.composer()).build()).atc;
-      const appliedAtc = forceProperties(atc, {
-        sender: preparedSendParams.sender,
-        signer: preparedSendParams.signer
-      });
-
-      // Set max fees for all transactions to allow prepareGroupWithCost to work
-      const maxFees = new Map<number, AlgoAmount>(
-        Array.from({ length }, (_, i) => [i, microAlgo(MAX_SIM_FEE)])
-      );
-
-      // Use prepareGroupWithCost to populate resources and calculate fees
-      const { atc: populatedAtc } = await prepareGroupWithCost(
-        appliedAtc,
-        this.client.algorand.client.algod,
-        {
-          coverAppCallInnerTransactionFees: true,
-          populateAppCallResources: true
-        },
-        {
-          maxFees,
-          suggestedParams
-        }
-      );
-
-      // Consolidate all fees to the first transaction
       const feeGroup = populatedAtc.clone().buildGroup();
       const totalFees = feeGroup.reduce((acc, txn) => acc + txn.txn.fee, 0n);
 
       // Deflate the fundsRequest: replace inflated MAX_SIM_FEE with real totalFees.
       // Only needed when coverFees is enabled (shouldInflate is true).
-      let finalAtc = populatedAtc;
       if (shouldInflate) {
         const modifiedGroup = populatedAtc.clone().buildGroup();
         const rekeyTxn = modifiedGroup[0] as any;
@@ -527,23 +527,20 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
           rebuiltAtc.addTransaction(t);
         });
         (rebuiltAtc as any)['methodCalls'] = (populatedAtc as any)['methodCalls'];
-        finalAtc = rebuiltAtc;
+        sendAtc = rebuiltAtc;
       }
 
-      const consolidatedAtc = forceProperties(finalAtc, {
+      sendAtc = forceProperties(sendAtc, {
         fees: new Map([
           [0, microAlgo(totalFees)],
           ...Array.from({ length: length - 1 }, (_, i) => [i + 1, microAlgo(0n)] as [number, AlgoAmount]),
         ])
       });
-
-      // Use AlgoKit Utils TransactionComposer to send and get proper confirmations
-      result = await this.client.algorand.newGroup()
-        .addAtc(consolidatedAtc)
-        .send() as unknown as GroupReturn;
-    } else {
-      result = await group.send({ ...sendParams });
     }
+
+    const result = await this.client.algorand.newGroup()
+      .addAtc(sendAtc)
+      .send() as unknown as GroupReturn;
 
     for (const plugin of plugins) {
       await this.updateCache(

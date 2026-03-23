@@ -2,15 +2,15 @@
 
 
 
-var _chunkDQDDJ4ZCjs = require('../chunk-DQDDJ4ZC.js');
-require('../chunk-KYS36RDW.js');
-require('../chunk-5DOZLI4E.js');
-require('../chunk-UQLL4RRM.js');
+var _chunkFTNYJ3YTjs = require('../chunk-FTNYJ3YT.js');
+require('../chunk-AG6KLKED.js');
+require('../chunk-T5TIVGPA.js');
+require('../chunk-PMAUR73V.js');
 require('../chunk-2WS6GQO5.js');
 require('../chunk-DGUM43GV.js');
 
 
 
 
-exports.AuctionFactorySDK = _chunkDQDDJ4ZCjs.AuctionFactorySDK; exports.AuctionSDK = _chunkDQDDJ4ZCjs.AuctionSDK; exports.newAuction = _chunkDQDDJ4ZCjs.newAuction;
+exports.AuctionFactorySDK = _chunkFTNYJ3YTjs.AuctionFactorySDK; exports.AuctionSDK = _chunkFTNYJ3YTjs.AuctionSDK; exports.newAuction = _chunkFTNYJ3YTjs.newAuction;
 //# sourceMappingURL=index.js.map
