@@ -1,9 +1,9 @@
 import {
   AkitaDaoSDK
-} from "../chunk-XPFN2BBS.mjs";
+} from "../chunk-3PRN7K2A.mjs";
 import {
   WalletSDK
-} from "../chunk-TYELKHE6.mjs";
+} from "../chunk-LAVGTLZP.mjs";
 import "../chunk-ZRCAYT2V.mjs";
 import "../chunk-P4YWTMZR.mjs";
 import "../chunk-CEMSVQ3F.mjs";
