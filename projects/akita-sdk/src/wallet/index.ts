@@ -484,9 +484,9 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       signer: preparedSendParams.signer
     });
 
-    const maxFees = (consolidateFees || shouldInflate)
-      ? new Map<number, AlgoAmount>(Array.from({ length }, (_, i) => [i, microAlgo(MAX_SIM_FEE)]))
-      : undefined;
+    const maxFees = new Map<number, AlgoAmount>(
+      Array.from({ length }, (_, i) => [i, microAlgo(MAX_SIM_FEE)])
+    );
 
     const { atc: populatedAtc } = await prepareGroupWithCost(
       appliedAtc,
@@ -496,7 +496,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         populateAppCallResources: true
       },
       {
-        ...(maxFees && { maxFees }),
+        maxFees,
         suggestedParams
       }
     );

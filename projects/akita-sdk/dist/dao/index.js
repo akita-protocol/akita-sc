@@ -5,8 +5,8 @@
 
 
 
-var _chunkPJ4LGZTGjs = require('../chunk-PJ4LGZTG.js');
-require('../chunk-NCJAKTTO.js');
+var _chunkJ5IYB7LFjs = require('../chunk-J5IYB7LF.js');
+require('../chunk-DP7H7ONI.js');
 require('../chunk-56YZPYCL.js');
 require('../chunk-B2QFHBQD.js');
 require('../chunk-T5TIVGPA.js');
@@ -20,5 +20,5 @@ require('../chunk-DGUM43GV.js');
 
 
 
-exports.AkitaDaoSDK = _chunkPJ4LGZTGjs.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkPJ4LGZTGjs.DAOProposalVotesMBR; exports.EMPTY_CID = _chunkPJ4LGZTGjs.EMPTY_CID; exports.ProposalActionEnum = _chunkPJ4LGZTGjs.ProposalActionEnum; exports.SplitDistributionType = _chunkPJ4LGZTGjs.SplitDistributionType; exports.SplitsToTuples = _chunkPJ4LGZTGjs.SplitsToTuples;
+exports.AkitaDaoSDK = _chunkJ5IYB7LFjs.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkJ5IYB7LFjs.DAOProposalVotesMBR; exports.EMPTY_CID = _chunkJ5IYB7LFjs.EMPTY_CID; exports.ProposalActionEnum = _chunkJ5IYB7LFjs.ProposalActionEnum; exports.SplitDistributionType = _chunkJ5IYB7LFjs.SplitDistributionType; exports.SplitsToTuples = _chunkJ5IYB7LFjs.SplitsToTuples;
 //# sourceMappingURL=index.js.map
