@@ -247,6 +247,7 @@ function generateEnvFile(
     `REVENUE_MANAGER_PLUGIN_APP_ID=${universe.revenueManagerPlugin.appId}`,
     `UPDATE_PLUGIN_APP_ID=${universe.updatePlugin.appId}`,
     `OPTIN_PLUGIN_APP_ID=${universe.optInPlugin.appId}`,
+    `SELF_OPTIN_PLUGIN_APP_ID=${universe.selfOptInPlugin.appId}`,
     `ASA_MINT_PLUGIN_APP_ID=${universe.asaMintPlugin.appId}`,
     `PAY_PLUGIN_APP_ID=${universe.payPlugin.appId}`,
     `HYPER_SWAP_PLUGIN_APP_ID=${universe.hyperSwapPlugin.appId}`,
@@ -364,6 +365,7 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   revenueManagerPlugin: ${universe.revenueManagerPlugin.appId}n,
   updatePlugin: ${universe.updatePlugin.appId}n,
   optinPlugin: ${universe.optInPlugin.appId}n,
+  selfOptinPlugin: ${universe.selfOptInPlugin.appId}n,
   asaMintPlugin: ${universe.asaMintPlugin.appId}n,
   payPlugin: ${universe.payPlugin.appId}n,
   hyperSwapPlugin: ${universe.hyperSwapPlugin.appId}n,
@@ -576,6 +578,10 @@ async function formatSummary(
       optInPlugin: {
         appId: universe.optInPlugin.appId.toString(),
         address: universe.optInPlugin.client.appAddress.toString(),
+      },
+      selfOptInPlugin: {
+        appId: universe.selfOptInPlugin.appId.toString(),
+        address: universe.selfOptInPlugin.client.appAddress.toString(),
       },
       asaMintPlugin: {
         appId: universe.asaMintPlugin.appId.toString(),

@@ -56,6 +56,7 @@
     "deploy:raffle-plugin": "ts-node --transpile-only scripts/deploy-raffle-plugin.ts",
     "deploy:staking-pool-plugin": "ts-node --transpile-only scripts/deploy-staking-pool-plugin.ts",
     "deploy:dual-stake-plugin": "ts-node --transpile-only scripts/deploy-dual-stake-plugin.ts",
+    "deploy:self-optin-plugin": "ts-node --transpile-only scripts/deploy-self-optin-plugin.ts",
     "deploy:gates": "ts-node --transpile-only scripts/deploy-gates.ts",
     "deploy:hyper-swap": "ts-node --transpile-only scripts/deploy-hyper-swap.ts",
     "deploy:social-impact": "ts-node --transpile-only scripts/deploy-social-impact.ts",

@@ -207,6 +207,7 @@ Wallet plugins extend abstracted account functionality:
 | Plugin | Testnet | Mainnet |
 |--------|---------|---------|
 | `optInPlugin` | `751968346` | `3368398585` |
+| `selfOptInPlugin` | `757594161` | `3490296923` |
 | `payPlugin` | `751968379` | `3368399056` |
 | `asaMintPlugin` | `751968373` | `3368398964` |
 | `auctionPlugin` | `757503999` | `3488090697` |

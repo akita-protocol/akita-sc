@@ -23,6 +23,7 @@ import {
   MarketplacePluginSDK,
   NFDPluginSDK,
   OptInPluginSDK,
+  SelfOptInPluginSDK,
   PayPluginSDK,
   PaySiloFactoryPluginSDK,
   PaySiloPluginSDK,
@@ -63,6 +64,7 @@ import { deployHyperSwapPlugin } from './plugins/hyper-swap';
 import { deployMarketplacePlugin } from './plugins/marketplace';
 import { deployNFDPlugin } from './plugins/nfd';
 import { deployOptInPlugin } from './plugins/optin';
+import { deploySelfOptInPlugin } from './plugins/self-optin';
 import { deployPayPlugin } from './plugins/pay';
 import { deployPaySiloPlugin } from './plugins/pay-silo';
 import { deployPaySiloFactoryPlugin } from './plugins/pay-silo-factory';
@@ -362,6 +364,7 @@ export type AkitaUniverse = {
   revenueManagerPlugin: RevenueManagerPluginSDK;
   updatePlugin: UpdateAkitaDAOPluginSDK;
   optInPlugin: OptInPluginSDK;
+  selfOptInPlugin: SelfOptInPluginSDK;
   asaMintPlugin: AsaMintPluginSDK;
   payPlugin: PayPluginSDK;
   hyperSwapPlugin: HyperSwapPluginSDK;
@@ -974,6 +977,13 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     signer: params.signer,
   })
   logger.plugin('deploy', 'OptInPlugin', optInPluginSDK.appId);
+
+  const selfOptInPluginSDK = await deploySelfOptInPlugin({
+    fixture: fixture,
+    sender: params.sender,
+    signer: params.signer,
+  })
+  logger.plugin('deploy', 'SelfOptInPlugin', selfOptInPluginSDK.appId);
 
   // Add OptInPlugin to PluginAppList (pal)
   await proposeAndExecute(fixture.algorand, dao, [{
@@ -1606,6 +1616,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     revenueManagerPlugin: revenueManagerPluginSdk,
     updatePlugin: daoUpdatePluginSdk,
     optInPlugin: optInPluginSDK,
+    selfOptInPlugin: selfOptInPluginSDK,
     asaMintPlugin: asaMintPluginSDK,
     payPlugin: payPluginSDK,
     hyperSwapPlugin: hyperSwapPluginSDK,

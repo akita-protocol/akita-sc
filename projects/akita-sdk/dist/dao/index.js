@@ -5,12 +5,12 @@
 
 
 
-var _chunkYNEEL36Ujs = require('../chunk-YNEEL36U.js');
-require('../chunk-VJISSMPE.js');
+var _chunkGBQGTKABjs = require('../chunk-GBQGTKAB.js');
+require('../chunk-IGUKDRGH.js');
 require('../chunk-56YZPYCL.js');
 require('../chunk-B2QFHBQD.js');
-require('../chunk-T5TIVGPA.js');
-require('../chunk-PMAUR73V.js');
+require('../chunk-JSRHAYKE.js');
+require('../chunk-HXGCVEIG.js');
 require('../chunk-2WS6GQO5.js');
 require('../chunk-DGUM43GV.js');
 
@@ -20,5 +20,5 @@ require('../chunk-DGUM43GV.js');
 
 
 
-exports.AkitaDaoSDK = _chunkYNEEL36Ujs.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkYNEEL36Ujs.DAOProposalVotesMBR; exports.EMPTY_CID = _chunkYNEEL36Ujs.EMPTY_CID; exports.ProposalActionEnum = _chunkYNEEL36Ujs.ProposalActionEnum; exports.SplitDistributionType = _chunkYNEEL36Ujs.SplitDistributionType; exports.SplitsToTuples = _chunkYNEEL36Ujs.SplitsToTuples;
+exports.AkitaDaoSDK = _chunkGBQGTKABjs.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkGBQGTKABjs.DAOProposalVotesMBR; exports.EMPTY_CID = _chunkGBQGTKABjs.EMPTY_CID; exports.ProposalActionEnum = _chunkGBQGTKABjs.ProposalActionEnum; exports.SplitDistributionType = _chunkGBQGTKABjs.SplitDistributionType; exports.SplitsToTuples = _chunkGBQGTKABjs.SplitsToTuples;
 //# sourceMappingURL=index.js.map

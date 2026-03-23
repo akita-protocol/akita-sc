@@ -27,6 +27,7 @@ export interface ScriptOptions {
   mnemonic?: string
   version: string
   dryRun?: boolean
+  algodToken?: string
 }
 
 export interface ScriptContext {
@@ -49,6 +50,7 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
   let mnemonic: string | undefined
   let version = '1.0.0'
   let dryRun = false
+  let algodToken: string | undefined
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--network' || args[i] === '-n') {
@@ -66,6 +68,9 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
     } else if (args[i] === '--version' || args[i] === '-v') {
       version = args[i + 1]
       i++
+    } else if (args[i] === '--token' || args[i] === '-t') {
+      algodToken = args[i + 1]
+      i++
     } else if (args[i] === '--dry-run') {
       dryRun = true
     } else if (args[i] === '--help' || args[i] === '-h') {
@@ -76,6 +81,7 @@ Options:
   --network, -n <network>     Network (localnet, testnet, mainnet). Default: localnet
   --mnemonic, -m <mnemonic>   Mnemonic phrase (required for testnet/mainnet)
   --version, -v <version>     New version string. Default: "1.0.0"
+  --token, -t <token>         Algod API token (e.g. Nodely API key)
   --dry-run                   Compile and prepare but don't execute
   --help, -h                  Show this help message
 ${extraHelp || ''}`)
@@ -88,11 +94,29 @@ ${extraHelp || ''}`)
     process.exit(1)
   }
 
-  return { network, mnemonic, version, dryRun }
+  return { network, mnemonic, version, dryRun, algodToken }
 }
 
 /** Create an AlgorandClient for the given network. */
-export function createAlgorandClient(network: Network): AlgorandClient {
+export function createAlgorandClient(network: Network, algodToken?: string): AlgorandClient {
+  if (algodToken) {
+    const servers: Record<string, string> = {
+      testnet: 'https://testnet-api.4160.nodely.dev',
+      mainnet: 'https://mainnet-api.4160.nodely.dev',
+    }
+    const indexers: Record<string, string> = {
+      testnet: 'https://testnet-idx.4160.nodely.dev',
+      mainnet: 'https://mainnet-idx.4160.nodely.dev',
+    }
+    const server = servers[network]
+    if (server) {
+      return AlgorandClient.fromConfig({
+        algodConfig: { server, port: 443, token: algodToken },
+        ...(indexers[network] ? { indexerConfig: { server: indexers[network], port: 443, token: algodToken } } : {}),
+      })
+    }
+  }
+
   switch (network) {
     case 'testnet': return AlgorandClient.testNet()
     case 'mainnet': return AlgorandClient.mainNet()
@@ -109,7 +133,7 @@ export async function setupContext(
   { minBalance = 5_000_000n }: { minBalance?: bigint } = {},
 ): Promise<ScriptContext> {
   const appIds = getNetworkAppIds(options.network)
-  const algorand = createAlgorandClient(options.network)
+  const algorand = createAlgorandClient(options.network, options.algodToken)
 
   let sender: string
   let signer: algosdk.TransactionSigner
