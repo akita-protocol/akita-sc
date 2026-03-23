@@ -2,7 +2,7 @@ import { Account, Application, Asset, assert, assertMatch, Bytes, Global, gtxn, 
 import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AkitaDAOEscrowAccountMarketplace } from '../arc58/dao/constants'
 import { ERR_HAS_GATE } from '../social/errors'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
+import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
 import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
 import { disbursementCost, gateCheck, getFunder, getPrizeBoxOwner, getWalletIDUsingAkitaDAO, originOrTxnSender, rewardsOptInCost, royalties, splitOptInCount } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
@@ -73,7 +73,7 @@ export class Marketplace extends FactoryContract {
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
       (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
       childAppMBR
@@ -226,7 +226,7 @@ export class Marketplace extends FactoryContract {
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
       (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
       childAppMBR

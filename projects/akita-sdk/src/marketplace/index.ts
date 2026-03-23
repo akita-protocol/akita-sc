@@ -201,8 +201,9 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
    * @param paymentRewardsOptInCost - Rewards app opt-in cost for the payment asset (default: 100,000, pass 0 if already opted in)
    */
   listCost({ isPrizeBox = false, isAlgoPayment = true, prizeRewardsOptInCost = 100_000n, paymentRewardsOptInCost = 100_000n, escrowOptInCost = 0n }: { isPrizeBox?: boolean, isAlgoPayment?: boolean, prizeRewardsOptInCost?: bigint, paymentRewardsOptInCost?: bigint, escrowOptInCost?: bigint } = {}): bigint {
-    // Base cost: MIN_PROGRAM_PAGES + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
-    const baseCost = 635_000n;
+    // Base cost: MIN_PROGRAM_PAGES * (1 + extraProgramPages) + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
+    // Listing: 2 pages (1 extra), 10 global uints, 5 global bytes
+    const baseCost = 735_000n;
     const minBalance = 100_000n;
     const assetOptInMinBalance = 100_000n;
     const perDisbursement = 60_600n; // MinDisbursementsMBR + UserAllocationMBR

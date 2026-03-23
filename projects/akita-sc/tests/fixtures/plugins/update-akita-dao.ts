@@ -24,6 +24,7 @@ export const deployUpdateAkitaDaoPlugin = async ({ fixture, sender, signer, args
 
   const { appClient: client } = await factory.send.create.create({
     args: {
+      version: '1.0.0',
       akitaDao,
       clearProgram,
     }

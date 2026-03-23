@@ -3,7 +3,7 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 6 60600 935000 50000
+    intcblock 0 1 8 6 60600 735000 50000
     bytecblock "akita_dao" "akita_escrow" "bc" "wallet" 0x151f7c75 "funder" "aal" "child_contract_version" "gate_id" 0x3ea11832 0x80 0xc53b32cc "version" 0xd6f11ea5 base64(C4EBQw==) "rev_marketplace" 0xadf92ae4 0x6a16393d 0x171c9f88 "pal"
     // smart_contracts/marketplace/marketplace.algo.ts:18
     // export class Marketplace extends FactoryContract {
@@ -632,12 +632,12 @@ list_ternary_merge@10:
     +
     +
     // smart_contracts/marketplace/marketplace.algo.ts:76-78
-    // MAX_PROGRAM_PAGES +
+    // MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
     // (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
-    intc 5 // 935000
+    intc 5 // 735000
     // smart_contracts/marketplace/marketplace.algo.ts:76-79
-    // MAX_PROGRAM_PAGES +
+    // MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
     // (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
     // childAppMBR
@@ -1627,12 +1627,12 @@ listPrizeBox_ternary_merge@14:
     uncover 2
     +
     // smart_contracts/marketplace/marketplace.algo.ts:229-231
-    // MAX_PROGRAM_PAGES +
+    // MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
     // (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
-    intc 5 // 935000
+    intc 5 // 735000
     // smart_contracts/marketplace/marketplace.algo.ts:229-232
-    // MAX_PROGRAM_PAGES +
+    // MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
     // (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
     // childAppMBR
