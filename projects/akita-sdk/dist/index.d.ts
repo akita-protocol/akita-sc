@@ -1,5 +1,5 @@
 export * from './types';
-export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, getNetworkAppIds, } from './config';
+export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, } from './config';
 export { AuctionSDK, AuctionFactorySDK } from './auction';
 export { AkitaDaoSDK } from './dao';
 export { EscrowSDK, EscrowFactorySDK } from './escrow';

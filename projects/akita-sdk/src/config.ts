@@ -6,7 +6,7 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
 import { getAppIdFromNetwork, NetworkAppIds, getNetworkAppIds } from "./networks";
 
-export { NetworkAppIds, getNetworkAppIds, LOCALNET_APP_IDS, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS } from "./networks";
+export { NetworkAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from "./networks";
 
 // ============================================================================
 // Types

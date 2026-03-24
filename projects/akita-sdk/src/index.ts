@@ -22,6 +22,10 @@ export {
   MAINNET_APP_IDS,
   NETWORK_APP_IDS,
   getNetworkAppIds,
+  // Build app IDs from environment variables (for localnet / custom networks)
+  ENV_TO_NETWORK_KEY,
+  buildAppIdsFromEnv,
+  createEmptyAppIds,
 } from './config'
 
 export { AuctionSDK, AuctionFactorySDK } from './auction'

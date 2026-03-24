@@ -52,6 +52,7 @@ coverage
 .env.test.local
 .env.production.local
 .env.local
+.env.localnet
 
 # Received approval test files
 *.received.*

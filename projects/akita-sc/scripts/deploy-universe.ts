@@ -421,12 +421,18 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
 };`
 }
 
-// Update the SDK's networks.ts file with deployed app IDs
+// Update the SDK's networks.ts file with deployed app IDs.
+// Localnet IDs are intentionally NOT baked into the SDK — they're provided via .env.localnet.
 async function updateNetworksFile(
   universe: AkitaUniverse,
   network: Network,
   apps?: Partial<AkitaDaoApps>
 ): Promise<void> {
+  if (network === 'localnet') {
+    console.log(`📄 Skipping SDK networks.ts update for localnet (IDs provided via .env.localnet)`)
+    return
+  }
+
   const fs = await import('fs/promises')
   const path = await import('path')
 
@@ -976,9 +982,22 @@ async function deploy() {
 
     // Generate and save environment file
     const envContent = generateEnvFile(universe, options.network, options.apps)
+    const path = await import('path')
     const envPath = `.env.${options.network}`
     await fs.writeFile(envPath, envContent, 'utf-8')
-    console.log(`📄 Environment file saved to: ${envPath}\n`)
+    console.log(`📄 Environment file saved to: ${envPath}`)
+
+    // For localnet, also copy to akita-rn so the RN app picks up the IDs via app.config.ts
+    if (options.network === 'localnet') {
+      const rnEnvPath = path.join(__dirname, '../../../../akita-rn/.env.localnet')
+      try {
+        await fs.writeFile(rnEnvPath, envContent, 'utf-8')
+        console.log(`📄 Environment file copied to: ${rnEnvPath}`)
+      } catch {
+        console.warn(`⚠️  Could not copy .env.localnet to akita-rn (${rnEnvPath})`)
+      }
+    }
+    console.log()
 
     process.exit(0)
   } catch (error) {

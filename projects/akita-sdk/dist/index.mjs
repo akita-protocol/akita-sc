@@ -1,75 +1,78 @@
 import {
   StakingPoolFactorySDK,
   StakingPoolSDK
-} from "./chunk-C3QWNHCU.mjs";
+} from "./chunk-NCSPGN5H.mjs";
 import {
   HighlightMessage,
   ServiceStatus,
   SubscriptionsSDK,
   bytesToHexColor,
   hexColorToBytes
-} from "./chunk-GZJ2KW3M.mjs";
+} from "./chunk-HL2L3MWT.mjs";
 import {
   ListingSDK,
   MarketplaceSDK
-} from "./chunk-ZGCLDQUS.mjs";
+} from "./chunk-G2RYP4BA.mjs";
 import {
   MetaMerklesSDK
-} from "./chunk-RK537R5H.mjs";
+} from "./chunk-56YEOVOW.mjs";
 import {
   PollFactorySDK,
   PollSDK
-} from "./chunk-3KSRWXWE.mjs";
+} from "./chunk-CALG5DFZ.mjs";
 import {
   RaffleFactorySDK,
   RaffleSDK
-} from "./chunk-YW3YKL6Z.mjs";
+} from "./chunk-5MHJ6OKS.mjs";
 import {
   RewardsSDK
-} from "./chunk-EAOOVM5A.mjs";
+} from "./chunk-N7ZJN7KY.mjs";
 import {
   SocialSDK
-} from "./chunk-NMLVB37R.mjs";
+} from "./chunk-F5DBFPUW.mjs";
 import {
   StakingSDK
-} from "./chunk-LARM66ZG.mjs";
+} from "./chunk-JP5G2BRC.mjs";
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-FH4RO7VK.mjs";
+} from "./chunk-OJJ7CKAH.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK
-} from "./chunk-Q5HO7ZGR.mjs";
+} from "./chunk-LYE6YHRE.mjs";
 import {
   decodeConnectUri,
   encodeConnectUri
 } from "./chunk-X37WDNTN.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-MSL7RTIS.mjs";
+} from "./chunk-5CQG7LGJ.mjs";
 import {
   WalletFactorySDK,
   WalletSDK
-} from "./chunk-ASVQREOE.mjs";
+} from "./chunk-R2IQNPNI.mjs";
 import "./chunk-ZRCAYT2V.mjs";
 import "./chunk-P4YWTMZR.mjs";
 import {
   EscrowFactorySDK,
   EscrowSDK
-} from "./chunk-VX2OLC4G.mjs";
+} from "./chunk-AHR7WT6L.mjs";
 import {
   GateSDK
-} from "./chunk-OECB2XPL.mjs";
+} from "./chunk-AOX4GU5I.mjs";
 import {
   HyperSwapSDK
-} from "./chunk-WPR6KTAK.mjs";
-import "./chunk-L4DPYJWX.mjs";
+} from "./chunk-3SLTJJK6.mjs";
+import "./chunk-XPDQE6FK.mjs";
 import {
+  ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
   MAINNET_APP_IDS,
   NETWORK_APP_IDS,
   TESTNET_APP_IDS,
+  buildAppIdsFromEnv,
+  createEmptyAppIds,
   detectNetworkFromClient,
   getAppIdForSDK,
   getAppIdFromEnv,
@@ -81,7 +84,7 @@ import {
   resolveAppId,
   resolveAppIdWithClient,
   setCurrentNetwork
-} from "./chunk-X3ZYLNDJ.mjs";
+} from "./chunk-HOUBKTEK.mjs";
 import {
   hasSenderSigner,
   isPluginSDKReturn
@@ -91,6 +94,7 @@ export {
   AkitaDaoSDK,
   AuctionFactorySDK,
   AuctionSDK,
+  ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
   EscrowFactorySDK,
   EscrowSDK,
@@ -118,7 +122,9 @@ export {
   TESTNET_APP_IDS,
   WalletFactorySDK,
   WalletSDK,
+  buildAppIdsFromEnv,
   bytesToHexColor,
+  createEmptyAppIds,
   decodeConnectUri,
   detectNetworkFromClient,
   encodeConnectUri,
