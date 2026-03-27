@@ -223,7 +223,7 @@ Wallet plugins extend abstracted account functionality:
 | `rafflePlugin` | `757504189` | `3488098470` |
 | `revenueManagerPlugin` | `757504722` | `3488128159` |
 | `rewardsPlugin` | `751972347` | `3368399956` |
-| `socialPlugin` | `757504312` | `3488102691` |
+| `socialPlugin` | `757769536` | `3494983135` |
 | `stakingPlugin` | `751972363` | `3368400044` |
 | `stakingPoolPlugin` | `757504244` | `3488100384` |
 | `subscriptionsPlugin` | `752474150` | `3378296099` |

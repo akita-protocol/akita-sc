@@ -1,9 +1,9 @@
-import { Account, Application, Asset, Bytes, bytes, Global, itxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, assert, Asset, Bytes, bytes, Global, itxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { GateMustCheckAbiMethod } from '../../../gates/constants'
 import { GateArgs } from '../../../gates/types'
-import { AmendmentMBR, ImpactMetaMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, TipSendTypeARC58 } from '../../../social/constants'
+import { AmendmentMBR, ImpactMetaMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypeExternal, RefTypePost, TipSendTypeARC58 } from '../../../social/constants'
 import { getAccounts, getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getSocialFees, getSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import { CID } from '../../../utils/types/base'
 
@@ -14,6 +14,9 @@ import { AkitaSocialGraph } from '../../../social/graph.algo'
 import type { AkitaSocialModeration } from '../../../social/moderation.algo'
 import { MetaValue, PostValue, RefType } from '../../../social/types'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { ERR_HAS_GATE, ERR_INVALID_ASSET, ERR_INVALID_REF_LENGTH, ERR_INVALID_REPLY_TYPE } from '../../../social/errors'
+import { btoi } from '@algorandfoundation/algorand-typescript/op'
+import { ERR_INVALID_APP } from './errors'
 
 
 export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
@@ -456,7 +459,37 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     const { votelist, posts } = this.mbr(op.bzero(0))
     let mbrAmount: uint64 = votelist
 
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, ref.toFixed({ length: 32 }))
+    let refBytes: bytes<32>
+    switch (type) {
+      case RefTypePost:
+        assert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        refBytes = ref.toFixed({ length: 32 })
+        break
+      case RefTypeAsset:
+        assert(ref.length === 8, ERR_INVALID_REF_LENGTH)
+        assert(Asset(btoi(ref)).total > 0, ERR_INVALID_ASSET)
+        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
+        break
+      case RefTypeAddress:
+        assert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        refBytes = ref.toFixed({ length: 32 })
+        break
+      case RefTypeApp:
+        assert(ref.length === 8, ERR_INVALID_REF_LENGTH)
+        assert(Application(btoi(ref)).approvalProgram.length > 0, ERR_INVALID_APP)
+        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
+        break
+      case RefTypeExternal:
+        // External refs (Twitter, Farcaster, etc.) - ref is the platform-prefixed identifier
+        // Key is derived deterministically: sha256(ref) where ref = "platform:externalId"
+        // Creator is zero address since external content has no Algorand creator
+        refBytes = op.sha256(ref)
+        break
+      default:
+        assert(false, ERR_INVALID_REPLY_TYPE)
+    }
+
+    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
 
     if (!postExists) {
       mbrAmount += posts

@@ -146,7 +146,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   pollPlugin: 751972340n,
   rafflePlugin: 757504189n,
   rewardsPlugin: 751972347n,
-  socialPlugin: 757504312n,
+  socialPlugin: 757769536n,
   stakingPlugin: 751972363n,
   stakingPoolPlugin: 757504244n,
   
@@ -234,7 +234,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   pollPlugin: 3368399770n,
   rafflePlugin: 3488098470n,
   rewardsPlugin: 3368399956n,
-  socialPlugin: 3488102691n,
+  socialPlugin: 3494983135n,
   stakingPlugin: 3368400044n,
   stakingPoolPlugin: 3488100384n,
   
