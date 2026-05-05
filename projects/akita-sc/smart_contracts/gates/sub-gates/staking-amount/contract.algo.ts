@@ -1,7 +1,6 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, clone, Global, GlobalState, gtxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, bytes, clone, Global, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { STAKING_TYPE_HEARTBEAT, StakingType } from '../../../staking/types'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getAkitaAppList } from '../../../utils/functions'
 import {
   Equal,
@@ -12,15 +11,13 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_BAD_OPERATION } from '../../errors'
+import { ERR_BAD_OPERATION, ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 import { Operator } from '../../types'
 
 // CONTRACT IMPORTS
 import type { Staking } from '../../../staking/contract.algo'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
 
-
-const ERR_INVALID_ARG_COUNT = 'Invalid number of arguments'
 
 type StakingAmountGateRegistryInfo = {
   op: Operator
@@ -107,26 +104,20 @@ export class StakingAmountGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: StakingAmountGateRegistryMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === StakingAmountGateRegistryMBR, ERR_INVALID_PAYMENT)
 
     const params = decodeArc4<StakingAmountGateRegistryInfo>(args)
     // dont include the list operators includes & not includes
-    assert(params.op.asUint64() <= 6, ERR_BAD_OPERATION)
+    loggedAssert(params.op.asUint64() <= 6, ERR_BAD_OPERATION)
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     const { op, asset, amount, type, includeEscrowed } = clone(this.registry(registryID).value)
     return this.stakingAmountGate(
       caller,

@@ -9,7 +9,7 @@ main:
     // export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@12
     pushbytess 0xbb9d8749 0x2a78e2ee 0xb6fc76cf 0xfdbf8960 0x33e92c94 0x854dede0 // method "stake(uint64,bool,uint64,uint8,uint64,uint64,bool)void", method "withdraw(uint64,bool,uint64,uint8)void", method "createHeartbeat(uint64,bool,address,uint64)void", method "softCheck(uint64,bool,address,uint64)void", method "updateAkitaDAO(uint64)void", method "opUp()void"
@@ -18,7 +18,7 @@ main:
     err
 
 main_opUp_route@10:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
@@ -64,27 +64,27 @@ create:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     intc_0 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:18
     // this.version.value = version
     swap
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:19
@@ -116,7 +116,7 @@ stake:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
@@ -124,7 +124,7 @@ stake:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     swap
@@ -133,7 +133,7 @@ stake:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     swap
     txna ApplicationArgs 4
@@ -143,7 +143,7 @@ stake:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for uint8
+    assert // invalid number of bytes for arc4.uint8
     txna ApplicationArgs 5
     dup
     cover 3
@@ -151,7 +151,7 @@ stake:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
     txna ApplicationArgs 6
@@ -160,13 +160,13 @@ stake:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 7
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     cover 2
@@ -190,7 +190,7 @@ stake:
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:34
     // const stakingAppID = getAkitaAppList(this.akitaDAO.value).staking
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:34
@@ -308,6 +308,9 @@ stake_after_if_else@18:
     dig 10
     dig 12
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:56-70
     // abiCall<typeof Staking.prototype.stake>({
     //   sender,
@@ -326,15 +329,12 @@ stake_after_if_else@18:
     // })
     pushbytes 0x8256cf19 // method "stake(pay,uint8,uint64,uint64)void"
     itxn_field ApplicationArgs
-    dig 9
-    itxn_field ApplicationArgs
-    dig 8
-    itxn_field ApplicationArgs
     dig 6
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field Sender
-    itxn_field ApplicationID
+    dig 5
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -428,7 +428,7 @@ stake_else_body@22:
     //   assetAmount: amount,
     //   xferAsset: assetID,
     // }),
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -460,6 +460,9 @@ stake_else_body@22:
     dig 10
     dig 12
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:72-92
     // abiCall<typeof Staking.prototype.stakeAsa>({
     //   sender,
@@ -484,15 +487,12 @@ stake_else_body@22:
     // })
     pushbytes 0x20467b93 // method "stakeAsa(pay,axfer,uint8,uint64,uint64)void"
     itxn_field ApplicationArgs
-    dig 9
-    itxn_field ApplicationArgs
-    dig 8
-    itxn_field ApplicationArgs
     dig 6
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
+    dig 5
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -509,7 +509,7 @@ stake_else_body@9:
     bz stake_else_body@11
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:47
     // sendAmount = (costs.stakes + costs.heartbeats)
-    pushint 99000 // 99000
+    pushint 99000
     bury 11
     b stake_after_if_else@18
 
@@ -551,14 +551,14 @@ withdraw:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -566,13 +566,13 @@ withdraw:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for uint8
+    assert // invalid number of bytes for arc4.uint8
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -601,7 +601,7 @@ withdraw:
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:106
     // appId: getAkitaAppList(this.akitaDAO.value).staking,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:106
@@ -622,6 +622,10 @@ withdraw:
     uncover 4
     uncover 5
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:104-109
     // abiCall<typeof Staking.prototype.withdraw>({
     //   sender,
@@ -631,13 +635,9 @@ withdraw:
     // })
     pushbytes 0x830480f3 // method "withdraw(uint64,uint8)void"
     itxn_field ApplicationArgs
-    uncover 4
+    swap
     itxn_field ApplicationArgs
-    uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -668,28 +668,28 @@ createHeartbeat:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -718,7 +718,7 @@ createHeartbeat:
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:122
     // appId: getAkitaAppList(this.akitaDAO.value).staking,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:122
@@ -739,6 +739,10 @@ createHeartbeat:
     uncover 4
     uncover 5
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:120-125
     // abiCall<typeof Staking.prototype.createHeartbeat>({
     //   sender,
@@ -748,13 +752,9 @@ createHeartbeat:
     // })
     pushbytes 0xc8173ca1 // method "createHeartbeat(address,uint64)void"
     itxn_field ApplicationArgs
-    uncover 4
+    swap
     itxn_field ApplicationArgs
-    uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -785,28 +785,28 @@ softCheck:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -835,7 +835,7 @@ softCheck:
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:138
     // appId: getAkitaAppList(this.akitaDAO.value).staking,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:138
@@ -856,6 +856,10 @@ softCheck:
     uncover 4
     uncover 5
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:136-141
     // abiCall<typeof Staking.prototype.softCheck>({
     //   sender,
@@ -865,13 +869,9 @@ softCheck:
     // })
     pushbytes 0x48716f1a // method "softCheck(address,uint64)(bool,uint64)"
     itxn_field ApplicationArgs
-    uncover 4
+    swap
     itxn_field ApplicationArgs
-    uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -886,8 +886,9 @@ softCheck:
     ==
     assert // Bytes has valid prefix
     len
-    pushint 9 // 9
+    pushint 9
     ==
+    assert // invalid number of bytes for smart_contracts/staking/types.ts::StakeCheck
     // smart_contracts/arc58/plugins/staking/contract.algo.ts:128-133
     // softCheck(
     //   wallet: Application,
@@ -895,50 +896,56 @@ softCheck:
     //   address: Account,
     //   asset: uint64
     // ): void {
-    return // on error: invalid number of bytes for (bool1,uint64)
+    intc_1 // 1
+    return
 
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    pushbytes "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_1 // 1
     return

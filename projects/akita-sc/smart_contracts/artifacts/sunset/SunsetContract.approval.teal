@@ -1,0 +1,358 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 40
+    bytecblock TMPL_SUNSET_CALLER
+    // smart_contracts/sunset/contract.algo.ts:7
+    // export class SunsetContract extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@12
+    pushbytes 0xab8b213a // method "delete(address)void"
+    txna ApplicationArgs 0
+    match main_delete_route@3
+
+main_switch_case_next@4:
+    // smart_contracts/sunset/contract.algo.ts:7
+    // export class SunsetContract extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x98fd65a7 0x9625ead9 0xc7d81014 // method "deleteBoxes(byte[][])void", method "closeOut((address,uint64)[])void", method "deleteAssets(uint64[])void"
+    txna ApplicationArgs 0
+    match deleteBoxes closeOut deleteAssets
+    err
+
+main_delete_route@3:
+    // smart_contracts/sunset/contract.algo.ts:16
+    // @abimethod({ allowActions: ['DeleteApplication'] })
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b delete
+
+main___algots__.defaultCreate@12:
+    // smart_contracts/sunset/contract.algo.ts:7
+    // export class SunsetContract extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.delete[routing]() -> void:
+delete:
+    // smart_contracts/sunset/contract.algo.ts:16
+    // @abimethod({ allowActions: ['DeleteApplication'] })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/sunset/contract.algo.ts:18
+    // this.auth()
+    callsub auth
+    // smart_contracts/sunset/contract.algo.ts:19
+    // itxn.payment({ closeRemainderTo }).submit()
+    itxn_begin
+    itxn_field CloseRemainderTo
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/sunset/contract.algo.ts:16
+    // @abimethod({ allowActions: ['DeleteApplication'] })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteBoxes[routing]() -> void:
+deleteBoxes:
+    pushbytes ""
+    dup
+    // smart_contracts/sunset/contract.algo.ts:22
+    // deleteBoxes(boxes: bytes[]): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    extract 2 0
+    intc_0 // 0
+
+deleteBoxes_for_header@1:
+    // smart_contracts/sunset/contract.algo.ts:22
+    // deleteBoxes(boxes: bytes[]): void {
+    dup
+    dig 5
+    <
+    bz deleteBoxes_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 1
+    b deleteBoxes_for_header@1
+
+deleteBoxes_after_for@4:
+    // smart_contracts/sunset/contract.algo.ts:22
+    // deleteBoxes(boxes: bytes[]): void {
+    dig 3
+    intc_2 // 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes>
+    // smart_contracts/sunset/contract.algo.ts:23
+    // for (let i: uint64 = 0; i < boxes.length; i++) {
+    intc_0 // 0
+    bury 7
+
+deleteBoxes_while_top@6:
+    // smart_contracts/sunset/contract.algo.ts:23
+    // for (let i: uint64 = 0; i < boxes.length; i++) {
+    dig 6
+    dig 5
+    <
+    dup
+    bury 7
+    bz deleteBoxes_after_while@8
+    dig 5
+    assert // index out of bounds
+    dig 6
+    dup
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16
+    dup2
+    extract_uint16
+    intc_2 // 2
+    +
+    extract3
+    // smart_contracts/sunset/contract.algo.ts:24
+    // op.Box.delete(boxes[i])
+    extract 2 0
+    box_del
+    pop
+    // smart_contracts/sunset/contract.algo.ts:23
+    // for (let i: uint64 = 0; i < boxes.length; i++) {
+    intc_1 // 1
+    +
+    bury 7
+    b deleteBoxes_while_top@6
+
+deleteBoxes_after_while@8:
+    // smart_contracts/sunset/contract.algo.ts:22
+    // deleteBoxes(boxes: bytes[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.closeOut[routing]() -> void:
+closeOut:
+    // smart_contracts/sunset/contract.algo.ts:28
+    // closeOut(closes: AssetCloseParams[]): void {
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_3 // 40
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/sunset/types.ts::AssetCloseParams>
+    // smart_contracts/sunset/contract.algo.ts:29
+    // this.auth()
+    callsub auth
+    // smart_contracts/sunset/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < closes.length; i++) {
+    intc_0 // 0
+
+closeOut_while_top@2:
+    // smart_contracts/sunset/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < closes.length; i++) {
+    dup
+    dig 2
+    <
+    bz closeOut_after_while@5
+    // smart_contracts/sunset/contract.algo.ts:31
+    // const { assetCloseTo, xferAsset } = clone(closes[i])
+    dig 2
+    extract 2 0
+    dig 1
+    dup
+    cover 2
+    intc_3 // 40
+    *
+    intc_3 // 40
+    extract3 // on error: index access is out of bounds
+    dup
+    extract 0 32
+    swap
+    pushint 32
+    extract_uint64
+    // smart_contracts/sunset/contract.algo.ts:32
+    // itxn.assetTransfer({ assetCloseTo, xferAsset }).submit()
+    itxn_begin
+    itxn_field XferAsset
+    itxn_field AssetCloseTo
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/sunset/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < closes.length; i++) {
+    intc_1 // 1
+    +
+    bury 1
+    b closeOut_while_top@2
+
+closeOut_after_while@5:
+    // smart_contracts/sunset/contract.algo.ts:28
+    // closeOut(closes: AssetCloseParams[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteAssets[routing]() -> void:
+deleteAssets:
+    // smart_contracts/sunset/contract.algo.ts:36
+    // deleteAssets(assets: Asset[]): void {
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    pushint 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<asset>
+    // smart_contracts/sunset/contract.algo.ts:37
+    // this.auth()
+    callsub auth
+    // smart_contracts/sunset/contract.algo.ts:38
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    intc_0 // 0
+
+deleteAssets_while_top@2:
+    // smart_contracts/sunset/contract.algo.ts:38
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dup
+    dig 2
+    <
+    bz deleteAssets_after_while@5
+    // smart_contracts/sunset/contract.algo.ts:39
+    // itxn.assetConfig({ configAsset: assets[i] }).submit()
+    itxn_begin
+    dig 2
+    extract 2 0
+    dig 1
+    dup
+    cover 2
+    pushint 8
+    *
+    extract_uint64
+    itxn_field ConfigAsset
+    pushint 3
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/sunset/contract.algo.ts:38
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    intc_1 // 1
+    +
+    bury 1
+    b deleteAssets_while_top@2
+
+deleteAssets_after_while@5:
+    // smart_contracts/sunset/contract.algo.ts:36
+    // deleteAssets(assets: Asset[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.auth() -> void:
+auth:
+    // smart_contracts/sunset/contract.algo.ts:11
+    // (Txn.sender === Global.creatorAddress || Txn.sender === sunsetCaller),
+    txn Sender
+    global CreatorAddress
+    ==
+    bnz auth_bool_true@2
+    txn Sender
+    bytec_0 // TMPL_SUNSET_CALLER
+    ==
+    bz auth_bool_false@3
+
+auth_bool_true@2:
+    intc_1 // 1
+
+auth_bool_merge@4:
+    // smart_contracts/sunset/contract.algo.ts:10-13
+    // loggedAssert(
+    //   (Txn.sender === Global.creatorAddress || Txn.sender === sunsetCaller),
+    //   ERR_NOT_AKITA_DAO
+    // )
+    bnz auth_after_assert@6
+    pushbytes "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+auth_after_assert@6:
+    retsub
+
+auth_bool_false@3:
+    intc_0 // 0
+    b auth_bool_merge@4

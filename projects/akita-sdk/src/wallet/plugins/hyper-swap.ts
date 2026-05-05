@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { HyperSwapPluginArgs, HyperSwapPluginClient, HyperSwapPluginFactory } from "../../generated/HyperSwapPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -55,7 +56,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   offer(args?: OfferArgs): PluginSDKReturn {
     const methodName = 'offer';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -65,7 +66,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -89,7 +90,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   accept(args?: AcceptArgs): PluginSDKReturn {
     const methodName = 'accept';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -99,7 +100,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -123,7 +124,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   escrow(args?: EscrowArgs): PluginSDKReturn {
     const methodName = 'escrow';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -133,7 +134,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -157,7 +158,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   disburse(args?: DisburseArgs): PluginSDKReturn {
     const methodName = 'disburse';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -167,7 +168,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -191,7 +192,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   cancel(args?: CancelArgs): PluginSDKReturn {
     const methodName = 'cancel';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -201,7 +202,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -225,7 +226,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
   withdraw(args?: WithdrawArgs): PluginSDKReturn {
     const methodName = 'withdraw';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -235,7 +236,7 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

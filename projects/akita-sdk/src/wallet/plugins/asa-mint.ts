@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { AsaMintPluginArgs, AsaMintPluginClient, AsaMintPluginFactory } from "../../generated/AsaMintPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -44,7 +45,7 @@ export class AsaMintPluginSDK extends BaseSDK<AsaMintPluginClient> {
     const methodName = 'mint';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -55,7 +56,7 @@ export class AsaMintPluginSDK extends BaseSDK<AsaMintPluginClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -65,7 +66,7 @@ export class AsaMintPluginSDK extends BaseSDK<AsaMintPluginClient> {
         const mbrPayment = this.client.algorand.createTransaction.payment({
           ...sendParams,
           amount: microAlgo(assetCreateCost * assets.length),
-          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet),
+          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet).toString(),
         })
 
         const assetsTuple = assets.map(asset => [

@@ -1,12 +1,11 @@
-import { Account, Application, assert, assertMatch, Bytes, bytes, Global, GlobalState, gtxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Bytes, bytes, Global, GlobalState, gtxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { Uint64ByteLength } from '../../../utils/constants'
 import { NFDGlobalStateKeysName, NFDMetaKeyVerifiedAddresses } from '../../../utils/constants/nfd'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_REGISTRY_ARG } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT, ERR_INVALID_REGISTRY_ARG } from '../../errors'
 
 // CONTRACT IMPORTS
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
@@ -67,22 +66,16 @@ export class NFDGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: 0
-      },
-      ERR_INVALID_PAYMENT
-    )
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === 0, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
 
     return 0
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
-    assert(registryID === 0, ERR_INVALID_REGISTRY_ARG)
+    loggedAssert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(registryID === 0, ERR_INVALID_REGISTRY_ARG)
     return this.nfdGate(caller, btoi(args))
   }
 

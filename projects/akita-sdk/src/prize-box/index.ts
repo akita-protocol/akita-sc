@@ -18,6 +18,7 @@ import {
   PrizeBoxState,
 } from "./types";
 
+export * from "./errors";
 export * from "./types";
 
 /**

@@ -1,6 +1,6 @@
 {
   "name": "@akta/sdk",
-  "version": "1.3.2",
+  "version": "1.3.20-canary",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -19,11 +19,6 @@
       "types": "./dist/dao/index.d.ts",
       "require": "./dist/dao/index.js",
       "import": "./dist/dao/index.mjs"
-    },
-    "./dao-deployable": {
-      "types": "./dist/dao-deployable/index.d.ts",
-      "require": "./dist/dao-deployable/index.js",
-      "import": "./dist/dao-deployable/index.mjs"
     },
     "./escrow": {
       "types": "./dist/escrow/index.d.ts",
@@ -110,7 +105,6 @@
     "*": {
       "auction": ["./dist/auction/index.d.ts"],
       "dao": ["./dist/dao/index.d.ts"],
-      "dao-deployable": ["./dist/dao-deployable/index.d.ts"],
       "escrow": ["./dist/escrow/index.d.ts"],
       "gates": ["./dist/gates/index.d.ts"],
       "hyper-swap": ["./dist/hyper-swap/index.d.ts"],
@@ -138,8 +132,11 @@
   "scripts": {
     "clean": "rm -rf dist/ src/generated/",
     "prebuild": "npm run clean && npm run generate",
-    "generate": "algokit generate client ../akita-sc/smart_contracts/artifacts -v 6.0.1-beta.2 -o src/generated/{contract_name}Client.ts && algokit generate client ../akita-sc/smart_contracts/artifacts/arc58/dao-deployable -v 6.0.1-beta.2 -o src/generated/{contract_name}Client.ts",
-    "build": "tsup && tsc -p tsconfig.esm.json --emitDeclarationOnly --outDir dist"
+    "generate": "algokit generate client ../akita-sc/smart_contracts/artifacts -v 7.0.0-beta.3 -o src/generated/{contract_name}Client.ts",
+    "build": "tsup && tsc -p tsconfig.esm.json --emitDeclarationOnly --outDir dist",
+    "test": "vitest run",
+    "test:watch": "vitest watch",
+    "test:coverage": "vitest run --coverage"
   },
   "author": "Kyle Breeding",
   "license": "ISC",
@@ -148,11 +145,12 @@
     "@noble/hashes": "^1.7.1"
   },
   "peerDependencies": {
-    "@algorandfoundation/algokit-utils": "9.1.2",
+    "@algorandfoundation/algokit-utils": "10.0.0-beta.1",
     "algosdk": "3.5.2"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",
-    "tsup": "^8.5.1"
+    "tsup": "^8.5.1",
+    "vitest": "^2.1.8"
   }
 }

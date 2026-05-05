@@ -3,8 +3,9 @@ import { TxnReturn } from '../types';
 import { GateArgs, GateClient } from '../generated/GateClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { GateCheckArg, GateRegistrationFilterAndArg, GateRegistryConfig } from "./types";
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 type ContractArgs = GateArgs["obj"];
+export * from './errors';
 export * from './types';
 export declare class GateSDK extends BaseSDK<GateClient> {
     private contractIdToType;

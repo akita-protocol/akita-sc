@@ -341,7 +341,7 @@ const result = await prepared.send()
 Pre-authorize transaction batches for future execution:
 
 ```typescript
-const { lease, firstValid, lastValid, ids: groups, atcs } = await wallet.build.usePlugin({
+const { lease, firstValid, lastValid, ids: groups, windows } = await wallet.build.usePlugin({
   sender: executorAddress, signer: executorSigner,
   lease: 'my_lease', windowSize: 2000n,
   global: true,
@@ -351,7 +351,7 @@ const { lease, firstValid, lastValid, ids: groups, atcs } = await wallet.build.u
 await wallet.addExecutionKey({ lease, groups, firstValid, lastValid })
 
 // Third party executes later
-await atcs[0].submit(algorand.client.algod)
+await sendPrepared(windows[0], algorand.client.algod)
 ```
 
 ### Profile and Admin

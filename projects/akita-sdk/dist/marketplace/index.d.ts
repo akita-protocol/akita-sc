@@ -2,7 +2,8 @@ import { BaseSDK } from "../base";
 import { MarketplaceClient, MarketplaceArgs } from '../generated/MarketplaceClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ListingSDK } from "./listing";
-import { ListParams, PurchaseParams, DelistParams } from "./types";
+import { ListParams, PurchaseParams, DelistParams, OptInParams } from "./types";
+export * from "./errors";
 export * from "./listing";
 export * from "./types";
 export type MarketplaceContractArgs = MarketplaceArgs["obj"];
@@ -52,6 +53,20 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      */
     purchase({ sender, signer, listingAppId, marketplace, isAsa, gateTxn, ...rest }: PurchaseParams): Promise<void>;
     /**
+     * Opts the marketplace into an asset so listings using it as the payment
+     * asset can be fulfilled. When the marketplace has a named DAO escrow
+     * configured, this also eagerly opts the escrow + every revenue-split
+     * escrow in via the revenue-manager plugin, so downstream list/purchase
+     * calls don't have to do the rekey dance mid-group.
+     *
+     * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
+     * N split escrows, the asset). Since a single app call only holds 8
+     * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
+     * one opUp) so the resource populator has 16 slots to distribute refs
+     * across.
+     */
+    optIn({ sender, signer, asset }: OptInParams): Promise<void>;
+    /**
      * Removes a listing and returns the asset to the seller.
      * Can only be called by the seller.
      */
@@ -63,7 +78,7 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     /**
      * Updates the Akita DAO Escrow reference.
      */
-    updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & MarketplaceContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void>;
+    updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & MarketplaceContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void>;
 }
 /**
  * Convenience function to create a new listing and return the SDK.

@@ -13,9 +13,11 @@ import {
   ListParams,
   PurchaseParams,
   DelistParams,
+  OptInParams,
 } from "./types";
 import { PrizeBoxFactorySDK } from "../prize-box";
 
+export * from "./errors";
 export * from "./listing";
 export * from "./types";
 
@@ -165,14 +167,15 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       if (!akitaDaoAppId) return 100_000n;
 
       const algod = this.algorand.client.algod;
-      const daoApp = await algod.getApplicationByID(akitaDaoAppId).do();
+      const daoApp = await algod.applicationById(akitaDaoAppId);
       const globalState = daoApp.params.globalState;
       if (!globalState) return 100_000n;
 
       // Find the 'aal' (akitaAppList) key in AkitaDAO global state
       const aalKey = new TextEncoder().encode('aal');
       const aalEntry = globalState.find(
-        (kv) => kv.key.length === aalKey.length && kv.key.every((b, i) => b === aalKey[i])
+        (kv: { key: Uint8Array; value: { type: number; bytes: Uint8Array } }) =>
+          kv.key.length === aalKey.length && kv.key.every((b: number, i: number) => b === aalKey[i])
       );
       if (!aalEntry || aalEntry.value.type !== 1) return 100_000n;
 
@@ -185,7 +188,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
 
       // Check if rewards app address is already opted into the asset
       const rewardsAddress = algosdk.getApplicationAddress(rewardsAppId).toString();
-      const response = await algod.accountAssetInformation(rewardsAddress, asset).do();
+      const response = await algod.accountAssetInformation(rewardsAddress, asset);
       return response.assetHolding ? 0n : 100_000n;
     } catch {
       // If any lookup fails (e.g. 404 not opted in), assume cost is needed
@@ -202,11 +205,17 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
    */
   listCost({ isPrizeBox = false, isAlgoPayment = true, prizeRewardsOptInCost = 100_000n, paymentRewardsOptInCost = 100_000n, escrowOptInCost = 0n }: { isPrizeBox?: boolean, isAlgoPayment?: boolean, prizeRewardsOptInCost?: bigint, paymentRewardsOptInCost?: bigint, escrowOptInCost?: bigint } = {}): bigint {
     // Base cost: MIN_PROGRAM_PAGES * (1 + extraProgramPages) + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
-    // Listing: 2 pages (1 extra), 10 global uints, 5 global bytes
-    const baseCost = 735_000n;
+    // Listing arc56 schema: 9 global uints, 6 global bytes, extraProgramPages = 1 (2 total pages)
+    //   Listing globals: prize, isPrizeBox, price, paymentAsset, expiration, creatorRoyalty, gateID, marketplaceRoyalties (8 uints)
+    //     + seller, reservedFor, marketplace, akitaDAOEscrow (4 bytes)
+    //   + AkitaBaseContract: akitaDAO (1 uint), version (1 bytes)
+    //   + ChildContract: funder (1 bytes)
+    //   => 9 uints, 6 bytes
+    // = (100_000 * 2) + (28_500 * 9) + (50_000 * 6) = 200_000 + 256_500 + 300_000 = 756_500
+    const baseCost = 756_500n;
     const minBalance = 100_000n;
     const assetOptInMinBalance = 100_000n;
-    const perDisbursement = 60_600n; // MinDisbursementsMBR + UserAllocationMBR
+    const perDisbursement = 67_000n; // MinDisbursementsMBR + UserAllocationMBR
 
     // Asset opt-in MBR for the child contract
     const optinMbr = isPrizeBox
@@ -331,6 +340,50 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     await group.send(sendParams);
   }
 
+  // ========== OptIn Methods ==========
+
+  /**
+   * Opts the marketplace into an asset so listings using it as the payment
+   * asset can be fulfilled. When the marketplace has a named DAO escrow
+   * configured, this also eagerly opts the escrow + every revenue-split
+   * escrow in via the revenue-manager plugin, so downstream list/purchase
+   * calls don't have to do the rekey dance mid-group.
+   *
+   * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
+   * N split escrows, the asset). Since a single app call only holds 8
+   * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
+   * one opUp) so the resource populator has 16 slots to distribute refs
+   * across.
+   */
+  async optIn({ sender, signer, asset }: OptInParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const cost = await this.client.optInCost({ args: { asset } });
+
+    const payment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(cost),
+      receiver: this.client.appAddress,
+    });
+
+    await this.client.newGroup()
+      .optIn({
+        ...sendParams,
+        args: { payment, asset },
+        maxFee: microAlgo(257_000),
+      })
+      .opUp({
+        ...sendParams,
+        args: {},
+        maxFee: microAlgo(2_000),
+      })
+      .send({
+        ...sendParams,
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true,
+      });
+  }
+
   // ========== Delist Methods ==========
 
   /**
@@ -363,12 +416,12 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
   /**
    * Updates the Akita DAO Escrow reference.
    */
-  async updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & MarketplaceContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void> {
+  async updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & MarketplaceContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
 
     await this.client.send.updateAkitaDaoEscrow({
       ...sendParams,
-      args: { app },
+      args: { config },
     });
   }
 }
@@ -387,4 +440,3 @@ export async function newListing({
   const marketplace = new MarketplaceSDK({ factoryParams, algorand, readerAccount, sendParams });
   return await marketplace.list(listParams);
 }
-

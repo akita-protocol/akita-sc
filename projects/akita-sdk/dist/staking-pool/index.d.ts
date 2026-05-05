@@ -2,6 +2,7 @@ import { BaseSDK } from "../base";
 import { StakingPoolClient, StakingPoolArgs, StakingPoolState, StakingPoolMbrData, Reward } from '../generated/StakingPoolClient';
 import { GroupReturn, MaybeSigner, NewContractSDKParams } from "../types";
 import { AddRewardAsaParams, FinalizePoolParams, EnterPoolParams, StartDisbursementParams, RaffleParams, DisburseRewardsParams, FinalizeDistributionParams, OptinAssetParams, CheckParams, CheckResult, IsEnteredParams, StakingPoolMbrParams, GateCheckParams } from "./types";
+export * from "./errors";
 export * from "./factory";
 export * from "./types";
 type PoolContractArgs = StakingPoolArgs["obj"];
@@ -85,7 +86,7 @@ export declare class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
     /**
      * Updates the Akita DAO escrow reference.
      */
-    updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & PoolContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void>;
+    updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & PoolContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void>;
     /**
      * Updates the Akita DAO reference.
      */

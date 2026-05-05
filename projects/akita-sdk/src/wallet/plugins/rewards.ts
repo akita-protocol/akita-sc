@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { RewardsPluginArgs, RewardsPluginClient, RewardsPluginFactory } from "../../generated/RewardsPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -30,7 +31,7 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
    * The group is capped at 16 transactions, with 2 reserved (plugin call + verifyAuthAddr).
    */
   private static readonly REFS_PER_CLAIM = 8;
-  private static readonly BASE_REF_OVERHEAD = 10; // plugin app, rewards app, wallet app, wallet boxes, sender, contract accounts, etc.
+  private static readonly BASE_REF_OVERHEAD = 12; // plugin app, rewards app, wallet app, akitaDAO, wallet boxes, sender, creator (may differ from sender), contract accounts, etc.
   private static readonly REFS_PER_TXN = 8;
   private static readonly MAX_OPUP_COUNT = 14; // 16 max group size - 2 reserved (plugin call + verifyAuthAddr)
 
@@ -59,7 +60,7 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
   claimRewards(args?: ClaimRewardsArgs): PluginSDKReturn {
     const methodName = 'claimRewards';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -72,7 +73,7 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

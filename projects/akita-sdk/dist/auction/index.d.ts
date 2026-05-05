@@ -3,6 +3,7 @@ import { AuctionClient, BidInfo } from '../generated/AuctionClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { BidParams, RefundBidParams, FindWinnerParams, RefundMBRParams, ClearWeightsBoxesParams, GetBidParams, HasBidParams, AuctionState, AuctionMbrData } from "./types";
 export * from "./factory";
+export * from "./errors";
 export * from "./types";
 /**
  * SDK for interacting with an individual Auction contract.

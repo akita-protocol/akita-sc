@@ -26,7 +26,7 @@ main:
     // const sig = op.arg(4).toFixed({ length: 64 })
     arg 4
     len
-    pushint 64 // 64
+    pushint 64
     ==
     assert // Length must be 64
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:15
@@ -42,7 +42,7 @@ main:
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:17
     // if (Global.groupSize > 1) {
     global GroupSize
-    pushint 1 // 1
+    pushint 1
     >
     bz main_else_body@2
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:18

@@ -6,7 +6,6 @@ export default defineConfig({
     'auction/index': 'src/auction/index.ts',
     'connect/index': 'src/connect/index.ts',
     'dao/index': 'src/dao/index.ts',
-    'dao-deployable/index': 'src/dao-deployable/index.ts',
     'escrow/index': 'src/escrow/index.ts',
     'gates/index': 'src/gates/index.ts',
     'hyper-swap/index': 'src/hyper-swap/index.ts',

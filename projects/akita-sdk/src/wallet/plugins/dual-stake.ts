@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { DualStakePluginArgs, DualStakePluginClient, DualStakePluginFactory } from "../../generated/DualStakePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -30,7 +31,7 @@ export class DualStakePluginSDK extends BaseSDK<DualStakePluginClient> {
   mint(args?: MintArgs): PluginSDKReturn {
     const methodName = 'mint';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -40,7 +41,7 @@ export class DualStakePluginSDK extends BaseSDK<DualStakePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -64,7 +65,7 @@ export class DualStakePluginSDK extends BaseSDK<DualStakePluginClient> {
   redeem(args?: RedeemArgs): PluginSDKReturn {
     const methodName = 'redeem';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -74,7 +75,7 @@ export class DualStakePluginSDK extends BaseSDK<DualStakePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

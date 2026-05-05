@@ -126,7 +126,8 @@ describe('ARC58 DAO Proposals', () => {
     test('should throw error for non-existent proposal ID', async () => {
       const { dao } = context;
 
-      await expect(dao.getProposal(999999n)).rejects.toThrow('Proposal does not exist');
+      // ARC-65 short code: NPRP = 'Proposal does not exist'
+      await expect(dao.getProposal(999999n)).rejects.toThrow('ERR:NPRP');
     });
   });
 

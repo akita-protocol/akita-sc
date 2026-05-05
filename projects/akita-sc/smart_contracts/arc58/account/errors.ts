@@ -1,71 +1,114 @@
-export const ERR_ADMIN_CANNOT_BE_CONTROLLED = 'Admin and controlled address cannot be the same'
-export const ERR_BAD_DEPLOYER = 'This contract must be deployed from a factory'
-export const ERR_ONLY_ADMIN_CAN_UPDATE = 'Only an admin can update the application'
-export const ERR_ONLY_ADMIN_CAN_CHANGE_REVOKE = 'Only an admin can change the revocation app'
-export const ERR_ONLY_ADMIN_CAN_CHANGE_AKITA_DAO = 'Only an admin can change the Akita DAO'
-export const ERR_ONLY_ADMIN_CAN_CHANGE_ADMIN = 'Only an admin can change the admin account'
-export const ERR_ONLY_ADMIN_CAN_REKEY = 'Only an admin can rekey the account'
-export const ERR_ONLY_ADMIN_CAN_ADD_PLUGIN = 'Only an admin can add a plugin'
-export const ERR_ONLY_ADMIN_CAN_ADD_METHOD_RESTRICTION = 'Only an admin can add a method restriction'
-export const ERR_ONLY_ADMIN_CAN_CHANGE_NICKNAME = 'Only an admin can change the nickname'
-export const ERR_DOES_NOT_HOLD_ASSET = 'The account does not hold the asset'
-export const ERR_NAMED_PLUGIN_ALREADY_EXISTS = 'A plugin with this name already exists'
-export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN = 'Only an admin or revocation app can remove plugins'
-export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_METHOD_RESTRICTION =
-    'Only an admin or revocation app can remove method restrictions'
-export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_ALLOWANCE = 'Only an admin or revocation app can remove allowances'
-export const ERR_SENDER_NOT_ALLOWED_TO_CALL_PLUGIN = 'This sender is not allowed to trigger this plugin'
-export const ERR_PLUGIN_DOES_NOT_CONTROL_WALLET = 'This plugin is not in control of the account'
-export const ERR_PLUGIN_DOES_NOT_HAVE_ADMIN_PRIVILEGES = 'This plugin does not have admin privileges'
-export const ERR_DOMAIN_MUST_BE_LONGER_THAN_ZERO = 'Domain must not be length 0'
-export const ERR_EXECUTION_KEY_NOT_FOUND = 'Execution key not found'
-export const ERR_EXECUTION_NOT_READY = 'Execution key not ready'
-export const ERR_EXECUTION_EXPIRED = 'Execution key expired'
-export const ERR_GROUP_NOT_FOUND = 'Group not found'
-export const ERR_INVALID_UPGRADE = 'Invalid upgrade'
-export const ERR_WALLET_ALREADY_SETUP = 'Wallet already setup'
-export const ERR_PLUGIN_DOES_NOT_EXIST = 'Plugin does not exist'
-export const ERR_METHOD_DOES_NOT_EXIST = 'Method does not exist'
-export const ERR_METHOD_ALREADY_EXISTS = 'Method already exists'
+/**
+ * ARC-65 short error codes for the AbstractedAccount contracts.
+ *
+ * These values are the payload `loggedAssert`/`loggedErr` emits to the log
+ * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
+ *
+ * The human-readable mapping lives in `akita-sdk/src/wallet/errors.ts` — keep
+ * the two files in sync when adding or changing a code. Constant NAMES are
+ * preserved from the pre-ARC-65 layout so call sites don't change.
+ *
+ * Codes that also appear in `arc58/dao/errors.ts` or `social/errors.ts`
+ * (e.g. `IPAY`, `FORB`, `IUPG`, `NEXK`, `EALW`, `NALW`, `EESC`, `NESC`,
+ * `NPLG`, `EPLG`, `PEXP`, `WSUP`) use the same short code intentionally so
+ * cross-contract errors round-trip through any translator.
+ */
 
+// --- Admin / authorization --------------------------------------------------
 
-export const ERR_ONLY_CREATOR_CAN_REKEY = 'only the creator can rekey a spend contract'
-export const ERR_SENDER_MUST_BE_ADMIN_OR_CONTROLLED_ADDRESS = 'sender must be either controlledAddress or admin'
-export const ERR_ADMIN_ONLY = 'admin only'
-export const ERR_PLUGIN_ALREADY_EXISTS = 'plugin already exists'
-export const ERR_PLUGIN_EXPIRED = 'plugin expired'
-export const ERR_PLUGIN_ON_COOLDOWN = 'plugin on cooldown'
-export const ERR_INVALID_PLUGIN_CALL = 'invalid plugin call'
-export const ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY = 'cannot call other apps during rekey'
-export const ERR_INVALID_ONCOMPLETE = 'invalid oncomplete must be no op'
-export const ERR_INVALID_SENDER_ARG = 'invalid sender must be this app id'
-export const ERR_INVALID_SENDER_VALUE = 'invalid sender app id'
-export const ERR_METHOD_ON_COOLDOWN = 'method on cooldown'
-export const ERR_MISSING_REKEY_BACK = 'missing rekey back'
-export const ERR_MALFORMED_OFFSETS = 'malformed method offsets'
-export const ERR_INVALID_METHOD_SIGNATURE_LENGTH = 'invalid method signature length'
-export const ERR_SENDER_MUST_BE_ADMIN_PLUGIN = 'sender must be admin plugin'
-export const ERR_ADMIN_PLUGINS_CANNOT_USE_ESCROWS = 'admin plugins cannot use escrows'
-export const ERR_ZERO_ADDRESS_DELEGATION_TYPE = 'delegation type must not be self for global plugins'
-export const ERR_USING_EXECUTION_KEY_REQUIRES_GLOBAL = 'using execution key requires global plugin'
-export const ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT = 'escrow must be set if defaultToEscrow is true'
-export const ERR_ALLOWANCE_ALREADY_EXISTS = 'allowance already exists'
-export const ERR_ALLOWANCE_DOES_NOT_EXIST = 'allowance does not exist'
-export const ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_FIRST_VALID = 'execution key update must match first valid'
-export const ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_LAST_VALID = 'execution key update must match last valid'
-export const ERR_DOMAIN_KEY_DOES_NOT_EXIST = 'domain key does not exist'
+export const ERR_ADMIN_ONLY = 'ADMN'
+export const ERR_FORBIDDEN = 'FORB'
+export const ERR_ADMIN_CANNOT_BE_CONTROLLED = 'ACBC'
+export const ERR_SENDER_MUST_BE_ADMIN_OR_CONTROLLED_ADDRESS = 'SADM'
+export const ERR_SENDER_MUST_BE_ADMIN_PLUGIN = 'SMAP'
+export const ERR_ONLY_CREATOR_CAN_REKEY = 'OCCR'
+export const ERR_ONLY_APPS = 'OAPP'
+export const ERR_ONLY_WALLET_OR_PLUGIN = 'OWOP'
+export const ERR_ONLY_FACTORY_CAN_DELETE = 'OFCD'
+export const ERR_FACTORY_UPDATES_NOT_ALLOWED = 'FUNA'
 
-export const ERR_INVALID_PAYMENT = 'invalid payment'
+// --- Admin-gated setters ----------------------------------------------------
+// Setters that route through `_requireAdmin()` use the generic
+// ERR_ADMIN_ONLY ('ADMN') code — no dedicated code here to save bytecode.
+// That covers: setDomain, setRevocationApp, setAkitaDAO,
+// setFactoryUpdateSettings, arc58_changeAdmin, and the profile setters
+// (setNickname, setAvatar, setBanner, setBio).
 
-export const ERR_ONLY_APPS = 'Only applications can create spending accounts'
-export const ERR_FORBIDDEN = 'only the creator wallet can delete a spending account'
+export const ERR_ONLY_ADMIN_CAN_UPDATE = 'OACU'
+export const ERR_ONLY_ADMIN_CAN_REKEY = 'OACK'
+export const ERR_ONLY_ADMIN_CAN_ADD_PLUGIN = 'OAAP'
+export const ERR_ONLY_ADMIN_CAN_ADD_METHOD_RESTRICTION = 'OAMR'
+export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN = 'OARP'
+export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_METHOD_RESTRICTION = 'OARM'
+export const ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_ALLOWANCE = 'OARA'
 
-export const ERR_ESCROW_LOCKED = 'Escrow is locked'
-export const ERR_ESCROW_ALREADY_EXISTS = 'Escrow already exists'
-export const ERR_ESCROW_NAME_REQUIRED = 'Escrow name is required'
-export const ERR_ESCROW_DOES_NOT_EXIST = 'Escrow does not exist'
-export const ERR_WRONG_ESCROW_FOR_OPERATION = 'Wrong escrow for this operation'
+// --- Deployment / lifecycle -------------------------------------------------
 
-export const ERR_ONLY_WALLET_OR_PLUGIN = 'Only the wallet or plugin can opt in'
-export const ERR_ONLY_FACTORY_CAN_DELETE = 'Only the factory can delete the application'
-export const ERR_ALLOWANCE_EXCEEDED = 'Allowance exceeded'
+export const ERR_BAD_DEPLOYER = 'BDEP'
+export const ERR_INVALID_UPGRADE = 'IUPG'
+export const ERR_WALLET_ALREADY_SETUP = 'WSUP'
+
+// --- Plugins ----------------------------------------------------------------
+
+export const ERR_PLUGIN_DOES_NOT_EXIST = 'NPLG'
+export const ERR_PLUGIN_ALREADY_EXISTS = 'EPLG'
+export const ERR_NAMED_PLUGIN_ALREADY_EXISTS = 'ENPL'
+export const ERR_PLUGIN_EXPIRED = 'PEXP'
+export const ERR_PLUGIN_ON_COOLDOWN = 'PCLD'
+export const ERR_INVALID_PLUGIN_CALL = 'IPCL'
+export const ERR_SENDER_NOT_ALLOWED_TO_CALL_PLUGIN = 'SNAP'
+export const ERR_PLUGIN_DOES_NOT_CONTROL_WALLET = 'PDCW'
+export const ERR_PLUGIN_DOES_NOT_HAVE_ADMIN_PRIVILEGES = 'PDAP'
+export const ERR_ADMIN_PLUGINS_CANNOT_USE_ESCROWS = 'APNE'
+export const ERR_ZERO_ADDRESS_DELEGATION_TYPE = 'ZADT'
+export const ERR_USING_EXECUTION_KEY_REQUIRES_GLOBAL = 'UEKG'
+
+// --- Methods ----------------------------------------------------------------
+
+export const ERR_METHOD_DOES_NOT_EXIST = 'NMTH'
+export const ERR_METHOD_ALREADY_EXISTS = 'EMTH'
+export const ERR_METHOD_ON_COOLDOWN = 'MCLD'
+export const ERR_INVALID_METHOD_SIGNATURE_LENGTH = 'IMSL'
+export const ERR_MALFORMED_OFFSETS = 'MOFF'
+
+// --- Rekey sandwich ---------------------------------------------------------
+
+export const ERR_MISSING_REKEY_BACK = 'NRKB'
+export const ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY = 'CCOR'
+export const ERR_INVALID_ONCOMPLETE = 'IOCN'
+export const ERR_INVALID_SENDER_ARG = 'ISAG'
+export const ERR_INVALID_SENDER_VALUE = 'ISVL'
+export const ERR_AUTH_ADDR_MISMATCH = 'AUAM'
+
+// --- Execution keys ---------------------------------------------------------
+
+export const ERR_EXECUTION_KEY_NOT_FOUND = 'NEXK'
+export const ERR_EXECUTION_NOT_READY = 'EXNR'
+export const ERR_EXECUTION_EXPIRED = 'EXXP'
+export const ERR_GROUP_NOT_FOUND = 'NGRP'
+export const ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_FIRST_VALID = 'EKFV'
+export const ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_LAST_VALID = 'EKLV'
+
+// --- Escrows ----------------------------------------------------------------
+
+export const ERR_ESCROW_LOCKED = 'ESCL'
+export const ERR_ESCROW_ALREADY_EXISTS = 'EESC'
+export const ERR_ESCROW_NAME_REQUIRED = 'ENRQ'
+export const ERR_ESCROW_DOES_NOT_EXIST = 'NESC'
+export const ERR_WRONG_ESCROW_FOR_OPERATION = 'WESC'
+export const ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT = 'ERSD'
+
+// --- Allowances -------------------------------------------------------------
+
+export const ERR_ALLOWANCE_ALREADY_EXISTS = 'EALW'
+export const ERR_ALLOWANCE_DOES_NOT_EXIST = 'NALW'
+export const ERR_ALLOWANCE_EXCEEDED = 'ALEX'
+
+// --- Domain keys ------------------------------------------------------------
+
+export const ERR_DOMAIN_MUST_BE_LONGER_THAN_ZERO = 'DML0'
+export const ERR_DOMAIN_KEY_DOES_NOT_EXIST = 'NDMK'
+
+// --- Payments ---------------------------------------------------------------
+
+export const ERR_INVALID_PAYMENT = 'IPAY'

@@ -9,7 +9,7 @@ main:
     // export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@15
     pushbytess 0x6cdf8431 0xf9dbd50c 0x9e290396 0xb678e5b5 0x7f0ad198 0xb63ab0d3 0x33e92c94 0x854dede0 0x840733dd // method "offer(uint64,bool,byte[32],uint64,byte[32],uint64,uint64)void", method "accept(uint64,bool,uint64,byte[32][])void", method "escrow(uint64,bool,uint64,address,uint64,uint64,byte[32][])void", method "disburse(uint64,bool,uint64,uint64,address,uint64,uint64)void", method "cancel(uint64,bool,uint64,byte[32][])void", method "withdraw(uint64,bool,uint64,address,uint64,uint64,byte[32][])void", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr()(uint64,uint64,uint64,(uint64,uint64))"
@@ -26,7 +26,7 @@ main_mbr_route@13:
     return
 
 main_opUp_route@12:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_2 // 1
     return
@@ -70,29 +70,29 @@ create:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:16
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:17
@@ -122,14 +122,14 @@ offer:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -137,31 +137,31 @@ offer:
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 4
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 5
     dup
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 6
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 7
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -181,7 +181,7 @@ offer:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:36
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:36
@@ -195,7 +195,7 @@ offer:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:36
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:38-54
     // abiCall<typeof HyperSwap.prototype.offer>({
@@ -223,7 +223,7 @@ offer:
     assert // application exists
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:35
     // const hyperSwapOfferMBRAmount: uint64 = costs.offers + costs.participants + (metaMerklesCost * 2)
-    pushint 222200 // 222200
+    pushint 222200
     itxn_field Amount
     itxn_field Receiver
     dig 1
@@ -262,6 +262,9 @@ offer:
     uncover 7
     uncover 8
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:38-54
     // abiCall<typeof HyperSwap.prototype.offer>({
     //   sender,
@@ -282,19 +285,15 @@ offer:
     // })
     pushbytes 0x0db3a44b // method "offer(pay,byte[32],uint64,byte[32],uint64,uint64)void"
     itxn_field ApplicationArgs
-    uncover 7
-    itxn_field ApplicationArgs
-    uncover 6
-    itxn_field ApplicationArgs
-    uncover 5
-    itxn_field ApplicationArgs
     uncover 4
     itxn_field ApplicationArgs
     uncover 3
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -328,14 +327,14 @@ accept:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -343,19 +342,19 @@ accept:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -375,7 +374,7 @@ accept:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:65
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:65
@@ -389,7 +388,7 @@ accept:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:65
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:67-80
     // abiCall<typeof HyperSwap.prototype.accept>({
@@ -450,6 +449,9 @@ accept:
     uncover 4
     uncover 5
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:67-80
     // abiCall<typeof HyperSwap.prototype.accept>({
     //   sender,
@@ -467,13 +469,9 @@ accept:
     // })
     pushbytes 0xbde1a11e // method "accept(pay,uint64,byte[32][])void"
     itxn_field ApplicationArgs
-    uncover 4
+    swap
     itxn_field ApplicationArgs
-    uncover 3
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -508,7 +506,7 @@ escrow:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
@@ -516,7 +514,7 @@ escrow:
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     swap
@@ -526,14 +524,14 @@ escrow:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     cover 2
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 5
     dup
     cover 2
@@ -541,7 +539,7 @@ escrow:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     cover 2
@@ -552,7 +550,7 @@ escrow:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
     txna ApplicationArgs 7
@@ -560,15 +558,15 @@ escrow:
     cover 3
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -589,7 +587,7 @@ escrow:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:93
     // const hyperSwapApp = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:93
@@ -603,7 +601,7 @@ escrow:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:93
     // const hyperSwapApp = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     swap
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:95
@@ -675,6 +673,9 @@ escrow:
     dig 11
     dig 13
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:97-112
     // abiCall<typeof HyperSwap.prototype.escrow>({
     //   sender,
@@ -694,17 +695,14 @@ escrow:
     // })
     pushbytes 0xd85febdd // method "escrow(pay,uint64,address,uint64,byte[32][])void"
     itxn_field ApplicationArgs
-    dig 11
-    itxn_field ApplicationArgs
-    dig 10
+    dig 8
     itxn_field ApplicationArgs
     dig 7
     itxn_field ApplicationArgs
-    dig 5
+    dig 4
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field Sender
-    itxn_field ApplicationID
+    dig 2
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -838,7 +836,7 @@ escrow_after_if_else@9:
     //   assetAmount: amount,
     //   xferAsset: asset
     // }),
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -872,6 +870,9 @@ escrow_after_if_else@9:
     dig 11
     dig 13
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:127-149
     // abiCall<typeof HyperSwap.prototype.escrowAsa>({
     //   sender,
@@ -898,19 +899,16 @@ escrow_after_if_else@9:
     // })
     pushbytes 0x466f871a // method "escrowAsa(pay,axfer,uint64,address,uint64,uint64,byte[32][])void"
     itxn_field ApplicationArgs
-    dig 11
-    itxn_field ApplicationArgs
-    dig 10
-    itxn_field ApplicationArgs
-    dig 9
+    dig 8
     itxn_field ApplicationArgs
     dig 7
     itxn_field ApplicationArgs
-    dig 5
+    dig 6
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
+    dig 4
+    itxn_field ApplicationArgs
+    dig 2
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -936,14 +934,14 @@ disburse:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -951,31 +949,31 @@ disburse:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 5
     dup
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 6
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 7
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -1010,7 +1008,7 @@ disburse:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:166
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:166
@@ -1024,13 +1022,17 @@ disburse:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:166
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:174
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 7
     uncover 8
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:164-175
     // abiCall<typeof HyperSwap.prototype.disburse>({
     //   sender,
@@ -1046,19 +1048,15 @@ disburse:
     // })
     pushbytes 0x566a62b2 // method "disburse(uint64,uint64,address,uint64,uint64)void"
     itxn_field ApplicationArgs
-    uncover 7
-    itxn_field ApplicationArgs
-    uncover 6
-    itxn_field ApplicationArgs
-    uncover 5
-    itxn_field ApplicationArgs
     uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1092,14 +1090,14 @@ cancel:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -1107,19 +1105,19 @@ cancel:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -1148,7 +1146,7 @@ cancel:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:188
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:188
@@ -1162,13 +1160,17 @@ cancel:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:188
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:190
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:186-191
     // abiCall<typeof HyperSwap.prototype.cancel>({
     //   sender,
@@ -1178,13 +1180,9 @@ cancel:
     // })
     pushbytes 0x0c7ab42e // method "cancel(uint64,byte[32][])void"
     itxn_field ApplicationArgs
-    uncover 4
+    swap
     itxn_field ApplicationArgs
-    uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1218,14 +1216,14 @@ withdraw:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
@@ -1233,37 +1231,37 @@ withdraw:
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 5
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 6
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 7
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -1292,7 +1290,7 @@ withdraw:
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:207
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:207
@@ -1306,13 +1304,17 @@ withdraw:
     pop
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:207
     // appId: Application(getAkitaAppList(this.akitaDAO.value).hyperSwap),
-    pushint 56 // 56
+    pushint 56
     extract_uint64
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:209
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 7
     uncover 8
     callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    swap
+    itxn_field Sender
     // smart_contracts/arc58/plugins/hyper-swap/contract.algo.ts:205-210
     // abiCall<typeof HyperSwap.prototype.withdraw>({
     //   sender,
@@ -1322,19 +1324,15 @@ withdraw:
     // })
     pushbytes 0x0631868b // method "withdraw(uint64,address,uint64,uint64,byte[32][])void"
     itxn_field ApplicationArgs
-    uncover 7
-    itxn_field ApplicationArgs
-    uncover 6
-    itxn_field ApplicationArgs
-    uncover 5
-    itxn_field ApplicationArgs
     uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
-    itxn_field RekeyTo
-    itxn_field ApplicationID
-    itxn_field Sender
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1356,45 +1354,50 @@ withdraw:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
     intc_1 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    pushbytes "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_2 // 1
     return

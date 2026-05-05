@@ -1,8 +1,6 @@
 import {
   Account,
   Application,
-  assert,
-  assertMatch,
   BoxMap,
   bytes,
   clone,
@@ -11,13 +9,13 @@ import {
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   uint64
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
 import { GateBoxPrefixGateRegistry, GateGlobalStateKeyCursor } from './constants'
-import { ERR_GATE_FAILED } from './errors'
+import { ERR_GATE_FAILED, ERR_GATE_NOT_FOUND, ERR_INVALID_LAYER, ERR_INVALID_PAYMENT } from './errors'
 import { AND, GateArgs, GateFilter, GateFilterEntry, GateFilterEntryWithArgs, OR } from './types'
 
 // CONTRACT IMPORTS
@@ -125,7 +123,7 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
     let lastFilterLayer: uint64 = 0
 
     for (let i: uint64 = 0; i < filters.length; i += 1) {
-      assert(filters[i].layer >= lastFilterLayer)
+      loggedAssert(filters[i].layer >= lastFilterLayer, ERR_INVALID_LAYER)
       lastFilterLayer = filters[i].layer
 
       const cost = abiCall<typeof MockGate.prototype.cost>({
@@ -148,14 +146,8 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
       entries.push({ ...filters[i], registryEntry })
     }
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: requiredCosts,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === requiredCosts, ERR_INVALID_PAYMENT)
 
     const id = this.newGateID()
     this.gateRegistry(id).value = clone(entries)
@@ -163,13 +155,13 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
   }
 
   check(caller: Account, gateID: uint64, args: GateArgs): boolean {
-    assert(this.gateRegistry(gateID).exists)
+    loggedAssert(this.gateRegistry(gateID).exists, ERR_GATE_NOT_FOUND)
     const filters = clone(this.gateRegistry(gateID).value)
     return this.evaluate(caller, filters, 0, filters.length - 1, args)
   }
 
   mustCheck(caller: Account, gateID: uint64, args: GateArgs): void {
-    assert(this.check(caller, gateID, args), ERR_GATE_FAILED)
+    loggedAssert(this.check(caller, gateID, args), ERR_GATE_FAILED)
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
@@ -191,13 +183,13 @@ export class Gate extends classes(BaseGate, AkitaBaseContract) {
 
   @abimethod({ readonly: true })
   size(gateID: uint64): uint64 {
-    assert(this.gateRegistry(gateID).exists)
+    loggedAssert(this.gateRegistry(gateID).exists, ERR_GATE_NOT_FOUND)
     return this.gateRegistry(gateID).value.length
   }
 
   @abimethod({ readonly: true })
   getGate(gateID: uint64): GateFilterEntryWithArgs[] {
-    assert(this.gateRegistry(gateID).exists)
+    loggedAssert(this.gateRegistry(gateID).exists, ERR_GATE_NOT_FOUND)
 
     const entries = clone(this.gateRegistry(gateID).value)
 

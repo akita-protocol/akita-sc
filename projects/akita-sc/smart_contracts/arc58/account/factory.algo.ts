@@ -1,33 +1,44 @@
 import {
   Account,
   Application,
-  assert,
-  assertMatch,
+  Asset,
   Bytes,
   bytes,
+  clone,
+  contract,
   Global,
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   OnCompleteAction,
   op,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, abimethod, compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, abimethod, compileArc4, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { GlobalStateKeyEscrowFactory, GlobalStateKeyRevocation } from '../../constants'
 import { ERR_NOT_AKITA_DAO } from '../../errors'
+import { ERR_ADMIN_ONLY, ERR_FACTORY_UPDATES_NOT_ALLOWED } from './errors'
 import { ARC58WalletIDsByAccountsMbr } from '../../escrow/constants'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_AVM_BYTE_ARRAY_LENGTH, MAX_PROGRAM_PAGES } from '../../utils/constants'
+import { BoxCostPerByte, FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_AVM_BYTE_ARRAY_LENGTH, MAX_PROGRAM_PAGES } from '../../utils/constants'
 import { ERR_INVALID_PAYMENT } from '../../utils/errors'
-import { costInstantDisbursement, getWalletFees, getWalletIDUsingAkitaDAO, sendReferralPayment } from '../../utils/functions'
-import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountNumGlobalBytes, AbstractAccountNumGlobalUints, AbstractedAccountFactoryGlobalStateKeyDomain } from './constants'
+import { costInstantDisbursement, getWalletFees, getWalletIDUsingAkitaDAO, rekeyAddress, sendReferralPayment } from '../../utils/functions'
+import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysUpdateSettings, AbstractAccountNumGlobalBytes, AbstractAccountNumGlobalUints, AbstractedAccountFactoryGlobalStateKeyDomain, MethodRestrictionByteLength, MinPluginMBR } from './constants'
+import { FactoryUpdateSettings, PluginInstall } from './types'
 
 // CONTRACT IMPORTS
+import { EscrowConfig } from '../../utils/base-contracts/base'
 import { FactoryContract } from '../../utils/base-contracts/factory'
 import { AbstractedAccount } from './contract.algo'
 
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class AbstractedAccountFactory extends FactoryContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -44,14 +55,14 @@ export class AbstractedAccountFactory extends FactoryContract {
   @abimethod({ onCreate: 'require' })
   create(
     akitaDAO: Application,
-    akitaDAOEscrow: Application,
+    akitaDAOEscrow: EscrowConfig,
     version: string,
     escrowFactory: Application,
     revocation: Application,
     domain: string
   ): void {
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
     this.version.value = version
     this.escrowFactory.value = escrowFactory
     this.revocation.value = revocation
@@ -61,7 +72,7 @@ export class AbstractedAccountFactory extends FactoryContract {
   // ABSTRACTED ACCOUNT FACTORY METHODS -----------------------------------------------------------
 
   updateRevocation(app: Application): void {
-    assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     this.revocation.value = app
   }
 
@@ -70,7 +81,12 @@ export class AbstractedAccountFactory extends FactoryContract {
     controlledAddress: Account,
     admin: Account,
     nickname: string,
-    referrer: Account
+    referrer: Account,
+    salt: bytes<32>,
+    bio: string,
+    extraFunding: uint64,
+    assets: uint64[],
+    plugins: PluginInstall[]
   ): uint64 {
 
     const abstractedAccount = compileArc4(AbstractedAccount)
@@ -78,13 +94,22 @@ export class AbstractedAccountFactory extends FactoryContract {
     const creationFee = getWalletFees(this.akitaDAO.value).createFee
 
     const childMBR: uint64 = (
-      MAX_PROGRAM_PAGES + // 300_000
-      (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) + // 256_500
-      (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) + // 850_000
-      Global.minBalance + // 100_000
-      ARC58WalletIDsByAccountsMbr + // 12_100
+      MAX_PROGRAM_PAGES +
+      (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
+      Global.minBalance +
+      ARC58WalletIDsByAccountsMbr +
       creationFee
     )
+
+    const assetMBR: uint64 = Global.assetOptInMinBalance * assets.length
+
+    let pluginMBR: uint64 = 0
+    for (let i: uint64 = 0; i < plugins.length; i += 1) {
+      pluginMBR += MinPluginMBR + (BoxCostPerByte * (
+        (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
+      ))
+    }
 
     let leftover: uint64 = creationFee
     let referralMbr: uint64 = 0;
@@ -92,18 +117,16 @@ export class AbstractedAccountFactory extends FactoryContract {
       ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
     }
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: childMBR + referralMbr,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === childMBR + referralMbr + extraFunding + assetMBR + pluginMBR, ERR_INVALID_PAYMENT)
 
     const approvalSize = this.boxedContract.length
     const chunk1 = this.boxedContract.extract(0, 4096)
     const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
+
+    // Factory as temp admin for setup, then transfers to the real admin
+    const useSetup = bio !== '' || plugins.length > 0 || assets.length > 0
+    const initialAdmin = useSetup ? Global.currentApplicationAddress : admin
 
     const walletID = abstractedAccount.call
       .create({
@@ -111,12 +134,13 @@ export class AbstractedAccountFactory extends FactoryContract {
           this.childContractVersion.value,
           this.akitaDAO.value.id,
           controlledAddress,
-          admin,
+          initialAdmin,
           this.domain.value,
           this.escrowFactory.value.id,
           this.revocation.value.id,
           nickname,
-          referrer
+          referrer,
+          salt
         ],
         approvalProgram: [chunk1, chunk2],
         clearStateProgram: abstractedAccount.clearStateProgram,
@@ -126,17 +150,108 @@ export class AbstractedAccountFactory extends FactoryContract {
       .createdApp
       .id
 
+    const walletApp = Application(walletID)
+    const isExternalControlled = controlledAddress !== Global.zeroAddress
+
+    // Fund wallet app (MBR + plugins + extra funding)
+    // Asset MBR goes to the controlled address (which may differ from the wallet app)
     itxn
       .payment({
-        receiver: Application(walletID).address,
-        amount: Global.minBalance + ARC58WalletIDsByAccountsMbr
+        receiver: walletApp.address,
+        amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+          + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
       })
       .submit()
+
+    // Fund external controlled address with asset opt-in MBR
+    if (isExternalControlled && assetMBR > 0) {
+      itxn
+        .payment({
+          receiver: controlledAddress,
+          amount: assetMBR
+        })
+        .submit()
+    }
+
+    // Set bio
+    if (bio !== '') {
+      abiCall<typeof AbstractedAccount.prototype.setBio>({
+        appId: walletID,
+        args: [bio]
+      })
+    }
+
+    // Install plugins
+    for (let i: uint64 = 0; i < plugins.length; i += 1) {
+      const p = clone(plugins[i])
+      abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
+        appId: walletID,
+        args: [
+          p.plugin,
+          p.caller,
+          p.escrow,
+          p.admin,
+          p.delegationType,
+          p.lastValid,
+          p.cooldown,
+          p.methods,
+          p.useRounds,
+          p.useExecutionKey,
+          p.coverFees,
+          p.canReclaim,
+          p.defaultToEscrow
+        ]
+      })
+    }
+
+    // Opt into assets
+    const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
+
+    if (assets.length > 0) {
+      // Default: rekey wallet's app address to factory for signing authority.
+      // External: caller already rekeyed the account to the factory before this call.
+      if (!isExternalControlled) {
+        abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+          appId: walletID,
+          args: [Global.currentApplicationAddress, false]
+        })
+      }
+
+      for (let i: uint64 = 0; i < assets.length; i += 1) {
+        itxn
+          .assetTransfer({
+            sender: assetAccount,
+            assetReceiver: assetAccount,
+            xferAsset: Asset(assets[i]),
+            assetAmount: 0,
+            rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+          })
+          .submit()
+      }
+    } else if (isExternalControlled) {
+      // No assets but still need to transfer control of the external account to the wallet
+      itxn
+        .payment({
+          sender: controlledAddress,
+          receiver: controlledAddress,
+          amount: 0,
+          rekeyTo: walletApp.address
+        })
+        .submit()
+    }
+
+    // Transfer admin to the real owner
+    if (useSetup) {
+      abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
+        appId: walletID,
+        args: [admin]
+      })
+    }
 
     if (leftover > 0) {
       itxn
         .payment({
-          receiver: this.akitaDAOEscrow.value.address,
+          receiver: this.akitaDAOEscrow.value.app.address,
           amount: leftover,
         })
         .submit()
@@ -180,8 +295,14 @@ export class AbstractedAccountFactory extends FactoryContract {
    */
   updateWallet(wallet: Application): void {
 
-    const [adminBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
-    assert(Txn.sender === Account(adminBytes))
+    const [updateSettingsBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysUpdateSettings))
+    const { allowed, automatic } = decodeArc4<FactoryUpdateSettings>(updateSettingsBytes)
+    loggedAssert(allowed, ERR_FACTORY_UPDATES_NOT_ALLOWED)
+
+    if (!automatic) {
+      const [adminBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
+      loggedAssert(Txn.sender === Account(adminBytes), ERR_ADMIN_ONLY)
+    }
 
     const approvalSize: uint64 = this.boxedContract.length
 

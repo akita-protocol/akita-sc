@@ -11,6 +11,7 @@ export type AkitaNetwork = 'localnet' | 'testnet' | 'mainnet';
 export declare const ENV_VAR_NAMES: {
     readonly NETWORK: "ALGORAND_NETWORK";
     readonly DAO_APP_ID: "DAO_APP_ID";
+    readonly DAO_PROPOSAL_VALIDATOR_APP_ID: "DAO_PROPOSAL_VALIDATOR_APP_ID";
     readonly WALLET_APP_ID: "WALLET_APP_ID";
     readonly ESCROW_FACTORY_APP_ID: "ESCROW_FACTORY_APP_ID";
     readonly WALLET_FACTORY_APP_ID: "WALLET_FACTORY_APP_ID";
@@ -81,6 +82,7 @@ export type EnvVarName = keyof typeof ENV_VAR_NAMES;
 export interface AkitaConfig {
     network: AkitaNetwork;
     daoAppId?: bigint;
+    daoProposalValidatorAppId?: bigint;
     walletAppId?: bigint;
     escrowFactoryAppId?: bigint;
     walletFactoryAppId?: bigint;

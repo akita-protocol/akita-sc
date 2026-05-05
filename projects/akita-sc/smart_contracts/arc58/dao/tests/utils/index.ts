@@ -13,9 +13,9 @@ import { StakingPoolFactorySDK } from 'akita-sdk/staking-pool';
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 import { SDKClient } from 'akita-sdk/types';
 import { type UpdateAkitaDAOPluginSDK, type WalletAddPluginParams, type WalletFactorySDK } from 'akita-sdk/wallet';
-import type { TransactionSigner } from 'algosdk';
+import type { TransactionSigner } from '@algorandfoundation/algokit-utils/packages/transact/src/signer';
 import { buildAkitaUniverse, deployAkitaDAO } from '../../../../../tests/fixtures/dao';
-import type { AkitaDaoApps } from '../../../../artifacts/arc58/dao-deployable/AkitaDAOClient';
+import type { AkitaDaoApps } from '../../../../artifacts/arc58/dao/AkitaDAOClient';
 
 export interface BootstrapDaoTestContextOptions {
   fixture?: AlgorandFixture;

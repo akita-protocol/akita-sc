@@ -1,19 +1,26 @@
-import { Application, assertMatch, Global, gtxn, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Application, clone, contract, Global, gtxn, itxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
 import { Poll } from './contract.algo'
+import { ERR_INVALID_PAYMENT } from './errors'
 import { PollType } from './types'
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class PollFactory extends FactoryContract {
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
+  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
     this.version.value = version
     this.childContractVersion.value = childVersion
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
   new(
@@ -28,14 +35,8 @@ export class PollFactory extends FactoryContract {
 
     const poll = compileArc4(Poll)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.newPollCost(),
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === this.newPollCost(), ERR_INVALID_PAYMENT)
 
     const mint = poll.call
       .create({

@@ -9,7 +9,7 @@ import {
   EntryData
 } from '../generated/StakingPoolClient';
 import { StakingPoolFactoryArgs } from '../generated/StakingPoolFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 
 // Re-export types from generated clients for convenience
 export { StakingPoolState, Reward, RootKey, FunderInfo, StakingPoolMbrData, EntryData };

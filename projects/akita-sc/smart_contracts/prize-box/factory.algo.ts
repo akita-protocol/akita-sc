@@ -2,21 +2,28 @@ import {
   abimethod,
   Account,
   Application,
-  assertMatch,
+  contract,
   Global,
   gtxn,
   itxn,
+  loggedAssert,
   uint64
 } from '@algorandfoundation/algorand-typescript'
 import { compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
+import { ERR_INVALID_PAYMENT } from './errors'
 
 // CONTRACT IMPORTS
 import { FactoryContract } from '../utils/base-contracts/factory'
 import { PrizeBox } from './contract.algo'
 
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class PrizeBoxFactory extends FactoryContract {
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -34,19 +41,13 @@ export class PrizeBoxFactory extends FactoryContract {
 
     const prizeBox = compileArc4(PrizeBox)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: (
-          MIN_PROGRAM_PAGES +
-          (GLOBAL_STATE_KEY_UINT_COST * prizeBox.globalUints) +
-          (GLOBAL_STATE_KEY_BYTES_COST * prizeBox.globalBytes) +
-          Global.minBalance
-        ),
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === (
+      MIN_PROGRAM_PAGES +
+      (GLOBAL_STATE_KEY_UINT_COST * prizeBox.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * prizeBox.globalBytes) +
+      Global.minBalance
+    ), ERR_INVALID_PAYMENT)
 
     const prizeBoxApp = prizeBox.call
       .create({

@@ -26,7 +26,7 @@ main:
     // const sSig = op.arg(4).toFixed({ length: 32 })
     arg 4
     len
-    pushint 32 // 32
+    pushint 32
     ==
     assert // Length must be 32
     // smart_contracts/arc58/keys/secp256r1_passkey.algo.ts:15
@@ -35,7 +35,7 @@ main:
     dup
     cover 6
     len
-    pushint 32 // 32
+    pushint 32
     ==
     assert // Length must be 32
     // smart_contracts/arc58/keys/secp256r1_passkey.algo.ts:17
@@ -51,7 +51,7 @@ main:
     // smart_contracts/arc58/keys/secp256r1_passkey.algo.ts:19
     // if (Global.groupSize > 1) {
     global GroupSize
-    pushint 1 // 1
+    pushint 1
     >
     bz main_else_body@2
     // smart_contracts/arc58/keys/secp256r1_passkey.algo.ts:20

@@ -3,10 +3,11 @@ import { ServicesKey, SubscriptionInfo, SubscriptionsArgs, SubscriptionsClient }
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ValueMap } from "../wallet/utils";
 import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionInfoWithDetails, SubscriptionStatus } from "./types";
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 export { ServicesKey } from '../generated/SubscriptionsClient';
 type ContractArgs = SubscriptionsArgs["obj"];
 export * from './constants';
+export * from './errors';
 export * from './types';
 export * from './utils';
 export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
@@ -34,6 +35,25 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     optInCost({ sender, signer, asset }: MaybeSigner & {
         asset: bigint | number;
     }): Promise<bigint>;
+    /**
+     * Opt the Subscriptions contract (and its rev_subscriptions escrow) into an
+     * asset. Must be called directly by an EOA — NOT via `SubscriptionsPlugin.optIn`
+     * — because `Subscriptions.optIn` rekeys to the revenue-manager plugin
+     * internally and plugin rekeys cannot be nested.
+     *
+     * The contract's `optIn` fans out a lot of inner app calls (contract's own
+     * asset opt-in, rekey to revenue-manager, `RevenueManager.optIn`, MBR
+     * payment, rekey-back, plus nested opt-ins per split recipient), which
+     * blows through the reference-slot budget of a single app call. We pad the
+     * group with opUp calls so `populateAppCallResources` has enough slots.
+     *
+     * @param asset     The asset ID to opt into
+     * @param opUpCount Number of opUp calls to add for reference slots (default 3)
+     */
+    optIn({ sender, signer, asset, opUpCount, }: MaybeSigner & {
+        asset: bigint | number;
+        opUpCount?: number;
+    }): Promise<void>;
     /**
      * Check if the contract is opted into a specific asset
      */

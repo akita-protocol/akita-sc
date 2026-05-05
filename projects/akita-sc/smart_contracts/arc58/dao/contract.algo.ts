@@ -1,24 +1,22 @@
-import { Account, Application, assert, assertMatch, BoxMap, Bytes, bytes, clone, contract, Contract, GlobalState, gtxn, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Account, Application, BoxMap, Bytes, bytes, clone, contract, Contract, GlobalState, gtxn, itxn, loggedAssert, loggedErr, match, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { btoi, Global, Txn } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyVersion } from "../../constants";
-import { ERR_NOT_AKITA_DAO } from "../../errors";
 import { BoxCostPerByte, ONE_HUNDRED_PERCENT } from "../../utils/constants";
-import { ERR_INVALID_PAYMENT } from "../../utils/errors";
 import { calcPercent, getOrigin, getStakingPower, percentageOf } from "../../utils/functions";
-import { CID, uint8 } from "../../utils/types/base";
+import { CID } from "../../utils/types/base";
 import { AbstractAccountBoxPrefixExecutions, AbstractAccountBoxPrefixPlugins } from "../account/constants";
-import { ERR_ALLOWANCE_ALREADY_EXISTS, ERR_ALLOWANCE_DOES_NOT_EXIST, ERR_ESCROW_ALREADY_EXISTS, ERR_ESCROW_DOES_NOT_EXIST, ERR_EXECUTION_KEY_NOT_FOUND, ERR_FORBIDDEN, ERR_INVALID_UPGRADE, ERR_WALLET_ALREADY_SETUP } from "../account/errors";
-import { AddAllowanceInfo, EscrowInfo, PluginInfo, PluginKey } from "../account/types";
+import { AddAllowanceInfo, EscrowInfo } from "../account/types";
 import { Split } from "../plugins/revenue-manager/types";
 import { AkitaDAOBoxPrefixProposals, AkitaDAOBoxPrefixProposalVotes, AkitaDAOGlobalStateKeysAddAllowancesProposalSettings, AkitaDAOGlobalStateKeysAddPluginProposalSettings, AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysContentPolicy, AkitaDAOGlobalStateKeysInitialized, AkitaDAOGlobalStateKeysMinRewardsImpact, AkitaDAOGlobalStateKeysNewEscrowProposalSettings, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysProposalActionLimit, AkitaDAOGlobalStateKeysProposalID, AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings, AkitaDAOGlobalStateKeysRemoveExecutePluginProposalSettings, AkitaDAOGlobalStateKeysRemovePluginProposalSettings, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysToggleEscrowLockProposalSettings, AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings, AkitaDAOGlobalStateKeysUpgradeAppProposalSettings, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees, AkitaDAONumGlobalBytes, AkitaDAONumGlobalUints, DAOExecutionMBR, DAOProposalVotesMBR, DaoStateDraft, DaoStateFullyInitialized, DaoStatePartiallyInitialized, MinDAOPluginMBR, MinDAOProposalActionMbr, MinDAOProposalMBR, ProposalActionTypeAddAllowances, ProposalActionTypeAddNamedPlugin, ProposalActionTypeAddPlugin, ProposalActionTypeExecutePlugin, ProposalActionTypeNewEscrow, ProposalActionTypeRemoveAllowances, ProposalActionTypeRemoveExecutePlugin, ProposalActionTypeRemoveNamedPlugin, ProposalActionTypeRemovePlugin, ProposalActionTypeToggleEscrowLock, ProposalActionTypeUpdateFields, ProposalActionTypeUpdateWallet, ProposalActionTypeUpgradeApp, ProposalStatusApproved, ProposalStatusDraft, ProposalStatusExecuted, ProposalStatusRejected, ProposalStatusVoting, ProposalVoteTypeAbstain, ProposalVoteTypeApprove, ProposalVoteTypeReject } from "./constants";
-import { ERR_ACTION_LIMIT_MUST_BE_GREATER_THAN_ZERO, ERR_ALLOWANCE_LIST_EMPTY, ERR_DAO_NOT_INITIALIZED, ERR_EMPTY_ACTION_LIST, ERR_INCORRECT_SENDER, ERR_INSUFFICIENT_PROPOSAL_THRESHOLD, ERR_INVALID_CID, ERR_INVALID_DURATION, ERR_INVALID_MAX_APPROVAL, ERR_INVALID_MAX_PARTICIPATION, ERR_INVALID_MAX_POWER, ERR_INVALID_MIN_APPROVAL, ERR_INVALID_MIN_POWER, ERR_INVALID_MINIMUM_REWARDS_IMPACT, ERR_INVALID_PROPOSAL_ACTION, ERR_INVALID_PROPOSAL_ACTION_LIMIT, ERR_INVALID_PROPOSAL_STATE, ERR_MIN_REWARDS_IMPACT_MUST_BE_GREATER_THAN_ZERO, ERR_MIN_REWARDS_IMPACT_MUST_BE_LESS_THAN_OR_EQUAL_TO_1000s, ERR_NOT_EXECUTABLE_PLUGIN, ERR_PAYMENT_NOT_REQUIRED, ERR_PAYMENT_REQUIRED, ERR_PLUGIN_ALREADY_EXISTS, ERR_PLUGIN_DOES_NOT_EXIST, ERR_PLUGIN_EXPIRED, ERR_PROPOSAL_DOES_NOT_EXIST, ERR_PROPOSAL_VOTE_NOT_FOUND, ERR_TOO_MANY_ACTIONS, ERR_VOTING_DURATION_NOT_MET, ERR_VOTING_PARTICIPATION_NOT_MET } from "./errors";
-import { AkitaAppList, AkitaAssets, AkitaSocialAppList, DAOPluginKey, DaoState, ExecutionMetadata, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalActionType, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalCostInfo, ProposalDetails, ProposalExecutePlugin, ProposalNewEscrow, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp, ProposalVoteInfo, ProposalVoteKey, ProposalVoteType, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
+import { ERR_ALREADY_INITIALIZED, ERR_DAO_NOT_INITIALIZED, ERR_EMPTY_ACTION_LIST, ERR_EXECUTION_KEY_NOT_FOUND, ERR_FORBIDDEN, ERR_INCORRECT_SENDER, ERR_INSUFFICIENT_PROPOSAL_THRESHOLD, ERR_INVALID_PAYMENT, ERR_INVALID_PROPOSAL_ACTION, ERR_INVALID_PROPOSAL_STATE, ERR_INVALID_UPGRADE, ERR_NOT_AKITA_DAO, ERR_PAYMENT_NOT_REQUIRED, ERR_PAYMENT_REQUIRED, ERR_PROPOSAL_DOES_NOT_EXIST, ERR_PROPOSAL_VOTE_NOT_FOUND, ERR_TOO_MANY_ACTIONS, ERR_VERSION_CANNOT_BE_EMPTY, ERR_VOTING_DURATION_NOT_MET, ERR_VOTING_PARTICIPATION_NOT_MET, ERR_WALLET_ALREADY_SETUP } from "./errors";
+import { AkitaAppList, AkitaAssets, AkitaDAOApps, AkitaDAOFees, AkitaSocialAppList, DAOPluginKey, DaoState, ExecutionMetadata, NFTFees, OtherAppList, PluginAppList, ProposalAction, ProposalActionType, ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalCostInfo, ProposalDetails, ProposalExecutePlugin, ProposalNewEscrow, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalSettings, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp, ProposalVoteInfo, ProposalVoteKey, ProposalVoteType, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "./types";
 
 // CONTRACT IMPORTS
 import type { Staking } from "../../staking/contract.algo";
 import type { AbstractedAccount } from "../account/contract.algo";
 import type { AbstractedAccountFactory } from "../account/factory.algo";
+import type { AkitaDAOProposalValidator } from "./validator.algo";
 
 
 @contract({ stateTotals: { globalBytes: AkitaDAONumGlobalBytes, globalUints: AkitaDAONumGlobalUints } })
@@ -111,248 +109,21 @@ export class AkitaDAO extends Contract {
     return MinDAOProposalMBR + (BoxCostPerByte * totalActionDataLength)
   }
 
-  private pluginExists(key: PluginKey): boolean {
-    const info = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
-      appId: this.wallet.value,
-      args: [[key]]
-    }).returnValue[0]
-
-    return info.start !== 0
-  }
-
-  private getPlugin(key: PluginKey): PluginInfo {
-    return abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
-      appId: this.wallet.value,
-      args: [[key]]
-    }).returnValue[0]
-  }
-
-  private namedPluginExists(name: string): boolean {
-    const info = abiCall<typeof AbstractedAccount.prototype.arc58_getNamedPlugins>({
-      appId: this.wallet.value,
-      args: [[name]]
-    }).returnValue[0]
-
-    return info.start !== 0
-  }
-
-  private escrowExists(escrow: string): boolean {
-    const info = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
-      appId: this.wallet.value,
-      args: [[escrow]]
-    }).returnValue[0]
-
-    return info.id !== 0
-  }
-
-  private allowanceCheck(escrow: string, assets: uint64[]): { existences: boolean[], anyExist: boolean, allExist: boolean } {
-    const info = abiCall<typeof AbstractedAccount.prototype.arc58_getAllowances>({
-      appId: this.wallet.value,
-      args: [escrow, assets]
-    }).returnValue
-
-    let existences: boolean[] = []
-    let anyExist: boolean = false
-    let allExist: boolean = true
-    for (let i: uint64 = 0; i < info.length; i++) {
-      const exists = info[i].start !== 0
-      existences.push(exists)
-      if (exists) {
-        anyExist = true
-      } else {
-        allExist = false
-      }
-    }
-
-    return { existences, anyExist, allExist }
-  }
-
-  private executionExists(lease: bytes<32>): boolean {
-    const info = abiCall<typeof AbstractedAccount.prototype.arc58_getExecutions>({
-      appId: this.wallet.value,
-      args: [[lease]]
-    }).returnValue[0]
-
-    return info.groups.length > 0
-  }
-
   private validateActions(actions: ProposalAction[]): void {
-    assert(actions.length > 0, ERR_EMPTY_ACTION_LIST)
-
-    for (let i: uint64 = 0; i < actions.length; i++) {
-      switch (actions[i].type) {
-        case ProposalActionTypeUpgradeApp: {
-          // UpgradeApp actions are validated later during execution
-          // They need execution key and wallet build validation
-          const { groups, firstValid, lastValid } = decodeArc4<ProposalUpgradeApp>(actions[i].data)
-          assert(groups.length > 0, 'Upgrade app action must have at least one group')
-          assert(firstValid > 0, 'First valid round must be greater than zero')
-          assert(lastValid > firstValid, 'Last valid round must be greater than first valid')
-          break
-        }
-        case ProposalActionTypeAddPlugin: {
-          const { plugin, caller, escrow, fee, power, duration, participation, approval, useExecutionKey } = decodeArc4<ProposalAddPlugin>(actions[i].data)
-          if (useExecutionKey) {
-            this.validateSettings({ fee, power, duration, participation, approval })
-          }
-          assert(!this.pluginExists({ plugin, caller, escrow }), ERR_PLUGIN_ALREADY_EXISTS)
-          break;
-        }
-        case ProposalActionTypeAddNamedPlugin: {
-          const { name } = decodeArc4<ProposalAddNamedPlugin>(actions[i].data)
-          assert(!this.namedPluginExists(name), ERR_PLUGIN_ALREADY_EXISTS)
-          break
-        }
-        case ProposalActionTypeExecutePlugin: {
-          const { plugin, escrow } = decodeArc4<ProposalExecutePlugin>(actions[i].data)
-          const pluginInfo = this.getPlugin({ plugin, caller: Global.zeroAddress, escrow })
-          assert(pluginInfo.start !== 0, ERR_PLUGIN_DOES_NOT_EXIST)
-          assert(pluginInfo.useExecutionKey, ERR_NOT_EXECUTABLE_PLUGIN)
-          const epochRef = pluginInfo.useRounds ? Global.round : Global.latestTimestamp
-          assert(pluginInfo.lastValid > epochRef, ERR_PLUGIN_EXPIRED)
-          break
-        }
-        case ProposalActionTypeRemoveExecutePlugin: {
-          const { executionKey } = decodeArc4<ProposalRemoveExecutePlugin>(actions[i].data)
-          assert(this.executionExists(executionKey), ERR_EXECUTION_KEY_NOT_FOUND)
-          break
-        }
-        case ProposalActionTypeRemovePlugin: {
-          const { plugin, caller, escrow } = decodeArc4<ProposalRemovePlugin>(actions[i].data)
-          assert(this.pluginExists({ plugin, caller, escrow }), ERR_PLUGIN_DOES_NOT_EXIST)
-          break
-        }
-        case ProposalActionTypeRemoveNamedPlugin: {
-          const { name } = decodeArc4<ProposalRemoveNamedPlugin>(actions[i].data)
-          assert(this.namedPluginExists(name), ERR_PLUGIN_DOES_NOT_EXIST)
-          break
-        }
-        case ProposalActionTypeAddAllowances: {
-          const { escrow, allowances } = decodeArc4<ProposalAddAllowances>(actions[i].data)
-          assert(allowances.length > 0, ERR_ALLOWANCE_LIST_EMPTY)
-
-          let assets: uint64[] = []
-          for (let i: uint64 = 0; i < allowances.length; i++) {
-            assets.push(allowances[i].asset)
-          }
-
-          const { anyExist } = this.allowanceCheck(escrow, assets)
-          assert(!anyExist, ERR_ALLOWANCE_ALREADY_EXISTS)
-          break
-        }
-        case ProposalActionTypeRemoveAllowances: {
-          const { escrow, assets } = decodeArc4<ProposalRemoveAllowances>(actions[i].data)
-          assert(assets.length > 0, ERR_ALLOWANCE_LIST_EMPTY)
-          const { allExist } = this.allowanceCheck(escrow, assets)
-          assert(allExist, ERR_ALLOWANCE_DOES_NOT_EXIST)
-          break
-        }
-        case ProposalActionTypeNewEscrow: {
-          const { escrow } = decodeArc4<ProposalNewEscrow>(actions[i].data)
-          assert(!this.escrowExists(escrow), ERR_ESCROW_ALREADY_EXISTS)
-          break
-        }
-        case ProposalActionTypeToggleEscrowLock: {
-          const { escrow } = decodeArc4<ProposalToggleEscrowLock>(actions[i].data)
-          assert(this.escrowExists(escrow), ERR_ESCROW_DOES_NOT_EXIST)
-          break
-        }
-        case ProposalActionTypeUpdateFields: {
-          const { field, value } = decodeArc4<ProposalUpdateField>(actions[i].data)
-          switch (field) {
-            case AkitaDAOGlobalStateKeysContentPolicy: {
-              assert(value.length === 36, ERR_INVALID_CID)
-              break
-            }
-            case AkitaDAOGlobalStateKeysProposalActionLimit: {
-              assert(value.length === 8, ERR_INVALID_PROPOSAL_ACTION_LIMIT)
-              assert(btoi(value) > 0, ERR_ACTION_LIMIT_MUST_BE_GREATER_THAN_ZERO)
-              break
-            }
-            case AkitaDAOGlobalStateKeysMinRewardsImpact: {
-              assert(value.length === 8, ERR_INVALID_MINIMUM_REWARDS_IMPACT)
-              assert(btoi(value) > 0, ERR_MIN_REWARDS_IMPACT_MUST_BE_GREATER_THAN_ZERO)
-              assert(btoi(value) <= 1000, ERR_MIN_REWARDS_IMPACT_MUST_BE_LESS_THAN_OR_EQUAL_TO_1000s)
-              break
-            }
-            case AkitaDAOGlobalStateKeysAkitaAppList: {
-              decodeArc4<AkitaAppList>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysAkitaSocialAppList: {
-              decodeArc4<AkitaSocialAppList>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysPluginAppList: {
-              decodeArc4<PluginAppList>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysOtherAppList: {
-              decodeArc4<OtherAppList>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysWalletFees: {
-              decodeArc4<WalletFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysSocialFees: {
-              decodeArc4<SocialFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysStakingFees: {
-              decodeArc4<StakingFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysSubscriptionFees: {
-              decodeArc4<SubscriptionFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysNFTFees: {
-              decodeArc4<NFTFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysSwapFees: {
-              decodeArc4<SwapFees>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysAkitaAssets: {
-              decodeArc4<AkitaAssets>(value)
-              break
-            }
-            case AkitaDAOGlobalStateKeysUpgradeAppProposalSettings:
-            case AkitaDAOGlobalStateKeysAddPluginProposalSettings:
-            case AkitaDAOGlobalStateKeysRemovePluginProposalSettings:
-            case AkitaDAOGlobalStateKeysAddAllowancesProposalSettings:
-            case AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings:
-            case AkitaDAOGlobalStateKeysNewEscrowProposalSettings:
-            case AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings: {
-              const settings = decodeArc4<ProposalSettings>(value)
-              this.validateSettings(settings)
-              break
-            }
-            case AkitaDAOGlobalStateKeysRevenueSplits: {
-              decodeArc4<Split[]>(value)
-              break
-            }
-            default: {
-              assert(false, 'Unknown field in update fields proposal action')
-            }
-          }
-          break
-        }
-        case ProposalActionTypeUpdateWallet: {
-          // No additional validation needed — factory validates admin
-          break
-        }
-        default: {
-          assert(false, ERR_INVALID_PROPOSAL_ACTION)
-        }
-      }
-    }
+    // The wallet may not yet exist when the DAO is still in draft / partially-
+    // initialized state (proposals submitted by the creator to configure the
+    // DAO before the wallet is wired up). Pass `Application(0)` in that case —
+    // only wallet-agnostic actions (e.g. UpdateFields) are valid during draft,
+    // and the validator never reads wallet state for those.
+    const walletApp: Application = this.wallet.hasValue ? this.wallet.value : Application(0)
+    abiCall<typeof AkitaDAOProposalValidator.prototype.validateActions>({
+      appId: Application(this.otherAppList.value.daoProposalValidator),
+      args: [walletApp, actions]
+    })
   }
 
   private validEditOrSubmit(proposalID: uint64): boolean {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
     const { status, creator } = this.proposals(proposalID).value
     const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
 
@@ -360,19 +131,6 @@ export class AkitaDAO extends Contract {
       status === ProposalStatusDraft &&
       origin === creator
     )
-  }
-
-  private validateSettings(settings: ProposalSettings): void {
-    assert(settings.approval > 1_000, ERR_INVALID_MIN_APPROVAL) // 1%
-    assert(settings.approval <= 100_000, ERR_INVALID_MAX_APPROVAL) // 100%
-
-    assert(settings.participation > 1_000) // 1%
-    assert(settings.participation <= 100_000, ERR_INVALID_MAX_PARTICIPATION) // 100%
-
-    assert(settings.duration > 0, ERR_INVALID_DURATION)
-
-    assert(settings.power > 0, ERR_INVALID_MIN_POWER)
-    assert(settings.power <= 1_000, ERR_INVALID_MAX_POWER)
   }
 
   private getGovernancePower(account: Account): uint64 {
@@ -407,11 +165,11 @@ export class AkitaDAO extends Contract {
     powerRequired: uint64
   ): uint64 {
 
-    assert(actions.length > 0, ERR_EMPTY_ACTION_LIST)
-    assert(actions.length <= this.proposalActionLimit.value, ERR_TOO_MANY_ACTIONS)
+    loggedAssert(actions.length > 0, ERR_EMPTY_ACTION_LIST)
+    loggedAssert(actions.length <= this.proposalActionLimit.value, ERR_TOO_MANY_ACTIONS)
 
     if (this.state.value !== DaoStateFullyInitialized) {
-      assert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
+      loggedAssert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
 
       id = this.newProposalID()
 
@@ -435,7 +193,7 @@ export class AkitaDAO extends Contract {
 
     const userPower = this.getGovernancePower(origin)
 
-    assert(userPower >= powerRequired, ERR_INSUFFICIENT_PROPOSAL_THRESHOLD)
+    loggedAssert(userPower >= powerRequired, ERR_INSUFFICIENT_PROPOSAL_THRESHOLD)
 
     let created: uint64 = 0
     if (id === 0) {
@@ -475,7 +233,7 @@ export class AkitaDAO extends Contract {
       }
       case ProposalActionTypeExecutePlugin: {
         const { plugin, escrow } = decodeArc4<ProposalExecutePlugin>(data)
-        assert(this.plugins({ plugin, escrow }).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+        loggedAssert(this.plugins({ plugin, escrow }).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
         return this.plugins({ plugin, escrow }).value
       }
       case ProposalActionTypeRemoveExecutePlugin: {
@@ -501,7 +259,7 @@ export class AkitaDAO extends Contract {
         return this.updateFieldsProposalSettings.value
       }
       default: {
-        assert(false, ERR_INVALID_PROPOSAL_ACTION)
+        loggedErr(ERR_INVALID_PROPOSAL_ACTION)
       }
     }
   }
@@ -802,22 +560,183 @@ export class AkitaDAO extends Contract {
    *
    * This architecture ensures upgrades are strictly governed, requiring DAO consensus, group-based transaction atomicity, and explicit validation checks at execution time.
    */
+  @abimethod({ onCreate: 'require' })
+  create(
+    version: string,
+    akta: uint64,
+    contentPolicy: CID,
+    minRewardsImpact: uint64,
+    apps: AkitaDAOApps,
+    fees: AkitaDAOFees,
+    proposalSettings: {
+      upgradeApp: ProposalSettings,
+      addPlugin: ProposalSettings,
+      removeExecutePlugin: ProposalSettings,
+      removePlugin: ProposalSettings,
+      addAllowance: ProposalSettings,
+      removeAllowance: ProposalSettings,
+      newEscrow: ProposalSettings,
+      toggleEscrowLock: ProposalSettings
+      updateFields: ProposalSettings,
+    },
+    revenueSplits: Split[]
+  ): void {
+    loggedAssert(this.version.value === '', ERR_ALREADY_INITIALIZED)
+    loggedAssert(version !== '', ERR_VERSION_CANNOT_BE_EMPTY)
+
+    this.version.value = version
+    this.proposalActionLimit.value = 5
+    this.akitaAssets.value = { akta, bones: 0 }
+    this.contentPolicy.value = contentPolicy
+    this.minRewardsImpact.value = minRewardsImpact
+
+    this.akitaAppList.value = {
+      staking: apps.staking,
+      rewards: apps.rewards,
+      pool: apps.pool,
+      prizeBox: apps.prizeBox,
+      subscriptions: apps.subscriptions,
+      gate: apps.gate,
+      auction: apps.auction,
+      hyperSwap: apps.hyperSwap,
+      raffle: apps.raffle,
+      metaMerkles: apps.metaMerkles,
+      marketplace: apps.marketplace,
+      wallet: apps.wallet,
+    }
+
+    this.akitaSocialAppList.value = {
+      social: apps.social,
+      graph: apps.graph,
+      impact: apps.impact,
+      moderation: apps.moderation
+    }
+
+    this.pluginAppList.value = {
+      optin: apps.optin,
+      revenueManager: apps.revenueManager,
+      update: apps.update
+    }
+
+    this.otherAppList.value = {
+      vrfBeacon: apps.vrfBeacon,
+      nfdRegistry: apps.nfdRegistry,
+      assetInbox: apps.assetInbox,
+      escrow: apps.escrow,
+      akitaNfd: apps.akitaNfd,
+      poll: apps.poll,
+      daoProposalValidator: apps.daoProposalValidator
+    }
+
+    this.walletFees.value = {
+      createFee: fees.walletCreateFee,
+      referrerPercentage: fees.walletReferrerPercentage
+    }
+
+    this.socialFees.value = {
+      postFee: fees.postFee,
+      reactFee: fees.reactFee,
+      impactTaxMin: fees.impactTaxMin,
+      impactTaxMax: fees.impactTaxMax,
+    }
+
+    this.stakingFees.value = {
+      creationFee: fees.poolCreationFee,
+      impactTaxMin: fees.poolImpactTaxMin,
+      impactTaxMax: fees.poolImpactTaxMax
+    }
+
+    this.subscriptionFees.value = {
+      serviceCreationFee: fees.subscriptionServiceCreationFee,
+      paymentPercentage: fees.subscriptionPaymentPercentage,
+      triggerPercentage: fees.subscriptionTriggerPercentage,
+    }
+
+    this.nftFees.value = {
+      marketplaceSalePercentageMin: fees.marketplaceSalePercentageMin,
+      marketplaceSalePercentageMax: fees.marketplaceSalePercentageMax,
+      marketplaceComposablePercentage: fees.marketplaceComposablePercentage,
+      marketplaceRoyaltyDefaultPercentage: fees.marketplaceRoyaltyDefaultPercentage,
+      shuffleSalePercentage: fees.shuffleSalePercentage,
+      omnigemSaleFee: fees.omnigemSaleFee,
+      auctionCreationFee: fees.auctionCreationFee,
+      auctionSaleImpactTaxMin: fees.auctionSaleImpactTaxMin,
+      auctionSaleImpactTaxMax: fees.auctionSaleImpactTaxMax,
+      auctionComposablePercentage: fees.auctionComposablePercentage,
+      auctionRafflePercentage: fees.auctionRafflePercentage,
+      raffleCreationFee: fees.raffleCreationFee,
+      raffleSaleImpactTaxMin: fees.raffleSaleImpactTaxMin,
+      raffleSaleImpactTaxMax: fees.raffleSaleImpactTaxMax,
+      raffleComposablePercentage: fees.raffleComposablePercentage,
+    }
+
+    this.swapFees.value = {
+      impactTaxMin: fees.swapFeeImpactTaxMin,
+      impactTaxMax: fees.swapFeeImpactTaxMax,
+    }
+
+    this.upgradeAppProposalSettings.value = clone(proposalSettings.upgradeApp)
+    this.addPluginProposalSettings.value = clone(proposalSettings.addPlugin)
+    this.removeExecutePluginProposalSettings.value = clone(proposalSettings.removeExecutePlugin)
+    this.removePluginProposalSettings.value = clone(proposalSettings.removePlugin)
+    this.addAllowancesProposalSettings.value = clone(proposalSettings.addAllowance)
+    this.removeAllowancesProposalSettings.value = clone(proposalSettings.removeAllowance)
+    this.newEscrowProposalSettings.value = clone(proposalSettings.newEscrow)
+    this.toggleEscrowLockProposalSettings.value = clone(proposalSettings.toggleEscrowLock)
+    this.updateFieldsProposalSettings.value = clone(proposalSettings.updateFields)
+
+    this.revenueSplits.value = clone(revenueSplits)
+
+    this.proposalID.value = 1
+  }
+
   @abimethod({ allowActions: ['UpdateApplication'] })
   update(newVersion: string): void {
-    assert(Txn.sender === this.wallet.value.address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.wallet.value.address, ERR_NOT_AKITA_DAO)
     const updatePlugin = this.pluginAppList.value.update
-    assert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
+    loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
     this.version.value = newVersion
     // this.executions(Txn.lease).delete()
   }
 
+  setup(nickname: string, salt: bytes<32>): uint64 {
+    loggedAssert(!this.wallet.hasValue, ERR_WALLET_ALREADY_SETUP)
+
+    const { wallet: appId } = this.akitaAppList.value
+
+    const cost = this.setupCost()
+
+    const walletID = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+      appId,
+      args: [
+        itxn.payment({
+          receiver: Application(appId).address,
+          amount: cost,
+        }),
+        Global.zeroAddress,
+        Global.currentApplicationAddress,
+        nickname,
+        Global.zeroAddress,
+        salt,
+        '',   // bio
+        0,    // extraFunding
+        [],   // assets
+        [],   // plugins
+      ]
+    }).returnValue
+
+    this.wallet.value = Application(walletID)
+
+    return walletID
+  }
+
   partiallyInitialize(): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
     this.state.value = DaoStatePartiallyInitialized
   }
 
   initialize(): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
     this.state.value = DaoStateFullyInitialized
   }
 
@@ -835,12 +754,14 @@ export class AkitaDAO extends Contract {
       fee = total
     }
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: fee
-      },
+    loggedAssert(
+      match(
+        payment,
+        {
+          receiver: Global.currentApplicationAddress,
+          amount: fee
+        }
+      ),
       ERR_INVALID_PAYMENT
     )
 
@@ -850,33 +771,35 @@ export class AkitaDAO extends Contract {
   }
 
   editProposal(id: uint64, cid: CID, actions: ProposalAction[]): void {
-    assert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
 
     const { feesPaid } = this.proposals(id).value
     const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const { total, power } = this.proposalCost(actions)
 
-    assert(total <= feesPaid, ERR_PAYMENT_REQUIRED)
+    loggedAssert(total <= feesPaid, ERR_PAYMENT_REQUIRED)
 
     this.validateActions(actions)
     this.createOrUpdateProposal(id, cid, actions, origin, total, power)
   }
 
   editProposalWithPayment(payment: gtxn.PaymentTxn, id: uint64, cid: CID, actions: ProposalAction[]): void {
-    assert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
 
     const { feesPaid } = this.proposals(id).value
     const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const { total, power } = this.proposalCost(actions)
 
-    assert(total > feesPaid, ERR_PAYMENT_NOT_REQUIRED)
+    loggedAssert(total > feesPaid, ERR_PAYMENT_NOT_REQUIRED)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: total - feesPaid
-      },
+    loggedAssert(
+      match(
+        payment,
+        {
+          receiver: Global.currentApplicationAddress,
+          amount: total - feesPaid
+        }
+      ),
       ERR_INVALID_PAYMENT
     )
 
@@ -885,43 +808,45 @@ export class AkitaDAO extends Contract {
   }
 
   deleteProposal(proposalID: uint64): void {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
 
     const { status, creator } = this.proposals(proposalID).value
-    assert(
+    loggedAssert(
       status === ProposalStatusDraft ||
       status === ProposalStatusExecuted,
       ERR_INVALID_PROPOSAL_STATE
     )
 
     const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
-    assert(origin === creator, ERR_INCORRECT_SENDER)
+    loggedAssert(origin === creator, ERR_INCORRECT_SENDER)
 
     this.proposals(proposalID).delete()
   }
 
   submitProposal(proposalID: uint64): void {
-    assert(this.validEditOrSubmit(proposalID), ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(this.validEditOrSubmit(proposalID), ERR_INVALID_PROPOSAL_STATE)
 
     this.proposals(proposalID).value.votingTs = Global.latestTimestamp
     this.proposals(proposalID).value.status = ProposalStatusVoting
   }
 
   voteProposal(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, vote: ProposalVoteType): void {
-    assert(this.state.value !== DaoStateDraft, ERR_DAO_NOT_INITIALIZED)
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.state.value !== DaoStateDraft, ERR_DAO_NOT_INITIALIZED)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: DAOProposalVotesMBR,
-      },
+    loggedAssert(
+      match(
+        mbrPayment,
+        {
+          receiver: Global.currentApplicationAddress,
+          amount: DAOProposalVotesMBR,
+        }
+      ),
       ERR_INVALID_PAYMENT
     )
 
     const { status } = this.proposals(proposalID).value
-    assert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
 
     const voter = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const proposal = clone(this.proposals(proposalID).value)
@@ -943,7 +868,7 @@ export class AkitaDAO extends Contract {
           break;
         }
         default: {
-          assert(false, ERR_INVALID_PROPOSAL_ACTION)
+          loggedErr(ERR_INVALID_PROPOSAL_ACTION)
         }
       }
     }
@@ -951,7 +876,7 @@ export class AkitaDAO extends Contract {
     const power = this.getGovernancePower(voter)
 
     // getStakingPower will return 0 if the unlock is within 1 week
-    assert(power > 0, ERR_FORBIDDEN)
+    loggedAssert(power > 0, ERR_FORBIDDEN)
 
     switch (vote) {
       case ProposalVoteTypeApprove: {
@@ -967,7 +892,7 @@ export class AkitaDAO extends Contract {
         break;
       }
       default: {
-        assert(false, ERR_INVALID_PROPOSAL_ACTION)
+        loggedErr(ERR_INVALID_PROPOSAL_ACTION)
       }
     }
 
@@ -977,11 +902,11 @@ export class AkitaDAO extends Contract {
   }
 
   finalizeProposal(proposalID: uint64): void {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
 
     const { status, votes: { approvals, rejections, abstains }, votingTs, actions } = clone(this.proposals(proposalID).value)
 
-    assert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
 
     // get total lock staked
     const { akta, bones } = this.akitaAssets.value
@@ -1011,9 +936,9 @@ export class AkitaDAO extends Contract {
 
     const { duration, participation, approval } = this.proposalCost(actions)
 
-    assert(Global.latestTimestamp > (votingTs + duration), ERR_VOTING_DURATION_NOT_MET)
+    loggedAssert(Global.latestTimestamp > (votingTs + duration), ERR_VOTING_DURATION_NOT_MET)
     const participationThreshold = calcPercent(locked, participation)
-    assert(totalVotes >= participationThreshold, ERR_VOTING_PARTICIPATION_NOT_MET)
+    loggedAssert(totalVotes >= participationThreshold, ERR_VOTING_PARTICIPATION_NOT_MET)
 
     if (approvalPercentage >= approval) {
       this.proposals(proposalID).value.status = ProposalStatusApproved
@@ -1023,11 +948,11 @@ export class AkitaDAO extends Contract {
   }
 
   executeProposal(proposalID: uint64): void {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
 
     const { status, actions } = clone(this.proposals(proposalID).value)
 
-    assert(status === ProposalStatusApproved, ERR_INVALID_PROPOSAL_STATE)
+    loggedAssert(status === ProposalStatusApproved, ERR_INVALID_PROPOSAL_STATE)
 
     for (let i: uint64 = 0; i < actions.length; i++) {
 
@@ -1102,8 +1027,8 @@ export class AkitaDAO extends Contract {
   }
 
   deleteProposalVotes(proposalID: uint64, voters: Account[]): void {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
-    assert(
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(
       this.proposals(proposalID).value.status === ProposalStatusApproved ||
       this.proposals(proposalID).value.status === ProposalStatusRejected ||
       this.proposals(proposalID).value.status === ProposalStatusExecuted,
@@ -1111,7 +1036,7 @@ export class AkitaDAO extends Contract {
     )
 
     for (let i: uint64 = 0; i < voters.length; i++) {
-      assert(this.proposalVotes({ proposalID, voter: voters[i] }).exists, ERR_PROPOSAL_VOTE_NOT_FOUND)
+      loggedAssert(this.proposalVotes({ proposalID, voter: voters[i] }).exists, ERR_PROPOSAL_VOTE_NOT_FOUND)
       this.proposalVotes({ proposalID, voter: voters[i] }).delete()
     }
   }
@@ -1189,13 +1114,13 @@ export class AkitaDAO extends Contract {
 
   @abimethod({ readonly: true })
   getProposal(proposalID: uint64): ProposalDetails {
-    assert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
     return this.proposals(proposalID).value
   }
 
   @abimethod({ readonly: true })
   mustGetExecution(lease: bytes<32>): ExecutionMetadata {
-    assert(this.executions(lease).exists, ERR_EXECUTION_KEY_NOT_FOUND)
+    loggedAssert(this.executions(lease).exists, ERR_EXECUTION_KEY_NOT_FOUND)
     return this.executions(lease).value
   }
 

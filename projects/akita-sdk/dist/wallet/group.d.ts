@@ -2,7 +2,7 @@ import type { WalletSDK } from './index';
 import { AbstractedAccountArgs } from '../generated/AbstractedAccountClient';
 import { AddAllowanceArgs, WalletAddPluginParams, WalletUsePluginParams } from './types';
 import { MaybeSigner, SDKClient, GroupReturn } from '../types';
-import { SendParams } from '@algorandfoundation/algokit-utils/types/transaction';
+import { SendParams } from '@algorandfoundation/algokit-utils/transaction';
 type ContractArgs = AbstractedAccountArgs["obj"];
 /**
  * Fluent composer returned by `wallet.group()` that queues wallet operations
@@ -44,7 +44,7 @@ export declare class WalletGroupComposer {
     }): this;
     verifyAuthAddress(params?: MaybeSigner): this;
     rekeyTo({ sender, signer, ...args }: MaybeSigner & ContractArgs['arc58_rekeyTo(address,bool)void']): this;
-    canCall({ sender, signer, ...args }: ContractArgs['arc58_canCall(uint64,bool,address,string,byte[4])bool'] & MaybeSigner): this;
+    canCall({ sender, signer, ...args }: ContractArgs['arc58_canCall(uint64,uint64,address,string,byte[4])bool'] & MaybeSigner): this;
     removePlugin({ sender, signer, ...args }: ContractArgs['arc58_removePlugin(uint64,address,string)void'] & MaybeSigner): this;
     newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string)uint64'] & MaybeSigner): this;
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,bool)'] & MaybeSigner): this;

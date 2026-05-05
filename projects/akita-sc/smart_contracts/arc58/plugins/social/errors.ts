@@ -1,36 +1,76 @@
-export const ERR_NOT_AKITA_DAO = 'Only the Akita DAO can call this function'
-export const ERR_BANNED = 'This account is banned'
-export const ERR_BLOCKED = 'This account is blocked by the user'
-export const ERR_BAD_CID = 'Invalid IPFS CID length'
-export const ERR_POST_NOT_FOUND = 'Post not found'
-export const ERR_REPLY_NOT_FOUND = 'Reply not found'
-export const ERR_ALREADY_VOTED = "You've already voted on this post"
-export const ERR_HAVENT_VOTED = "You haven't voted on this"
-export const ERR_INVALID_NFD = 'Invalid NFD'
-export const ERR_NOT_AN_NFD = 'Not an NFD'
-export const ERR_USER_DOES_NOT_OWN_NFD = 'User does not own this NFD'
-export const ERR_NFD_CHANGED = 'NFD changed since impact last calculated'
-export const ERR_NOT_AN_AKITA_NFT = 'Not an akita NFT'
-export const ERR_USER_DOES_NOT_OWN_NFT = 'User does not own this NFT'
-export const ERR_NOT_A_SUBSCRIPTION = 'Not an akita subscription contract'
-export const ERR_META_DOESNT_EXIST = 'Meta box values dont exist yet'
-export const ERR_PLUGIN_NOT_AUTH_ADDR = 'This plugin does not have control of the account'
-export const ERR_META_ALREADY_EXISTS = 'Meta box values already exist'
-export const ERR_INVALID_ASSET = 'Invalid asset'
-export const ERR_INVALID_APP = 'Invalid App'
-export const ERR_NOT_YOUR_POST_TO_EDIT = 'Not your post to edit'
-export const ERR_IS_A_REPLY = 'Is a reply'
-export const ERR_NOT_A_REPLY = 'Not a reply'
-export const ERR_IS_ALREADY_AMENDED = 'Is already amended'
-export const ERR_AUTOMATED_ACCOUNT = 'This is an automated account'
-export const ERR_NO_SELF_VOTE = 'Cannot vote on your own content'
-export const ERR_NOT_A_MODERATOR = 'Sender is not a moderator'
-export const ERR_ALREADY_BANNED = 'This account is already banned'
-export const ERR_ALREADY_REACTED = 'This account already reacted to this post with this NFT'
-export const ERR_WRONG_FOLLOWER_KEY = 'Wrong follower key'
-export const ERR_FEE_TOO_SMALL = 'Fee is too small'
-export const ERR_NOT_DAO = 'Not the DAO'
-export const ERR_ALREADY_A_MODERATOR = 'Already a moderator'
-export const ERR_ALREADY_FLAGGED = 'Already flagged'
-export const ERR_ALREADY_AN_ACTION = 'Already an action'
-export const ERR_HAS_GATE = 'This has a gate'
+/**
+ * ARC-65 short error codes for the AkitaSocialPlugin (arc58) contract.
+ *
+ * These values are the payload `loggedAssert`/`loggedErr` emits to the log
+ * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
+ *
+ * Constant NAMES are preserved from the pre-ARC-65 layout so call sites don't
+ * change. Where a name matches one used by the main social contracts
+ * (`smart_contracts/social/errors.ts`), the SAME short code is used here so
+ * the same translator can decode errors bubbling up from either layer.
+ *
+ * The human-readable mapping is shared with the main social contracts via
+ * `akita-sdk/src/social/errors.ts` — no new SDK file is required.
+ */
+
+// --- Shared top-level codes mirrored for ergonomic imports -----------------
+
+// PuyaTs doesn't support `export { X } from` re-export syntax, so the
+// constants are redeclared here with identical values to the top-level
+// `smart_contracts/errors.ts`.
+export const ERR_NOT_AKITA_DAO = 'NDAO'
+export const ERR_FORBIDDEN = 'FORB'
+export const ERR_INVALID_PAYMENT = 'IPAY'
+export const ERR_PLUGIN_NOT_AUTH_ADDR = 'NATH'
+export const ERR_FAILED_GATE = 'FGTE'
+export const ERR_BLOCKED = 'BLKD'
+export const ERR_INVALID_ASSET = 'IAST'
+export const ERR_INVALID_APP = 'IAPP'
+export const ERR_ALREADY_OPTED_IN = 'AOPT'
+export const ERR_NOT_OPTED_IN = 'NOPT'
+
+// --- Moderation (match main social contracts) ------------------------------
+
+export const ERR_BANNED = 'BAND'
+export const ERR_NOT_A_MODERATOR = 'NMOD'
+export const ERR_ALREADY_A_MODERATOR = 'EMOD'
+export const ERR_ALREADY_BANNED = 'EBAN'
+export const ERR_ALREADY_FLAGGED = 'EFLG'
+export const ERR_ALREADY_AN_ACTION = 'EACT'
+
+// --- Content (match main social contracts) ---------------------------------
+
+export const ERR_BAD_CID = 'ICID'
+export const ERR_POST_NOT_FOUND = 'NPST'
+export const ERR_REPLY_NOT_FOUND = 'NRPL'
+export const ERR_ALREADY_VOTED = 'AVOT'
+export const ERR_HAVENT_VOTED = 'NVOT'
+export const ERR_META_DOESNT_EXIST = 'NMTA'
+export const ERR_META_ALREADY_EXISTS = 'EMTA'
+export const ERR_NOT_YOUR_POST_TO_EDIT = 'NEDT'
+export const ERR_IS_A_REPLY = 'ISRP'
+export const ERR_NOT_A_REPLY = 'NARP'
+export const ERR_IS_ALREADY_AMENDED = 'EAMD'
+export const ERR_NO_SELF_VOTE = 'SVOT'
+export const ERR_ALREADY_REACTED = 'ARCT'
+export const ERR_FEE_TOO_SMALL = 'FTSM'
+
+// --- Identity / assets (match main social contracts) -----------------------
+
+export const ERR_INVALID_NFD = 'INFD'
+export const ERR_NOT_AN_NFD = 'NNFD'
+export const ERR_USER_DOES_NOT_OWN_NFD = 'NONF'
+export const ERR_NFD_CHANGED = 'CNFD'
+export const ERR_NOT_AN_AKITA_NFT = 'NANT'
+export const ERR_USER_DOES_NOT_OWN_NFT = 'NONT'
+export const ERR_NOT_A_SUBSCRIPTION = 'NSUB'
+export const ERR_AUTOMATED_ACCOUNT = 'AUTO'
+
+// --- Graph (match main social contracts) -----------------------------------
+
+export const ERR_WRONG_FOLLOWER_KEY = 'WFLK'
+export const ERR_HAS_GATE = 'HGTE'
+
+// --- Plugin-specific codes (no equivalent in main social) ------------------
+
+export const ERR_NOT_DAO = 'NTDO'

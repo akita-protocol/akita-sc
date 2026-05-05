@@ -2,8 +2,12 @@ import { Account, bytes, uint64 } from "@algorandfoundation/algorand-typescript"
 import { Uint8 } from "@algorandfoundation/algorand-typescript/arc4"
 import { CID } from "../utils/types/base"
 
-export type RefType = Uint8
 export type PostType = Uint8
+
+export type RefTypeValue = {
+  name: string
+  schema: bytes
+}
 
 export type FollowsKey = {
   user: bytes<16>
@@ -30,6 +34,10 @@ export type PostValue = {
   againstContentPolicy: boolean
   // the type of post (Post=0, Reply=1, EditPost=2, EditReply=3)
   postType: PostType
+  // content flags set by the creator (bitmask: NSFW=1, AI=2, PaidPartnership=4)
+  creatorFlags: uint64
+  // content flags set by a moderator (same bitmask — allows on-chain distinction of who flagged)
+  moderatorFlags: uint64
   // a dynamic field encompassing content and references
   // Post:      CID
   // Reply:     CID + parentRef
@@ -123,6 +131,7 @@ export type AkitaSocialMBRData = {
   moderators: uint64
   banned: uint64
   actions: uint64
+  refTypes: uint64
 }
 
 export type ImpactMetaValue = {
@@ -143,6 +152,22 @@ export type AkitaSocialImpactMBRData = {
   subscriptionStateModifier: uint64
 }
 
+// Inputs to the social-impact score calculation. Main owns `meta` and `votes`
+// boxes; impact owns the scoring math. This struct passes the minimal state
+// needed for `AkitaSocialImpact.getUserImpactWithInputs`.
+export type SocialImpactInputs = {
+  // whether the user's meta box exists on the main social contract
+  hasMeta: boolean
+  // cached streak value from MetaValue (days active in a row)
+  streak: uint64
+  // cached startDate value from MetaValue (account creation timestamp)
+  startDate: uint64
+  // cached voteCount from VotesValue at key = user.bytes
+  voteCount: uint64
+  // cached isNegative from VotesValue at key = user.bytes
+  isNegative: boolean
+}
+
 export type TipSendType = Uint8
 
 export type tipMBRInfo = {
@@ -159,6 +184,8 @@ export type PostMeta = {
     gateID: uint64
     againstContentPolicy: boolean
     postType: PostType
+    creatorFlags: uint64
+    moderatorFlags: uint64
     ref: bytes
   },
   meta: {

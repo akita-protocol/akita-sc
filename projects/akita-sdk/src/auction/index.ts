@@ -19,6 +19,7 @@ import {
 } from "./types";
 
 export * from "./factory";
+export * from "./errors";
 export * from "./types";
 
 /**

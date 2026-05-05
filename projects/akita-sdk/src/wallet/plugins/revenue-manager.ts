@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { RevenueManagerPluginArgs, RevenueManagerPluginClient, RevenueManagerPluginFactory } from "../../generated/RevenueManagerPluginClient"
 import { BaseSDK } from "../../base";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
@@ -59,7 +60,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'optIn';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -70,7 +71,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -80,7 +81,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
         const mbrPayment = this.client.algorand.createTransaction.payment({
           ...sendParams,
           amount: microAlgo(assetOptInCost * assets.length),
-          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet),
+          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet).toString(),
         })
 
         const params = (
@@ -104,7 +105,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'newReceiveEscrow';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -115,7 +116,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -142,7 +143,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'newReceiveEscrowWithRef';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -153,7 +154,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -181,7 +182,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'startEscrowDisbursement';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -192,7 +193,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -219,7 +220,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'processEscrowAllocation';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -230,7 +231,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -257,7 +258,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
     const methodName = 'finalizeEscrowDisbursement';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -268,7 +269,7 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

@@ -1,4 +1,5 @@
 import {
+  META_MERKLES_ERROR_MESSAGES,
   MerkleTree,
   MerkleTreeType,
   MetaMerklesSDK,
@@ -11,13 +12,15 @@ import {
   encodeValue,
   hashLeaf,
   hexToBytes,
+  translateMetaMerklesError,
   verifyProof
-} from "../chunk-HIS33CJB.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+} from "../chunk-JRX5FKQF.mjs";
+import "../chunk-2AEP6DTX.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
+  META_MERKLES_ERROR_MESSAGES,
   MerkleTree,
   MerkleTreeType,
   MetaMerklesSDK,
@@ -30,6 +33,7 @@ export {
   encodeValue,
   hashLeaf,
   hexToBytes,
+  translateMetaMerklesError,
   verifyProof
 };
 //# sourceMappingURL=index.mjs.map

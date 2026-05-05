@@ -10,12 +10,12 @@ export class TimeWarp {
   }
 
   private async getLastRound(): Promise<bigint> {
-    return (await this.algorand.client.algod.status().do()).lastRound;
+    return (await this.algorand.client.algod.status()).lastRound;
   }
 
   private async getLatestTimestamp(): Promise<bigint> {
     const lastRound = await this.getLastRound();
-    const block = await this.algorand.client.algod.block(lastRound).do();
+    const block = await this.algorand.client.algod.block(lastRound);
     return block.block.header.timestamp;
   }
 
@@ -70,7 +70,7 @@ export class TimeWarp {
 
     // Set the block offset timestamp (this applies to all future blocks)
     // Convert to Number since algod API expects number, not bigint
-    await this.algorand.client.algod.setBlockOffsetTimestamp(Number(this.cumulativeOffset)).do();
+    await this.algorand.client.algod.setBlockTimeStampOffset(Number(this.cumulativeOffset));
 
     // Advance one round to create a block with the new timestamp
     await this.roundWarp();
@@ -78,6 +78,6 @@ export class TimeWarp {
 
   async resetTimeWarp(): Promise<void> {
     this.cumulativeOffset = 0n;
-    await this.algorand.client.algod.setBlockOffsetTimestamp(0).do();
+    await this.algorand.client.algod.setBlockTimeStampOffset(0);
   }
 }

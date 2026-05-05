@@ -128,7 +128,7 @@ export type NewProposalParams<TClient extends SDKClient> = ({
 export type EditProposalParams<TClient extends SDKClient> = (ContractArgs['editProposal(uint64,byte[36],(uint8,byte[])[])void'] & {
     actions: ProposalAction<TClient>[];
 } & MaybeSigner);
-export type ProposalAddPluginArgs = (AddPluginArgs & {
+export type ProposalAddPluginArgs = (Omit<AddPluginArgs, 'admin' | 'canReclaim'> & {
     fee?: bigint;
     power?: bigint;
     duration?: bigint;

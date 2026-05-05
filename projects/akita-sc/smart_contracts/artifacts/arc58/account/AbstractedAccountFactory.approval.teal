@@ -3,53 +3,104 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 8 2 4096 1118600 100000
-    bytecblock "akita_dao" "bc" "wallet" 0x151f7c75 "akita_escrow" "revocation" "wallet_fees" "child_contract_version" 0xea9180dd 0xc53b32cc "version" "escrow_factory" "domain" base64(C4EBQw==)
-    // smart_contracts/arc58/account/factory.algo.ts:31
+    intcblock 0 1 2 8 4096 2254100 100000
+    bytecblock "akita_dao" "bc" "wallet" "ERR:NDAO" 0x00 0x151f7c75 "akita_escrow" "revocation" "wallet_fees" "child_contract_version" 0xea9180dd 0xc53b32cc "version" "escrow_factory" "domain" "ERR:IPAY" base64(C4EBQw==) 0x0001 "pal"
+    // smart_contracts/arc58/account/factory.algo.ts:36-42
+    // @contract({
+    //   stateTotals: {
+    //     globalBytes: FactoryGlobalStateMaxBytes,
+    //     globalUints: FactoryGlobalStateMaxUints
+    //   }
+    // })
     // export class AbstractedAccountFactory extends FactoryContract {
-    bytec 8 // method "update(string)void"
+    bytec 10 // method "update(string)void"
     txna ApplicationArgs 0
     match main_update_route@2
 
 main_switch_case_next@3:
-    // smart_contracts/arc58/account/factory.algo.ts:31
+    // smart_contracts/arc58/account/factory.algo.ts:36-42
+    // @contract({
+    //   stateTotals: {
+    //     globalBytes: FactoryGlobalStateMaxBytes,
+    //     globalUints: FactoryGlobalStateMaxUints
+    //   }
+    // })
     // export class AbstractedAccountFactory extends FactoryContract {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@18
-    pushbytess 0x08d31de4 0x37485541 0x9b67fa6d 0x01e22f3f // method "updateRevocation(uint64)void", method "newAccount(pay,address,address,string,address)uint64", method "cost()uint64", method "updateWallet(uint64)void"
-    bytec 9 // method "initBoxedContract(string,uint64)void"
-    pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0x1ead20a9 0x33e92c94 0x854dede0 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow(uint64)void", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    pushbytess 0x08d31de4 0x49dcb03e 0x9b67fa6d 0x01e22f3f // method "updateRevocation(uint64)void", method "newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64", method "cost()uint64", method "updateWallet(uint64)void"
+    bytec 11 // method "initBoxedContract(string,uint64)void"
+    pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0xae84cbd8 0x33e92c94 0x854dede0 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow((string,uint64))void", method "updateAkitaDAO(uint64)void", method "opUp()void"
     txna ApplicationArgs 0
     match updateRevocation newAccount cost updateWallet initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@16
     err
 
 main_opUp_route@16:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
 
 main_create_NoOp@18:
-    // smart_contracts/arc58/account/factory.algo.ts:31
+    // smart_contracts/arc58/account/factory.algo.ts:36-42
+    // @contract({
+    //   stateTotals: {
+    //     globalBytes: FactoryGlobalStateMaxBytes,
+    //     globalUints: FactoryGlobalStateMaxUints
+    //   }
+    // })
     // export class AbstractedAccountFactory extends FactoryContract {
-    pushbytes 0x06107a0f // method "create(uint64,uint64,string,uint64,uint64,string)void"
+    pushbytes 0x4248ca60 // method "create(uint64,(string,uint64),string,uint64,uint64,string)void"
     txna ApplicationArgs 0
     match create
     err
 
 main_update_route@2:
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txn OnCompletion
     pushint 4 // UpdateApplication
     ==
     txn ApplicationID
     &&
-    assert // OnCompletion must be UpdateApplication && can only call when not creating
+    assert
     b update
+
+
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    intc_2 // 2
+    *
+    dig 2
+    swap
+    extract_uint16
+    dig 2
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    dup
+    intc_2 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 4
+    uncover 2
+    -
+    select
+    substring3
+    retsub
 
 
 // smart_contracts/utils/functions.ts::getWalletIDUsingAkitaDAO(akitaDAO: uint64, address: bytes) -> uint64:
@@ -65,7 +116,7 @@ getWalletIDUsingAkitaDAO:
     pop
     // smart_contracts/utils/functions.ts:64
     // return getOtherAppList(akitaDAO).escrow
-    pushint 24 // 24
+    pushint 24
     extract_uint64
     // smart_contracts/utils/functions.ts:186-189
     // const data = abiCall<typeof EscrowFactory.prototype.get>({
@@ -73,11 +124,11 @@ getWalletIDUsingAkitaDAO:
     //   args: [address]
     // }).returnValue
     itxn_begin
+    itxn_field ApplicationID
     pushbytes 0x3c1a6f33 // method "get(address)byte[]"
     itxn_field ApplicationArgs
     frame_dig -1
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -88,18 +139,18 @@ getWalletIDUsingAkitaDAO:
     extract 4 0
     dig 1
     extract 0 4
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for bytes
     extract 6 0
     dup
     // smart_contracts/utils/functions.ts:191
@@ -108,7 +159,7 @@ getWalletIDUsingAkitaDAO:
     dup
     bz getWalletIDUsingAkitaDAO_if_body@6
     frame_dig 1
-    intc_2 // 8
+    intc_3 // 8
     !=
     bz getWalletIDUsingAkitaDAO_after_if_else@7
 
@@ -157,7 +208,7 @@ splitOptInCount:
     // smart_contracts/utils/functions.ts:628
     // count += splits.length
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     // smart_contracts/utils/functions.ts:625
     // count += 1
     intc_1 // 1
@@ -176,101 +227,114 @@ splitOptInCount_after_if_else@2:
 
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/account/factory.algo.ts:44
+    // smart_contracts/arc58/account/factory.algo.ts:55
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     len
-    intc_2 // 8
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
     ==
-    assert // invalid number of bytes for uint64
-    btoi
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64)
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/base-contracts/base.ts::EscrowConfig
     txna ApplicationArgs 3
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 4
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 5
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 6
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:53
+    // smart_contracts/arc58/account/factory.algo.ts:64
     // this.akitaDAO.value = akitaDAO
     uncover 6
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:65
-    // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 4 // "akita_escrow"
-    // smart_contracts/arc58/account/factory.algo.ts:54
-    // this.akitaDAOEscrow.value = akitaDAOEscrow
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/arc58/account/factory.algo.ts:65
+    // this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
     uncover 5
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 10 // "version"
-    // smart_contracts/arc58/account/factory.algo.ts:55
+    bytec 12 // "version"
+    // smart_contracts/arc58/account/factory.algo.ts:66
     // this.version.value = version
     uncover 4
     app_global_put
-    // smart_contracts/arc58/account/factory.algo.ts:36
+    // smart_contracts/arc58/account/factory.algo.ts:47
     // escrowFactory = GlobalState<Application>({ key: GlobalStateKeyEscrowFactory })
-    bytec 11 // "escrow_factory"
-    // smart_contracts/arc58/account/factory.algo.ts:56
+    bytec 13 // "escrow_factory"
+    // smart_contracts/arc58/account/factory.algo.ts:67
     // this.escrowFactory.value = escrowFactory
     uncover 3
     app_global_put
-    // smart_contracts/arc58/account/factory.algo.ts:38
+    // smart_contracts/arc58/account/factory.algo.ts:49
     // revocation = GlobalState<Application>({ key: GlobalStateKeyRevocation })
-    bytec 5 // "revocation"
-    // smart_contracts/arc58/account/factory.algo.ts:57
+    bytec 7 // "revocation"
+    // smart_contracts/arc58/account/factory.algo.ts:68
     // this.revocation.value = revocation
     uncover 2
     app_global_put
-    // smart_contracts/arc58/account/factory.algo.ts:40
+    // smart_contracts/arc58/account/factory.algo.ts:51
     // domain = GlobalState<string>({ key: AbstractedAccountFactoryGlobalStateKeyDomain })
-    bytec 12 // "domain"
-    // smart_contracts/arc58/account/factory.algo.ts:58
+    bytec 14 // "domain"
+    // smart_contracts/arc58/account/factory.algo.ts:69
     // this.domain.value = domain
     swap
     app_global_put
-    // smart_contracts/arc58/account/factory.algo.ts:44
+    // smart_contracts/arc58/account/factory.algo.ts:55
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -278,45 +342,50 @@ create:
 
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.updateRevocation[routing]() -> void:
 updateRevocation:
-    // smart_contracts/arc58/account/factory.algo.ts:63
+    // smart_contracts/arc58/account/factory.algo.ts:74
     // updateRevocation(app: Application): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/account/factory.algo.ts:64
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/arc58/account/factory.algo.ts:75
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     bytec_2 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:64
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/arc58/account/factory.algo.ts:75
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/arc58/account/factory.algo.ts:38
+    bnz updateRevocation_after_assert@3
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateRevocation_after_assert@3:
+    // smart_contracts/arc58/account/factory.algo.ts:49
     // revocation = GlobalState<Application>({ key: GlobalStateKeyRevocation })
-    bytec 5 // "revocation"
-    // smart_contracts/arc58/account/factory.algo.ts:65
+    bytec 7 // "revocation"
+    // smart_contracts/arc58/account/factory.algo.ts:76
     // this.revocation.value = app
-    swap
+    dig 1
     app_global_put
-    // smart_contracts/arc58/account/factory.algo.ts:63
+    // smart_contracts/arc58/account/factory.algo.ts:74
     // updateRevocation(app: Application): void {
     intc_1 // 1
     return
@@ -325,16 +394,21 @@ updateRevocation:
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.newAccount[routing]() -> void:
 newAccount:
     intc_0 // 0
-    dup
+    dupn 5
     pushbytes ""
-    dupn 4
-    // smart_contracts/arc58/account/factory.algo.ts:68-74
+    dupn 17
+    // smart_contracts/arc58/account/factory.algo.ts:79-90
     // newAccount(
     //   payment: gtxn.PaymentTxn,
     //   controlledAddress: Account,
     //   admin: Account,
     //   nickname: string,
-    //   referrer: Account
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[]
     // ): uint64 {
     txn GroupIndex
     intc_1 // 1
@@ -347,181 +421,426 @@ newAccount:
     txna ApplicationArgs 1
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 3
     dupn 2
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 4
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
-    // smart_contracts/arc58/account/factory.algo.ts:78
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 6
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 8
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    txna ApplicationArgs 9
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    extract 2 0
+    intc_0 // 0
+
+newAccount_for_header@1:
+    // smart_contracts/arc58/account/factory.algo.ts:79-90
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[]
+    // ): uint64 {
+    dup
+    dig 5
+    <
+    bz newAccount_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    pushint 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 63
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 65
+    +
+    dig 2
+    pushint 60
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 7 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    *
+    intc_2 // 2
+    +
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 1
+    b newAccount_for_header@1
+
+newAccount_after_for@4:
+    // smart_contracts/arc58/account/factory.algo.ts:79-90
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[]
+    // ): uint64 {
+    dig 3
+    intc_2 // 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInstall>
+    // smart_contracts/arc58/account/factory.algo.ts:94
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:78
+    // smart_contracts/arc58/account/factory.algo.ts:94
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:68
     // const [walletFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWalletFees))
-    bytec 6 // "wallet_fees"
+    bytec 8 // "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:78
+    // smart_contracts/arc58/account/factory.algo.ts:94
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
     extract_uint64
     dup
-    // smart_contracts/arc58/account/factory.algo.ts:84
-    // Global.minBalance + // 100_000
+    bury 33
+    // smart_contracts/arc58/account/factory.algo.ts:100
+    // Global.minBalance +
     global MinBalance
-    // smart_contracts/arc58/account/factory.algo.ts:81-85
-    // MAX_PROGRAM_PAGES + // 300_000
-    // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) + // 256_500
-    // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) + // 850_000
-    // Global.minBalance + // 100_000
-    // ARC58WalletIDsByAccountsMbr + // 12_100
-    intc 5 // 1118600
+    // smart_contracts/arc58/account/factory.algo.ts:97-101
+    // MAX_PROGRAM_PAGES +
+    // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
+    // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
+    // Global.minBalance +
+    // ARC58WalletIDsByAccountsMbr +
+    intc 5 // 2254100
     +
-    // smart_contracts/arc58/account/factory.algo.ts:81-86
-    // MAX_PROGRAM_PAGES + // 300_000
-    // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) + // 256_500
-    // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) + // 850_000
-    // Global.minBalance + // 100_000
-    // ARC58WalletIDsByAccountsMbr + // 12_100
+    // smart_contracts/arc58/account/factory.algo.ts:97-102
+    // MAX_PROGRAM_PAGES +
+    // (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
+    // (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
+    // Global.minBalance +
+    // ARC58WalletIDsByAccountsMbr +
     // creationFee
-    dig 1
     +
+    bury 33
+    // smart_contracts/arc58/account/factory.algo.ts:105
+    // const assetMBR: uint64 = Global.assetOptInMinBalance * assets.length
+    global AssetOptInMinBalance
+    dig 7
+    *
+    bury 34
+    // smart_contracts/arc58/account/factory.algo.ts:107
+    // let pluginMBR: uint64 = 0
+    intc_0 // 0
+    bury 26
+    // smart_contracts/arc58/account/factory.algo.ts:108
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    intc_0 // 0
+    bury 31
+
+newAccount_while_top@6:
+    // smart_contracts/arc58/account/factory.algo.ts:108
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    dig 30
+    dig 5
+    <
+    bz newAccount_after_while@8
+    // smart_contracts/arc58/account/factory.algo.ts:110
+    // (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
+    dig 5
+    dup
+    dig 32
+    dup
+    cover 3
+    callsub dynamic_array_read_dynamic_element
+    dup
+    pushint 60
+    extract_uint16
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 20
+    *
     swap
-    // smart_contracts/arc58/account/factory.algo.ts:90
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    dup
+    pushint 40
+    extract_uint16
+    dig 1
+    pushint 60
+    extract_uint16
+    substring3
+    extract 2 0
+    len
+    +
+    // smart_contracts/arc58/account/factory.algo.ts:109
+    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
+    pushint 400
+    // smart_contracts/arc58/account/factory.algo.ts:109-111
+    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
+    //   (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
+    // ))
+    *
+    // smart_contracts/arc58/account/factory.algo.ts:109
+    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
+    pushint 38900
+    // smart_contracts/arc58/account/factory.algo.ts:109-111
+    // pluginMBR += MinPluginMBR + (BoxCostPerByte * (
+    //   (MethodRestrictionByteLength * plugins[i].methods.length) + Bytes(plugins[i].escrow).length
+    // ))
+    +
+    dig 27
+    +
+    bury 27
+    // smart_contracts/arc58/account/factory.algo.ts:108
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    intc_1 // 1
+    +
+    bury 31
+    b newAccount_while_top@6
+
+newAccount_after_while@8:
+    // smart_contracts/arc58/account/factory.algo.ts:115
     // let referralMbr: uint64 = 0;
     intc_0 // 0
-    swap
-    // smart_contracts/arc58/account/factory.algo.ts:91
+    bury 24
+    // smart_contracts/arc58/account/factory.algo.ts:116
     // if (creationFee > 0) {
-    bnz newAccount_if_body@2
-    dig 2
-    bury 12
+    dig 31
+    bnz newAccount_if_body@9
+    dig 31
+    bury 27
 
-newAccount_after_if_else@3:
-    // smart_contracts/arc58/account/factory.algo.ts:95-102
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: childMBR + referralMbr,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 7
-    dup
+newAccount_after_if_else@10:
+    // smart_contracts/arc58/account/factory.algo.ts:120
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    dig 16
     gtxns Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:98
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/arc58/account/factory.algo.ts:95-102
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: childMBR + referralMbr,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    swap
+    bnz newAccount_after_assert@12
+    bytec 15 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+newAccount_after_assert@12:
+    // smart_contracts/arc58/account/factory.algo.ts:121
+    // loggedAssert(payment.amount === childMBR + referralMbr + extraFunding + assetMBR + pluginMBR, ERR_INVALID_PAYMENT)
+    dig 16
     gtxns Amount
-    // smart_contracts/arc58/account/factory.algo.ts:99
-    // amount: childMBR + referralMbr,
-    dig 3
-    dig 3
+    dig 33
+    dig 25
     +
-    // smart_contracts/arc58/account/factory.algo.ts:95-102
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: childMBR + referralMbr,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    dig 10
+    +
+    dig 35
+    +
+    dig 27
+    +
     ==
-    &&
-    assert // Invalid payment
+    bnz newAccount_after_assert@14
+    bytec 15 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+newAccount_after_assert@14:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:104
+    // smart_contracts/arc58/account/factory.algo.ts:123
     // const approvalSize = this.boxedContract.length
     box_len
     assert // Box must have value
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:105
+    // smart_contracts/arc58/account/factory.algo.ts:124
     // const chunk1 = this.boxedContract.extract(0, 4096)
     intc_0 // 0
     intc 4 // 4096
     box_extract
-    // smart_contracts/arc58/account/factory.algo.ts:106
+    bury 41
+    // smart_contracts/arc58/account/factory.algo.ts:125
     // const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
-    swap
     intc 4 // 4096
     -
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:106
+    // smart_contracts/arc58/account/factory.algo.ts:125
     // const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
     intc 4 // 4096
     uncover 2
     box_extract
-    // smart_contracts/arc58/account/factory.algo.ts:108-124
+    bury 39
+    // smart_contracts/arc58/account/factory.algo.ts:128
+    // const useSetup = bio !== '' || plugins.length > 0 || assets.length > 0
+    dig 9
+    pushbytes ""
+    !=
+    dup
+    bury 24
+    bnz newAccount_bool_true@17
+    dig 4
+    bnz newAccount_bool_true@17
+    dig 6
+    bz newAccount_bool_false@18
+
+newAccount_bool_true@17:
+    intc_1 // 1
+    bury 20
+
+newAccount_bool_merge@19:
+    // smart_contracts/arc58/account/factory.algo.ts:129
+    // const initialAdmin = useSetup ? Global.currentApplicationAddress : admin
+    dig 19
+    bz newAccount_ternary_false@21
+    global CurrentApplicationAddress
+
+newAccount_ternary_merge@22:
+    // smart_contracts/arc58/account/factory.algo.ts:131-148
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
     //       this.childContractVersion.value,
     //       this.akitaDAO.value.id,
     //       controlledAddress,
-    //       admin,
+    //       initialAdmin,
     //       this.domain.value,
     //       this.escrowFactory.value.id,
     //       this.revocation.value.id,
     //       nickname,
-    //       referrer
+    //       referrer,
+    //       salt
     //     ],
     //     approvalProgram: [chunk1, chunk2],
     //     clearStateProgram: abstractedAccount.clearStateProgram,
     //     extraProgramPages: 3
     //   })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:111
+    // smart_contracts/arc58/account/factory.algo.ts:134
     // this.childContractVersion.value,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
-    bytec 7 // "child_contract_version"
-    // smart_contracts/arc58/account/factory.algo.ts:111
+    bytec 9 // "child_contract_version"
+    // smart_contracts/arc58/account/factory.algo.ts:134
     // this.childContractVersion.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -531,24 +850,24 @@ newAccount_after_if_else@3:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:112
+    // smart_contracts/arc58/account/factory.algo.ts:135
     // this.akitaDAO.value.id,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:112
+    // smart_contracts/arc58/account/factory.algo.ts:135
     // this.akitaDAO.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:115
+    // smart_contracts/arc58/account/factory.algo.ts:138
     // this.domain.value,
     intc_0 // 0
-    // smart_contracts/arc58/account/factory.algo.ts:40
+    // smart_contracts/arc58/account/factory.algo.ts:51
     // domain = GlobalState<string>({ key: AbstractedAccountFactoryGlobalStateKeyDomain })
-    bytec 12 // "domain"
-    // smart_contracts/arc58/account/factory.algo.ts:115
+    bytec 14 // "domain"
+    // smart_contracts/arc58/account/factory.algo.ts:138
     // this.domain.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -558,84 +877,48 @@ newAccount_after_if_else@3:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:116
+    // smart_contracts/arc58/account/factory.algo.ts:139
     // this.escrowFactory.value.id,
     intc_0 // 0
-    // smart_contracts/arc58/account/factory.algo.ts:36
+    // smart_contracts/arc58/account/factory.algo.ts:47
     // escrowFactory = GlobalState<Application>({ key: GlobalStateKeyEscrowFactory })
-    bytec 11 // "escrow_factory"
-    // smart_contracts/arc58/account/factory.algo.ts:116
+    bytec 13 // "escrow_factory"
+    // smart_contracts/arc58/account/factory.algo.ts:139
     // this.escrowFactory.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:117
+    // smart_contracts/arc58/account/factory.algo.ts:140
     // this.revocation.value.id,
     intc_0 // 0
-    // smart_contracts/arc58/account/factory.algo.ts:38
+    // smart_contracts/arc58/account/factory.algo.ts:49
     // revocation = GlobalState<Application>({ key: GlobalStateKeyRevocation })
-    bytec 5 // "revocation"
-    // smart_contracts/arc58/account/factory.algo.ts:117
+    bytec 7 // "revocation"
+    // smart_contracts/arc58/account/factory.algo.ts:140
     // this.revocation.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/arc58/account/factory.algo.ts:108-124
-    // const walletID = abstractedAccount.call
-    //   .create({
-    //     args: [
-    //       this.childContractVersion.value,
-    //       this.akitaDAO.value.id,
-    //       controlledAddress,
-    //       admin,
-    //       this.domain.value,
-    //       this.escrowFactory.value.id,
-    //       this.revocation.value.id,
-    //       nickname,
-    //       referrer
-    //     ],
-    //     approvalProgram: [chunk1, chunk2],
-    //     clearStateProgram: abstractedAccount.clearStateProgram,
-    //     extraProgramPages: 3
-    //   })
-    pushbytes 0xa3dbd377 // method "create(string,uint64,address,address,string,uint64,uint64,string,address)void"
-    itxn_field ApplicationArgs
-    uncover 4
-    itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
-    dig 11
-    itxn_field ApplicationArgs
-    dig 10
-    itxn_field ApplicationArgs
-    uncover 2
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    dig 6
-    itxn_field ApplicationArgs
-    dig 5
-    itxn_field ApplicationArgs
-    // smart_contracts/arc58/account/factory.algo.ts:76
+    // smart_contracts/arc58/account/factory.algo.ts:92
     // const abstractedAccount = compileArc4(AbstractedAccount)
-    pushint 9 // 9
+    pushint 30
     itxn_field GlobalNumByteSlice
-    pushint 9 // 9
+    pushint 12
     itxn_field GlobalNumUint
-    // smart_contracts/arc58/account/factory.algo.ts:108-124
+    // smart_contracts/arc58/account/factory.algo.ts:131-148
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
     //       this.childContractVersion.value,
     //       this.akitaDAO.value.id,
     //       controlledAddress,
-    //       admin,
+    //       initialAdmin,
     //       this.domain.value,
     //       this.escrowFactory.value.id,
     //       this.revocation.value.id,
     //       nickname,
-    //       referrer
+    //       referrer,
+    //       salt
     //     ],
     //     approvalProgram: [chunk1, chunk2],
     //     clearStateProgram: abstractedAccount.clearStateProgram,
@@ -643,53 +926,79 @@ newAccount_after_if_else@3:
     //   })
     intc_0 // 0
     itxn_field OnCompletion
-    // smart_contracts/arc58/account/factory.algo.ts:123
+    // smart_contracts/arc58/account/factory.algo.ts:147
     // extraProgramPages: 3
-    pushint 3 // 3
+    pushint 3
     itxn_field ExtraProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:76
+    // smart_contracts/arc58/account/factory.algo.ts:92
     // const abstractedAccount = compileArc4(AbstractedAccount)
-    bytec 13 // base64(C4EBQw==)
+    bytec 16 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    swap
+    dig 45
     itxn_field ApprovalProgramPages
+    dig 44
     itxn_field ApprovalProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:108-124
+    // smart_contracts/arc58/account/factory.algo.ts:131-148
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
     //       this.childContractVersion.value,
     //       this.akitaDAO.value.id,
     //       controlledAddress,
-    //       admin,
+    //       initialAdmin,
     //       this.domain.value,
     //       this.escrowFactory.value.id,
     //       this.revocation.value.id,
     //       nickname,
-    //       referrer
+    //       referrer,
+    //       salt
     //     ],
     //     approvalProgram: [chunk1, chunk2],
     //     clearStateProgram: abstractedAccount.clearStateProgram,
     //     extraProgramPages: 3
     //   })
+    pushbytes 0xe9ed2e6f // method "create(string,uint64,address,address,string,uint64,uint64,string,address,byte[32])void"
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    dig 19
+    dup
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    dig 14
+    itxn_field ApplicationArgs
+    dig 13
+    itxn_field ApplicationArgs
+    dig 12
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:108-126
+    // smart_contracts/arc58/account/factory.algo.ts:131-150
     // const walletID = abstractedAccount.call
     //   .create({
     //     args: [
     //       this.childContractVersion.value,
     //       this.akitaDAO.value.id,
     //       controlledAddress,
-    //       admin,
+    //       initialAdmin,
     //       this.domain.value,
     //       this.escrowFactory.value.id,
     //       this.revocation.value.id,
     //       nickname,
-    //       referrer
+    //       referrer,
+    //       salt
     //     ],
     //     approvalProgram: [chunk1, chunk2],
     //     clearStateProgram: abstractedAccount.clearStateProgram,
@@ -699,220 +1008,786 @@ newAccount_after_if_else@3:
     //   .createdApp
     gitxn 0 CreatedApplicationID
     dup
-    bury 10
-    // smart_contracts/arc58/account/factory.algo.ts:129-134
+    bury 20
+    // smart_contracts/arc58/account/factory.algo.ts:154
+    // const isExternalControlled = controlledAddress !== Global.zeroAddress
+    global ZeroAddress
+    uncover 2
+    !=
+    dup
+    cover 2
+    bury 32
+    // smart_contracts/arc58/account/factory.algo.ts:158-164
     // itxn
     //   .payment({
-    //     receiver: Application(walletID).address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr
+    //     receiver: walletApp.address,
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:131
-    // receiver: Application(walletID).address,
+    // smart_contracts/arc58/account/factory.algo.ts:160
+    // receiver: walletApp.address,
     app_params_get AppAddress
+    swap
+    bury 38
     assert // application exists
-    // smart_contracts/arc58/account/factory.algo.ts:132
-    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr
+    // smart_contracts/arc58/account/factory.algo.ts:161
+    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
     global MinBalance
-    pushint 12100 // 12100
+    pushint 12100
+    +
+    dig 27
+    +
+    bury 23
+    // smart_contracts/arc58/account/factory.algo.ts:162
+    // + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    bz newAccount_ternary_false@25
+    dig 8
+
+newAccount_ternary_merge@26:
+    // smart_contracts/arc58/account/factory.algo.ts:161-162
+    // amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+    //   + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    dig 22
     +
     itxn_field Amount
+    dig 35
     itxn_field Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:129-133
+    // smart_contracts/arc58/account/factory.algo.ts:158-163
     // itxn
     //   .payment({
-    //     receiver: Application(walletID).address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr
+    //     receiver: walletApp.address,
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
     //   })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:129-134
+    // smart_contracts/arc58/account/factory.algo.ts:158-164
     // itxn
     //   .payment({
-    //     receiver: Application(walletID).address,
-    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr
+    //     receiver: walletApp.address,
+    //     amount: Global.minBalance + ARC58WalletIDsByAccountsMbr + pluginMBR
+    //       + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:136
-    // if (leftover > 0) {
-    dig 11
-    bz newAccount_after_if_else@8
-    // smart_contracts/arc58/account/factory.algo.ts:137-142
+    // smart_contracts/arc58/account/factory.algo.ts:167
+    // if (isExternalControlled && assetMBR > 0) {
+    dig 29
+    bz newAccount_after_if_else@31
+    dig 33
+    bz newAccount_after_if_else@31
+    // smart_contracts/arc58/account/factory.algo.ts:168-173
     // itxn
     //   .payment({
-    //     receiver: this.akitaDAOEscrow.value.address,
+    //     receiver: controlledAddress,
+    //     amount: assetMBR
+    //   })
+    //   .submit()
+    itxn_begin
+    dig 33
+    itxn_field Amount
+    dig 15
+    itxn_field Receiver
+    // smart_contracts/arc58/account/factory.algo.ts:168-172
+    // itxn
+    //   .payment({
+    //     receiver: controlledAddress,
+    //     amount: assetMBR
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/factory.algo.ts:168-173
+    // itxn
+    //   .payment({
+    //     receiver: controlledAddress,
+    //     amount: assetMBR
+    //   })
+    //   .submit()
+    itxn_submit
+
+newAccount_after_if_else@31:
+    // smart_contracts/arc58/account/factory.algo.ts:177
+    // if (bio !== '') {
+    dig 22
+    bz newAccount_after_if_else@34
+    // smart_contracts/arc58/account/factory.algo.ts:178-181
+    // abiCall<typeof AbstractedAccount.prototype.setBio>({
+    //   appId: walletID,
+    //   args: [bio]
+    // })
+    itxn_begin
+    dig 17
+    itxn_field ApplicationID
+    pushbytes 0x5ef0b415 // method "setBio(string)void"
+    itxn_field ApplicationArgs
+    dig 10
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+newAccount_after_if_else@34:
+    // smart_contracts/arc58/account/factory.algo.ts:185
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    intc_0 // 0
+    bury 29
+
+newAccount_while_top@35:
+    // smart_contracts/arc58/account/factory.algo.ts:185
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    dig 28
+    dig 5
+    <
+    bz newAccount_after_while@38
+    // smart_contracts/arc58/account/factory.algo.ts:187-204
+    // abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
+    //   appId: walletID,
+    //   args: [
+    //     p.plugin,
+    //     p.caller,
+    //     p.escrow,
+    //     p.admin,
+    //     p.delegationType,
+    //     p.lastValid,
+    //     p.cooldown,
+    //     p.methods,
+    //     p.useRounds,
+    //     p.useExecutionKey,
+    //     p.coverFees,
+    //     p.canReclaim,
+    //     p.defaultToEscrow
+    //   ]
+    // })
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:190
+    // p.plugin,
+    dig 5
+    dup
+    dig 30
+    dup
+    cover 3
+    callsub dynamic_array_read_dynamic_element
+    extract 0 8
+    // smart_contracts/arc58/account/factory.algo.ts:191
+    // p.caller,
+    dig 1
+    dig 3
+    callsub dynamic_array_read_dynamic_element
+    extract 8 32
+    // smart_contracts/arc58/account/factory.algo.ts:192
+    // p.escrow,
+    dig 2
+    dig 4
+    callsub dynamic_array_read_dynamic_element
+    dup
+    pushint 40
+    extract_uint16
+    dig 1
+    pushint 60
+    extract_uint16
+    substring3
+    // smart_contracts/arc58/account/factory.algo.ts:193
+    // p.admin,
+    dig 3
+    dig 5
+    callsub dynamic_array_read_dynamic_element
+    pushint 336
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/account/factory.algo.ts:194
+    // p.delegationType,
+    dig 4
+    dig 6
+    callsub dynamic_array_read_dynamic_element
+    extract 43 1
+    // smart_contracts/arc58/account/factory.algo.ts:195
+    // p.lastValid,
+    dig 5
+    dig 7
+    callsub dynamic_array_read_dynamic_element
+    extract 44 8
+    // smart_contracts/arc58/account/factory.algo.ts:196
+    // p.cooldown,
+    dig 6
+    dig 8
+    callsub dynamic_array_read_dynamic_element
+    extract 52 8
+    // smart_contracts/arc58/account/factory.algo.ts:197
+    // p.methods,
+    dig 7
+    dig 9
+    callsub dynamic_array_read_dynamic_element
+    dup
+    pushint 60
+    extract_uint16
+    dig 1
+    len
+    substring3
+    // smart_contracts/arc58/account/factory.algo.ts:198
+    // p.useRounds,
+    dig 8
+    dig 10
+    callsub dynamic_array_read_dynamic_element
+    pushint 496
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/account/factory.algo.ts:199
+    // p.useExecutionKey,
+    dig 9
+    dig 11
+    callsub dynamic_array_read_dynamic_element
+    pushint 497
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/account/factory.algo.ts:200
+    // p.coverFees,
+    dig 10
+    dig 12
+    callsub dynamic_array_read_dynamic_element
+    pushint 498
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/account/factory.algo.ts:201
+    // p.canReclaim,
+    dig 11
+    dig 13
+    callsub dynamic_array_read_dynamic_element
+    pushint 499
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/account/factory.algo.ts:202
+    // p.defaultToEscrow
+    uncover 12
+    dig 13
+    callsub dynamic_array_read_dynamic_element
+    pushint 500
+    getbit
+    bytec 4 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    dig 31
+    itxn_field ApplicationID
+    // smart_contracts/arc58/account/factory.algo.ts:187-204
+    // abiCall<typeof AbstractedAccount.prototype.arc58_addPlugin>({
+    //   appId: walletID,
+    //   args: [
+    //     p.plugin,
+    //     p.caller,
+    //     p.escrow,
+    //     p.admin,
+    //     p.delegationType,
+    //     p.lastValid,
+    //     p.cooldown,
+    //     p.methods,
+    //     p.useRounds,
+    //     p.useExecutionKey,
+    //     p.coverFees,
+    //     p.canReclaim,
+    //     p.defaultToEscrow
+    //   ]
+    // })
+    pushbytes 0x5672462e // method "arc58_addPlugin(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)void"
+    itxn_field ApplicationArgs
+    uncover 12
+    itxn_field ApplicationArgs
+    uncover 11
+    itxn_field ApplicationArgs
+    uncover 10
+    itxn_field ApplicationArgs
+    uncover 9
+    itxn_field ApplicationArgs
+    uncover 8
+    itxn_field ApplicationArgs
+    uncover 7
+    itxn_field ApplicationArgs
+    uncover 6
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/account/factory.algo.ts:185
+    // for (let i: uint64 = 0; i < plugins.length; i += 1) {
+    intc_1 // 1
+    +
+    bury 29
+    b newAccount_while_top@35
+
+newAccount_after_while@38:
+    // smart_contracts/arc58/account/factory.algo.ts:208
+    // const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
+    dig 29
+    bz newAccount_ternary_false@40
+    dig 15
+    bury 41
+
+newAccount_ternary_merge@41:
+    // smart_contracts/arc58/account/factory.algo.ts:210
+    // if (assets.length > 0) {
+    dig 6
+    bz newAccount_else_body@50
+    // smart_contracts/arc58/account/factory.algo.ts:213
+    // if (!isExternalControlled) {
+    dig 29
+    bnz newAccount_after_if_else@45
+    // smart_contracts/arc58/account/factory.algo.ts:214-217
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:216
+    // args: [Global.currentApplicationAddress, false]
+    global CurrentApplicationAddress
+    dig 18
+    itxn_field ApplicationID
+    // smart_contracts/arc58/account/factory.algo.ts:214-217
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    pushbytes 0xc95a5d3d // method "arc58_rekeyTo(address,bool)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/account/factory.algo.ts:216
+    // args: [Global.currentApplicationAddress, false]
+    bytec 4 // 0x00
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/account/factory.algo.ts:214-217
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: walletID,
+    //   args: [Global.currentApplicationAddress, false]
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+newAccount_after_if_else@45:
+    // smart_contracts/arc58/account/factory.algo.ts:220
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_0 // 0
+    bury 28
+
+newAccount_while_top@46:
+    // smart_contracts/arc58/account/factory.algo.ts:220
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dig 27
+    dig 7
+    <
+    bz newAccount_after_if_else@54
+    // smart_contracts/arc58/account/factory.algo.ts:221-229
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:225
+    // xferAsset: Asset(assets[i]),
+    dig 7
+    extract 2 0
+    dig 28
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    extract_uint64
+    bury 22
+    // smart_contracts/arc58/account/factory.algo.ts:227
+    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    dig 7
+    intc_1 // 1
+    -
+    ==
+    // smart_contracts/utils/functions.ts:326
+    // if (!rekeyBack) {
+    bnz newAccount_after_if_else@63
+    // smart_contracts/utils/functions.ts:327
+    // return Global.zeroAddress
+    global ZeroAddress
+
+newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@64:
+    itxn_field RekeyTo
+    // smart_contracts/arc58/account/factory.algo.ts:226
+    // assetAmount: 0,
+    intc_0 // 0
+    itxn_field AssetAmount
+    dig 20
+    itxn_field XferAsset
+    dig 40
+    dup
+    itxn_field AssetReceiver
+    itxn_field Sender
+    // smart_contracts/arc58/account/factory.algo.ts:221-228
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/factory.algo.ts:221-229
+    // itxn
+    //   .assetTransfer({
+    //     sender: assetAccount,
+    //     assetReceiver: assetAccount,
+    //     xferAsset: Asset(assets[i]),
+    //     assetAmount: 0,
+    //     rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/account/factory.algo.ts:220
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dig 27
+    intc_1 // 1
+    +
+    bury 28
+    b newAccount_while_top@46
+
+newAccount_after_if_else@63:
+    // smart_contracts/utils/functions.ts:330
+    // return wallet.address
+    dig 17
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/account/factory.algo.ts:227
+    // rekeyTo: rekeyAddress(assets.length - 1 === i, walletApp)
+    b newAccount_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@64
+
+newAccount_after_if_else@54:
+    // smart_contracts/arc58/account/factory.algo.ts:244
+    // if (useSetup) {
+    dig 19
+    bz newAccount_after_if_else@57
+    // smart_contracts/arc58/account/factory.algo.ts:245-248
+    // abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
+    //   appId: walletID,
+    //   args: [admin]
+    // })
+    itxn_begin
+    dig 17
+    itxn_field ApplicationID
+    pushbytes 0xd24b7556 // method "arc58_changeAdmin(address)void"
+    itxn_field ApplicationArgs
+    dig 14
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+newAccount_after_if_else@57:
+    // smart_contracts/arc58/account/factory.algo.ts:251
+    // if (leftover > 0) {
+    dig 26
+    bz newAccount_after_if_else@60
+    // smart_contracts/arc58/account/factory.algo.ts:252-257
+    // itxn
+    //   .payment({
+    //     receiver: this.akitaDAOEscrow.value.app.address,
     //     amount: leftover,
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:139
-    // receiver: this.akitaDAOEscrow.value.address,
+    // smart_contracts/arc58/account/factory.algo.ts:254
+    // receiver: this.akitaDAOEscrow.value.app.address,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:65
-    // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 4 // "akita_escrow"
-    // smart_contracts/arc58/account/factory.algo.ts:139
-    // receiver: this.akitaDAOEscrow.value.address,
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/arc58/account/factory.algo.ts:254
+    // receiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
     assert // check GlobalState exists
+    intc_2 // 2
+    extract_uint64
     app_params_get AppAddress
     assert // application exists
-    dig 12
+    dig 27
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/arc58/account/factory.algo.ts:137-141
+    // smart_contracts/arc58/account/factory.algo.ts:252-256
     // itxn
     //   .payment({
-    //     receiver: this.akitaDAOEscrow.value.address,
+    //     receiver: this.akitaDAOEscrow.value.app.address,
     //     amount: leftover,
     //   })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/account/factory.algo.ts:137-142
+    // smart_contracts/arc58/account/factory.algo.ts:252-257
     // itxn
     //   .payment({
-    //     receiver: this.akitaDAOEscrow.value.address,
+    //     receiver: this.akitaDAOEscrow.value.app.address,
     //     amount: leftover,
     //   })
     //   .submit()
     itxn_submit
 
-newAccount_after_if_else@8:
-    // smart_contracts/arc58/account/factory.algo.ts:68-74
+newAccount_after_if_else@60:
+    // smart_contracts/arc58/account/factory.algo.ts:79-90
     // newAccount(
     //   payment: gtxn.PaymentTxn,
     //   controlledAddress: Account,
     //   admin: Account,
     //   nickname: string,
-    //   referrer: Account
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[]
     // ): uint64 {
-    dig 8
+    dig 17
     itob
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
     intc_1 // 1
     return
 
-newAccount_if_body@2:
-    // smart_contracts/arc58/account/factory.algo.ts:92
+newAccount_else_body@50:
+    // smart_contracts/arc58/account/factory.algo.ts:231
+    // } else if (isExternalControlled) {
+    dig 29
+    bz newAccount_after_if_else@54
+    // smart_contracts/arc58/account/factory.algo.ts:233-240
+    // itxn
+    //   .payment({
+    //     sender: controlledAddress,
+    //     receiver: controlledAddress,
+    //     amount: 0,
+    //     rekeyTo: walletApp.address
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/account/factory.algo.ts:238
+    // rekeyTo: walletApp.address
+    dig 17
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    // smart_contracts/arc58/account/factory.algo.ts:237
+    // amount: 0,
+    intc_0 // 0
+    itxn_field Amount
+    dig 15
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/arc58/account/factory.algo.ts:233-239
+    // itxn
+    //   .payment({
+    //     sender: controlledAddress,
+    //     receiver: controlledAddress,
+    //     amount: 0,
+    //     rekeyTo: walletApp.address
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/factory.algo.ts:233-240
+    // itxn
+    //   .payment({
+    //     sender: controlledAddress,
+    //     receiver: controlledAddress,
+    //     amount: 0,
+    //     rekeyTo: walletApp.address
+    //   })
+    //   .submit()
+    itxn_submit
+    b newAccount_after_if_else@54
+
+newAccount_ternary_false@40:
+    // smart_contracts/arc58/account/factory.algo.ts:208
+    // const assetAccount = isExternalControlled ? controlledAddress : walletApp.address
+    dig 17
+    app_params_get AppAddress
+    assert // application exists
+    bury 41
+    b newAccount_ternary_merge@41
+
+newAccount_ternary_false@25:
+    // smart_contracts/arc58/account/factory.algo.ts:162
+    // + (isExternalControlled ? extraFunding : extraFunding + assetMBR)
+    dig 8
+    dig 34
+    +
+    b newAccount_ternary_merge@26
+
+newAccount_ternary_false@21:
+    dig 14
+    b newAccount_ternary_merge@22
+
+newAccount_bool_false@18:
+    intc_0 // 0
+    bury 20
+    b newAccount_bool_merge@19
+
+newAccount_if_body@9:
+    // smart_contracts/arc58/account/factory.algo.ts:117
     // ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:92
+    // smart_contracts/arc58/account/factory.algo.ts:117
     // ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
     app_global_get_ex
     swap
     dup
     cover 2
-    bury 15
+    bury 37
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:592
     // const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
     txn Sender
     callsub getWalletIDUsingAkitaDAO
     dup
-    bury 11
+    bury 20
     // smart_contracts/utils/functions.ts:161
     // return referrerOr(walletID, Global.zeroAddress)
     global ZeroAddress
-    bury 16
+    bury 39
     // smart_contracts/utils/functions.ts:154
     // if (walletID.id === 0) {
-    bnz newAccount_after_if_else@11
-    dig 14
-    bury 14
+    bnz newAccount_after_if_else@67
+    dig 37
+    bury 37
 
-newAccount_after_inlined_smart_contracts/utils/functions.ts::referrerOr@12:
+newAccount_after_inlined_smart_contracts/utils/functions.ts::referrerOr@68:
     // smart_contracts/utils/functions.ts:596
     // if (amount > 0 && referrer !== Global.zeroAddress) {
-    dig 2
-    bz newAccount_after_if_else@24
-    dig 13
+    dig 31
+    bz newAccount_after_if_else@80
+    dig 36
     global ZeroAddress
     !=
-    bz newAccount_after_if_else@24
+    bz newAccount_after_if_else@80
     // smart_contracts/utils/functions.ts:68
     // const [walletFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWalletFees))
-    dig 12
-    bytec 6 // "wallet_fees"
+    dig 34
+    bytec 8 // "wallet_fees"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:598
     // const { referrerPercentage } = getWalletFees(akitaDAO)
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     // smart_contracts/utils/functions.ts:108
     // assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
     dup
     intc 6 // 100000
     <=
-    assert // Invalid percentage
+    assert // IPCT
     // smart_contracts/utils/functions.ts:109
     // return op.divw(...op.mulw(a, p), DIVISOR)
-    dig 3
+    dig 32
     mulw
     intc 6 // 100000
     divw
     dup
-    bury 12
+    bury 26
     // smart_contracts/utils/functions.ts:601
     // if (referralFee === 0 && amount > 0) {
-    bnz newAccount_after_if_else@17
-    dig 2
-    bz newAccount_after_if_else@17
+    bnz newAccount_after_if_else@73
+    dig 31
+    bz newAccount_after_if_else@73
     // smart_contracts/utils/functions.ts:602
     // referralFee = 1
     intc_1 // 1
-    bury 11
+    bury 25
 
-newAccount_after_if_else@17:
+newAccount_after_if_else@73:
     // smart_contracts/utils/functions.ts:608
     // Global.latestTimestamp,
     global LatestTimestamp
     // smart_contracts/utils/functions.ts:609
     // (Global.latestTimestamp + ONE_WEEK),
     dup
-    pushint 604800 // 604800
+    pushint 604800
     +
     // smart_contracts/utils/functions.ts:610
     // [{ address: referrer, amount: referralFee }],
-    dig 12
+    dig 26
     dup
     itob
-    dig 17
+    dig 40
     swap
     concat
-    pushbytes 0x0001
+    bytec 17 // 0x0001
     swap
     concat
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    dig 16
+    dig 38
     pushbytes "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:520
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
-    intc_2 // 8
+    intc_3 // 8
     extract_uint64
     // smart_contracts/utils/functions.ts:523
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
     dig 1
     intc_0 // 0
-    extract_uint16
-    pushint 25300 // 25300
+    extract_uint16 // on error: invalid array length header
+    pushint 25300
     *
-    pushint 35300 // 35300
+    pushint 41700
     +
     // smart_contracts/utils/functions.ts:525-536
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
@@ -971,6 +1846,8 @@ newAccount_after_if_else@17:
     // expiration,
     uncover 5
     itob
+    uncover 3
+    itxn_field ApplicationID
     // smart_contracts/utils/functions.ts:525-536
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
@@ -989,26 +1866,24 @@ newAccount_after_if_else@17:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    uncover 2
-    itxn_field ApplicationArgs
     swap
-    itxn_field ApplicationID
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    gitxn 1 LastLog
+    itxn LastLog
     dup
     extract 4 0
     swap
     extract 0 4
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
     assert // invalid number of bytes for uint64
     btoi
@@ -1031,44 +1906,44 @@ newAccount_after_if_else@17:
     extract 8 8
     // smart_contracts/utils/functions.ts:615
     // return { leftover: (amount - referralFee), referralMbr }
-    dig 4
+    dig 33
     uncover 2
     -
     itob
     swap
     concat
 
-newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPayment@25:
-    // smart_contracts/arc58/account/factory.algo.ts:92
+newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPayment@81:
+    // smart_contracts/arc58/account/factory.algo.ts:117
     // ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
     dup
     intc_0 // 0
     extract_uint64
-    bury 13
-    intc_2 // 8
+    bury 28
+    intc_3 // 8
     extract_uint64
-    bury 1
-    b newAccount_after_if_else@3
+    bury 24
+    b newAccount_after_if_else@10
 
-newAccount_after_if_else@24:
+newAccount_after_if_else@80:
     // smart_contracts/utils/functions.ts:618
     // return { leftover: amount, referralMbr: 0 }
-    dig 2
+    dig 31
     itob
     intc_0 // 0
     itob
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:92
+    // smart_contracts/arc58/account/factory.algo.ts:117
     // ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
-    b newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPayment@25
+    b newAccount_after_inlined_smart_contracts/utils/functions.ts::sendReferralPayment@81
 
-newAccount_after_if_else@11:
+newAccount_after_if_else@67:
     // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
-    dig 9
+    dig 18
     // smart_contracts/utils/functions.ts:175
     // Bytes(AbstractAccountGlobalStateKeysReferrer)
     pushbytes "referrer"
@@ -1079,85 +1954,85 @@ newAccount_after_if_else@11:
     // )
     app_global_get_ex
     pop
-    bury 14
+    bury 37
     // smart_contracts/utils/functions.ts:161
     // return referrerOr(walletID, Global.zeroAddress)
-    b newAccount_after_inlined_smart_contracts/utils/functions.ts::referrerOr@12
+    b newAccount_after_inlined_smart_contracts/utils/functions.ts::referrerOr@68
 
 
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.cost[routing]() -> void:
 cost:
-    // smart_contracts/arc58/account/factory.algo.ts:151
+    // smart_contracts/arc58/account/factory.algo.ts:266
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:151
+    // smart_contracts/arc58/account/factory.algo.ts:266
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:68
     // const [walletFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWalletFees))
-    bytec 6 // "wallet_fees"
+    bytec 8 // "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:151
+    // smart_contracts/arc58/account/factory.algo.ts:266
     // const creationFee = getWalletFees(this.akitaDAO.value).createFee
     intc_0 // 0
     extract_uint64
     dup
-    // smart_contracts/arc58/account/factory.algo.ts:153
+    // smart_contracts/arc58/account/factory.algo.ts:268
     // let referralCost: uint64 = 0
     intc_0 // 0
     swap
-    // smart_contracts/arc58/account/factory.algo.ts:154
+    // smart_contracts/arc58/account/factory.algo.ts:269
     // if (creationFee > 0) {
     bz cost_after_if_else@5
-    // smart_contracts/arc58/account/factory.algo.ts:155
+    // smart_contracts/arc58/account/factory.algo.ts:270
     // const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:155
+    // smart_contracts/arc58/account/factory.algo.ts:270
     // const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     app_global_get_ex
     assert // check GlobalState exists
     txn Sender
     callsub getWalletIDUsingAkitaDAO
-    // smart_contracts/arc58/account/factory.algo.ts:156
+    // smart_contracts/arc58/account/factory.algo.ts:271
     // if (wallet.id > 0) {
     bz cost_after_if_else@5
-    // smart_contracts/arc58/account/factory.algo.ts:157
+    // smart_contracts/arc58/account/factory.algo.ts:272
     // referralCost = costInstantDisbursement(this.akitaDAO.value, 0, 1)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/account/factory.algo.ts:157
+    // smart_contracts/arc58/account/factory.algo.ts:272
     // referralCost = costInstantDisbursement(this.akitaDAO.value, 0, 1)
     app_global_get_ex
     bury 1
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:487
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocationsLength)
-    pushint 60600 // 60600
+    pushint 67000
     bury 1
 
 cost_after_if_else@5:
-    // smart_contracts/arc58/account/factory.algo.ts:165
+    // smart_contracts/arc58/account/factory.algo.ts:280
     // Global.minBalance +
     global MinBalance
-    // smart_contracts/arc58/account/factory.algo.ts:162-166
+    // smart_contracts/arc58/account/factory.algo.ts:277-281
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * AbstractAccountNumGlobalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * AbstractAccountNumGlobalBytes) +
     // Global.minBalance +
     // ARC58WalletIDsByAccountsMbr +
-    intc 5 // 1118600
+    intc 5 // 2254100
     +
-    // smart_contracts/arc58/account/factory.algo.ts:162-167
+    // smart_contracts/arc58/account/factory.algo.ts:277-282
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * AbstractAccountNumGlobalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * AbstractAccountNumGlobalBytes) +
@@ -1166,7 +2041,7 @@ cost_after_if_else@5:
     // creationFee +
     dig 2
     +
-    // smart_contracts/arc58/account/factory.algo.ts:162-168
+    // smart_contracts/arc58/account/factory.algo.ts:277-283
     // MAX_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * AbstractAccountNumGlobalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * AbstractAccountNumGlobalBytes) +
@@ -1176,10 +2051,10 @@ cost_after_if_else@5:
     // referralCost
     dig 1
     +
-    // smart_contracts/arc58/account/factory.algo.ts:148
+    // smart_contracts/arc58/account/factory.algo.ts:263
     // @abimethod({ readonly: true })
     itob
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
@@ -1190,65 +2065,97 @@ cost_after_if_else@5:
 // smart_contracts/arc58/account/factory.algo.ts::AbstractedAccountFactory.updateWallet[routing]() -> void:
 updateWallet:
     intc_0 // 0
-    // smart_contracts/arc58/account/factory.algo.ts:181
+    // smart_contracts/arc58/account/factory.algo.ts:296
     // updateWallet(wallet: Application): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    // smart_contracts/arc58/account/factory.algo.ts:183
+    // smart_contracts/arc58/account/factory.algo.ts:298
+    // const [updateSettingsBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysUpdateSettings))
+    pushbytes "update_settings"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/account/factory.algo.ts:299
+    // const { allowed, automatic } = decodeArc4<FactoryUpdateSettings>(updateSettingsBytes)
+    dup
+    intc_0 // 0
+    getbit
+    swap
+    intc_1 // 1
+    getbit
+    swap
+    // smart_contracts/arc58/account/factory.algo.ts:300
+    // loggedAssert(allowed, ERR_FACTORY_UPDATES_NOT_ALLOWED)
+    bnz updateWallet_after_assert@3
+    pushbytes "ERR:FUNA"
+    log
+    err // ERR:FUNA
+
+updateWallet_after_assert@3:
+    // smart_contracts/arc58/account/factory.algo.ts:302
+    // if (!automatic) {
+    dup
+    bnz updateWallet_after_if_else@7
+    // smart_contracts/arc58/account/factory.algo.ts:303
     // const [adminBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
+    dig 1
     pushbytes "admin"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/account/factory.algo.ts:184
-    // assert(Txn.sender === Account(adminBytes))
+    // smart_contracts/arc58/account/factory.algo.ts:304
+    // loggedAssert(Txn.sender === Account(adminBytes), ERR_ADMIN_ONLY)
     txn Sender
     ==
-    assert
+    bnz updateWallet_after_if_else@7
+    pushbytes "ERR:ADMN"
+    log
+    err // ERR:ADMN
+
+updateWallet_after_if_else@7:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:186
+    // smart_contracts/arc58/account/factory.algo.ts:307
     // const approvalSize: uint64 = this.boxedContract.length
     box_len
     swap
     dup
     uncover 2
     assert // Box must have value
-    // smart_contracts/arc58/account/factory.algo.ts:190
+    // smart_contracts/arc58/account/factory.algo.ts:311
     // if (approvalSize > MAX_AVM_BYTE_ARRAY_LENGTH) {
     intc 4 // 4096
     >
-    bz updateWallet_else_body@3
+    bz updateWallet_else_body@9
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:191
+    // smart_contracts/arc58/account/factory.algo.ts:312
     // chunk1 = this.boxedContract.extract(0, MAX_AVM_BYTE_ARRAY_LENGTH)
     intc_0 // 0
     intc 4 // 4096
     box_extract
-    bury 3
-    // smart_contracts/arc58/account/factory.algo.ts:192
+    bury 4
+    // smart_contracts/arc58/account/factory.algo.ts:313
     // chunk2 = this.boxedContract.extract(MAX_AVM_BYTE_ARRAY_LENGTH, approvalSize - MAX_AVM_BYTE_ARRAY_LENGTH)
     intc 4 // 4096
     -
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:192
+    // smart_contracts/arc58/account/factory.algo.ts:313
     // chunk2 = this.boxedContract.extract(MAX_AVM_BYTE_ARRAY_LENGTH, approvalSize - MAX_AVM_BYTE_ARRAY_LENGTH)
     intc 4 // 4096
     uncover 2
     box_extract
 
-updateWallet_after_if_else@4:
-    // smart_contracts/arc58/account/factory.algo.ts:200-206
+updateWallet_after_if_else@10:
+    // smart_contracts/arc58/account/factory.algo.ts:321-327
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],
@@ -1257,13 +2164,13 @@ updateWallet_after_if_else@4:
     //   clearStateProgram: clearProgram,
     // })
     itxn_begin
-    // smart_contracts/arc58/account/factory.algo.ts:202
+    // smart_contracts/arc58/account/factory.algo.ts:323
     // args: [this.childContractVersion.value],
     intc_0 // 0
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
-    bytec 7 // "child_contract_version"
-    // smart_contracts/arc58/account/factory.algo.ts:202
+    bytec 9 // "child_contract_version"
+    // smart_contracts/arc58/account/factory.algo.ts:323
     // args: [this.childContractVersion.value],
     app_global_get_ex
     assert // check GlobalState exists
@@ -1273,31 +2180,21 @@ updateWallet_after_if_else@4:
     extract 6 2
     swap
     concat
-    // smart_contracts/arc58/account/factory.algo.ts:200-206
-    // abiCall<typeof AbstractedAccount.prototype.update>({
-    //   appId: wallet,
-    //   args: [this.childContractVersion.value],
-    //   onCompletion: OnCompleteAction.UpdateApplication,
-    //   approvalProgram: [chunk1, chunk2],
-    //   clearStateProgram: clearProgram,
-    // })
-    bytec 8 // method "update(string)void"
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    // smart_contracts/arc58/account/factory.algo.ts:198
+    // smart_contracts/arc58/account/factory.algo.ts:319
     // const clearProgram = compileArc4(AbstractedAccount).clearStateProgram
-    bytec 13 // base64(C4EBQw==)
+    bytec 16 // base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    dig 2
+    dig 4
     itxn_field ApprovalProgramPages
+    swap
     itxn_field ApprovalProgramPages
-    // smart_contracts/arc58/account/factory.algo.ts:203
+    // smart_contracts/arc58/account/factory.algo.ts:324
     // onCompletion: OnCompleteAction.UpdateApplication,
-    pushint 4 // 4
+    pushint 4
     itxn_field OnCompletion
-    dup
+    dig 2
     itxn_field ApplicationID
-    // smart_contracts/arc58/account/factory.algo.ts:200-206
+    // smart_contracts/arc58/account/factory.algo.ts:321-327
     // abiCall<typeof AbstractedAccount.prototype.update>({
     //   appId: wallet,
     //   args: [this.childContractVersion.value],
@@ -1305,30 +2202,33 @@ updateWallet_after_if_else@4:
     //   approvalProgram: [chunk1, chunk2],
     //   clearStateProgram: clearProgram,
     // })
+    bytec 10 // method "update(string)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/account/factory.algo.ts:181
+    // smart_contracts/arc58/account/factory.algo.ts:296
     // updateWallet(wallet: Application): void {
     intc_1 // 1
     return
 
-updateWallet_else_body@3:
+updateWallet_else_body@9:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
-    // smart_contracts/arc58/account/factory.algo.ts:194
+    // smart_contracts/arc58/account/factory.algo.ts:315
     // chunk1 = this.boxedContract.extract(0, approvalSize)
     intc_0 // 0
     uncover 2
     box_extract
-    bury 2
-    // smart_contracts/arc58/account/factory.algo.ts:195
+    bury 3
+    // smart_contracts/arc58/account/factory.algo.ts:316
     // chunk2 = Bytes('')
     pushbytes ""
-    b updateWallet_after_if_else@4
+    b updateWallet_after_if_else@10
 
 
 // smart_contracts/utils/base-contracts/factory.ts::FactoryContract.initBoxedContract[routing]() -> void:
@@ -1338,25 +2238,25 @@ initBoxedContract:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     swap
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
-    bytec 7 // "child_contract_version"
+    bytec 9 // "child_contract_version"
     // smart_contracts/utils/base-contracts/factory.ts:43
     // this.childContractVersion.value = version
     swap
@@ -1368,39 +2268,44 @@ initBoxedContract:
     // if (!this.boxedContract.exists) {
     box_len
     bury 1
-    bnz initBoxedContract_else_body@3
+    bnz initBoxedContract_else_body@5
     // smart_contracts/utils/base-contracts/factory.ts:45
-    // assert(Txn.sender === Global.creatorAddress, ERR_NOT_AKITA_DAO)
+    // loggedAssert(Txn.sender === Global.creatorAddress, ERR_NOT_AKITA_DAO)
     txn Sender
     global CreatorAddress
     ==
-    assert // Only the Akita DAO can call this function
+    bnz initBoxedContract_after_assert@4
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+initBoxedContract_after_assert@4:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:46
     // this.boxedContract.create({ size })
-    swap
+    dig 1
     box_create
     pop
 
-initBoxedContract_after_if_else@4:
+initBoxedContract_after_if_else@8:
     // smart_contracts/utils/base-contracts/factory.ts:42
     // initBoxedContract(version: string, size: uint64): void {
     intc_1 // 1
     return
 
-initBoxedContract_else_body@3:
+initBoxedContract_else_body@5:
     // smart_contracts/utils/base-contracts/factory.ts:48
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
@@ -1408,19 +2313,24 @@ initBoxedContract_else_body@3:
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/factory.ts:48
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
+    bnz initBoxedContract_after_assert@7
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+initBoxedContract_after_assert@7:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:49
     // this.boxedContract.resize(size)
-    swap
+    dig 1
     box_resize
-    b initBoxedContract_after_if_else@4
+    b initBoxedContract_after_if_else@8
 
 
 // smart_contracts/utils/base-contracts/factory.ts::FactoryContract.loadBoxedContract[routing]() -> void:
@@ -1430,26 +2340,26 @@ loadBoxedContract:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     swap
     // smart_contracts/utils/base-contracts/factory.ts:54
     // const expectedPreviousCalls: uint64 = offset / 2032
-    pushint 2032 // 2032
+    pushint 2032
     /
     // smart_contracts/utils/base-contracts/factory.ts:55
     // const txn = gtxn.Transaction(Txn.groupIndex - expectedPreviousCalls - 1)
@@ -1462,7 +2372,7 @@ loadBoxedContract:
     // smart_contracts/utils/base-contracts/factory.ts:57
     // txn.type === TransactionType.ApplicationCall
     gtxns TypeEnum
-    pushint 6 // 6
+    pushint 6
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-58
     // txn.type === TransactionType.ApplicationCall
@@ -1482,7 +2392,7 @@ loadBoxedContract:
     // && txn.numAppArgs === 3
     dup
     gtxns NumAppArgs
-    pushint 3 // 3
+    pushint 3
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-59
     // txn.type === TransactionType.ApplicationCall
@@ -1504,7 +2414,7 @@ loadBoxedContract:
     dup
     intc_0 // 0
     gtxnsas ApplicationArgs
-    bytec 9 // method "initBoxedContract(string,uint64)void"
+    bytec 11 // method "initBoxedContract(string,uint64)void"
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-61
     // txn.type === TransactionType.ApplicationCall
@@ -1531,7 +2441,7 @@ loadBoxedContract:
 
 loadBoxedContract_bool_merge@9:
     // smart_contracts/utils/base-contracts/factory.ts:56-63
-    // assert((
+    // loggedAssert((
     //   txn.type === TransactionType.ApplicationCall
     //   && txn.appId === Global.currentApplicationId
     //   && txn.numAppArgs === 3
@@ -1539,15 +2449,25 @@ loadBoxedContract_bool_merge@9:
     //   && txn.appArgs(0) === methodSelector(this.initBoxedContract)
     //   && txn.sender === Txn.sender
     // ), ERR_INVALID_CALL_ORDER)
-    assert // Invalid call order
+    bnz loadBoxedContract_after_assert@11
+    pushbytes "ERR:ICOR"
+    log
+    err // ERR:ICOR
+
+loadBoxedContract_after_assert@11:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:64
-    // assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    // loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
     box_len
     bury 1
-    assert // Contract not set
+    bnz loadBoxedContract_after_assert@13
+    pushbytes "ERR:CNST"
+    log
+    err // ERR:CNST
+
+loadBoxedContract_after_assert@13:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
@@ -1569,15 +2489,15 @@ loadBoxedContract_bool_false@8:
 // smart_contracts/utils/base-contracts/factory.ts::FactoryContract.deleteBoxedContract[routing]() -> void:
 deleteBoxedContract:
     // smart_contracts/utils/base-contracts/factory.ts:69
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
@@ -1585,11 +2505,16 @@ deleteBoxedContract:
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/factory.ts:69
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
+    bnz deleteBoxedContract_after_assert@3
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+deleteBoxedContract_after_assert@3:
     // smart_contracts/utils/base-contracts/factory.ts:38
     // boxedContract = Box<bytes>({ key: BoxKeyBoxedContract })
     bytec_1 // "bc"
@@ -1605,12 +2530,16 @@ deleteBoxedContract:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaFeeGeneratorContractWithOptIn.optIn[routing]() -> void:
 optIn:
-    // smart_contracts/utils/base-contracts/base.ts:150
+    intc_0 // 0
+    dupn 2
+    pushbytes ""
+    dupn 3
+    // smart_contracts/utils/base-contracts/base.ts:194
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     txn GroupIndex
     intc_1 // 1
     -
-    dup
+    dupn 2
     gtxns TypeEnum
     intc_1 // pay
     ==
@@ -1618,78 +2547,72 @@ optIn:
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:152
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    dup
+    cover 2
+    // smart_contracts/utils/base-contracts/base.ts:196
+    // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/utils/base-contracts/base.ts:196
+    // const escrow = clone(this.akitaDAOEscrow.value)
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    cover 4
+    assert // check GlobalState exists
+    // smart_contracts/utils/base-contracts/base.ts:197
+    // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:152
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    // smart_contracts/utils/base-contracts/base.ts:197
+    // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
     app_global_get_ex
     assert // check GlobalState exists
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:65
-    // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 4 // "akita_escrow"
-    // smart_contracts/utils/base-contracts/base.ts:152
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
-    app_global_get_ex
-    assert // check GlobalState exists
+    swap
+    intc_2 // 2
+    extract_uint64
     app_params_get AppAddress
     assert // application exists
-    dig 2
+    uncover 2
     callsub splitOptInCount
-    // smart_contracts/utils/base-contracts/base.ts:154-161
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance * (1 + count),
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 2
+    swap
+    // smart_contracts/utils/base-contracts/base.ts:199
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
     gtxns Receiver
-    // smart_contracts/utils/base-contracts/base.ts:157
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/utils/base-contracts/base.ts:154-161
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance * (1 + count),
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    uncover 3
+    bnz optIn_after_assert@3
+    pushbytes "ERR:IPMR"
+    log
+    err // ERR:IPMR
+
+optIn_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:200
+    // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), ERR_INVALID_PAYMENT_AMOUNT)
+    dig 3
     gtxns Amount
-    // smart_contracts/utils/base-contracts/base.ts:158
-    // amount: Global.assetOptInMinBalance * (1 + count),
     global AssetOptInMinBalance
     intc_1 // 1
-    uncover 4
+    dig 3
     +
     *
-    // smart_contracts/utils/base-contracts/base.ts:154-161
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance * (1 + count),
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/utils/base-contracts/base.ts:163-169
+    bnz optIn_after_assert@5
+    pushbytes "ERR:IPMA"
+    log
+    err // ERR:IPMA
+
+optIn_after_assert@5:
+    // smart_contracts/utils/base-contracts/base.ts:202-208
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
@@ -1698,28 +2621,28 @@ optIn:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/utils/base-contracts/base.ts:165
+    // smart_contracts/utils/base-contracts/base.ts:204
     // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    swap
+    dig 3
     itxn_field XferAsset
-    // smart_contracts/utils/base-contracts/base.ts:166
+    // smart_contracts/utils/base-contracts/base.ts:205
     // assetAmount: 0,
     intc_0 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    // smart_contracts/utils/base-contracts/base.ts:163-168
+    // smart_contracts/utils/base-contracts/base.ts:202-207
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
     //     assetAmount: 0,
     //     xferAsset: asset
     //   })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/base-contracts/base.ts:163-169
+    // smart_contracts/utils/base-contracts/base.ts:202-208
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
@@ -1728,7 +2651,353 @@ optIn:
     //   })
     //   .submit()
     itxn_submit
+    // smart_contracts/utils/base-contracts/base.ts:215
+    // if (count > 0 && escrow.name !== '') {
+    dup
+    bz optIn_after_if_else@9
+    dig 1
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    pushbytes ""
+    !=
+    bz optIn_after_if_else@9
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    bytec_2 // "wallet"
+    app_global_get_ex
+    pop
+    bury 6
+    // smart_contracts/utils/functions.ts:54
+    // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
+    dup
+    bytec 18 // "pal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/base.ts:118
+    // const { revenueManager } = getPluginAppList(this.akitaDAO.value)
+    dup
+    extract 8 8
+    bury 12
+    intc_3 // 8
+    extract_uint64
+    bury 8
+    // smart_contracts/utils/base-contracts/base.ts:120
+    // const escrow = clone(this.akitaDAOEscrow.value)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/utils/base-contracts/base.ts:120
+    // const escrow = clone(this.akitaDAOEscrow.value)
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    bury 5
+    assert // check GlobalState exists
+    // smart_contracts/utils/base-contracts/base.ts:121
+    // const { id } = this.getEscrow(escrow.name)
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    substring3
+    dup
+    bury 11
+    extract 2 0
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    swap
+    bytec_2 // "wallet"
+    app_global_get_ex
+    pop
+    swap
+    // smart_contracts/utils/base-contracts/base.ts:95-98
+    // const escrow = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
+    //   appId,
+    //   args: [[name]],
+    // }).returnValue[0]
+    itxn_begin
+    // smart_contracts/utils/base-contracts/base.ts:97
+    // args: [[name]],
+    intc_1 // 1
+    itob
+    bury 13
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x00010002
+    swap
+    concat
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/utils/base-contracts/base.ts:95-98
+    // const escrow = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
+    //   appId,
+    //   args: [[name]],
+    // }).returnValue[0]
+    pushbytes 0xa2403ddf // method "arc58_getEscrows(string[])(uint64,bool)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec 5 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 9
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
+    // smart_contracts/utils/base-contracts/base.ts:100
+    // loggedAssert(escrow.id !== 0, ERR_ESCROW_DOES_NOT_EXIST)
+    extract 6 9
+    intc_0 // 0
+    extract_uint64
+    dup
+    bury 9
+    bnz optIn_after_assert@12
+    pushbytes "ERR:NESC"
+    log
+    err // ERR:NESC
+
+optIn_after_assert@12:
+    // smart_contracts/utils/base-contracts/base.ts:122
+    // loggedAssert(id === escrow.app.id, ERR_WRONG_ESCROW_FOR_OPERATION)
+    dig 1
+    intc_2 // 2
+    extract_uint64
+    dup
+    bury 7
+    dig 8
+    ==
+    bnz optIn_after_assert@14
+    pushbytes "ERR:WESC"
+    log
+    err // ERR:WESC
+
+optIn_after_assert@14:
+    // smart_contracts/utils/base-contracts/base.ts:124-133
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [
+    //     revenueManager,
+    //     CallerTypeGlobal,
+    //     escrow.name,
+    //     [0], // all the akita escrows have method restrictions with optin being index 0
+    //     []
+    //   ],
+    // })
+    itxn_begin
+    dig 4
+    dup
+    itxn_field ApplicationID
+    pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
+    itxn_field ApplicationArgs
+    dig 10
+    itxn_field ApplicationArgs
+    dig 11
+    itxn_field ApplicationArgs
+    dig 9
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/base-contracts/base.ts:130
+    // [0], // all the akita escrows have method restrictions with optin being index 0
+    pushbytes 0x00010000000000000000
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/base-contracts/base.ts:131
+    // []
+    pushbytes 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/base-contracts/base.ts:124-133
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [
+    //     revenueManager,
+    //     CallerTypeGlobal,
+    //     escrow.name,
+    //     [0], // all the akita escrows have method restrictions with optin being index 0
+    //     []
+    //   ],
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/utils/base-contracts/base.ts:136
+    // this.akitaDAO.value,
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:136
+    // this.akitaDAO.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/base-contracts/base.ts:137
+    // escrow.app.address,
+    dig 7
+    dup
+    cover 2
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/utils/base-contracts/base.ts:135-139
+    // const optInCount = splitOptInCount(
+    //   this.akitaDAO.value,
+    //   escrow.app.address,
+    //   asset
+    // )
+    dig 6
+    dup
+    cover 4
+    callsub splitOptInCount
+    // smart_contracts/utils/base-contracts/base.ts:141
+    // const mbrAmount: uint64 = Global.assetOptInMinBalance * optInCount
+    global AssetOptInMinBalance
+    *
+    // smart_contracts/utils/base-contracts/base.ts:143-154
+    // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
+    //   appId: revenueManager,
+    //   args: [
+    //     wallet,
+    //     true,
+    //     [asset.id],
+    //     itxn.payment({
+    //       receiver: escrow.app.address,
+    //       amount: mbrAmount
+    //     })
+    //   ]
+    // })
+    itxn_next
     // smart_contracts/utils/base-contracts/base.ts:150
+    // receiver: escrow.app.address,
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/utils/base-contracts/base.ts:149-152
+    // itxn.payment({
+    //   receiver: escrow.app.address,
+    //   amount: mbrAmount
+    // })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/utils/base-contracts/base.ts:143-154
+    // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
+    //   appId: revenueManager,
+    //   args: [
+    //     wallet,
+    //     true,
+    //     [asset.id],
+    //     itxn.payment({
+    //       receiver: escrow.app.address,
+    //       amount: mbrAmount
+    //     })
+    //   ]
+    // })
+    itxn_next
+    // smart_contracts/utils/base-contracts/base.ts:146
+    // wallet,
+    dig 1
+    itob
+    // smart_contracts/utils/base-contracts/base.ts:148
+    // [asset.id],
+    swap
+    itob
+    bytec 17 // 0x0001
+    swap
+    concat
+    dig 9
+    itxn_field ApplicationID
+    // smart_contracts/utils/base-contracts/base.ts:143-154
+    // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
+    //   appId: revenueManager,
+    //   args: [
+    //     wallet,
+    //     true,
+    //     [asset.id],
+    //     itxn.payment({
+    //       receiver: escrow.app.address,
+    //       amount: mbrAmount
+    //     })
+    //   ]
+    // })
+    pushbytes 0x6835e3bc // method "optIn(uint64,bool,uint64[],pay)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/base-contracts/base.ts:147
+    // true,
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/base-contracts/base.ts:143-154
+    // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
+    //   appId: revenueManager,
+    //   args: [
+    //     wallet,
+    //     true,
+    //     [asset.id],
+    //     itxn.payment({
+    //       receiver: escrow.app.address,
+    //       amount: mbrAmount
+    //     })
+    //   ]
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/utils/base-contracts/base.ts:156
+    // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({ appId: wallet })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x6cc3f606 // method "arc58_verifyAuthAddress()void"
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/utils/base-contracts/base.ts:168
+    // itxnCompose.submit()
+    itxn_submit
+
+optIn_after_if_else@9:
+    // smart_contracts/utils/base-contracts/base.ts:194
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     intc_1 // 1
     return
@@ -1736,48 +3005,50 @@ optIn:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaFeeGeneratorContractWithOptIn.optInCost[routing]() -> void:
 optInCost:
-    // smart_contracts/utils/base-contracts/base.ts:172
+    // smart_contracts/utils/base-contracts/base.ts:220
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:174
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    // smart_contracts/utils/base-contracts/base.ts:222
+    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:174
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    // smart_contracts/utils/base-contracts/base.ts:222
+    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:65
-    // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 4 // "akita_escrow"
-    // smart_contracts/utils/base-contracts/base.ts:174
-    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/utils/base-contracts/base.ts:222
+    // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
     assert // check GlobalState exists
+    intc_2 // 2
+    extract_uint64
     app_params_get AppAddress
     assert // application exists
     uncover 2
     callsub splitOptInCount
-    // smart_contracts/utils/base-contracts/base.ts:175
+    // smart_contracts/utils/base-contracts/base.ts:223
     // return Global.assetOptInMinBalance * (1 + count)
     global AssetOptInMinBalance
     intc_1 // 1
     uncover 2
     +
     *
-    // smart_contracts/utils/base-contracts/base.ts:172
+    // smart_contracts/utils/base-contracts/base.ts:220
     // @abimethod({ readonly: true })
     itob
-    bytec_3 // 0x151f7c75
+    bytec 5 // 0x151f7c75
     swap
     concat
     log
@@ -1785,113 +3056,149 @@ optInCost:
     return
 
 
-// smart_contracts/utils/base-contracts/base.ts::AkitaBaseFeeGeneratorContract.updateAkitaDAOEscrow[routing]() -> void:
+// smart_contracts/utils/base-contracts/base.ts::AkitaBaseFeeGeneratorContractWithoutAkitaOptIn.updateAkitaDAOEscrow[routing]() -> void:
 updateAkitaDAOEscrow:
-    // smart_contracts/utils/base-contracts/base.ts:137
-    // updateAkitaDAOEscrow(app: Application): void {
+    // smart_contracts/utils/base-contracts/base.ts:84
+    // updateAkitaDAOEscrow(config: EscrowConfig): void {
     txna ApplicationArgs 1
-    dup
+    dupn 2
     len
-    intc_2 // 8
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
     ==
-    assert // invalid number of bytes for uint64
-    btoi
-    // smart_contracts/utils/base-contracts/base.ts:138
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64)
+    uncover 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/base-contracts/base.ts::EscrowConfig
+    // smart_contracts/utils/base-contracts/base.ts:85
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     bytec_2 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:138
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:85
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:65
-    // akitaDAOEscrow = GlobalState<Application>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 4 // "akita_escrow"
-    // smart_contracts/utils/base-contracts/base.ts:139
-    // this.akitaDAOEscrow.value = app
-    swap
+    bnz updateAkitaDAOEscrow_after_assert@3
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAOEscrow_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:82
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 6 // "akita_escrow"
+    // smart_contracts/utils/base-contracts/base.ts:86
+    // this.akitaDAOEscrow.value = clone(config)
+    dig 1
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:137
-    // updateAkitaDAOEscrow(app: Application): void {
+    // smart_contracts/utils/base-contracts/base.ts:84
+    // updateAkitaDAOEscrow(config: EscrowConfig): void {
     intc_1 // 1
     return
 
 
 // smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]() -> void:
 update:
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    intc_3 // 2
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/utils/base-contracts/base.ts:50
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    dup
     bytec_2 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:50
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
-    uncover 2
     ==
-    assert // Only the Akita DAO can call this function
+    bnz update_after_assert@3
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+update_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    app_global_get_ex
+    assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
-    pushbytes "pal"
+    bytec 18 // "pal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:51
+    // smart_contracts/utils/base-contracts/base.ts:49
     // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    pushint 16 // 16
+    pushint 16
     extract_uint64
-    // smart_contracts/utils/base-contracts/base.ts:52
-    // assert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
+    // smart_contracts/utils/base-contracts/base.ts:50
+    // loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
     global CallerApplicationID
     ==
-    assert // Invalid app upgrade
-    // smart_contracts/utils/base-contracts/base.ts:27
+    bnz update_after_assert@5
+    pushbytes "ERR:IUPG"
+    log
+    err // ERR:IUPG
+
+update_after_assert@5:
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 10 // "version"
-    // smart_contracts/utils/base-contracts/base.ts:53
+    bytec 12 // "version"
+    // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    swap
+    dig 1
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     intc_1 // 1
     return
@@ -1899,45 +3206,50 @@ update:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
-    intc_2 // 8
+    intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     bytec_2 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    bytec_3 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_1 // 1
     return

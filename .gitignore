@@ -169,6 +169,8 @@ cython_debug/
 # NPM
 node_modules
 
+# Claude local worktrees
+.claude/worktrees/
+
 # Localnet deployment summaries
 deployment-summary-localnet-*.json
-

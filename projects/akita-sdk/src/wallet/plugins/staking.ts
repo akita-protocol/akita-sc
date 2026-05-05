@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { StakingPluginArgs, StakingPluginClient, StakingPluginFactory } from "../../generated/StakingPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -30,7 +31,7 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
   stake(args?: StakeArgs): PluginSDKReturn {
     const methodName = 'stake';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -40,7 +41,7 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -64,7 +65,7 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
   withdraw(args?: WithdrawArgs): PluginSDKReturn {
     const methodName = 'withdraw';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -74,7 +75,7 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

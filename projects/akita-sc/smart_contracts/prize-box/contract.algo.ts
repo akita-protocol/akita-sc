@@ -1,24 +1,22 @@
 import {
   abimethod,
   Account,
-  assert,
-  assertMatch,
   Contract,
   Global,
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { AssetHolding } from '@algorandfoundation/algorand-typescript/op'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
 import { AssetInfo } from '../utils/types/asset'
 import { PrizeBoxGlobalStateKeyOptinCount, PrizeBoxGlobalStateKeyOwner } from './constants'
-import { ERR_INVALID_ASSET, ERR_NOT_EMPTY, ERR_NOT_OWNER } from './errors'
+import { ERR_INVALID_ASSET, ERR_INVALID_PAYMENT, ERR_NOT_EMPTY, ERR_NOT_OWNER } from './errors'
 
 export class PrizeBox extends Contract {
-  
+
   // GLOBAL STATE ---------------------------------------------------------------------------------
 
   /** the owner of the box of prizes */
@@ -27,7 +25,7 @@ export class PrizeBox extends Contract {
   optinCount = GlobalState<uint64>({ key: PrizeBoxGlobalStateKeyOptinCount })
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
-  
+
   @abimethod({ onCreate: 'require' })
   create(owner: Account): void {
     this.owner.value = owner
@@ -36,8 +34,8 @@ export class PrizeBox extends Contract {
 
   @abimethod({ allowActions: 'DeleteApplication' })
   deleteApplication(): void {
-    assert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
-    assert(this.optinCount.value === 0, ERR_NOT_EMPTY)
+    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(this.optinCount.value === 0, ERR_NOT_EMPTY)
     itxn
       .payment({ closeRemainderTo: this.owner.value })
       .submit()
@@ -51,15 +49,9 @@ export class PrizeBox extends Contract {
    * @param asset The asset to be opted into
    */
   optin(payment: gtxn.PaymentTxn, asset: uint64): void {
-    assert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: Global.assetOptInMinBalance,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance, ERR_INVALID_PAYMENT)
 
     itxn
       .assetTransfer({
@@ -73,12 +65,12 @@ export class PrizeBox extends Contract {
   }
 
   transfer(newOwner: Account): void {
-    assert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
     this.owner.value = newOwner
   }
 
   withdraw(assets: AssetInfo[]): void {
-    assert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
 
     for (let i: uint64 = 0; i < assets.length; i += 1) {
       if (assets[i].asset !== 0) {
@@ -86,7 +78,7 @@ export class PrizeBox extends Contract {
           Global.currentApplicationAddress,
           assets[i].asset
         )
-        assert(optedIn, ERR_INVALID_ASSET)
+        loggedAssert(optedIn, ERR_INVALID_ASSET)
 
         const closeOut = assetHolding === assets[i].amount
         if (closeOut) {

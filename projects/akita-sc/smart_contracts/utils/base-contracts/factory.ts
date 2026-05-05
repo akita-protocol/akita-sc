@@ -1,11 +1,11 @@
 import {
   Account,
-  assert,
   Box,
   bytes,
   Global,
   GlobalState,
   gtxn,
+  loggedAssert,
   OnCompleteAction,
   TransactionType,
   Txn,
@@ -42,10 +42,10 @@ export class FactoryContract extends AkitaFeeGeneratorContractWithOptIn {
   initBoxedContract(version: string, size: uint64): void {
     this.childContractVersion.value = version
     if (!this.boxedContract.exists) {
-      assert(Txn.sender === Global.creatorAddress, ERR_NOT_AKITA_DAO)
+      loggedAssert(Txn.sender === Global.creatorAddress, ERR_NOT_AKITA_DAO)
       this.boxedContract.create({ size })
     } else {
-      assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+      loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
       this.boxedContract.resize(size)
     }
   }
@@ -53,7 +53,7 @@ export class FactoryContract extends AkitaFeeGeneratorContractWithOptIn {
   loadBoxedContract(offset: uint64, data: bytes): void {
     const expectedPreviousCalls: uint64 = offset / 2032
     const txn = gtxn.Transaction(Txn.groupIndex - expectedPreviousCalls - 1)
-    assert((
+    loggedAssert((
       txn.type === TransactionType.ApplicationCall
       && txn.appId === Global.currentApplicationId
       && txn.numAppArgs === 3
@@ -61,12 +61,12 @@ export class FactoryContract extends AkitaFeeGeneratorContractWithOptIn {
       && txn.appArgs(0) === methodSelector(this.initBoxedContract)
       && txn.sender === Txn.sender
     ), ERR_INVALID_CALL_ORDER)
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
     this.boxedContract.replace(offset, data)
   }
 
   deleteBoxedContract(): void {
-    assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     this.boxedContract.delete()
   }
 }

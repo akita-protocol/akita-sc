@@ -1,4 +1,5 @@
 export * from './types'
+export * from './errors'
 
 // Configuration utilities for environment and network-based app ID resolution
 export {
@@ -59,10 +60,7 @@ export { WalletSDK, WalletFactorySDK } from './wallet'
 // Connect protocol types and URI helpers
 export * from './connect'
 
-// Simulate types for transaction cost estimation
-export type { 
-  ExpectedCost, 
-  AssetPayment, 
-  AccountDelta,
-  SimulatePayload 
-} from './simulate/types'
+// Helpers for the arc58 execution-handoff path, where `wallet.build.usePlugin`
+// returns `{ windows }` — pre-populated, pre-grouped `PreparedGroup`s that
+// can be submitted later by a different actor via `sendPrepared(window, algod)`.
+export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare'

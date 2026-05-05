@@ -1,5 +1,5 @@
 import { StakingType } from "../staking/types";
-import { StructField } from "@algorandfoundation/algokit-utils/types/app-arc56";
+import { StructField } from "@algorandfoundation/algokit-utils/abi";
 export type GateType = 'akita_referrer' | 'asset' | 'merkle_address' | 'merkle_asset' | 'nfd' | 'nfd_root' | 'poll' | 'social_activity' | 'social_follower_count' | 'social_follower_index' | 'social_impact' | 'social_moderator' | 'staking_amount' | 'staking_power' | 'subscription' | 'subscription_streak';
 export interface GateRegistryConfig {
     asset?: bigint;

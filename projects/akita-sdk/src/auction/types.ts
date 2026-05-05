@@ -6,7 +6,7 @@ import {
   FunderInfo,
 } from '../generated/AuctionClient';
 import { AuctionFactoryArgs } from '../generated/AuctionFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 
 // Re-export types from generated clients for convenience
 export { BidInfo, FindWinnerCursors, FunderInfo };

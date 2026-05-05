@@ -3,7 +3,7 @@ import {
   PollArgs,
 } from '../generated/PollClient';
 import { PollFactoryArgs } from '../generated/PollFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 
 // Factory Types
 type FactoryContractArgs = PollFactoryArgs["obj"];

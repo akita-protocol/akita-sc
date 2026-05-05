@@ -4,8 +4,10 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk'
-import { AkitaDaoApps } from '../smart_contracts/artifacts/arc58/dao-deployable/AkitaDAOClient'
+import { AkitaDaoApps } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
 import { AkitaUniverse, buildAkitaUniverse } from '../tests/fixtures/dao'
+import { setupSubscriptionServices } from './setup-subscription-services'
+import { registerSocialExtensions } from './register-social-extensions'
 
 type Network = 'localnet' | 'testnet' | 'mainnet'
 
@@ -222,6 +224,7 @@ function generateEnvFile(
     ``,
     `# Core Contracts`,
     `DAO_APP_ID=${universe.dao.appId}`,
+    `DAO_PROPOSAL_VALIDATOR_APP_ID=${universe.proposalValidator.appId}`,
     `WALLET_APP_ID=${universe.dao.wallet.client.appId}`,
     `ESCROW_FACTORY_APP_ID=${universe.escrowFactory.appId}`,
     `WALLET_FACTORY_APP_ID=${universe.walletFactory.appId}`,
@@ -340,6 +343,7 @@ function generateNetworkAppIds(
 export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   // Core Contracts
   dao: ${universe.dao.appId}n,
+  daoProposalValidator: ${universe.proposalValidator.appId}n,
   wallet: ${universe.dao.wallet.client.appId}n,
   escrowFactory: ${universe.escrowFactory.appId}n,
   walletFactory: ${universe.walletFactory.appId}n,
@@ -825,7 +829,7 @@ async function deploy() {
     // Track initial balance for cost calculation
     let initialBalance = 0n
     if (options.network !== 'localnet') {
-      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
+      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
       initialBalance = BigInt(accountInfo.amount)
       // Estimated actual costs: ~287-317 ALGO (see DEPLOYMENT_COSTS.md for breakdown)
       // We recommend 500-600 ALGO minimum for safety buffer
@@ -854,7 +858,7 @@ async function deploy() {
       }
     } else {
       // For localnet, get initial balance for tracking
-      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
+      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
       initialBalance = BigInt(accountInfo.amount)
       console.log(`📊 Starting balance: ${initialBalance / 1_000_000n} ALGO\n`)
     }
@@ -895,35 +899,82 @@ async function deploy() {
       network: options.network,
     })
 
-    // For localnet, transfer AKTA to the KMD dispenser so mock-init scripts can fund test wallets
+    // For localnet, transfer AKTA to every KMD dispenser-candidate account so mock-init
+    // and other scripts can fund test wallets regardless of which algokit-utils version
+    // they use to pick a dispenser.
+    //
+    // Different algokit-utils versions select different accounts as "the dispenser":
+    //   v9  (akita-rn → mock-init.ts): first online account in unencrypted-default-wallet
+    //                                   with amount > 1000 ALGO.
+    //   v10 (akita-sc → here):          account matching `comment === "Wallet1"` in genesis.
+    //
+    // Funding all candidates ensures downstream scripts always find AKTA on the account
+    // they pick — no cross-version coupling required.
     if (options.network === 'localnet' && universe.aktaAssetId > 0n) {
-      console.log('\n💰 Transferring AKTA to KMD dispenser for testing...')
+      console.log('\n💰 Transferring AKTA to all KMD dispenser candidates...')
       try {
-        // Get the KMD dispenser account
-        const dispenser = await algorand.account.kmd.getLocalNetDispenserAccount()
-        const dispenserAddr = dispenser.addr.toString()
-        
-        // First, opt the dispenser into AKTA
-        await algorand.send.assetOptIn({
-          sender: dispenserAddr,
-          signer: dispenser.signer,
-          assetId: universe.aktaAssetId,
-        })
-        console.log(`   Dispenser opted into AKTA ✓`)
-        
-        // Transfer 500M AKTA to dispenser for testing (AKTA has 6 decimals)
-        const transferAmount = 500_000_000_000_000n // 500M AKTA with 6 decimals
-        await algorand.send.assetTransfer({
-          sender,
-          signer,
-          receiver: dispenserAddr,
-          assetId: universe.aktaAssetId,
-          amount: transferAmount,
-        })
-        console.log(`   Transferred ${transferAmount} AKTA to dispenser ✓`)
-        console.log(`   Dispenser: ${dispenserAddr}`)
+        const kmd = await algorand.account.kmd.kmd()
+        const wallets = (await kmd.listWallets()).wallets
+          .filter((w) => w.name === 'unencrypted-default-wallet')
+        if (wallets.length === 0) {
+          throw new Error('unencrypted-default-wallet not found in KMD')
+        }
+        const walletHandleToken = (await kmd.initWalletHandle({
+          walletId: wallets[0].id,
+          walletPassword: '',
+        })).walletHandleToken
+
+        const addresses = (await kmd.listKeysInWallet({ walletHandleToken })).addresses
+
+        // Per-recipient AKTA allotment (6 decimals). 500M split across all candidates.
+        const totalAkta = 500_000_000_000_000n
+        const perAccount = totalAkta / BigInt(Math.max(addresses.length, 1))
+
+        let funded = 0
+        for (const addr of addresses) {
+          const addrStr = addr.toString()
+          const info = await algorand.client.algod.accountInformation(addr)
+          // Must have enough ALGO to cover MBR for opt-in + future transfers.
+          // Mirror v9's >1000 ALGO threshold so we cover every candidate dispenser.
+          if (BigInt(info.amount) < 1_000_000_000n) continue
+
+          // Export the signer for this address via KMD
+          const exported = await algorand.account.kmd.getWalletAccount(
+            'unencrypted-default-wallet',
+            (a) => a.address.equals(addr),
+          )
+          if (!exported) continue
+
+          // Opt in (idempotent: skip if already holding the asset)
+          const alreadyOpted = (info.assets ?? []).some(
+            (a) => a.assetId === universe.aktaAssetId,
+          )
+          if (!alreadyOpted) {
+            await algorand.send.assetOptIn({
+              sender: addrStr,
+              signer: exported.signer,
+              assetId: universe.aktaAssetId,
+            })
+          }
+
+          await algorand.send.assetTransfer({
+            sender,
+            signer,
+            receiver: addrStr,
+            assetId: universe.aktaAssetId,
+            amount: perAccount,
+          })
+          console.log(`   ${alreadyOpted ? 'Topped up' : 'Funded'} ${addrStr} with ${perAccount} AKTA ✓`)
+          funded++
+        }
+
+        if (funded === 0) {
+          console.log('   ⚠️  No eligible KMD accounts found to fund with AKTA')
+        } else {
+          console.log(`   Funded ${funded} dispenser candidate(s) with ${perAccount} AKTA each`)
+        }
       } catch (e) {
-        console.log(`   ⚠️  Failed to transfer AKTA to dispenser: ${e instanceof Error ? e.message : e}`)
+        console.log(`   ⚠️  Failed to transfer AKTA to KMD dispensers: ${e instanceof Error ? e.message : e}`)
         console.log(`   (This is okay if you don't need AKTA for testing)`)
       }
     }
@@ -931,7 +982,7 @@ async function deploy() {
     // Calculate actual costs (for testnet/mainnet)
     let actualCost = 0n
     if (options.network !== 'localnet') {
-      const finalAccountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
+      const finalAccountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
       const finalBalance = BigInt(finalAccountInfo.amount)
       actualCost = initialBalance - finalBalance
       console.log(`\n💰 Cost Summary:`)
@@ -951,6 +1002,12 @@ async function deploy() {
       }
       console.log()
     }
+
+    // ─── Setup subscription services ──────────────────────────────────────
+    await setupSubscriptionServices({ algorand, universe, sender, signer, network: options.network })
+
+    // ─── Register social extensions (ref types) ─────────────────────────
+    await registerSocialExtensions({ algorand, universe, sender, signer, network: options.network })
 
     // Update SDK networks.ts with deployed app IDs
     await updateNetworksFile(universe, options.network, options.apps)

@@ -3,34 +3,34 @@ import { AkitaSocialPluginArgs, AkitaSocialPluginClient } from "../../generated/
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
 type ContractArgs = AkitaSocialPluginArgs["obj"];
-type PostArgs = (Omit<ContractArgs['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type PostArgs = (Omit<ContractArgs['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type EditPostArgs = (Omit<ContractArgs['editPost(uint64,bool,byte[36],byte[32])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type EditPostArgs = (Omit<ContractArgs['editPost(uint64,bool,byte[36],byte[32],uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type ReplyArgs = (Omit<ContractArgs['reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint8,uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type ReplyArgs = (Omit<ContractArgs['reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type GatedReplyArgs = (Omit<ContractArgs['gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint8,uint64,byte[][],bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type GatedReplyArgs = (Omit<ContractArgs['gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type EditReplyArgs = (Omit<ContractArgs['editReply(uint64,bool,byte[36],byte[32])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type EditReplyArgs = (Omit<ContractArgs['editReply(uint64,bool,byte[36],byte[32],uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type GatedEditReplyArgs = (Omit<ContractArgs['gatedEditReply(uint64,bool,byte[36],byte[32],byte[][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type GatedEditReplyArgs = (Omit<ContractArgs['gatedEditReply(uint64,bool,byte[36],byte[32],byte[][],uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type VoteArgs = (Omit<ContractArgs['vote(uint64,bool,byte[],uint8,bool)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type VoteArgs = (Omit<ContractArgs['vote(uint64,bool,byte[],uint64,bool)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type EditVoteArgs = (Omit<ContractArgs['editVote(uint64,bool,byte[32],bool)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type ReactArgs = (Omit<ContractArgs['react(uint64,bool,byte[],uint8,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type ReactArgs = (Omit<ContractArgs['react(uint64,bool,byte[],uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type GatedReactArgs = (Omit<ContractArgs['gatedReact(uint64,bool,byte[],uint8,uint64,byte[][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type GatedReactArgs = (Omit<ContractArgs['gatedReact(uint64,bool,byte[],uint64,uint64,byte[][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type DeleteReactionArgs = (Omit<ContractArgs['deleteReaction(uint64,bool,byte[32],uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
@@ -79,6 +79,12 @@ type InitMetaArgs = (Omit<ContractArgs['initMeta(uint64,bool,address,bool,uint64
     rekeyBack?: boolean;
 });
 type UpdateMetaArgs = (Omit<ContractArgs['updateMeta(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type UpdateSubscriptionStateModifierArgs = (Omit<ContractArgs['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type RegisterRefTypeArgs = (Omit<ContractArgs['registerRefType(uint64,bool,string,byte[])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 export declare class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
@@ -135,5 +141,9 @@ export declare class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     initMeta(args: InitMetaArgs): PluginSDKReturn;
     updateMeta(): PluginSDKReturn;
     updateMeta(args: UpdateMetaArgs): PluginSDKReturn;
+    updateSubscriptionStateModifier(): PluginSDKReturn;
+    updateSubscriptionStateModifier(args: UpdateSubscriptionStateModifierArgs): PluginSDKReturn;
+    registerRefType(): PluginSDKReturn;
+    registerRefType(args: RegisterRefTypeArgs): PluginSDKReturn;
 }
 export {};

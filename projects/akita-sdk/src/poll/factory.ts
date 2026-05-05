@@ -113,12 +113,12 @@ export class PollFactorySDK extends BaseSDK<PollFactoryClient> {
   /**
    * Updates the Akita DAO Escrow reference.
    */
-  async updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & PollFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void> {
+  async updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & PollFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
 
     await this.client.send.updateAkitaDaoEscrow({
       ...sendParams,
-      args: { app },
+      args: { config },
     });
   }
 }

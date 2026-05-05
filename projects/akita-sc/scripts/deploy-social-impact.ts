@@ -46,6 +46,9 @@ runScript(async () => {
   })
 
   const { appClient: client } = await factory.send.create.create({
+    // Reserve max program pages up front — extra_program_pages is immutable
+    // after creation, so we pre-pay MBR to leave room for future upgrades.
+    extraProgramPages: 3,
     args: {
       version: options.version,
       akitaDao: ctx.appIds.dao,

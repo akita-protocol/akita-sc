@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, assert, Asset, Bytes, Global, GlobalState, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, Asset, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { btoi } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersion } from "../../../constants";
@@ -95,7 +95,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     rekeyBack: boolean,
     poolID: uint64
   ): void {
-    assert(Application(poolID).creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
+    loggedAssert(Application(poolID).creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
 
     const sender = getSpendingAccount(wallet)
 
@@ -111,7 +111,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     rekeyBack: boolean,
     appId: Application
   ): void {
-    assert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
 
     const sender = getSpendingAccount(wallet)
 
@@ -130,7 +130,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     reward: Reward,
     amount: uint64
   ): void {
-    assert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
 
     const sender = getSpendingAccount(wallet)
 
@@ -205,7 +205,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     startTimestamp: uint64,
     endTimestamp: uint64
   ): void {
-    assert(Application(poolID).creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
+    loggedAssert(Application(poolID).creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
 
     const sender = getSpendingAccount(wallet)
 
@@ -228,7 +228,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     entries: StakeEntry[],
     args: GateArgs
   ): void {
-    assert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
     const { origin, sender } = getAccounts(wallet)
 
     const entryMBR: uint64 = PoolEntriesMBR + PoolEntriesByAddressMBR

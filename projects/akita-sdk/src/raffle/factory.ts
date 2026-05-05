@@ -13,6 +13,7 @@ import { RaffleSDK } from "./index";
 import {
   NewRaffleParams,
   DeleteRaffleParams,
+  OptInParams,
 } from "./types";
 
 export type RaffleFactoryContractArgs = RaffleFactoryArgs["obj"];
@@ -217,14 +218,15 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
       if (!akitaDaoAppId) return 100_000n;
 
       const algod = this.algorand.client.algod;
-      const daoApp = await algod.getApplicationByID(akitaDaoAppId).do();
+      const daoApp = await algod.applicationById(akitaDaoAppId);
       const globalState = daoApp.params.globalState;
       if (!globalState) return 100_000n;
 
       // Find the 'aal' (akitaAppList) key in AkitaDAO global state
       const aalKey = new TextEncoder().encode('aal');
       const aalEntry = globalState.find(
-        (kv) => kv.key.length === aalKey.length && kv.key.every((b, i) => b === aalKey[i])
+        (kv: { key: Uint8Array; value: { type: number; bytes: Uint8Array } }) =>
+          kv.key.length === aalKey.length && kv.key.every((b: number, i: number) => b === aalKey[i])
       );
       if (!aalEntry || aalEntry.value.type !== 1) return 100_000n;
 
@@ -237,7 +239,7 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
 
       // Check if rewards app address is already opted into the asset
       const rewardsAddress = algosdk.getApplicationAddress(rewardsAppId).toString();
-      const response = await algod.accountAssetInformation(rewardsAddress, asset).do();
+      const response = await algod.accountAssetInformation(rewardsAddress, asset);
       return response.assetHolding ? 0n : 100_000n;
     } catch {
       // If any lookup fails (e.g. 404 not opted in), assume cost is needed
@@ -256,11 +258,13 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
    */
   cost({ isPrizeBox = false, isAlgoTicket = true, weightsListCount = 1n, raffleCreationFee = 10_000_000n, prizeRewardsOptInCost = 100_000n, ticketRewardsOptInCost = 100_000n }: { isPrizeBox?: boolean, isAlgoTicket?: boolean, weightsListCount?: bigint | number, raffleCreationFee?: bigint, prizeRewardsOptInCost?: bigint, ticketRewardsOptInCost?: bigint } = {}): bigint {
     // Base cost: MAX_PROGRAM_PAGES + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
-    const baseCost = 1_427_000n;
+    // Raffle: 4 pages (MAX_PROGRAM_PAGES = 400_000), 21 global uints, 9 global bytes
+    // = 400_000 + (28_500 * 21) + (50_000 * 9) = 400_000 + 598_500 + 450_000 = 1_448_500
+    const baseCost = 1_448_500n;
     const minBalance = 100_000n;
     const assetOptInMinBalance = 100_000n;
     const weightsMbr = 13_113_300n; // per weights box
-    const perDisbursement = 60_600n; // MinDisbursementsMBR + UserAllocationMBR
+    const perDisbursement = 67_000n; // MinDisbursementsMBR + UserAllocationMBR
 
     // Calculate optinMBR
     let optinMbr = 0n;
@@ -296,6 +300,48 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
   }
 
   /**
+   * Opts the raffle factory into an asset so it can receive/forward that
+   * asset as a rewards referral or prize. When the factory has a named DAO
+   * escrow configured, this also eagerly opts the escrow + every revenue-
+   * split escrow in via the revenue-manager plugin, so downstream raffle
+   * creations/entries don't have to do the rekey dance mid-group.
+   *
+   * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
+   * N split escrows, the asset). Since a single app call only holds 8
+   * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
+   * one opUp) so the resource populator has 16 slots to distribute refs
+   * across.
+   */
+  async optIn({ sender, signer, asset }: OptInParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const cost = await this.client.optInCost({ args: { asset } });
+
+    const payment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(cost),
+      receiver: this.client.appAddress,
+    });
+
+    await this.client.newGroup()
+      .optIn({
+        ...sendParams,
+        args: { payment, asset },
+        maxFee: microAlgo(257_000),
+      })
+      .opUp({
+        ...sendParams,
+        args: {},
+        maxFee: microAlgo(2_000),
+      })
+      .send({
+        ...sendParams,
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true,
+      });
+  }
+
+  /**
    * Deletes a raffle created by this factory.
    * Can only be called after prize is claimed and all MBR is refunded.
    */
@@ -323,12 +369,12 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
   /**
    * Updates the Akita DAO Escrow reference.
    */
-  async updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & RaffleFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void> {
+  async updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & RaffleFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
 
     await this.client.send.updateAkitaDaoEscrow({
       ...sendParams,
-      args: { app },
+      args: { config },
     });
   }
 }

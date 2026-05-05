@@ -1,10 +1,11 @@
 import {
   hasSenderSigner,
-  isPluginSDKReturn
-} from "./chunk-V3TNOMIB.mjs";
-import "./chunk-BJTO5JO5.mjs";
+  isPluginSDKReturn,
+  normalizeSigner
+} from "./chunk-RFJII2P3.mjs";
 export {
   hasSenderSigner,
-  isPluginSDKReturn
+  isPluginSDKReturn,
+  normalizeSigner
 };
 //# sourceMappingURL=types.mjs.map

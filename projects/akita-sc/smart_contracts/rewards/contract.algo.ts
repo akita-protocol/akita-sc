@@ -1,21 +1,17 @@
 import {
   Application,
-  assert,
-  assertMatch,
   BoxMap,
+  clone,
   Global,
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
-import {
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_TRANSFER,
-} from '../utils/errors'
 
 import {
   MinDisbursementsMBR,
@@ -36,6 +32,9 @@ import {
   ERR_DISBURSEMENTS_MUST_HAVE_ALLOCATIONS,
   ERR_INVALID_DISBURSEMENT_EXPIRATION_TIME,
   ERR_INVALID_DISBURSEMENT_UNLOCK_TIME,
+  ERR_INVALID_MBR_AMOUNT,
+  ERR_INVALID_PAYMENT,
+  ERR_INVALID_TRANSFER,
   ERR_YOU_ARE_NOT_THE_CREATOR,
 } from './errors'
 import {
@@ -83,6 +82,26 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     return id
   }
 
+  private addMbrCredit(id: uint64, amount: uint64): void {
+    this.disbursements(id).value.mbrCredits += amount
+  }
+
+  private useMbrCredit(id: uint64, amount: uint64): void {
+    loggedAssert(this.disbursements(id).value.mbrCredits >= amount, ERR_INVALID_MBR_AMOUNT)
+    this.disbursements(id).value.mbrCredits -= amount
+    this.disbursements(id).value.usedMbrCredits += amount
+  }
+
+  private releaseMbrCredit(id: uint64, amount: uint64): void {
+    loggedAssert(this.disbursements(id).value.usedMbrCredits >= amount, ERR_INVALID_MBR_AMOUNT)
+    this.disbursements(id).value.usedMbrCredits -= amount
+    this.disbursements(id).value.mbrCredits += amount
+  }
+
+  private refundAllocationMbr(id: uint64): void {
+    this.releaseMbrCredit(id, UserAllocationMBR)
+  }
+
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
@@ -92,6 +111,28 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   }
 
   // REWARDS METHODS ------------------------------------------------------------------------------
+
+  fundMbrCredits(id: uint64, payment: gtxn.PaymentTxn): void {
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).value.creator === Txn.sender, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount > 0, ERR_INVALID_PAYMENT)
+
+    this.addMbrCredit(id, payment.amount)
+  }
+
+  withdrawMbrCredits(id: uint64, amount: uint64): void {
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).value.creator === Txn.sender, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(amount > 0, ERR_INVALID_MBR_AMOUNT)
+    loggedAssert(this.disbursements(id).value.mbrCredits >= amount, ERR_INVALID_MBR_AMOUNT)
+    this.disbursements(id).value.mbrCredits -= amount
+
+    itxn.payment({
+      receiver: Txn.sender,
+      amount,
+    }).submit()
+  }
 
   createDisbursement(
     mbrPayment: gtxn.PaymentTxn,
@@ -105,14 +146,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     const costs = this.mbr(title, note)
     const mbrAmount = costs.disbursements
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount >= mbrAmount, ERR_INVALID_PAYMENT)
 
     this.disbursements(id).value = {
       creator: Txn.sender,
@@ -123,6 +158,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       expiration,
       allocations: 0,
       distributed: 0,
+      mbrCredits: mbrPayment.amount - mbrAmount,
+      usedMbrCredits: 0,
       note,
     }
 
@@ -136,11 +173,11 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     expiration: uint64,
     note: string
   ): void {
-    assert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
 
     const { creator, finalized } = this.disbursements(id).value
-    assert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
-    assert(finalized === false, ERR_DISBURSEMENT_ALREADY_FINAL)
+    loggedAssert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(finalized === false, ERR_DISBURSEMENT_ALREADY_FINAL)
 
     this.disbursements(id).value.title = title
     this.disbursements(id).value.timeToUnlock = timeToUnlock
@@ -153,10 +190,11 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
     id: uint64,
     allocations: UserAllocation[]
   ): void {
-    assert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
 
-    const { finalized, title, note } = this.disbursements(id).value
-    assert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
+    const { creator, finalized, title, note } = this.disbursements(id).value
+    loggedAssert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
 
     let sum: uint64 = 0
     for (let i: uint64 = 0; i < allocations.length; i += 1) {
@@ -166,7 +204,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
         asset: 0,
       }
 
-      assert(!this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_ALREADY_EXISTS)
+      loggedAssert(!this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_ALREADY_EXISTS)
 
       this.userAllocations(userAllocationsKey).value = allocations[i].amount
       this.disbursements(id).value.allocations += 1
@@ -177,27 +215,22 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
 
     const costs = this.mbr(title, note)
     const mbrAmount: uint64 = costs.userAllocations * allocations.length
+    this.useMbrCredit(id, mbrAmount)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount + sum,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === sum, ERR_INVALID_PAYMENT)
   }
 
   createAsaUserAllocations(
-    mbrPayment: gtxn.PaymentTxn,
     assetXfer: gtxn.AssetTransferTxn,
     id: uint64,
     allocations: UserAllocation[]
   ): void {
-    assert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
 
-    const { finalized, title, note } = this.disbursements(id).value
-    assert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
+    const { creator, finalized, title, note } = this.disbursements(id).value
+    loggedAssert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
 
     let matchSum: uint64 = 0
     for (let i: uint64 = 0; i < allocations.length; i += 1) {
@@ -206,7 +239,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
         address: allocations[i].address,
         asset: assetXfer.xferAsset.id,
       }
-      assert(!this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_ALREADY_EXISTS)
+      loggedAssert(!this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_ALREADY_EXISTS)
 
       this.userAllocations(userAllocationsKey).value = allocations[i].amount
 
@@ -216,45 +249,99 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       matchSum += allocations[i].amount
     }
 
-    // each user allocation box raises the MBR by 24,900 microAlgo
     const costs = this.mbr(title, note)
     const mbrAmount: uint64 = costs.userAllocations * allocations.length
+    this.useMbrCredit(id, mbrAmount)
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount,
-      },
-      ERR_INVALID_PAYMENT
-    )
-
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: matchSum,
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount === matchSum, ERR_INVALID_TRANSFER)
   }
 
-  finalizeDisbursement(id: uint64): void {
-    assert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+  createAsaDisbursementFromGroup(
+    mbrPaymentIndex: uint64,
+    assetTransferStartIndex: uint64,
+    title: string,
+    timeToUnlock: uint64,
+    expiration: uint64,
+    note: string,
+    allocations: UserAllocation[]
+  ): uint64 {
+    const id = this.newDisbursementID()
+    const payment = gtxn.PaymentTxn(mbrPaymentIndex)
 
-    const { creator, finalized, timeToUnlock, expiration, amount, allocations } = this.disbursements(id).value
-    assert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
-    assert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
-    assert(
+    const costs = this.mbr(title, note)
+    const disbursementMbrAmount = costs.disbursements
+    const allocationMbrAmount: uint64 = costs.userAllocations * allocations.length
+
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount >= disbursementMbrAmount + allocationMbrAmount, ERR_INVALID_PAYMENT)
+
+    this.disbursements(id).value = {
+      creator: Txn.sender,
+      finalized: false,
+      title,
+      amount: 0,
+      timeToUnlock,
+      expiration,
+      allocations: 0,
+      distributed: 0,
+      mbrCredits: payment.amount - disbursementMbrAmount,
+      usedMbrCredits: 0,
+      note,
+    }
+
+    for (let i: uint64 = 0; i < allocations.length; i += 1) {
+      const assetXfer = gtxn.AssetTransferTxn(assetTransferStartIndex + i)
+      const allocation = clone(allocations[i])
+      const userAllocationsKey: UserAllocationsKey = {
+        disbursementID: id,
+        address: allocation.address,
+        asset: assetXfer.xferAsset.id,
+      }
+
+      loggedAssert(!this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_ALREADY_EXISTS)
+      loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+      loggedAssert(assetXfer.assetAmount === allocation.amount, ERR_INVALID_TRANSFER)
+
+      this.userAllocations(userAllocationsKey).value = allocation.amount
+      this.disbursements(id).value.allocations += 1
+      this.disbursements(id).value.amount += allocation.amount
+    }
+
+    this.useMbrCredit(id, allocationMbrAmount)
+
+    loggedAssert(
       timeToUnlock >= Global.latestTimestamp || timeToUnlock === 0,
       ERR_INVALID_DISBURSEMENT_UNLOCK_TIME
     )
-    assert(
+    loggedAssert(
       expiration >= Global.latestTimestamp + 60 || expiration === 0,
       ERR_INVALID_DISBURSEMENT_EXPIRATION_TIME
     )
-    assert(amount > 0, ERR_DISBURSEMENTS_CANNOT_BE_EMPTY)
-    assert(allocations > 0, ERR_DISBURSEMENTS_MUST_HAVE_ALLOCATIONS)
+    loggedAssert(this.disbursements(id).value.amount > 0, ERR_DISBURSEMENTS_CANNOT_BE_EMPTY)
+    loggedAssert(this.disbursements(id).value.allocations > 0, ERR_DISBURSEMENTS_MUST_HAVE_ALLOCATIONS)
+
+    this.disbursements(id).value.finalized = true
+
+    return id
+  }
+
+  finalizeDisbursement(id: uint64): void {
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+
+    const { creator, finalized, timeToUnlock, expiration, amount, allocations } = this.disbursements(id).value
+    loggedAssert(Txn.sender === creator, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(!finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
+    loggedAssert(
+      timeToUnlock >= Global.latestTimestamp || timeToUnlock === 0,
+      ERR_INVALID_DISBURSEMENT_UNLOCK_TIME
+    )
+    loggedAssert(
+      expiration >= Global.latestTimestamp + 60 || expiration === 0,
+      ERR_INVALID_DISBURSEMENT_EXPIRATION_TIME
+    )
+    loggedAssert(amount > 0, ERR_DISBURSEMENTS_CANNOT_BE_EMPTY)
+    loggedAssert(allocations > 0, ERR_DISBURSEMENTS_MUST_HAVE_ALLOCATIONS)
 
     this.disbursements(id).value.finalized = true
   }
@@ -267,7 +354,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   ): uint64 {
     const id = this.newDisbursementID()
 
-    const mbrAmount: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
+    const allocationsMbr: uint64 = UserAllocationMBR * allocations.length
+    const mbrAmount: uint64 = MinDisbursementsMBR + allocationsMbr
 
     let sum: uint64 = 0
     for (let i: uint64 = 0; i < allocations.length; i += 1) {
@@ -281,14 +369,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       sum += allocations[i].amount
     }
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount + sum,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === mbrAmount + sum, ERR_INVALID_PAYMENT)
 
     this.disbursements(id).value = {
       creator: Txn.sender,
@@ -299,6 +381,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       expiration,
       allocations: allocations.length,
       distributed: 0,
+      mbrCredits: 0,
+      usedMbrCredits: allocationsMbr,
       note: '',
     }
 
@@ -314,7 +398,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   ): uint64 {
     const id = this.newDisbursementID()
 
-    const mbrAmount: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
+    const allocationsMbr: uint64 = UserAllocationMBR * allocations.length
+    const mbrAmount: uint64 = MinDisbursementsMBR + allocationsMbr
 
     let sum: uint64 = 0
     for (let i: uint64 = 0; i < allocations.length; i += 1) {
@@ -328,23 +413,11 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       sum += allocations[i].amount
     }
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === mbrAmount, ERR_INVALID_PAYMENT)
 
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: sum,
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount === sum, ERR_INVALID_TRANSFER)
 
     this.disbursements(id).value = {
       creator: Txn.sender,
@@ -355,6 +428,8 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
       expiration,
       allocations: allocations.length,
       distributed: 0,
+      mbrCredits: 0,
+      usedMbrCredits: allocationsMbr,
       note: '',
     }
 
@@ -363,29 +438,25 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
 
   claimRewards(rewards: ClaimDetails[]): void {
     for (let i: uint64 = 0; i < rewards.length; i += 1) {
-      assert(this.disbursements(rewards[i].id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+      loggedAssert(this.disbursements(rewards[i].id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
 
-      const { timeToUnlock, expiration, amount, distributed, creator, note } = this.disbursements(rewards[i].id).value
-      assert(timeToUnlock <= Global.latestTimestamp, ERR_DISBURSEMENT_LOCKED)
-      assert(expiration >= Global.latestTimestamp, ERR_DISBURSEMENT_LOCKED)
-      assert(amount > distributed, ERR_DISBURSEMENT_FULLY_DISTRIBUTED)
+      const { timeToUnlock, expiration, amount, distributed, note } = this.disbursements(rewards[i].id).value
+      loggedAssert(timeToUnlock <= Global.latestTimestamp, ERR_DISBURSEMENT_LOCKED)
+      loggedAssert(expiration >= Global.latestTimestamp, ERR_DISBURSEMENT_LOCKED)
+      loggedAssert(amount > distributed, ERR_DISBURSEMENT_FULLY_DISTRIBUTED)
 
       const userAllocationsKey: UserAllocationsKey = {
         disbursementID: rewards[i].id,
         address: Txn.sender,
         asset: rewards[i].asset,
       }
-      assert(this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_DOES_NOT_EXIST)
+      loggedAssert(this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_DOES_NOT_EXIST)
       const userAllocation = this.userAllocations(userAllocationsKey).value
 
       this.disbursements(rewards[i].id).value.allocations -= 1
       this.disbursements(rewards[i].id).value.distributed += userAllocation
       this.userAllocations(userAllocationsKey).delete()
-
-      const creatorMBRRefund = itxn.payment({
-        receiver: creator,
-        amount: UserAllocationMBR,
-      })
+      this.refundAllocationMbr(rewards[i].id)
 
       const isAlgo = rewards[i].asset === 0
 
@@ -397,7 +468,7 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
           note,
         })
 
-        itxn.submitGroup(creatorMBRRefund, assetXfer)
+        assetXfer.submit()
       } else {
         const payment = itxn.payment({
           receiver: Txn.sender,
@@ -405,18 +476,18 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
           note,
         })
 
-        itxn.submitGroup(creatorMBRRefund, payment)
+        payment.submit()
       }
     }
   }
 
   reclaimRewards(id: uint64, reclaims: AllocationReclaimDetails[]): void {
-    assert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
     const { creator, finalized, expiration } = this.disbursements(id).value
 
-    assert(creator === Txn.sender, ERR_YOU_ARE_NOT_THE_CREATOR)
-    assert(finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
-    assert(expiration <= Global.latestTimestamp, ERR_DISBURSEMENT_NOT_EXPIRED)
+    loggedAssert(creator === Txn.sender, ERR_YOU_ARE_NOT_THE_CREATOR)
+    loggedAssert(finalized, ERR_DISBURSEMENT_ALREADY_FINAL)
+    loggedAssert(expiration <= Global.latestTimestamp, ERR_DISBURSEMENT_NOT_EXPIRED)
 
     for (let i: uint64 = 0; i < reclaims.length; i += 1) {
       const userAllocationsKey: UserAllocationsKey = {
@@ -424,13 +495,14 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
         address: reclaims[i].address,
         asset: reclaims[i].asset,
       }
-      assert(this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_DOES_NOT_EXIST)
+      loggedAssert(this.userAllocations(userAllocationsKey).exists, ERR_ALLOCATION_DOES_NOT_EXIST)
 
       const userAllocation = this.userAllocations(userAllocationsKey).value
 
       this.disbursements(id).value.allocations -= 1
       this.disbursements(id).value.amount -= userAllocation
       this.userAllocations(userAllocationsKey).delete()
+      this.refundAllocationMbr(id)
 
       const isAlgo = reclaims[i].asset === 0
 
@@ -441,17 +513,12 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
           xferAsset: reclaims[i].asset,
         })
 
-        const mbrRefund = itxn.payment({
-          receiver: creator,
-          amount: UserAllocationMBR,
-        })
-
-        itxn.submitGroup(xfer, mbrRefund)
+        xfer.submit()
       } else {
         itxn
           .payment({
             receiver: creator,
-            amount: userAllocation + UserAllocationMBR,
+            amount: userAllocation,
           })
           .submit()
       }
@@ -459,4 +526,18 @@ export class Rewards extends classes(BaseRewards, AkitaBaseContract, ContractWit
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  @abimethod({ readonly: true })
+  allocationMbrCreditShortfall(id: uint64, allocationCount: uint64): uint64 {
+    loggedAssert(this.disbursements(id).exists, ERR_DISBURSEMENT_DOES_NOT_EXIST)
+
+    const mbrAmount: uint64 = UserAllocationMBR * allocationCount
+    const credits: uint64 = this.disbursements(id).value.mbrCredits
+    if (credits >= mbrAmount) {
+      return 0
+    }
+
+    return mbrAmount - credits
+  }
+
 }

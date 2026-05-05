@@ -1,6 +1,5 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, clone, Global, GlobalState, gtxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, bytes, clone, Global, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getAkitaAppList } from '../../../utils/functions'
 import {
   Equal,
@@ -11,7 +10,7 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 import { SubscriptionStreakGateRegistryMBR } from './constants'
 import { SubscriptionStreakGateRegistryInfo } from './types'
 
@@ -94,15 +93,9 @@ export class SubscriptionStreakGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: SubscriptionStreakGateRegistryMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === SubscriptionStreakGateRegistryMBR, ERR_INVALID_PAYMENT)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<SubscriptionStreakGateRegistryInfo>(args)
@@ -110,7 +103,7 @@ export class SubscriptionStreakGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     const { merchant, id, op, streak } = clone(this.registry(registryID).value)
     return this.subscriptionStreakGate(
       caller,

@@ -1,4 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
+import { ABIMethod } from "@algorandfoundation/algokit-utils/abi";
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import {
@@ -8,20 +9,24 @@ import {
   DisbursementDetails,
   RewardsMbrData,
 } from '../generated/RewardsClient';
-import { MaybeSigner, NewContractSDKParams } from "../types";
+import { ExpandedSendParams, MaybeSigner, NewContractSDKParams } from "../types";
 import {
   GetMbrParams,
+  GetAllocationMbrCreditShortfallParams,
   GetDisbursementParams,
   GetUserAllocationParams,
   RewardsGlobalState,
   OptInAssetParams,
   CreateDisbursementParams,
   EditDisbursementParams,
+  FundMbrCreditsParams,
+  WithdrawMbrCreditsParams,
   CreateUserAllocationsParams,
   CreateAsaUserAllocationsParams,
   FinalizeDisbursementParams,
   CreateInstantDisbursementParams,
   CreateInstantAsaDisbursementParams,
+  CreateAsaDisbursementFromGroupParams,
   ClaimRewardsParams,
   ReclaimRewardsParams,
   UpdateAkitaDaoParams,
@@ -29,11 +34,16 @@ import {
 } from "./types";
 
 export * from "./types";
+export * from "./errors";
 
 /** Base references available per transaction */
 const BASE_REFERENCES = 8;
 /** References added by each opUp call */
 const REFERENCES_PER_OPUP = 8;
+const MAX_ALGORAND_GROUP_SIZE = 16;
+const CREATE_ASA_DISBURSEMENT_FROM_GROUP = ABIMethod.fromSignature(
+  "createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64",
+);
 
 /**
  * SDK for interacting with the Rewards contract.
@@ -67,7 +77,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   private addOpUps<T extends unknown[]>(
     group: RewardsComposer<T>,
     count: number,
-    sendParams: { sender?: string | import('algosdk').Address; signer?: import('algosdk').TransactionSigner }
+    sendParams: ExpandedSendParams,
   ): void {
     for (let i = 0; i < count; i++) {
       group.opUp({
@@ -126,12 +136,18 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   /**
    * Gets a user's allocation for a specific disbursement and asset.
+   *
+   * NOTE: Property order MUST match the APP_SPEC struct declaration order
+   * (address, asset, disbursementId). v10's ABIStructType encoder uses
+   * Object.values() which iterates in input-object property order and then
+   * maps positionally onto the declared struct fields — a mismatched order
+   * silently produces the wrong box key.
    */
   async getUserAllocation({ address, disbursementId, asset }: GetUserAllocationParams): Promise<bigint> {
     const allocation = await this.client.state.box.userAllocations.value({
       address,
-      disbursementId: BigInt(disbursementId),
       asset: BigInt(asset),
+      disbursementId: BigInt(disbursementId),
     });
 
     if (allocation === undefined) {
@@ -143,18 +159,33 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   /**
    * Checks if a user has an allocation for a specific disbursement and asset.
+   *
+   * NOTE: Property order MUST match APP_SPEC struct order (address, asset,
+   * disbursementId). See getUserAllocation for the full explanation.
    */
   async hasAllocation({ address, disbursementId, asset }: GetUserAllocationParams): Promise<boolean> {
     try {
       const allocation = await this.client.state.box.userAllocations.value({
         address,
-        disbursementId: BigInt(disbursementId),
         asset: BigInt(asset),
+        disbursementId: BigInt(disbursementId),
       });
       return allocation !== undefined;
     } catch {
       return false;
     }
+  }
+
+  /**
+   * Gets the additional MBR credit needed to create allocation boxes.
+   */
+  async allocationMbrCreditShortfall({
+    id,
+    allocationCount,
+  }: GetAllocationMbrCreditShortfallParams): Promise<bigint> {
+    return await this.client.allocationMbrCreditShortfall({
+      args: { id, allocationCount },
+    });
   }
 
   // ========== Write Methods ==========
@@ -192,6 +223,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     timeToUnlock,
     expiration,
     note,
+    mbrCredits = 0n,
   }: CreateDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -200,7 +232,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
     const mbrPayment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
-      amount: microAlgo(mbrData.disbursements),
+      amount: microAlgo(mbrData.disbursements + BigInt(mbrCredits)),
       receiver: this.client.appAddress,
     });
 
@@ -263,9 +295,39 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }
 
   /**
-   * Creates ALGO allocations for a disbursement.
-   * The payment includes both MBR for the boxes and the actual ALGO to distribute.
-   * Automatically adds opUp calls for large allocation batches.
+   * Funds reusable MBR credits on a disbursement.
+   */
+  async fundMbrCredits({ sender, signer, id, amount }: FundMbrCreditsParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const payment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(BigInt(amount)),
+      receiver: this.client.appAddress,
+    });
+
+    await (this.client.send as any).fundMbrCredits({
+      ...sendParams,
+      args: { id, payment },
+    });
+  }
+
+  /**
+   * Withdraws reusable MBR credits from a disbursement.
+   */
+  async withdrawMbrCredits({ sender, signer, id, amount }: WithdrawMbrCreditsParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    await (this.client.send as any).withdrawMbrCredits({
+      ...sendParams,
+      extraFee: microAlgo(1000),
+      args: { id, amount },
+    });
+  }
+
+  /**
+   * Creates ALGO allocations using existing disbursement MBR credits.
+   * Fund credits separately with fundMbrCredits when allocationMbrCreditShortfall reports a shortfall.
    */
   async createUserAllocations({
     sender,
@@ -275,27 +337,19 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }: CreateUserAllocationsParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Get disbursement to calculate MBR
-    const disbursement = await this.getDisbursement({ id });
-    const mbrData = await this.mbr({ title: disbursement.title, note: disbursement.note });
-
-    // MBR per allocation + total ALGO to distribute
-    const mbrAmount = mbrData.userAllocations * BigInt(allocations.length);
     const totalAmount = this.sumAllocations(allocations);
 
     const payment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
-      amount: microAlgo(mbrAmount + totalAmount),
+      amount: microAlgo(totalAmount),
       receiver: this.client.appAddress,
     });
 
-    // Each allocation needs ~1 box reference, plus 1 for disbursement box
-    const referencesNeeded = allocations.length + 1;
+    const referencesNeeded = allocations.length + 2;
     const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
 
     if (opUpsNeeded === 0) {
-      // No opUps needed, send directly
-      await this.client.send.createUserAllocations({
+      await (this.client.send as any).createUserAllocations({
         ...sendParams,
         args: {
           payment,
@@ -304,10 +358,9 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
         },
       });
     } else {
-      // Use transaction group with opUps
       const group = this.client.newGroup();
 
-      group.createUserAllocations({
+      (group as any).createUserAllocations({
         ...sendParams,
         args: {
           payment,
@@ -316,16 +369,14 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
         },
       });
 
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
+      this.addOpUps(group as any, opUpsNeeded, sendParams);
       await group.send(sendParams);
     }
   }
 
   /**
-   * Creates ASA allocations for a disbursement.
-   * Requires both an MBR payment and an asset transfer.
-   * Automatically adds opUp calls for large allocation batches.
+   * Creates ASA allocations using existing disbursement MBR credits.
+   * Fund credits separately with fundMbrCredits when allocationMbrCreditShortfall reports a shortfall.
    */
   async createAsaUserAllocations({
     sender,
@@ -336,18 +387,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }: CreateAsaUserAllocationsParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Get disbursement to calculate MBR
-    const disbursement = await this.getDisbursement({ id });
-    const mbrData = await this.mbr({ title: disbursement.title, note: disbursement.note });
-
-    const mbrAmount = mbrData.userAllocations * BigInt(allocations.length);
     const totalAmount = this.sumAllocations(allocations);
-
-    const mbrPayment = await this.client.algorand.createTransaction.payment({
-      ...sendParams,
-      amount: microAlgo(mbrAmount),
-      receiver: this.client.appAddress,
-    });
 
     const assetXfer = await this.client.algorand.createTransaction.assetTransfer({
       ...sendParams,
@@ -356,15 +396,13 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    // Each allocation needs ~1 box reference, plus 1 for disbursement box, plus 1 for asset
-    const referencesNeeded = allocations.length + 2;
+    const referencesNeeded = allocations.length + 3;
     const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
 
     if (opUpsNeeded === 0) {
-      await this.client.send.createAsaUserAllocations({
+      await (this.client.send as any).createAsaUserAllocations({
         ...sendParams,
         args: {
-          mbrPayment,
           assetXfer,
           id,
           allocations: this.formatAllocations(allocations),
@@ -373,20 +411,88 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     } else {
       const group = this.client.newGroup();
 
-      group.createAsaUserAllocations({
+      (group as any).createAsaUserAllocations({
         ...sendParams,
         args: {
-          mbrPayment,
           assetXfer,
           id,
           allocations: this.formatAllocations(allocations),
         },
       });
 
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
+      this.addOpUps(group as any, opUpsNeeded, sendParams);
       await group.send(sendParams);
     }
+  }
+
+  /**
+   * Creates and finalizes a multi-ASA disbursement in a single transaction group.
+   *
+   * Group shape:
+   *   0: MBR payment
+   *   1..N: ASA transfers to the rewards app
+   *   N+1: createAsaDisbursementFromGroup app call
+   *
+   * This supports up to 14 ASA allocations in one Algorand group.
+   */
+  async createAsaDisbursementFromGroup({
+    sender,
+    signer,
+    title,
+    timeToUnlock,
+    expiration,
+    note,
+    allocations,
+  }: CreateAsaDisbursementFromGroupParams): Promise<bigint> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    const transactionCount = 1 + allocations.length + 1;
+    if (transactionCount > MAX_ALGORAND_GROUP_SIZE) {
+      throw new Error(
+        `ASA disbursement requires ${transactionCount} transactions; maximum group size is ${MAX_ALGORAND_GROUP_SIZE}`,
+      );
+    }
+
+    const { disbursementId } = await this.getState();
+    const mbrData = await this.mbr({ title, note });
+    const mbrPayment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(mbrData.disbursements + (mbrData.userAllocations * BigInt(allocations.length))),
+      receiver: this.client.appAddress,
+    });
+
+    const group = this.client.newGroup();
+    (group as any).addTransaction(mbrPayment, sendParams.signer);
+
+    for (const allocation of allocations) {
+      const assetXfer = await this.client.algorand.createTransaction.assetTransfer({
+        ...sendParams,
+        receiver: this.client.appAddress,
+        assetId: BigInt(allocation.asset),
+        amount: BigInt(allocation.amount),
+      });
+      (group as any).addTransaction(assetXfer, sendParams.signer);
+    }
+
+    const appCall = await this.client.algorand.createTransaction.appCallMethodCall({
+      ...sendParams,
+      appId: this.client.appId,
+      method: CREATE_ASA_DISBURSEMENT_FROM_GROUP,
+      args: [
+        0n,
+        1n,
+        title,
+        timeToUnlock,
+        expiration,
+        note,
+        allocations.map(({ address, amount }) => [address, amount]),
+      ],
+      note: `asa-disbursement-${disbursementId}`,
+    });
+
+    (group as any).addTransaction(appCall, sendParams.signer);
+    await group.send(sendParams);
+
+    return disbursementId;
   }
 
   /**
@@ -415,8 +521,8 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }: CreateInstantDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // MinDisbursementsMBR (35,300) + UserAllocationMBR (25,300) per allocation
-    const MIN_DISBURSEMENTS_MBR = 35_300n;
+    // MinDisbursementsMBR (41,700) + UserAllocationMBR (25,300) per allocation
+    const MIN_DISBURSEMENTS_MBR = 41_700n;
     const USER_ALLOCATION_MBR = 25_300n;
 
     const mbrAmount = MIN_DISBURSEMENTS_MBR + (USER_ALLOCATION_MBR * BigInt(allocations.length));
@@ -486,8 +592,8 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }: CreateInstantAsaDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // MinDisbursementsMBR (35,300) + UserAllocationMBR (25,300) per allocation
-    const MIN_DISBURSEMENTS_MBR = 35_300n;
+    // MinDisbursementsMBR (41,700) + UserAllocationMBR (25,300) per allocation
+    const MIN_DISBURSEMENTS_MBR = 41_700n;
     const USER_ALLOCATION_MBR = 25_300n;
 
     const mbrAmount = MIN_DISBURSEMENTS_MBR + (USER_ALLOCATION_MBR * BigInt(allocations.length));
@@ -570,8 +676,8 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     if (opUpsNeeded === 0) {
       await this.client.send.claimRewards({
         ...sendParams,
-        // Extra fee for inner transactions (2 per claim: MBR refund + reward transfer)
-        extraFee: microAlgo(2000 * rewards.length),
+        // Extra fee for inner transactions (1 reward transfer per claim; MBR refund is credited)
+        extraFee: microAlgo(1000 * rewards.length),
         args: {
           rewards: formattedRewards,
         },
@@ -581,7 +687,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
       group.claimRewards({
         ...sendParams,
-        extraFee: microAlgo(2000 * rewards.length),
+        extraFee: microAlgo(1000 * rewards.length),
         args: {
           rewards: formattedRewards,
         },
@@ -611,8 +717,8 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     if (opUpsNeeded === 0) {
       await this.client.send.reclaimRewards({
         ...sendParams,
-        // Extra fee for inner transactions (2 per reclaim: asset transfer + MBR refund)
-        extraFee: microAlgo(2000 * reclaims.length),
+        // Extra fee for inner transactions (1 reward transfer per reclaim; MBR refund is credited)
+        extraFee: microAlgo(1000 * reclaims.length),
         args: {
           id,
           reclaims: formattedReclaims,
@@ -623,7 +729,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
       group.reclaimRewards({
         ...sendParams,
-        extraFee: microAlgo(2000 * reclaims.length),
+        extraFee: microAlgo(1000 * reclaims.length),
         args: {
           id,
           reclaims: formattedReclaims,

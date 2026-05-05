@@ -1,14 +1,14 @@
 import { algo, microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { ProposalActionEnum } from 'akita-sdk/dao';
-import { AkitaDaoDeployableSDK } from 'akita-sdk/dao-deployable';
+import { sendPrepared } from 'akita-sdk';
+import { AkitaDaoSDK, ProposalActionEnum } from 'akita-sdk/dao';
 import { StakingPoolFactorySDK } from 'akita-sdk/staking-pool';
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
-import { RevenueManagerPluginSDK, UpdateAkitaDAOPluginSDK, WalletFactorySDK } from 'akita-sdk/wallet';
+import { RevenueManagerPluginSDK, UpdateAkitaDAOPluginSDK, WalletFactorySDK, CallerType } from 'akita-sdk/wallet';
 import type { TransactionSigner } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../../../tests/fixtures/abstracted-account';
-import { AkitaDAOGlobalStateKeysRevenueSplits, deployAkitaDAO } from '../../../../../tests/fixtures/dao';
+import { AkitaDAOGlobalStateKeysRevenueSplits, deployAkitaDAO, deployAkitaDAOProposalValidator } from '../../../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../../../tests/fixtures/escrow';
 import { deployRevenueManagerPlugin } from '../../../../../tests/fixtures/plugins/revenue-manager';
 import { deployUpdateAkitaDaoPlugin } from '../../../../../tests/fixtures/plugins/update-akita-dao';
@@ -39,7 +39,8 @@ describe('ARC58 DAO Setup', () => {
 
   // Phase 1: Core Contracts
   let escrowFactory: EscrowFactoryClient;
-  let dao: AkitaDaoDeployableSDK;
+  let proposalValidatorAppId: bigint;
+  let dao: AkitaDaoSDK;
   let walletFactory: WalletFactorySDK;
   let subscriptions: SubscriptionsSDK;
   let stakingPoolFactory: StakingPoolFactorySDK;
@@ -72,12 +73,27 @@ describe('ARC58 DAO Setup', () => {
       expect(escrowFactory.appAddress).toBeDefined();
     });
 
+    test('should deploy AkitaDAOProposalValidator (required before DAO)', async () => {
+      // The DAO delegates proposal-action validation to this stateless contract
+      // on every `newProposal`. Its appId is persisted in the DAO's
+      // `otherAppList` at `create()` time — so the validator must be deployed
+      // FIRST and passed in via `apps.daoProposalValidator` when deploying the
+      // DAO below.
+      const validator = await deployAkitaDAOProposalValidator({ fixture, sender, signer });
+      proposalValidatorAppId = validator.appId;
+
+      expect(validator.appId).toBeGreaterThan(0n);
+    });
+
     test('should deploy AkitaDAO', async () => {
       dao = await deployAkitaDAO({
         fixture,
         sender,
         signer,
-        apps: { escrow: escrowFactory.appId },
+        apps: {
+          escrow: escrowFactory.appId,
+          daoProposalValidator: proposalValidatorAppId,
+        },
       });
 
       expect(dao.appId).toBeGreaterThan(0n);
@@ -117,7 +133,7 @@ describe('ARC58 DAO Setup', () => {
         args: {
           akitaDao: dao.appId,
           version: '0.0.1',
-          akitaDaoEscrow: 0n,
+          akitaDaoEscrow: { name: 'rev_subscriptions', app: 0n },
         },
       });
 
@@ -131,7 +147,7 @@ describe('ARC58 DAO Setup', () => {
         signer,
         args: {
           akitaDao: dao.appId,
-          akitaDaoEscrow: 0n,
+          akitaDaoEscrow: { name: 'rev_pool', app: 0n },
         },
       });
 
@@ -226,7 +242,7 @@ describe('ARC58 DAO Setup', () => {
         {
           type: ProposalActionEnum.AddPlugin,
           client: revenueManagerPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: '',
           sourceLink: 'https://github.com/kylebee/akita-sc',
           useExecutionKey: true,
@@ -252,7 +268,7 @@ describe('ARC58 DAO Setup', () => {
           approval: DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
           sourceLink: 'https://github.com/kylebee/akita-sc',
           client: updatePlugin,
-          global: true,
+          callerType: CallerType.Global,
           useExecutionKey: true,
         },
       ]);
@@ -277,11 +293,11 @@ describe('ARC58 DAO Setup', () => {
         signer,
         lease: 'update_escrow_app',
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           updatePlugin.updateAkitaDaoEscrowForApp({
             appId: walletFactory.appId,
-            newEscrow: revWallet.id,
+            newEscrow: { name: walletFactoryRevenueEscrow, app: revWallet.id },
           }),
         ],
       });
@@ -300,7 +316,7 @@ describe('ARC58 DAO Setup', () => {
         },
       ]);
 
-      await execution.atcs[0].submit(dao.wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], dao.wallet.client.algorand.client.algod);
 
       expect(proposalId).toBeGreaterThan(0n);
     });
@@ -335,7 +351,7 @@ describe('ARC58 DAO Setup', () => {
       // Configure the escrow with revenue manager plugin
       const newReceiveEscrowPluginBuild = await dao.wallet.build.usePlugin({
         lease: `new_${escrowName}_lease`,
-        global: true,
+        callerType: CallerType.Global,
         windowSize: 2000n,
         calls: [
           revenueManagerPlugin.newReceiveEscrowWithRef({
@@ -365,7 +381,7 @@ describe('ARC58 DAO Setup', () => {
         {
           type: ProposalActionEnum.AddPlugin,
           client: revenueManagerPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: escrowName,
           sourceLink: 'https://github.com/kylebee/akita-sc',
           useExecutionKey: false,
@@ -378,7 +394,7 @@ describe('ARC58 DAO Setup', () => {
         { type: ProposalActionEnum.ToggleEscrowLock, escrow: escrowName },
       ]);
 
-      await newReceiveEscrowPluginBuild.atcs[0].submit(dao.wallet.client.algorand.client.algod);
+      await sendPrepared(newReceiveEscrowPluginBuild.windows[0], dao.wallet.client.algorand.client.algod);
     });
   });
 

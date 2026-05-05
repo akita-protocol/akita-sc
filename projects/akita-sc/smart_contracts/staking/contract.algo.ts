@@ -3,8 +3,6 @@ import {
   Account,
   Application,
   arc4,
-  assert,
-  assertMatch,
   Asset,
   BoxMap,
   clone,
@@ -12,6 +10,7 @@ import {
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
@@ -19,13 +18,6 @@ import { StaticArray, Uint64 } from '@algorandfoundation/algorand-typescript/arc
 import { AssetHolding } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { arc4Zero } from '../utils/constants'
-import {
-  ERR_INVALID_ASSET_AMOUNT,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_PAYMENT_AMOUNT,
-  ERR_INVALID_PAYMENT_RECEIVER,
-  ERR_NOT_OPTED_IN,
-} from '../utils/errors'
 import {
   ONE_YEAR,
   StakingBoxPrefixHeartbeats,
@@ -36,15 +28,21 @@ import {
   totalsMBR,
 } from './constants'
 import {
+  ERR_ALREADY_OPTED_IN,
   ERR_BAD_EXPIRATION,
   ERR_BAD_EXPIRATION_UPDATE,
   ERR_HEARBEAT_NOT_FOUND,
   ERR_HEARTBEAT_CANNOT_UPDATE,
   ERR_INSUFFICIENT_BALANCE,
+  ERR_INVALID_ASSET_AMOUNT,
+  ERR_INVALID_PAYMENT,
+  ERR_INVALID_PAYMENT_AMOUNT,
+  ERR_INVALID_PAYMENT_RECEIVER,
   ERR_LOCKED,
   ERR_NO_LOCK,
   ERR_NOT_ASSET_CREATOR,
   ERR_NOT_HEARTBEAT_MANAGER,
+  ERR_NOT_OPTED_IN,
   ERR_STAKE_DOESNT_EXIST,
   ERR_STAKE_NOT_FOUND,
   ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK,
@@ -67,7 +65,6 @@ import {
 } from './types'
 
 // CONTRACT IMPORTS
-import { ERR_ALREADY_OPTED_IN } from '../subscriptions/errors'
 import { AkitaBaseContract } from '../utils/base-contracts/base'
 import { BaseStaking } from './base'
 import { emptyHeartbeat } from './utils'
@@ -122,6 +119,46 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
     }
   }
 
+  private syncSoftStakeInfo(address: Account, stake: StakeInfo, info: Stake): Stake {
+    if (stake.type !== STAKING_TYPE_SOFT) {
+      return info
+    }
+
+    let held: uint64 = 0
+    if (stake.asset === 0) {
+      held = address.balance
+    } else {
+      held = AssetHolding.assetBalance(address, stake.asset)[0]
+    }
+
+    if (info.amount === held) {
+      return info
+    }
+
+    const synced: Stake = {
+      amount: held,
+      lastUpdate: Global.latestTimestamp,
+      expiration: info.expiration,
+    }
+
+    this.stakes({ address, ...stake }).value = clone(synced)
+
+    return synced
+  }
+
+  private emptyStake(): Stake {
+    return { amount: 0, lastUpdate: 0, expiration: 0 }
+  }
+
+  private getInfoOrEmpty(address: Account, stake: StakeInfo): Stake {
+    const sk = { address, ...stake }
+    if (!this.stakes(sk).exists) {
+      return this.emptyStake()
+    }
+
+    return this.syncSoftStakeInfo(address, stake, this.stakes(sk).value)
+  }
+
   // STAKING METHODS ------------------------------------------------------------------------------
 
   /**
@@ -130,7 +167,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
    * @param asset The asset to be opted into
    */
   optIn(payment: gtxn.PaymentTxn, asset: uint64): void {
-    assert(!Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_ALREADY_OPTED_IN)
+    loggedAssert(!Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_ALREADY_OPTED_IN)
 
     // totals mbr
     const mbr: uint64 = (
@@ -138,14 +175,8 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
       Global.assetOptInMinBalance
     )
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbr,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === mbr, ERR_INVALID_PAYMENT)
 
     itxn.assetTransfer({
       assetReceiver: Global.currentApplicationAddress,
@@ -166,7 +197,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
     const isEscrow = type === STAKING_TYPE_HARD || type === STAKING_TYPE_LOCK
     const timestamp = Global.latestTimestamp
 
-    assert((inTheFuture && lessThanOneYearInTheFuture) || !locked, ERR_BAD_EXPIRATION)
+    loggedAssert((inTheFuture && lessThanOneYearInTheFuture) || !locked, ERR_BAD_EXPIRATION)
 
     const sk: StakeKey = {
       address: Txn.sender,
@@ -182,14 +213,8 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
 
       if (isEscrow) {
 
-        assertMatch(
-          payment,
-          {
-            receiver: Global.currentApplicationAddress,
-            amount: amount + costs.stakes,
-          },
-          ERR_INVALID_PAYMENT
-        )
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+        loggedAssert(payment.amount === amount + costs.stakes, ERR_INVALID_PAYMENT)
 
         this.updateTotals(0, type, amount, true)
 
@@ -220,14 +245,8 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
           lock = this.stakes(lockStakeKey).value.amount
         }
 
-        assertMatch(
-          payment,
-          {
-            receiver: Global.currentApplicationAddress,
-            amount: costs.stakes + costs.heartbeats,
-          },
-          ERR_INVALID_PAYMENT
-        )
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+        loggedAssert(payment.amount === costs.stakes + costs.heartbeats, ERR_INVALID_PAYMENT)
 
         const heartbeatKey: HeartbeatKey = {
           address: Txn.sender,
@@ -258,15 +277,9 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
         this.heartbeats(heartbeatKey).value = clone(heartbeats)
 
       } else {
-        assert(Txn.sender.balance >= amount, ERR_INSUFFICIENT_BALANCE)
-        assertMatch(
-          payment,
-          {
-            receiver: Global.currentApplicationAddress,
-            amount: costs.stakes,
-          },
-          ERR_INVALID_PAYMENT
-        )
+        loggedAssert(Txn.sender.balance >= amount, ERR_INSUFFICIENT_BALANCE)
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+        loggedAssert(payment.amount === costs.stakes, ERR_INVALID_PAYMENT)
       }
 
       this.stakes(sk).value = {
@@ -276,17 +289,17 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
       }
 
     } else {
-      assert(type !== STAKING_TYPE_HEARTBEAT, ERR_HEARTBEAT_CANNOT_UPDATE)
+      loggedAssert(type !== STAKING_TYPE_HEARTBEAT, ERR_HEARTBEAT_CANNOT_UPDATE)
       const { expiration: currentStakeExpiration, amount: currentStakeAmount } = this.stakes(sk).value
-      assert(expiration >= currentStakeExpiration || !locked, ERR_BAD_EXPIRATION_UPDATE)
+      loggedAssert(expiration >= currentStakeExpiration || !locked, ERR_BAD_EXPIRATION_UPDATE)
 
       if (isEscrow) {
-        assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-        assert(payment.amount === amount, ERR_INVALID_PAYMENT_AMOUNT)
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+        loggedAssert(payment.amount === amount, ERR_INVALID_PAYMENT_AMOUNT)
 
         this.updateTotals(0, type, amount, true)
       } else {
-        assert(Txn.sender.balance >= currentStakeAmount + amount, ERR_INSUFFICIENT_BALANCE)
+        loggedAssert(Txn.sender.balance >= currentStakeAmount + amount, ERR_INSUFFICIENT_BALANCE)
       }
 
       const newAmount: uint64 = currentStakeAmount + amount
@@ -315,7 +328,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
     const isEscrow = type === STAKING_TYPE_HARD || type === STAKING_TYPE_LOCK
     const timestamp = Global.latestTimestamp
 
-    assert((inTheFuture && lessThanMaxLockup) || !locked, ERR_BAD_EXPIRATION)
+    loggedAssert((inTheFuture && lessThanMaxLockup) || !locked, ERR_BAD_EXPIRATION)
 
     const asset = assetXfer.xferAsset.id
 
@@ -328,19 +341,19 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
       const costs = this.mbr()
 
       if (isEscrow) {
-        assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-        assert(payment.amount === costs.stakes, ERR_INVALID_PAYMENT_AMOUNT)
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+        loggedAssert(payment.amount === costs.stakes, ERR_INVALID_PAYMENT_AMOUNT)
 
-        assert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_AMOUNT)
-        assert(assetXfer.assetAmount === amount, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetAmount === amount, ERR_INVALID_ASSET_AMOUNT)
 
         this.updateTotals(asset, type, amount, true)
 
       } else if (type === STAKING_TYPE_HEARTBEAT) {
         const [holdingAmount, optedIn] = AssetHolding.assetBalance(Txn.sender, asset)
 
-        assert(optedIn, ERR_NOT_OPTED_IN)
-        assert(holdingAmount > 0, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(optedIn, ERR_NOT_OPTED_IN)
+        loggedAssert(holdingAmount > 0, ERR_INVALID_ASSET_AMOUNT)
 
         const held = new Uint64(holdingAmount)
 
@@ -358,11 +371,11 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
           lock = this.stakes(lockStakeKey).value.amount
         }
 
-        assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-        assert(payment.amount === (costs.stakes + costs.heartbeats), ERR_INVALID_PAYMENT_AMOUNT)
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+        loggedAssert(payment.amount === (costs.stakes + costs.heartbeats), ERR_INVALID_PAYMENT_AMOUNT)
 
         // if they aren't escrowing, we need to make sure the asset transfer is 0, doesn't matter to who in this case
-        assert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
 
         const heartbeatKey: HeartbeatKey = { address: Txn.sender, asset }
 
@@ -388,14 +401,14 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
         )
       } else {
         const [holdingAmount, optedIn] = AssetHolding.assetBalance(Txn.sender, asset)
-        assert(optedIn, ERR_NOT_OPTED_IN)
-        assert(holdingAmount >= amount, ERR_INSUFFICIENT_BALANCE)
+        loggedAssert(optedIn, ERR_NOT_OPTED_IN)
+        loggedAssert(holdingAmount >= amount, ERR_INSUFFICIENT_BALANCE)
 
-        assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-        assert(payment.amount === costs.stakes, ERR_INVALID_PAYMENT_AMOUNT)
+        loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+        loggedAssert(payment.amount === costs.stakes, ERR_INVALID_PAYMENT_AMOUNT)
 
         // if they aren't escrowing, we need to make sure the asset transfer is 0, doesn't matter to who in this case
-        assert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
       }
 
       this.stakes(sk).value = {
@@ -404,25 +417,25 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
         expiration,
       }
     } else {
-      assert(type !== STAKING_TYPE_HEARTBEAT, ERR_HEARTBEAT_CANNOT_UPDATE)
+      loggedAssert(type !== STAKING_TYPE_HEARTBEAT, ERR_HEARTBEAT_CANNOT_UPDATE)
       const { expiration: currentStakeExpiration, amount: currentStakeAmount } = this.stakes(sk).value
-      assert(expiration >= currentStakeExpiration || !locked, ERR_BAD_EXPIRATION_UPDATE)
+      loggedAssert(expiration >= currentStakeExpiration || !locked, ERR_BAD_EXPIRATION_UPDATE)
 
       // updates to asa staking shouldnt require any mbr changes
-      assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-      assert(payment.amount === 0, ERR_INVALID_PAYMENT_AMOUNT)
+      loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+      loggedAssert(payment.amount === 0, ERR_INVALID_PAYMENT_AMOUNT)
 
       if (isEscrow) {
-        assert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_AMOUNT)
-        assert(assetXfer.assetAmount === amount, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetAmount === amount, ERR_INVALID_ASSET_AMOUNT)
 
         this.updateTotals(asset, type, amount, true)
       } else {
         const [holdingAmount, optedIn] = AssetHolding.assetBalance(Txn.sender, asset)
-        assert(optedIn, ERR_NOT_OPTED_IN)
-        assert(holdingAmount >= currentStakeAmount + amount, ERR_INSUFFICIENT_BALANCE)
+        loggedAssert(optedIn, ERR_NOT_OPTED_IN)
+        loggedAssert(holdingAmount >= currentStakeAmount + amount, ERR_INSUFFICIENT_BALANCE)
         // if they aren't escrowing, we need to make sure the asset transfer is 0, doesn't matter to who in this case
-        assert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
+        loggedAssert(assetXfer.assetAmount === 0, ERR_INVALID_ASSET_AMOUNT)
       }
 
       const newAmount: uint64 = currentStakeAmount + amount
@@ -436,16 +449,16 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   }
 
   withdraw(asset: uint64, type: StakingType): void {
-    assert(
+    loggedAssert(
       type === STAKING_TYPE_HARD || type === STAKING_TYPE_LOCK,
       ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK
     )
 
     const sk = { address: Txn.sender, asset, type }
-    assert(this.stakes(sk).exists, ERR_NO_LOCK)
+    loggedAssert(this.stakes(sk).exists, ERR_NO_LOCK)
 
     const { expiration, amount } = this.stakes(sk).value
-    assert(type !== STAKING_TYPE_LOCK || expiration < Global.latestTimestamp, ERR_LOCKED)
+    loggedAssert(type !== STAKING_TYPE_LOCK || expiration < Global.latestTimestamp, ERR_LOCKED)
 
     if (asset === 0) {
       itxn
@@ -470,10 +483,10 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   }
 
   createHeartbeat(address: Account, asset: uint64): void {
-    assert(Txn.sender === this.heartbeatManagerAddress.value, ERR_NOT_HEARTBEAT_MANAGER)
+    loggedAssert(Txn.sender === this.heartbeatManagerAddress.value, ERR_NOT_HEARTBEAT_MANAGER)
 
     const hbk = { address, asset }
-    assert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
+    loggedAssert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
 
     const timestamp = new Uint64(Global.latestTimestamp)
     const heartbeats = clone(this.heartbeats(hbk).value)
@@ -528,7 +541,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
 
   softCheck(address: Account, asset: uint64): StakeCheck {
     const sk = { address, asset, type: STAKING_TYPE_SOFT }
-    assert(this.stakes(sk).exists, ERR_STAKE_DOESNT_EXIST)
+    loggedAssert(this.stakes(sk).exists, ERR_STAKE_DOESNT_EXIST)
 
     const { amount } = this.stakes(sk).value
     const lastUpdate = Global.latestTimestamp
@@ -546,7 +559,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
     }
 
     const [holdingAmount, optedIn] = AssetHolding.assetBalance(address, asset)
-    assert(optedIn, ERR_NOT_OPTED_IN)
+    loggedAssert(optedIn, ERR_NOT_OPTED_IN)
     const valid = holdingAmount >= amount
     if (!valid) {
       this.stakes(sk).value = {
@@ -560,13 +573,10 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   }
 
   updateSettings(payment: gtxn.PaymentTxn, asset: uint64, value: uint64): void {
-    assert(Txn.sender === Asset(asset).creator, ERR_NOT_ASSET_CREATOR)
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.settings(asset).exists ? 0 : this.mbr().settings,
-      },
+    loggedAssert(Txn.sender === Asset(asset).creator, ERR_NOT_ASSET_CREATOR)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(
+      payment.amount === (this.settings(asset).exists ? 0 : this.mbr().settings),
       ERR_INVALID_PAYMENT
     )
 
@@ -610,27 +620,45 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   @abimethod({ readonly: true })
   mustGetTimeLeft(address: Account, asset: uint64): uint64 {
     const sk = { address, asset, type: STAKING_TYPE_LOCK }
-    assert(this.stakes(sk).exists, ERR_NO_LOCK)
-    assert(Global.latestTimestamp < this.stakes(sk).value.expiration, ERR_LOCKED)
+    loggedAssert(this.stakes(sk).exists, ERR_NO_LOCK)
+    loggedAssert(Global.latestTimestamp < this.stakes(sk).value.expiration, ERR_LOCKED)
     return this.stakes(sk).value.expiration - Global.latestTimestamp
   }
 
   @abimethod({ readonly: true })
   getInfo(address: Account, stake: StakeInfo): Stake {
-    const sk = { address, ...stake }
-    if (!this.stakes(sk).exists) {
-      return { amount: 0, lastUpdate: 0, expiration: 0 }
-    }
-
-    return this.stakes(sk).value
+    return this.getInfoOrEmpty(address, stake)
   }
 
   @abimethod({ readonly: true })
   mustGetInfo(address: Account, stake: StakeInfo): Stake {
     const sk = { address, ...stake }
-    assert(this.stakes(sk).exists, ERR_NO_LOCK)
+    loggedAssert(this.stakes(sk).exists, ERR_NO_LOCK)
 
-    return this.stakes(sk).value
+    return this.syncSoftStakeInfo(address, stake, this.stakes(sk).value)
+  }
+
+  @abimethod({ readonly: true })
+  getInfoAtLeast(address: Account, stake: StakeInfo): Stake[] {
+    const results: Stake[] = []
+
+    if (stake.type === STAKING_TYPE_SOFT) {
+      results.push(this.getInfoOrEmpty(address, { asset: stake.asset, type: STAKING_TYPE_SOFT }))
+    }
+
+    if (stake.type === STAKING_TYPE_SOFT || stake.type === STAKING_TYPE_HARD) {
+      results.push(this.getInfoOrEmpty(address, { asset: stake.asset, type: STAKING_TYPE_HARD }))
+    }
+
+    if (
+      stake.type === STAKING_TYPE_SOFT ||
+      stake.type === STAKING_TYPE_HARD ||
+      stake.type === STAKING_TYPE_LOCK
+    ) {
+      results.push(this.getInfoOrEmpty(address, { asset: stake.asset, type: STAKING_TYPE_LOCK }))
+    }
+
+    return results
   }
 
   @abimethod({ readonly: true })
@@ -669,7 +697,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   @abimethod({ readonly: true })
   mustGetHeartbeat(address: Account, asset: uint64): arc4.StaticArray<arc4Heartbeat, 4> {
     const hbk = { address, asset }
-    assert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
+    loggedAssert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
     return this.heartbeats(hbk).value
   }
 
@@ -706,7 +734,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
   @abimethod({ readonly: true })
   mustGetHeartbeatAverage(address: Account, asset: uint64, includeEscrowed: boolean): uint64 {
     const hbk = { address, asset }
-    assert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
+    loggedAssert(this.heartbeats(hbk).exists, ERR_HEARBEAT_NOT_FOUND)
 
     const heartbeats = clone(this.heartbeats(hbk).value)
 
@@ -733,7 +761,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
 
   @abimethod({ readonly: true })
   getInfoList(address: Account, type: StakingType, assets: uint64[]): Stake[] {
-    let results: Stake[] = []
+    const results: Stake[] = []
     for (let i: uint64 = 0; i < assets.length; i += 1) {
       const sk = { address, asset: assets[i], type }
       if (!this.stakes(sk).exists) {
@@ -755,10 +783,10 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
 
   @abimethod({ readonly: true })
   mustGetInfoList(address: Account, type: StakingType, assets: uint64[]): Stake[] {
-    let results: Stake[] = []
+    const results: Stake[] = []
     for (let i: uint64 = 0; i < assets.length; i += 1) {
       const sk = { address, asset: assets[i], type }
-      assert(this.stakes(sk).exists, ERR_STAKE_NOT_FOUND)
+      loggedAssert(this.stakes(sk).exists, ERR_STAKE_NOT_FOUND)
       results.push(this.stakes(sk).value)
     }
     return results
@@ -787,7 +815,7 @@ export class Staking extends classes(BaseStaking, AkitaBaseContract) {
 
   @abimethod({ readonly: true })
   getTotals(assets: uint64[]): TotalsInfo[] {
-    let results: TotalsInfo[] = []
+    const results: TotalsInfo[] = []
     for (let i: uint64 = 0; i < assets.length; i += 1) {
       results.push(this.totals(assets[i]).value)
     }

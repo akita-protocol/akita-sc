@@ -1,15 +1,19 @@
 import {
+  PRIZE_BOX_ERROR_MESSAGES,
   PrizeBoxFactorySDK,
   PrizeBoxSDK,
-  newPrizeBox
-} from "../chunk-AXFUUP4D.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  newPrizeBox,
+  translatePrizeBoxError
+} from "../chunk-S3EAB5SX.mjs";
+import "../chunk-2AEP6DTX.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
+  PRIZE_BOX_ERROR_MESSAGES,
   PrizeBoxFactorySDK,
   PrizeBoxSDK,
-  newPrizeBox
+  newPrizeBox,
+  translatePrizeBoxError
 };
 //# sourceMappingURL=index.mjs.map

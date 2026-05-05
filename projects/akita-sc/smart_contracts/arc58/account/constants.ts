@@ -5,14 +5,16 @@ export const MAX_INNER_TXN_COUNT: uint64 = 256
 /** Maximum number of outer transactions allowed in a group */
 export const MAX_OUTER_TXN_COUNT: uint64 = 16
 
-export const AbstractAccountNumGlobalBytes: uint64 = 9 // 450_000
-export const AbstractAccountNumGlobalUints: uint64 = 9 // 256_500
+// Currently using 9 bytes + 9 uints. Over-provisioned (bytes-heavy because future
+// additions skew toward strings/accounts/structs — metadata, keys, config structs, etc.)
+// so new fields can be added via `updateApp` without hitting the global state limit
+// declared at creation.
+export const AbstractAccountNumGlobalBytes: uint64 = 30 // 1_500_000 (10 used, 20 spare)
+export const AbstractAccountNumGlobalUints: uint64 = 12 //   342_000 (9 used,  3 spare)
 
-// min: 656_500 gs
-// total: 1_056_500 algo
-
-// max: 2_985_000 gs
-// total: 3_385_000 algo
+// global state MBR: 1_342_000
+// total wallet MBR (incl. MAX_PROGRAM_PAGES + Global.minBalance + ARC58WalletIDsByAccountsMbr):
+//   1_342_000 + 400_000 + 100_000 + min-bal-extras
 
 export const AbstractAccountGlobalStateKeysAdmin = 'admin'
 export const AbstractAccountGlobalStateKeysDomain = 'domain'
@@ -30,6 +32,8 @@ export const AbstractAccountGlobalStateKeysRekeyIndex = 'rekey_index'
 export const AbstractAccountGlobalStateKeysEscrowFactory = 'escrow_factory'
 export const AbstractAccountGlobalStateKeysFactoryApp = 'factory_app'
 export const AbstractAccountGlobalStateKeysReferrer = 'referrer'
+export const AbstractAccountGlobalStateKeysUpdateSettings = 'update_settings'
+export const AbstractAccountGlobalStateKeysSalt = 'salt'
 
 export const AbstractAccountBoxPrefixPlugins = 'p'
 export const AbstractAccountBoxPrefixNamedPlugins = 'n'

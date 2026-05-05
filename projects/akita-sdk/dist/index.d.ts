@@ -1,4 +1,5 @@
 export * from './types';
+export * from './errors';
 export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, } from './config';
 export { AuctionSDK, AuctionFactorySDK } from './auction';
 export { AkitaDaoSDK } from './dao';
@@ -17,4 +18,4 @@ export { StakingPoolSDK, StakingPoolFactorySDK } from './staking-pool';
 export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type Service, type NewServiceArgs, type SubscribeArgs, type SubscriptionInfoWithDetails, ServiceStatus, HighlightMessage, } from './subscriptions';
 export { WalletSDK, WalletFactorySDK } from './wallet';
 export * from './connect';
-export type { ExpectedCost, AssetPayment, AccountDelta, SimulatePayload } from './simulate/types';
+export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';

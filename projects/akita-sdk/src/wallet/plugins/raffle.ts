@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { RafflePluginArgs, RafflePluginClient, RafflePluginFactory } from "../../generated/RafflePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -36,7 +37,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
   newRaffle(args?: NewRaffleArgs): PluginSDKReturn {
     const methodName = 'newRaffle';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -46,7 +47,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -70,7 +71,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
   enter(args?: EnterArgs): PluginSDKReturn {
     const methodName = 'enter';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -80,7 +81,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -104,7 +105,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
   add(args?: AddArgs): PluginSDKReturn {
     const methodName = 'add';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -114,7 +115,7 @@ export class RafflePluginSDK extends BaseSDK<RafflePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

@@ -1,10 +1,9 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing';
 import { proposeAndExecute } from '../../scripts/utils';
-import { setCurrentNetwork } from 'akita-sdk';
+import { sendPrepared, setCurrentNetwork } from 'akita-sdk';
 import { AuctionFactorySDK } from 'akita-sdk/auction';
 import { AkitaDaoSDK, EMPTY_CID, ProposalActionEnum, SplitDistributionType } from 'akita-sdk/dao';
-import { AkitaDaoDeployableSDK } from 'akita-sdk/dao-deployable';
 import { MarketplaceSDK } from 'akita-sdk/marketplace';
 import { PollFactorySDK } from 'akita-sdk/poll';
 import { PrizeBoxFactorySDK } from 'akita-sdk/prize-box';
@@ -36,10 +35,10 @@ import {
   StakingPoolPluginSDK,
   SubscriptionsPluginSDK,
   UpdateAkitaDAOPluginSDK,
-  WalletFactorySDK
-} from 'akita-sdk/wallet';
+  WalletFactorySDK, CallerType } from 'akita-sdk/wallet';
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk';
-import { AkitaDaoApps, AkitaDaoFactory } from '../../smart_contracts/artifacts/arc58/dao-deployable/AkitaDAOClient';
+import { AkitaDaoApps, AkitaDaoFactory } from '../../smart_contracts/artifacts/arc58/dao/AkitaDAOClient';
+import { AkitaDaoProposalValidatorClient, AkitaDaoProposalValidatorFactory } from '../../smart_contracts/artifacts/arc58/dao/AkitaDAOProposalValidatorClient';
 import { EscrowFactoryClient } from '../../smart_contracts/artifacts/escrow/EscrowFactoryClient';
 import { GateClient } from '../../smart_contracts/artifacts/gates/GateClient';
 import { HyperSwapClient } from '../../smart_contracts/artifacts/hyper-swap/HyperSwapClient';
@@ -120,10 +119,10 @@ async function createTestAsset(
   config: { name: string; unitName: string; decimals: number; total: bigint }
 ): Promise<bigint> {
   const { algorand } = fixture.context
-  const suggestedParams = await algorand.client.algod.getTransactionParams().do()
-  
-  const txn = algosdk.makeAssetCreateTxnWithSuggestedParamsFromObject({
+
+  const { assetId } = await algorand.send.assetCreate({
     sender,
+    signer,
     total: config.total,
     decimals: config.decimals,
     defaultFrozen: false,
@@ -133,15 +132,7 @@ async function createTestAsset(
     reserve: sender,
     freeze: sender,
     clawback: sender,
-    suggestedParams,
   })
-  
-  const signedTxn = await signer([txn], [0])
-  const { txid } = await algorand.client.algod.sendRawTransaction(signedTxn[0]).do()
-  
-  // Wait for confirmation
-  const result = await algosdk.waitForConfirmation(algorand.client.algod, txid, 4)
-  const assetId = BigInt(result.assetIndex!)
   
   logger.deploy(`Test Asset: ${config.unitName}`, assetId, sender)
   
@@ -178,10 +169,11 @@ export const deployAkitaDAO = async ({
     wallet = 0n,
     escrow = 0n,
     poll = 0n,
+    daoProposalValidator = 0n,
   } = {},
   sender,
   signer
-}: DeployParams): Promise<AkitaDaoDeployableSDK> => {
+}: DeployParams): Promise<AkitaDaoSDK> => {
   // Ensure network is set for SDK initialization (fixtures are always localnet)
   setCurrentNetwork('localnet');
   
@@ -196,6 +188,9 @@ export const deployAkitaDAO = async ({
   )
 
   const results = await factory.send.create.create({
+    // Reserve the full 4 pages (8192 B) at create time. extra_program_pages
+    // is immutable after creation, and governed upgrades may need the room.
+    extraProgramPages: 3,
     args: {
       version: '0.0.1',
       akta: 0n,
@@ -227,6 +222,7 @@ export const deployAkitaDAO = async ({
         wallet,
         escrow,
         poll,
+        daoProposalValidator,
       },
       fees: {
         walletCreateFee: DEFAULT_WALLET_CREATE_FEE,
@@ -338,7 +334,7 @@ export const deployAkitaDAO = async ({
 
   logger.deploy('Akita DAO', client.appId, client.appAddress.toString());
 
-  return new AkitaDaoDeployableSDK({
+  return new AkitaDaoSDK({
     algorand,
     factoryParams: {
       appId: client.appId,
@@ -348,8 +344,36 @@ export const deployAkitaDAO = async ({
   });
 }
 
+/**
+ * Deploy the stateless proposal validator that the DAO delegates to.
+ *
+ * Must be deployed BEFORE the DAO itself and its appId must be passed into
+ * `deployAkitaDAO` via `apps.daoProposalValidator` — the DAO persists the
+ * reference in its `otherAppList` struct and every `newProposal` call
+ * delegates to the validator via `abiCall`.
+ */
+export const deployAkitaDAOProposalValidator = async ({
+  fixture,
+  sender,
+  signer,
+}: FixtureAndAccount): Promise<{ client: AkitaDaoProposalValidatorClient; appId: bigint }> => {
+  const { algorand } = fixture.context;
+
+  const factory = algorand.client.getTypedAppFactory(AkitaDaoProposalValidatorFactory, {
+    defaultSender: sender,
+    defaultSigner: signer,
+  });
+
+  const { appClient: client } = await factory.send.create.create({ args: {} });
+
+  logger.deploy('Akita DAO Proposal Validator', client.appId, client.appAddress.toString());
+
+  return { client, appId: client.appId };
+}
+
 export type AkitaUniverse = {
   dao: AkitaDaoSDK;
+  proposalValidator: { client: AkitaDaoProposalValidatorClient; appId: bigint };
   walletFactory: WalletFactorySDK;
   subscriptions: SubscriptionsSDK;
   stakingPoolFactory: StakingPoolFactorySDK;
@@ -448,9 +472,24 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   // Get dispenser only on fixture (for auto-funding during tests)
   const dispenser = isLocalnet ? await fixture.algorand.account.dispenserFromEnvironment() : null;
 
-  // Deploy DAO with the deployable version (has setup() for initial wallet creation)
-  const deployableDao = await deployAkitaDAO({ ...params, apps: { ...params.apps, escrow: escrowFactory.appId } });
-  let dao: AkitaDaoSDK = deployableDao;
+  // Deploy the proposal validator BEFORE the DAO — its appId is persisted in
+  // the DAO's `otherAppList` at `create()` time, and every subsequent
+  // `newProposal` call (starting with the UpdateFields proposals in Phase 2)
+  // delegates validation to it via `abiCall`.
+  const proposalValidator = await deployAkitaDAOProposalValidator({
+    fixture,
+    sender: params.sender,
+    signer: params.signer,
+  });
+
+  const dao = await deployAkitaDAO({
+    ...params,
+    apps: {
+      ...params.apps,
+      escrow: escrowFactory.appId,
+      daoProposalValidator: proposalValidator.appId,
+    },
+  });
 
   // Now deploy Rewards contract with the actual DAO app ID
   const rewardsClient = await deployRewards({
@@ -500,7 +539,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     args: {
       akitaDao: dao.appId,
       version: '0.0.1',
-      akitaDaoEscrow: 0n,
+      akitaDaoEscrow: { name: '', app: 0n },
     }
   });
   logger.deploy('Subscriptions', subscriptionsSdk.appId, subscriptionsSdk.client.appAddress.toString());
@@ -548,7 +587,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     signer: params.signer,
     args: {
       akitaDao: dao.appId,
-      akitaDaoEscrow: 0n, // Will be updated later with proper escrow ID
+      akitaDaoEscrow: { name: '', app: 0n }, // Will be updated later with proper escrow ID
       version: '0.0.1',
     }
   });
@@ -568,7 +607,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       akitaDao: dao.appId,
       version: '0.0.1',
       childVersion: '0.0.1',
-      akitaDaoEscrow: 0n,
+      akitaDaoEscrow: { name: '', app: 0n },
     }
   });
   logger.deploy('Auction Factory', auctionFactoryResult.client.appId, auctionFactoryResult.client.appAddress.toString());
@@ -582,7 +621,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       akitaDao: dao.appId,
       version: '0.0.1',
       childVersion: '0.0.1',
-      akitaDaoEscrow: 0n,
+      akitaDaoEscrow: { name: '', app: 0n },
     }
   });
   logger.deploy('Marketplace', marketplaceResult.client.appId, marketplaceResult.client.appAddress.toString());
@@ -596,7 +635,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       akitaDao: dao.appId,
       version: '0.0.1',
       childVersion: '0.0.1',
-      akitaDaoEscrow: 0n,
+      akitaDaoEscrow: { name: '', app: 0n },
     }
   });
   logger.deploy('Raffle Factory', raffleFactoryResult.client.appId, raffleFactoryResult.client.appAddress.toString());
@@ -610,7 +649,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       akitaDao: dao.appId,
       version: '0.0.1',
       childVersion: '0.0.1',
-      akitaDaoEscrow: 0n,
+      akitaDaoEscrow: { name: '', app: 0n },
     }
   });
   logger.deploy('Poll Factory', pollFactoryResult.client.appId, pollFactoryResult.client.appAddress.toString());
@@ -729,22 +768,12 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   logger.proposal('UpdateFields: Set otherAppList (oal) with escrow factory, poll, and external apps', updateOalProposalId);
 
   // Fund DAO with setup cost before creating the wallet
-  const setupCost = await deployableDao.setupCost();
-  await deployableDao.client.appClient.fundAppAccount({ amount: setupCost.microAlgo() });
+  const setupCost = await dao.setupCost();
+  await dao.client.appClient.fundAppAccount({ amount: setupCost.microAlgo() });
 
-  await deployableDao.setup();
-  logger.wallet('DAO ARC58 Wallet', deployableDao.wallet.client.appId, deployableDao.wallet.client.appAddress.toString());
-
-  // Upgrade to regular AkitaDaoSDK (setup is complete, no longer needed)
-  dao = new AkitaDaoSDK({
-    algorand: fixture.algorand,
-    factoryParams: {
-      appId: deployableDao.appId,
-      defaultSender: params.sender,
-      defaultSigner: params.signer,
-    }
-  });
-  await dao.getWallet();
+  await dao.setup();
+  await dao.wallet.register({ sender: params.sender, signer: params.signer, escrow: '' });
+  logger.wallet('DAO ARC58 Wallet', dao.wallet.client.appId, dao.wallet.client.appAddress.toString());
 
   // ═══════════════════════════════════════════════════════════════════════════
   // Calculate total wallet MBR needed for all proposals & executions
@@ -848,7 +877,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     {
       type: ProposalActionEnum.AddPlugin,
       client: revenueManagerPluginSdk,
-      global: true,
+      callerType: CallerType.Global,
       escrow: '',
       sourceLink: 'https://github.com/kylebee/akita-sc',
       useExecutionKey: true,
@@ -891,7 +920,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       approval: DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
       sourceLink: 'https://github.com/kylebee/akita-sc',
       client: daoUpdatePluginSdk,
-      global: true,
+      callerType: CallerType.Global,
       useExecutionKey: true,
     }
   ]);
@@ -929,16 +958,16 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   // Get rev_wallet escrow info and update wallet factory escrow
   const revWallet = await dao.wallet.getEscrow(walletFactoryRevenueEscrow);
 
-  const { lease, firstValid, lastValid, ids: groups, atcs } = await dao.wallet.build.usePlugin({
+  const { lease, firstValid, lastValid, ids: groups, windows } = await dao.wallet.build.usePlugin({
     sender: params.sender,
     signer: params.signer,
     lease: 'update_escrow_app',
     windowSize: 2000n,
-    global: true,
+    callerType: CallerType.Global,
     calls: [
       daoUpdatePluginSdk.updateAkitaDaoEscrowForApp({
         appId: abstractAccountFactory.appId,
-        newEscrow: revWallet.id
+        newEscrow: { name: walletFactoryRevenueEscrow, app: revWallet.id }
       })
     ]
   });
@@ -956,7 +985,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     }
   ]);
 
-  await atcs[0].submit(dao.wallet.client.algorand.client.algod);
+  await sendPrepared(windows[0], dao.wallet.client.algorand.client.algod);
   logger.proposal('Update wallet factory escrow', executePluginProposalId);
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -1189,7 +1218,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       {
         type: ProposalActionEnum.AddPlugin,
         client: optInPluginSDK,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
         sourceLink: '',
         useExecutionKey: false,
@@ -1291,7 +1320,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       sender: params.sender,
       signer: params.signer,
       lease: `new_${escrow}_lease`,
-      global: true,
+      callerType: CallerType.Global,
       windowSize: 2000n,
       calls: [
         revenueManagerPluginSdk.newReceiveEscrowWithRef({
@@ -1307,6 +1336,11 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       ]
     });
 
+    // Register the newReceiveEscrowWithRef execution + add the revenue-manager plugin.
+    // We intentionally defer ToggleEscrowLock until after any manual AKTA opt-in below,
+    // because fee-generator contracts that don't have their own optIn (e.g. AkitaSocial,
+    // which extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn) cannot lazily opt
+    // their escrow into AKTA on first use.
     await proposeAndExecute(fixture.algorand, dao, [
       {
         type: ProposalActionEnum.ExecutePlugin,
@@ -1321,7 +1355,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       {
         type: ProposalActionEnum.AddPlugin,
         client: revenueManagerPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
         sourceLink: 'https://github.com/kylebee/akita-sc',
         useExecutionKey: false,
@@ -1330,12 +1364,65 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
           { name: revenueManagerPluginSdk.startEscrowDisbursement(), cooldown: 0n },
           { name: revenueManagerPluginSdk.processEscrowAllocation(), cooldown: 0n },
         ]
-      },
-      { type: ProposalActionEnum.ToggleEscrowLock, escrow }
+      }
     ]);
 
-    await newReceiveEscrowPluginBuild.atcs[0].submit(dao.client.algorand.client.algod);
+    await sendPrepared(newReceiveEscrowPluginBuild.windows[0], dao.client.algorand.client.algod);
     logger.escrow(escrow, 'configure');
+
+    // For revenue escrows on contracts without a self-contained AKTA optIn
+    // method (currently: rev_social — AkitaSocial extends the
+    // "WithoutAkitaOptIn" base that omits optAkitaEscrowInAndSend), manually
+    // opt the escrow into AKTA using the generic OptInPlugin. The
+    // revenue-manager's own optIn enforces a source check so only the social
+    // contract could call it for rev_social — but since social was trimmed to
+    // remove its opt-in path, we route through OptInPlugin which has no source
+    // guard. Mirrors the bones-escrow install/use/remove pattern below.
+    if (escrow === socialFactoryRevenueEscrow && aktaAssetId && aktaAssetId > 0n) {
+      if (isLocalnet && dispenser) {
+        await fixture.algorand.account.ensureFunded(params.sender, dispenser, (50).algos());
+      }
+
+      await proposeAndExecute(fixture.algorand, dao, [
+        {
+          type: ProposalActionEnum.AddPlugin,
+          client: optInPluginSDK,
+          callerType: CallerType.Global,
+          escrow,
+          sourceLink: '',
+          useExecutionKey: false,
+        }
+      ]);
+      logger.plugin('install', 'OptInPlugin', optInPluginSDK.appId);
+
+      await dao.wallet.usePlugin({
+        sender: params.sender,
+        signer: params.signer,
+        callerType: CallerType.Global,
+        escrow,
+        calls: [
+          optInPluginSDK.optIn({
+            assets: [aktaAssetId],
+          })
+        ]
+      });
+      logger.escrow(escrow, 'optin');
+
+      await proposeAndExecute(fixture.algorand, dao, [
+        {
+          type: ProposalActionEnum.RemovePlugin,
+          plugin: optInPluginSDK.appId,
+          caller: ALGORAND_ZERO_ADDRESS_STRING,
+          escrow,
+        }
+      ]);
+      logger.plugin('remove', 'OptInPlugin', optInPluginSDK.appId);
+    }
+
+    // Lock the escrow now that all setup (including any manual AKTA opt-in) is complete
+    await proposeAndExecute(fixture.algorand, dao, [
+      { type: ProposalActionEnum.ToggleEscrowLock, escrow }
+    ]);
 
     // Update the app's akitaDaoEscrow with the new escrow ID (skip wallet factory as it's done separately above)
     if (appToUpdate && escrow !== walletFactoryRevenueEscrow) {
@@ -1351,11 +1438,11 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
         signer: params.signer,
         lease: `update_escrow_${escrow}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdatePluginSdk.updateAkitaDaoEscrowForApp({
             appId: appToUpdate,
-            newEscrow: escrowInfo.id
+            newEscrow: { name: escrow, app: escrowInfo.id }
           })
         ]
       });
@@ -1373,7 +1460,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
         }
       ]);
 
-      await updateEscrowBuild.atcs[0].submit(dao.wallet.client.algorand.client.algod);
+      await sendPrepared(updateEscrowBuild.windows[0], dao.wallet.client.algorand.client.algod);
       logger.proposal(`Update ${escrow} escrow for app ${appToUpdate}`, 0n);
     }
   }
@@ -1452,7 +1539,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     {
       type: ProposalActionEnum.AddPlugin,
       client: payPluginSDK,
-      global: true,
+      callerType: CallerType.Global,
       escrow: '',
       sourceLink: 'https://github.com/kylebee/akita-sc',
       useExecutionKey: true,
@@ -1493,7 +1580,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       {
         type: ProposalActionEnum.AddPlugin,
         client: optInPluginSDK,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
         sourceLink: '',
         useExecutionKey: false,
@@ -1505,7 +1592,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     await dao.wallet.usePlugin({
       sender: params.sender,
       signer: params.signer,
-      global: true,
+      callerType: CallerType.Global,
       escrow,
       calls: [
         optInPluginSDK.optIn({
@@ -1515,7 +1602,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     });
     logger.escrow(escrow, 'optin');
 
-    // Remove the optin plugin from the escrow (must use zero address since it was added with global: true)
+    // Remove the optin plugin from the escrow (must use zero address since it was added with callerType: CallerType.Global)
     await proposeAndExecute(fixture.algorand, dao, [
       {
         type: ProposalActionEnum.RemovePlugin,
@@ -1534,12 +1621,12 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     const escrowAddress = getApplicationAddress(escrowInfo.id).toString();
     const amount = bonesDistributions[escrow] * 1_000_000n; // Convert to base units (6 decimals)
 
-    const { lease, firstValid, lastValid, ids: groups, atcs } = await dao.wallet.build.usePlugin({
+    const { lease, firstValid, lastValid, ids: groups, windows } = await dao.wallet.build.usePlugin({
       sender: params.sender,
       signer: params.signer,
       lease: `pay_bones_${escrow}`,
       windowSize: 2000n,
-      global: true,
+      callerType: CallerType.Global,
       calls: [
         payPluginSDK.pay({
           payments: [{
@@ -1564,7 +1651,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       }
     ]);
 
-    await atcs[0].submit(dao.wallet.client.algorand.client.algod);
+    await sendPrepared(windows[0], dao.wallet.client.algorand.client.algod);
     logger.escrow(escrow, 'configure');
   }
   logger.proposal('Distribute Bones to escrows', 0n);
@@ -1602,6 +1689,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   return {
     dao,
+    proposalValidator,
     walletFactory: abstractAccountFactory,
     subscriptions: subscriptionsSdk,
     stakingPoolFactory: stakingPoolFactorySdk,
@@ -1647,4 +1735,3 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     usdcAssetId,
   }
 }
-

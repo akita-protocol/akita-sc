@@ -5,11 +5,10 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
 import { newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
 import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
+import { TimeWarp } from '../../../tests/utils/time';
 import {
-    ERR_ONLY_ADMIN_CAN_CHANGE_ADMIN,
-    ERR_ONLY_ADMIN_CAN_CHANGE_NICKNAME,
-    ERR_ONLY_ADMIN_CAN_CHANGE_REVOKE,
-    ERR_ONLY_ADMIN_CAN_UPDATE,
+    ERR_ADMIN_ONLY,
+    ERR_FACTORY_UPDATES_NOT_ALLOWED,
 } from './errors';
 
 /**
@@ -28,6 +27,7 @@ describe('ARC58 Admin & Profile', () => {
     let dao: AkitaDaoSDK;
     let walletFactory: WalletFactorySDK;
     let wallet: WalletSDK;
+    let timeWarp: TimeWarp;
 
     beforeAll(async () => {
         Config.configure({
@@ -41,7 +41,9 @@ describe('ARC58 Admin & Profile', () => {
         const signer = testAccount.signer;
 
         const dispenser = await algorand.account.dispenserFromEnvironment();
-        await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+        await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
+        timeWarp = new TimeWarp(algorand);
 
         ({ dao, walletFactory } = await buildAkitaUniverse({
             fixture: localnet,
@@ -58,7 +60,9 @@ describe('ARC58 Admin & Profile', () => {
         const signer = testAccount.signer;
 
         const dispenser = await algorand.account.dispenserFromEnvironment();
-        await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+        await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
+        timeWarp = new TimeWarp(algorand);
 
         wallet = await newWallet({
             factoryParams: {
@@ -122,7 +126,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ONLY_ADMIN_CAN_CHANGE_ADMIN);
+            expect(error).toContain(ERR_ADMIN_ONLY);
         });
 
         test('lastChange and lastUserInteraction updated after admin change', async () => {
@@ -133,6 +137,11 @@ describe('ARC58 Admin & Profile', () => {
             const lastChangeBefore = stateBefore.lastChange ?? 0n;
             const lastInteractionBefore = stateBefore.lastUserInteraction ?? 0n;
 
+            // Advance the chain time so the subsequent change gets a strictly-greater
+            // block timestamp; otherwise localnet can produce the next block in the
+            // same second and the assertion degenerates to "did not decrease".
+            await timeWarp.timeWarp(2n);
+
             const newAdmin = await generateAccount({ initialFunds: (10).algos() });
 
             await wallet.client.send.arc58ChangeAdmin({
@@ -141,8 +150,8 @@ describe('ARC58 Admin & Profile', () => {
             });
 
             const stateAfter = await wallet.client.state.global.getAll();
-            expect(stateAfter.lastChange).toBeGreaterThanOrEqual(lastChangeBefore);
-            expect(stateAfter.lastUserInteraction).toBeGreaterThanOrEqual(lastInteractionBefore);
+            expect(stateAfter.lastChange).toBeGreaterThan(lastChangeBefore);
+            expect(stateAfter.lastUserInteraction).toBeGreaterThan(lastInteractionBefore);
         });
     });
 
@@ -182,7 +191,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ONLY_ADMIN_CAN_CHANGE_NICKNAME);
+            expect(error).toContain(ERR_ADMIN_ONLY);
         });
 
         test('admin can set bio', async () => {
@@ -240,7 +249,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ONLY_ADMIN_CAN_UPDATE);
+            expect(error).toContain(ERR_ADMIN_ONLY);
         });
 
         test('admin can assign domain key to passkey', async () => {
@@ -359,7 +368,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ONLY_ADMIN_CAN_CHANGE_REVOKE);
+            expect(error).toContain(ERR_ADMIN_ONLY);
         });
     });
 
@@ -398,6 +407,80 @@ describe('ARC58 Admin & Profile', () => {
             });
 
             expect(result.return).toBe(newAdmin.toString());
+        });
+    });
+
+    // ==================================================================================
+    // Factory Update Settings Tests
+    // ==================================================================================
+
+    describe('Factory Update Settings', () => {
+        test('admin can set factory update settings', async () => {
+            const { context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            // Wallets are created with { allowed: true, automatic: true } by default.
+            // Flip both off so the assertion has something to observe.
+            await wallet.client.send.setFactoryUpdateSettings({
+                sender,
+                args: { allowed: false, automatic: false },
+            });
+
+            const walletState = await wallet.client.state.global.getAll();
+            expect(walletState.factoryUpdateSettings).toEqual({
+                allowed: false,
+                automatic: false,
+            });
+        });
+
+        test('factory cannot update wallet when allowed is false', async () => {
+            const { context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            // Disable factory updates entirely. `automatic` is irrelevant once
+            // `allowed` is false — the `allowed` check fires first.
+            await wallet.client.send.setFactoryUpdateSettings({
+                sender,
+                args: { allowed: false, automatic: true },
+            });
+
+            let error = 'no error thrown';
+            try {
+                await walletFactory.client.send.updateWallet({
+                    sender,
+                    args: { wallet: wallet.appId },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+
+            expect(error).toContain(ERR_FACTORY_UPDATES_NOT_ALLOWED);
+        });
+
+        test('factory cannot auto-update wallet when automatic is false and caller is not admin', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            // Allow updates, but require admin to initiate them.
+            await wallet.client.send.setFactoryUpdateSettings({
+                sender,
+                args: { allowed: true, automatic: false },
+            });
+
+            const attacker = await generateAccount({ initialFunds: (10).algos() });
+
+            let error = 'no error thrown';
+            try {
+                await walletFactory.client.send.updateWallet({
+                    sender: attacker.toString(),
+                    signer: attacker.signer,
+                    args: { wallet: wallet.appId },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+
+            expect(error).toContain(ERR_ADMIN_ONLY);
         });
     });
 });

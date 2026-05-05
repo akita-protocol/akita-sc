@@ -3,8 +3,6 @@ import {
   Account,
   Application,
   arc4,
-  assert,
-  assertMatch,
   Asset,
   BoxMap,
   bytes,
@@ -14,20 +12,14 @@ import {
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   op,
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, methodSelector, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
-import { AkitaDAOEscrowAccountRaffles } from '../arc58/dao/constants'
-import { GateArgs } from '../gates/types'
 import { MAX_UINT64 } from '../utils/constants'
-import {
-  ERR_INVALID_ASSET,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_TRANSFER,
-} from '../utils/errors'
 import { calcPercent, createInstantDisbursement, gateCall, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
@@ -70,7 +62,10 @@ import {
   ERR_ALREADY_ENTERED,
   ERR_ENTRY_DOES_NOT_EXIST,
   ERR_FAILED_GATE,
+  ERR_INVALID_ASSET,
   ERR_INVALID_ENDING_ROUND,
+  ERR_INVALID_PAYMENT,
+  ERR_INVALID_TRANSFER,
   ERR_MUST_ALLOCATE_AT_LEAST_FOUR_HIGHEST_BIDS_CHUNKS,
   ERR_MUST_ALLOCATE_AT_MOST_FIFTEEN_HIGHEST_BIDS_CHUNKS,
   ERR_MUST_BE_CALLED_FROM_FACTORY,
@@ -94,7 +89,7 @@ import { EntryData, FindWinnerCursors, RaffleState } from './types'
 // CONTRACT IMPORTS
 import { WeightsList } from '../auction/types'
 import type { PrizeBox } from '../prize-box/contract.algo'
-import { AkitaBaseFeeGeneratorContract } from '../utils/base-contracts/base'
+import { AkitaBaseFeeGeneratorContract, EscrowConfig } from '../utils/base-contracts/base'
 import { ChildContract } from '../utils/base-contracts/child'
 import { ContractWithCreatorOnlyOptIn } from '../utils/base-contracts/optin'
 import { BaseRaffle } from './base'
@@ -249,19 +244,19 @@ export class Raffle extends classes(
     gateID: uint64,
     marketplace: Account,
     akitaDAO: Application,
-    akitaDAOEscrow: Application,
+    akitaDAOEscrow: EscrowConfig,
   ): void {
-    assert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
 
     this.prize.value = prize
     this.isPrizeBox.value = isPrizeBox
     // ticketAsset 0 represents ALGO tickets, only validate actual ASA
     if (ticketAsset !== 0) {
-      assert(Asset(ticketAsset).total > 0, ERR_INVALID_ASSET)
+      loggedAssert(Asset(ticketAsset).total > 0, ERR_INVALID_ASSET)
     }
     this.ticketAsset.value = Asset(ticketAsset)
     this.startTimestamp.value = startTimestamp
-    assert(endTimestamp > startTimestamp && endTimestamp > Global.latestTimestamp, ERR_INVALID_ENDING_ROUND)
+    loggedAssert(endTimestamp > startTimestamp && endTimestamp > Global.latestTimestamp, ERR_INVALID_ENDING_ROUND)
     this.endTimestamp.value = endTimestamp
     this.seller.value = seller
     this.funder.value = clone(funder)
@@ -272,7 +267,7 @@ export class Raffle extends classes(
     this.gateID.value = gateID
     this.marketplace.value = marketplace
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
 
     // internal variables
     const fees = getNFTFees(this.akitaDAO.value)
@@ -287,22 +282,16 @@ export class Raffle extends classes(
   }
 
   init(payment: gtxn.PaymentTxn, weightListLength: uint64) {
-    assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(weightListLength >= 4, ERR_MUST_ALLOCATE_AT_LEAST_FOUR_HIGHEST_BIDS_CHUNKS)
-    assert(weightListLength < 16, ERR_MUST_ALLOCATE_AT_MOST_FIFTEEN_HIGHEST_BIDS_CHUNKS)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(weightListLength >= 4, ERR_MUST_ALLOCATE_AT_LEAST_FOUR_HIGHEST_BIDS_CHUNKS)
+    loggedAssert(weightListLength < 16, ERR_MUST_ALLOCATE_AT_MOST_FIFTEEN_HIGHEST_BIDS_CHUNKS)
 
     // Base MBR and asset opt-in MBR are handled by factory before this call
     // This init only expects the weights MBR
     const weightsMBR: uint64 = (weightListLength * this.mbr().weights)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: weightsMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === weightsMBR, ERR_INVALID_PAYMENT)
 
     this.weightsBoxCount.value = weightListLength
     for (let i: uint64 = 0; i < weightListLength; i += 1) {
@@ -312,11 +301,11 @@ export class Raffle extends classes(
 
   refundMBR(iterationAmount: uint64): void {
     /** make sure the prize has been claimed before refunding MBR */
-    assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
+    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
     /** make sure we've already found the winner of the raffle */
-    assert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
+    loggedAssert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
     /** make sure we haven't already refunded all MBR */
-    assert(this.entryCount.value !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
+    loggedAssert(this.entryCount.value !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
 
     const startingIndex = this.refundMBRCursor.value
     const remainder: uint64 = this.entryCount.value - this.refundMBRCursor.value
@@ -344,7 +333,7 @@ export class Raffle extends classes(
   }
 
   clearWeightsBoxes(): uint64 {
-    assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
+    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
 
     for (let i: uint64 = 0; i < this.weightsBoxCount.value; i += 1) {
       const ri: uint64 = (this.weightsBoxCount.value - 1) - i
@@ -366,16 +355,16 @@ export class Raffle extends classes(
 
   @abimethod({ allowActions: 'DeleteApplication' })
   deleteApplication(): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
-    assert(this.entryCount.value === this.refundMBRCursor.value, ERR_REFUNDS_NOT_COMPLETE)
-    assert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_WEIGHTS_BOXES)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
+    loggedAssert(this.entryCount.value === this.refundMBRCursor.value, ERR_REFUNDS_NOT_COMPLETE)
+    loggedAssert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_WEIGHTS_BOXES)
   }
 
   // RAFFLE METHODS -------------------------------------------------------------------------------
 
   gatedEnter(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, marketplace: Account): void {
-    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
     this.enter(payment, marketplace)
   }
 
@@ -383,27 +372,21 @@ export class Raffle extends classes(
     payment: gtxn.PaymentTxn,
     marketplace: Account
   ): void {
-    assert(this.isLive(), ERR_NOT_LIVE)
-    assert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
+    loggedAssert(this.isLive(), ERR_NOT_LIVE)
+    loggedAssert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
 
     if (this.gateID.value !== 0) {
-      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnter>(), ERR_BAD_METHOD_GATE_NEEDED)
+      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnter>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
-    assert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
+    loggedAssert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
 
     const costs = this.mbr()
     const mbr: uint64 = costs.entries + costs.entriesByAddress
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: {
-          greaterThanEq: (this.minTickets.value + mbr),
-          lessThanEq: (this.maxTickets.value + mbr),
-        }
-      },
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(
+      payment.amount >= (this.minTickets.value + mbr) && payment.amount <= (this.maxTickets.value + mbr),
       ERR_INVALID_PAYMENT
     )
 
@@ -425,7 +408,7 @@ export class Raffle extends classes(
   }
 
   gatedEnterAsa(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, marketplace: Account): void {
-    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
     this.enterAsa(payment, assetXfer, marketplace)
   }
 
@@ -434,37 +417,25 @@ export class Raffle extends classes(
     assetXfer: gtxn.AssetTransferTxn,
     marketplace: Account
   ): void {
-    assert(this.isLive(), ERR_NOT_LIVE)
-    assert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
+    loggedAssert(this.isLive(), ERR_NOT_LIVE)
+    loggedAssert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
 
     if (this.gateID.value !== 0) {
-      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnterAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
+      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnterAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
-    assert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
+    loggedAssert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
 
     const costs = this.mbr()
     const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: entryTotalMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === entryTotalMBR, ERR_INVALID_PAYMENT)
 
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        xferAsset: this.ticketAsset.value,
-        assetAmount: {
-          greaterThanEq: this.minTickets.value,
-          lessThanEq: this.maxTickets.value
-        }
-      },
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, ERR_INVALID_TRANSFER)
+    loggedAssert(
+      assetXfer.assetAmount >= this.minTickets.value && assetXfer.assetAmount <= this.maxTickets.value,
       ERR_INVALID_TRANSFER
     )
 
@@ -485,34 +456,26 @@ export class Raffle extends classes(
   }
 
   gatedAdd(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn): void {
-    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
     this.add(payment)
   }
-  
+
   add(payment: gtxn.PaymentTxn): void {
-    assert(this.isLive(), ERR_NOT_LIVE)
-    assert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
+    loggedAssert(this.isLive(), ERR_NOT_LIVE)
+    loggedAssert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
 
     // if our gate is enabled, this method must be triggered from the gated method instead of directly
     if (this.gateID.value !== 0) {
-      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAdd>(), ERR_BAD_METHOD_GATE_NEEDED)
+      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAdd>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
-    assert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
+    loggedAssert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
 
     const loc = this.entriesByAddress(Txn.sender).value
     const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: {
-          lessThanEq: (this.maxTickets.value - amount.asUint64())
-        }
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount <= (this.maxTickets.value - amount.asUint64()), ERR_INVALID_PAYMENT)
 
     const newWeights = new Uint64(
       this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + payment.amount
@@ -524,35 +487,27 @@ export class Raffle extends classes(
   }
 
   gatedAddAsa(gateTxn: gtxn.ApplicationCallTxn, assetXfer: gtxn.AssetTransferTxn): void {
-    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
     this.addAsa(assetXfer)
   }
 
   addAsa(assetXfer: gtxn.AssetTransferTxn): void {
-    assert(this.isLive(), ERR_NOT_LIVE)
-    assert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
+    loggedAssert(this.isLive(), ERR_NOT_LIVE)
+    loggedAssert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
 
     // if our gate is enabled, this method must be triggered from the gated method instead of directly
     if (this.gateID.value !== 0) {
-      assert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAddAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
+      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAddAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
     }
 
-    assert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
+    loggedAssert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
 
     const loc = this.entriesByAddress(Txn.sender).value
     const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        xferAsset: this.ticketAsset.value,
-        assetAmount: {
-          lessThanEq: (this.maxTickets.value - amount.asUint64())
-        }
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount <= (this.maxTickets.value - amount.asUint64()), ERR_INVALID_TRANSFER)
 
     const newWeights = new Uint64(
       this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + assetXfer.assetAmount
@@ -564,15 +519,15 @@ export class Raffle extends classes(
   }
 
   raffle(): void {
-    assert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
-    assert(this.winningTicket.value === 0, ERR_WINNER_ALREADY_DRAWN)
+    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
+    loggedAssert(this.winningTicket.value === 0, ERR_WINNER_ALREADY_DRAWN)
 
     if (this.raffleRound.value === 0) {
       this.raffleRound.value = Global.round - 8
     }
 
     const roundToUse: uint64 = this.raffleRound.value + (4 * this.vrfFailureCount.value)
-    assert(Global.round >= roundToUse + 8, ERR_NOT_ENOUGH_TIME)
+    loggedAssert(Global.round >= roundToUse + 8, ERR_NOT_ENOUGH_TIME)
 
     const seed = abiCall<typeof RandomnessBeacon.prototype.get>({
       appId: getOtherAppList(this.akitaDAO.value).vrfBeacon,
@@ -597,9 +552,9 @@ export class Raffle extends classes(
   }
 
   findWinner(iterationAmount: uint64): void {
-    assert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
-    assert(this.winningTicket.value !== 0, ERR_NO_WINNING_TICKET_YET)
-    assert(this.winner.value === Global.zeroAddress, ERR_WINNER_ALREADY_FOUND)
+    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
+    loggedAssert(this.winningTicket.value !== 0, ERR_NO_WINNING_TICKET_YET)
+    loggedAssert(this.winner.value === Global.zeroAddress, ERR_WINNER_ALREADY_FOUND)
 
     const winningBoxInfo = this.getWinnerWeightBoxInfo()
 
@@ -635,8 +590,8 @@ export class Raffle extends classes(
   }
 
   claimRafflePrize(): void {
-    assert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
-    assert(!this.prizeClaimed.value, ERR_PRIZE_ALREADY_CLAIMED)
+    loggedAssert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
+    loggedAssert(!this.prizeClaimed.value, ERR_PRIZE_ALREADY_CLAIMED)
 
     // give the winner the prize
     if (this.isPrizeBox.value) {
@@ -692,7 +647,7 @@ export class Raffle extends classes(
 
       itxn
         .payment({
-          receiver: this.akitaDAOEscrow.value.address,
+          receiver: this.akitaDAOEscrow.value.app.address,
           amount: leftover,
         })
         .submit()
@@ -748,17 +703,16 @@ export class Raffle extends classes(
         ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.ticketAsset.value.id, amounts.akita))
       }
 
-      if (this.akitaDAOEscrow.value.address.isOptedIn(this.ticketAsset.value)) {
+      if (this.akitaDAOEscrow.value.app.address.isOptedIn(this.ticketAsset.value)) {
         itxn
           .assetTransfer({
-            assetReceiver: this.akitaDAOEscrow.value.address,
+            assetReceiver: this.akitaDAOEscrow.value.app.address,
             assetAmount: leftover,
             xferAsset: this.ticketAsset.value,
           })
           .submit()
       } else {
         this.optAkitaEscrowInAndSend(
-          AkitaDAOEscrowAccountRaffles,
           this.ticketAsset.value,
           leftover,
         )

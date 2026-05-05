@@ -2,15 +2,19 @@
 
 
 
-var _chunkSCZFB7OGjs = require('../chunk-SCZFB7OG.js');
-require('../chunk-NJUDKOKY.js');
-require('../chunk-RH4O3GM6.js');
-require('../chunk-LWSU3XZM.js');
-require('../chunk-2WS6GQO5.js');
-require('../chunk-DGUM43GV.js');
+
+
+var _chunkXD32JOSDjs = require('../chunk-XD32JOSD.js');
+require('../chunk-EY3JLM56.js');
+require('../chunk-GIGYZ6YC.js');
+require('../chunk-OPF2XL3K.js');
+require('../chunk-VMMDQU5U.js');
+require('../chunk-FZLF55XC.js');
 
 
 
 
-exports.RaffleFactorySDK = _chunkSCZFB7OGjs.RaffleFactorySDK; exports.RaffleSDK = _chunkSCZFB7OGjs.RaffleSDK; exports.newRaffle = _chunkSCZFB7OGjs.newRaffle;
+
+
+exports.RAFFLE_ERROR_MESSAGES = _chunkXD32JOSDjs.RAFFLE_ERROR_MESSAGES; exports.RaffleFactorySDK = _chunkXD32JOSDjs.RaffleFactorySDK; exports.RaffleSDK = _chunkXD32JOSDjs.RaffleSDK; exports.newRaffle = _chunkXD32JOSDjs.newRaffle; exports.translateRaffleError = _chunkXD32JOSDjs.translateRaffleError;
 //# sourceMappingURL=index.js.map

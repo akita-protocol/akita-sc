@@ -17,6 +17,10 @@ export type DisbursementDetails = {
   allocations: uint64
   /** the amount already distributed from this allocation */
   distributed: uint64
+  /** MBR credits available for creating allocation boxes or withdrawing released MBR */
+  mbrCredits: uint64
+  /** MBR credits consumed by allocation boxes */
+  usedMbrCredits: uint64
   /** notes */
   note: string
 }

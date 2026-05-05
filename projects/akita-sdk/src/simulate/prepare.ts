@@ -1,621 +1,307 @@
 import algosdk from "algosdk";
 import { AlgoAmount } from "@algorandfoundation/algokit-utils/types/amount";
-import { SimulateBuilder, SimulateOptions, PaymentHint } from "./builder";
-import { AssetPayment, ExpectedCost } from "./types";
-import { extractAccountDeltas } from "./deltas";
+import { AlgodClient, PendingTransactionResponse, SimulateResponse } from "@algorandfoundation/algokit-utils/algod-client";
+import { TransactionComposer } from "@algorandfoundation/algokit-utils/composer";
+import { AppManager } from "@algorandfoundation/algokit-utils/app-manager";
+import { encodeTransactionRaw } from "@algorandfoundation/algokit-utils/transact";
+import { waitForConfirmation } from "@algorandfoundation/algokit-utils/transaction";
+import { microAlgo, encodeLease } from "@algorandfoundation/algokit-utils";
+import { ABIMethod, ABIReturn } from "@algorandfoundation/algokit-utils/abi";
+import { wrapUtils10Signer } from "../utils";
 
-const MAX_APP_CALL_FOREIGN_REFERENCES = 8;
-const MAX_APP_CALL_ACCOUNT_REFERENCES = 4;
+// -----------------------------------------------------------------------------
+// Utils10-native group preparation and sending
+// -----------------------------------------------------------------------------
+//
+// `prepareGroup` + `sendPrepared` replace the legacy
+// `composerToLegacyAtc → forceProperties → prepareGroupWithCost → sendLegacyAtc`
+// chain with a single utils10-native flow that runs exactly one simulate.
+//
+// The old chain existed because `prepareGroupWithCost` was written for
+// `algosdk.AtomicTransactionComposer` and mutated transactions using algosdk
+// field names. Utils10's composer natively supports `populateAppCallResources`
+// and `coverAppCallInnerTransactionFees` via `composer.build()`, so we no
+// longer need to re-implement that logic on the algosdk ATC layer.
+//
+// We still drop into algosdk shape *after* build() to apply field mutations
+// (sender swap, lease, fee consolidation) — utils10 transactions aren't
+// trivially mutable and have no exposed `assignGroupID` equivalent. This
+// conversion happens in-memory without a second simulate roundtrip.
 
-export type PrepareGroupOptions = {
-  coverAppCallInnerTransactionFees?: boolean;
-  populateAppCallResources?: boolean;
-};
+export interface ForceOptions {
+  /** Swap the transaction sender. Used for arc58 execution handoff where
+   *  simulate runs with admin perms but the group is submitted by someone
+   *  else later. */
+  sender?: string | algosdk.Address;
+  /** Override the signer on every transaction in the group. */
+  signer?: algosdk.TransactionSigner;
+  /** Set the lease on transaction 0 (for replay protection / execution
+   *  registration). */
+  lease?: Uint8Array | string;
+  /** Override the first/last valid rounds on every transaction. */
+  firstValid?: bigint;
+  lastValid?: bigint;
+  /** Map of txn-index → fee override. Mutually exclusive with
+   *  `consolidateFees`. */
+  fees?: Map<number, AlgoAmount>;
+  /** Move all distributed fees onto transaction 0 and zero the rest, so the
+   *  sender signs one big fee. Computed from the fees utils10 just
+   *  distributed during build(), no extra simulate. */
+  consolidateFees?: boolean;
+}
 
-export type PrepareGroupContext = {
-  maxFees?: Map<number, AlgoAmount>;
-  suggestedParams?: algosdk.SuggestedParams;
-};
+export interface PreparedGroup {
+  transactions: algosdk.Transaction[];
+  signers: algosdk.TransactionSigner[];
+  groupId: string;
+  methodCalls: Map<number, ABIMethod>;
+  /**
+   * The simulate response captured from the single simulate round-trip that
+   * utils10 runs inside `composer.build()` to populate app-call resources and
+   * distribute inner-transaction fees. Exposed here so downstream consumers
+   * (e.g. `computeExpectedCost`) can read account deltas and inner-txn
+   * information *without* paying for a second simulate. Undefined only if
+   * utils10's internal simulate path didn't run — which shouldn't happen when
+   * `populateAppCallResources` and `coverAppCallInnerTransactionFees` are on.
+   */
+  simulateResponse?: SimulateResponse;
+}
 
-export type PrepareGroupResult = {
-  atc: algosdk.AtomicTransactionComposer;
-  expectedCost: ExpectedCost;
-};
-
-type ExecutionInfo = {
-  groupUnnamedResourcesAccessed?: any;
-  txns: { unnamedResourcesAccessed?: any; requiredFeeDelta: bigint }[];
-  simulateResponse: any;
-};
-
-/**
- * Get execution info from a single simulate call.
- */
-async function getGroupExecutionInfo(
-  atc: algosdk.AtomicTransactionComposer,
-  algod: algosdk.Algodv2,
-  sendParams: PrepareGroupOptions,
-  additionalAtcContext: PrepareGroupContext
-): Promise<ExecutionInfo> {
-  const simulateRequest = new algosdk.modelsv2.SimulateRequest({
-    txnGroups: [],
-    allowUnnamedResources: true,
-    allowEmptySignatures: true,
-    fixSigners: true,
-  });
-  const nullSigner = algosdk.makeEmptyTransactionSigner();
-  const emptySignerAtc = atc.clone();
-  const appCallIndexesWithoutMaxFees: number[] = [];
-  (emptySignerAtc as any)['transactions'].forEach((t: any, i: number) => {
-    t.signer = nullSigner;
-    if (sendParams.coverAppCallInnerTransactionFees && t.txn.type === algosdk.TransactionType.appl) {
-      if (!additionalAtcContext?.suggestedParams) {
-        throw Error(`Please provide additionalAtcContext.suggestedParams when coverAppCallInnerTransactionFees is enabled`);
-      }
-      const maxFee = additionalAtcContext?.maxFees?.get(i)?.microAlgo;
-      if (maxFee === undefined) {
-        appCallIndexesWithoutMaxFees.push(i);
-      } else {
-        t.txn.fee = maxFee;
-      }
-    }
-  });
-  if (sendParams.coverAppCallInnerTransactionFees && appCallIndexesWithoutMaxFees.length > 0) {
-    throw Error(`Please provide a maxFee for each app call transaction when coverAppCallInnerTransactionFees is enabled. Required for transaction ${appCallIndexesWithoutMaxFees.join(', ')}`);
-  }
-  const perByteTxnFee = BigInt(additionalAtcContext?.suggestedParams?.fee ?? 0n);
-  const minTxnFee = BigInt(additionalAtcContext?.suggestedParams?.minFee ?? 1000n);
-  const result = await emptySignerAtc.simulate(algod, simulateRequest);
-  const groupResponse = result.simulateResponse.txnGroups[0];
-  if (groupResponse.failureMessage) {
-    if (sendParams.coverAppCallInnerTransactionFees && groupResponse.failureMessage.match(/fee too small/)) {
-      throw Error(`Fees were too small to resolve execution info via simulate. You may need to increase an app call transaction maxFee.`);
-    }
-    throw Error(`Error resolving execution info via simulate in transaction ${groupResponse.failedAt}: ${groupResponse.failureMessage}`);
-  }
-
-  return {
-    simulateResponse: result.simulateResponse,
-    groupUnnamedResourcesAccessed: sendParams.populateAppCallResources ? groupResponse.unnamedResourcesAccessed : undefined,
-    txns: groupResponse.txnResults.map((txn: any, i: number) => {
-      const originalTxn = (atc as any)['transactions'][i].txn;
-      let requiredFeeDelta = 0n;
-      if (sendParams.coverAppCallInnerTransactionFees) {
-        // Min fee calc is lifted from algosdk https://github.com/algorand/js-algorand-sdk/blob/6973ff583b243ddb0632e91f4c0383021430a789/src/transaction.ts#L710
-        // 75 is the number of bytes added to a txn after signing it
-        const parentPerByteFee = perByteTxnFee * BigInt(originalTxn.toByte().length + 75);
-        const parentMinFee = parentPerByteFee < minTxnFee ? minTxnFee : parentPerByteFee;
-        const parentFeeDelta = parentMinFee - originalTxn.fee;
-        if (originalTxn.type === algosdk.TransactionType.appl) {
-          const calculateInnerFeeDelta = (itxns: any[], acc = 0n) => {
-            // Surplus inner transaction fees do not pool up to the parent transaction.
-            // Additionally surplus inner transaction fees only pool from sibling transactions that are sent prior to a given inner transaction, hence why we iterate in reverse order.
-            return itxns.reverse().reduce((acc, itxn) => {
-              const currentFeeDelta = (itxn.innerTxns && itxn.innerTxns.length > 0 ? calculateInnerFeeDelta(itxn.innerTxns, acc) : acc) +
-                (minTxnFee - itxn.txn.txn.fee); // Inner transactions don't require per byte fees
-              return currentFeeDelta < 0n ? 0n : currentFeeDelta;
-            }, acc);
-          };
-          const innerFeeDelta = calculateInnerFeeDelta(txn.txnResult.innerTxns ?? []);
-          requiredFeeDelta = innerFeeDelta + parentFeeDelta;
-        } else {
-          requiredFeeDelta = parentFeeDelta;
-        }
-      }
-      return {
-        unnamedResourcesAccessed: sendParams.populateAppCallResources ? txn.unnamedResourcesAccessed : undefined,
-        requiredFeeDelta,
-      };
-    }),
-  };
+export interface SendGroupResult {
+  groupId: string;
+  confirmedRound: bigint;
+  txIds: string[];
+  confirmations: PendingTransactionResponse[];
+  returns: ABIReturn[];
 }
 
 /**
- * Combined prepare + cost calculation using a single simulate.
- * This replaces the need for prepareGroupForSending + SimulateBuilder separately.
+ * Run a single simulate through utils10's `composer.build()` to populate
+ * app-call resources and distribute fees for inner-transaction coverage,
+ * then apply any post-build overrides (sender swap, lease, fee consolidation)
+ * to the resulting transactions.
+ *
+ * Returns an unsigned, regrouped group ready for either:
+ *   - Immediate sending via `sendPrepared(prepared, algod)`
+ *   - Handoff to a different submitter (arc58 execution flow) by returning
+ *     `prepared.transactions` without signing
+ *
+ * Exactly one simulate runs per call (inside `composer.build()`). Post-build
+ * mutations happen in-memory and don't trigger another simulate.
  */
-export async function prepareGroupWithCost(
-  atc: algosdk.AtomicTransactionComposer,
-  algod: algosdk.Algodv2,
-  sendParams: PrepareGroupOptions = {},
-  additionalAtcContext: PrepareGroupContext = {},
-  simulateAccount?: string,
-  simulateOptions?: SimulateOptions
-): Promise<PrepareGroupResult> {
-  const executionInfo = await getGroupExecutionInfo(atc, algod, sendParams, additionalAtcContext);
-  const group: any = atc.buildGroup();
-
-  // Calculate additional fees needed for inner transactions
-  const [_, additionalTransactionFees] = sendParams.coverAppCallInnerTransactionFees
-    ? executionInfo.txns
-      .map((txn, i) => {
-        const groupIndex = i;
-        const txnInGroup = group[groupIndex].txn;
-        const maxFee = additionalAtcContext?.maxFees?.get(i)?.microAlgo;
-        const immutableFee = maxFee !== undefined && maxFee === txnInGroup.fee;
-        const priorityMultiplier = txn.requiredFeeDelta > 0n && (immutableFee || txnInGroup.type !== algosdk.TransactionType.appl) ? 1000n : 1n;
-        return {
-          ...txn,
-          groupIndex,
-          surplusFeePriorityLevel: txn.requiredFeeDelta > 0n ? txn.requiredFeeDelta * priorityMultiplier : -1n,
-        };
-      })
-      .sort((a, b) => {
-        return a.surplusFeePriorityLevel > b.surplusFeePriorityLevel ? -1 : a.surplusFeePriorityLevel < b.surplusFeePriorityLevel ? 1 : 0;
-      })
-      .reduce((acc, { groupIndex, requiredFeeDelta }) => {
-        if (requiredFeeDelta > 0n) {
-          let surplusGroupFees = acc[0];
-          const additionalTransactionFees = acc[1];
-          const additionalFeeDelta = requiredFeeDelta - surplusGroupFees;
-          if (additionalFeeDelta <= 0n) {
-            surplusGroupFees = -additionalFeeDelta;
-          } else {
-            additionalTransactionFees.set(groupIndex, additionalFeeDelta);
-            surplusGroupFees = 0n;
-          }
-          return [surplusGroupFees, additionalTransactionFees];
-        }
-        return acc;
-      }, [
-        executionInfo.txns.reduce((acc, { requiredFeeDelta }) => {
-          if (requiredFeeDelta < 0n) return acc + -requiredFeeDelta;
-          return acc;
-        }, 0n),
-        new Map<number, bigint>(),
-      ])
-    : [0n, new Map<number, bigint>()];
-  executionInfo.txns.forEach(({ unnamedResourcesAccessed: r }, i) => {
-    // Populate Transaction App Call Resources
-    if (sendParams.populateAppCallResources && r !== undefined && group[i].txn.type === algosdk.TransactionType.appl) {
-      if (r.boxes || r.extraBoxRefs)
-        throw Error('Unexpected boxes at the transaction level');
-      if (r.appLocals)
-        throw Error('Unexpected app local at the transaction level');
-      if (r.assetHoldings)
-        throw Error('Unexpected asset holding at the transaction level');
-      group[i].txn['applicationCall'] = {
-        ...group[i].txn.applicationCall,
-        accounts: [...(group[i].txn?.applicationCall?.accounts ?? []), ...(r.accounts ?? [])],
-        foreignApps: [...(group[i].txn?.applicationCall?.foreignApps ?? []), ...(r.apps ?? [])],
-        foreignAssets: [...(group[i].txn?.applicationCall?.foreignAssets ?? []), ...(r.assets ?? [])],
-        boxes: [...(group[i].txn?.applicationCall?.boxes ?? []), ...(r.boxes ?? [])],
-      };
-      const accounts = group[i].txn.applicationCall?.accounts?.length ?? 0;
-      if (accounts > MAX_APP_CALL_ACCOUNT_REFERENCES)
-        throw Error(`Account reference limit of ${MAX_APP_CALL_ACCOUNT_REFERENCES} exceeded in transaction ${i}`);
-      const assets = group[i].txn.applicationCall?.foreignAssets?.length ?? 0;
-      const apps = group[i].txn.applicationCall?.foreignApps?.length ?? 0;
-      const boxes = group[i].txn.applicationCall?.boxes?.length ?? 0;
-      if (accounts + assets + apps + boxes > MAX_APP_CALL_FOREIGN_REFERENCES) {
-        throw Error(`Resource reference limit of ${MAX_APP_CALL_FOREIGN_REFERENCES} exceeded in transaction ${i}`);
-      }
-    }
-    // Cover App Call Inner Transaction Fees
-    if (sendParams.coverAppCallInnerTransactionFees) {
-      const additionalTransactionFee = additionalTransactionFees.get(i);
-      if (additionalTransactionFee !== undefined) {
-        if (group[i].txn.type !== algosdk.TransactionType.appl) {
-          throw Error(`An additional fee of ${additionalTransactionFee} µALGO is required for non app call transaction ${i}`);
-        }
-        const transactionFee = group[i].txn.fee + additionalTransactionFee;
-        const maxFee = additionalAtcContext?.maxFees?.get(i)?.microAlgo;
-        if (maxFee === undefined || transactionFee > maxFee) {
-          throw Error(`Calculated transaction fee ${transactionFee} µALGO is greater than max of ${maxFee ?? 'undefined'} for transaction ${i}`);
-        }
-        group[i].txn.fee = transactionFee;
-      }
-    }
+export async function prepareGroup(
+  composer: TransactionComposer,
+  overrides: ForceOptions = {}
+): Promise<PreparedGroup> {
+  // Run simulate-populate-cover. This is the only simulate roundtrip.
+  const configured = composer.clone({
+    populateAppCallResources: true,
+    coverAppCallInnerTransactionFees: true,
   });
-  // Populate Group App Call Resources
-  if (sendParams.populateAppCallResources) {
-    const populateGroupResource = (
-      txns: any,
-      reference: any,
-      type: 'account' | 'app' | 'asset' | 'box' | 'assetHolding' | 'appLocal'
-    ) => {
-      const isApplBelowLimit = (t: algosdk.TransactionWithSigner) => {
-        if (t.txn.type !== algosdk.TransactionType.appl)
-          return false;
-        const accounts = t.txn.applicationCall?.accounts?.length ?? 0;
-        const assets = t.txn.applicationCall?.foreignAssets?.length ?? 0;
-        const apps = t.txn.applicationCall?.foreignApps?.length ?? 0;
-        const boxes = t.txn.applicationCall?.boxes?.length ?? 0;
-        return accounts + assets + apps + boxes < MAX_APP_CALL_FOREIGN_REFERENCES;
-      };
-      // If this is an asset holding or app local, first try to find a transaction that already has the account available
-      if (type === 'assetHolding' || type === 'appLocal') {
-        const { account } = reference;
-        let txnIndex = txns.findIndex((t: any) => {
-          if (!isApplBelowLimit(t))
-            return false;
-          return (
-            // account is in the foreign accounts array
-            t.txn.applicationCall?.accounts?.map((a: any) => a.toString()).includes(account.toString()) ||
-            // account is available as an app account
-            t.txn.applicationCall?.foreignApps?.map((a: any) => algosdk.getApplicationAddress(a).toString()).includes(account.toString()) ||
-            // account is available since it's in one of the fields
-            Object.values(t.txn).some((f) => algosdk.stringifyJSON(f, (_, v) => (v instanceof algosdk.Address ? v.toString() : v))?.includes(account.toString()))
-          );
-        });
-        if (txnIndex > -1) {
-          if (type === 'assetHolding') {
-            const { asset } = reference;
-            txns[txnIndex].txn['applicationCall'] = {
-              ...txns[txnIndex].txn.applicationCall,
-              foreignAssets: [...(txns[txnIndex].txn?.applicationCall?.foreignAssets ?? []), ...[asset]],
-            };
-          } else {
-            const { app } = reference;
-            txns[txnIndex].txn['applicationCall'] = {
-              ...txns[txnIndex].txn.applicationCall,
-              foreignApps: [...(txns[txnIndex].txn?.applicationCall?.foreignApps ?? []), ...[app]],
-            };
-          }
-          return;
-        }
-        // Now try to find a txn that already has that app or asset available
-        txnIndex = txns.findIndex((t: any) => {
-          if (!isApplBelowLimit(t))
-            return false;
-          // check if there is space in the accounts array
-          if ((t.txn.applicationCall?.accounts?.length ?? 0) >= MAX_APP_CALL_ACCOUNT_REFERENCES)
-            return false;
-          if (type === 'assetHolding') {
-            const { asset } = reference;
-            return t.txn.applicationCall?.foreignAssets?.includes(asset);
-          } else {
-            const { app } = reference;
-            return t.txn.applicationCall?.foreignApps?.includes(app) || t.txn.applicationCall?.appIndex === app;
-          }
-        });
-        if (txnIndex > -1) {
-          const { account } = reference;
-          txns[txnIndex].txn['applicationCall'] = {
-            ...txns[txnIndex].txn.applicationCall,
-            accounts: [...(txns[txnIndex].txn?.applicationCall?.accounts ?? []), ...[account]],
-          };
-          return;
-        }
-      }
-      // If this is a box, first try to find a transaction that already has the app available
-      if (type === 'box') {
-        const { app, name } = reference;
-        const txnIndex = txns.findIndex((t: any) => {
-          if (!isApplBelowLimit(t))
-            return false;
-          // If the app is in the foreign array OR the app being called, then we know it's available
-          return t.txn.applicationCall?.foreignApps?.includes(app) || t.txn.applicationCall?.appIndex === app;
-        });
-        if (txnIndex > -1) {
-          txns[txnIndex].txn['applicationCall'] = {
-            ...txns[txnIndex].txn.applicationCall,
-            boxes: [...(txns[txnIndex].txn?.applicationCall?.boxes ?? []), ...[{ appIndex: app, name }]],
-          };
-          return;
-        }
-      }
-      // Find the txn index to put the reference(s)
-      const txnIndex = txns.findIndex((t: any) => {
-        if (t.txn.type !== algosdk.TransactionType.appl)
-          return false;
-        const accounts = t.txn.applicationCall?.accounts?.length ?? 0;
-        if (type === 'account')
-          return accounts < MAX_APP_CALL_ACCOUNT_REFERENCES;
-        const assets = t.txn.applicationCall?.foreignAssets?.length ?? 0;
-        const apps = t.txn.applicationCall?.foreignApps?.length ?? 0;
-        const boxes = t.txn.applicationCall?.boxes?.length ?? 0;
-        // If we're adding local state or asset holding, we need space for the account and the other reference
-        if (type === 'assetHolding' || type === 'appLocal') {
-          return accounts + assets + apps + boxes < MAX_APP_CALL_FOREIGN_REFERENCES - 1 && accounts < MAX_APP_CALL_ACCOUNT_REFERENCES;
-        }
-        // If we're adding a box, we need space for both the box ref and the app ref
-        if (type === 'box' && BigInt(reference.app) !== 0n) {
-          return accounts + assets + apps + boxes < MAX_APP_CALL_FOREIGN_REFERENCES - 1;
-        }
-        return accounts + assets + apps + boxes < MAX_APP_CALL_FOREIGN_REFERENCES;
-      });
-      if (txnIndex === -1) {
-        throw Error('No more transactions below reference limit. Add another app call to the group.');
-      }
-      if (type === 'account') {
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          accounts: [...(txns[txnIndex].txn?.applicationCall?.accounts ?? []), ...[reference]],
-        };
-      } else if (type === 'app') {
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          foreignApps: [
-            ...(txns[txnIndex].txn?.applicationCall?.foreignApps ?? []),
-            ...[typeof reference === 'bigint' ? reference : BigInt(reference)],
-          ],
-        };
-      } else if (type === 'box') {
-        const { app, name } = reference;
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          boxes: [...(txns[txnIndex].txn?.applicationCall?.boxes ?? []), ...[{ appIndex: app, name }]],
-        };
-        if (app.toString() !== '0') {
-          txns[txnIndex].txn['applicationCall'] = {
-            ...txns[txnIndex].txn.applicationCall,
-            foreignApps: [...(txns[txnIndex].txn?.applicationCall?.foreignApps ?? []), ...[app]],
-          };
-        }
-      } else if (type === 'assetHolding') {
-        const { asset, account } = reference;
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          foreignAssets: [...(txns[txnIndex].txn?.applicationCall?.foreignAssets ?? []), ...[asset]],
-          accounts: [...(txns[txnIndex].txn?.applicationCall?.accounts ?? []), ...[account]],
-        };
-      } else if (type === 'appLocal') {
-        const { app, account } = reference;
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          foreignApps: [...(txns[txnIndex].txn?.applicationCall?.foreignApps ?? []), ...[app]],
-          accounts: [...(txns[txnIndex].txn?.applicationCall?.accounts ?? []), ...[account]],
-        };
-      } else if (type === 'asset') {
-        txns[txnIndex].txn['applicationCall'] = {
-          ...txns[txnIndex].txn.applicationCall,
-          foreignAssets: [
-            ...(txns[txnIndex].txn?.applicationCall?.foreignAssets ?? []),
-            ...[typeof reference === 'bigint' ? reference : BigInt(reference)],
-          ],
-        };
-      }
-    };
-    const g = executionInfo.groupUnnamedResourcesAccessed;
-    if (g) {
-      // Do cross-reference resources first because they are the most restrictive in terms
-      // of which transactions can be used
-      g.appLocals?.forEach((a: any) => {
-        populateGroupResource(group, a, 'appLocal');
-        // Remove resources from the group if we're adding them here
-        g.accounts = g.accounts?.filter((acc: string) => acc !== a.account);
-        g.apps = g.apps?.filter((app: any) => BigInt(app) !== BigInt(a.app));
-      });
-      g.assetHoldings?.forEach((a: any) => {
-        populateGroupResource(group, a, 'assetHolding');
-        // Remove resources from the group if we're adding them here
-        g.accounts = g.accounts?.filter((acc: string) => acc !== a.account);
-        g.assets = g.assets?.filter((asset: any) => BigInt(asset) !== BigInt(a.asset));
-      });
-      // Do accounts next because the account limit is 4
-      g.accounts?.forEach((a: string) => {
-        populateGroupResource(group, a, 'account');
-      });
-      g.boxes?.forEach((b: algosdk.modelsv2.BoxReference) => {
-        populateGroupResource(group, b, 'box');
-        // Remove apps as resource from the group if we're adding it here
-        g.apps = g.apps?.filter((app: any) => BigInt(app) !== BigInt(b.app));
-      });
-      g.assets?.forEach((a: number | bigint) => {
-        populateGroupResource(group, a, 'asset');
-      });
-      g.apps?.forEach((a: number | bigint) => {
-        populateGroupResource(group, a, 'app');
-      });
-      if (g.extraBoxRefs) {
-        for (let i = 0; i < g.extraBoxRefs; i += 1) {
-          const ref = new algosdk.modelsv2.BoxReference({ app: 0, name: new Uint8Array(0) });
-          populateGroupResource(group, ref, 'box');
-        }
-      }
+
+  // When sender/signer overrides are requested, swap them on the cloned
+  // composer BEFORE `build()` fires — so the single simulate inside build
+  // runs as-if the overridden sender submitted the group. This matters for
+  // execution handoff (arc58), where simulate must run as admin to populate
+  // resources correctly. Post-build mutation (further down) would leave the
+  // simulate having been run with the wrong sender, producing contract-level
+  // "box not found" assertion failures.
+  const senderOverride =
+    overrides.sender !== undefined
+      ? typeof overrides.sender === "string"
+        ? overrides.sender
+        : overrides.sender.toString()
+      : undefined;
+  if (senderOverride || overrides.signer) {
+    const internalTxns = (configured as unknown as {
+      txns: Array<{ type: string; data: { sender?: unknown; signer?: unknown } }>;
+    }).txns;
+    for (const ctxn of internalTxns) {
+      if (senderOverride) ctxn.data.sender = senderOverride;
+      if (overrides.signer) ctxn.data.signer = overrides.signer;
     }
   }
 
-  // Calculate expected cost from simulation response (includes inner transactions)
-  const expectedCost = calculateExpectedCostFromSimulation(
-    executionInfo.simulateResponse,
-    group,
-    simulateOptions
+  // Intercept the single simulate utils10 performs inside `composer.build()`
+  // (via `analyzeGroupRequirements` → `algod.simulateTransactions`). We wrap
+  // the composer's algod client in a Proxy that transparently forwards every
+  // method, then overloads `simulateTransactions` to cache the response.
+  //
+  // Why a Proxy and not a monkey-patch of `algod.simulateTransactions`:
+  // the algod client is shared across the entire SDK — patching its prototype
+  // method would leak into unrelated simulate calls. A per-call Proxy is
+  // scoped to this one `prepareGroup` invocation and reverted the moment
+  // build() returns.
+  //
+  // Why capture on the composer and not the outer algod: utils10 reads the
+  // algod off the composer instance when analyzing the group, so the wrapper
+  // must be installed on the composer's `algod` property specifically.
+  let capturedSimulateResponse: SimulateResponse | undefined;
+  const composerInternal = configured as unknown as { algod: AlgodClient };
+  const originalAlgod = composerInternal.algod;
+  composerInternal.algod = new Proxy(originalAlgod, {
+    get(target, prop, receiver) {
+      if (prop === "simulateTransactions") {
+        // Bind explicitly so `this` inside the algod method (which internally
+        // calls HTTP-request helpers) still resolves to the real client.
+        const original = Reflect.get(target, prop, receiver) as AlgodClient["simulateTransactions"];
+        return async (...args: Parameters<AlgodClient["simulateTransactions"]>) => {
+          const response = await original.apply(target, args);
+          capturedSimulateResponse = response;
+          return response;
+        };
+      }
+      return Reflect.get(target, prop, receiver);
+    },
+  });
+
+  let built: Awaited<ReturnType<TransactionComposer["build"]>>["transactions"];
+  let methodCalls: Awaited<ReturnType<TransactionComposer["build"]>>["methodCalls"];
+  try {
+    const result = await configured.build();
+    built = result.transactions;
+    methodCalls = result.methodCalls;
+  } finally {
+    // Restore the real algod reference even on failure so a thrown build()
+    // (e.g. simulate rejection) doesn't leave the composer pointing at our
+    // proxy. The composer is usually single-use, but this guards against
+    // callers that reuse it after catching.
+    composerInternal.algod = originalAlgod;
+  }
+
+  // Resolve fee override map. consolidateFees takes precedence over explicit
+  // fees, since it's computed from the fees utils10 just distributed.
+  let feesMap = overrides.fees;
+  if (overrides.consolidateFees) {
+    const total = built.reduce(
+      (acc, tws) => acc + BigInt(tws.txn.fee ?? 0n),
+      0n
+    );
+    feesMap = new Map<number, AlgoAmount>([
+      [0, microAlgo(total)],
+      ...Array.from({ length: built.length - 1 }, (_, i) =>
+        [i + 1, microAlgo(0n)] as [number, AlgoAmount]
+      ),
+    ]);
+  }
+
+  const senderAddr =
+    overrides.sender !== undefined
+      ? typeof overrides.sender === "string"
+        ? algosdk.decodeAddress(overrides.sender)
+        : overrides.sender
+      : undefined;
+
+  const leaseBytes =
+    overrides.lease !== undefined
+      ? typeof overrides.lease === "string"
+        ? encodeLease(overrides.lease)
+        : overrides.lease
+      : undefined;
+
+  // Convert each utils10 Transaction to an algosdk Transaction via msgpack
+  // roundtrip. This gives us field-mutation access (algosdk declares `sender`
+  // readonly at the type level, but a fresh-decoded Transaction object has a
+  // plain mutable field at runtime — this is the supported mutation point).
+  const txns: algosdk.Transaction[] = built.map((tws, i) => {
+    const bytes = encodeTransactionRaw(tws.txn);
+    const txn = algosdk.decodeUnsignedTransaction(bytes);
+    txn.group = undefined;
+    if (senderAddr) {
+      (txn as unknown as { sender: algosdk.Address }).sender = senderAddr;
+    }
+    if (leaseBytes && i === 0) {
+      (txn as unknown as { lease: Uint8Array }).lease = leaseBytes;
+    }
+    if (overrides.firstValid !== undefined) {
+      (txn as unknown as { firstValid: bigint }).firstValid = overrides.firstValid;
+    }
+    if (overrides.lastValid !== undefined) {
+      (txn as unknown as { lastValid: bigint }).lastValid = overrides.lastValid;
+    }
+    if (feesMap?.has(i)) {
+      (txn as unknown as { fee: bigint }).fee = feesMap.get(i)!.microAlgo;
+    }
+    return txn;
+  });
+
+  algosdk.assignGroupID(txns);
+
+  const signers: algosdk.TransactionSigner[] = built.map(
+    (tws) => overrides.signer ?? wrapUtils10Signer(tws.signer)
   );
-  if (simulateAccount) {
-    expectedCost.accountDeltas = extractAccountDeltas(executionInfo.simulateResponse, simulateAccount);
-  }
 
-  // Build new ATC with modified transactions
-  const newAtc = new algosdk.AtomicTransactionComposer();
-  group.forEach((t: any) => {
-    t.txn.group = undefined;
-    // Clean up any malformed box references that might have undefined appIndex
-    if (t.txn.type === algosdk.TransactionType.appl) {
-      const tx: any = t.txn;
-      if (tx.applicationCall?.boxes) {
-        tx.applicationCall.boxes = tx.applicationCall.boxes
-          .filter((b: any) => b !== undefined && b !== null)
-          .map((b: any) => ({
-            appIndex: BigInt(b.appIndex ?? b.app ?? 0),
-            name: b.name
-          }));
-      }
-    }
-    newAtc.addTransaction(t);
-  });
-  (newAtc as any)['methodCalls'] = (atc as any)['methodCalls'];
-
-  return { atc: newAtc, expectedCost };
+  return {
+    transactions: txns,
+    signers,
+    groupId: Buffer.from(txns[0].group!).toString("base64"),
+    methodCalls,
+    simulateResponse: capturedSimulateResponse,
+  };
 }
 
 /**
- * Calculate expected cost from a simulation response.
- * This walks through ALL transactions including inner transactions created by smart contracts.
- * 
- * The SDK returns simulation results with typed Transaction objects:
- * - Payment: transaction.payment.amount, transaction.payment.receiver
- * - Asset Transfer: transaction.assetTransfer.amount, transaction.assetTransfer.assetIndex
- * 
- * @param simulateResponse - The raw simulation response from algod
- * @param group - The outer transaction group (used for network fee calculation)
- * @param simulateOptions - Optional hints for payment amounts
+ * Submit a `PreparedGroup` via utils10's `AlgodClient`, waiting for
+ * confirmation and decoding ABI returns via the `methodCalls` map captured
+ * from `composer.build()`.
+ *
+ * Companion to `prepareGroup`. Use this when you've prepared a group with
+ * post-build mutations (fee consolidation, signer override) and want to
+ * send it yourself rather than hand off to another submitter.
  */
-function calculateExpectedCostFromSimulation(
-  simulateResponse: unknown,
-  group: algosdk.TransactionWithSigner[],
-  simulateOptions?: SimulateOptions
-): ExpectedCost {
-  const hints = new Map<bigint, PaymentHint>();
-  for (const hint of simulateOptions?.payments ?? []) {
-    hints.set(hint.asset, hint);
+export async function sendPrepared(
+  prepared: PreparedGroup,
+  algod: AlgodClient,
+  waitRounds = 10
+): Promise<SendGroupResult> {
+  // txIDs must be captured before we drop the group ID below — the
+  // txID is computed from the canonical encoding which includes `group`.
+  const txIds = prepared.transactions.map((txn) => txn.txID());
+
+  // Invoke signers directly rather than going through `AtomicTransactionComposer`.
+  // The ATC's `addTransaction` refuses txns that already have a group ID set, but
+  // `prepareGroup` has already assigned the group. Grouping signers by identity
+  // mirrors ATC's own internal gatherSignatures behavior.
+  const signerToIndexes = new Map<algosdk.TransactionSigner, number[]>();
+  for (let i = 0; i < prepared.signers.length; i++) {
+    const signer = prepared.signers[i];
+    const existing = signerToIndexes.get(signer);
+    if (existing) existing.push(i);
+    else signerToIndexes.set(signer, [i]);
   }
 
-  const payments: AssetPayment[] = [];
-  const ZERO = 0n;
-
-  /**
-   * Process a single transaction and extract payment info.
-   * Uses SDK typed properties (payment.amount, assetTransfer.amount, etc.)
-   * Also handles close-out amounts from the apply data.
-   * 
-   * @param unsignedTxn - The unsigned transaction
-   * @param applyData - The apply data from simulation (contains closingAmount, assetClosingAmount)
-   */
-  const processTxn = (
-    unsignedTxn: Record<string, unknown> | undefined,
-    applyData?: Record<string, unknown>
-  ) => {
-    if (!unsignedTxn) return;
-
-    const type = unsignedTxn.type as string;
-
-    if (type === "pay") {
-      // Payment transaction - SDK typed properties
-      const payment = unsignedTxn.payment as {
-        amount?: bigint | string | number;
-        receiver?: unknown;
-        closeRemainderTo?: unknown;
-      } | undefined;
-      let amount = BigInt(payment?.amount ?? 0);
-
-      // For close-outs, add the closing amount from apply data
-      // closingAmount is the remaining balance sent to closeRemainderTo
-      if (payment?.closeRemainderTo && applyData) {
-        const closingAmount = BigInt(applyData.closingAmount as bigint | string | number ?? 0);
-        amount += closingAmount;
-      }
-
-      const base: AssetPayment = {
-        asset: 0n,
-        amount,
-        mbr: ZERO,
-        fee: ZERO,
-        total: amount,
-      };
-      const hint = hints.get(0n);
-      if (hint) {
-        payments.push({
-          ...base,
-          amount: hint.amount ?? base.amount,
-          mbr: hint.mbr ?? base.mbr,
-          fee: hint.fee ?? base.fee,
-          total: (hint.amount ?? base.amount) + (hint.mbr ?? base.mbr) + (hint.fee ?? base.fee),
-        });
-      } else {
-        payments.push(base);
-      }
-    } else if (type === "axfer") {
-      // Asset transfer - SDK typed properties
-      const assetTransfer = unsignedTxn.assetTransfer as {
-        amount?: bigint | string | number;
-        assetIndex?: bigint | string | number;
-        receiver?: unknown;
-        closeRemainderTo?: unknown;
-      } | undefined;
-      const assetId = BigInt(assetTransfer?.assetIndex ?? 0);
-      let amount = BigInt(assetTransfer?.amount ?? 0);
-
-      // For asset close-outs, add the closing amount from apply data
-      // assetClosingAmount is the remaining balance sent to closeRemainderTo
-      if (assetTransfer?.closeRemainderTo && applyData) {
-        const assetClosingAmount = BigInt(applyData.assetClosingAmount as bigint | string | number ?? 0);
-        amount += assetClosingAmount;
-      }
-
-      const base: AssetPayment = {
-        asset: assetId,
-        amount,
-        mbr: ZERO,
-        fee: ZERO,
-        total: amount,
-      };
-      const hint = hints.get(assetId);
-      if (hint) {
-        payments.push({
-          ...base,
-          amount: hint.amount ?? base.amount,
-          mbr: hint.mbr ?? base.mbr,
-          fee: hint.fee ?? base.fee,
-          total: (hint.amount ?? base.amount) + (hint.mbr ?? base.mbr) + (hint.fee ?? base.fee),
-        });
-      } else {
-        payments.push(base);
-      }
-    }
-  };
-
-  /**
-   * Recursively walk inner transactions.
-   * Each inner transaction has: { txn: { txn: unsignedTxn }, innerTxns: [...] }
-   * The apply data (closingAmount, assetClosingAmount) is in the inner txn result itself.
-   */
-  const walkInner = (inner: Array<Record<string, unknown>> | undefined) => {
-    for (const itxn of inner ?? []) {
-      // Inner transaction structure: itxn.txn.txn is the unsigned transaction
-      const signedTxn = itxn.txn as Record<string, unknown> | undefined;
-      const unsignedTxn = signedTxn?.txn as Record<string, unknown> | undefined;
-      // For inner transactions, closingAmount and assetClosingAmount are directly on itxn
-      processTxn(unsignedTxn, itxn);
-
-      // Recurse into nested inner transactions
-      walkInner(itxn.innerTxns as Array<Record<string, unknown>> | undefined);
-    }
-  };
-
-  // Walk through the simulation response
-  const response = simulateResponse as Record<string, unknown>;
-  const txnGroups = response?.txnGroups as Array<Record<string, unknown>> ?? [];
-
-  for (const grp of txnGroups) {
-    const results = grp?.txnResults as Array<Record<string, unknown>> ?? [];
-
-    for (const res of results) {
-      // Process outer transaction (signed.txn.txn is the unsigned transaction)
-      const outerSignedTxn = res?.txn as Record<string, unknown> | undefined;
-      const outerUnsignedTxn = outerSignedTxn?.txn as Record<string, unknown> | undefined;
-      // Outer transaction apply data
-      const txnResult = res?.txnResult as Record<string, unknown> | undefined;
-      const outerApplyData = txnResult as Record<string, unknown> | undefined; // txnResult contains apply data fields
-      processTxn(outerUnsignedTxn, outerApplyData);
-
-      // Process all inner transactions recursively
-      const innerTxns = txnResult?.innerTxns as Array<Record<string, unknown>> | undefined;
-      walkInner(innerTxns);
+  const signedTxns: Uint8Array[] = new Array(prepared.transactions.length);
+  for (const [signer, indexes] of signerToIndexes) {
+    const parts = await signer(prepared.transactions, indexes);
+    for (let j = 0; j < indexes.length; j++) {
+      signedTxns[indexes[j]] = parts[j];
     }
   }
+  await algod.sendRawTransaction(signedTxns);
 
-  // Calculate network fees from the outer transaction group
-  // Inner transaction fees are pooled from the outer transaction's fee
-  // Note: Network fees are paid by the transaction sender, not the wallet
-  const networkFees = simulateOptions?.networkFeeOverride ??
-    group.reduce((acc, { txn }) => acc + BigInt(txn?.fee ?? 0), ZERO);
-
-  // Aggregate payments by asset
-  const subtotals = new Map<bigint, bigint>();
-  for (const p of payments) {
-    subtotals.set(p.asset, (subtotals.get(p.asset) ?? ZERO) + p.total);
+  const firstConfirmation = await waitForConfirmation(
+    txIds[0],
+    waitRounds,
+    algod
+  );
+  const confirmations: PendingTransactionResponse[] = [firstConfirmation];
+  for (let i = 1; i < txIds.length; i++) {
+    confirmations.push(await algod.pendingTransactionInformation(txIds[i]));
   }
 
-  // totalAlgo represents the ALGO leaving the wallet (payments only)
-  // Network fees are paid by the outer transaction sender, not the wallet
-  const totalAlgo = subtotals.get(0n) ?? ZERO;
+  const returns: ABIReturn[] = [];
+  for (let i = 0; i < confirmations.length; i++) {
+    const method = prepared.methodCalls.get(i);
+    if (!method) continue;
+    const abiReturn = AppManager.getABIReturn(confirmations[i], method);
+    if (abiReturn !== undefined) returns.push(abiReturn);
+  }
 
   return {
-    payments,
-    networkFees,
-    subtotals: Array.from(subtotals.entries()).map(([asset, amount]) => ({ asset, amount })),
-    totalAlgo,
+    groupId: prepared.groupId,
+    confirmedRound: BigInt(firstConfirmation.confirmedRound ?? 0),
+    txIds,
+    confirmations,
+    returns,
   };
 }

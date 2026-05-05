@@ -10,8 +10,8 @@ export declare const BOX_COST_PER_BYTE = 400n;
 export declare const FOLLOWS_MBR = 31700n;
 /** Blocks box MBR: 15,700 microAlgo */
 export declare const BLOCKS_MBR = 15700n;
-/** Minimum posts box MBR: 40,100 microAlgo (add 400 * ref.length for total) */
-export declare const MIN_POSTS_MBR = 40100n;
+/** Minimum posts box MBR: 46,500 microAlgo (add 400 * ref.length for total) — includes creatorFlags + moderatorFlags */
+export declare const MIN_POSTS_MBR = 46500n;
 /** Minimum paywall MBR: 5,200 microAlgo */
 export declare const MIN_PAYWALL_MBR = 5200n;
 /** Votes box MBR: 19,300 microAlgo */
@@ -70,11 +70,10 @@ export declare const MAX_TIMESTAMP_DRIFT_SECONDS = 60n;
 export declare const CID_LENGTH = 36;
 /** Post reference length (32-byte hash) */
 export declare const POST_REF_LENGTH = 32;
-export declare const REPLY_TYPE_POST = 10;
-export declare const REPLY_TYPE_ASSET = 20;
-export declare const REPLY_TYPE_ADDRESS = 30;
-export declare const REPLY_TYPE_APP = 40;
-export declare const REF_TYPE_EXTERNAL = 50;
+export declare const REPLY_TYPE_POST = 1;
+export declare const REPLY_TYPE_ASSET = 2;
+export declare const REPLY_TYPE_ADDRESS = 3;
+export declare const REPLY_TYPE_APP = 4;
 export declare const POST_TYPE_POST = 0;
 export declare const POST_TYPE_REPLY = 1;
 export declare const POST_TYPE_EDIT_POST = 2;

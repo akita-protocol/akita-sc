@@ -27,6 +27,9 @@ export const deployPrizeBoxFactory = async ({
     });
 
     const results = await factory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             version: args.version,
             akitaDao: args.akitaDao,

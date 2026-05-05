@@ -23,6 +23,7 @@ export const ENV_VAR_NAMES = {
   
   // Core Contracts
   DAO_APP_ID: 'DAO_APP_ID',
+  DAO_PROPOSAL_VALIDATOR_APP_ID: 'DAO_PROPOSAL_VALIDATOR_APP_ID',
   WALLET_APP_ID: 'WALLET_APP_ID',
   ESCROW_FACTORY_APP_ID: 'ESCROW_FACTORY_APP_ID',
   WALLET_FACTORY_APP_ID: 'WALLET_FACTORY_APP_ID',
@@ -111,6 +112,7 @@ export interface AkitaConfig {
   
   // Core Contracts
   daoAppId?: bigint;
+  daoProposalValidatorAppId?: bigint;
   walletAppId?: bigint;
   escrowFactoryAppId?: bigint;
   walletFactoryAppId?: bigint;
@@ -186,8 +188,9 @@ export function getEnvVar(name: string): string | undefined {
     return process.env[name];
   }
   // Browser environment - check for window.__AKITA_ENV__
-  if (typeof window !== 'undefined' && (window as any).__AKITA_ENV__) {
-    return (window as any).__AKITA_ENV__[name];
+  const g = globalThis as any;
+  if (typeof g.window !== 'undefined' && g.window.__AKITA_ENV__) {
+    return g.window.__AKITA_ENV__[name];
   }
   return undefined;
 }
@@ -217,6 +220,7 @@ export function getConfigFromEnv(): AkitaConfig {
     
     // Core Contracts
     daoAppId: getAppIdFromEnv(ENV_VAR_NAMES.DAO_APP_ID),
+    daoProposalValidatorAppId: getAppIdFromEnv(ENV_VAR_NAMES.DAO_PROPOSAL_VALIDATOR_APP_ID),
     walletAppId: getAppIdFromEnv(ENV_VAR_NAMES.WALLET_APP_ID),
     escrowFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.ESCROW_FACTORY_APP_ID),
     walletFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.WALLET_FACTORY_APP_ID),

@@ -34,7 +34,7 @@ export declare class PollFactorySDK extends BaseSDK<PollFactoryClient> {
     /**
      * Updates the Akita DAO Escrow reference.
      */
-    updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & PollFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void>;
+    updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & PollFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void>;
 }
 /**
  * Convenience function to create a new poll and return the SDK.

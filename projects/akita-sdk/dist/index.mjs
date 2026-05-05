@@ -1,70 +1,81 @@
 import {
-  StakingPoolFactorySDK,
-  StakingPoolSDK
-} from "./chunk-RHKRC45A.mjs";
-import {
   HighlightMessage,
   ServiceStatus,
   SubscriptionsSDK,
   bytesToHexColor,
   hexColorToBytes
-} from "./chunk-MLVCJ6NU.mjs";
-import {
-  ListingSDK,
-  MarketplaceSDK
-} from "./chunk-5XM7ZAQB.mjs";
+} from "./chunk-U4PKGQHJ.mjs";
 import {
   MetaMerklesSDK
-} from "./chunk-HIS33CJB.mjs";
+} from "./chunk-JRX5FKQF.mjs";
 import {
   PollFactorySDK,
   PollSDK
-} from "./chunk-QRNFQPTB.mjs";
+} from "./chunk-SSRHC4FP.mjs";
 import {
   RaffleFactorySDK,
   RaffleSDK
-} from "./chunk-MD4RDWJ2.mjs";
+} from "./chunk-PR75UJVG.mjs";
 import {
   RewardsSDK
-} from "./chunk-47VQXVJZ.mjs";
+} from "./chunk-WD6CL6OZ.mjs";
 import {
   SocialSDK
-} from "./chunk-FETLFQKE.mjs";
+} from "./chunk-N42HA74O.mjs";
 import {
   StakingSDK
-} from "./chunk-WPKJJE3T.mjs";
+} from "./chunk-4SLXREOB.mjs";
+import {
+  StakingPoolFactorySDK,
+  StakingPoolSDK
+} from "./chunk-NGBOANV6.mjs";
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-6VJOFOYM.mjs";
-import {
-  PrizeBoxFactorySDK,
-  PrizeBoxSDK
-} from "./chunk-AXFUUP4D.mjs";
+} from "./chunk-PRCWHO6M.mjs";
 import {
   decodeConnectUri,
   encodeConnectUri
 } from "./chunk-X37WDNTN.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-6XWR3D2C.mjs";
+} from "./chunk-QGWRGXS3.mjs";
 import {
   WalletFactorySDK,
-  WalletSDK
-} from "./chunk-3TAJZ3DL.mjs";
-import "./chunk-ZRCAYT2V.mjs";
-import "./chunk-P4YWTMZR.mjs";
+  WalletSDK,
+  prepareGroup,
+  sendPrepared
+} from "./chunk-BLFSBOWL.mjs";
+import "./chunk-2ZPJXFUS.mjs";
+import "./chunk-ST2WN72C.mjs";
 import {
   EscrowFactorySDK,
   EscrowSDK
-} from "./chunk-A5P2E65C.mjs";
+} from "./chunk-4XDV74K5.mjs";
 import {
   GateSDK
-} from "./chunk-AHQK4M7X.mjs";
+} from "./chunk-YPZPOACQ.mjs";
+import "./chunk-5F555WJV.mjs";
 import {
   HyperSwapSDK
-} from "./chunk-MMOTCSDK.mjs";
-import "./chunk-KDI5GHOT.mjs";
+} from "./chunk-T557ZAX6.mjs";
+import {
+  ListingSDK,
+  MarketplaceSDK
+} from "./chunk-K3CKVO5L.mjs";
+import {
+  PrizeBoxFactorySDK,
+  PrizeBoxSDK
+} from "./chunk-S3EAB5SX.mjs";
+import {
+  ARC65_ALT_PREFIX,
+  ARC65_PREFIX,
+  COMMON_ERROR_MESSAGES,
+  makeErrorTranslator,
+  parseArc65Code,
+  translateCommonError
+} from "./chunk-2AEP6DTX.mjs";
+import "./chunk-JNYFBSSA.mjs";
 import {
   ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
@@ -84,16 +95,19 @@ import {
   resolveAppId,
   resolveAppIdWithClient,
   setCurrentNetwork
-} from "./chunk-M2DDWZUM.mjs";
+} from "./chunk-X7YBMTJD.mjs";
 import {
   hasSenderSigner,
-  isPluginSDKReturn
-} from "./chunk-V3TNOMIB.mjs";
-import "./chunk-BJTO5JO5.mjs";
+  isPluginSDKReturn,
+  normalizeSigner
+} from "./chunk-RFJII2P3.mjs";
 export {
+  ARC65_ALT_PREFIX,
+  ARC65_PREFIX,
   AkitaDaoSDK,
   AuctionFactorySDK,
   AuctionSDK,
+  COMMON_ERROR_MESSAGES,
   ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
   EscrowFactorySDK,
@@ -138,8 +152,14 @@ export {
   hasSenderSigner,
   hexColorToBytes,
   isPluginSDKReturn,
+  makeErrorTranslator,
+  normalizeSigner,
+  parseArc65Code,
+  prepareGroup,
   resolveAppId,
   resolveAppIdWithClient,
-  setCurrentNetwork
+  sendPrepared,
+  setCurrentNetwork,
+  translateCommonError
 };
 //# sourceMappingURL=index.mjs.map

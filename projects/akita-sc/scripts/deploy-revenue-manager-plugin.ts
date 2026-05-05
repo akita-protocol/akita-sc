@@ -19,7 +19,7 @@ import { getAppFundingNeeded, proposeAndExecute } from './utils'
 import { parseBaseArgs, setupContext, runScript } from './script-base'
 import { SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { RevenueManagerPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, RevenueManagerPluginSDK } from 'akita-sdk/wallet'
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { RevenueManagerPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/revenue-manager/RevenueManagerPluginClient'
 import {
@@ -143,7 +143,7 @@ runScript(async () => {
     {
       type: ProposalActionEnum.AddPlugin,
       client: newPlugin,
-      global: true,
+      callerType: CallerType.Global,
       escrow: '',
       sourceLink: 'https://github.com/kylebee/akita-sc',
       useExecutionKey: true,
@@ -153,10 +153,10 @@ runScript(async () => {
       participation: DEFAULT_UPGRADE_APP_PARTICIPATION,
       approval: DEFAULT_UPGRADE_APP_APPROVAL,
     },
-    ...REVENUE_ESCROWS.map(escrow => ({
-      type: ProposalActionEnum.AddPlugin as const,
-      client: newPlugin as SDKClient,
-      global: true,
+    ...REVENUE_ESCROWS.map((escrow): ProposalAction<SDKClient> => ({
+      type: ProposalActionEnum.AddPlugin,
+      client: newPlugin,
+      callerType: CallerType.Global,
       escrow,
       sourceLink: 'https://github.com/kylebee/akita-sc',
       useExecutionKey: false,

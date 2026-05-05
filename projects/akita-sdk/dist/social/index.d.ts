@@ -2,7 +2,7 @@ import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand
 import { AkitaNetwork } from "../config";
 import { OptionalAppIdFactoryParams } from "../types";
 import { SocialFees, AkitaAssets } from '../generated/AkitaDAOClient';
-import { AkitaSocialClient, AkitaSocialMbrData, MetaValue, PostValue, TipMbrInfo, VoteListValue } from '../generated/AkitaSocialClient';
+import { AkitaSocialClient, AkitaSocialMbrData, MetaValue, PostValue, SocialImpactInputs, TipMbrInfo, VoteListValue } from '../generated/AkitaSocialClient';
 import { AkitaSocialGraphClient } from '../generated/AkitaSocialGraphClient';
 import { AkitaSocialImpactClient, MetaValue as ImpactMetaValue } from '../generated/AkitaSocialImpactClient';
 import { AkitaSocialModerationClient } from '../generated/AkitaSocialModerationClient';
@@ -11,6 +11,7 @@ import { BlockArgs, CreatePayWallArgs, DeleteVoteArgs, EditPostArgs, FollowArgs,
 export type { SocialFees, AkitaAssets };
 export * from './types';
 export * from './constants';
+export * from './errors';
 export type SocialSDKConstructorParams = {
     algorand: AlgorandClient;
     /** The Akita DAO app ID for fetching social fees and AKTA asset ID (optional for standalone tests) */
@@ -100,17 +101,6 @@ export declare class SocialSDK {
      */
     computeEditKey(creatorAddress: string, originalKey: Uint8Array, newCid: Uint8Array): Uint8Array;
     /**
-     * Internal sha256 helper using Web Crypto API (sync wrapper)
-     * Note: This is a synchronous approximation - for production, consider using
-     * a proper crypto library like @noble/hashes
-     */
-    private sha256;
-    /**
-     * Static sha256 helper
-     * Uses Web Crypto API synchronously (via SubtleCrypto workaround)
-     */
-    private static sha256Static;
-    /**
      * Get social fees from the DAO config (cached after first call)
      * @returns Social fees including postFee, reactFee, impactTaxMin, impactTaxMax
      * @throws Error if daoAppId was not provided during SDK construction
@@ -131,8 +121,10 @@ export declare class SocialSDK {
      * @param ref - Optional reference bytes (empty for default MBR values)
      * @returns MBR data for all social box types
      */
-    getMbr({ sender, signer, ref }: MaybeSigner & {
+    getMbr({ sender, signer, ref, refTypeName, refTypeSchema }: MaybeSigner & {
         ref?: Uint8Array;
+        refTypeName?: string;
+        refTypeSchema?: Uint8Array;
     }): Promise<AkitaSocialMbrData>;
     /**
      * Check tip MBR requirements for sending tips to a recipient
@@ -229,17 +221,22 @@ export declare class SocialSDK {
      */
     calculateActionMBR(): bigint;
     /**
-     * Check if an account is banned
+     * Check if an account is banned. Delegates to `AkitaSocialModeration.isBanned`
+     * directly — the corresponding `AkitaSocial.isBanned` ABI method was removed to
+     * keep the main contract under its program-size budget.
      */
     isBanned({ sender, signer, account }: MaybeSigner & {
         account: string;
     }): Promise<boolean>;
     /**
-     * Get user's social impact score from the Social contract
+     * Get the raw inputs used to derive a user's social impact score from the
+     * Social contract. The final impact computation is performed off-chain in
+     * consumer code (previously this method returned a single bigint; the
+     * contract now exposes the individual factors instead).
      */
     getUserSocialImpact({ sender, signer, user }: MaybeSigner & {
         user: string;
-    }): Promise<bigint>;
+    }): Promise<SocialImpactInputs>;
     /**
      * Get moderator metadata for a user
      */
@@ -355,7 +352,7 @@ export declare class SocialSDK {
      * The post key is derived as sha256(creator + timestamp + nonce).
      * The timestamp is validated by the contract to be within 60 seconds of chain time.
      */
-    post({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, gateId, usePayWall, payWallId, }: PostArgs): Promise<{
+    post({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, gateId, usePayWall, payWallId, creatorFlags, }: PostArgs): Promise<{
         postKey: Uint8Array;
         timestamp: bigint;
         nonce: Uint8Array;
@@ -373,7 +370,7 @@ export declare class SocialSDK {
      * The edit key is derived as sha256(creator + originalPostKey + newCID), making edits
      * cryptographically linked to their original and idempotent (same edit = same key).
      */
-    editPost({ sender, signer, cid, amendment, }: EditPostArgs): Promise<Uint8Array>;
+    editPost({ sender, signer, cid, amendment, creatorFlags, }: EditPostArgs): Promise<Uint8Array>;
     /**
      * Reply to a post or comment
      *
@@ -386,7 +383,7 @@ export declare class SocialSDK {
      *
      * Note: Replies validate tips using TipActionReact (reactFee), not postFee
      */
-    reply({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, ref, refType, gateId, usePayWall, payWallId, gateTxn, }: ReplyArgs): Promise<{
+    reply({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, ref, refType, gateId, usePayWall, payWallId, gateTxn, creatorFlags, }: ReplyArgs): Promise<{
         replyKey: Uint8Array;
         timestamp: bigint;
         nonce: Uint8Array;
@@ -547,6 +544,15 @@ export declare class SocialSDK {
      */
     unflagPost({ sender, signer, ref, }: MaybeSigner & {
         ref: PostRef;
+    }): Promise<void>;
+    /**
+     * Set moderator content flags on a post (requires moderator)
+     *
+     * @param args - ref (post key) and flags (uint64 bitmask)
+     */
+    setModeratorContentFlags({ sender, signer, ref, flags, }: MaybeSigner & {
+        ref: PostRef;
+        flags: bigint | number;
     }): Promise<void>;
     /**
      * Add a new action type (requires DAO wallet sender)

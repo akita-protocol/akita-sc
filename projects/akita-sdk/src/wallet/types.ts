@@ -1,8 +1,10 @@
 import { GlobalKeysState, PluginInfo as ClientPluginInfo, AbstractedAccountArgs, AbstractedAccountReturns } from "../generated/AbstractedAccountClient";
 import { MaybeSigner, SDKClient, AkitaSDK, PluginMethodSpecifier, PluginSDKReturn, GroupReturn } from "../types";
-import { ABIReturn, AppReturn } from "@algorandfoundation/algokit-utils/types/app";
-import algosdk, { modelsv2, Transaction } from "algosdk";
-import { ExpectedCost } from "../simulate/types";
+import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
+import { ABIReturn } from "@algorandfoundation/algokit-utils/abi";
+import { ExpectedCost } from "../simulate/cost";
+import { PreparedGroup } from "../simulate/prepare";
+import algosdk from "algosdk";
 
 type ContractArgs = AbstractedAccountArgs["obj"];
 
@@ -31,20 +33,28 @@ export type MbrParams = {
 }
 
 export type RekeyArgs = {
-  global: boolean
+  type: bigint | number
   escrow: string
   methodOffsets: bigint[] | number[]
   fundsRequest: [number | bigint, number | bigint][]
 }
 
+export const CallerType = {
+  Other: 0n,
+  Global: 1n,
+  Admin: 2n,
+} as const
+
+export type CallerType = (typeof CallerType)[keyof typeof CallerType]
+
 export type AddPluginArgs = Omit<ContractArgs['arc58_addNamedPlugin(string,uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)void'], 'name'>
 
 // Updated plugin parameters to support fluent transaction API
 export type WalletUsePluginParams = (
-  Omit<ContractArgs['arc58_rekeyToPlugin(uint64,bool,string,uint64[],(uint64,uint64)[])void'], 'plugin' | 'global' | 'escrow' | 'methodOffsets' | 'fundsRequest'> &
+  Omit<ContractArgs['arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void'], 'plugin' | 'type' | 'escrow' | 'methodOffsets' | 'fundsRequest'> &
   {
     name?: string
-    global?: boolean
+    callerType?: CallerType
     escrow?: string
     fundsRequest?: FundsRequest[]
     calls: PluginSDKReturn[]
@@ -73,9 +83,25 @@ export type ExecutionBuildGroup = {
   lastValid: bigint
   useRounds: boolean
   ids: Uint8Array[]
-  atcs: algosdk.AtomicTransactionComposer[]
-  expectedCost: ExpectedCost
+  /**
+   * Pre-populated, pre-grouped windows ready to submit. Each window's validity
+   * range covers a portion of `[firstValid, lastValid]`. For the arc58
+   * execution-handoff pattern, pass a window to `sendPrepared(window, algod)`
+   * to sign + submit. For in-process submission, call `send()`.
+   */
+  windows: PreparedGroup[]
   send: (options?: SendOptions) => Promise<GroupReturn>
+  /**
+   * Predicted cost of executing this group from the wallet's perspective,
+   * aggregated from the simulate response captured during `build.usePlugin`
+   * (no extra simulate round-trip). Lets callers preview the exact ALGO +
+   * asset delta the wallet's app account will see at `send()` time, which
+   * is what enables a single-simulate UX: build once, preview cost, sign &
+   * send on user action without re-simulating.
+   *
+   * See `simulate/cost.ts` for the full shape and semantics.
+   */
+  expectedCost: ExpectedCost
 }
 
 // Default values for addPlugin method
@@ -91,7 +117,7 @@ export const AddPluginDefaults = {
 }
 
 export type CanCallParams = (
-  Omit<ContractArgs['arc58_canCall(uint64,bool,address,string,byte[4])bool'], 'method'>
+  Omit<ContractArgs['arc58_canCall(uint64,uint64,address,string,byte[4])bool'], 'method'>
   & {
     methods: PluginMethodSpecifier
   }
@@ -182,9 +208,26 @@ type BaseWalletAddPluginParams<TClient extends SDKClient> =
 
 export type WalletAddPluginParams<TClient extends SDKClient> =
   BaseWalletAddPluginParams<TClient> & (
-    | { global: true }
-    | { global?: false | undefined; caller: string }
+    | { callerType: typeof CallerType.Global | typeof CallerType.Admin; caller?: never }
+    | { callerType?: typeof CallerType.Other; caller: string }
   )
+
+/** Plugin install params for factory-level wallet creation. All fields match arc58_addPlugin args. */
+export type PluginInstallParams = {
+  plugin: bigint
+  caller: string
+  escrow?: string
+  admin?: boolean
+  delegationType?: bigint | number
+  lastValid?: bigint
+  cooldown?: bigint
+  methods?: [Uint8Array, bigint | number][]
+  useRounds?: boolean
+  useExecutionKey?: boolean
+  coverFees?: boolean
+  canReclaim?: boolean
+  defaultToEscrow?: boolean
+}
 
 /**
  * Type guard to check if an object is a valid AkitaSDK instance for use with plugins

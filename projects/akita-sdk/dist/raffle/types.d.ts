@@ -1,4 +1,4 @@
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 import { MaybeSigner } from "../types";
 import { RaffleArgs, RaffleState, EntryData, FunderInfo } from '../generated/RaffleClient';
 import { RaffleFactoryArgs } from '../generated/RaffleFactoryClient';
@@ -113,4 +113,8 @@ export type RaffleMbrData = {
     entries: bigint;
     weights: bigint;
     entriesByAddress: bigint;
+};
+export type OptInParams = MaybeSigner & {
+    /** The asset ID to opt the raffle factory into (so it can receive rewards of this asset) */
+    asset: bigint | number;
 };

@@ -1,9 +1,13 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { SubscriptionsPluginArgs, SubscriptionsPluginClient, SubscriptionsPluginFactory } from "../../generated/SubscriptionsPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { getTxns } from "../utils";
+
+const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2026;
+const MAX_DESCRIPTION_LENGTH = 3151;
 
 type ContractArgs = SubscriptionsPluginArgs["obj"];
 
@@ -24,10 +28,14 @@ type LoadDescriptionArgs = (
 );
 
 type NewServiceArgs = (
-  Omit<ContractArgs['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,string,byte[36],uint8,byte[3])uint64'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
+
+type NewServiceWithDescriptionArgs = NewServiceArgs & {
+  description: string;
+};
 
 type PauseServiceArgs = (
   Omit<ContractArgs['pauseService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
@@ -96,7 +104,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   optIn(args?: OptInArgs): PluginSDKReturn {
     const methodName = 'optIn';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -106,7 +114,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -130,7 +138,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   initDescription(args?: InitDescriptionArgs): PluginSDKReturn {
     const methodName = 'initDescription';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -140,7 +148,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -162,7 +170,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   loadDescription(args?: LoadDescriptionArgs): PluginSDKReturn {
     const methodName = 'loadDescription';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -172,7 +180,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -194,7 +202,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   newService(args?: NewServiceArgs): PluginSDKReturn {
     const methodName = 'newService';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -204,7 +212,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -223,12 +231,46 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     });
   }
 
+  /**
+   * Composes initDescription + loadDescription (chunked) + newService into the
+   * correct call order expected by the plugin contract. Spread the returned
+   * array into the `calls` parameter of `wallet.build.usePlugin()`.
+   */
+  newServiceWithDescription(args: NewServiceWithDescriptionArgs): PluginSDKReturn[] {
+    const { description, sender, signer, rekeyBack: rekeyBackArg, ...serviceArgs } = args;
+    const rekeyBack = rekeyBackArg ?? true;
+    const descBytes = Buffer.from(description);
+
+    if (descBytes.length === 0) {
+      throw new Error('Description cannot be empty');
+    }
+    if (descBytes.length > MAX_DESCRIPTION_LENGTH) {
+      throw new Error(`Description length (${descBytes.length}) exceeds maximum of ${MAX_DESCRIPTION_LENGTH}`);
+    }
+
+    const calls: PluginSDKReturn[] = [];
+
+    // 1. initDescription
+    calls.push(this.initDescription({ sender, signer, size: BigInt(descBytes.length) }));
+
+    // 2. loadDescription — chunked at MAX_LOAD_DESCRIPTION_CHUNK_SIZE
+    for (let offset = 0; offset < descBytes.length; offset += MAX_LOAD_DESCRIPTION_CHUNK_SIZE) {
+      const chunk = descBytes.subarray(offset, Math.min(offset + MAX_LOAD_DESCRIPTION_CHUNK_SIZE, descBytes.length));
+      calls.push(this.loadDescription({ sender, signer, offset: BigInt(offset), data: chunk }));
+    }
+
+    // 3. newService
+    calls.push(this.newService({ sender, signer, rekeyBack, ...serviceArgs }));
+
+    return calls;
+  }
+
   pauseService(): PluginSDKReturn;
   pauseService(args: PauseServiceArgs): PluginSDKReturn;
   pauseService(args?: PauseServiceArgs): PluginSDKReturn {
     const methodName = 'pauseService';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -238,7 +280,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -262,7 +304,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   shutdownService(args?: ShutdownServiceArgs): PluginSDKReturn {
     const methodName = 'shutdownService';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -272,7 +314,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -296,7 +338,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   block(args?: BlockArgs): PluginSDKReturn {
     const methodName = 'block';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -306,7 +348,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -330,7 +372,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   unblock(args?: UnblockArgs): PluginSDKReturn {
     const methodName = 'unblock';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -340,7 +382,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -364,7 +406,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   subscribe(args?: SubscribeArgs): PluginSDKReturn {
     const methodName = 'subscribe';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -374,7 +416,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer, asset = 0n, index = 0n, args: gateArgs = [], ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -398,7 +440,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   triggerPayment(args?: TriggerPaymentArgs): PluginSDKReturn {
     const methodName = 'triggerPayment';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -408,7 +450,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer, args: gateArgs = [], ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -432,7 +474,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   streakCheck(args?: StreakCheckArgs): PluginSDKReturn {
     const methodName = 'streakCheck';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -442,7 +484,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -466,7 +508,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
   setPasses(args?: SetPassesArgs): PluginSDKReturn {
     const methodName = 'setPasses';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -476,7 +518,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

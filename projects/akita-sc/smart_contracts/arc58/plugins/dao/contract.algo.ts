@@ -1,4 +1,4 @@
-import { Application, assert, Bytes, Contract, GlobalState, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Application, bytes, Bytes, Contract, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { CID, uint8 } from "../../../utils/types/base";
@@ -7,9 +7,8 @@ import { ProposalAction, ProposalVoteType } from "../../dao/types";
 import { AkitaDAOPluginGlobalStateKeysDAOAppID } from "./constants";
 
 // CONTRACT IMPORTS
-import type { AkitaDAODeployable } from "../../dao-deployable/contract.algo";
 import type { AkitaDAO } from "../../dao/contract.algo";
-import { ERR_PROPOSAL_DOES_NOT_EXIST } from "../../dao/errors";
+import { ERR_PROPOSAL_DOES_NOT_EXIST } from "./errors";
 
 
 export class AkitaDAOPlugin extends Contract {
@@ -27,13 +26,13 @@ export class AkitaDAOPlugin extends Contract {
 
   // GATE PLUGIN METHODS --------------------------------------------------------------------------
 
-  setup(wallet: Application, rekeyBack: boolean, nickname: string): void {
+  setup(wallet: Application, rekeyBack: boolean, nickname: string, salt: bytes<32>): void {
     const sender = getSpendingAccount(wallet)
 
-    abiCall<typeof AkitaDAODeployable.prototype.setup>({
+    abiCall<typeof AkitaDAO.prototype.setup>({
       sender,
       appId: this.daoAppID.value,
-      args: [nickname],
+      args: [nickname, salt],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }
@@ -86,7 +85,7 @@ export class AkitaDAOPlugin extends Contract {
       args: [id],
     }).returnValue
 
-    assert(status !== uint8(0), ERR_PROPOSAL_DOES_NOT_EXIST)
+    loggedAssert(status !== uint8(0), ERR_PROPOSAL_DOES_NOT_EXIST)
 
     const { total } = abiCall<typeof AkitaDAO.prototype.proposalCost>({
       sender,

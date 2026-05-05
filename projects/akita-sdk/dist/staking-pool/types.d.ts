@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { StakingPoolArgs, StakingPoolState, Reward, RootKey, FunderInfo, StakingPoolMbrData, EntryData } from '../generated/StakingPoolClient';
 import { StakingPoolFactoryArgs } from '../generated/StakingPoolFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 export { StakingPoolState, Reward, RootKey, FunderInfo, StakingPoolMbrData, EntryData };
 type FactoryContractArgs = StakingPoolFactoryArgs["obj"];
 export type NewPoolParams = MaybeSigner & Omit<FactoryContractArgs['newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64'], 'payment'>;

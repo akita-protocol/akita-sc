@@ -27,7 +27,7 @@ main_proxyPay_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b proxyPay
 
 main___algots__.defaultCreate@5:
@@ -38,7 +38,7 @@ main___algots__.defaultCreate@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts/arc58/plugins/test-proxy-rekey/contract.algo.ts::TestProxyRekeyPlugin.proxyPay[routing]() -> void:
@@ -57,7 +57,7 @@ proxyPay:
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     dup
     btoi
     txna ApplicationArgs 2
@@ -65,33 +65,33 @@ proxyPay:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     txna ApplicationArgs 3
     dup
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 4
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 5
     dup
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 6
     dup
     len
     intc_0 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
@@ -179,6 +179,8 @@ proxyPay:
     pushbytes 0x0001
     swap
     concat
+    swap
+    itxn_field ApplicationID
     // smart_contracts/arc58/plugins/test-proxy-rekey/contract.algo.ts:44-51
     // abiCall<typeof PayPlugin.prototype.pay>({
     //   appId: payPlugin,
@@ -190,12 +192,11 @@ proxyPay:
     // });
     pushbytes 0xf9738492 // method "pay(uint64,bool,(address,uint64,uint64)[])void"
     itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_2 // 0

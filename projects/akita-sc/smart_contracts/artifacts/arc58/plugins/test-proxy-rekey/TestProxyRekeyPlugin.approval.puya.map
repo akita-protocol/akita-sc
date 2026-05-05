@@ -4,7 +4,7 @@
     "../../../../arc58/plugins/test-proxy-rekey/contract.algo.ts",
     "../../../../utils/functions.ts"
   ],
-  "mappings": ";;;;;;AAkBA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAME;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAME;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACqP+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AD3O7B;AAGc;;AAED;;AAAA;;AAAA;;;AADD;;;;;;;AAJZ;;;AAAA;;;AAAA;AASA;AAKK;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAD;;;;AAAA;AAAA;AALJ;;;;;;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAnBF;AAAA",
+  "mappings": ";;;;;;AAkBA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAME;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAME;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACqP+B;;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AD3O7B;AAGc;;AAED;;AAAA;;AAAA;;;AADD;;;;;;;AAJZ;;;AAAA;;;AAAA;AASA;AAKK;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAD;;;;AAAA;AAAA;;;;AALJ;;;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAnBF;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -95,8 +95,7 @@
       ]
     },
     "31": {
-      "error": "OnCompletion must be NoOp && can only call when not creating",
-      "op": "assert // OnCompletion must be NoOp && can only call when not creating",
+      "op": "assert",
       "stack_out": []
     },
     "32": {
@@ -154,8 +153,7 @@
       ]
     },
     "42": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },
@@ -219,8 +217,8 @@
       ]
     },
     "50": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
@@ -319,8 +317,8 @@
       ]
     },
     "60": {
-      "error": "invalid number of bytes for bool8",
-      "op": "assert // invalid number of bytes for bool8",
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
       "stack_out": [
         "tmp%0#0",
         "wallet#0",
@@ -405,8 +403,8 @@
       ]
     },
     "68": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0",
         "wallet#0",
@@ -485,7 +483,7 @@
       ]
     },
     "75": {
-      "op": "pushint 32 // 32",
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "len%3#0",
@@ -525,8 +523,8 @@
       ]
     },
     "78": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "tmp%0#0",
         "wallet#0",
@@ -631,8 +629,8 @@
       ]
     },
     "86": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0",
         "wallet#0",
@@ -766,8 +764,8 @@
       ]
     },
     "95": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0",
         "wallet#0",
@@ -1242,71 +1240,75 @@
       ]
     },
     "159": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%head%3#0",
+        "payPlugin#0"
+      ]
+    },
+    "160": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%head%3#0"
+      ]
+    },
+    "162": {
       "op": "pushbytes 0xf9738492 // method \"pay(uint64,bool,(address,uint64,uint64)[])void\"",
       "defined_out": [
         "Method(pay(uint64,bool,(address,uint64,uint64)[])void)",
         "aggregate%head%3#0",
-        "payPlugin#0",
         "tmp%0#0",
         "tmp%2#0"
       ],
       "stack_out": [
         "tmp%0#0",
         "tmp%2#0",
-        "payPlugin#0",
         "aggregate%head%3#0",
         "Method(pay(uint64,bool,(address,uint64,uint64)[])void)"
       ]
     },
-    "165": {
+    "168": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "tmp%0#0",
         "tmp%2#0",
-        "payPlugin#0",
         "aggregate%head%3#0"
       ]
     },
-    "167": {
-      "op": "uncover 3",
+    "170": {
+      "op": "uncover 2",
       "stack_out": [
         "tmp%2#0",
-        "payPlugin#0",
         "aggregate%head%3#0",
         "tmp%0#0"
       ]
     },
-    "169": {
+    "172": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "tmp%2#0",
-        "payPlugin#0",
         "aggregate%head%3#0"
       ]
     },
-    "171": {
-      "op": "uncover 2",
+    "174": {
+      "op": "swap",
       "stack_out": [
-        "payPlugin#0",
         "aggregate%head%3#0",
         "tmp%2#0"
-      ]
-    },
-    "173": {
-      "op": "itxn_field ApplicationArgs",
-      "stack_out": [
-        "payPlugin#0",
-        "aggregate%head%3#0"
       ]
     },
     "175": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "payPlugin#0"
+        "aggregate%head%3#0"
       ]
     },
     "177": {
-      "op": "itxn_field ApplicationID",
+      "op": "itxn_field ApplicationArgs",
       "stack_out": []
     },
     "179": {

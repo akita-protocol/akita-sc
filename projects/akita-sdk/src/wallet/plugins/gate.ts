@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { GatePluginArgs, GatePluginClient, GatePluginFactory } from "../../generated/GatePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -24,7 +25,7 @@ export class GatePluginSDK extends BaseSDK<GatePluginClient> {
   register(args?: RegisterArgs): PluginSDKReturn {
     const methodName = 'register';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -34,7 +35,7 @@ export class GatePluginSDK extends BaseSDK<GatePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

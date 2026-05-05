@@ -21,7 +21,7 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { proposeAndExecute } from './utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import { getNetworkAppIds, SDKClient, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
+import { getNetworkAppIds, SDKClient, sendPrepared, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
@@ -337,7 +337,7 @@ async function update() {
     console.log(`   Child update lease: ${childUpdateExecution.lease}`)
     console.log(`   First valid: ${childUpdateExecution.firstValid}`)
     console.log(`   Last valid: ${childUpdateExecution.lastValid}`)
-    console.log(`   Transaction groups: ${childUpdateExecution.atcs.length}\n`)
+    console.log(`   Transaction groups: ${childUpdateExecution.windows.length}\n`)
 
     // Optionally build factory app update execution
     let factoryUpdateExecution: typeof childUpdateExecution | undefined
@@ -362,7 +362,7 @@ async function update() {
       console.log(`   Factory update lease: ${factoryUpdateExecution.lease}`)
       console.log(`   First valid: ${factoryUpdateExecution.firstValid}`)
       console.log(`   Last valid: ${factoryUpdateExecution.lastValid}`)
-      console.log(`   Transaction groups: ${factoryUpdateExecution.atcs.length}\n`)
+      console.log(`   Transaction groups: ${factoryUpdateExecution.windows.length}\n`)
     }
 
     if (options.dryRun) {
@@ -370,9 +370,9 @@ async function update() {
       console.log('✅ Update prepared successfully!')
       console.log(`   New child contract version: ${options.version}`)
       console.log(`   Target factory app: ${appIds.walletFactory}`)
-      console.log(`   Child update transaction groups prepared: ${childUpdateExecution.atcs.length}`)
+      console.log(`   Child update transaction groups prepared: ${childUpdateExecution.windows.length}`)
       if (factoryUpdateExecution) {
-        console.log(`   Factory update transaction groups prepared: ${factoryUpdateExecution.atcs.length}`)
+        console.log(`   Factory update transaction groups prepared: ${factoryUpdateExecution.windows.length}`)
       }
       console.log(`   Would create proposal with UpgradeApp action\n`)
       console.log('To execute the update for real, run without --dry-run flag.\n')
@@ -395,7 +395,7 @@ async function update() {
 
     // Submit the actual child contract update transaction
     console.log('🚀 Submitting child contract update transaction...')
-    await childUpdateExecution.atcs[0].submit(algorand.client.algod)
+    await sendPrepared(childUpdateExecution.windows[0], algorand.client.algod)
     console.log('   Child contract update transaction submitted\n')
 
     // Optionally update factory app
@@ -414,7 +414,7 @@ async function update() {
       console.log(`   Proposal ${factoryProposalId} created and executed\n`)
 
       console.log('🚀 Submitting factory app update transaction...')
-      await factoryUpdateExecution.atcs[0].submit(algorand.client.algod)
+      await sendPrepared(factoryUpdateExecution.windows[0], algorand.client.algod)
       console.log('   Factory app update transaction submitted\n')
     }
 

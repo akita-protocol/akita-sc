@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { PollArgs } from '../generated/PollClient';
 import { PollFactoryArgs } from '../generated/PollFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 type FactoryContractArgs = PollFactoryArgs["obj"];
 export type NewPollParams = MaybeSigner & Omit<FactoryContractArgs['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'], 'payment'>;
 type PollContractArgs = PollArgs["obj"];

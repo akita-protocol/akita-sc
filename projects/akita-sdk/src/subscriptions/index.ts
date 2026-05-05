@@ -7,7 +7,7 @@ import { ServiceFromTuple, ServicesKey, SubscriptionInfo, SubscriptionsArgs, Sub
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ValueMap } from "../wallet/utils";
 import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionInfoWithDetails, SubscriptionStatus, SubscriptionTimestampUnit } from "./types";
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 import { bytesToHexColor, hexColorToBytes, validateHexColor } from "./utils";
 import { convertToUnixTimestamp } from "../utils";
 import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "./constants";
@@ -19,6 +19,7 @@ export { ServicesKey } from '../generated/SubscriptionsClient';
 type ContractArgs = SubscriptionsArgs["obj"];
 
 export * from './constants';
+export * from './errors';
 export * from './types';
 export * from './utils';
 
@@ -69,6 +70,76 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
   }
 
   /**
+   * Opt the Subscriptions contract (and its rev_subscriptions escrow) into an
+   * asset. Must be called directly by an EOA — NOT via `SubscriptionsPlugin.optIn`
+   * — because `Subscriptions.optIn` rekeys to the revenue-manager plugin
+   * internally and plugin rekeys cannot be nested.
+   *
+   * The contract's `optIn` fans out a lot of inner app calls (contract's own
+   * asset opt-in, rekey to revenue-manager, `RevenueManager.optIn`, MBR
+   * payment, rekey-back, plus nested opt-ins per split recipient), which
+   * blows through the reference-slot budget of a single app call. We pad the
+   * group with opUp calls so `populateAppCallResources` has enough slots.
+   *
+   * @param asset     The asset ID to opt into
+   * @param opUpCount Number of opUp calls to add for reference slots (default 3)
+   */
+  async optIn({
+    sender,
+    signer,
+    asset,
+    opUpCount = 3,
+  }: MaybeSigner & {
+    asset: bigint | number;
+    opUpCount?: number;
+  }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const optInCost = await this.optInCost({ ...sendParams, asset });
+    const payment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(optInCost),
+      receiver: this.client.appAddress.toString(),
+    });
+
+    const group = this.client.newGroup();
+
+    group.optIn({
+      ...sendParams,
+      args: {
+        payment,
+        asset: BigInt(asset),
+      },
+      // Covers every inner fee for:
+      //   - the contract's own asset opt-in (1 inner)
+      //   - the composed arc58_rekeyToPlugin + RevenueManager.optIn + MBR
+      //     payment + arc58_verifyAuthAddress group (4 inners)
+      //   - nested inners those app calls emit (rekey payments, escrow opt-in
+      //     assetTransfer, rekey-back)
+      // 15× minFee is comfortably over-budget; any surplus is retained by the
+      // block, which is cheap insurance against flow additions.
+      extraFee: microAlgos(15_000n),
+    });
+
+    // Add opUp calls to get more reference slots. Each app call adds an
+    // independent 8-slot reference budget that `populateAppCallResources`
+    // can borrow from.
+    for (let i = 0; i < opUpCount; i++) {
+      group.opUp({
+        ...sendParams,
+        args: {},
+        maxFee: microAlgos(1_000),
+        ...(i > 0 ? { note: String(i) } : {}),
+      });
+    }
+
+    await group.send({
+      populateAppCallResources: true,
+      coverAppCallInnerTransactionFees: true,
+    });
+  }
+
+  /**
    * Check if the contract is opted into a specific asset
    */
   async isOptedInToAsset(asset: bigint | number): Promise<boolean> {
@@ -85,7 +156,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       // Use the algod endpoint /v2/accounts/{address}/assets/{asset-id}
       const algod = this.client.algorand.client.algod;
       // If the asset-holding exists, we're opted in. If it 404s, we're not.
-      const response = await algod.accountAssetInformation(appAddress, assetId).do();
+      const response = await algod.accountAssetInformation(appAddress, assetId);
       return !!response.assetHolding;
     } catch (error: any) {
       // If not opted in, algod returns 404 for this endpoint
@@ -138,7 +209,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     const sendParams = this.getReaderSendParams({ sender });
     const result = await this.client.getServicesByAddress({ ...sendParams, args: { address, start, windowSize } });
     // The return is an array of tuples, convert to Service objects
-    const tuples = result as unknown as [number, bigint, bigint, bigint, bigint, bigint, string, string, Uint8Array, number, Uint8Array][];
+    const tuples = result as unknown as [number, bigint, bigint, bigint, bigint, bigint, string, string, string, Uint8Array, number, Uint8Array][];
     return tuples.map(tuple => {
       const result = ServiceFromTuple(tuple)
       return {
@@ -557,9 +628,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       maxFee: microAlgos(1_000),
       note: '1'
     });
-
-    console.log('group built:', (await (await group.composer()).build()).transactions)
-  
 
     const result = await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
     // If we added an opt-in call, the subscription ID will be at index 1, otherwise index 0

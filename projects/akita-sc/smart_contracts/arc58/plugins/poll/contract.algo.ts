@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, assert, Bytes, Global, GlobalState, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateMustCheckAbiMethod } from "../../../gates/constants";
 import { GateArgs } from "../../../gates/types";
@@ -54,6 +54,7 @@ export class PollPluginContract extends AkitaBaseContract {
     )
 
     const mbrPayment = itxn.payment({
+      sender,
       receiver: Application(this.factory.value.id).address,
       amount: amount,
     })
@@ -77,7 +78,7 @@ export class PollPluginContract extends AkitaBaseContract {
   deleteBoxes(wallet: Application, rekeyBack: boolean, pollAppID: uint64, addresses: Account[]): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
+    loggedAssert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
 
     abiCall<typeof Poll.prototype.deleteBoxes>({
       sender,
@@ -90,7 +91,7 @@ export class PollPluginContract extends AkitaBaseContract {
   vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     const { origin, sender } = getAccounts(wallet)
 
-    assert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
+    loggedAssert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
 
     const mbrPayment = itxn.payment({
       sender,

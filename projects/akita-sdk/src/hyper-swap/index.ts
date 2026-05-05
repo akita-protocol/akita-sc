@@ -20,6 +20,7 @@ import {
   HyperSwapMbrData,
 } from "./types";
 
+export * from "./errors";
 export * from "./types";
 
 export type HyperSwapContractArgs = HyperSwapArgs["obj"];

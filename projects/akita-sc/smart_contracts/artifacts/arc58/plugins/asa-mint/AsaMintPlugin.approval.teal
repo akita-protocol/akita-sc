@@ -3,32 +3,29 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 2
+    intcblock 0 1 2 149
+    bytecblock "ERR:IPAY"
     // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:7
     // export class AsaMintPlugin extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@5
-    pushbytes 0x0da39939 // method "mint(uint64,bool,(string,string,uint64,uint64,address,address,address,address,bool,string)[],pay)uint64[]"
-    txna ApplicationArgs 0
-    match main_mint_route@3
-    err
-
-main_mint_route@3:
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:9-14
-    // mint(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   assets: CreateAssetParams[],
-    //   mbrPayment: gtxn.PaymentTxn
-    // ): uint64[] {
+    bz main___algots__.defaultCreate@9
     txn OnCompletion
     !
+    assert
     txn ApplicationID
-    &&
-    assert // OnCompletion must be NoOp && can only call when not creating
-    b mint
+    assert
+    pushbytess 0x854dede0 0x0da39939 // method "opUp()void", method "mint(uint64,bool,(string,string,uint64,uint64,address,address,address,address,bool,string)[],pay)uint64[]"
+    txna ApplicationArgs 0
+    match main_opUp_route@4 mint
+    err
 
-main___algots__.defaultCreate@5:
+main_opUp_route@4:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:16
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main___algots__.defaultCreate@9:
     // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:7
     // export class AsaMintPlugin extends Contract {
     txn OnCompletion
@@ -36,16 +33,49 @@ main___algots__.defaultCreate@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
+
+
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    intc_2 // 2
+    *
+    dig 2
+    swap
+    extract_uint16
+    dig 2
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    dup
+    intc_2 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 4
+    uncover 2
+    -
+    select
+    substring3
+    retsub
 
 
 // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts::AsaMintPlugin.mint[routing]() -> void:
 mint:
     intc_0 // 0
-    dupn 6
+    dupn 8
     pushbytes ""
-    dupn 3
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:9-14
+    dupn 4
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:18-23
     // mint(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -55,26 +85,136 @@ mint:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8 // 8
+    pushint 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
     txna ApplicationArgs 2
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
-    swap
     txna ApplicationArgs 3
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    extract 2 0
+    intc_0 // 0
+
+mint_for_header@1:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    dup
+    dig 5
+    <
+    bz mint_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
     dup
     uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 151
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 153
+    +
+    dig 2
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    dig 3
+    swap
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    dig 2
+    intc_3 // 149
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 9 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 1
+    b mint_for_header@1
+
+mint_after_for@4:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    dig 3
+    intc_2 // 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/asa-mint/types.ts::CreateAssetParams>
     txn GroupIndex
     intc_1 // 1
     -
+    dup
+    bury 11
     dup
     gtxns TypeEnum
     intc_1 // pay
@@ -85,7 +225,7 @@ mint:
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    swap
+    dig 8
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
@@ -97,140 +237,126 @@ mint:
     app_global_get_ex
     pop
     dup
-    cover 3
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:17-24
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: sender,
-    //     amount: Global.assetCreateMinBalance * assets.length
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 1
+    bury 18
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:26
+    // loggedAssert(mbrPayment.receiver === sender, ERR_INVALID_PAYMENT)
+    swap
     gtxns Receiver
     ==
-    swap
+    bnz mint_after_assert@7
+    bytec_0 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+mint_after_assert@7:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:27
+    // loggedAssert(mbrPayment.amount === Global.assetCreateMinBalance * assets.length, ERR_INVALID_PAYMENT)
+    dig 9
     gtxns Amount
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:21
-    // amount: Global.assetCreateMinBalance * assets.length
     global AssetCreateMinBalance
-    uncover 3
-    intc_0 // 0
-    extract_uint16
-    dup
-    cover 4
+    dig 6
     *
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:17-24
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: sender,
-    //     amount: Global.assetCreateMinBalance * assets.length
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    &&
-    assert // invalid payment
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:26
+    bnz mint_after_assert@9
+    bytec_0 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+mint_after_assert@9:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:29
     // let assetsCreated: uint64[] = [];
     pushbytes 0x0000
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:27
+    bury 21
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:30
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_0 // 0
+    bury 11
 
-mint_while_top@2:
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:27
+mint_while_top@10:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:30
     // for (let i: uint64 = 0; i < assets.length; i++) {
-    dup
-    dig 3
+    dig 10
+    dig 5
     <
-    bz mint_after_while@8
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:39
+    bz mint_after_while@16
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:42
     // } = assets[i];
-    dig 4
-    extract 2 0
-    dig 1
+    dig 5
     dup
-    cover 2
-    intc_2 // 2
-    *
-    dig 1
-    swap
-    extract_uint16
-    dig 2
-    intc_1 // 1
-    +
+    dig 12
     dup
-    bury 13
-    dig 6
-    dup
-    cover 4
-    dig 1
-    - // on error: index access is out of bounds
-    dig 3
-    len
-    uncover 2
-    intc_2 // 2
-    *
-    dig 4
-    swap
-    extract_uint16
-    uncover 2
-    select
-    substring3
+    cover 3
+    callsub dynamic_array_read_dynamic_element
     dup
     intc_0 // 0
     extract_uint16
     dig 1
     intc_2 // 2
     extract_uint16
-    dig 2
-    uncover 2
-    dig 2
     substring3
     extract 2 0
-    bury 22
-    dig 1
-    pushint 149 // 149
+    bury 24
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_2 // 2
     extract_uint16
-    dig 2
-    uncover 2
-    dig 2
+    dig 1
+    intc_3 // 149
+    extract_uint16
     substring3
     extract 2 0
     bury 17
-    dig 1
-    pushint 4 // 4
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 4
     extract_uint64
-    bury 12
-    dig 1
-    pushint 12 // 12
+    bury 11
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 12
     extract_uint64
     bury 15
-    dig 1
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
     extract 20 32
-    bury 19
-    dig 1
-    extract 52 32
-    bury 18
-    dig 1
-    extract 84 32
     bury 20
-    dig 1
-    extract 116 32
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 52 32
+    bury 19
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 84 32
     bury 21
-    dig 1
-    pushint 1184 // 1184
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 116 32
+    bury 22
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 1184
     getbit
     bury 14
+    dig 1
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_3 // 149
+    extract_uint16
     dig 1
     len
     substring3
     extract 2 0
-    bury 14
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:41-56
+    bury 15
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:44-59
     // const createTxn = itxn
     //   .assetConfig({
     //     sender,
@@ -248,39 +374,40 @@ mint_while_top@2:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:57
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 5
     intc_1 // 1
     -
     <
-    bz mint_ternary_false@5
+    bz mint_ternary_false@13
     global ZeroAddress
 
-mint_ternary_merge@6:
+mint_ternary_merge@14:
     itxn_field RekeyTo
-    dig 11
-    itxn_field ConfigAssetURL
-    dig 9
-    itxn_field ConfigAssetDefaultFrozen
-    dig 16
-    itxn_field ConfigAssetClawback
-    dig 15
-    itxn_field ConfigAssetFreeze
     dig 13
+    itxn_field ConfigAssetURL
+    dig 11
+    itxn_field ConfigAssetDefaultFrozen
+    dig 19
+    itxn_field ConfigAssetClawback
+    dig 18
+    itxn_field ConfigAssetFreeze
+    dig 16
     itxn_field ConfigAssetReserve
-    dig 14
-    itxn_field ConfigAssetManager
-    dig 10
-    itxn_field ConfigAssetDecimals
-    dig 7
-    itxn_field ConfigAssetTotal
-    dig 12
-    itxn_field ConfigAssetUnitName
     dig 17
+    itxn_field ConfigAssetManager
+    dig 12
+    itxn_field ConfigAssetDecimals
+    dig 8
+    itxn_field ConfigAssetTotal
+    dig 14
+    itxn_field ConfigAssetUnitName
+    dig 21
     itxn_field ConfigAssetName
-    dig 3
+    dig 15
     itxn_field Sender
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:41-55
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:44-58
     // const createTxn = itxn
     //   .assetConfig({
     //     sender,
@@ -296,11 +423,11 @@ mint_ternary_merge@6:
     //     url,
     //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     //   })
-    pushint 3 // 3
+    pushint 3
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:41-56
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:44-59
     // const createTxn = itxn
     //   .assetConfig({
     //     sender,
@@ -319,50 +446,55 @@ mint_ternary_merge@6:
     //   .submit()
     itxn_submit
     itxn CreatedAssetID
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:61
     // assetsCreated.push(createTxn.createdAsset.id);
     itob
-    dig 2
+    dig 21
     dup
-    uncover 2
-    concat // on error: max array length exceeded
-    swap
     intc_0 // 0
     extract_uint16
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:61
+    // assetsCreated.push(createTxn.createdAsset.id);
     intc_1 // 1
     +
     itob
-    extract 6 2
+    extract 6 0
     replace2 0
-    bury 2
-    dig 8
-    bury 1
-    b mint_while_top@2
+    swap
+    concat
+    bury 21
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dig 10
+    intc_1 // 1
+    +
+    bury 11
+    b mint_while_top@10
 
-mint_ternary_false@5:
+mint_ternary_false@13:
     // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
-    dig 5
-    bnz mint_after_if_else@11
+    dig 6
+    bnz mint_after_if_else@19
     // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:57
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    b mint_ternary_merge@6
+    b mint_ternary_merge@14
 
-mint_after_if_else@11:
+mint_after_if_else@19:
     // smart_contracts/utils/functions.ts:330
     // return wallet.address
-    dig 6
+    dig 7
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:57
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    b mint_ternary_merge@6
+    b mint_ternary_merge@14
 
-mint_after_while@8:
-    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:9-14
+mint_after_while@16:
+    // smart_contracts/arc58/plugins/asa-mint/contract.algo.ts:18-23
     // mint(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -370,7 +502,7 @@ mint_after_while@8:
     //   mbrPayment: gtxn.PaymentTxn
     // ): uint64[] {
     pushbytes 0x151f7c75
-    dig 2
+    dig 21
     concat
     log
     intc_1 // 1

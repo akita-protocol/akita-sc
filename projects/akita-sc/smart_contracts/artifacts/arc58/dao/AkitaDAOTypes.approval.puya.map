@@ -3,7 +3,7 @@
   "sources": [
     "../../../arc58/dao/types.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;AAGA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACG;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAKA;AAAA;;;AAAA;AAAA;AAAA;AAAA",
+  "mappings": ";;;;;;;;;;;;;;AAGA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACG;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -11,12 +11,12 @@
       "params": {},
       "block": "main",
       "stack_in": [],
-      "op": "intcblock 1"
+      "op": "intcblock 0 2 1 4"
     },
-    "4": {
+    "7": {
       "op": "bytecblock 0x151f7c75"
     },
-    "11": {
+    "14": {
       "op": "txn NumAppArgs",
       "defined_out": [
         "tmp%0#1"
@@ -25,11 +25,11 @@
         "tmp%0#1"
       ]
     },
-    "13": {
+    "16": {
       "op": "bz main___algots__.defaultCreate@20",
       "stack_out": []
     },
-    "16": {
+    "19": {
       "op": "txn OnCompletion",
       "defined_out": [
         "tmp%2#0"
@@ -38,7 +38,7 @@
         "tmp%2#0"
       ]
     },
-    "18": {
+    "21": {
       "op": "!",
       "defined_out": [
         "tmp%3#0"
@@ -47,12 +47,11 @@
         "tmp%3#0"
       ]
     },
-    "19": {
-      "error": "OnCompletion must be NoOp",
-      "op": "assert // OnCompletion must be NoOp",
+    "22": {
+      "op": "assert",
       "stack_out": []
     },
-    "20": {
+    "23": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%4#0"
@@ -61,11 +60,11 @@
         "tmp%4#0"
       ]
     },
-    "22": {
+    "25": {
       "op": "assert",
       "stack_out": []
     },
-    "23": {
+    "26": {
       "op": "pushbytess 0x92b35896 0x7ee4bab7 0x82d5f3ff 0xf3941a2c 0xf1cf22cc 0xbd4ef730 0xebab5e14 0x6b8abd2f 0xfcaf8420 0x55ce5ca9 0xa638be23 0x50aab81d 0x149d3ccb // method \"proposalUpgradeAppShape((uint64,byte[32],byte[32][],uint64,uint64))(uint64,byte[32],byte[32][],uint64,uint64)\", method \"proposalAddPluginShape((uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalAddNamedPluginShape((string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemovePluginShape((uint64,address,string))(uint64,address,string)\", method \"proposalRemoveNamedPluginShape((string,uint64,address,string))(string,uint64,address,string)\", method \"proposalExecutePluginShape((uint64,string,byte[32],byte[32][],uint64,uint64))(uint64,string,byte[32],byte[32][],uint64,uint64)\", method \"proposalExecuteNamedPluginShape((string,byte[32],byte[32][],uint64,uint64))(string,byte[32],byte[32][],uint64,uint64)\", method \"proposalRemoveExecutePluginShape((byte[32]))(byte[32])\", method \"proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[])\", method \"proposalRemoveAllowancesShape((string,uint64[]))(string,uint64[])\", method \"proposalNewEscrowShape((string))(string)\", method \"proposalToggleEscrowLockShape((string))(string)\", method \"proposalUpdateFieldShape((string,byte[]))(string,byte[])\"",
       "defined_out": [
         "Method(proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
@@ -98,7 +97,7 @@
         "Method(proposalUpdateFieldShape((string,byte[]))(string,byte[]))"
       ]
     },
-    "90": {
+    "93": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(proposalAddAllowancesShape((string,(uint64,uint8,uint64,uint64,uint64,bool)[]))(string,(uint64,uint8,uint64,uint64,uint64,bool)[]))",
@@ -133,14 +132,14 @@
         "tmp%6#0"
       ]
     },
-    "93": {
+    "96": {
       "op": "match proposalUpgradeAppShape proposalAddPluginShape proposalAddNamedPluginShape proposalRemovePluginShape proposalRemoveNamedPluginShape proposalExecutePluginShape proposalExecuteNamedPluginShape proposalRemoveExecutePluginShape proposalAddAllowancesShape proposalRemoveAllowancesShape proposalNewEscrowShape proposalToggleEscrowLockShape proposalUpdateFieldShape",
       "stack_out": []
     },
-    "121": {
+    "124": {
       "op": "err"
     },
-    "122": {
+    "125": {
       "block": "main___algots__.defaultCreate@20",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -151,7 +150,7 @@
         "tmp%7#0"
       ]
     },
-    "124": {
+    "127": {
       "op": "!",
       "defined_out": [
         "tmp%8#0"
@@ -160,7 +159,7 @@
         "tmp%8#0"
       ]
     },
-    "125": {
+    "128": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%8#0",
@@ -171,7 +170,7 @@
         "tmp%9#0"
       ]
     },
-    "127": {
+    "130": {
       "op": "!",
       "defined_out": [
         "tmp%10#0",
@@ -182,7 +181,7 @@
         "tmp%10#0"
       ]
     },
-    "128": {
+    "131": {
       "op": "&&",
       "defined_out": [
         "tmp%11#0"
@@ -191,231 +190,303 @@
         "tmp%11#0"
       ]
     },
-    "129": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+    "132": {
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },
-    "130": {
+    "133": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalUpgradeAppShape[routing]",
       "params": {},
       "block": "proposalUpgradeAppShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "131": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
-        "0x151f7c75",
         "shape#0"
       ],
       "stack_out": [
-        "0x151f7c75",
         "shape#0"
       ]
-    },
-    "134": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%2#0"
-      ],
-      "stack_out": [
-        "tmp%2#0"
-      ]
-    },
-    "135": {
-      "op": "log",
-      "stack_out": []
     },
     "136": {
-      "op": "intc_0 // 1",
+      "op": "dup",
       "defined_out": [
-        "1"
+        "shape#0",
+        "shape#0 (copy)"
       ],
       "stack_out": [
-        "1"
+        "shape#0",
+        "shape#0 (copy)"
       ]
     },
     "137": {
-      "op": "return",
-      "stack_out": []
-    },
-    "138": {
-      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddPluginShape[routing]",
-      "params": {},
-      "block": "proposalAddPluginShape",
-      "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
+      "op": "len",
       "defined_out": [
-        "0x151f7c75"
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75"
+        "shape#0",
+        "tuple_len%0#0"
       ]
     },
-    "139": {
-      "op": "txna ApplicationArgs 1",
+    "138": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "140": {
+      "op": "pushint 40",
       "defined_out": [
-        "0x151f7c75",
-        "shape#0"
+        "40",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75",
-        "shape#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "40"
       ]
     },
     "142": {
-      "op": "concat",
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
-        "tmp%2#0"
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "tmp%2#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
       ]
     },
     "143": {
-      "op": "log",
-      "stack_out": []
-    },
-    "144": {
-      "op": "intc_0 // 1",
+      "op": "dup",
       "defined_out": [
-        "1"
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "1"
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
       ]
     },
-    "145": {
-      "op": "return",
-      "stack_out": []
-    },
-    "146": {
-      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddNamedPluginShape[routing]",
-      "params": {},
-      "block": "proposalAddNamedPluginShape",
-      "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
+    "144": {
+      "op": "pushint 58",
       "defined_out": [
-        "0x151f7c75"
+        "58",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75"
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "58"
+      ]
+    },
+    "146": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
       ]
     },
     "147": {
-      "op": "txna ApplicationArgs 1",
-      "defined_out": [
-        "0x151f7c75",
-        "shape#0"
-      ],
+      "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+uint8[32][]),uint64,uint64)",
       "stack_out": [
-        "0x151f7c75",
-        "shape#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "148": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
       ]
     },
     "150": {
-      "op": "concat",
-      "defined_out": [
-        "tmp%2#0"
-      ],
+      "op": "swap",
       "stack_out": [
-        "tmp%2#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
       ]
     },
     "151": {
-      "op": "log",
-      "stack_out": []
-    },
-    "152": {
-      "op": "intc_0 // 1",
+      "op": "dig 2",
       "defined_out": [
-        "1"
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
       ],
       "stack_out": [
-        "1"
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
       ]
     },
     "153": {
-      "op": "return",
-      "stack_out": []
-    },
-    "154": {
-      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemovePluginShape[routing]",
-      "params": {},
-      "block": "proposalRemovePluginShape",
-      "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
+      "op": "substring3",
       "defined_out": [
-        "0x151f7c75"
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75"
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "154": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
       ]
     },
     "155": {
-      "op": "txna ApplicationArgs 1",
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
-        "0x151f7c75",
-        "shape#0"
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75",
-        "shape#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "156": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "32"
       ]
     },
     "158": {
-      "op": "concat",
+      "op": "*",
       "defined_out": [
-        "tmp%2#0"
+        "mul%0#0",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "tmp%2#0"
+        "shape#0",
+        "tuple_len%0#0",
+        "mul%0#0"
       ]
     },
     "159": {
-      "op": "log",
-      "stack_out": []
-    },
-    "160": {
-      "op": "intc_0 // 1",
+      "op": "pushint 60",
       "defined_out": [
-        "1"
+        "60",
+        "mul%0#0",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "1"
+        "shape#0",
+        "tuple_len%0#0",
+        "mul%0#0",
+        "60"
       ]
     },
     "161": {
-      "op": "return",
-      "stack_out": []
-    },
-    "162": {
-      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveNamedPluginShape[routing]",
-      "params": {},
-      "block": "proposalRemoveNamedPluginShape",
-      "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
+      "op": "+",
       "defined_out": [
-        "0x151f7c75"
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
       ],
       "stack_out": [
-        "0x151f7c75"
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "162": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%1#0"
       ]
     },
     "163": {
-      "op": "txna ApplicationArgs 1",
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpgradeApp",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpgradeApp",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "164": {
+      "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "165": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
@@ -435,7 +506,7 @@
       "stack_out": []
     },
     "168": {
-      "op": "intc_0 // 1",
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -448,30 +519,3566 @@
       "stack_out": []
     },
     "170": {
+      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddPluginShape[routing]",
+      "params": {},
+      "block": "proposalAddPluginShape",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "173": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "174": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "175": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "177": {
+      "op": "pushint 40",
+      "defined_out": [
+        "40",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "40"
+      ]
+    },
+    "179": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "180": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "181": {
+      "op": "pushint 106",
+      "defined_out": [
+        "106",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "106"
+      ]
+    },
+    "183": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "184": {
+      "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "185": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "187": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "188": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "190": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "191": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "192": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "193": {
+      "op": "pushint 108",
+      "defined_out": [
+        "108",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "108"
+      ]
+    },
+    "195": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "196": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "198": {
+      "op": "pushint 59",
+      "defined_out": [
+        "59",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "59"
+      ]
+    },
+    "200": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "201": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "202": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "204": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "205": {
+      "error": "invalid tail pointer at index 6 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 6 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "206": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "208": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "209": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "211": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "212": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "213": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "214": {
+      "op": "pushint 12",
+      "defined_out": [
+        "12",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "12"
+      ]
+    },
+    "216": {
+      "op": "*",
+      "defined_out": [
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0"
+      ]
+    },
+    "217": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0",
+        "2"
+      ]
+    },
+    "218": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "219": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "220": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "222": {
+      "op": "pushint 102",
+      "defined_out": [
+        "102",
+        "add%3#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "102"
+      ]
+    },
+    "224": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%3#0",
+        "extract_uint16%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0"
+      ]
+    },
+    "225": {
+      "op": "dup",
+      "defined_out": [
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)"
+      ]
+    },
+    "226": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%3#0",
+        "add%3#0 (copy)",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "add%3#0 (copy)"
+      ]
+    },
+    "228": {
+      "op": "==",
+      "defined_out": [
+        "add%3#0",
+        "eq%2#0",
+        "extract_uint16%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "eq%2#0"
+      ]
+    },
+    "229": {
+      "error": "invalid tail pointer at index 16 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 16 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0"
+      ]
+    },
+    "230": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "232": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "extract_uint16%2#0"
+      ]
+    },
+    "233": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "extract_uint16%2#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "235": {
+      "op": "substring3",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "substring3%2#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "substring3%2#0"
+      ]
+    },
+    "236": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "substring3%2#0",
+        "0"
+      ]
+    },
+    "237": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%3#0",
+        "aggregate%array_length%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "aggregate%array_length%2#0"
+      ]
+    },
+    "238": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "aggregate%array_length%2#0",
+        "2"
+      ]
+    },
+    "239": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "add%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "add%4#0"
+      ]
+    },
+    "240": {
+      "op": "+",
+      "defined_out": [
+        "add%5#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0"
+      ]
+    },
+    "241": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "243": {
+      "op": "pushint 104",
+      "defined_out": [
+        "104",
+        "add%5#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "104"
+      ]
+    },
+    "245": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%5#0",
+        "extract_uint16%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0"
+      ]
+    },
+    "246": {
+      "op": "dup",
+      "defined_out": [
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)"
+      ]
+    },
+    "247": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%5#0",
+        "add%5#0 (copy)",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "add%5#0 (copy)"
+      ]
+    },
+    "249": {
+      "op": "==",
+      "defined_out": [
+        "add%5#0",
+        "eq%3#0",
+        "extract_uint16%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "eq%3#0"
+      ]
+    },
+    "250": {
+      "error": "invalid tail pointer at index 17 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 17 of (uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0"
+      ]
+    },
+    "251": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "253": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "extract_uint16%3#0"
+      ]
+    },
+    "254": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "extract_uint16%3#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "256": {
+      "op": "substring3",
+      "defined_out": [
+        "add%5#0",
+        "shape#0",
+        "substring3%3#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "substring3%3#0"
+      ]
+    },
+    "257": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "substring3%3#0",
+        "0"
+      ]
+    },
+    "258": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%5#0",
+        "aggregate%array_length%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "aggregate%array_length%3#0"
+      ]
+    },
+    "259": {
+      "op": "pushint 34",
+      "defined_out": [
+        "34",
+        "add%5#0",
+        "aggregate%array_length%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "aggregate%array_length%3#0",
+        "34"
+      ]
+    },
+    "261": {
+      "op": "*",
+      "defined_out": [
+        "add%5#0",
+        "mul%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "mul%3#0"
+      ]
+    },
+    "262": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "mul%3#0",
+        "2"
+      ]
+    },
+    "263": {
+      "op": "+",
+      "defined_out": [
+        "add%5#0",
+        "add%6#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "add%6#0"
+      ]
+    },
+    "264": {
+      "op": "+",
+      "defined_out": [
+        "add%7#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0"
+      ]
+    },
+    "265": {
+      "op": "==",
+      "defined_out": [
+        "eq%4#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%4#0"
+      ]
+    },
+    "266": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddPlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddPlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "267": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "268": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "shape#0"
+      ]
+    },
+    "269": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "270": {
+      "op": "log",
+      "stack_out": []
+    },
+    "271": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "272": {
+      "op": "return",
+      "stack_out": []
+    },
+    "273": {
+      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddNamedPluginShape[routing]",
+      "params": {},
+      "block": "proposalAddNamedPluginShape",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "276": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "277": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "278": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "280": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "281": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "282": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "283": {
+      "op": "pushint 108",
+      "defined_out": [
+        "108",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "108"
+      ]
+    },
+    "285": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "286": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "287": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "289": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "290": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "292": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "293": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "294": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "295": {
+      "op": "pushint 110",
+      "defined_out": [
+        "110",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "110"
+      ]
+    },
+    "297": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "298": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "300": {
+      "op": "pushint 42",
+      "defined_out": [
+        "42",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "42"
+      ]
+    },
+    "302": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "303": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "304": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "306": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "307": {
+      "error": "invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "308": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "310": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "311": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "313": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "314": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "315": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "316": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "317": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "318": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "319": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "321": {
+      "op": "pushint 61",
+      "defined_out": [
+        "61",
+        "add%3#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "61"
+      ]
+    },
+    "323": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%3#0",
+        "extract_uint16%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0"
+      ]
+    },
+    "324": {
+      "op": "dup",
+      "defined_out": [
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)"
+      ]
+    },
+    "325": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%3#0",
+        "add%3#0 (copy)",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "extract_uint16%2#0 (copy)",
+        "add%3#0 (copy)"
+      ]
+    },
+    "327": {
+      "op": "==",
+      "defined_out": [
+        "add%3#0",
+        "eq%2#0",
+        "extract_uint16%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "eq%2#0"
+      ]
+    },
+    "328": {
+      "error": "invalid tail pointer at index 7 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 7 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0"
+      ]
+    },
+    "329": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "extract_uint16%2#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "331": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "extract_uint16%2#0"
+      ]
+    },
+    "332": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "shape#0 (copy)",
+        "extract_uint16%2#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "334": {
+      "op": "substring3",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "substring3%2#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "substring3%2#0"
+      ]
+    },
+    "335": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "substring3%2#0",
+        "0"
+      ]
+    },
+    "336": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%3#0",
+        "aggregate%array_length%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "aggregate%array_length%2#0"
+      ]
+    },
+    "337": {
+      "op": "pushint 12",
+      "defined_out": [
+        "12",
+        "add%3#0",
+        "aggregate%array_length%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "aggregate%array_length%2#0",
+        "12"
+      ]
+    },
+    "339": {
+      "op": "*",
+      "defined_out": [
+        "add%3#0",
+        "mul%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "mul%2#0"
+      ]
+    },
+    "340": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "mul%2#0",
+        "2"
+      ]
+    },
+    "341": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "add%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0",
+        "add%4#0"
+      ]
+    },
+    "342": {
+      "op": "+",
+      "defined_out": [
+        "add%5#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0"
+      ]
+    },
+    "343": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "345": {
+      "op": "pushint 104",
+      "defined_out": [
+        "104",
+        "add%5#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "104"
+      ]
+    },
+    "347": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%5#0",
+        "extract_uint16%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0"
+      ]
+    },
+    "348": {
+      "op": "dup",
+      "defined_out": [
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)"
+      ]
+    },
+    "349": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%5#0",
+        "add%5#0 (copy)",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "extract_uint16%3#0 (copy)",
+        "add%5#0 (copy)"
+      ]
+    },
+    "351": {
+      "op": "==",
+      "defined_out": [
+        "add%5#0",
+        "eq%3#0",
+        "extract_uint16%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "eq%3#0"
+      ]
+    },
+    "352": {
+      "error": "invalid tail pointer at index 17 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 17 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0"
+      ]
+    },
+    "353": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "extract_uint16%3#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "355": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "extract_uint16%3#0"
+      ]
+    },
+    "356": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "shape#0 (copy)",
+        "extract_uint16%3#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "358": {
+      "op": "substring3",
+      "defined_out": [
+        "add%5#0",
+        "shape#0",
+        "substring3%3#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "substring3%3#0"
+      ]
+    },
+    "359": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "substring3%3#0",
+        "0"
+      ]
+    },
+    "360": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%5#0",
+        "aggregate%array_length%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "aggregate%array_length%3#0"
+      ]
+    },
+    "361": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "aggregate%array_length%3#0",
+        "2"
+      ]
+    },
+    "362": {
+      "op": "+",
+      "defined_out": [
+        "add%5#0",
+        "add%6#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%5#0",
+        "add%6#0"
+      ]
+    },
+    "363": {
+      "op": "+",
+      "defined_out": [
+        "add%7#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0"
+      ]
+    },
+    "364": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "366": {
+      "op": "pushint 106",
+      "defined_out": [
+        "106",
+        "add%7#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "shape#0 (copy)",
+        "106"
+      ]
+    },
+    "368": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%7#0",
+        "extract_uint16%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0"
+      ]
+    },
+    "369": {
+      "op": "dup",
+      "defined_out": [
+        "add%7#0",
+        "extract_uint16%4#0",
+        "extract_uint16%4#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0",
+        "extract_uint16%4#0 (copy)"
+      ]
+    },
+    "370": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%7#0",
+        "add%7#0 (copy)",
+        "extract_uint16%4#0",
+        "extract_uint16%4#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0",
+        "extract_uint16%4#0 (copy)",
+        "add%7#0 (copy)"
+      ]
+    },
+    "372": {
+      "op": "==",
+      "defined_out": [
+        "add%7#0",
+        "eq%4#0",
+        "extract_uint16%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0",
+        "eq%4#0"
+      ]
+    },
+    "373": {
+      "error": "invalid tail pointer at index 18 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 18 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]),uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,(len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0"
+      ]
+    },
+    "374": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "extract_uint16%4#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "376": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "shape#0 (copy)",
+        "extract_uint16%4#0"
+      ]
+    },
+    "377": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "shape#0 (copy)",
+        "extract_uint16%4#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "379": {
+      "op": "substring3",
+      "defined_out": [
+        "add%7#0",
+        "shape#0",
+        "substring3%4#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "substring3%4#0"
+      ]
+    },
+    "380": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "substring3%4#0",
+        "0"
+      ]
+    },
+    "381": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%7#0",
+        "aggregate%array_length%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "aggregate%array_length%4#0"
+      ]
+    },
+    "382": {
+      "op": "pushint 34",
+      "defined_out": [
+        "34",
+        "add%7#0",
+        "aggregate%array_length%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "aggregate%array_length%4#0",
+        "34"
+      ]
+    },
+    "384": {
+      "op": "*",
+      "defined_out": [
+        "add%7#0",
+        "mul%4#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "mul%4#0"
+      ]
+    },
+    "385": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "mul%4#0",
+        "2"
+      ]
+    },
+    "386": {
+      "op": "+",
+      "defined_out": [
+        "add%7#0",
+        "add%8#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%7#0",
+        "add%8#0"
+      ]
+    },
+    "387": {
+      "op": "+",
+      "defined_out": [
+        "add%9#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%9#0"
+      ]
+    },
+    "388": {
+      "op": "==",
+      "defined_out": [
+        "eq%5#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%5#0"
+      ]
+    },
+    "389": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddNamedPlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddNamedPlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "390": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "391": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "shape#0"
+      ]
+    },
+    "392": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "393": {
+      "op": "log",
+      "stack_out": []
+    },
+    "394": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "395": {
+      "op": "return",
+      "stack_out": []
+    },
+    "396": {
+      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemovePluginShape[routing]",
+      "params": {},
+      "block": "proposalRemovePluginShape",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "399": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "400": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "401": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "403": {
+      "op": "pushint 40",
+      "defined_out": [
+        "40",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "40"
+      ]
+    },
+    "405": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "406": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "407": {
+      "op": "pushint 42",
+      "defined_out": [
+        "42",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "42"
+      ]
+    },
+    "409": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "410": {
+      "error": "invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "411": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "413": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "414": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "416": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "417": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "418": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "419": {
+      "op": "pushint 44",
+      "defined_out": [
+        "44",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "44"
+      ]
+    },
+    "421": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "422": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%1#0"
+      ]
+    },
+    "423": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemovePlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemovePlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "424": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "425": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "shape#0"
+      ]
+    },
+    "426": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "427": {
+      "op": "log",
+      "stack_out": []
+    },
+    "428": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "429": {
+      "op": "return",
+      "stack_out": []
+    },
+    "430": {
+      "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveNamedPluginShape[routing]",
+      "params": {},
+      "block": "proposalRemoveNamedPluginShape",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "433": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "434": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "435": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "437": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "438": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "439": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "440": {
+      "op": "pushint 44",
+      "defined_out": [
+        "44",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "44"
+      ]
+    },
+    "442": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "443": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "444": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "446": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "447": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "449": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "450": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "451": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "452": {
+      "op": "pushint 46",
+      "defined_out": [
+        "46",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "46"
+      ]
+    },
+    "454": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "455": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "457": {
+      "op": "pushint 42",
+      "defined_out": [
+        "42",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "42"
+      ]
+    },
+    "459": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "460": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "461": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "463": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "464": {
+      "error": "invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 3 of ((len+utf8[]),uint64,uint8[32],(len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "465": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "467": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "468": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "470": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "471": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "472": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "473": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "474": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "475": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "476": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "477": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveNamedPlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveNamedPlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "478": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "479": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "shape#0"
+      ]
+    },
+    "480": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "481": {
+      "op": "log",
+      "stack_out": []
+    },
+    "482": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "483": {
+      "op": "return",
+      "stack_out": []
+    },
+    "484": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalExecutePluginShape[routing]",
       "params": {},
       "block": "proposalExecutePluginShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "171": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "487": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "488": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "489": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "491": {
+      "op": "pushint 8",
+      "defined_out": [
+        "8",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "8"
+      ]
+    },
+    "493": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "494": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "495": {
+      "op": "pushint 60",
+      "defined_out": [
+        "60",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "60"
+      ]
+    },
+    "497": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "498": {
+      "error": "invalid tail pointer at index 1 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "op": "assert // invalid tail pointer at index 1 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "499": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "501": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "502": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "504": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "505": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "506": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "507": {
+      "op": "pushint 62",
+      "defined_out": [
+        "62",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "62"
+      ]
+    },
+    "509": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "510": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "512": {
+      "op": "pushint 42",
+      "defined_out": [
+        "42",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "42"
+      ]
+    },
+    "514": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "515": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "516": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "518": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "519": {
+      "error": "invalid tail pointer at index 3 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "op": "assert // invalid tail pointer at index 3 of (uint64,(len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "520": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "522": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "523": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "525": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "526": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "527": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "528": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "32"
+      ]
+    },
+    "530": {
+      "op": "*",
+      "defined_out": [
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0"
+      ]
+    },
+    "531": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0",
+        "2"
+      ]
+    },
+    "532": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "533": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "534": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "535": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecutePlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecutePlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "536": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "537": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "174": {
+    "538": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -480,12 +4087,12 @@
         "tmp%2#0"
       ]
     },
-    "175": {
+    "539": {
       "op": "log",
       "stack_out": []
     },
-    "176": {
-      "op": "intc_0 // 1",
+    "540": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -493,35 +4100,528 @@
         "1"
       ]
     },
-    "177": {
+    "541": {
       "op": "return",
       "stack_out": []
     },
-    "178": {
+    "542": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalExecuteNamedPluginShape[routing]",
       "params": {},
       "block": "proposalExecuteNamedPluginShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "179": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "545": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "546": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "547": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "549": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "550": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "551": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "552": {
+      "op": "pushint 52",
+      "defined_out": [
+        "52",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "52"
+      ]
+    },
+    "554": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "555": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "556": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "558": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "559": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "561": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "562": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "563": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "564": {
+      "op": "pushint 54",
+      "defined_out": [
+        "54",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "54"
+      ]
+    },
+    "566": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "567": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "569": {
+      "op": "pushint 34",
+      "defined_out": [
+        "34",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "34"
+      ]
+    },
+    "571": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "572": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "573": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "575": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "576": {
+      "error": "invalid tail pointer at index 2 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "op": "assert // invalid tail pointer at index 2 of ((len+utf8[]),uint8[32],(len+uint8[32][]),uint64,uint64)",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "577": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "579": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "580": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "582": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "583": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "584": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "585": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "32"
+      ]
+    },
+    "587": {
+      "op": "*",
+      "defined_out": [
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0"
+      ]
+    },
+    "588": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0",
+        "2"
+      ]
+    },
+    "589": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "590": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "591": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "592": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecuteNamedPlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalExecuteNamedPlugin",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "593": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "594": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "182": {
+    "595": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -530,12 +4630,12 @@
         "tmp%2#0"
       ]
     },
-    "183": {
+    "596": {
       "op": "log",
       "stack_out": []
     },
-    "184": {
-      "op": "intc_0 // 1",
+    "597": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -543,11 +4643,11 @@
         "1"
       ]
     },
-    "185": {
+    "598": {
       "op": "return",
       "stack_out": []
     },
-    "186": {
+    "599": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveExecutePluginShape[routing]",
       "params": {},
       "block": "proposalRemoveExecutePluginShape",
@@ -560,7 +4660,7 @@
         "shape#0"
       ]
     },
-    "189": {
+    "602": {
       "op": "dup",
       "defined_out": [
         "shape#0",
@@ -571,7 +4671,7 @@
         "shape#0 (copy)"
       ]
     },
-    "190": {
+    "603": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -582,8 +4682,8 @@
         "len%0#0"
       ]
     },
-    "191": {
-      "op": "pushint 32 // 32",
+    "604": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -595,7 +4695,7 @@
         "32"
       ]
     },
-    "193": {
+    "606": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -606,14 +4706,14 @@
         "eq%0#0"
       ]
     },
-    "194": {
-      "error": "invalid number of bytes for (uint8[32])",
-      "op": "assert // invalid number of bytes for (uint8[32])",
+    "607": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveExecutePlugin",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveExecutePlugin",
       "stack_out": [
         "shape#0"
       ]
     },
-    "195": {
+    "608": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -624,14 +4724,14 @@
         "0x151f7c75"
       ]
     },
-    "196": {
+    "609": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "197": {
+    "610": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -640,12 +4740,12 @@
         "tmp%2#0"
       ]
     },
-    "198": {
+    "611": {
       "op": "log",
       "stack_out": []
     },
-    "199": {
-      "op": "intc_0 // 1",
+    "612": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -653,35 +4753,521 @@
         "1"
       ]
     },
-    "200": {
+    "613": {
       "op": "return",
       "stack_out": []
     },
-    "201": {
+    "614": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalAddAllowancesShape[routing]",
       "params": {},
       "block": "proposalAddAllowancesShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "202": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "617": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "618": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "619": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "621": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "622": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "623": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "624": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "4"
+      ]
+    },
+    "625": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "626": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "627": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "629": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "630": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "632": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "633": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "634": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "635": {
+      "op": "pushint 6",
+      "defined_out": [
+        "6",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "6"
+      ]
+    },
+    "637": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "638": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "640": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "2"
+      ]
+    },
+    "641": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "642": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "643": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "645": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "646": {
+      "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+(uint64,uint8,uint64,uint64,uint64,bool1)[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "647": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "649": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "650": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "652": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "653": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "654": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "655": {
+      "op": "pushint 34",
+      "defined_out": [
+        "34",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "34"
+      ]
+    },
+    "657": {
+      "op": "*",
+      "defined_out": [
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0"
+      ]
+    },
+    "658": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0",
+        "2"
+      ]
+    },
+    "659": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "660": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "661": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "662": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddAllowances",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalAddAllowances",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "663": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "664": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "205": {
+    "665": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -690,12 +5276,12 @@
         "tmp%2#0"
       ]
     },
-    "206": {
+    "666": {
       "op": "log",
       "stack_out": []
     },
-    "207": {
-      "op": "intc_0 // 1",
+    "667": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -703,35 +5289,521 @@
         "1"
       ]
     },
-    "208": {
+    "668": {
       "op": "return",
       "stack_out": []
     },
-    "209": {
+    "669": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalRemoveAllowancesShape[routing]",
       "params": {},
       "block": "proposalRemoveAllowancesShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "210": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "672": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "673": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "674": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "676": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "677": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "678": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "679": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "4"
+      ]
+    },
+    "680": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "681": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+uint64[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint64[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "682": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "684": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "685": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "687": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "688": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "689": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "690": {
+      "op": "pushint 6",
+      "defined_out": [
+        "6",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "6"
+      ]
+    },
+    "692": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "693": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "695": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "2"
+      ]
+    },
+    "696": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "697": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "698": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "700": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "701": {
+      "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+uint64[]))",
+      "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint64[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "702": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "704": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "705": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "707": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "708": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "709": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "710": {
+      "op": "pushint 8",
+      "defined_out": [
+        "8",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "8"
+      ]
+    },
+    "712": {
+      "op": "*",
+      "defined_out": [
+        "add%1#0",
+        "mul%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0"
+      ]
+    },
+    "713": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "mul%1#0",
+        "2"
+      ]
+    },
+    "714": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "715": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "716": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "717": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveAllowances",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalRemoveAllowances",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "718": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "719": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "213": {
+    "720": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -740,12 +5812,12 @@
         "tmp%2#0"
       ]
     },
-    "214": {
+    "721": {
       "op": "log",
       "stack_out": []
     },
-    "215": {
-      "op": "intc_0 // 1",
+    "722": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -753,35 +5825,274 @@
         "1"
       ]
     },
-    "216": {
+    "723": {
       "op": "return",
       "stack_out": []
     },
-    "217": {
+    "724": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalNewEscrowShape[routing]",
       "params": {},
       "block": "proposalNewEscrowShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "218": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "727": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "728": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "729": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "731": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "732": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "733": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "734": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "2"
+      ]
+    },
+    "735": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "736": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "737": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "739": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "740": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "742": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "743": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "744": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "745": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "4"
+      ]
+    },
+    "746": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "747": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%1#0"
+      ]
+    },
+    "748": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalNewEscrow",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalNewEscrow",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "749": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "750": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "221": {
+    "751": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -790,12 +6101,12 @@
         "tmp%2#0"
       ]
     },
-    "222": {
+    "752": {
       "op": "log",
       "stack_out": []
     },
-    "223": {
-      "op": "intc_0 // 1",
+    "753": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -803,35 +6114,274 @@
         "1"
       ]
     },
-    "224": {
+    "754": {
       "op": "return",
       "stack_out": []
     },
-    "225": {
+    "755": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalToggleEscrowLockShape[routing]",
       "params": {},
       "block": "proposalToggleEscrowLockShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "226": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "758": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "759": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "760": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "762": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "763": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "764": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "765": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "2"
+      ]
+    },
+    "766": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "767": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "768": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "770": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "771": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "773": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "774": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "775": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "776": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "4"
+      ]
+    },
+    "777": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "778": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%1#0"
+      ]
+    },
+    "779": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalToggleEscrowLock",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalToggleEscrowLock",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "780": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "781": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "229": {
+    "782": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -840,12 +6390,12 @@
         "tmp%2#0"
       ]
     },
-    "230": {
+    "783": {
       "op": "log",
       "stack_out": []
     },
-    "231": {
-      "op": "intc_0 // 1",
+    "784": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -853,35 +6403,489 @@
         "1"
       ]
     },
-    "232": {
+    "785": {
       "op": "return",
       "stack_out": []
     },
-    "233": {
+    "786": {
       "subroutine": "smart_contracts/arc58/dao/types.algo.ts::AkitaDAOTypes.proposalUpdateFieldShape[routing]",
       "params": {},
       "block": "proposalUpdateFieldShape",
       "stack_in": [],
-      "op": "bytec_0 // 0x151f7c75",
-      "defined_out": [
-        "0x151f7c75"
-      ],
-      "stack_out": [
-        "0x151f7c75"
-      ]
-    },
-    "234": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "789": {
+      "op": "dup",
+      "defined_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "790": {
+      "op": "len",
+      "defined_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "791": {
+      "op": "dig 1",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "793": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "0"
+      ]
+    },
+    "794": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "795": {
+      "op": "dup",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "796": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "4"
+      ]
+    },
+    "797": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "798": {
+      "error": "invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+uint8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "799": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "801": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "802": {
+      "op": "dig 2",
+      "defined_out": [
+        "extract_uint16%0#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "shape#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "804": {
+      "op": "substring3",
+      "defined_out": [
+        "shape#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "805": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "806": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "807": {
+      "op": "pushint 6",
+      "defined_out": [
+        "6",
+        "aggregate%array_length%0#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "6"
+      ]
+    },
+    "809": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "810": {
+      "op": "dig 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "812": {
+      "op": "intc_1 // 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "shape#0",
+        "shape#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "2"
+      ]
+    },
+    "813": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "814": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "815": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "817": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "818": {
+      "error": "invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+uint8[]))",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "819": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "shape#0 (copy)"
+      ]
+    },
+    "821": {
+      "op": "swap",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "822": {
+      "op": "dig 3",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "shape#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "824": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "shape#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "825": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "826": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "827": {
+      "op": "intc_1 // 2",
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "828": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "829": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "shape#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "830": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "shape#0"
+      ],
+      "stack_out": [
+        "shape#0",
+        "eq%2#0"
+      ]
+    },
+    "831": {
+      "error": "invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpdateField",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalUpdateField",
+      "stack_out": [
+        "shape#0"
+      ]
+    },
+    "832": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
         "0x151f7c75",
         "shape#0"
       ],
+      "stack_out": [
+        "shape#0",
+        "0x151f7c75"
+      ]
+    },
+    "833": {
+      "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "shape#0"
       ]
     },
-    "237": {
+    "834": {
       "op": "concat",
       "defined_out": [
         "tmp%2#0"
@@ -890,12 +6894,12 @@
         "tmp%2#0"
       ]
     },
-    "238": {
+    "835": {
       "op": "log",
       "stack_out": []
     },
-    "239": {
-      "op": "intc_0 // 1",
+    "836": {
+      "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
@@ -903,7 +6907,7 @@
         "1"
       ]
     },
-    "240": {
+    "837": {
       "op": "return",
       "stack_out": []
     }

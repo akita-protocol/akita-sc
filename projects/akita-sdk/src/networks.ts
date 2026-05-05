@@ -17,6 +17,7 @@ import { AkitaNetwork } from './config';
 export interface NetworkAppIds {
   // Core Contracts
   dao: bigint;
+  daoProposalValidator: bigint;
   wallet: bigint;
   escrowFactory: bigint;
   walletFactory: bigint;
@@ -105,6 +106,7 @@ export interface NetworkAppIds {
 export const TESTNET_APP_IDS: NetworkAppIds = {
   // Core Contracts
   dao: 751971739n,
+  daoProposalValidator: 0n,
   wallet: 751972058n,
   escrowFactory: 751967076n,
   walletFactory: 751971757n,
@@ -193,6 +195,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
 export const MAINNET_APP_IDS: NetworkAppIds = {
   // Core Contracts
   dao: 3368388956n,
+  daoProposalValidator: 0n,
   wallet: 3368395481n,
   escrowFactory: 3368388829n,
   walletFactory: 3368389117n,
@@ -289,7 +292,7 @@ export const NETWORK_APP_IDS: Partial<Record<AkitaNetwork, NetworkAppIds>> = {
  */
 export function createEmptyAppIds(): NetworkAppIds {
   return {
-    dao: 0n, wallet: 0n, escrowFactory: 0n, walletFactory: 0n,
+    dao: 0n, daoProposalValidator: 0n, wallet: 0n, escrowFactory: 0n, walletFactory: 0n,
     subscriptions: 0n, stakingPoolFactory: 0n, staking: 0n, rewards: 0n,
     social: 0n, socialGraph: 0n, socialImpact: 0n, socialModeration: 0n,
     auctionFactory: 0n, marketplace: 0n, raffleFactory: 0n, pollFactory: 0n, prizeBoxFactory: 0n,
@@ -323,6 +326,7 @@ export function getNetworkAppIds(network: AkitaNetwork): NetworkAppIds {
  */
 export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   DAO_APP_ID: 'dao',
+  DAO_PROPOSAL_VALIDATOR_APP_ID: 'daoProposalValidator',
   WALLET_APP_ID: 'wallet',
   ESCROW_FACTORY_APP_ID: 'escrowFactory',
   WALLET_FACTORY_APP_ID: 'walletFactory',

@@ -24,6 +24,7 @@ import {
 /** The number of entries stored in each weights box */
 const CHUNK_SIZE = 4096n;
 
+export * from "./errors";
 export * from "./factory";
 export * from "./types";
 

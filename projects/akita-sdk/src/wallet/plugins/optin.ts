@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { OptInPluginArgs, OptInPluginClient, OptInPluginFactory } from "../../generated/OptInPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -28,7 +29,7 @@ export class OptInPluginSDK extends BaseSDK<OptInPluginClient> {
     const methodName = 'optIn';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -39,7 +40,7 @@ export class OptInPluginSDK extends BaseSDK<OptInPluginClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -49,7 +50,7 @@ export class OptInPluginSDK extends BaseSDK<OptInPluginClient> {
         const mbrPayment = this.client.algorand.createTransaction.payment({
           ...sendParams,
           amount: microAlgo(assetOptInCost * assets.length),
-          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet),
+          receiver: spendingAddress ? spendingAddress : algosdk.getApplicationAddress(wallet).toString(),
         })
 
         const params = (

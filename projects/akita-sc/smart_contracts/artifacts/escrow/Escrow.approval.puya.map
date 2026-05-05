@@ -3,7 +3,7 @@
   "sources": [
     "../../escrow/contract.algo.ts"
   ],
-  "mappings": ";;;;;AAKA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAqBG;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAjBA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAFS;;;;;;;;;AAIR;AAAA;AAFD;AAAA;AAKD;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACS;;AAAe;;AAAf;AAAP;AAEA;AAGc;;;;;;AADF;;;AAFZ;;;AAAA;;;AAAA;AAHF;AAAA;AAcS;;AAAe;;AAAf;AAAP;AAEA;AAC+B;;;;AAD/B;;;AAAA;;;AAAA;AAJD;AAAA",
+  "mappings": ";;;;;AAKA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAqBG;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAjBA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAFS;;;;;;;;;AAIR;AAAA;AAFD;AAAA;AAKD;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACe;;AAAe;;AAAf;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEA;AAGc;;;;;;;;AADF;;;AAFZ;;;AAAA;;;AAAA;AAHF;AAAA;AAce;;AAAe;;AAAf;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEA;AAC+B;;;;AAD/B;;;AAAA;;;AAAA;AAJD;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -58,8 +58,7 @@
       ]
     },
     "21": {
-      "error": "OnCompletion must be NoOp",
-      "op": "assert // OnCompletion must be NoOp",
+      "op": "assert",
       "stack_out": []
     },
     "22": {
@@ -183,8 +182,7 @@
       ]
     },
     "63": {
-      "error": "OnCompletion must be DeleteApplication && can only call when not creating",
-      "op": "assert // OnCompletion must be DeleteApplication && can only call when not creating",
+      "op": "assert",
       "stack_out": []
     },
     "64": {
@@ -228,7 +226,8 @@
       ]
     },
     "72": {
-      "op": "extract_uint16",
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "tmp%0#0"
@@ -239,7 +238,7 @@
       ]
     },
     "73": {
-      "op": "pushint 2 // 2",
+      "op": "pushint 2",
       "defined_out": [
         "2",
         "aggregate%array_length%0#0",
@@ -295,8 +294,8 @@
       ]
     },
     "80": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
         "tmp%0#0"
       ]
@@ -350,23 +349,16 @@
       "params": {},
       "block": "rekey",
       "stack_in": [],
-      "op": "txna ApplicationArgs 1",
-      "defined_out": [
-        "rekeyTo#0"
-      ],
-      "stack_out": [
-        "rekeyTo#0"
-      ]
+      "op": "txna ApplicationArgs 1"
     },
     "100": {
       "op": "dup",
       "defined_out": [
-        "rekeyTo#0",
-        "rekeyTo#0 (copy)"
+        "rekeyTo#0"
       ],
       "stack_out": [
         "rekeyTo#0",
-        "rekeyTo#0 (copy)"
+        "rekeyTo#0"
       ]
     },
     "101": {
@@ -381,7 +373,7 @@
       ]
     },
     "102": {
-      "op": "pushint 32 // 32",
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "len%0#0",
@@ -405,8 +397,8 @@
       ]
     },
     "105": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "rekeyTo#0"
       ]
@@ -447,83 +439,138 @@
       ]
     },
     "111": {
-      "error": "only the creator can rekey a spend contract",
-      "op": "assert // only the creator can rekey a spend contract",
+      "op": "bnz rekey_after_assert@3",
       "stack_out": [
         "rekeyTo#0"
       ]
     },
-    "112": {
+    "114": {
+      "op": "pushbytes \"ERR:OCCR\"",
+      "defined_out": [
+        "\"ERR:OCCR\"",
+        "rekeyTo#0"
+      ],
+      "stack_out": [
+        "rekeyTo#0",
+        "\"ERR:OCCR\""
+      ]
+    },
+    "124": {
+      "op": "log",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "125": {
+      "error": "ERR:OCCR",
+      "op": "err // ERR:OCCR"
+    },
+    "126": {
+      "block": "rekey_after_assert@3",
+      "stack_in": [
+        "rekeyTo#0"
+      ],
       "op": "itxn_begin"
     },
-    "113": {
+    "127": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
-        "inner_txn_params%0%%param_Receiver_idx_0#0",
-        "rekeyTo#0"
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
       ],
       "stack_out": [
         "rekeyTo#0",
         "inner_txn_params%0%%param_Receiver_idx_0#0"
       ]
     },
-    "115": {
-      "op": "itxn_field Receiver"
-    },
-    "117": {
-      "op": "itxn_field RekeyTo",
-      "stack_out": []
-    },
-    "119": {
-      "op": "intc_1 // 0",
-      "defined_out": [
-        "0"
-      ],
-      "stack_out": [
-        "0"
-      ]
-    },
-    "120": {
-      "op": "itxn_field Amount",
-      "stack_out": []
-    },
-    "122": {
-      "op": "intc_0 // 1",
-      "defined_out": [
-        "1"
-      ],
-      "stack_out": [
-        "1"
-      ]
-    },
-    "123": {
-      "op": "itxn_field TypeEnum",
-      "stack_out": []
-    },
-    "125": {
-      "op": "intc_1 // 0",
-      "stack_out": [
-        "0"
-      ]
-    },
-    "126": {
-      "op": "itxn_field Fee",
-      "stack_out": []
-    },
-    "128": {
-      "op": "itxn_submit"
-    },
     "129": {
-      "op": "intc_0 // 1",
+      "op": "dig 1",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "rekeyTo#0"
+      ],
       "stack_out": [
-        "1"
+        "rekeyTo#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "rekeyTo#0"
       ]
-    },
-    "130": {
-      "op": "return",
-      "stack_out": []
     },
     "131": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "rekeyTo#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "133": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "135": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "rekeyTo#0"
+      ],
+      "stack_out": [
+        "rekeyTo#0",
+        "0"
+      ]
+    },
+    "136": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "138": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1",
+        "rekeyTo#0"
+      ],
+      "stack_out": [
+        "rekeyTo#0",
+        "1"
+      ]
+    },
+    "139": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "141": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "rekeyTo#0",
+        "0"
+      ]
+    },
+    "142": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "144": {
+      "op": "itxn_submit"
+    },
+    "145": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "rekeyTo#0",
+        "1"
+      ]
+    },
+    "146": {
+      "op": "return",
+      "stack_out": [
+        "rekeyTo#0"
+      ]
+    },
+    "147": {
       "subroutine": "smart_contracts/escrow/contract.algo.ts::Escrow.delete[routing]",
       "params": {},
       "block": "delete",
@@ -536,7 +583,7 @@
         "tmp%0#0"
       ]
     },
-    "133": {
+    "149": {
       "op": "global CreatorAddress",
       "defined_out": [
         "tmp%0#0",
@@ -547,7 +594,7 @@
         "tmp%1#0"
       ]
     },
-    "135": {
+    "151": {
       "op": "==",
       "defined_out": [
         "tmp%2#0"
@@ -556,15 +603,33 @@
         "tmp%2#0"
       ]
     },
-    "136": {
-      "error": "Only the factory can delete the application",
-      "op": "assert // Only the factory can delete the application",
+    "152": {
+      "op": "bnz delete_after_assert@3",
       "stack_out": []
     },
-    "137": {
+    "155": {
+      "op": "pushbytes \"ERR:OFCD\"",
+      "defined_out": [
+        "\"ERR:OFCD\""
+      ],
+      "stack_out": [
+        "\"ERR:OFCD\""
+      ]
+    },
+    "165": {
+      "op": "log",
+      "stack_out": []
+    },
+    "166": {
+      "error": "ERR:OFCD",
+      "op": "err // ERR:OFCD"
+    },
+    "167": {
+      "block": "delete_after_assert@3",
+      "stack_in": [],
       "op": "itxn_begin"
     },
-    "138": {
+    "168": {
       "op": "global CreatorAddress",
       "defined_out": [
         "inner_txn_params%0%%param_CloseRemainderTo_idx_0#0"
@@ -573,11 +638,11 @@
         "inner_txn_params%0%%param_CloseRemainderTo_idx_0#0"
       ]
     },
-    "140": {
+    "170": {
       "op": "itxn_field CloseRemainderTo",
       "stack_out": []
     },
-    "142": {
+    "172": {
       "op": "intc_0 // 1",
       "defined_out": [
         "1"
@@ -586,11 +651,11 @@
         "1"
       ]
     },
-    "143": {
+    "173": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "145": {
+    "175": {
       "op": "intc_1 // 0",
       "defined_out": [
         "0"
@@ -599,20 +664,20 @@
         "0"
       ]
     },
-    "146": {
+    "176": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "148": {
+    "178": {
       "op": "itxn_submit"
     },
-    "149": {
+    "179": {
       "op": "intc_0 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "150": {
+    "180": {
       "op": "return",
       "stack_out": []
     }

@@ -246,7 +246,7 @@ export type OtherAppList = {
   escrow: uint64 // escrow factory
   poll: uint64 // poll factory
   akitaNfd: uint64 // akita.algo NFD
-  // empty slot
+  daoProposalValidator: uint64 // stateless validator the DAO delegates proposal-action validation to
   // empty slot
   // empty slot
   // empty slot
@@ -283,6 +283,7 @@ export type AkitaDAOApps = {
   wallet: uint64 // abstracted account factory
   escrow: uint64 // escrow factory
   poll: uint64 // poll factory
+  daoProposalValidator: uint64 // stateless validator the DAO delegates proposal-action validation to
 }
 
 export type WalletFees = {

@@ -1,9 +1,9 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { GatePluginSDK, newWallet, WalletSDK } from 'akita-sdk/wallet';
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk';
+import { GatePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
 algokit.Config.configure({ populateAppCallResources: true });
@@ -11,8 +11,8 @@ algokit.Config.configure({ populateAppCallResources: true });
 const fixture = algorandFixture();
 
 describe('Gate plugin contract', () => {
-  let deployer: algosdk.Account;
-  let user: algosdk.Account;
+  let deployer: Address & TransactionSignerAccount;
+  let user: Address & TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
@@ -20,7 +20,7 @@ describe('Gate plugin contract', () => {
   let gatePluginSdk: GatePluginSDK;
 
   beforeAll(async () => {
-    await fixture.beforeEach();
+    await fixture.newScope();
     algorand = fixture.context.algorand;
     dispenser = await algorand.account.dispenserFromEnvironment();
 
@@ -35,7 +35,7 @@ describe('Gate plugin contract', () => {
     akitaUniverse = await buildAkitaUniverse({
       fixture,
       sender: deployer.addr,
-      signer: makeBasicAccountTransactionSigner(deployer),
+      signer: deployer.signer,
       apps: {},
     });
 
@@ -45,10 +45,10 @@ describe('Gate plugin contract', () => {
       factoryParams: {
         appId: akitaUniverse.walletFactory.appId,
         defaultSender: user.addr,
-        defaultSigner: makeBasicAccountTransactionSigner(user),
+        defaultSigner: user.signer,
       },
       sender: user.addr,
-      signer: makeBasicAccountTransactionSigner(user),
+      signer: user.signer,
       nickname: 'Test Wallet',
     });
 
@@ -56,7 +56,7 @@ describe('Gate plugin contract', () => {
     gatePluginSdk = akitaUniverse.gatePlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 100_000n) });
-    await wallet.addPlugin({ client: gatePluginSdk, global: true });
+    await wallet.addPlugin({ client: gatePluginSdk, callerType: CallerType.Global });
   });
 
   beforeEach(fixture.newScope);

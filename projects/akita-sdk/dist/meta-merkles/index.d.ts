@@ -5,6 +5,7 @@ import { AddRootParams, UpdateRootParams, DeleteRootParams, AddDataParams, Delet
 import { MerkleTree } from "./tree";
 export * from "./types";
 export * from "./tree";
+export * from "./errors";
 /**
  * SDK for interacting with the MetaMerkles contract.
  * Use this to manage merkle tree roots, metadata, and verify merkle proofs.

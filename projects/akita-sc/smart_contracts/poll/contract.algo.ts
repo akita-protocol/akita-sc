@@ -1,19 +1,17 @@
 import {
   Account,
   Application,
-  assert,
-  assertMatch,
   BoxMap,
   bytes,
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Global, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { ERR_HAS_GATE } from '../social/errors'
-import { ERR_INVALID_PAYMENT } from '../utils/errors'
 import { gateCheck, getUserImpact } from '../utils/functions'
 import {
   PollGlobalStateKeyBoxCount,
@@ -42,6 +40,7 @@ import {
   ERR_INVALID_END_TIME,
   ERR_INVALID_MAX_SELECTION,
   ERR_INVALID_OPTION_COUNT,
+  ERR_INVALID_PAYMENT,
   ERR_INVALID_POLL_TYPE,
   ERR_INVALID_VOTE,
   ERR_INVALID_VOTE_COUNT,
@@ -100,8 +99,8 @@ export class Poll extends AkitaBaseContract {
     }
 
     if (this.type.value === SingleChoice || this.type.value === SingleChoiceImpact) {
-      assert(votes.length === 1, ERR_INVALID_VOTE_COUNT)
-      assert(votes[0] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
+      loggedAssert(votes.length === 1, ERR_INVALID_VOTE_COUNT)
+      loggedAssert(votes[0] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
 
       if (votes[0] === 0) {
         this.votesOne.value += impact
@@ -115,12 +114,12 @@ export class Poll extends AkitaBaseContract {
         this.votesFive.value += impact
       }
     } else {
-      assert(votes.length <= this.maxSelected.value, ERR_INVALID_VOTE_COUNT)
+      loggedAssert(votes.length <= this.maxSelected.value, ERR_INVALID_VOTE_COUNT)
 
       for (let i: uint64 = 0; i < votes.length; i += 1) {
-        assert(votes[i] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
+        loggedAssert(votes[i] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
         for (let j: uint64 = i + 1; j < votes.length; j += 1) {
-          assert(votes[i] !== votes[j], ERR_INVALID_VOTE_OPTION)
+          loggedAssert(votes[i] !== votes[j], ERR_INVALID_VOTE_OPTION)
         }
 
         if (votes[i] === 0) {
@@ -153,9 +152,9 @@ export class Poll extends AkitaBaseContract {
     options: string[],
     gateID: uint64
   ): void {
-    assert(Global.callerApplicationId !== 0, ERR_BAD_DEPLOYER)
-    assert(Global.latestTimestamp < endTime, ERR_INVALID_END_TIME)
-    assert(type.asUint64() < MultipleChoiceImpact.asUint64(), ERR_INVALID_POLL_TYPE)
+    loggedAssert(Global.callerApplicationId !== 0, ERR_BAD_DEPLOYER)
+    loggedAssert(Global.latestTimestamp < endTime, ERR_INVALID_END_TIME)
+    loggedAssert(type.asUint64() < MultipleChoiceImpact.asUint64(), ERR_INVALID_POLL_TYPE)
 
     this.akitaDAO.value = Application(akitaDAO)
     this.type.value = type
@@ -163,10 +162,10 @@ export class Poll extends AkitaBaseContract {
     this.endTime.value = endTime
     this.question.value = question
 
-    assert(options.length >= 2 && options.length <= 5, ERR_INVALID_OPTION_COUNT)
+    loggedAssert(options.length >= 2 && options.length <= 5, ERR_INVALID_OPTION_COUNT)
 
     if (type === MultipleChoice || type === MultipleChoiceImpact) {
-      assert(maxSelected >= 2 && maxSelected <= options.length - 1, ERR_INVALID_MAX_SELECTION)
+      loggedAssert(maxSelected >= 2 && maxSelected <= options.length - 1, ERR_INVALID_MAX_SELECTION)
       this.maxSelected.value = maxSelected
     }
 
@@ -190,11 +189,11 @@ export class Poll extends AkitaBaseContract {
   }
 
   deleteBoxes(addresses: Account[]): void {
-    assert(Global.latestTimestamp > this.endTime.value, ERR_POLL_ACTIVE)
+    loggedAssert(Global.latestTimestamp > this.endTime.value, ERR_POLL_ACTIVE)
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
 
-      assert(this.votes(addresses[i]).exists, ERR_NOT_VOTED)
+      loggedAssert(this.votes(addresses[i]).exists, ERR_NOT_VOTED)
       this.votes(addresses[i]).delete()
 
       itxn
@@ -216,35 +215,23 @@ export class Poll extends AkitaBaseContract {
     gateTxn: gtxn.ApplicationCallTxn,
     votes: uint64[]
   ): void {
-    assert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
-    assert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
-    assert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    assert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: votesMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
+    loggedAssert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
+    loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
 
     this.createVote(votes)
   }
 
   vote(mbrPayment: gtxn.PaymentTxn, votes: uint64[]): void {
-    assert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
-    assert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
-    assert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    assert(this.gateID.value === 0, ERR_HAS_GATE)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: votesMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
+    loggedAssert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
+    loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
+    loggedAssert(this.gateID.value === 0, ERR_HAS_GATE)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
 
     this.createVote(votes)
   }

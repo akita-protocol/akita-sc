@@ -1,4 +1,4 @@
-import { abimethod, Application, assert, Bytes, GlobalState, itxn, itxnCompose, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions';
 import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey } from './constants';
@@ -31,7 +31,7 @@ export class DualStakePlugin extends Contract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
 
     itxnCompose.begin(
       itxn.payment({
@@ -55,7 +55,7 @@ export class DualStakePlugin extends Contract {
       const asaAmount = op.divw(...op.mulw(amount, rate), precision)
 
       const [holdings, isOptedIn] = op.AssetHolding.assetBalance(sender, asaID)
-      assert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
+      loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
 
       itxnCompose.next(
         itxn.assetTransfer({
@@ -85,7 +85,7 @@ export class DualStakePlugin extends Contract {
   redeem(wallet: Application, rekeyBack: boolean, appId: Application): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
 
     abiCall<typeof DualStake.prototype.redeem>({
       sender,

@@ -30,6 +30,7 @@ import { MerkleTree } from "./tree";
 
 export * from "./types";
 export * from "./tree";
+export * from "./errors";
 
 /** Cost in microAlgo for adding a new tree type */
 const ADD_TYPE_COST = 100_000_000n;

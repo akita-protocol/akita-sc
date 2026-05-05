@@ -1,13 +1,17 @@
 import {
+  STAKING_ERROR_MESSAGES,
   StakingSDK,
-  StakingType
-} from "../chunk-WPKJJE3T.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  StakingType,
+  translateStakingError
+} from "../chunk-4SLXREOB.mjs";
+import "../chunk-2AEP6DTX.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
+  STAKING_ERROR_MESSAGES,
   StakingSDK,
-  StakingType
+  StakingType,
+  translateStakingError
 };
 //# sourceMappingURL=index.mjs.map

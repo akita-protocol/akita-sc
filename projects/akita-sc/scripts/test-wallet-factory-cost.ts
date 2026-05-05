@@ -9,7 +9,9 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { AbstractedAccountFactoryClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient'
 import { AbstractedAccountClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
 import { EscrowFactoryClient } from '../smart_contracts/artifacts/escrow/EscrowFactoryClient'
-import { LOCALNET_APP_IDS } from '../../akita-sdk/src/networks'
+import { buildAppIdsFromEnv } from '../../akita-sdk/src/networks'
+
+const LOCALNET_APP_IDS = buildAppIdsFromEnv(process.env)
 
 function formatMicroAlgos(microAlgos: bigint): string {
   return `${microAlgos} microAlgos (${Number(microAlgos) / 1_000_000} ALGO)`

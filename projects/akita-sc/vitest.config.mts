@@ -12,11 +12,15 @@ export default defineConfig({
         singleFork: true,
       },
     },
-    // Include all test files from tests/ and smart_contracts/ directories
+    // File suffix convention:
+    //   *.e2e.spec.ts  → E2E tests against localnet (the current suite)
+    //   *.test.ts      → reserved for pure unit tests (no localnet)
+    // Plain *.spec.ts is intentionally NOT picked up, so accidental misnaming
+    // surfaces visibly instead of silently running.
     include: [
-      'tests/**/*.spec.ts',
+      'tests/**/*.e2e.spec.ts',
       'tests/**/*.test.ts',
-      'smart_contracts/**/*.spec.ts',
+      'smart_contracts/**/*.e2e.spec.ts',
       'smart_contracts/**/*.test.ts',
     ],
     // Setup file for log suppression

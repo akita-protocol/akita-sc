@@ -2,6 +2,7 @@ import { BaseSDK } from "../base";
 import { PollClient } from '../generated/PollClient';
 import { NewContractSDKParams } from "../types";
 import { VoteParams, DeleteBoxesParams, HasVotedParams, PollState } from "./types";
+export * from "./errors";
 export * from "./factory";
 export * from "./types";
 /**

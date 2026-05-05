@@ -3,7 +3,7 @@ import { AkitaDaoPluginArgs, AkitaDaoPluginClient } from "../../generated/AkitaD
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
 type ContractArgs = AkitaDaoPluginArgs["obj"];
-type SetupArgs = (Omit<ContractArgs['setup(uint64,bool,string)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type SetupArgs = (Omit<ContractArgs['setup(uint64,bool,string,byte[32])void'], 'wallet' | 'rekeyBack' | 'salt'> & Partial<Pick<ContractArgs['setup(uint64,bool,string,byte[32])void'], 'salt'>> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type NewProposalArgs = (Omit<ContractArgs['newProposal(uint64,bool,byte[36],(uint8,byte[])[])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {

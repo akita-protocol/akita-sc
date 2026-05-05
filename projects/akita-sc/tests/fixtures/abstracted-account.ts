@@ -4,7 +4,7 @@ import { AbstractedAccountFactory } from '../../smart_contracts/artifacts/arc58/
 import { AbstractedAccountFactoryArgs, AbstractedAccountFactoryFactory } from '../../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient';
 import { FixtureAndAccount } from '../types';
 
-type CreateArgs = AbstractedAccountFactoryArgs["obj"]['create(uint64,uint64,string,uint64,uint64,string)void']
+type CreateArgs = AbstractedAccountFactoryArgs["obj"]['create(uint64,(string,uint64),string,uint64,uint64,string)void']
 type DeployParams = FixtureAndAccount & { args: Partial<CreateArgs> }
 
 export const deployAbstractedAccountFactory = async ({
@@ -13,7 +13,7 @@ export const deployAbstractedAccountFactory = async ({
   signer,
   args: {
     akitaDao = 0n,
-    akitaDaoEscrow = 0n,
+    akitaDaoEscrow = { name: '', app: 0n },
     version = '0.0.1',
     escrowFactory = 0n,
     revocation = 0n,

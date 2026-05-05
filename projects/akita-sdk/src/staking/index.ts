@@ -32,6 +32,7 @@ import {
 import { AlgoAmount } from "@algorandfoundation/algokit-utils/types/amount";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
 
+export * from './errors';
 export * from './types';
 
 /**

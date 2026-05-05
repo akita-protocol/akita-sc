@@ -1,12 +1,11 @@
-import { Account, Application, assert, assertMatch, BoxMap, Bytes, bytes, Global, GlobalState, gtxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, Bytes, bytes, Global, GlobalState, gtxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { BoxCostPerBox, Uint64ByteLength } from '../../../utils/constants'
 import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDMetaKeyVerifiedAddresses } from '../../../utils/constants/nfd'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 
 // CONTRACT IMPORTS
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
@@ -93,15 +92,9 @@ export class NFDRootGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length >= 0, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.cost(args)
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(args.length >= 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
 
     const id = this.newRegistryID()
     this.registry(id).value = String(args)
@@ -109,7 +102,7 @@ export class NFDRootGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
     const root = this.registry(registryID).value
     return this.nfdGate(caller, btoi(args), root)
   }

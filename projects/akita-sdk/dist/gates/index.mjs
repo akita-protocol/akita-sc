@@ -1,15 +1,20 @@
 import {
+  GATES_ERROR_MESSAGES,
   GateSDK,
   LogicalOperator,
-  Operator
-} from "../chunk-AHQK4M7X.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  Operator,
+  translateGateError
+} from "../chunk-YPZPOACQ.mjs";
+import "../chunk-5F555WJV.mjs";
+import "../chunk-2AEP6DTX.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
+  GATES_ERROR_MESSAGES,
   GateSDK,
   LogicalOperator,
-  Operator
+  Operator,
+  translateGateError
 };
 //# sourceMappingURL=index.mjs.map

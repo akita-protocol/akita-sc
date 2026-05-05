@@ -19,8 +19,8 @@ export const FOLLOWS_MBR = 31_700n;
 /** Blocks box MBR: 15,700 microAlgo */
 export const BLOCKS_MBR = 15_700n;
 
-/** Minimum posts box MBR: 40,100 microAlgo (add 400 * ref.length for total) */
-export const MIN_POSTS_MBR = 40_100n;
+/** Minimum posts box MBR: 46,500 microAlgo (add 400 * ref.length for total) — includes creatorFlags + moderatorFlags */
+export const MIN_POSTS_MBR = 46_500n;
 
 /** Minimum paywall MBR: 5,200 microAlgo */
 export const MIN_PAYWALL_MBR = 5_200n;
@@ -120,11 +120,10 @@ export const POST_REF_LENGTH = 32;
 // ============================================================================
 // RefType constants (matching contract)
 // ============================================================================
-export const REPLY_TYPE_POST = 10;
-export const REPLY_TYPE_ASSET = 20;
-export const REPLY_TYPE_ADDRESS = 30;
-export const REPLY_TYPE_APP = 40;
-export const REF_TYPE_EXTERNAL = 50;
+export const REPLY_TYPE_POST = 1;
+export const REPLY_TYPE_ASSET = 2;
+export const REPLY_TYPE_ADDRESS = 3;
+export const REPLY_TYPE_APP = 4;
 
 // ============================================================================
 // PostType constants (matching contract)

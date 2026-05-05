@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, assert, Asset, Bytes, GlobalState, itxn, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, compileArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, btoi, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
@@ -53,7 +53,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): uint64 {
     const sender = getSpendingAccount(wallet)
     const senderPrizeBalance = AssetHolding.assetBalance(sender, prizeID)[0]
-    assert(senderPrizeBalance >= prizeAmount, ERR_NOT_ENOUGH_ASSET)
+    loggedAssert(senderPrizeBalance >= prizeAmount, ERR_NOT_ENOUGH_ASSET)
 
     if (!this.factory.value.address.isOptedIn(Asset(prizeID))) {
       abiCall<typeof RaffleFactory.prototype.optIn>({
@@ -178,7 +178,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): uint64 {
     const sender = getSpendingAccount(wallet)
 
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
 
     const prizeBoxTransferTxn = itxn.applicationCall({
       sender,
@@ -243,7 +243,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     const { entries, entriesByAddress } = this.mbr()
     const mbr: uint64 = entries + entriesByAddress
@@ -295,7 +295,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     const ticketAsset = Asset(btoi(op.AppGlobal.getExBytes(appId, Bytes(RaffleGlobalStateKeyTicketAsset))[0]))
     if (ticketAsset.id === 0) {
@@ -335,7 +335,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     abiCall<typeof Raffle.prototype.raffle>({
       sender,
@@ -352,7 +352,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     abiCall<typeof Raffle.prototype.findWinner>({
       sender,
@@ -369,7 +369,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     abiCall<typeof Raffle.prototype.claimRafflePrize>({
       sender,
@@ -385,7 +385,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_RAFFLE_FACTORY)
 
     abiCall<typeof Raffle.prototype.deleteApplication>({
       sender,

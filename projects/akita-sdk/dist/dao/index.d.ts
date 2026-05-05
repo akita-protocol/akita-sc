@@ -1,13 +1,15 @@
 import { AkitaDaoArgs, AkitaDaoClient, ProposalCostInfo } from '../generated/AkitaDAOClient';
 import { AkitaDaoTypesClient } from '../generated/AkitaDAOTypesClient';
 import { BaseSDK } from "../base";
-import { MaybeSigner, NewContractSDKParams, SDKClient, TxnReturn } from "../types";
+import { GroupReturn, MaybeSigner, NewContractSDKParams, SDKClient, TxnReturn } from "../types";
 import { WalletSDK } from "../wallet";
 import { AkitaDaoGlobalState, DecodedProposal, EditProposalParams, NewProposalParams, ProposalAction } from "./types";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
 export * from './constants';
+export * from "./errors";
 export * from "./types";
 type ContractArgs = AkitaDaoArgs["obj"];
+type SetupArgs = (Omit<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'> & Partial<Pick<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'>> & MaybeSigner);
 export declare class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     typeClient: AkitaDaoTypesClient;
     private _wallet;
@@ -32,6 +34,7 @@ export declare class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     set wallet(wallet: WalletSDK);
     private prepProposalActions;
     initialize(params?: MaybeSigner): Promise<TxnReturn<void>>;
+    setup(params?: SetupArgs): Promise<GroupReturn>;
     newProposal<TClient extends SDKClient>({ sender, signer, cid, actions, consolidateFees }: NewProposalParams<TClient>): Promise<{
         groupId: string;
         confirmedRound: bigint;

@@ -4,7 +4,7 @@ import { StakingPoolFactory } from '../../smart_contracts/artifacts/staking-pool
 import { StakingPoolFactoryArgs, StakingPoolFactoryFactory } from '../../smart_contracts/artifacts/staking-pool/StakingPoolFactoryClient';
 import { FixtureAndAccount } from '../types';
 
-type CreateArgs = StakingPoolFactoryArgs["obj"]['create(string,string,uint64,uint64)void']
+type CreateArgs = StakingPoolFactoryArgs["obj"]['create(string,string,uint64,(string,uint64))void']
 type DeployParams = FixtureAndAccount & { args: Partial<CreateArgs> }
 
 export const deployStakingPoolFactory = async ({
@@ -13,7 +13,7 @@ export const deployStakingPoolFactory = async ({
   signer,
   args: {
     akitaDao = 0n,
-    akitaDaoEscrow = 0n,
+    akitaDaoEscrow = { name: '', app: 0n },
     version = '0.0.1',
     childVersion = '0.0.1',
   }

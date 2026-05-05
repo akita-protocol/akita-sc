@@ -3,7 +3,9 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
-import { newWallet, WalletFactorySDK } from 'akita-sdk/wallet';
+import { newWallet, WalletFactorySDK, CallerType, PayPluginSDK } from 'akita-sdk/wallet';
+import { microAlgo } from '@algorandfoundation/algokit-utils';
+import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
 import { buildAkitaUniverse, deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
@@ -58,6 +60,11 @@ describe('ARC58 Factory', () => {
       const { algorand, context: { testAccount } } = localnet
       const sender = testAccount.toString()
       const signer = testAccount.signer
+
+      // Three factory deployments in one test exceed the default 10 ALGO
+      // scope funding — top up from the dispenser.
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
 
       // Deploy a new escrow factory
       const escrowFactory = await deployEscrowFactory({
@@ -404,6 +411,244 @@ describe('ARC58 Factory', () => {
       // Timestamps should be initialized
       expect(walletState.lastUserInteraction).toBeGreaterThan(0n)
       expect(walletState.lastChange).toBeGreaterThan(0n)
+    })
+  })
+
+  describe('Factory Setup Features', () => {
+    test('create wallet with bio', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'bio_wallet',
+        bio: 'Hello from factory setup',
+      })
+
+      const walletState = await wallet.client.state.global.getAll()
+      expect(walletState.bio).toBe('Hello from factory setup')
+      expect(walletState.admin).toBe(sender)
+    })
+
+    test('create wallet with extra funding', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      const extraFunding = 5_000_000n // 5 ALGO
+
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'funded_wallet',
+        extraFunding,
+      })
+
+      const walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
+      // Wallet should have minBalance + extra funding
+      expect(walletInfo.balance.microAlgos).toBeGreaterThanOrEqual(
+        walletInfo.minBalance.microAlgos + extraFunding
+      )
+    })
+
+    test('create wallet with plugins', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      const payPlugin = await deployPayPlugin({ fixture: localnet, sender, signer })
+
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'plugin_wallet',
+        plugins: [{
+          plugin: payPlugin.appId,
+          caller: sender,
+          delegationType: 1n,
+          coverFees: true,
+          lastValid: BigInt('18446744073709551615'),
+          canReclaim: true,
+        }],
+      })
+
+      const installedPlugins = await wallet.getPlugins()
+      expect(installedPlugins.size).toBeGreaterThan(0)
+    })
+
+    test('create wallet with asset opt-ins', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      // Create test assets
+      const asset1 = await algorand.send.assetCreate({
+        sender, signer,
+        total: 1_000_000n,
+        decimals: 6,
+        assetName: 'Test1',
+        unitName: 'TST1',
+      })
+      const asset1Id = asset1.assetId
+
+      const asset2 = await algorand.send.assetCreate({
+        sender, signer,
+        total: 1_000_000n,
+        decimals: 6,
+        assetName: 'Test2',
+        unitName: 'TST2',
+      })
+      const asset2Id = asset2.assetId
+
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'asset_wallet',
+        assets: [asset1Id, asset2Id],
+      })
+
+      // Wallet should be opted into both assets
+      const walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
+      const assetIds = (walletInfo.assets ?? []).map(a => a.assetId)
+      expect(assetIds).toContain(asset1Id)
+      expect(assetIds).toContain(asset2Id)
+    })
+
+    test('create wallet with external controlled address', async () => {
+      const { algorand, context: { testAccount, generateAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      // Create an external account that will be controlled by the smart wallet
+      const externalAccount = await generateAccount({ initialFunds: (1).algos() })
+      const externalAddr = externalAccount.toString()
+      const externalSigner = externalAccount.signer
+
+      // Rekey external account to the factory
+      await algorand.send.payment({
+        sender: externalAddr,
+        signer: externalSigner,
+        receiver: externalAddr,
+        amount: microAlgo(0n),
+        rekeyTo: walletFactory.client.appAddress,
+      })
+
+      // Create wallet with external controlled address — factory handles rekey to wallet
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'external_wallet',
+        controlledAddress: externalAddr,
+      })
+
+      expect(wallet.client.appId).toBeGreaterThan(0n)
+
+      const walletState = await wallet.client.state.global.getAll()
+      expect(walletState.controlledAddress).toBe(externalAddr)
+
+      // External account should be rekeyed to the wallet app
+      const externalInfo = await algorand.account.getInformation(externalAddr)
+      expect(externalInfo.authAddr?.toString()).toBe(wallet.client.appAddress.toString())
+    })
+
+    test('create wallet with external controlled address + asset opt-ins', async () => {
+      const { algorand, context: { testAccount, generateAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+
+      // Create test asset
+      const assetResult = await algorand.send.assetCreate({
+        sender, signer,
+        total: 1_000_000n,
+        decimals: 6,
+        assetName: 'ExtTest',
+        unitName: 'EXT',
+      })
+      const assetId = assetResult.assetId
+
+      // Create external account
+      const externalAccount = await generateAccount({ initialFunds: (1).algos() })
+      const externalAddr = externalAccount.toString()
+      const externalSigner = externalAccount.signer
+
+      // Rekey external account to the factory
+      await algorand.send.payment({
+        sender: externalAddr,
+        signer: externalSigner,
+        receiver: externalAddr,
+        amount: microAlgo(0n),
+        rekeyTo: walletFactory.client.appAddress,
+      })
+
+      // Create wallet with external controlled address + asset opt-in
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'external_asset_wallet',
+        controlledAddress: externalAddr,
+        assets: [assetId],
+      })
+
+      const walletState = await wallet.client.state.global.getAll()
+      expect(walletState.controlledAddress).toBe(externalAddr)
+
+      // External account should be opted into the asset
+      const externalInfo = await algorand.account.getInformation(externalAddr)
+      const assetIds = (externalInfo.assets ?? []).map(a => a.assetId)
+      expect(assetIds).toContain(assetId)
+
+      // External account should be rekeyed to wallet
+      expect(externalInfo.authAddr?.toString()).toBe(wallet.client.appAddress.toString())
     })
   })
 })

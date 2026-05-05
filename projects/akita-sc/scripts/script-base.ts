@@ -14,7 +14,7 @@
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { getNetworkAppIds, SDKClient, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
+import { getNetworkAppIds, SDKClient, sendPrepared, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
@@ -158,7 +158,7 @@ export async function setupContext(
 
   // Check balance
   if (options.mnemonic || options.network === 'localnet') {
-    const info = await algorand.client.algod.accountInformation(sender).do()
+    const info = await algorand.client.algod.accountInformation(sender)
     const balance = BigInt(info.amount)
     console.log(`Account balance: ${balance / 1_000_000n} ALGO\n`)
     if (balance < minBalance) {
@@ -326,10 +326,10 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       global: true,
       calls,
     })
-    console.log(`   Lease: ${execution.lease}, Groups: ${execution.atcs.length}\n`)
+    console.log(`   Lease: ${execution.lease}, Groups: ${execution.windows.length}\n`)
 
     if (ctx.options.dryRun) {
-      console.log(`DRY RUN - ${target.name} update prepared (${execution.atcs.length} groups)\n`)
+      console.log(`DRY RUN - ${target.name} update prepared (${execution.windows.length} groups)\n`)
       results.push({ name: target.name, appId })
       continue
     }
@@ -350,8 +350,8 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
 
     // Submit update transactions
     console.log(`Submitting ${target.name} update transaction...`)
-    for (let i = 0; i < execution.atcs.length; i++) {
-      await execution.atcs[i].submit(ctx.algorand.client.algod)
+    for (const window of execution.windows) {
+      await sendPrepared(window, ctx.algorand.client.algod)
     }
     console.log('   Update submitted\n')
 

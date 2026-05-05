@@ -1,14 +1,12 @@
-import { Account, Application, assert, assertMatch, Asset, BoxMap, Bytes, bytes, clone, Global, gtxn, itxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Account, Application, Asset, BoxMap, Bytes, bytes, clone, Global, gtxn, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { AssetHolding } from "@algorandfoundation/algorand-typescript/op";
 import { ONE_DAY } from "../../../social/constants";
 import { DIVISOR } from "../../../utils/constants";
-import { ERR_INVALID_ASSET, ERR_INVALID_PAYMENT } from "../../../utils/errors";
 import { arc58OptInAndSend, calcPercent, getEscrow, getRekeyIndex, getSpendingAccount, mustGetEscrowInfo, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions";
 import { ERR_ESCROW_DOES_NOT_EXIST, ERR_FORBIDDEN } from "../../account/errors";
-import { ERR_ALREADY_OPTED_IN } from "../optin/errors";
 import { RevenueManagerBoxPrefixEscrows, RevenueManagerBoxPrefixReceiveAssets, RevenueManagerBoxPrefixSplitRefs, RevenueManagerBoxPrefixSplits } from "./constants";
-import { ERR_ASSET_ALREADY_ALLOCATED, ERR_ASSET_NOT_ALLOCATED, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW, ERR_ESCROW_NOT_ALLOCATABLE, ERR_ESCROW_NOT_ALLOWED_TO_OPTIN, ERR_ESCROW_NOT_IDLE, ERR_ESCROW_NOT_IN_ALLOCATION_PHASE, ERR_ESCROW_NOT_IN_FINALIZATION_PHASE, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT, ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER, ERR_OVER_ALLOCATION, ERR_PERCENTAGE_EXCEEDS_100, ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER, ERR_RECEIVE_ESCROW_DOES_NOT_EXIST, ERR_REMAINDER_MUST_BE_LAST, ERR_SPLIT_REF_NOT_FOUND, ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER, ERR_SPLITS_CANNOT_BE_EMPTY, ERR_SPLITS_CANNOT_BE_MORE_THAN_10, ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER, ERR_SPLITS_OR_REF_REQUIRED } from "./errors";
+import { ERR_ALREADY_OPTED_IN, ERR_ASSET_ALREADY_ALLOCATED, ERR_ASSET_NOT_ALLOCATED, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW, ERR_ESCROW_NOT_ALLOCATABLE, ERR_ESCROW_NOT_ALLOWED_TO_OPTIN, ERR_ESCROW_NOT_IDLE, ERR_ESCROW_NOT_IN_ALLOCATION_PHASE, ERR_ESCROW_NOT_IN_FINALIZATION_PHASE, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT, ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER, ERR_INVALID_ASSET, ERR_INVALID_PAYMENT, ERR_OVER_ALLOCATION, ERR_PERCENTAGE_EXCEEDS_100, ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER, ERR_RECEIVE_ESCROW_DOES_NOT_EXIST, ERR_REMAINDER_MUST_BE_LAST, ERR_SPLIT_REF_NOT_FOUND, ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER, ERR_SPLITS_CANNOT_BE_EMPTY, ERR_SPLITS_CANNOT_BE_MORE_THAN_10, ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER, ERR_SPLITS_OR_REF_REQUIRED } from "./errors";
 import { EscrowAssetKey, EscrowDisbursementPhaseAllocation, EscrowDisbursementPhaseFinalization, EscrowDisbursementPhaseIdle, ReceiveEscrow, Split, SplitDistributionTypeFlat, SplitDistributionTypePercentage, SplitDistributionTypeRemainder, SplitRef, WalletEscrowKey } from "./types";
 
 // CONTRACT IMPORTS
@@ -53,12 +51,12 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
     }
 
     // Fall back to referenced splits
-    assert(this.splitRefs(key).exists, ERR_SPLITS_OR_REF_REQUIRED)
+    loggedAssert(this.splitRefs(key).exists, ERR_SPLITS_OR_REF_REQUIRED)
     const { app, key: refKey } = this.splitRefs(key).value
 
     // Read splits from the referenced contract's global state
     const [refSplitsBytes, exists] = op.AppGlobal.getExBytes(Application(app), Bytes(refKey))
-    assert(exists, ERR_SPLIT_REF_NOT_FOUND)
+    loggedAssert(exists, ERR_SPLIT_REF_NOT_FOUND)
     return decodeArc4<Split[]>(refSplitsBytes)
   }
 
@@ -75,7 +73,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
       const isLast = i === splits.length - 1
 
       // Ensure value is positive (except for remainder which uses 0)
-      assert(
+      loggedAssert(
         value > 0 || type === SplitDistributionTypeRemainder,
         ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER
       )
@@ -89,20 +87,20 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
           break
         case SplitDistributionTypeRemainder:
           // Remainder must be last
-          assert(isLast, ERR_REMAINDER_MUST_BE_LAST)
+          loggedAssert(isLast, ERR_REMAINDER_MUST_BE_LAST)
           hasRemainder = true
           break
       }
     }
 
     // ensure total percentage doesn't exceed 100%
-    assert(totalPercentage <= DIVISOR, ERR_PERCENTAGE_EXCEEDS_100)
+    loggedAssert(totalPercentage <= DIVISOR, ERR_PERCENTAGE_EXCEEDS_100)
     // ensure total percentage doesn't meet 100% when using a remainder
-    assert(totalPercentage !== DIVISOR || !hasRemainder, ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER)
+    loggedAssert(totalPercentage !== DIVISOR || !hasRemainder, ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER)
     // If mixing flat amounts with percentages, need remainder OR 100% to consume all remaining funds
-    assert(!hasFlat || hasRemainder || totalPercentage === 0 || totalPercentage === DIVISOR, ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER)
+    loggedAssert(!hasFlat || hasRemainder || totalPercentage === 0 || totalPercentage === DIVISOR, ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER)
     // If no remainder, percentages must total exactly 100% (unless using only flat amounts)
-    assert(hasRemainder || totalPercentage === DIVISOR || (totalPercentage === 0 && hasFlat), ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER)
+    loggedAssert(hasRemainder || totalPercentage === DIVISOR || (totalPercentage === 0 && hasFlat), ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER)
   }
 
   @abimethod({ onCreate: 'require' })
@@ -117,30 +115,22 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
   */
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
     const escrow = getEscrow(wallet)
-    assert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
     const sender = getSpendingAccount(wallet)
 
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: sender,
-        amount: {
-          greaterThanEq: Global.assetOptInMinBalance * assets.length
-        }
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(mbrPayment.receiver === sender, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount >= Global.assetOptInMinBalance * assets.length, ERR_INVALID_PAYMENT)
 
-    assert(this.escrows({ wallet, escrow }).exists, ERR_RECEIVE_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(this.escrows({ wallet, escrow }).exists, ERR_RECEIVE_ESCROW_DOES_NOT_EXIST)
 
     const { source, optinAllowed } = this.escrows({ wallet, escrow }).value
     const initiator = gtxn.Transaction(getRekeyIndex(wallet)).sender
     const isChild = Global.callerApplicationId !== 0 && Application(Global.callerApplicationId).creator === source
-    assert(source === initiator || isChild, ERR_FORBIDDEN)
-    assert(optinAllowed, ERR_ESCROW_NOT_ALLOWED_TO_OPTIN)
+    loggedAssert(source === initiator || isChild, ERR_FORBIDDEN)
+    loggedAssert(optinAllowed, ERR_ESCROW_NOT_ALLOWED_TO_OPTIN)
 
     for (let i: uint64 = 0; i < assets.length; i++) {
-      assert(!sender.isOptedIn(Asset(assets[i])), ERR_ALREADY_OPTED_IN)
+      loggedAssert(!sender.isOptedIn(Asset(assets[i])), ERR_ALREADY_OPTED_IN)
 
       itxn
         .assetTransfer({
@@ -170,9 +160,9 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
     splits: Split[]
   ): void {
     const sender = getSpendingAccount(wallet)
-    assert(this.controls(sender), ERR_FORBIDDEN)
-    assert(splits.length > 0, ERR_SPLITS_CANNOT_BE_EMPTY)
-    assert(splits.length <= 10, ERR_SPLITS_CANNOT_BE_MORE_THAN_10)
+    loggedAssert(this.controls(sender), ERR_FORBIDDEN)
+    loggedAssert(splits.length > 0, ERR_SPLITS_CANNOT_BE_EMPTY)
+    loggedAssert(splits.length <= 10, ERR_SPLITS_CANNOT_BE_MORE_THAN_10)
 
     this.escrows({ wallet, escrow }).value = {
       source,
@@ -207,7 +197,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
     splitRef: SplitRef
   ): void {
     const sender = getSpendingAccount(wallet)
-    assert(this.controls(sender), ERR_FORBIDDEN)
+    loggedAssert(this.controls(sender), ERR_FORBIDDEN)
 
     this.escrows({ wallet, escrow }).value = {
       source,
@@ -228,20 +218,20 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
 
   startEscrowDisbursement(wallet: Application, rekeyBack: boolean): void {
     const escrow = getEscrow(wallet)
-    assert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
     const { id: escrowID } = mustGetEscrowInfo(wallet)
     const sender = getSpendingAccount(wallet)
-    assert(this.controls(sender), ERR_FORBIDDEN)
-    assert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
+    loggedAssert(this.controls(sender), ERR_FORBIDDEN)
+    loggedAssert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
 
-    assert(this.escrows({ wallet, escrow }).exists, ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(this.escrows({ wallet, escrow }).exists, ERR_ESCROW_DOES_NOT_EXIST)
     // validate the time window of the last escrow payout
     const { phase, allocatable, lastDisbursement, creationDate } = this.escrows({ wallet, escrow }).value
-    assert(phase === EscrowDisbursementPhaseIdle, ERR_ESCROW_NOT_IDLE)
-    assert(allocatable, ERR_ESCROW_NOT_ALLOCATABLE)
+    loggedAssert(phase === EscrowDisbursementPhaseIdle, ERR_ESCROW_NOT_IDLE)
+    loggedAssert(allocatable, ERR_ESCROW_NOT_ALLOCATABLE)
 
     const latestWindow: uint64 = Global.latestTimestamp - ((Global.latestTimestamp - creationDate) % ONE_DAY)
-    assert(latestWindow > lastDisbursement, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT)
+    loggedAssert(latestWindow > lastDisbursement, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT)
 
     this.escrows({ wallet, escrow }).value.phase = EscrowDisbursementPhaseAllocation
     this.escrows({ wallet, escrow }).value.lastDisbursement = latestWindow
@@ -251,27 +241,27 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
 
   processEscrowAllocation(wallet: Application, rekeyBack: boolean, ids: uint64[]): void {
     const escrow = getEscrow(wallet)
-    assert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
     const { id: escrowID } = mustGetEscrowInfo(wallet)
     const sender = getSpendingAccount(wallet)
-    assert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
+    loggedAssert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
 
     const { phase, optinCount, allocationCounter } = this.escrows({ wallet, escrow }).value
-    assert(phase === EscrowDisbursementPhaseAllocation, ERR_ESCROW_NOT_IN_ALLOCATION_PHASE)
+    loggedAssert(phase === EscrowDisbursementPhaseAllocation, ERR_ESCROW_NOT_IN_ALLOCATION_PHASE)
     const totalAssetsToProcess: uint64 = optinCount + 1 // + 1 to include algo
 
     // Resolve splits (either from direct storage or from referenced contract)
     const splits = this.resolveSplits(wallet, escrow)
 
     // Runtime validation of splits (required since referenced values can change)
-    assert(splits.length > 0, ERR_SPLITS_CANNOT_BE_EMPTY)
-    assert(splits.length <= 10, ERR_SPLITS_CANNOT_BE_MORE_THAN_10)
+    loggedAssert(splits.length > 0, ERR_SPLITS_CANNOT_BE_EMPTY)
+    loggedAssert(splits.length <= 10, ERR_SPLITS_CANNOT_BE_MORE_THAN_10)
     this.validateSplits(splits)
 
     // Process each asset
     for (let i: uint64 = 0; i < ids.length; i += 1) {
       const asset = ids[i]
-      assert(!this.receiveAssets({ escrow: escrowID, asset }).exists, ERR_ASSET_ALREADY_ALLOCATED)
+      loggedAssert(!this.receiveAssets({ escrow: escrowID, asset }).exists, ERR_ASSET_ALREADY_ALLOCATED)
 
       let balance: uint64 = 0
       let optedIn: boolean = false;
@@ -279,7 +269,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
         balance = op.balance(sender) - sender.minBalance
       } else {
         ([balance, optedIn] = AssetHolding.assetBalance(sender, asset));
-        assert(optedIn, ERR_INVALID_ASSET)
+        loggedAssert(optedIn, ERR_INVALID_ASSET)
       }
 
       let remaining: uint64 = balance
@@ -313,7 +303,7 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
             break
         }
 
-        assert(amount <= remaining, ERR_OVER_ALLOCATION)
+        loggedAssert(amount <= remaining, ERR_OVER_ALLOCATION)
         remaining -= amount
 
         if (asset === 0) {
@@ -354,18 +344,18 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
    */
   finalizeEscrowDisbursement(wallet: Application, rekeyBack: boolean, ids: uint64[]): void {
     const escrow = getEscrow(wallet)
-    assert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(escrow !== '', ERR_ESCROW_DOES_NOT_EXIST)
     const { id: escrowID } = mustGetEscrowInfo(wallet)
     const sender = getSpendingAccount(wallet)
-    assert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
+    loggedAssert(sender === Application(escrowID).address, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW)
 
     const { phase, allocationCounter } = this.escrows({ wallet, escrow }).value
-    assert(phase === EscrowDisbursementPhaseFinalization, ERR_ESCROW_NOT_IN_FINALIZATION_PHASE)
+    loggedAssert(phase === EscrowDisbursementPhaseFinalization, ERR_ESCROW_NOT_IN_FINALIZATION_PHASE)
 
     // Delete the tracking boxes for processed assets
     for (let i: uint64 = 0; i < ids.length; i++) {
       const asset = ids[i]
-      assert(this.receiveAssets({ escrow: escrowID, asset }).exists, ERR_ASSET_NOT_ALLOCATED)
+      loggedAssert(this.receiveAssets({ escrow: escrowID, asset }).exists, ERR_ASSET_NOT_ALLOCATED)
       this.receiveAssets({ escrow: escrowID, asset }).delete()
     }
 

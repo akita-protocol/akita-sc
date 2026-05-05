@@ -1,11 +1,10 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, GlobalState, gtxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, bytes, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Global } from '@algorandfoundation/algorand-typescript/op'
 
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 import { PollGateRegistryMBR } from './constants'
 
 // CONTRACT IMPORTS
@@ -68,24 +67,18 @@ export class PollGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length === 8, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: PollGateRegistryMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
-    
+    loggedAssert(args.length === 8, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === PollGateRegistryMBR, ERR_INVALID_PAYMENT)
+
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<PollGateRegistryInfo>(args)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
-    
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+
     const { poll } = this.registry(registryID).value
 
     return this.pollGate(caller, Application(poll))

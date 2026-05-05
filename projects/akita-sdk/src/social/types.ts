@@ -1,5 +1,5 @@
 import { MaybeSigner } from '../types';
-import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/composer';
 
 // Re-export important types from generated clients
 export {
@@ -25,13 +25,14 @@ export type CID = Uint8Array;
 // Ref type for posts (32 bytes hash)
 export type PostRef = Uint8Array;
 
-// RefType enum matching the contract
+// RefType IDs matching the contract (built-in types are implicit, external types are registered via DAO)
 export enum RefType {
-  Post = 10,
-  Asset = 20,
-  Address = 30,
-  App = 40,
-  External = 50,
+  Post = 1,
+  Asset = 2,
+  Address = 3,
+  App = 4,
+  // Extension types (registered via DAO registerRefType)
+  Collection = 5,
 }
 
 // ============================================================================
@@ -47,6 +48,8 @@ export type PostArgs = MaybeSigner & {
   gateId?: bigint | number;
   usePayWall?: boolean;
   payWallId?: bigint | number;
+  /** Optional creator-set content flags (defaults to 0) */
+  creatorFlags?: bigint | number;
 };
 
 export type EditPostArgs = MaybeSigner & {
@@ -54,6 +57,8 @@ export type EditPostArgs = MaybeSigner & {
   cid: CID;
   /** The post key of the post being edited */
   amendment: PostRef;
+  /** Optional creator-set content flags (defaults to 0) */
+  creatorFlags?: bigint | number;
 };
 
 export type ReplyArgs = MaybeSigner & {
@@ -68,6 +73,8 @@ export type ReplyArgs = MaybeSigner & {
   usePayWall?: boolean;
   payWallId?: bigint | number;
   gateTxn?: AppCallMethodCall;
+  /** Optional creator-set content flags (defaults to 0) */
+  creatorFlags?: bigint | number;
 };
 
 // ============================================================================

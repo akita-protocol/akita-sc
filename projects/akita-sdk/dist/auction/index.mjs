@@ -1,16 +1,20 @@
 import {
+  AUCTION_ERROR_MESSAGES,
   AuctionFactorySDK,
   AuctionSDK,
-  newAuction
-} from "../chunk-6VJOFOYM.mjs";
-import "../chunk-AXFUUP4D.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  newAuction,
+  translateAuctionError
+} from "../chunk-PRCWHO6M.mjs";
+import "../chunk-S3EAB5SX.mjs";
+import "../chunk-2AEP6DTX.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
+  AUCTION_ERROR_MESSAGES,
   AuctionFactorySDK,
   AuctionSDK,
-  newAuction
+  newAuction,
+  translateAuctionError
 };
 //# sourceMappingURL=index.mjs.map

@@ -16,23 +16,30 @@ import {
 } from '../generated/AkitaDAOTypesClient'
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
-import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, TxnReturn } from "../types";
-import { WalletSDK } from "../wallet";
+import { GroupReturn, isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, TxnReturn } from "../types";
+import { CallerType, WalletSDK } from "../wallet";
 import { AkitaDaoGlobalState, DecodedProposal, DecodedProposalAction, EditProposalParams, NewProposalParams, ProposalAction, ProposalAddPluginArgs, SplitsToTuples } from "./types";
 import { DAOProposalVotesMBR, ProposalActionEnum } from "./constants";
-import { ABIStruct, getABIDecodedValue, getABIEncodedValue } from "@algorandfoundation/algokit-utils/types/app-arc56";
-import { ALGORAND_ZERO_ADDRESS_STRING, encodeUint64 } from "algosdk";
+import { ABIStructValue, assertByteArrayLength, decodeABIValue as getABIDecodedValue, encodeABIValue as getABIEncodedValue, randomByteArray } from "../utils";
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, encodeUint64 } from "algosdk";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
-import { microAlgo, prepareGroupForSending } from "@algorandfoundation/algokit-utils";
+import { microAlgo } from "@algorandfoundation/algokit-utils";
+import { prepareGroup, sendPrepared } from "../simulate/prepare";
 import { emptySigner, MAX_UINT64 } from "../constants";
 import { EMPTY_CID } from "./constants"
-import { AllowancesToTuple, forceProperties, OverWriteProperties } from '../wallet/utils';
+import { AllowancesToTuple } from '../wallet/utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 
 export * from './constants';
+export * from "./errors";
 export * from "./types";
 
 type ContractArgs = AkitaDaoArgs["obj"]
+type SetupArgs = (
+  Omit<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'> &
+  Partial<Pick<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'>> &
+  MaybeSigner
+)
 
 export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
@@ -121,7 +128,7 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     const preppedActions: [number | bigint, Uint8Array<ArrayBufferLike>][] = []
     for (let i = 0; i < actions.length; i++) {
       const typedAction = actions[i]
-      let abiAction: ABIStruct
+      let abiAction: ABIStructValue
       let structType: string = ''
 
       switch (typedAction.type) {
@@ -134,16 +141,15 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         }
         case ProposalActionEnum.AddPlugin:
         case ProposalActionEnum.AddNamedPlugin: {
-          const { type, ...action } = typedAction
+          const { type: actionType, ...action } = typedAction
 
           let {
             name = '',
             client,
             caller,
-            global = false,
+            callerType: pluginCallerType = CallerType.Other,
             methods = [],
             escrow = '',
-            admin = false,
             delegationType = 0n,
             lastValid = MAX_UINT64,
             cooldown = 0n,
@@ -178,8 +184,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
           const plugin = client.appId;
 
-          if (global) {
+          if (pluginCallerType === CallerType.Global) {
             caller = ALGORAND_ZERO_ADDRESS_STRING
+          } else if (pluginCallerType === CallerType.Admin) {
+            caller = algosdk.getApplicationAddress(client.appId).toString()
           }
 
           let transformedMethods: [Uint8Array<ArrayBufferLike>, number | bigint][] = [];
@@ -202,7 +210,6 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
             plugin,
             caller: caller!,
             escrow,
-            admin,
             delegationType,
             lastValid,
             cooldown,
@@ -210,7 +217,6 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
             useRounds,
             useExecutionKey,
             coverFees,
-            canReclaim: false,
             defaultToEscrow,
             fee,
             power,
@@ -413,7 +419,8 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
                 assetInbox = currentApps?.assetInbox ?? 0n,
                 escrow = currentApps?.escrow ?? 0n,
                 poll = currentApps?.poll ?? 0n,
-                akitaNfd = currentApps?.akitaNfd ?? 0n
+                akitaNfd = currentApps?.akitaNfd ?? 0n,
+                daoProposalValidator = currentApps?.daoProposalValidator ?? 0n
               } = action.value;
 
               const abiData = {
@@ -422,7 +429,8 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
                 assetInbox,
                 escrow,
                 poll,
-                akitaNfd
+                akitaNfd,
+                daoProposalValidator
               };
 
               data = getABIEncodedValue(abiData, 'OtherAppList', this.client.appClient.appSpec.structs)
@@ -615,6 +623,42 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     })
   }
 
+  async setup(params: SetupArgs = {}): Promise<GroupReturn> {
+
+    const sendParams = this.getSendParams(params);
+    const { nickname = 'Akita DAO', salt = randomByteArray(32) } = params;
+    assertByteArrayLength(salt, 'salt', 32);
+
+    const group = this.client.newGroup()
+
+    group.setup({
+      ...sendParams,
+      args: { nickname, salt },
+      maxFee: microAlgo(6_000n)
+    })
+
+    group.opUp({ args: {}, note: '1', maxFee: microAlgo(1_000n) })
+    group.opUp({ args: {}, note: '2', maxFee: microAlgo(1_000n) })
+
+    const result = await group.send({ ...sendParams })
+
+    if (result.returns === undefined) {
+      throw new Error('Failed to setup Akita DAO');
+    }
+
+    this._wallet = new WalletSDK({
+      algorand: this.algorand,
+      factoryParams: {
+        appId: result.returns[0] as bigint,
+        defaultSender: sendParams.sender,
+        defaultSigner: sendParams.signer
+      }
+    })
+    this._walletInitPromise = Promise.resolve(this._wallet)
+
+    return result;
+  }
+
   async newProposal<TClient extends SDKClient>({
     sender,
     signer,
@@ -647,54 +691,33 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         payment,
         cid,
         actions: preppedActions
-      }
+      },
+      maxFee: microAlgo(257_000n)
     })
 
     for (let i = 0; i < actions.length; i++) {
-      group.opUp({ args: {}, note: `${i}` })
+      group.opUp({ args: {}, note: `${i}`, maxFee: microAlgo(257_000n) })
     }
 
-    const length = await (await group.composer()).count()
-
-    const suggestedParams = await this.client.algorand.getSuggestedParams()
-    const foundation = (await (await group.composer()).build()).atc
-
-    const maxFees = new Map<number, AlgoAmount>();
-    for (let i = 0; i < length; i += 1) {
-      maxFees.set(i, microAlgo(257_000));
-    }
-
-    const populatedGroup = await prepareGroupForSending(
-      foundation,
-      this.client.algorand.client.algod,
-      {
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true
-      },
-      {
-        maxFees,
-        suggestedParams: suggestedParams,
-      },
+    // Single simulate via utils10's `prepareGroup` populates resources and
+    // distributes inner-txn fees; optional fee consolidation onto txn[0] is
+    // an in-memory mutation after simulate (no extra roundtrip).
+    const prepared = await prepareGroup(
+      await group.composer(),
+      consolidateFees ? { consolidateFees: true } : {},
     )
 
-    let overwrite: OverWriteProperties = {}
+    const { groupId, txIds, confirmedRound, returns } = await sendPrepared(
+      prepared,
+      this.client.algorand.client.algod,
+    )
 
-    if (consolidateFees) {
-      const feeConsolidation = populatedGroup.clone().buildGroup();
-      const totalFees = feeConsolidation.reduce((acc, txn) => acc + txn.txn.fee, 0n);
-      overwrite.fees = new Map([
-        [0, microAlgo(totalFees)],
-        ...Array.from({ length: length - 1 }, (_, i) => [i + 1, microAlgo(0)] as [number, AlgoAmount]),
-      ])
+    return {
+      groupId,
+      confirmedRound,
+      txIDs: txIds,
+      return: returns && returns.length > 0 ? returns[0].returnValue as bigint : undefined
     }
-
-    const finalGroup = forceProperties(populatedGroup, overwrite)
-
-    const groupId = finalGroup.buildGroup()[0].txn.group!.toString()
-
-    const { methodResults, ...rest } = await finalGroup.execute(this.client.algorand.client.algod, 10)
-
-    return { groupId, ...rest, return: methodResults ? methodResults[0].returnValue as bigint : undefined }
   }
 
   async editProposal<TClient extends SDKClient>({

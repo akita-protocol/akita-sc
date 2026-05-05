@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { NfdPluginArgs, NfdPluginClient, NfdPluginFactory } from "../../generated/NFDPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -102,7 +103,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   deleteFields(args?: DeleteFieldsArgs): PluginSDKReturn {
     const methodName = 'deleteFields';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -112,7 +113,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -136,7 +137,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   updateFields(args?: UpdateFieldsArgs): PluginSDKReturn {
     const methodName = 'updateFields';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -146,7 +147,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -170,7 +171,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   offerForSale(args?: OfferForSaleArgs): PluginSDKReturn {
     const methodName = 'offerForSale';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -180,7 +181,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -204,7 +205,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   cancelSale(args?: CancelSaleArgs): PluginSDKReturn {
     const methodName = 'cancelSale';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -214,7 +215,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -238,7 +239,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   postOffer(args?: PostOfferArgs): PluginSDKReturn {
     const methodName = 'postOffer';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -248,7 +249,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -272,7 +273,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   purchase(args?: PurchaseArgs): PluginSDKReturn {
     const methodName = 'purchase';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -282,7 +283,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -306,7 +307,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   updateHash(args?: UpdateHashArgs): PluginSDKReturn {
     const methodName = 'updateHash';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -316,7 +317,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -340,7 +341,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   contractLock(args?: ContractLockArgs): PluginSDKReturn {
     const methodName = 'contractLock';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -350,7 +351,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -374,7 +375,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   segmentLock(args?: SegmentLockArgs): PluginSDKReturn {
     const methodName = 'segmentLock';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -384,7 +385,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -408,7 +409,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   vaultOptInLock(args?: VaultOptInLockArgs): PluginSDKReturn {
     const methodName = 'vaultOptInLock';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -418,7 +419,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -442,7 +443,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   vaultOptIn(args?: VaultOptInArgs): PluginSDKReturn {
     const methodName = 'vaultOptIn';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -452,7 +453,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -476,7 +477,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   vaultSend(args?: VaultSendArgs): PluginSDKReturn {
     const methodName = 'vaultSend';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -486,7 +487,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -510,7 +511,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   renew(args?: RenewArgs): PluginSDKReturn {
     const methodName = 'renew';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -520,7 +521,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -544,7 +545,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
   setPrimaryAddress(args?: SetPrimaryAddressArgs): PluginSDKReturn {
     const methodName = 'setPrimaryAddress';
     if (args === undefined) {
-      return (_spendingAddress?: Address | string) => ({
+      return (_spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -554,7 +555,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: Address | string) => ({
+    return (_spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

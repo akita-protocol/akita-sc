@@ -3,7 +3,7 @@ import { abiCall, Address, decodeArc4, methodSelector } from "@algorandfoundatio
 import { btoi, itob, sha256 } from "@algorandfoundation/algorand-typescript/op"
 import { AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysCurrentPlugin, AbstractAccountGlobalStateKeysReferrer, AbstractAccountGlobalStateKeysRekeyIndex, AbstractAccountGlobalStateKeysSpendingAddress } from "../arc58/account/constants"
 import { ERR_ESCROW_DOES_NOT_EXIST } from "../arc58/account/errors"
-import { EscrowInfo, PluginKey } from "../arc58/account/types"
+import { CallerTypeGlobal, EscrowInfo, PluginKey } from "../arc58/account/types"
 import { AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees } from "../arc58/dao/constants"
 import { AkitaAppList, AkitaAssets, AkitaSocialAppList, NFTFees, OtherAppList, PluginAppList, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../arc58/dao/types"
 import { GlobalStateKeyFunder } from "../constants"
@@ -379,7 +379,7 @@ export function arc58OptInAndSend(akitaDAO: Application, recipientWallet: Applic
 
   itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     appId: recipientWallet.id,
-    args: [optinPlugin, true, escrow, [], []]
+    args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
   })
 
   itxnCompose.next<typeof OptInPlugin.prototype.optIn>({

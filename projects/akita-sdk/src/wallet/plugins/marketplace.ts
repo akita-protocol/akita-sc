@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { MarketplacePluginArgs, MarketplacePluginClient, MarketplacePluginFactory } from "../../generated/MarketplacePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -37,7 +38,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
   list(args?: ListArgs): PluginSDKReturn {
     const methodName = 'list';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -47,7 +48,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -71,7 +72,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
   purchase(args?: PurchaseArgs): PluginSDKReturn {
     const methodName = 'purchase';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -81,7 +82,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -96,7 +97,8 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
           type: 'methodCall',
           ...params
         }];
-      }
+      },
+      opUpCount: 1
     });
   }
 
@@ -105,7 +107,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
   delist(args?: DelistArgs): PluginSDKReturn {
     const methodName = 'delist';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -115,7 +117,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

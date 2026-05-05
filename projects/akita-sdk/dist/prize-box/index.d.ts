@@ -3,6 +3,7 @@ import { PrizeBoxClient } from '../generated/PrizeBoxClient';
 import { PrizeBoxFactoryClient, PrizeBoxFactoryArgs } from '../generated/PrizeBoxFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { MintParams, OptInParams, TransferParams, WithdrawParams, PrizeBoxState } from "./types";
+export * from "./errors";
 export * from "./types";
 /**
  * SDK for interacting with an individual PrizeBox contract.

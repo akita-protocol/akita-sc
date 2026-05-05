@@ -1,8 +1,6 @@
 import {
   Account,
   Application,
-  assert,
-  assertMatch,
   Asset,
   BoxMap,
   Bytes,
@@ -12,19 +10,18 @@ import {
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, itob, sha256 } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
-import { AkitaDAOEscrowAccountStakingPools } from '../arc58/dao/constants'
 import { RootKey } from '../meta-merkles/types'
 import { MinDisbursementsMBR, UserAllocationMBR } from '../rewards/constants'
 import { UserAllocation } from '../rewards/types'
 import { StakingType } from '../staking/types'
 import { BoxCostPerByte, MAX_UINT64 } from '../utils/constants'
-import { ERR_FAILED_GATE, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER } from '../utils/errors'
 import { calcPercent, gateCheck, getAkitaAppList, getAkitaSocialAppList, getGateArgs, getOtherAppList, getStakingFees, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOr, originOrTxnSender, percentageOf, splitOptInCount } from '../utils/functions'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 
@@ -74,7 +71,47 @@ import {
   PoolUniquesMBR,
   WinnerCountCap,
 } from './constants'
-import { ERR_DAO_NOT_OPTED_IN, ERR_DISBURSEMENT_NOT_READY_FOR_FINALIZATION, ERR_FORBIDDEN, ERR_INVALID_DISBURSEMENT_PHASE, ERR_INVALID_POOL_TYPE_FOR_CHECK, ERR_MAX_ENTRIES_CANNOT_BE_GREATER_THAN_RATE, ERR_NOT_ALGO, ERR_NOT_ENOUGH_FUNDS, ERR_NOT_READY_TO_DISBURSE, ERR_RATE_MUST_BE_GREATER_THAN_WINNER_COUNT, ERR_RATE_MUST_BE_GREATER_THAN_ZERO, ERR_STAKE_KEY_REQUIRED, ERR_WINNING_TICKETS_ALREADY_EXIST } from './errors'
+import {
+  ERR_CREATOR_ONLY_DELETE,
+  ERR_CREATOR_ONLY_FINALIZE,
+  ERR_DAO_NOT_OPTED_IN,
+  ERR_DISBURSEMENT_NOT_READY_FOR_FINALIZATION,
+  ERR_DISTRIBUTION_WINDOW_NOT_OPEN,
+  ERR_FACTORY_ONLY_DELETE,
+  ERR_FACTORY_ONLY_INIT,
+  ERR_FAILED_GATE,
+  ERR_FAILED_STAKE_VERIFY,
+  ERR_FORBIDDEN,
+  ERR_GATE_ID_NOT_SET,
+  ERR_GATE_ID_SET,
+  ERR_INVALID_DISBURSEMENT_PHASE,
+  ERR_INVALID_END_TIMESTAMP,
+  ERR_INVALID_PAYMENT,
+  ERR_INVALID_POOL_TYPE_FOR_CHECK,
+  ERR_INVALID_SIGNUP_TIMESTAMP,
+  ERR_INVALID_START_TIMESTAMP,
+  ERR_INVALID_START_ZERO_REQUIRES_LATE,
+  ERR_INVALID_TRANSFER,
+  ERR_MAX_ENTRIES_CANNOT_BE_GREATER_THAN_RATE,
+  ERR_NOT_ALGO,
+  ERR_NOT_ENOUGH_FUNDS,
+  ERR_NOT_READY_TO_DISBURSE,
+  ERR_POOL_MAX_ENTRIES_REACHED,
+  ERR_POOL_MUST_BE_DRAFT,
+  ERR_POOL_NOT_DRAFT_OR_ENDED,
+  ERR_POOL_NOT_LIVE,
+  ERR_QUANTITY_BELOW_MIN_STAKE,
+  ERR_RATE_MUST_BE_GREATER_THAN_WINNER_COUNT,
+  ERR_RATE_MUST_BE_GREATER_THAN_ZERO,
+  ERR_REWARD_ALREADY_IN_DISBURSEMENT,
+  ERR_REWARD_NOT_FOUND,
+  ERR_SIGNUPS_NOT_OPEN,
+  ERR_STAKE_KEY_REQUIRED,
+  ERR_UNKNOWN_REWARD_RATE_TYPE,
+  ERR_USER_BALANCE_TOO_LOW,
+  ERR_USER_STAKE_TOO_LOW,
+  ERR_WINNING_TICKETS_ALREADY_EXIST,
+} from './errors'
 import {
   AddRewardParams,
   DistributionType,
@@ -95,7 +132,7 @@ import { GateArgs } from '../gates/types'
 import type { MetaMerkles } from '../meta-merkles/contract.algo'
 import type { Rewards } from '../rewards/contract.algo'
 import type { Staking } from '../staking/contract.algo'
-import { AkitaBaseFeeGeneratorContract } from '../utils/base-contracts/base'
+import { AkitaBaseFeeGeneratorContract, EscrowConfig } from '../utils/base-contracts/base'
 import { ChildContract } from '../utils/base-contracts/child'
 import type { RandomnessBeacon } from '../utils/types/randomness-beacon'
 import { BaseStakingPool } from './base'
@@ -203,16 +240,16 @@ export class StakingPool extends classes(
     if (asset === 0) {
       itxn
         .payment({
-          receiver: this.akitaDAOEscrow.value.address,
+          receiver: this.akitaDAOEscrow.value.app.address,
           amount,
         })
         .submit()
     } else {
-      assert(this.akitaDAOEscrow.value.address.isOptedIn(Asset(asset)), ERR_DAO_NOT_OPTED_IN)
+      loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(asset)), ERR_DAO_NOT_OPTED_IN)
 
       itxn
         .assetTransfer({
-          assetReceiver: this.akitaDAOEscrow.value.address,
+          assetReceiver: this.akitaDAOEscrow.value.app.address,
           assetAmount: amount,
           xferAsset: asset,
         })
@@ -221,7 +258,7 @@ export class StakingPool extends classes(
   }
 
   private processPreparationPhase(rewardID: uint64, iterationAmount: uint64): void {
-    const { disbursementCursor, distribution, rate, asset } = this.rewards(rewardID).value
+    const { disbursementCursor, distribution, rate, asset, activeDisbursementID, winnerCount } = this.rewards(rewardID).value
     let count: uint64 = 0
     let total: uint64 = 0
 
@@ -253,6 +290,12 @@ export class StakingPool extends classes(
       this.rewards(rewardID).value.phase = DisbursementPhaseAllocation
       this.rewards(rewardID).value.disbursementCursor = 1 // Entry IDs start at 1
 
+      let allocationCount = this.rewards(rewardID).value.qualifiedStakers
+      if (distribution === DistributionTypeShuffle) {
+        allocationCount = winnerCount
+      }
+
+      this.fundRewardMbrCredits(activeDisbursementID, allocationCount)
       this.payAkitaRoyalty(distribution, rate, asset, this.rewards(rewardID).value.qualifiedStakers)
     } else {
       // update the reward state for the next iteration
@@ -319,7 +362,7 @@ export class StakingPool extends classes(
       [balance] = AssetHolding.assetBalance(Global.currentApplicationAddress, asset)
     }
 
-    assert(balance >= total, ERR_NOT_ENOUGH_FUNDS)
+    loggedAssert(balance >= total, ERR_NOT_ENOUGH_FUNDS)
 
     if ((disbursementCursor + iterationAmount) > this.entryID.value) {
       iterationAmount = this.entryID.value - disbursementCursor
@@ -365,7 +408,7 @@ export class StakingPool extends classes(
       balance = AssetHolding.assetBalance(Global.currentApplicationAddress, asset)[0]
     }
     const actualSum: uint64 = rate - this.akitaRoyaltyAmount.value
-    assert(balance >= actualSum, ERR_NOT_ENOUGH_FUNDS)
+    loggedAssert(balance >= actualSum, ERR_NOT_ENOUGH_FUNDS)
 
     if ((disbursementCursor + iterationAmount) > this.entryID.value) {
       iterationAmount = this.entryID.value - disbursementCursor
@@ -413,7 +456,7 @@ export class StakingPool extends classes(
       balance = AssetHolding.assetBalance(Global.currentApplicationAddress, asset)[0]
     }
     const actualSum: uint64 = sum - this.akitaRoyaltyAmount.value
-    assert(balance >= actualSum, ERR_NOT_ENOUGH_FUNDS)
+    loggedAssert(balance >= actualSum, ERR_NOT_ENOUGH_FUNDS)
 
     if ((disbursementCursor + iterationAmount) > this.entryID.value) {
       iterationAmount = this.entryID.value - disbursementCursor
@@ -485,7 +528,7 @@ export class StakingPool extends classes(
   }
 
   private checkByID(id: uint64): { valid: boolean, balance: uint64 } {
-    assert(
+    loggedAssert(
       this.type.value !== POOL_STAKING_TYPE_NONE || this.type.value !== POOL_STAKING_TYPE_HEARTBEAT,
       ERR_INVALID_POOL_TYPE_FOR_CHECK
     )
@@ -574,6 +617,26 @@ export class StakingPool extends classes(
     }).returnValue
   }
 
+  private fundRewardMbrCredits(disbursementID: uint64, allocationCount: uint64): void {
+    const rewardsApp = Application(getAkitaAppList(this.akitaDAO.value).rewards)
+    const mbrAmount: uint64 = UserAllocationMBR * allocationCount
+
+    if (mbrAmount === 0) {
+      return
+    }
+
+    abiCall<typeof Rewards.prototype.fundMbrCredits>({
+      appId: rewardsApp,
+      args: [
+        disbursementID,
+        itxn.payment({
+          receiver: rewardsApp.address,
+          amount: mbrAmount,
+        }),
+      ],
+    })
+  }
+
   private createRewardAllocations(
     disbursementID: uint64,
     asset: uint64,
@@ -582,7 +645,6 @@ export class StakingPool extends classes(
   ): void {
 
     const rewardsApp = Application(getAkitaAppList(this.akitaDAO.value).rewards)
-    const mbrAmount = this.calculateAllocationMBR(allocations)
 
     if (asset === 0) {
       // ALGO allocations
@@ -591,7 +653,7 @@ export class StakingPool extends classes(
         args: [
           itxn.payment({
             receiver: rewardsApp.address,
-            amount: mbrAmount + sum,
+            amount: sum,
           }),
           disbursementID,
           allocations,
@@ -602,10 +664,6 @@ export class StakingPool extends classes(
       abiCall<typeof Rewards.prototype.createAsaUserAllocations>({
         appId: rewardsApp,
         args: [
-          itxn.payment({
-            receiver: rewardsApp.address,
-            amount: mbrAmount,
-          }),
           itxn.assetTransfer({
             assetReceiver: rewardsApp.address,
             xferAsset: asset,
@@ -633,35 +691,31 @@ export class StakingPool extends classes(
     // want to distribute rewards on something else like subscription status
     // or impact score. In these cases the gate is the only requirement
     // and the stake key is not needed
-    assert(
+    loggedAssert(
       this.stakeKey.value.address !== Global.zeroAddress || reward.distribution !== DistributionTypePercentage,
       ERR_STAKE_KEY_REQUIRED
     )
 
     // rate needs to be greater than the number of winners we want to pick for shuffles
     if (reward.distribution === DistributionTypeShuffle) {
-      assert(reward.rate > reward.winnerCount && reward.winnerCount <= WinnerCountCap, ERR_RATE_MUST_BE_GREATER_THAN_WINNER_COUNT)
+      loggedAssert(reward.rate > reward.winnerCount && reward.winnerCount <= WinnerCountCap, ERR_RATE_MUST_BE_GREATER_THAN_WINNER_COUNT)
     }
 
     // if we're distributing evenly, the max entries must be less than or equal to the rate
     if (reward.distribution === DistributionTypeEven) {
-      assert(this.maxEntries.value === 0 || this.maxEntries.value <= reward.rate, ERR_MAX_ENTRIES_CANNOT_BE_GREATER_THAN_RATE)
+      loggedAssert(this.maxEntries.value === 0 || this.maxEntries.value <= reward.rate, ERR_MAX_ENTRIES_CANNOT_BE_GREATER_THAN_RATE)
     }
 
-    assert(reward.rate > 0, ERR_RATE_MUST_BE_GREATER_THAN_ZERO)
-  }
-
-  private calculateAllocationMBR(allocations: UserAllocation[]): uint64 {
-    return UserAllocationMBR * allocations.length
+    loggedAssert(reward.rate > 0, ERR_RATE_MUST_BE_GREATER_THAN_ZERO)
   }
 
   private createPoolEntries(payment: gtxn.PaymentTxn, entries: StakeEntry[], gateArgs: GateArgs): void {
-    assert(this.isLive(), 'the pool is not live')
+    loggedAssert(this.signUpsOpen(), ERR_SIGNUPS_NOT_OPEN)
 
-    assert(
+    loggedAssert(
       (this.entryID.value + 1) <= this.maxEntries.value ||
       this.maxEntries.value === 0,
-      'pool has reached maximum entries'
+      ERR_POOL_MAX_ENTRIES_REACHED
     )
 
     // Verify payment for box storage (increased for additional box)
@@ -671,19 +725,13 @@ export class StakingPool extends classes(
       total += PoolUniquesMBR
     }
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: { greaterThanEq: total },
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount >= total, ERR_INVALID_PAYMENT)
 
     const { address, name } = this.stakeKey.value
 
     for (let i: uint64 = 0; i < entries.length; i++) {
-      assert(entries[i].quantity >= this.minimumStakeAmount.value, 'quantity is less than minimum stake amount')
+      loggedAssert(entries[i].quantity >= this.minimumStakeAmount.value, ERR_QUANTITY_BELOW_MIN_STAKE)
 
       if (address !== Global.zeroAddress) {
         const verified = abiCall<typeof MetaMerkles.prototype.verify>({
@@ -697,7 +745,7 @@ export class StakingPool extends classes(
           ],
         }).returnValue
 
-        assert(verified, 'failed to verify stake requirements')
+        loggedAssert(verified, ERR_FAILED_STAKE_VERIFY)
       }
 
       // check their actual balance if the assets aren't escrowed
@@ -713,7 +761,7 @@ export class StakingPool extends classes(
           optedIn = true
           balance = Txn.sender.balance
         }
-        assert(optedIn && balance >= entries[i].quantity, 'user does not have min balance')
+        loggedAssert(optedIn && balance >= entries[i].quantity, ERR_USER_BALANCE_TOO_LOW)
       }
 
       // Skip staking check for NONE type pools
@@ -729,7 +777,7 @@ export class StakingPool extends classes(
           ],
         }).returnValue
 
-        assert(stakeInfo.amount >= entries[i].quantity, 'user does not have enough staked')
+        loggedAssert(stakeInfo.amount >= entries[i].quantity, ERR_USER_STAKE_TOO_LOW)
       }
 
       const entryID = this.newEntryID()
@@ -768,7 +816,7 @@ export class StakingPool extends classes(
     gateID: uint64,
     maxEntries: uint64,
     akitaDAO: Application,
-    akitaDAOEscrow: Application,
+    akitaDAOEscrow: EscrowConfig,
   ): void {
     this.status.value = PoolStatusDraft
     this.title.value = title
@@ -785,7 +833,7 @@ export class StakingPool extends classes(
 
     this.salt.value = Txn.txId
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
 
     const fees = getStakingFees(this.akitaDAO.value)
 
@@ -799,7 +847,7 @@ export class StakingPool extends classes(
   }
 
   init() {
-    assert(Global.callerApplicationAddress === Global.creatorAddress, 'only the factory can init the pool')
+    loggedAssert(Global.callerApplicationAddress === Global.creatorAddress, ERR_FACTORY_ONLY_INIT)
 
     if (this.gateID.value > 0) {
       this.gateSize.value = abiCall<typeof Gate.prototype.size>({
@@ -811,9 +859,9 @@ export class StakingPool extends classes(
 
   @abimethod({ allowActions: 'DeleteApplication' })
   delete(caller: Account): void {
-    assert(Txn.sender === Global.creatorAddress, 'call must come from factory')
-    assert(caller === this.creator.value, 'only the creator can delete the pool')
-    assert(this.status.value === PoolStatusDraft || Global.latestTimestamp > this.endTimestamp.value, 'the pool must be in draft or ended')
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_FACTORY_ONLY_DELETE)
+    loggedAssert(caller === this.creator.value, ERR_CREATOR_ONLY_DELETE)
+    loggedAssert(this.status.value === PoolStatusDraft || Global.latestTimestamp > this.endTimestamp.value, ERR_POOL_NOT_DRAFT_OR_ENDED)
 
     // TODO: ensure weights are cleared
 
@@ -830,26 +878,20 @@ export class StakingPool extends classes(
    * @param asset The asset to be opted into
    */
   optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
-    assert(Txn.sender === this.creator.value, ERR_FORBIDDEN)
+    loggedAssert(Txn.sender === this.creator.value, ERR_FORBIDDEN)
 
     let optinMBR: uint64 = Global.assetOptInMinBalance
     // check if the akita dao escrow is opted in to the asset
     // if it does that means 4 extra optins are needed
-    if (!this.akitaDAOEscrow.value.address.isOptedIn(asset)) {
-      const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    if (!this.akitaDAOEscrow.value.app.address.isOptedIn(asset)) {
+      const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
       optinMBR += Global.assetOptInMinBalance * count
     }
 
     const rewardsMBR: uint64 = this.rewardsMbr(WinnerCountCap) * 2
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: optinMBR + rewardsMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === optinMBR + rewardsMBR, ERR_INVALID_PAYMENT)
 
     itxn
       .assetTransfer({
@@ -859,31 +901,19 @@ export class StakingPool extends classes(
       })
       .submit()
 
-    this.optAkitaEscrowInAndSend(
-      AkitaDAOEscrowAccountStakingPools,
-      asset,
-      0
-    )
+    this.optAkitaEscrowInAndSend(asset, 0)
   }
 
   addReward(payment: gtxn.PaymentTxn, reward: AddRewardParams): void {
-    assert(Txn.sender === this.creator.value, ERR_FORBIDDEN)
+    loggedAssert(Txn.sender === this.creator.value, ERR_FORBIDDEN)
     if (Txn.applicationArgs(0) === methodSelector(this.addReward)) {
-      assert(reward.asset === 0, ERR_NOT_ALGO)
+      loggedAssert(reward.asset === 0, ERR_NOT_ALGO)
     }
 
     this.validateReward(reward)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: {
-          greaterThanEq: this.rewardsMbr(reward.winnerCount)
-        }
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount >= this.rewardsMbr(reward.winnerCount), ERR_INVALID_PAYMENT)
 
     const id = this.newRewardID()
     this.rewards(id).value = {
@@ -906,43 +936,35 @@ export class StakingPool extends classes(
   }
 
   addRewardAsa(payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, reward: AddRewardParams): void {
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        xferAsset: Asset(reward.asset),
-        assetAmount: {
-          greaterThan: 0
-        }
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.xferAsset === Asset(reward.asset), ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
 
     this.addReward(payment, reward)
   }
 
   finalize(signupTimestamp: uint64, startTimestamp: uint64, endTimestamp: uint64) {
-    assert(Txn.sender === this.creator.value, 'only the creator can finalize the pool')
-    assert(this.status.value === PoolStatusDraft, 'the pool must be in draft state to finalize')
-    assert(
+    loggedAssert(Txn.sender === this.creator.value, ERR_CREATOR_ONLY_FINALIZE)
+    loggedAssert(this.status.value === PoolStatusDraft, ERR_POOL_MUST_BE_DRAFT)
+    loggedAssert(
       signupTimestamp > Global.latestTimestamp || (signupTimestamp === 0 && this.allowLateSignups.value),
-      'the signup round must be zero and late sign ups allowed or in the future'
+      ERR_INVALID_SIGNUP_TIMESTAMP
     )
     // if start is zero then signup must also be zero and allowLateSignups must be true
-    assert(
+    loggedAssert(
       startTimestamp === 0 ||
       startTimestamp > Global.latestTimestamp,
-      'the starting round must be zero or in the future'
+      ERR_INVALID_START_TIMESTAMP
     )
 
     if (startTimestamp === 0) {
-      assert(signupTimestamp === 0 && this.allowLateSignups.value, 'if the starting round is zero, the signup round must be zero and allowLateSignups must be true')
+      loggedAssert(signupTimestamp === 0 && this.allowLateSignups.value, ERR_INVALID_START_ZERO_REQUIRES_LATE)
       startTimestamp = Global.latestTimestamp
     }
 
-    assert(
+    loggedAssert(
       endTimestamp === 0 || endTimestamp > (startTimestamp + 10),
-      'the ending round must be zero or after the starting round + 10'
+      ERR_INVALID_END_TIMESTAMP
     )
 
     this.signupTimestamp.value = signupTimestamp
@@ -959,25 +981,25 @@ export class StakingPool extends classes(
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
 
-    assert(this.gateID.value !== 0, 'gate id is not set')
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, this.gateID.value), ERR_FAILED_GATE)
+    loggedAssert(this.gateID.value !== 0, ERR_GATE_ID_NOT_SET)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, this.gateID.value), ERR_FAILED_GATE)
 
     this.createPoolEntries(payment, entries, getGateArgs(gateTxn))
   }
 
   enter(payment: gtxn.PaymentTxn, entries: StakeEntry[]): void {
-    assert(this.gateID.value === 0, 'gate id is set')
+    loggedAssert(this.gateID.value === 0, ERR_GATE_ID_SET)
     this.createPoolEntries(payment, entries, [])
   }
 
   startDisbursement(rewardID: uint64): void {
-    assert(this.isLive(), 'the pool is not live')
-    assert(this.rewards(rewardID).exists, 'reward does not exist')
+    loggedAssert(this.isLive(), ERR_POOL_NOT_LIVE)
+    loggedAssert(this.rewards(rewardID).exists, ERR_REWARD_NOT_FOUND)
 
     const { phase, interval, lastDisbursementTimestamp, expiration } = this.rewards(rewardID).value
 
-    assert(phase === DisbursementPhaseIdle, 'reward is already in a disbursement phase')
-    assert(this.validWindow(interval, lastDisbursementTimestamp), 'distribution window is not open')
+    loggedAssert(phase === DisbursementPhaseIdle, ERR_REWARD_ALREADY_IN_DISBURSEMENT)
+    loggedAssert(this.validWindow(interval, lastDisbursementTimestamp), ERR_DISTRIBUTION_WINDOW_NOT_OPEN)
 
     const disbursementID = this.createRewards(
       `${this.title.value} - Rewards`,
@@ -995,7 +1017,7 @@ export class StakingPool extends classes(
   }
 
   raffle(rewardID: uint64): void {
-    assert(this.rewards(rewardID).exists, 'reward does not exist')
+    loggedAssert(this.rewards(rewardID).exists, ERR_REWARD_NOT_FOUND)
     const {
       phase,
       winningTickets,
@@ -1004,8 +1026,8 @@ export class StakingPool extends classes(
       qualifiedStake
     } = clone(this.rewards(rewardID).value)
 
-    assert(phase === DisbursementPhaseAllocation, ERR_INVALID_DISBURSEMENT_PHASE)
-    assert(winningTickets.length === 0, ERR_WINNING_TICKETS_ALREADY_EXIST)
+    loggedAssert(phase === DisbursementPhaseAllocation, ERR_INVALID_DISBURSEMENT_PHASE)
+    loggedAssert(winningTickets.length === 0, ERR_WINNING_TICKETS_ALREADY_EXIST)
 
     const roundToUse: uint64 = activeDisbursementRoundStart + 1 + (4 * vrfFailureCount)
 
@@ -1036,11 +1058,11 @@ export class StakingPool extends classes(
 
   disburseRewards(rewardID: uint64, iterationAmount: uint64): void {
     // assert(this.status.value === PoolStatusDisbursing, 'pool is not in disbursement phase')
-    assert(this.rewards(rewardID).exists, 'reward does not exist')
+    loggedAssert(this.rewards(rewardID).exists, ERR_REWARD_NOT_FOUND)
 
     const { phase, distribution, winningTickets } = clone(this.rewards(rewardID).value)
 
-    assert(
+    loggedAssert(
       phase === DisbursementPhasePreparation ||
       phase === DisbursementPhaseAllocation,
       ERR_NOT_READY_TO_DISBURSE
@@ -1071,16 +1093,16 @@ export class StakingPool extends classes(
           break
         }
         default: {
-          assert(false, 'unknown reward rate type')
+          loggedAssert(false, ERR_UNKNOWN_REWARD_RATE_TYPE)
         }
       }
     }
   }
 
   finalizeDistribution(rewardID: uint64): void {
-    assert(this.rewards(rewardID).exists, 'reward does not exist')
+    loggedAssert(this.rewards(rewardID).exists, ERR_REWARD_NOT_FOUND)
     const { phase, activeDisbursementID } = this.rewards(rewardID).value
-    assert(phase === DisbursementPhaseFinalization, ERR_DISBURSEMENT_NOT_READY_FOR_FINALIZATION)
+    loggedAssert(phase === DisbursementPhaseFinalization, ERR_DISBURSEMENT_NOT_READY_FOR_FINALIZATION)
 
     this.finalizeRewards(activeDisbursementID)
 
@@ -1136,7 +1158,7 @@ export class StakingPool extends classes(
 
   @abimethod({ readonly: true })
   optInCost(asset: Asset): uint64 {
-    const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, asset)
+    const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     return (Global.assetOptInMinBalance * (1 + count)) + (this.rewardsMbr(WinnerCountCap) * 2)
   }
 
@@ -1145,8 +1167,17 @@ export class StakingPool extends classes(
   signUpsOpen(): boolean {
     return (
       this.status.value !== PoolStatusDraft &&
-      Global.latestTimestamp > this.signupTimestamp.value &&
-      (Global.latestTimestamp < this.startTimestamp.value || this.allowLateSignups.value)
+      (Global.latestTimestamp <= this.endTimestamp.value || this.endTimestamp.value === 0) &&
+      (
+        (
+          Global.latestTimestamp >= this.signupTimestamp.value &&
+          Global.latestTimestamp < this.startTimestamp.value
+        ) ||
+        (
+          this.allowLateSignups.value &&
+          Global.latestTimestamp >= this.startTimestamp.value
+        )
+      )
     )
   }
 

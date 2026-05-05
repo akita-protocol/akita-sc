@@ -1,7 +1,7 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
-import algosdk, { makeEmptyTransactionSigner } from "algosdk";
-import { AppFactoryAppClientParams } from "@algorandfoundation/algokit-utils/types/app-factory";
+import algosdk, { decodeAddress } from "algosdk";
+import { makeEmptyTransactionSigner } from "@algorandfoundation/algokit-utils/transact";
 import { DEFAULT_READER, DEFAULT_SEND_PARAMS } from "../constants";
 import { ENV_VAR_NAMES, resolveAppIdWithClient, getAppIdFromEnv, detectNetworkFromClient, AkitaNetwork } from "../config";
 import { OptionalAppIdFactoryParams } from "../types";
@@ -17,6 +17,7 @@ import {
   AkitaSocialMbrData,
   MetaValue,
   PostValue,
+  SocialImpactInputs,
   TipMbrInfo,
   ViewPayWallValue,
   VoteListValue,
@@ -32,7 +33,7 @@ import {
 } from '../generated/AkitaSocialImpactClient';
 
 import {AkitaSocialModerationClient, AkitaSocialModerationFactory} from '../generated/AkitaSocialModerationClient'
-import { ExpandedSendParams, ExpandedSendParamsWithSigner, GroupReturn, hasSenderSigner, MaybeSigner } from "../types";
+import { ExpandedSendParams, ExpandedSendParamsWithSigner, GroupReturn, hasSenderSigner, MaybeSigner, normalizeSigner } from "../types";
 import {
   BlockArgs,
   CreatePayWallArgs,
@@ -46,11 +47,11 @@ import {
   ReactArgs,
   RefType,
   ReplyArgs,
-  SocialSDKParams,
   UnfollowArgs,
   UpdateMetaArgs,
   VoteArgs,
 } from "./types";
+import { sha256 } from '@noble/hashes/sha2';
 
 // Re-export DAO types for external use
 export type { SocialFees, AkitaAssets };
@@ -73,14 +74,13 @@ import {
   ACTIONS_MBR,
   MIN_PAYWALL_MBR,
   PAYWALL_PAY_OPTION_SIZE,
-  TIP_SEND_TYPE_DIRECT,
   TIP_SEND_TYPE_ARC58,
-  TIP_SEND_TYPE_ARC59,
 } from "./constants";
-import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
+
 
 export * from './types';
 export * from './constants';
+export * from './errors';
 
 // ============================================================================
 // Social SDK - Unified interface for Social, Graph, and Impact contracts
@@ -204,8 +204,8 @@ export class SocialSDK {
    * @returns The latest block timestamp as a bigint (unix seconds)
    */
   async getBlockchainTimestamp(): Promise<bigint> {
-    const status = await this.algorand.client.algod.status().do();
-    const block = await this.algorand.client.algod.block(status.lastRound).do();
+    const status = await this.algorand.client.algod.status();
+    const block = await this.algorand.client.algod.block(status.lastRound);
     return BigInt(block.block.header.timestamp);
   }
 
@@ -225,7 +225,7 @@ export class SocialSDK {
     return {
       ...this.sendParams,
       ...(sender !== undefined && { sender }),
-      ...(signer !== undefined && { signer }),
+      ...(signer !== undefined && { signer: normalizeSigner(signer) }),
     };
   }
 
@@ -271,7 +271,6 @@ export class SocialSDK {
    * @returns The 32-byte post key
    */
   computePostKey(creatorAddress: string, timestamp: bigint | number, nonce: Uint8Array): Uint8Array {
-    const { decodeAddress } = require('algosdk');
     const addressBytes = decodeAddress(creatorAddress).publicKey;
     
     // Convert timestamp to 8-byte big-endian
@@ -287,7 +286,7 @@ export class SocialSDK {
     combined.set(timestampBytes, addressBytes.length);
     combined.set(nonce, addressBytes.length + 8);
     
-    return this.sha256(combined);
+    return sha256(combined);
   }
 
   /**
@@ -300,7 +299,7 @@ export class SocialSDK {
    */
   static computeExternalRefKey(platform: string, externalId: string): Uint8Array {
     const combined = new TextEncoder().encode(`${platform}:${externalId}`);
-    return SocialSDK.sha256Static(combined);
+    return sha256(combined);
   }
 
   /**
@@ -315,7 +314,6 @@ export class SocialSDK {
    * @returns The 32-byte edit key
    */
   computeEditKey(creatorAddress: string, originalKey: Uint8Array, newCid: Uint8Array): Uint8Array {
-    const { decodeAddress } = require('algosdk');
     const addressBytes = decodeAddress(creatorAddress).publicKey;
     
     // Concatenate: creator address + original key + new CID
@@ -324,38 +322,7 @@ export class SocialSDK {
     combined.set(originalKey, addressBytes.length);
     combined.set(newCid, addressBytes.length + originalKey.length);
     
-    return this.sha256(combined);
-  }
-
-  /**
-   * Internal sha256 helper using Web Crypto API (sync wrapper)
-   * Note: This is a synchronous approximation - for production, consider using
-   * a proper crypto library like @noble/hashes
-   */
-  private sha256(data: Uint8Array): Uint8Array {
-    // Use algosdk's built-in sha256 if available, otherwise fallback
-    // For now, we'll use a simple implementation
-    return SocialSDK.sha256Static(data);
-  }
-
-  /**
-   * Static sha256 helper
-   * Uses Web Crypto API synchronously (via SubtleCrypto workaround)
-   */
-  private static sha256Static(data: Uint8Array): Uint8Array {
-    // This requires a synchronous sha256 implementation
-    // We'll use the algosdk encoding utilities or a polyfill
-    // For production, recommend using @noble/hashes/sha256
-    
-    // Simple implementation using built-in if available
-    if (typeof globalThis !== 'undefined' && 'crypto' in globalThis) {
-      // Use synchronous approach - this is a simplified version
-      // In production, use @noble/hashes or similar
-      const { sha256 } = require('@noble/hashes/sha256');
-      return sha256(data);
-    }
-    
-    throw new Error('No sha256 implementation available - install @noble/hashes');
+    return sha256(combined);
   }
 
   // ============================================================================
@@ -419,11 +386,11 @@ export class SocialSDK {
    * @param ref - Optional reference bytes (empty for default MBR values)
    * @returns MBR data for all social box types
    */
-  async getMbr({ sender, signer, ref = new Uint8Array() }: MaybeSigner & { ref?: Uint8Array }): Promise<AkitaSocialMbrData> {
+  async getMbr({ sender, signer, ref = new Uint8Array(), refTypeName = '', refTypeSchema = new Uint8Array() }: MaybeSigner & { ref?: Uint8Array, refTypeName?: string, refTypeSchema?: Uint8Array }): Promise<AkitaSocialMbrData> {
     const sendParams = this.getSendParams({ sender, signer });
     const result = await this.socialClient.send.mbr({
       ...sendParams,
-      args: { ref },
+      args: { ref, refTypeName, refTypeSchema },
     });
     return result.return!;
   }
@@ -607,19 +574,24 @@ export class SocialSDK {
   // ============================================================================
 
   /**
-   * Check if an account is banned
+   * Check if an account is banned. Delegates to `AkitaSocialModeration.isBanned`
+   * directly — the corresponding `AkitaSocial.isBanned` ABI method was removed to
+   * keep the main contract under its program-size budget.
    */
   async isBanned({ sender, signer, account }: MaybeSigner & { account: string }): Promise<boolean> {
     const sendParams = this.getSendParams({ sender, signer });
-    return await this.socialClient.isBanned({ ...sendParams, args: { account } });
+    return await this.moderationClient.isBanned({ ...sendParams, args: { account } });
   }
 
   /**
-   * Get user's social impact score from the Social contract
+   * Get the raw inputs used to derive a user's social impact score from the
+   * Social contract. The final impact computation is performed off-chain in
+   * consumer code (previously this method returned a single bigint; the
+   * contract now exposes the individual factors instead).
    */
-  async getUserSocialImpact({ sender, signer, user }: MaybeSigner & { user: string }): Promise<bigint> {
+  async getUserSocialImpact({ sender, signer, user }: MaybeSigner & { user: string }): Promise<SocialImpactInputs> {
     const sendParams = this.getSendParams({ sender, signer });
-    return await this.socialClient.getUserSocialImpact({ ...sendParams, args: { user } });
+    return await this.socialClient.getSocialImpactInputs({ ...sendParams, args: { user } });
   }
 
   /**
@@ -697,7 +669,7 @@ export class SocialSDK {
    * @param user - The account that may be followed
    */
   async isFollowing({ sender, signer, follower, user }: MaybeSigner & { follower: string; user: string }): Promise<boolean> {
-    const sendParams = this.getReaderSendParams();
+    const sendParams = this.getSendParams({ sender, signer });
     return await this.graphClient.isFollowing({ ...sendParams, args: { follower, user } });
   }
 
@@ -856,6 +828,7 @@ export class SocialSDK {
     gateId = 0n,
     usePayWall = false,
     payWallId = 0n,
+    creatorFlags = 0n,
   }: PostArgs): Promise<{ postKey: Uint8Array; timestamp: bigint; nonce: Uint8Array }> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -905,6 +878,7 @@ export class SocialSDK {
         gateId,
         usePayWall,
         payWallId,
+        creatorFlags,
       },
     });
     group.opUp({
@@ -942,6 +916,7 @@ export class SocialSDK {
     signer,
     cid,
     amendment,
+    creatorFlags = 0n,
   }: EditPostArgs): Promise<Uint8Array> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -976,6 +951,7 @@ export class SocialSDK {
         tip: tipTxn,
         cid,
         amendment,
+        creatorFlags,
       },
     });
 
@@ -1006,6 +982,7 @@ export class SocialSDK {
     usePayWall = false,
     payWallId = 0n,
     gateTxn,
+    creatorFlags = 0n,
   }: ReplyArgs): Promise<{ replyKey: Uint8Array; timestamp: bigint; nonce: Uint8Array }> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -1059,6 +1036,7 @@ export class SocialSDK {
           gateId,
           usePayWall,
           payWallId,
+          creatorFlags,
         },
       });
     } else {
@@ -1075,6 +1053,7 @@ export class SocialSDK {
           gateId,
           usePayWall,
           payWallId,
+          creatorFlags,
         },
       });
     }
@@ -1472,7 +1451,7 @@ export class SocialSDK {
 
     try {
       // Get all boxes for the social app
-      const boxesResponse = await this.algorand.client.algod.getApplicationBoxes(Number(appId)).do();
+      const boxesResponse = await this.algorand.client.algod.applicationBoxes(Number(appId));
       
       // Reaction box prefix is 'r' (ASCII 114)
       const reactionPrefix = new Uint8Array([114]); // 'r'
@@ -1498,7 +1477,7 @@ export class SocialSDK {
             
             // Read the box value to get the count
             try {
-              const boxValue = await this.algorand.client.algod.getApplicationBoxByName(Number(appId), boxName).do();
+              const boxValue = await this.algorand.client.algod.applicationBoxByName(Number(appId), boxName);
               const count = this.bytesToBigInt(boxValue.value);
               reactions.push({ nftId, count });
             } catch {
@@ -1832,6 +1811,25 @@ export class SocialSDK {
     await this.moderationClient.send.unflagPost({
       ...sendParams,
       args: { ref },
+    });
+  }
+
+  /**
+   * Set moderator content flags on a post (requires moderator)
+   *
+   * @param args - ref (post key) and flags (uint64 bitmask)
+   */
+  async setModeratorContentFlags({
+    sender,
+    signer,
+    ref,
+    flags,
+  }: MaybeSigner & { ref: PostRef; flags: bigint | number }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    await this.moderationClient.send.setModeratorContentFlags({
+      ...sendParams,
+      args: { ref, flags },
     });
   }
 

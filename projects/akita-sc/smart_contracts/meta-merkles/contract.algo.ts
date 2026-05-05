@@ -1,8 +1,6 @@
 import {
   Account,
   arc4,
-  assert,
-  assertMatch,
   BigUint,
   BoxMap,
   bytes,
@@ -13,12 +11,13 @@ import {
   GlobalState,
   gtxn,
   itxn,
+  loggedAssert,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi, itob, sha256, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { BoxCostPerByte } from '../utils/constants'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_PAYMENT_AMOUNT, ERR_INVALID_PAYMENT_RECEIVER } from '../utils/errors'
+import { ERR_INVALID_PAYMENT_AMOUNT, ERR_INVALID_PAYMENT_RECEIVER } from '../utils/errors'
 import { bytes16 } from '../utils/types/base'
 import { Leaf, Proof } from '../utils/types/merkles'
 import {
@@ -74,6 +73,7 @@ import {
   ERR_FAILED_TO_VERIFY_INCLUSION,
   ERR_KEY_TOO_LONG,
   ERR_NAME_TAKEN,
+  ERR_NAME_TOO_LONG,
   ERR_NO_DATA,
   ERR_NO_NAME,
   ERR_NO_ROOT_FOR_DATA,
@@ -158,25 +158,19 @@ export class MetaMerkles extends Contract {
     root: bytes<32>,
     type: uint64
   ): void {
-    assert(Bytes(name).length <= 31, 'Cannot add root with name longer than 31 bytes')
-    assert(this.types(type).exists, ERR_NO_TREE_TYPE)
+    loggedAssert(Bytes(name).length <= 31, ERR_NAME_TOO_LONG)
+    loggedAssert(this.types(type).exists, ERR_NO_TREE_TYPE)
 
     const truncatedAddress = bytes16(Txn.sender.bytes)
 
     const rootKey: RootKey = { address: Txn.sender, name }
     const typeKey: DataKey = { address: truncatedAddress, name, key: treeTypeKey }
 
-    assert(!this.roots(rootKey).exists, ERR_NAME_TAKEN)
-    assert(!this.data(typeKey).exists, ERR_TREE_TYPE_KEY_ALREADY_EXISTS)
+    loggedAssert(!this.roots(rootKey).exists, ERR_NAME_TAKEN)
+    loggedAssert(!this.data(typeKey).exists, ERR_TREE_TYPE_KEY_ALREADY_EXISTS)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.rootCosts(name),
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+    loggedAssert(payment.amount === this.rootCosts(name), ERR_INVALID_PAYMENT_AMOUNT)
 
     this.roots(rootKey).value = root
     this.data(typeKey).value = String(itob(type))
@@ -193,7 +187,7 @@ export class MetaMerkles extends Contract {
     const rootKey: RootKey = { address: Txn.sender, name }
     const typeKey: DataKey = { address: truncatedAddress, name, key: treeTypeKey }
 
-    assert(this.roots(rootKey).exists, ERR_NO_NAME)
+    loggedAssert(this.roots(rootKey).exists, ERR_NO_NAME)
 
     this.roots(rootKey).delete()
     this.data(typeKey).delete()
@@ -215,7 +209,7 @@ export class MetaMerkles extends Contract {
    */
   updateRoot(name: string, newRoot: bytes<32>): void {
     const key: RootKey = { address: Txn.sender, name }
-    assert(this.roots(key).exists, ERR_NO_NAME)
+    loggedAssert(this.roots(key).exists, ERR_NO_NAME)
     this.roots(key).value = newRoot
   }
 
@@ -232,24 +226,18 @@ export class MetaMerkles extends Contract {
     const rootKey: RootKey = { address: Txn.sender, name }
 
     const keyBytes = Bytes(key)
-    assert(keyBytes.length <= maxDataKeyLength, ERR_KEY_TOO_LONG)
-    assert(Bytes(value).length <= maxDataLength, ERR_DATA_TOO_LONG)
-    assert(
+    loggedAssert(keyBytes.length <= maxDataKeyLength, ERR_KEY_TOO_LONG)
+    loggedAssert(Bytes(value).length <= maxDataLength, ERR_DATA_TOO_LONG)
+    loggedAssert(
       keyBytes.length < 2 || !(keyBytes.slice(0, 2) === Bytes(reservedDataKeyPrefix)),
       ERR_RESERVED_KEY_PREFIX
     )
-    assert(this.roots(rootKey).exists, ERR_NO_ROOT_FOR_DATA)
+    loggedAssert(this.roots(rootKey).exists, ERR_NO_ROOT_FOR_DATA)
 
     const costs = this.mbr('', '', name, key, value)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: costs.data,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+    loggedAssert(payment.amount === costs.data, ERR_INVALID_PAYMENT_AMOUNT)
 
     const truncatedAddress = bytes16(Txn.sender.bytes)
     const dataKey: DataKey = { address: truncatedAddress, name, key }
@@ -267,7 +255,7 @@ export class MetaMerkles extends Contract {
     const truncatedAddress = bytes16(Txn.sender.bytes)
     const dataKey: DataKey = { address: truncatedAddress, name, key }
 
-    assert(this.data(dataKey).exists, ERR_NO_DATA)
+    loggedAssert(this.data(dataKey).exists, ERR_NO_DATA)
 
     // Calculate MBR before deleting (need the value length)
     const costs = this.mbr('', '', name, key, this.data(dataKey).value)
@@ -386,14 +374,14 @@ export class MetaMerkles extends Contract {
     type: uint64,
     key: string
   ): string {
-    assert(this.verify(address, name, leaf, proof, type), ERR_FAILED_TO_VERIFY_INCLUSION)
+    loggedAssert(this.verify(address, name, leaf, proof, type), ERR_FAILED_TO_VERIFY_INCLUSION)
     return this.read(address, name, key)
   }
 
   addType(payment: gtxn.PaymentTxn, description: string, schemaList: SchemaList): void {
-    assert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-    assert(payment.amount === 100_000_000, ERR_INVALID_PAYMENT_AMOUNT)
-    assert(Bytes(description).length <= 800, ERR_DATA_TOO_LONG)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
+    loggedAssert(payment.amount === 100_000_000, ERR_INVALID_PAYMENT_AMOUNT)
+    loggedAssert(Bytes(description).length <= 800, ERR_DATA_TOO_LONG)
 
     let schema: string = ''
     for (let i: uint64 = 0; i < schemaList.length; i += 1) {

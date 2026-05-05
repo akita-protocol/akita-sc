@@ -4,6 +4,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { ProposalActionEnum } from 'akita-sdk/dao';
 import { deployOptInPlugin } from '../../../../../tests/fixtures/plugins/optin';
 import { logger } from '../../../../../tests/utils/logger';
+import { CallerType } from 'akita-sdk/wallet';
 import {
   bootstrapDaoTestContext,
   proposeAndExecute,
@@ -67,7 +68,7 @@ describe('ARC58 DAO Plugins', () => {
         {
           type: ProposalActionEnum.AddPlugin,
           client: optinPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: '',
           sourceLink: 'https://github.com/test/plugin',
           useExecutionKey: false,
@@ -89,13 +90,19 @@ describe('ARC58 DAO Plugins', () => {
     });
 
     test('should install a named plugin', async () => {
-      const { fixture, dao, sender, signer } = context;
+      const { fixture, dao } = context;
       const pluginName = getUniqueName('np'); // Short name: np_1, np_2, etc.
 
+      // Use a per-test deployer so we get a fresh plugin appId — the shared
+      // context sender would reuse the appId installed by the previous test,
+      // which collides on (appId, caller) in the wallet's plugin map.
+      const pluginDeployer = await fixture.context.generateAccount({
+        initialFunds: (5).algos(),
+      });
       const optinPlugin = await deployOptInPlugin({
         fixture,
-        sender,
-        signer,
+        sender: pluginDeployer.toString(),
+        signer: pluginDeployer.signer,
       });
 
       const mbr = await dao.wallet.getMbr({
@@ -113,7 +120,7 @@ describe('ARC58 DAO Plugins', () => {
           type: ProposalActionEnum.AddNamedPlugin,
           name: pluginName,
           client: optinPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: '',
           sourceLink: 'https://github.com/test/plugin',
           useExecutionKey: false,
@@ -219,7 +226,7 @@ describe('ARC58 DAO Plugins', () => {
         {
           type: ProposalActionEnum.AddPlugin,
           client: optinPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: escrowName,
           sourceLink: 'https://github.com/test/plugin',
           useExecutionKey: false,
@@ -402,7 +409,7 @@ describe('ARC58 DAO Plugins', () => {
         {
           type: ProposalActionEnum.AddPlugin,
           client: optinPlugin,
-          global: true,
+          callerType: CallerType.Global,
           escrow: escrowName,
           sourceLink: 'https://github.com/test/plugin',
           useExecutionKey: false,

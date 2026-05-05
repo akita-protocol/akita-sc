@@ -1,6 +1,6 @@
 import { uint64 } from "@algorandfoundation/algorand-typescript";
 import { Uint8 } from "@algorandfoundation/algorand-typescript/arc4";
-import { PayWallType, PostType, RefType, TipAction, TipSendType } from "./types";
+import { PayWallType, PostType, TipAction, TipSendType } from "./types";
 
 export const AkitaSocialGlobalStateKeysPaywallID = 'paywall_id'
 
@@ -22,7 +22,7 @@ export const ImpactBoxPrefixSubscriptionStateModifier = 's'
 
 export const FollowsMBR: uint64 = 31_700
 export const BlocksMBR: uint64 = 15_700
-export const MinPostsMBR: uint64 = 40_100 // + (400 * ref.length),
+export const MinPostsMBR: uint64 = 46_500 // + (400 * ref.length), — includes creatorFlags + moderatorFlags (2 x uint64 = 16 bytes x 400)
 export const MinPayWallMBR: uint64 = 5_200 // TODO: double check
 export const VotesMBR: uint64 = 19_300
 export const VotelistMBR: uint64 = 19_300
@@ -51,11 +51,11 @@ export const TEN_THOUSAND_AKITA: uint64 = 10_000_000_000
 export const AmendmentMBR: uint64 = 13_200 // (400 * 33) 'a' + nextEditKey
 export const EditBackRefMBR: uint64 = 13_200 // (400 * 33) 'e' + originalKey
 
-export const RefTypePost: RefType = new Uint8(10)
-export const RefTypeAsset: RefType = new Uint8(20)
-export const RefTypeAddress: RefType = new Uint8(30)
-export const RefTypeApp: RefType = new Uint8(40)
-export const RefTypeExternal: RefType = new Uint8(50)
+// Built-in ref type IDs (registered at contract init)
+export const RefTypePost: uint64 = 1
+export const RefTypeAsset: uint64 = 2
+export const RefTypeAddress: uint64 = 3
+export const RefTypeApp: uint64 = 4
 
 // PostType enum - what kind of post is this
 export const PostTypePost: PostType = new Uint8(0)      // Top-level post
@@ -74,3 +74,15 @@ export const PayWallTypeOneTimePayment: PayWallType = new Uint8(10)
 export const PayWallTypeSubscription: PayWallType = new Uint8(20)
 
 export const PayWallPayOptionSize: uint64 = 17
+
+export const AkitaSocialBoxPrefixRefTypes = 't'
+export const RefTypesBaseMBR: uint64 = 9_300 // 2_500 + (400 * (9 + 8)) key(9) + fixed value overhead(8)
+export const AkitaSocialGlobalStateKeysRefTypeCounter = 'ref_type_counter'
+
+// Built-in ref type count (post, asset, address, app)
+export const BuiltInRefTypeCount: uint64 = 4
+
+// Content flag bitmask values
+export const ContentFlagNSFW: uint64 = 1            // 0b001
+export const ContentFlagAI: uint64 = 2               // 0b010
+export const ContentFlagPaidPartnership: uint64 = 4   // 0b100

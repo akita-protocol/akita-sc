@@ -5,6 +5,7 @@ import { BaseSDK } from '../base';
 import { ValueMap } from './utils';
 import { WalletGroupComposer } from './group';
 export * from './constants';
+export * from './errors';
 export * from './factory';
 export * from './group';
 export * from './plugins';
@@ -21,7 +22,7 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     constructor(params: NewContractSDKParams);
     group(): WalletGroupComposer;
     updateCache(key: PluginKey, allowances?: bigint[]): Promise<void>;
-    prepareUsePlugin({ sender, signer, name, global, escrow, fundsRequest, calls, lease }: WalletUsePluginParams): Promise<{
+    prepareUsePlugin({ sender, signer, name, callerType, escrow, fundsRequest, calls, lease }: WalletUsePluginParams): Promise<{
         plugins: bigint[];
         caller: string;
         useRounds: boolean;
@@ -61,7 +62,7 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
      *   Per element: 8 bytes asset (big-endian uint64) + 8 bytes amount (big-endian uint64)
      */
     private adjustFundsRequestAmounts;
-    addPlugin<TClient extends SDKClient>({ sender, signer, name, client, caller, global, methods, escrow, admin, delegationType, lastValid, cooldown, useRounds, useExecutionKey, coverFees, canReclaim, defaultToEscrow, allowances }: WalletAddPluginParams<TClient>): Promise<GroupReturn>;
+    addPlugin<TClient extends SDKClient>({ sender, signer, name, client, caller, callerType, methods, escrow, admin, delegationType, lastValid, cooldown, useRounds, useExecutionKey, coverFees, canReclaim, defaultToEscrow, allowances }: WalletAddPluginParams<TClient>): Promise<GroupReturn>;
     removePlugin({ sender, signer, ...args }: ContractArgs['arc58_removePlugin(uint64,address,string)void'] & MaybeSigner): Promise<TxnReturn<void>>;
     newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>>;
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
@@ -90,5 +91,4 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     getExecutions(): Promise<Map<Uint8Array, ExecutionInfo>>;
     getExecution(lease: Uint8Array<ArrayBufferLike>): Promise<ExecutionInfo>;
     getMbr(args: MbrParams): Promise<AbstractAccountBoxMbrData>;
-    balance(assets: bigint[]): Promise<bigint[]>;
 }

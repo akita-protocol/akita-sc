@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { PaySiloPluginArgs, PaySiloPluginClient, PaySiloPluginFactory } from "../../generated/PaySiloPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -24,7 +25,7 @@ export class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
   pay(args?: PayArgs): PluginSDKReturn {
     const methodName = 'pay';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -34,7 +35,7 @@ export class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

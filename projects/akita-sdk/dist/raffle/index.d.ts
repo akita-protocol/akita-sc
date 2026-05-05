@@ -2,6 +2,7 @@ import { BaseSDK } from "../base";
 import { RaffleClient, RaffleState, EntryData } from '../generated/RaffleClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { EnterParams, AddParams, RefundMBRParams, FindWinnerParams, GetEntryParams, IsEnteredParams, GetEntryByAddressParams, GetEntryWithTicketsParams, GetEntryWithTicketsByAddressParams, RaffleMbrData, EntryWithTickets } from "./types";
+export * from "./errors";
 export * from "./factory";
 export * from "./types";
 /**

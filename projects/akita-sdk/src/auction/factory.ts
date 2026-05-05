@@ -225,17 +225,38 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     const cost = await this.client.optInCost({ args: { asset } })
-    
+
     const payment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
       amount: microAlgo(cost),
       receiver: this.client.appAddress,
     });
 
-    await this.client.send.optIn({
-      ...sendParams,
-      args: { payment, asset },
-    });
+    // optIn can eagerly opt the DAO escrow + revenue-split escrows into the
+    // asset when a named escrow is configured. That path rekeys the DAO
+    // wallet, calls the revenue-manager plugin, and opts the main escrow + N
+    // split escrows — worst case ~10 foreign refs (DAO, wallet, plugin, main
+    // escrow, N splits, the asset). A single app call only holds 8 foreign-
+    // ref slots, so we add one opUp to give the resource populator a second
+    // slot (16 total), which covers every realistic split count. maxFee is
+    // required on each app call because coverAppCallInnerTransactionFees is
+    // enabled.
+    await this.client.newGroup()
+      .optIn({
+        ...sendParams,
+        args: { payment, asset },
+        maxFee: microAlgo(257_000),
+      })
+      .opUp({
+        ...sendParams,
+        args: {},
+        maxFee: microAlgo(2_000),
+      })
+      .send({
+        ...sendParams,
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true,
+      });
   }
 
   /**
@@ -279,12 +300,12 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
   /**
    * Updates the Akita DAO Escrow reference.
    */
-  async updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & AuctionFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void> {
+  async updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & AuctionFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
 
     await this.client.send.updateAkitaDaoEscrow({
       ...sendParams,
-      args: { app },
+      args: { config },
     });
   }
 }

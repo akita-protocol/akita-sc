@@ -15,7 +15,7 @@ main_switch_case_next@3:
     // export class Escrow extends Contract {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@7
     pushbytes 0x65a97bcc // method "rekey(address)void"
@@ -39,7 +39,7 @@ main_delete_route@2:
     ==
     txn ApplicationID
     &&
-    assert // OnCompletion must be DeleteApplication && can only call when not creating
+    assert
     b delete
 
 
@@ -50,13 +50,13 @@ create:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     // smart_contracts/escrow/contract.algo.ts:8
     // creator = GlobalState<bytes>({ key: EscrowGlobalStateKeysCreator })
@@ -78,15 +78,20 @@ rekey:
     txna ApplicationArgs 1
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/escrow/contract.algo.ts:16
-    // assert(Txn.sender === Global.creatorAddress, ERR_ONLY_CREATOR_CAN_REKEY)
+    // loggedAssert(Txn.sender === Global.creatorAddress, ERR_ONLY_CREATOR_CAN_REKEY)
     txn Sender
     global CreatorAddress
     ==
-    assert // only the creator can rekey a spend contract
+    bnz rekey_after_assert@3
+    pushbytes "ERR:OCCR"
+    log
+    err // ERR:OCCR
+
+rekey_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:18-24
     // itxn
     //   .payment({
@@ -99,8 +104,9 @@ rekey:
     // smart_contracts/escrow/contract.algo.ts:21
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    itxn_field Receiver
+    dig 1
     itxn_field RekeyTo
+    itxn_field Receiver
     // smart_contracts/escrow/contract.algo.ts:20
     // amount: 0,
     intc_1 // 0
@@ -134,11 +140,16 @@ rekey:
 // smart_contracts/escrow/contract.algo.ts::Escrow.delete[routing]() -> void:
 delete:
     // smart_contracts/escrow/contract.algo.ts:29
-    // assert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
+    // loggedAssert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
     txn Sender
     global CreatorAddress
     ==
-    assert // Only the factory can delete the application
+    bnz delete_after_assert@3
+    pushbytes "ERR:OFCD"
+    log
+    err // ERR:OFCD
+
+delete_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:31-33
     // itxn
     //   .payment({ closeRemainderTo: Global.creatorAddress })

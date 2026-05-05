@@ -3,6 +3,7 @@ import { StakingClient, Stake, Escrow, StakeCheck, TotalsInfo } from '../generat
 import { NewContractSDKParams } from "../types";
 import { StakeArgs, WithdrawArgs, CreateHeartbeatArgs, UpdateSettingsArgs, SoftCheckArgs, GetTimeLeftArgs, GetInfoArgs, GetEscrowInfoArgs, GetHeartbeatArgs, GetHeartbeatAverageArgs, GetInfoListArgs, HeartbeatEntry, StakingType, AssetCheck, OptInArgs } from "./types";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
+export * from './errors';
 export * from './types';
 /**
  * SDK for interacting with the global Staking contract.

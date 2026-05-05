@@ -1,12 +1,13 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao';
 import { SDKClient } from 'akita-sdk/types';
-import { newWallet, UpdateAkitaDAOPluginSDK, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk';
+import { sendPrepared } from 'akita-sdk';
+import { newWallet, UpdateAkitaDAOPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import algosdk from 'algosdk';
 import { AbstractedAccountFactory } from '../../../artifacts/arc58/account/AbstractedAccountClient';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
@@ -32,8 +33,8 @@ async function proposeAndExecute<TClient extends SDKClient>(
 }
 
 describe('UpdateAkitaDAO plugin contract', () => {
-  let deployer: algosdk.Account;
-  let user: algosdk.Account;
+  let deployer: Address & TransactionSignerAccount;
+  let user: Address & TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
@@ -43,7 +44,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
   let walletFactory: WalletFactorySDK;
 
   beforeAll(async () => {
-    await fixture.beforeEach();
+    await fixture.newScope();
     algorand = fixture.context.algorand;
     dispenser = await algorand.account.dispenserFromEnvironment();
 
@@ -58,7 +59,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
     akitaUniverse = await buildAkitaUniverse({
       fixture,
       sender: deployer.addr,
-      signer: makeBasicAccountTransactionSigner(deployer),
+      signer: deployer.signer,
       apps: {},
     });
 
@@ -71,10 +72,10 @@ describe('UpdateAkitaDAO plugin contract', () => {
       factoryParams: {
         appId: akitaUniverse.walletFactory.appId,
         defaultSender: user.addr,
-        defaultSigner: makeBasicAccountTransactionSigner(user),
+        defaultSigner: user.signer,
       },
       sender: user.addr,
-      signer: makeBasicAccountTransactionSigner(user),
+      signer: user.signer,
       nickname: 'Test Wallet',
     });
 
@@ -82,7 +83,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
     updateAkitaDAOPluginSdk = akitaUniverse.updatePlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins) });
-    await wallet.addPlugin({ client: updateAkitaDAOPluginSdk, global: true });
+    await wallet.addPlugin({ client: updateAkitaDAOPluginSdk, callerType: CallerType.Global });
   });
 
   beforeEach(fixture.newScope);
@@ -99,7 +100,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
   describe('updateFactoryChildContract', () => {
     test('should update factory child contract version', async () => {
       const sender = deployer.addr.toString();
-      const signer = makeBasicAccountTransactionSigner(deployer);
+      const signer = deployer.signer;
 
       // Re-initialize the DAO SDK with the deployer as sender/signer to ensure proper auth
       const deployerDao = new AkitaDaoSDK({
@@ -152,7 +153,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
         signer,
         lease: `fc_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           updateAkitaDAOPluginSdk.updateFactoryChildContract({
             sender,
@@ -164,14 +165,14 @@ describe('UpdateAkitaDAO plugin contract', () => {
         ],
       });
 
-      console.log(`Built execution with ${execution.atcs.length} transaction groups`);
+      console.log(`Built execution with ${execution.windows.length} transaction groups`);
 
       // Fund the wallet for execution
       const walletMbr = await daoWallet.getMbr({
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 2_000_000n;
       await daoWallet.client.appClient.fundAppAccount({
@@ -191,8 +192,11 @@ describe('UpdateAkitaDAO plugin contract', () => {
       const proposalId = await proposeAndExecute(deployerDao, [upgradeAction]);
       console.log(`Proposal ${proposalId} created and executed`);
 
-      // Submit the actual update transaction
-      await execution.atcs[0].submit(algorand.client.algod);
+      // Submit the actual update transaction.
+      // v10: the legacy algosdk ATC.submit() chains `sendRawTransaction(...).do()`, but the utils10
+      // `AlgodClient` exposes `sendRawTransaction` as a direct promise — no `.do()`. Use the
+      // compat helper that gathers signatures + sends via the v10 client and returns the txIDs.
+      await sendPrepared(execution.windows[0], algorand.client.algod);
       console.log('Update transaction submitted');
 
       // Verify the factory's child contract version was updated
@@ -206,7 +210,7 @@ describe('UpdateAkitaDAO plugin contract', () => {
 
     test('should allow creating wallets after child contract update', async () => {
       const sender = deployer.addr.toString();
-      const signer = makeBasicAccountTransactionSigner(deployer);
+      const signer = deployer.signer;
 
       // Get the current child contract version
       const factoryState = await walletFactory.client.state.global.getAll();

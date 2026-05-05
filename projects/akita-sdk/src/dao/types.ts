@@ -153,7 +153,7 @@ export type EditProposalParams<TClient extends SDKClient> = (
 )
 
 export type ProposalAddPluginArgs = (
-  AddPluginArgs & {
+  Omit<AddPluginArgs, 'admin' | 'canReclaim'> & {
     fee?: bigint;
     power?: bigint;
     duration?: bigint;

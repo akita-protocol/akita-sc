@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { AkitaDaoPluginArgs, AkitaDaoPluginClient, AkitaDaoPluginFactory } from "../../generated/AkitaDAOPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -5,11 +6,13 @@ import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { getTxns } from "../utils";
+import { assertByteArrayLength, randomByteArray } from "../../utils";
 
 type ContractArgs = AkitaDaoPluginArgs["obj"];
 
 type SetupArgs = (
-  Omit<ContractArgs['setup(uint64,bool,string)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['setup(uint64,bool,string,byte[32])void'], 'wallet' | 'rekeyBack' | 'salt'>
+  & Partial<Pick<ContractArgs['setup(uint64,bool,string,byte[32])void'], 'salt'>>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -49,7 +52,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
   setup(args?: SetupArgs): PluginSDKReturn {
     const methodName = 'setup';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -58,8 +61,10 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
 
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const salt = args.salt ?? randomByteArray(32);
+    assertByteArrayLength(salt, 'salt', 32);
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -67,7 +72,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
 
         const params = await this.client.params.setup({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...args, salt },
         });
 
         return [{
@@ -83,7 +88,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
   newProposal(args?: NewProposalArgs): PluginSDKReturn {
     const methodName = 'newProposal';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -93,7 +98,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -117,7 +122,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
   voteProposal(args?: VoteProposalArgs): PluginSDKReturn {
     const methodName = 'voteProposal';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -127,7 +132,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -151,7 +156,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
   finalizeProposal(args?: FinalizeProposalArgs): PluginSDKReturn {
     const methodName = 'finalizeProposal';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -161,7 +166,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -185,7 +190,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
   executeProposal(args?: ExecuteProposalArgs): PluginSDKReturn {
     const methodName = 'executeProposal';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -195,7 +200,7 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -214,4 +219,3 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
     });
   }
 }
-

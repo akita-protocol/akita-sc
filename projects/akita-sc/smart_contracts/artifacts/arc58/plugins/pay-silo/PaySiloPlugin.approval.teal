@@ -9,7 +9,7 @@ main:
     // export class PaySiloPlugin extends Contract {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@5
     pushbytes 0xe0475262 // method "pay(uint64,bool,(uint64,uint64)[])void"
@@ -56,9 +56,9 @@ create:
     txna ApplicationArgs 1
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/arc58/plugins/pay-silo/contract.algo.ts:9
     // recipient = GlobalState<Account>({ key: PaySiloPluginGlobalStateKeyRecipient })
     bytec_0 // "recipient"
@@ -85,7 +85,7 @@ pay:
     len
     intc_3 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
@@ -93,7 +93,7 @@ pay:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     swap
@@ -102,17 +102,17 @@ pay:
     cover 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dup
     cover 3
     intc_2 // 16
     *
-    pushint 2 // 2
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+(uint64,uint64)[])
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/pay-silo/types.ts::PaySiloParams>
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
@@ -288,7 +288,7 @@ pay_ternary_merge@12:
     //     xferAsset: asset,
     //     rekeyTo: i < (payments.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet),
     //   })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

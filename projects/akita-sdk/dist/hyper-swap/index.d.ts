@@ -2,6 +2,7 @@ import { BaseSDK } from "../base";
 import { HyperSwapClient, HyperSwapArgs } from '../generated/HyperSwapClient';
 import { NewContractSDKParams } from "../types";
 import { OfferParams, AcceptParams, EscrowParams, DisburseParams, CancelParams, WithdrawParams, OptInParams, GetOfferParams, OfferValue, HyperSwapMbrData } from "./types";
+export * from "./errors";
 export * from "./types";
 export type HyperSwapContractArgs = HyperSwapArgs["obj"];
 /**

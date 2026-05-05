@@ -46,7 +46,7 @@ export declare class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     /**
      * Updates the Akita DAO Escrow reference.
      */
-    updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & AuctionFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void>;
+    updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & AuctionFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void>;
 }
 /**
  * Convenience function to create a new auction and return the SDK.

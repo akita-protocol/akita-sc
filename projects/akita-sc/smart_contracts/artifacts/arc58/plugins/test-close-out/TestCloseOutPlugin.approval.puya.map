@@ -49,8 +49,7 @@
       ]
     },
     "34": {
-      "error": "OnCompletion must be NoOp",
-      "op": "assert // OnCompletion must be NoOp",
+      "op": "assert",
       "stack_out": []
     },
     "35": {
@@ -149,8 +148,7 @@
       ]
     },
     "67": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },
@@ -283,8 +281,8 @@
       ]
     },
     "92": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
@@ -364,8 +362,8 @@
       ]
     },
     "101": {
-      "error": "invalid number of bytes for bool8",
-      "op": "assert // invalid number of bytes for bool8",
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
       "stack_out": [
         "wallet#0",
         "tmp%2#0"
@@ -471,8 +469,8 @@
       ]
     },
     "111": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -557,8 +555,8 @@
       ]
     },
     "119": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -668,8 +666,8 @@
       ]
     },
     "128": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -928,8 +926,8 @@
       ]
     },
     "169": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
@@ -1009,8 +1007,8 @@
       ]
     },
     "178": {
-      "error": "invalid number of bytes for bool8",
-      "op": "assert // invalid number of bytes for bool8",
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
       "stack_out": [
         "wallet#0",
         "tmp%2#0"
@@ -1109,8 +1107,8 @@
       ]
     },
     "188": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -1216,8 +1214,8 @@
       ]
     },
     "197": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -1312,8 +1310,8 @@
       ]
     },
     "205": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "wallet#0",
         "rekeyBack#0",
@@ -1503,7 +1501,7 @@
       "stack_out": []
     },
     "235": {
-      "op": "pushint 4 // 4",
+      "op": "pushint 4",
       "defined_out": [
         "4"
       ],

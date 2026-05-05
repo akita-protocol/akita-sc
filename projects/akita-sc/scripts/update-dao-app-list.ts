@@ -39,25 +39,28 @@ runScript(async () => {
     process.exit(1)
   }
 
-  if (!['aal', 'sal', 'pal', 'oal'].includes(list)) {
+  const narrowedList = ['aal', 'sal', 'pal', 'oal'].includes(list)
+    ? (list as 'aal' | 'sal' | 'pal' | 'oal')
+    : undefined
+  if (!narrowedList) {
     console.error(`Error: --list must be one of: aal, sal, pal, oal (got "${list}")`)
     process.exit(1)
   }
 
-  console.log(`\nUpdating DAO ${list}.${field} = ${value} on ${options.network}...\n`)
+  console.log(`\nUpdating DAO ${narrowedList}.${field} = ${value} on ${options.network}...\n`)
 
   const ctx = await setupContext(options)
 
   if (options.dryRun) {
-    console.log(`DRY RUN - Would create proposal to set ${list}.${field} = ${value}\n`)
+    console.log(`DRY RUN - Would create proposal to set ${narrowedList}.${field} = ${value}\n`)
     return
   }
 
   const proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [
     {
       type: ProposalActionEnum.UpdateFields,
-      field: list,
-      value: { [field]: value },
+      field: narrowedList,
+      value: { [field]: value } as any,
     },
   ])
 

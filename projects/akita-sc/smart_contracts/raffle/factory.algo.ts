@@ -2,28 +2,36 @@ import {
   abimethod,
   Account,
   Application,
-  assert,
-  assertMatch,
+  clone,
+  contract,
   Global,
   gtxn,
   itxn,
+  loggedAssert,
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
+import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
 import { disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { BaseRaffle } from './base'
-import { ERR_NOT_A_RAFFLE } from './errors'
+import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_A_RAFFLE } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
+import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
 import { Raffle } from './contract.algo'
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
@@ -42,6 +50,7 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     marketplace: Account,
     weightsListCount: uint64
   ): Application {
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     let optinMBR: uint64 = 0
 
@@ -91,21 +100,20 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
       weightsMBR
     )
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.address,
+        receiver: this.akitaDAOEscrow.value.app.address,
         amount: fees.raffleCreationFee,
       })
       .submit()
+
+    // Read approval program from box storage in chunks
+    const approvalSize = this.boxedContract.length
+    const chunk1 = this.boxedContract.extract(0, 4096)
+    const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
 
     const appId = raffle.call
       .create({
@@ -125,6 +133,9 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
           this.akitaDAO.value,
           this.akitaDAOEscrow.value,
         ],
+        approvalProgram: [chunk1, chunk2],
+        clearStateProgram: raffle.clearStateProgram,
+        extraProgramPages: 3,
       })
       .itxn
       .createdApp
@@ -167,11 +178,11 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
+  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
     this.version.value = version
     this.childContractVersion.value = childVersion
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
   // RAFFLE FACTORY METHODS -----------------------------------------------------------------------
@@ -192,14 +203,8 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
   ): uint64 {
 
     // make sure they actually sent the asset(s) they want to raffle
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: { greaterThan: 0 },
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
@@ -257,8 +262,8 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     weightsListCount: uint64
   ): uint64 {
 
-    assert(prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>(), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>(), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
 
     const raffleApp = this.createChildApp(
       true,
@@ -284,7 +289,7 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
   }
 
   deleteRaffle(appId: Application): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_RAFFLE)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_RAFFLE)
 
     // Get funder info BEFORE delete call (which deletes the app)
     const { account: receiver, amount } = getFunder(appId)

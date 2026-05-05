@@ -3,7 +3,7 @@ import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 import { SubscriptionsArgs, SubscriptionsFactory } from '../../smart_contracts/artifacts/subscriptions/SubscriptionsClient';
 import { FixtureAndAccount } from '../types';
 
-type CreateArgs = SubscriptionsArgs["obj"]['create(string,uint64,uint64)void']
+type CreateArgs = SubscriptionsArgs["obj"]['create(string,uint64,(string,uint64))void']
 type DeployParams = FixtureAndAccount & { args: Partial<CreateArgs> }
 
 export const deploySubscriptions = async ({
@@ -34,6 +34,9 @@ export const deploySubscriptions = async ({
   }
 
   const { appClient: client } = await factory.send.create.create({
+    // Reserve max program pages up front — extra_program_pages is immutable
+    // after creation, so we pre-pay MBR to leave room for future upgrades.
+    extraProgramPages: 3,
     args: {
       akitaDao,
       akitaDaoEscrow,

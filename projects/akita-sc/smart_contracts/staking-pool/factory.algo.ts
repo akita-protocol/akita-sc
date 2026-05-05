@@ -1,32 +1,40 @@
-import { abimethod, Account, Application, assert, assertMatch, Global, gtxn, itxn, OnCompleteAction, Txn, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, clone, contract, Global, gtxn, itxn, loggedAssert, OnCompleteAction, Txn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, compileArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { classes } from "polytype";
 import { RootKey } from "../meta-merkles/types";
 import { StakingType } from "../staking/types";
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../utils/constants";
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../utils/constants";
 import { ERR_CONTRACT_NOT_SET } from "../utils/errors";
+import { ERR_INVALID_PAYMENT, ERR_NOT_CREATOR } from "./errors";
 import { getFunder, getStakingFees, referralFee, sendReferralPayment } from "../utils/functions";
 import { PoolGlobalStateBytesCount, PoolGlobalStateUintCount } from "./constants";
-import { ERR_NOT_CREATOR } from "./errors";
 
 // CONTRACT IMPORTS
+import { EscrowConfig } from "../utils/base-contracts/base";
 import { FactoryContract } from "../utils/base-contracts/factory";
 import { BaseStakingPool } from "./base";
 import { StakingPool } from "./contract.algo";
 
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract) {
   // GLOBAL STATE ---------------------------------------------------------------------------------
   // BOXES ----------------------------------------------------------------------------------------
   // PRIVATE METHODS ------------------------------------------------------------------------------
+
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
+  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
     this.version.value = version
     this.childContractVersion.value = childVersion
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
   // POOL FACTORY METHODS -------------------------------------------------------------------------
@@ -43,7 +51,7 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
     maxEntries: uint64,
   ): uint64 {
 
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     const pool = compileArc4(StakingPool)
 
@@ -67,17 +75,12 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
       referralMbr
     )
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR,
-      }
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.address,
+        receiver: this.akitaDAOEscrow.value.app.address,
         amount: leftover,
       })
       .submit()
@@ -116,7 +119,7 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
   }
 
   deletePool(appId: Application): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_CREATOR)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_CREATOR)
 
     const { account: receiver, amount } = getFunder(appId)
 

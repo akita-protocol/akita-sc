@@ -1,24 +1,30 @@
 import {
   AkitaDaoSDK,
   DAOProposalVotesMBR,
+  DAO_ERROR_MESSAGES,
   EMPTY_CID,
   ProposalActionEnum,
   SplitDistributionType,
-  SplitsToTuples
-} from "../chunk-6XWR3D2C.mjs";
-import "../chunk-3TAJZ3DL.mjs";
-import "../chunk-ZRCAYT2V.mjs";
-import "../chunk-P4YWTMZR.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  SplitsToTuples,
+  parseDaoErrorCode,
+  translateDaoError
+} from "../chunk-QGWRGXS3.mjs";
+import "../chunk-BLFSBOWL.mjs";
+import "../chunk-2ZPJXFUS.mjs";
+import "../chunk-ST2WN72C.mjs";
+import "../chunk-5F555WJV.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
   AkitaDaoSDK,
   DAOProposalVotesMBR,
+  DAO_ERROR_MESSAGES,
   EMPTY_CID,
   ProposalActionEnum,
   SplitDistributionType,
-  SplitsToTuples
+  SplitsToTuples,
+  parseDaoErrorCode,
+  translateDaoError
 };
 //# sourceMappingURL=index.mjs.map

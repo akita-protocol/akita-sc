@@ -15,7 +15,7 @@ type UpdateAppArgs = (Omit<ContractArgs['updateApp(uint64,bool,uint64)void'], 'w
 type UpdateAkitaDaoAppIDForAppArgs = (Omit<ContractArgs['updateAkitaDaoAppIDForApp(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type UpdateAkitaDaoEscrowForAppArgs = (Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type UpdateAkitaDaoEscrowForAppArgs = (Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,(string,uint64))void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type UpdateFactoryChildContractArgs = ({

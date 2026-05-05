@@ -18,7 +18,7 @@ import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
 import { parseBaseArgs, setupContext, runScript } from './script-base'
 import { ProposalActionEnum } from 'akita-sdk/dao'
-import { UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { UpdateAkitaDaoPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/update-akita-dao/UpdateAkitaDAOPluginClient'
 import {
@@ -110,7 +110,7 @@ runScript(async () => {
       approval: DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
       sourceLink: 'https://github.com/kylebee/akita-sc',
       client: newUpdatePlugin,
-      global: true,
+      callerType: CallerType.Global,
       useExecutionKey: true,
     },
   ])

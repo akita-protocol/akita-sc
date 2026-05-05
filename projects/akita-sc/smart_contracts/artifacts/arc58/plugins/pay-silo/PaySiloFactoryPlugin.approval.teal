@@ -24,7 +24,7 @@ main_mint_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b mint
 
 main___algots__.defaultCreate@5:
@@ -35,7 +35,7 @@ main___algots__.defaultCreate@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts::PaySiloFactoryPlugin.mint[routing]() -> void:
@@ -49,9 +49,9 @@ mint:
     txna ApplicationArgs 1
     dup
     len
-    pushint 8 // 8
+    pushint 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
@@ -59,16 +59,16 @@ mint:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     txna ApplicationArgs 3
     dup
     cover 3
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
@@ -101,16 +101,6 @@ mint:
     global ZeroAddress
 
 mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
-    // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:26-30
-    // const result = paySilo.call.create({
-    //   sender,
-    //   args: [recipient],
-    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
-    // })
-    pushbytes 0xcc694eaa // method "create(address)void"
-    itxn_field ApplicationArgs
-    dig 2
-    itxn_field ApplicationArgs
     // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:24
     // const paySilo = compileArc4(PaySiloPlugin)
     intc_0 // 0
@@ -138,6 +128,10 @@ mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
     itxn_field RekeyTo
     dup
     itxn_field Sender
+    pushbytes 0xcc694eaa // method "create(address)void"
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0

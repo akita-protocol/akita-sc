@@ -88,6 +88,11 @@ export const DelegationTypeOther = new Uint8(0)
 export const DelegationTypeSelf = new Uint8(1)
 export const DelegationTypeAgent = new Uint8(2)
 
+/** CallerType determines how the plugin's caller address is resolved */
+export const CallerTypeOther: uint64 = 0    // Txn.sender — specific address
+export const CallerTypeGlobal: uint64 = 1   // Global.zeroAddress — anyone
+export const CallerTypeAdmin: uint64 = 2    // Global.currentApplicationAddress — current admin
+
 export type PluginInfo = {
   escrow: uint64;
   delegationType: Uint8;
@@ -139,6 +144,27 @@ export type EscrowReclaim = {
   asset: uint64;
   amount: uint64;
   closeOut: boolean;
+}
+
+export type FactoryUpdateSettings = {
+  allowed: boolean;
+  automatic: boolean;
+}
+
+export type PluginInstall = {
+  plugin: uint64
+  caller: Account
+  escrow: string
+  admin: boolean
+  delegationType: Uint8
+  lastValid: uint64
+  cooldown: uint64
+  methods: MethodRestriction[]
+  useRounds: boolean
+  useExecutionKey: boolean
+  coverFees: boolean
+  canReclaim: boolean
+  defaultToEscrow: boolean
 }
 
 export type AbstractAccountBoxMBRData = {

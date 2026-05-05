@@ -15,6 +15,9 @@ export const deployEscrowFactory = async ({ fixture, sender, signer }: FixtureAn
   const { appClient: client } = await factory.deploy({
     onUpdate: 'append',
     onSchemaBreak: 'append',
+    // Reserve max program pages up front — extra_program_pages is immutable
+    // after creation, so we pre-pay MBR to leave room for future upgrades.
+    createParams: { extraProgramPages: 3 },
   })
 
   await client.appClient.fundAppAccount({ amount: (100_000).microAlgos() });

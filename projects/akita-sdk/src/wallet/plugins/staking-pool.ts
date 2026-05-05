@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { StakingPoolPluginArgs, StakingPoolPluginClient, StakingPoolPluginFactory } from "../../generated/StakingPoolPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -54,7 +55,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   newPool(args?: NewPoolArgs): PluginSDKReturn {
     const methodName = 'newPool';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -64,7 +65,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -88,7 +89,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   initPool(args?: InitPoolArgs): PluginSDKReturn {
     const methodName = 'initPool';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -98,7 +99,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -122,7 +123,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   deletePool(args?: DeletePoolArgs): PluginSDKReturn {
     const methodName = 'deletePool';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -132,7 +133,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -156,7 +157,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   addReward(args?: AddRewardArgs): PluginSDKReturn {
     const methodName = 'addReward';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -166,7 +167,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -190,7 +191,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   finalizePool(args?: FinalizePoolArgs): PluginSDKReturn {
     const methodName = 'finalizePool';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -200,7 +201,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -224,7 +225,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
   enter(args?: EnterArgs): PluginSDKReturn {
     const methodName = 'enter';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -234,7 +235,7 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

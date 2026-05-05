@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { PollPluginContractArgs, PollPluginContractClient, PollPluginContractFactory } from "../../generated/PollPluginContractClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -36,7 +37,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
   new(args?: NewArgs): PluginSDKReturn {
     const methodName = 'new';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -46,7 +47,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -70,7 +71,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
   deleteBoxes(args?: DeleteBoxesArgs): PluginSDKReturn {
     const methodName = 'deleteBoxes';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -80,7 +81,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -104,7 +105,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
   vote(args?: VoteArgs): PluginSDKReturn {
     const methodName = 'vote';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -114,7 +115,7 @@ export class PollPluginSDK extends BaseSDK<PollPluginContractClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

@@ -8,9 +8,12 @@ type OptInArgs = (Omit<ContractArgs['optIn(uint64,bool,uint64)void'], 'wallet' |
 });
 type InitDescriptionArgs = (Omit<ContractArgs['initDescription(uint64,uint64)void'], 'wallet'> & MaybeSigner);
 type LoadDescriptionArgs = (Omit<ContractArgs['loadDescription(uint64,uint64,byte[])void'], 'wallet'> & MaybeSigner);
-type NewServiceArgs = (Omit<ContractArgs['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,string,byte[36],uint8,byte[3])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type NewServiceArgs = (Omit<ContractArgs['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+type NewServiceWithDescriptionArgs = NewServiceArgs & {
+    description: string;
+};
 type PauseServiceArgs = (Omit<ContractArgs['pauseService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -49,6 +52,12 @@ export declare class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginC
     loadDescription(args: LoadDescriptionArgs): PluginSDKReturn;
     newService(): PluginSDKReturn;
     newService(args: NewServiceArgs): PluginSDKReturn;
+    /**
+     * Composes initDescription + loadDescription (chunked) + newService into the
+     * correct call order expected by the plugin contract. Spread the returned
+     * array into the `calls` parameter of `wallet.build.usePlugin()`.
+     */
+    newServiceWithDescription(args: NewServiceWithDescriptionArgs): PluginSDKReturn[];
     pauseService(): PluginSDKReturn;
     pauseService(args: PauseServiceArgs): PluginSDKReturn;
     shutdownService(): PluginSDKReturn;

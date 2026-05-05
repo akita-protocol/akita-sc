@@ -8,7 +8,7 @@ export type DeployPollFactoryParams = FixtureAndAccount & {
         version: string;
         childVersion: string;
         akitaDao: bigint;
-        akitaDaoEscrow: bigint;
+        akitaDaoEscrow: { name: string; app: bigint };
     };
 };
 
@@ -29,6 +29,9 @@ export const deployPollFactory = async ({
     });
 
     const results = await factory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             version: args.version,
             childVersion: args.childVersion,

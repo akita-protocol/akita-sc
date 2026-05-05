@@ -1,6 +1,6 @@
 import { SendParams } from "@algorandfoundation/algokit-utils/types/transaction";
 import { AlgoAmount } from "@algorandfoundation/algokit-utils/types/amount";
-import { makeEmptyTransactionSigner } from "algosdk";
+import { makeEmptyTransactionSigner } from "@algorandfoundation/algokit-utils/transact";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 
 export const DEFAULT_READER: string = "Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA" // "Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4XEMMGVF2QWNPL226CA"

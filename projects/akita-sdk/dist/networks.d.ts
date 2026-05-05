@@ -14,6 +14,7 @@ import { AkitaNetwork } from './config';
  */
 export interface NetworkAppIds {
     dao: bigint;
+    daoProposalValidator: bigint;
     wallet: bigint;
     escrowFactory: bigint;
     walletFactory: bigint;

@@ -3,7 +3,7 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
-import { newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
+import { newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk';
 import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
@@ -82,7 +82,7 @@ describe('ARC58 Reclaim', () => {
 
       await wallet.addPlugin({
         client: payPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
       });
 
@@ -126,7 +126,7 @@ describe('ARC58 Reclaim', () => {
 
       await wallet.addPlugin({
         client: payPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
       });
 
@@ -190,7 +190,7 @@ describe('ARC58 Reclaim', () => {
 
       await wallet.addPlugin({
         client: payPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
         canReclaim: true,
       });
@@ -284,7 +284,7 @@ describe('ARC58 Reclaim', () => {
 
       await wallet.addPlugin({
         client: payPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
         canReclaim: false,
       });
@@ -322,7 +322,7 @@ describe('ARC58 Reclaim', () => {
       // Add plugin as global to create the escrow
       await wallet.addPlugin({
         client: payPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
         escrow,
       });
 
@@ -425,7 +425,7 @@ describe('ARC58 Reclaim', () => {
       // Install optInPlugin (global, no escrow) to opt wallet into ASAs
       await wallet.addPlugin({
         client: optInPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
       });
 
       // Install payPlugin with escrow
@@ -435,7 +435,7 @@ describe('ARC58 Reclaim', () => {
         canReclaim,
       };
       if (isGlobal) {
-        pluginOpts.global = true;
+        pluginOpts.callerType = CallerType.Global;
       } else {
         pluginOpts.caller = caller;
       }
@@ -449,7 +449,7 @@ describe('ARC58 Reclaim', () => {
         assetName: `Test ${escrow}`,
         unitName: 'TRCL',
       });
-      const testAssetId = BigInt(assetCreateResult.confirmation.assetIndex!);
+      const testAssetId = assetCreateResult.assetId;
       const asaAmount = 100_000n;
 
       // Add allowance for the test ASA on the escrow (required before escrow opt-in)
@@ -464,7 +464,7 @@ describe('ARC58 Reclaim', () => {
 
       // Opt wallet into ASA via optInPlugin
       await wallet.usePlugin({
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           optInPluginSdk.optIn({ assets: [testAssetId] }),
         ],
@@ -560,7 +560,11 @@ describe('ARC58 Reclaim', () => {
       expect(escrowAsset).toBeUndefined();
     });
 
-    test('pluginReclaim closeOut blocked when escrow is locked', async () => {
+    test('pluginReclaim reclaims ASA but skips closeOut when escrow is locked', async () => {
+      // Intent: when closeOut=true is requested but the escrow is locked, the reclaim
+      // transfer should still move the ASA to the wallet, but the closeOut step that
+      // would fully close the escrow's opt-in should be suppressed. The escrow stays
+      // opted-in with balance=0.
       const { algorand, context: { testAccount } } = localnet;
       const sender = testAccount.toString();
 
@@ -570,7 +574,8 @@ describe('ARC58 Reclaim', () => {
       // Lock the escrow
       await wallet.toggleEscrowLock({ escrow });
 
-      // Plugin reclaim with closeOut=true — should be blocked due to lock
+      // Plugin reclaim with closeOut=true. The transfer should succeed; the closeOut
+      // portion should be suppressed because the escrow is locked.
       await wallet.client.send.arc58PluginReclaim({
         sender,
         extraFee: microAlgo(1_000n),
@@ -582,13 +587,15 @@ describe('ARC58 Reclaim', () => {
         },
       });
 
-      // Wallet should have received the ASA
+      // Wallet received the ASA (transfer happened)
       const walletAssets = (await algorand.account.getInformation(wallet.client.appAddress)).assets ?? [];
       const walletAsset = walletAssets.find(a => a.assetId === testAssetId);
       expect(walletAsset).toBeDefined();
       expect(walletAsset!.amount).toBe(asaAmount);
 
-      // Escrow should still be opted in (closeOut was blocked)
+      // Escrow is still opted-in with balance=0 (closeOut was blocked by the lock).
+      // Contrast with 'pluginReclaim closeOut allowed when escrow is unlocked' which
+      // asserts the escrow entry is *undefined* after a successful closeOut.
       const escrowAssets = (await algorand.account.getInformation(escrowAddress)).assets ?? [];
       const escrowAsset = escrowAssets.find(a => a.assetId === testAssetId);
       expect(escrowAsset).toBeDefined();

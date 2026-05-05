@@ -64,7 +64,7 @@
       ]
     },
     "10": {
-      "op": "pushint 32 // 32",
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "authData#0",
@@ -185,7 +185,7 @@
       ]
     },
     "20": {
-      "op": "pushint 32 // 32",
+      "op": "pushint 32",
       "stack_out": [
         "sSig#0",
         "rSig#0",
@@ -372,7 +372,7 @@
       ]
     },
     "35": {
-      "op": "pushint 1 // 1",
+      "op": "pushint 1",
       "defined_out": [
         "1",
         "cdTwo#0",

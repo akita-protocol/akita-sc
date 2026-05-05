@@ -20,3 +20,4 @@ export * from './social';
 export * from './staking';
 export * from './staking-pool';
 export * from './subscriptions';
+export * from './sunset';

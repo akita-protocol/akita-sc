@@ -2,16 +2,16 @@ import {
   abimethod,
   Account,
   Application,
-  assert,
-  assertMatch,
   Asset,
   BoxMap,
   Bytes,
   bytes,
   clone,
+  contract,
   Global,
   gtxn,
   itxn,
+  loggedAssert,
   OnCompleteAction,
   op,
   TransactionType,
@@ -20,10 +20,9 @@ import {
 import { methodSelector, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Txn } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
-import { AkitaDAOEscrowAccountSubscriptions } from '../arc58/dao/constants'
 import { ERR_HAS_GATE } from '../social/errors'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER } from '../utils/errors'
-import { calcPercent, gateCheck, getSubscriptionFees, getWalletIDUsingAkitaDAO, originOrTxnSender, referralFee, sendReferralPayment } from '../utils/functions'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints } from '../utils/constants'
+import { calcPercent, gateCheck, getSubscriptionFees, getWalletIDUsingAkitaDAO, originOrTxnSender, referralFee, sendReferralPayment, splitOptInCount } from '../utils/functions'
 import { CID } from '../utils/types/base'
 import {
   HighlightMessageNone,
@@ -49,7 +48,9 @@ import {
   ERR_FAILED_GATE,
   ERR_GROUP_INDEX_OUT_OF_BOUNDS,
   ERR_INVALID_ASSET_RECEIVER,
+  ERR_INVALID_PAYMENT,
   ERR_INVALID_SEQUENCE,
+  ERR_INVALID_TRANSFER,
   ERR_MAX_PASSES_IS_FIVE,
   ERR_MIN_AMOUNT_IS_THREE,
   ERR_MIN_INTERVAL_IS_SIXTY,
@@ -90,9 +91,15 @@ import {
 } from './types'
 
 // CONTRACT IMPORTS
-import { AkitaFeeGeneratorContractWithOptIn } from '../utils/base-contracts/base'
+import { AkitaFeeGeneratorContractWithOptIn, EscrowConfig } from '../utils/base-contracts/base'
 import { BaseSubscriptions } from './base'
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorContractWithOptIn) {
 
   // BOXES ----------------------------------------------------------------------------------------
@@ -210,7 +217,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   ): uint64 {
     const blocksKey = this.getBlockKey(recipient, Txn.sender)
     // ensure they aren't blocked
-    assert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
+    loggedAssert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
     // gate is zero unless the service has a gate
     let gateID: uint64 = 0
 
@@ -218,20 +225,25 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     let mbrAmount = costs.subscriptions
     // index zero is always reserved for donations
     const isDonation = serviceID === 0
+    let payoutTarget = recipient
     if (!isDonation) {
       const boxKey: ServicesKey = { address: recipient, id: serviceID }
       // ensure the service exists
-      assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
       // get the service details
       const service = clone(this.services(boxKey).value)
       // ensure the service is active
-      assert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
+      loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
       // ensure its an algo subscription
-      assert(service.asset === 0, ERR_ASA_MISMATCH)
+      loggedAssert(service.asset === 0, ERR_ASA_MISMATCH)
       // overwrite the details for the subscription
       amount = service.amount
       interval = service.interval
       gateID = service.gateID
+
+      if (service.payoutAddress !== Global.zeroAddress) {
+        payoutTarget = service.payoutAddress
+      }
 
       if (service.passes > 0) {
         mbrAmount += costs.passes
@@ -249,27 +261,19 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
     const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, akitaFees)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: {
-          greaterThanEq: (amount + mbrAmount + referralMbr)
-        },
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount >= (amount + mbrAmount + referralMbr), ERR_INVALID_PAYMENT)
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.address,
+        receiver: this.akitaDAOEscrow.value.app.address,
         amount: leftover,
       })
       .submit()
 
     itxn
       .payment({
-        receiver: recipient,
+        receiver: payoutTarget,
         amount: amounts.leftOver
       })
       .submit()
@@ -306,7 +310,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   ): uint64 {
     const blocksKey = this.getBlockKey(recipient, Txn.sender)
     // ensure they aren't blocked
-    assert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
+    loggedAssert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
     // gate is zero unless the service has a gate
     let gateID: uint64 = 0
 
@@ -314,20 +318,25 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     let mbrAmount = costs.subscriptions
     // index zero is always reserved for donations
     const isDonation = serviceID === 0
+    let payoutTarget = recipient
     if (!isDonation) {
       const boxKey: ServicesKey = { address: recipient, id: serviceID }
       // ensure the service exists
-      assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
       // get the service details
       const service = clone(this.services(boxKey).value)
       // ensure the service is active
-      assert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
+      loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
       // ensure its an algo subscription
-      assert(service.asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
+      loggedAssert(service.asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
       // overwrite the details for the subscription
       amount = service.amount
       interval = service.interval
       gateID = service.gateID
+
+      if (service.payoutAddress !== Global.zeroAddress) {
+        payoutTarget = service.payoutAddress
+      }
 
       if (service.passes > 0) {
         mbrAmount += costs.passes
@@ -346,47 +355,31 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
     const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, assetXfer.xferAsset.id, akitaFees)
 
-    if (!this.akitaDAOEscrow.value.address.isOptedIn(assetXfer.xferAsset)) {
-      this.optAkitaEscrowInAndSend(
-        AkitaDAOEscrowAccountSubscriptions,
-        assetXfer.xferAsset,
-        leftover
-      )
-    } else {
-      itxn
-        .assetTransfer({
-          assetReceiver: this.akitaDAOEscrow.value.address,
-          xferAsset: assetXfer.xferAsset,
-          assetAmount: leftover
-        })
-        .submit()
-    }
+    // The revenue escrow is opted in to this asset eagerly at `optIn`
+    // time (see `AkitaFeeGeneratorContractWithOptIn.optIn`). The service's
+    // `asset === assetXfer.xferAsset.id` check above already guarantees
+    // subscribers use the same asset the service — and therefore the
+    // escrow — were configured with, so this assert is defensive.
+    loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(assetXfer.xferAsset), ERR_NOT_OPTED_IN)
+    itxn
+      .assetTransfer({
+        assetReceiver: this.akitaDAOEscrow.value.app.address,
+        xferAsset: assetXfer.xferAsset,
+        assetAmount: leftover
+      })
+      .submit()
 
     // mbr payment checks
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: mbrAmount + referralMbr,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === mbrAmount + referralMbr, ERR_INVALID_PAYMENT)
 
     // asset transfer checks
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: {
-          greaterThanEq: amount,
-        }
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount >= amount, ERR_INVALID_TRANSFER)
 
     itxn
       .assetTransfer({
-        assetReceiver: recipient,
+        assetReceiver: payoutTarget,
         xferAsset: assetXfer.xferAsset,
         assetAmount: amounts.leftOver
       })
@@ -459,17 +452,6 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     return true
   }
 
-  // LIFE CYCLE METHODS ---------------------------------------------------------------------------
-
-  @abimethod({ onCreate: 'require' })
-  create(version: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
-    this.version.value = version
-    this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
-  }
-
-  // SUBSCRIPTION METHODS -------------------------------------------------------------------------
-
   private verifyServiceActivation(): void {
     let activated = false
     for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
@@ -479,19 +461,30 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
         continue
       }
 
-      assert(txn.appId === Global.currentApplicationId, ERR_INVALID_SEQUENCE)
-      assert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_SEQUENCE)
+      loggedAssert(txn.appId === Global.currentApplicationId, ERR_INVALID_SEQUENCE)
+      loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_SEQUENCE)
 
       if (txn.appArgs(0) === methodSelector(this.activateService)) {
         activated = true
         break
       }
 
-      assert(txn.appArgs(0) === methodSelector(this.setServiceDescription), ERR_INVALID_SEQUENCE)
+      loggedAssert(txn.appArgs(0) === methodSelector(this.setServiceDescription), ERR_INVALID_SEQUENCE)
     }
 
-    assert(activated, ERR_SERVICE_NOT_ACTIVATED)
+    loggedAssert(activated, ERR_SERVICE_NOT_ACTIVATED)
   }
+
+  // LIFE CYCLE METHODS ---------------------------------------------------------------------------
+
+  @abimethod({ onCreate: 'require' })
+  create(version: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
+    this.version.value = version
+    this.akitaDAO.value = akitaDAO
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
+  }
+
+  // SUBSCRIPTION METHODS -------------------------------------------------------------------------
 
   /**
    * newService creates a new service for a merchant
@@ -511,6 +504,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     amount: uint64,
     passes: uint64,
     gateID: uint64,
+    payoutAddress: Account,
     title: string,
     bannerImage: CID,
     highlightMessage: Uint8,
@@ -521,12 +515,12 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const boxKey: ServicesKey = { address: Txn.sender, id }
 
     // ensure the amount is enough to take fees on
-    assert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
     // ensure payouts cant be too fast
-    assert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
     // family passes have a max of 5
-    assert(passes <= MAX_PASSES, ERR_MAX_PASSES_IS_FIVE)
-    assert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
+    loggedAssert(passes <= MAX_PASSES, ERR_MAX_PASSES_IS_FIVE)
+    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
 
     const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
     const costs = this.mbr()
@@ -536,28 +530,22 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       requiredAmount += costs.serviceslist
     }
     if (asset !== 0) {
-      assert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
-
-      if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(asset))) {
-        requiredAmount += Global.assetOptInMinBalance
-        this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountSubscriptions, Asset(asset), 0)
-      }
+      // Both the contract and the dedicated revenue escrow are opted in
+      // eagerly at `optIn` time. `newService` keeps a predictable MBR
+      // profile by asserting that up-front rather than paying for a
+      // revenue-manager opt-in flow on the first service created.
+      loggedAssert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
+      loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
     }
 
     const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, asset, serviceCreationFee)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: requiredAmount + referralMbr,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === requiredAmount + referralMbr, ERR_INVALID_PAYMENT)
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.address,
+        receiver: this.akitaDAOEscrow.value.app.address,
         amount: leftover
       })
       .submit()
@@ -569,6 +557,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       amount,
       passes,
       gateID,
+      payoutAddress,
       title,
       description: '',
       bannerImage,
@@ -582,12 +571,12 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   }
 
   setServiceDescription(offset: uint64, data: bytes): void {
-    assert(Txn.groupIndex > 0, ERR_GROUP_INDEX_OUT_OF_BOUNDS)
+    loggedAssert(Txn.groupIndex > 0, ERR_GROUP_INDEX_OUT_OF_BOUNDS)
     const previousCalls: uint64 = offset / MAX_DESCRIPTION_CHUNK_SIZE
     const newServiceTxnIndex: uint64 = Txn.groupIndex - 1 - previousCalls
     const txn = gtxn.Transaction(newServiceTxnIndex)
     // force the call to be after newService
-    assert(
+    loggedAssert(
       txn.type === TransactionType.ApplicationCall &&
       txn.appId === Global.currentApplicationId &&
       txn.onCompletion === OnCompleteAction.NoOp &&
@@ -598,13 +587,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const id: uint64 = this.serviceslist(Txn.sender).value - 1
     const key: ServicesKey = { address: Txn.sender, id }
 
-    assert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    assert(this.services(key).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
-    assert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
+    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(key).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
+    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
 
     let descBytes = Bytes(this.services(key).value.description)
 
-    assert(offset <= descBytes.length, ERR_BAD_OFFSET)
+    loggedAssert(offset <= descBytes.length, ERR_BAD_OFFSET)
 
     if (offset < descBytes.length) {
       descBytes = descBytes.slice(0, offset)
@@ -621,8 +610,8 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
     const boxKey: ServicesKey = { address: Txn.sender, id }
 
-    assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    assert(this.services(boxKey).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
+    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
 
     this.services(boxKey).value.status = ServiceStatusActive
   }
@@ -637,9 +626,9 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   pauseService(id: ServiceID): void {
     const boxKey: ServicesKey = { address: Txn.sender, id }
     // ensure the box exists
-    assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     // ensure the service is active
-    assert(this.services(boxKey).value.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
 
     this.services(boxKey).value.status = ServiceStatusPaused
   }
@@ -653,9 +642,9 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const boxKey: ServicesKey = { address: Txn.sender, id }
 
     // ensure the box exists
-    assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     // ensure the service is currently paused
-    assert(this.services(boxKey).value.status === ServiceStatusPaused, ERR_SERVICE_IS_NOT_PAUSED)
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusPaused, ERR_SERVICE_IS_NOT_PAUSED)
 
     this.services(boxKey).value.status = ServiceStatusActive
   }
@@ -668,9 +657,9 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   shutdownService(id: ServiceID): void {
     const boxKey: ServicesKey = { address: Txn.sender, id }
     // ensure the box exists
-    assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     // ensure the service isn't already shutdown
-    assert(this.services(boxKey).value.status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
+    loggedAssert(this.services(boxKey).value.status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
 
     this.services(boxKey).value.status = ServiceStatusShutdown
   }
@@ -685,17 +674,11 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const boxKey = this.getBlockKey(Txn.sender, blocked)
 
     // ensure the address is not already blocked
-    assert(!this.blocks(boxKey).exists, ERR_USER_ALREADY_BLOCKED)
+    loggedAssert(!this.blocks(boxKey).exists, ERR_USER_ALREADY_BLOCKED)
     // ensure the payment is correct
     const costs = this.mbr()
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: costs.blocks,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === costs.blocks, ERR_INVALID_PAYMENT)
 
     this.blocks(boxKey).create()
   }
@@ -708,7 +691,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     const boxKey = this.getBlockKey(Txn.sender, blocked)
 
     // ensure that the address is currently blocked
-    assert(this.blocks(boxKey).exists, ERR_USER_NOT_BLOCKED)
+    loggedAssert(this.blocks(boxKey).exists, ERR_USER_NOT_BLOCKED)
 
     this.blocks(boxKey).delete()
 
@@ -729,17 +712,17 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     serviceID: ServiceID,
   ): uint64 {
     // ensure the amount is enough to take fees on
-    assert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
     // ensure payouts cant be too fast
-    assert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
 
-    assert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    assert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
+    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
 
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
 
     return this.createSubscription(payment, recipient, amount, interval, serviceID)
   }
@@ -752,14 +735,14 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     serviceID: ServiceID,
   ): uint64 {
     // ensure the amount is enough to take fees on
-    assert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
     // ensure payouts cant be too fast
-    assert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
 
     if (serviceID !== 0) {
-      assert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
       const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-      assert(gateID === 0, ERR_HAS_GATE)
+      loggedAssert(gateID === 0, ERR_HAS_GATE)
     }
 
     return this.createSubscription(payment, recipient, amount, interval, serviceID)
@@ -775,17 +758,17 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     serviceID: ServiceID,
   ): uint64 {
     // ensure the amount is enough to take fees on
-    assert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
     // ensure payouts cant be too fast
-    assert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
 
-    assert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    assert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
+    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
 
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
 
     return this.createAsaSubscription(
       payment,
@@ -806,14 +789,14 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     serviceID: ServiceID,
   ): uint64 {
     // ensure the amount is enough to take fees on
-    assert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
     // ensure payouts cant be too fast
-    assert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
 
     if (serviceID !== 0) {
-      assert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
       const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-      assert(gateID === 0, ERR_HAS_GATE)
+      loggedAssert(gateID === 0, ERR_HAS_GATE)
     }
 
     return this.createAsaSubscription(
@@ -829,17 +812,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   deposit(payment: gtxn.PaymentTxn, id: SubscriptionID): void {
     const subKey = { address: Txn.sender, id }
 
-    assert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const sub = clone(this.subscriptions(subKey).value)
 
-    assert(sub.asset === 0, ERR_ASA_MISMATCH)
+    loggedAssert(sub.asset === 0, ERR_ASA_MISMATCH)
 
-    assertMatch(
-      payment,
-      { receiver: Global.currentApplicationAddress },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
 
     this.subscriptions(subKey).value.escrowed += payment.amount
   }
@@ -847,13 +826,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   depositAsa(assetXfer: gtxn.AssetTransferTxn, id: SubscriptionID): void {
     const subKey: SubscriptionKey = { address: Txn.sender, id }
 
-    assert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const { asset } = this.subscriptions(subKey).value
 
-    assert(asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
+    loggedAssert(asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
 
-    assert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_RECEIVER)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_RECEIVER)
 
     this.subscriptions(subKey).value.escrowed += assetXfer.assetAmount
   }
@@ -861,11 +840,11 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   withdraw(id: SubscriptionID, amount: uint64): void {
     const subKey: SubscriptionKey = { address: Txn.sender, id }
 
-    assert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const sub = clone(this.subscriptions(subKey).value)
 
-    assert(sub.escrowed >= amount, ERR_NOT_ENOUGH_FUNDS)
+    loggedAssert(sub.escrowed >= amount, ERR_NOT_ENOUGH_FUNDS)
 
     if (sub.asset !== 0) {
       itxn
@@ -890,7 +869,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   unsubscribe(id: SubscriptionID): void {
     const subKey: SubscriptionKey = { address: Txn.sender, id }
 
-    assert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const sub = clone(this.subscriptions(subKey).value)
 
@@ -935,34 +914,46 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
   gatedTriggerPayment(gateTxn: gtxn.ApplicationCallTxn, key: SubscriptionKey): void {
     // ensure a subscription exists
-    assert(this.subscriptions(key).exists)
+    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const { serviceID, recipient } = this.subscriptions(key).value
 
-    assert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    assert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
+    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
 
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
 
     this.triggerPayment(key)
   }
 
   triggerPayment(key: SubscriptionKey): void {
 
-    assert(this.canTrigger(key), ERR_CANNOT_TRIGGER)
+    loggedAssert(this.canTrigger(key), ERR_CANNOT_TRIGGER)
 
     const {
       recipient,
+      serviceID,
       amount,
       asset,
       gateID
     } = this.subscriptions(key).value
 
     if (gateID !== 0) {
-      assert(Txn.applicationArgs(0) === methodSelector(this.gatedTriggerPayment))
+      loggedAssert(Txn.applicationArgs(0) === methodSelector(this.gatedTriggerPayment), ERR_INVALID_SEQUENCE)
+    }
+
+    let payoutTarget = recipient
+    if (serviceID !== 0) {
+      const serviceKey: ServicesKey = { address: recipient, id: serviceID }
+      if (this.services(serviceKey).exists) {
+        const payoutAddress = this.services(serviceKey).value.payoutAddress
+        if (payoutAddress !== Global.zeroAddress) {
+          payoutTarget = payoutAddress
+        }
+      }
     }
 
     const isAsa = asset !== 0
@@ -973,7 +964,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       // when the subscription was created
       itxn
         .assetTransfer({
-          assetReceiver: this.akitaDAOEscrow.value.address,
+          assetReceiver: this.akitaDAOEscrow.value.app.address,
           xferAsset: asset,
           assetAmount: amounts.akitaFee
         })
@@ -989,7 +980,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
       itxn
         .assetTransfer({
-          assetReceiver: recipient,
+          assetReceiver: payoutTarget,
           xferAsset: asset,
           assetAmount: amounts.leftOver
         })
@@ -998,7 +989,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       // mbr payment for subscriptions & subscriptionslist boxes
       itxn
         .payment({
-          receiver: this.akitaDAOEscrow.value.address,
+          receiver: this.akitaDAOEscrow.value.app.address,
           amount: amounts.akitaFee
         })
         .submit()
@@ -1012,7 +1003,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
       itxn
         .payment({
-          receiver: recipient,
+          receiver: payoutTarget,
           amount: amounts.leftOver
         })
         .submit()
@@ -1031,23 +1022,23 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   setPasses(id: SubscriptionID, addresses: Account[]): void {
     const subscriptionsKey: SubscriptionKey = { address: Txn.sender, id }
 
-    assert(this.subscriptions(subscriptionsKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subscriptionsKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const { serviceID, recipient } = clone(this.subscriptions(subscriptionsKey).value)
 
-    assert(serviceID > 0, ERR_NO_DONATIONS)
+    loggedAssert(serviceID > 0, ERR_NO_DONATIONS)
 
     const serviceKey: ServicesKey = { address: recipient, id: serviceID }
 
-    assert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
 
     const { status, passes } = this.services(serviceKey).value
 
-    assert(status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
-    assert(passes >= addresses.length, ERR_PASS_COUNT_OVERFLOW)
+    loggedAssert(status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
+    loggedAssert(passes >= addresses.length, ERR_PASS_COUNT_OVERFLOW)
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
-      assert(!this.blocks(this.getBlockKey(recipient, addresses[i])).exists, ERR_BLOCKED)
+      loggedAssert(!this.blocks(this.getBlockKey(recipient, addresses[i])).exists, ERR_BLOCKED)
     }
 
     this.passes({ address: Txn.sender, id }).value = clone(addresses)
@@ -1097,9 +1088,6 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     if (!this.serviceslist(Txn.sender).exists) {
       requiredAmount += costs.serviceslist
     }
-    if (asset !== 0 && !this.akitaDAOEscrow.value.address.isOptedIn(Asset(asset))) {
-      requiredAmount += Global.assetOptInMinBalance
-    }
 
     const referralCost = referralFee(this.akitaDAO.value, asset)
 
@@ -1119,7 +1107,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     if (!isDonation) {
       const boxKey: ServicesKey = { address: recipient, id: serviceID }
       // ensure the service exists
-      assert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
       // get the service details
       const service = clone(this.services(boxKey).value)
 
@@ -1148,7 +1136,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   @abimethod({ readonly: true })
   getService(address: Account, id: uint64): Service {
     const key: ServicesKey = { address, id }
-    assert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
     return this.services(key).value
   }
 
@@ -1192,17 +1180,18 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
   @abimethod({ readonly: true })
   mustGetSubscription(key: SubscriptionKey): SubscriptionInfo {
-    assert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
     return this.subscriptions(key).value
   }
 
   @abimethod({ readonly: true })
   getSubscriptionWithDetails(key: SubscriptionKey): SubscriptionInfoWithDetails {
-    assert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
 
     const sub = clone(this.subscriptions(key).value)
 
     let status: ServiceStatus = ServiceStatusNone
+    let payoutAddress: Account = sub.recipient
     let title: string = ''
     let description: string = ''
     let bannerImage: CID = op.bzero(36)
@@ -1210,8 +1199,11 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     let highlightColor: bytes<3> = Bytes('000').toFixed({ length: 3 })
     if (sub.serviceID !== 0) {
       const serviceKey: ServicesKey = { address: sub.recipient, id: sub.serviceID }
-      assert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST);
-      ({ status, title, description, bannerImage, highlightMessage, highlightColor } = clone(this.services(serviceKey).value))
+      loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST);
+      ({ status, payoutAddress, title, description, bannerImage, highlightMessage, highlightColor } = clone(this.services(serviceKey).value))
+      if (payoutAddress === Global.zeroAddress) {
+        payoutAddress = sub.recipient
+      }
     }
 
     let passes: Account[] = []
@@ -1222,6 +1214,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     return {
       ...sub,
       status,
+      payoutAddress,
       title,
       description,
       bannerImage,

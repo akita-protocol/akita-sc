@@ -1,10 +1,10 @@
-import { Account, Application, assert, bytes, Bytes, GlobalState, itxn, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, bytes, Bytes, GlobalState, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import { NFDGlobalStateKeySaleAmountKey, NFDPluginGlobalStateKeyRegistry } from './constants'
-import { ERR_NOT_AN_NFD } from './errors'
+import { ERR_NOT_AN_NFD, ERR_NO_SALE_AMOUNT } from './errors'
 
 // CONTRACT IMPORTS
 import type { NFD } from '../../../utils/types/nfd'
@@ -44,7 +44,7 @@ export class NFDPlugin extends Contract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.deleteFields>({
       sender,
@@ -63,7 +63,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.updateFields>({
       sender,
@@ -83,7 +83,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.offerForSale>({
       sender,
@@ -101,7 +101,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.cancelSale>({
       sender,
@@ -121,7 +121,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.postOffer>({
       sender,
@@ -139,10 +139,10 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     const [saleAmountBytes, saleAmountBytesExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeySaleAmountKey))
-    assert(saleAmountBytesExists, 'No sale amount set')
+    loggedAssert(saleAmountBytesExists, ERR_NO_SALE_AMOUNT)
 
     abiCall<typeof NFD.prototype.purchase>({
       sender,
@@ -167,7 +167,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.updateHash>({
       sender,
@@ -186,7 +186,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.contractLock>({
       sender,
@@ -206,7 +206,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.segmentLock>({
       sender,
@@ -225,7 +225,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.vaultOptInLock>({
       sender,
@@ -244,7 +244,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.vaultOptIn>({
       sender,
@@ -267,7 +267,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.vaultSend>({
       sender,
@@ -286,7 +286,7 @@ export class NFDPlugin extends Contract {
 
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     const price = abiCall<typeof NFD.prototype.getRenewPrice>({
       sender,
@@ -317,7 +317,7 @@ export class NFDPlugin extends Contract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
     abiCall<typeof NFD.prototype.setPrimaryAddress>({
       sender,

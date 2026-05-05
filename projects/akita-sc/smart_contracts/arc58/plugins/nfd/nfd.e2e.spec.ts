@@ -1,9 +1,9 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { newWallet, WalletSDK } from 'akita-sdk/wallet';
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk';
+import { newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
 algokit.Config.configure({ populateAppCallResources: true });
@@ -11,15 +11,15 @@ algokit.Config.configure({ populateAppCallResources: true });
 const fixture = algorandFixture();
 
 describe('NFD plugin contract', () => {
-  let deployer: algosdk.Account;
-  let user: algosdk.Account;
+  let deployer: Address & TransactionSignerAccount;
+  let user: Address & TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
 
   beforeAll(async () => {
-    await fixture.beforeEach();
+    await fixture.newScope();
     algorand = fixture.context.algorand;
     dispenser = await algorand.account.dispenserFromEnvironment();
 
@@ -34,7 +34,7 @@ describe('NFD plugin contract', () => {
     akitaUniverse = await buildAkitaUniverse({
       fixture,
       sender: deployer.addr,
-      signer: makeBasicAccountTransactionSigner(deployer),
+      signer: deployer.signer,
       apps: {},
     });
 
@@ -44,10 +44,10 @@ describe('NFD plugin contract', () => {
       factoryParams: {
         appId: akitaUniverse.walletFactory.appId,
         defaultSender: user.addr,
-        defaultSigner: makeBasicAccountTransactionSigner(user),
+        defaultSigner: user.signer,
       },
       sender: user.addr,
-      signer: makeBasicAccountTransactionSigner(user),
+      signer: user.signer,
       nickname: 'Test Wallet',
     });
   });
@@ -63,7 +63,7 @@ describe('NFD plugin contract', () => {
 
       await wallet.addPlugin({
         client: nfdPluginSdk,
-        global: true,
+        callerType: CallerType.Global,
       });
 
       // Note: NFDPlugin has 13 methods, but they require NFD registry setup

@@ -5,7 +5,7 @@
     "../../../../utils/base-contracts/base.ts",
     "../../../../utils/functions.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAoBsB;;;;;;;;;;;;;;;;;;;;AAAoC;AAAxD;AAEa;;;;;;;;;;;;;;;;;;;;;AAAb;AAPF;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;AAAA;AC2BE;AAAA;AD3BF;;;;;;AAAA;;;AAAA;;;;AAAA;AAyCG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AC9BS;;;;;;;;;ADgCR;;AAAA;AC9BS;AD+BT;AAAA;AAHD;AAAA;AAQD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AACE;;AAAA;;AAGc;;AAHd;AAAA;;AAAA;;AAAA;AAAA;AAAA;AAQO;AAAA;AAAP;AATF;AAAA;AAAA;AAAA;;;;;AAcA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AACS;AAAA;AAAgB;AAAhB;AAAP;AACO;AAAA;AAAP;AAC4B;AAAA;;AA1D2B;;;;;;;;AAArC;AAAA;AAED;AACQ;ACFhB;ADEgB;AAAA;AE4ByC;;;;;AAAxC;AAAA;AF5BjB;AAAA;AACA;;AAAA;AAAA;AAAA;;;AAAA;;AAAA;AAAiB;;AAAA;AAFT;;;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKb;;;AACK;AA+CX;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA5CqB;AAAA;;;;;;;;AAEJ;;;;;;;;;;;;;;;;;;;;;;AAFI;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;;AAKG;AAAlB;;AACiB;AAAZ;;AAAmB;;AAAA;AAAA;AAAA;;AAAJ;;AAAA;AAAxB;;;AACe;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAoB;;AAApB;;AAAA;AAAoB;;AAApB;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACT;;AAAA;AAAJ;;;AACW;AAAT;;AAH2C;;AAAK;;AAAL;AAAA;;;;;;;AAyCxC;;;AAGT;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIC;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;;;;;;AAAA;AAAA;AAAA;ACvDD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACS;;AAPqC;AAHnC;AAGmC;AAAA;AAA2B;;;;;;;;AAApD;AAAA;AAOG;;AAAA;AAAf;AAAP;AAVS;AAWT;AAAA;AAFF;AAAA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAmBsB;;;;;;;;;;;;;;;;;;;;AAAoC;AAAxD;AAEa;;;;;;;;;;;;;;;;;;;;;AAAb;AAPF;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;AAAA;AC0BE;AAAA;AD1BF;;;;;;AAAA;;;AAAA;;;;AAAA;AAyCG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AC/BS;;;;;;;;;ADiCR;;AAAA;AC/BS;ADgCT;AAAA;AAHD;AAAA;AAQD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AACe;;AAAwB;;AAAxB;AAAb;;;AAAA;;AAAA;AAAA;AACa;;AAAA;;AAAb;;;AAAA;;AAAA;AAAA;AACa;AAAA;AAAb;;;AAAA;;AAAA;AAAA;AAHF;AAAA;AAAA;AAAA;;;;;AAQA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AACe;AAAgB;AAAhB;AAAb;;;AAAA;;AAAA;AAAA;AACA;;AAAA;;;AAAA;;;;;;;;;;AAAA;AAAA;AAC4B;AAAA;AAAA;AAAA;;AApDV;AAAqC;;;;;;;;AAArC;AAAA;AAED;AAER;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAiB;AAAA;AADD;ACHhB;ADGgB;AAAA;AE6ByC;;;;;AAAxC;AAAA;AF7BjB;AAAA;;;AADQ;;;;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKb;;;AACK;AAyCX;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAtCqB;;;;;AAAA;;;;;;;;AAEJ;;;;;;;;;;;;;;;;;;;AAFI;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;;AAKG;AAAlB;;AACiB;AAAZ;;AAAmB;;AAAA;AAAA;AAAA;;AAAJ;;AAAA;AAAxB;;;AACe;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAoB;;AAApB;;AAAA;AAAoB;;AAApB;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACT;;AAAA;AAAJ;;;AACW;AAAT;;AAH2C;;AAAK;;AAAL;AAAA;;;;;;;AAmCxC;;;AAGT;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIC;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;;;;;;AAAA;AAAA;AAAA;AClDD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAP+B;AAHnC;AAGmC;AAAA;AAA2B;;;;;;;;AAApD;AAAA;AAOS;;AAAA;AAAf;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAVS;AAWT;;AAAA;AAFF;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -16,9 +16,9 @@
       "op": "intcblock 0 1 8 2"
     },
     "7": {
-      "op": "bytecblock \"akita_dao\" 0x151f7c75 \"\" 0x151f7c750000000000000000"
+      "op": "bytecblock \"akita_dao\" 0x151f7c75 \"\" 0x151f7c750000000000000000 \"ERR:IPAY\" \"ERR:IARG\""
     },
-    "38": {
+    "56": {
       "op": "txn ApplicationID",
       "defined_out": [
         "reinterpret_bool%0#0"
@@ -27,11 +27,11 @@
         "reinterpret_bool%0#0"
       ]
     },
-    "40": {
+    "58": {
       "op": "bnz main_after_if_else@2",
       "stack_out": []
     },
-    "43": {
+    "61": {
       "op": "pushbytes \"registration_shape\"",
       "defined_out": [
         "\"registration_shape\""
@@ -40,7 +40,7 @@
         "\"registration_shape\""
       ]
     },
-    "63": {
+    "81": {
       "op": "bytec_2 // \"\"",
       "defined_out": [
         "\"\"",
@@ -51,12 +51,12 @@
         "\"\""
       ]
     },
-    "64": {
+    "82": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "65": {
-      "op": "pushbytess \"check_shape\" \"uint64\" // \"check_shape\", \"uint64\"",
+    "83": {
+      "op": "pushbytess \"check_shape\" \"uint64\"",
       "defined_out": [
         "\"check_shape\"",
         "\"uint64\""
@@ -66,11 +66,11 @@
         "\"uint64\""
       ]
     },
-    "86": {
+    "104": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "87": {
+    "105": {
       "block": "main_after_if_else@2",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -81,7 +81,7 @@
         "tmp%0#1"
       ]
     },
-    "89": {
+    "107": {
       "op": "!",
       "defined_out": [
         "tmp%1#0"
@@ -90,12 +90,11 @@
         "tmp%1#0"
       ]
     },
-    "90": {
-      "error": "OnCompletion must be NoOp",
-      "op": "assert // OnCompletion must be NoOp",
+    "108": {
+      "op": "assert",
       "stack_out": []
     },
-    "91": {
+    "109": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%2#0"
@@ -104,11 +103,11 @@
         "tmp%2#0"
       ]
     },
-    "93": {
+    "111": {
       "op": "bz main_create_NoOp@13",
       "stack_out": []
     },
-    "96": {
+    "114": {
       "op": "pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0x8ab8d371 0x90d4fa5d 0x33e92c94 0x854dede0 // method \"cost(byte[])uint64\", method \"register(pay,byte[])uint64\", method \"check(address,uint64,byte[])bool\", method \"getCheckShape(uint64)uint64\", method \"getEntry(uint64)byte[]\", method \"updateAkitaDAO(uint64)void\", method \"opUp()void\"",
       "defined_out": [
         "Method(check(address,uint64,byte[])bool)",
@@ -129,7 +128,7 @@
         "Method(opUp()void)"
       ]
     },
-    "133": {
+    "151": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(check(address,uint64,byte[])bool)",
@@ -152,14 +151,14 @@
         "tmp%4#0"
       ]
     },
-    "136": {
+    "154": {
       "op": "match cost register check getCheckShape getEntry updateAkitaDAO main_opUp_route@11",
       "stack_out": []
     },
-    "152": {
+    "170": {
       "op": "err"
     },
-    "153": {
+    "171": {
       "block": "main_opUp_route@11",
       "stack_in": [],
       "op": "intc_1 // 1",
@@ -170,11 +169,11 @@
         "1"
       ]
     },
-    "154": {
+    "172": {
       "op": "return",
       "stack_out": []
     },
-    "155": {
+    "173": {
       "block": "main_create_NoOp@13",
       "stack_in": [],
       "op": "pushbytes 0xcd9ad67e // method \"create(string,uint64)void\"",
@@ -185,7 +184,7 @@
         "Method(create(string,uint64)void)"
       ]
     },
-    "161": {
+    "179": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(create(string,uint64)void)",
@@ -196,14 +195,14 @@
         "tmp%5#0"
       ]
     },
-    "164": {
+    "182": {
       "op": "match create",
       "stack_out": []
     },
-    "168": {
+    "186": {
       "op": "err"
     },
-    "169": {
+    "187": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.create[routing]",
       "params": {},
       "block": "create",
@@ -216,7 +215,7 @@
         "tmp%0#0"
       ]
     },
-    "172": {
+    "190": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -227,7 +226,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "173": {
+    "191": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -240,8 +239,9 @@
         "0"
       ]
     },
-    "174": {
-      "op": "extract_uint16",
+    "192": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "tmp%0#0"
@@ -251,7 +251,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "175": {
+    "193": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -264,7 +264,7 @@
         "2"
       ]
     },
-    "176": {
+    "194": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -275,7 +275,7 @@
         "add%0#0"
       ]
     },
-    "177": {
+    "195": {
       "op": "dig 1",
       "stack_out": [
         "tmp%0#0",
@@ -283,7 +283,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "179": {
+    "197": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -296,7 +296,7 @@
         "len%0#0"
       ]
     },
-    "180": {
+    "198": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -307,14 +307,14 @@
         "eq%0#0"
       ]
     },
-    "181": {
-      "error": "invalid number of bytes for (len+utf8[])",
-      "op": "assert // invalid number of bytes for (len+utf8[])",
+    "199": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "182": {
+    "200": {
       "op": "extract 2 0",
       "defined_out": [
         "version#0"
@@ -323,7 +323,7 @@
         "version#0"
       ]
     },
-    "185": {
+    "203": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "tmp%2#0",
@@ -334,7 +334,7 @@
         "tmp%2#0"
       ]
     },
-    "188": {
+    "206": {
       "op": "dup",
       "defined_out": [
         "tmp%2#0",
@@ -347,7 +347,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "189": {
+    "207": {
       "op": "len",
       "defined_out": [
         "len%1#0",
@@ -360,7 +360,7 @@
         "len%1#0"
       ]
     },
-    "190": {
+    "208": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -375,7 +375,7 @@
         "8"
       ]
     },
-    "191": {
+    "209": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -388,15 +388,15 @@
         "eq%1#0"
       ]
     },
-    "192": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+    "210": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "version#0",
         "tmp%2#0"
       ]
     },
-    "193": {
+    "211": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0",
@@ -407,7 +407,7 @@
         "akitaDAO#0"
       ]
     },
-    "194": {
+    "212": {
       "op": "pushbytes \"version\"",
       "defined_out": [
         "\"version\"",
@@ -420,7 +420,7 @@
         "\"version\""
       ]
     },
-    "203": {
+    "221": {
       "op": "uncover 2",
       "stack_out": [
         "akitaDAO#0",
@@ -428,13 +428,13 @@
         "version#0"
       ]
     },
-    "205": {
+    "223": {
       "op": "app_global_put",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "206": {
+    "224": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -445,18 +445,18 @@
         "\"akita_dao\""
       ]
     },
-    "207": {
+    "225": {
       "op": "swap",
       "stack_out": [
         "\"akita_dao\"",
         "akitaDAO#0"
       ]
     },
-    "208": {
+    "226": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "209": {
+    "227": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -465,11 +465,11 @@
         "1"
       ]
     },
-    "210": {
+    "228": {
       "op": "return",
       "stack_out": []
     },
-    "211": {
+    "229": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.cost[routing]",
       "params": {},
       "block": "cost",
@@ -482,7 +482,7 @@
         "tmp%0#0"
       ]
     },
-    "214": {
+    "232": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -493,7 +493,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "215": {
+    "233": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -506,8 +506,9 @@
         "0"
       ]
     },
-    "216": {
-      "op": "extract_uint16",
+    "234": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "tmp%0#0"
@@ -517,7 +518,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "217": {
+    "235": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -530,7 +531,7 @@
         "2"
       ]
     },
-    "218": {
+    "236": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -541,14 +542,14 @@
         "add%0#0"
       ]
     },
-    "219": {
+    "237": {
       "op": "swap",
       "stack_out": [
         "add%0#0",
         "tmp%0#0"
       ]
     },
-    "220": {
+    "238": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -559,7 +560,7 @@
         "len%0#0"
       ]
     },
-    "221": {
+    "239": {
       "op": "==",
       "defined_out": [
         "eq%0#0"
@@ -568,12 +569,12 @@
         "eq%0#0"
       ]
     },
-    "222": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+    "240": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": []
     },
-    "223": {
+    "241": {
       "op": "bytec_3 // 0x151f7c750000000000000000",
       "defined_out": [
         "0x151f7c750000000000000000"
@@ -582,11 +583,11 @@
         "0x151f7c750000000000000000"
       ]
     },
-    "224": {
+    "242": {
       "op": "log",
       "stack_out": []
     },
-    "225": {
+    "243": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -595,11 +596,11 @@
         "1"
       ]
     },
-    "226": {
+    "244": {
       "op": "return",
       "stack_out": []
     },
-    "227": {
+    "245": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.register[routing]",
       "params": {},
       "block": "register",
@@ -612,7 +613,7 @@
         "tmp%0#0"
       ]
     },
-    "229": {
+    "247": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -623,7 +624,7 @@
         "1"
       ]
     },
-    "230": {
+    "248": {
       "op": "-",
       "defined_out": [
         "mbrPayment#0"
@@ -632,18 +633,19 @@
         "mbrPayment#0"
       ]
     },
-    "231": {
-      "op": "dup",
+    "249": {
+      "op": "dupn 2",
       "defined_out": [
         "mbrPayment#0",
         "mbrPayment#0 (copy)"
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "mbrPayment#0 (copy)"
       ]
     },
-    "232": {
+    "251": {
       "op": "gtxns TypeEnum",
       "defined_out": [
         "gtxn_type%0#0",
@@ -651,10 +653,11 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "gtxn_type%0#0"
       ]
     },
-    "234": {
+    "253": {
       "op": "intc_1 // pay",
       "defined_out": [
         "gtxn_type%0#0",
@@ -663,11 +666,12 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "gtxn_type%0#0",
         "pay"
       ]
     },
-    "235": {
+    "254": {
       "op": "==",
       "defined_out": [
         "gtxn_type_matches%0#0",
@@ -675,17 +679,19 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "gtxn_type_matches%0#0"
       ]
     },
-    "236": {
+    "255": {
       "error": "transaction type is pay",
       "op": "assert // transaction type is pay",
       "stack_out": [
+        "mbrPayment#0",
         "mbrPayment#0"
       ]
     },
-    "237": {
+    "256": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "mbrPayment#0",
@@ -693,10 +699,11 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0"
       ]
     },
-    "240": {
+    "259": {
       "op": "dup",
       "defined_out": [
         "mbrPayment#0",
@@ -705,27 +712,24 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "tmp%1#0 (copy)"
       ]
     },
-    "241": {
+    "260": {
       "op": "intc_0 // 0",
-      "defined_out": [
-        "0",
-        "mbrPayment#0",
-        "tmp%1#0",
-        "tmp%1#0 (copy)"
-      ],
       "stack_out": [
+        "mbrPayment#0",
         "mbrPayment#0",
         "tmp%1#0",
         "tmp%1#0 (copy)",
         "0"
       ]
     },
-    "242": {
-      "op": "extract_uint16",
+    "261": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "mbrPayment#0",
@@ -733,11 +737,12 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "243": {
+    "262": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -747,12 +752,13 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "aggregate%array_length%0#0",
         "2"
       ]
     },
-    "244": {
+    "263": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -761,20 +767,22 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "add%0#0"
       ]
     },
-    "245": {
+    "264": {
       "op": "dig 1",
       "stack_out": [
+        "mbrPayment#0",
         "mbrPayment#0",
         "tmp%1#0",
         "add%0#0",
         "tmp%1#0 (copy)"
       ]
     },
-    "247": {
+    "266": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -784,12 +792,13 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "add%0#0",
         "len%0#0"
       ]
     },
-    "248": {
+    "267": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -798,19 +807,21 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "tmp%1#0",
         "eq%0#0"
       ]
     },
-    "249": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+    "268": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
+        "mbrPayment#0",
         "mbrPayment#0",
         "tmp%1#0"
       ]
     },
-    "250": {
+    "269": {
       "op": "extract 2 0",
       "defined_out": [
         "args#0",
@@ -818,18 +829,23 @@
       ],
       "stack_out": [
         "mbrPayment#0",
+        "mbrPayment#0",
         "args#0"
       ]
     },
-    "253": {
-      "op": "dig 1",
+    "272": {
+      "op": "swap",
+      "defined_out": [
+        "args#0",
+        "mbrPayment#0"
+      ],
       "stack_out": [
         "mbrPayment#0",
         "args#0",
-        "mbrPayment#0 (copy)"
+        "mbrPayment#0"
       ]
     },
-    "255": {
+    "273": {
       "op": "gtxns Receiver",
       "defined_out": [
         "args#0",
@@ -842,7 +858,7 @@
         "tmp%0#1"
       ]
     },
-    "257": {
+    "275": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "args#0",
@@ -857,7 +873,7 @@
         "tmp%1#1"
       ]
     },
-    "259": {
+    "277": {
       "op": "==",
       "defined_out": [
         "args#0",
@@ -870,105 +886,195 @@
         "tmp%2#1"
       ]
     },
-    "260": {
-      "op": "uncover 2",
+    "278": {
+      "op": "bnz register_after_assert@3",
       "stack_out": [
-        "args#0",
-        "tmp%2#1",
-        "mbrPayment#0"
-      ]
-    },
-    "262": {
-      "op": "gtxns Amount",
-      "defined_out": [
-        "args#0",
-        "tmp%2#1",
-        "tmp%3#1"
-      ],
-      "stack_out": [
-        "args#0",
-        "tmp%2#1",
-        "tmp%3#1"
-      ]
-    },
-    "264": {
-      "op": "!",
-      "defined_out": [
-        "args#0",
-        "tmp%2#1",
-        "tmp%4#1"
-      ],
-      "stack_out": [
-        "args#0",
-        "tmp%2#1",
-        "tmp%4#1"
-      ]
-    },
-    "265": {
-      "op": "&&",
-      "defined_out": [
-        "args#0",
-        "tmp%5#1"
-      ],
-      "stack_out": [
-        "args#0",
-        "tmp%5#1"
-      ]
-    },
-    "266": {
-      "error": "Invalid payment",
-      "op": "assert // Invalid payment",
-      "stack_out": [
+        "mbrPayment#0",
         "args#0"
       ]
     },
-    "267": {
+    "281": {
+      "op": "bytec 4 // \"ERR:IPAY\"",
+      "defined_out": [
+        "\"ERR:IPAY\"",
+        "args#0",
+        "mbrPayment#0"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
+        "\"ERR:IPAY\""
+      ]
+    },
+    "283": {
+      "op": "log",
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
+    },
+    "284": {
+      "error": "ERR:IPAY",
+      "op": "err // ERR:IPAY"
+    },
+    "285": {
+      "block": "register_after_assert@3",
+      "stack_in": [
+        "mbrPayment#0",
+        "args#0"
+      ],
+      "op": "dig 1",
+      "defined_out": [
+        "mbrPayment#0"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
+        "mbrPayment#0"
+      ]
+    },
+    "287": {
+      "op": "gtxns Amount",
+      "defined_out": [
+        "mbrPayment#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
+        "tmp%3#1"
+      ]
+    },
+    "289": {
+      "op": "bz register_after_assert@5",
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
+    },
+    "292": {
+      "op": "bytec 4 // \"ERR:IPAY\"",
+      "defined_out": [
+        "\"ERR:IPAY\"",
+        "mbrPayment#0"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
+        "\"ERR:IPAY\""
+      ]
+    },
+    "294": {
+      "op": "log",
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
+    },
+    "295": {
+      "error": "ERR:IPAY",
+      "op": "err // ERR:IPAY"
+    },
+    "296": {
+      "block": "register_after_assert@5",
+      "stack_in": [
+        "mbrPayment#0",
+        "args#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "args#0"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
+        "args#0"
+      ]
+    },
+    "297": {
       "op": "len",
       "defined_out": [
-        "tmp%6#0"
+        "args#0",
+        "tmp%5#1"
       ],
       "stack_out": [
-        "tmp%6#0"
+        "mbrPayment#0",
+        "args#0",
+        "tmp%5#1"
       ]
     },
-    "268": {
-      "op": "!",
+    "298": {
+      "op": "bz register_after_assert@7",
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
+    },
+    "301": {
+      "op": "bytec 5 // \"ERR:IARG\"",
       "defined_out": [
-        "tmp%7#0"
+        "\"ERR:IARG\"",
+        "args#0"
       ],
       "stack_out": [
-        "tmp%7#0"
+        "mbrPayment#0",
+        "args#0",
+        "\"ERR:IARG\""
       ]
     },
-    "269": {
-      "error": "Invalid number of arguments",
-      "op": "assert // Invalid number of arguments",
-      "stack_out": []
+    "303": {
+      "op": "log",
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
     },
-    "270": {
+    "304": {
+      "error": "ERR:IARG",
+      "op": "err // ERR:IARG"
+    },
+    "305": {
+      "block": "register_after_assert@7",
+      "stack_in": [
+        "mbrPayment#0",
+        "args#0"
+      ],
       "op": "bytec_3 // 0x151f7c750000000000000000",
       "defined_out": [
         "0x151f7c750000000000000000"
       ],
       "stack_out": [
+        "mbrPayment#0",
+        "args#0",
         "0x151f7c750000000000000000"
       ]
     },
-    "271": {
+    "306": {
       "op": "log",
-      "stack_out": []
-    },
-    "272": {
-      "op": "intc_1 // 1",
       "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
+    },
+    "307": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0",
         "1"
       ]
     },
-    "273": {
+    "308": {
       "op": "return",
-      "stack_out": []
+      "stack_out": [
+        "mbrPayment#0",
+        "args#0"
+      ]
     },
-    "274": {
+    "309": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.check[routing]",
       "params": {},
       "block": "check",
@@ -978,40 +1084,42 @@
         "caAlgoData#0"
       ]
     },
-    "275": {
+    "310": {
       "op": "bytec_2 // \"\"",
       "stack_out": [
         "caAlgoData#0",
-        "exists#0"
+        "appID#0"
       ]
     },
-    "276": {
-      "op": "dupn 2",
+    "311": {
+      "op": "dupn 3",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ]
     },
-    "278": {
+    "313": {
       "op": "txna ApplicationArgs 1"
     },
-    "281": {
+    "316": {
       "op": "dup",
       "defined_out": [
         "caller#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "caller#0"
       ]
     },
-    "282": {
+    "317": {
       "op": "len",
       "defined_out": [
         "caller#0",
@@ -1019,15 +1127,16 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "len%0#0"
       ]
     },
-    "283": {
-      "op": "pushint 32 // 32",
+    "318": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "caller#0",
@@ -1035,15 +1144,16 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "len%0#0",
         "32"
       ]
     },
-    "285": {
+    "320": {
       "op": "==",
       "defined_out": [
         "caller#0",
@@ -1051,25 +1161,27 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "eq%0#0"
       ]
     },
-    "286": {
-      "error": "invalid number of bytes for uint8[32]",
-      "op": "assert // invalid number of bytes for uint8[32]",
+    "321": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0"
       ]
     },
-    "287": {
+    "322": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "caller#0",
@@ -1077,14 +1189,15 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0"
       ]
     },
-    "290": {
+    "325": {
       "op": "dup",
       "defined_out": [
         "caller#0",
@@ -1093,15 +1206,16 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0",
         "tmp%2#0 (copy)"
       ]
     },
-    "291": {
+    "326": {
       "op": "len",
       "defined_out": [
         "caller#0",
@@ -1110,15 +1224,16 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0",
         "len%1#0"
       ]
     },
-    "292": {
+    "327": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -1128,16 +1243,17 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0",
         "len%1#0",
         "8"
       ]
     },
-    "293": {
+    "328": {
       "op": "==",
       "defined_out": [
         "caller#0",
@@ -1146,27 +1262,29 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0",
         "eq%1#0"
       ]
     },
-    "294": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+    "329": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "tmp%2#0"
       ]
     },
-    "295": {
+    "330": {
       "op": "btoi",
       "defined_out": [
         "caller#0",
@@ -1174,14 +1292,15 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0"
       ]
     },
-    "296": {
+    "331": {
       "op": "txna ApplicationArgs 3",
       "defined_out": [
         "caller#0",
@@ -1190,15 +1309,16 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0"
       ]
     },
-    "299": {
+    "334": {
       "op": "dup",
       "defined_out": [
         "caller#0",
@@ -1208,22 +1328,24 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
         "tmp%4#0 (copy)"
       ]
     },
-    "300": {
+    "335": {
       "op": "intc_0 // 0",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
@@ -1231,8 +1353,9 @@
         "0"
       ]
     },
-    "301": {
-      "op": "extract_uint16",
+    "336": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "caller#0",
@@ -1241,16 +1364,17 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "302": {
+    "337": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -1261,9 +1385,10 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
@@ -1271,7 +1396,7 @@
         "2"
       ]
     },
-    "303": {
+    "338": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -1281,22 +1406,24 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
         "add%0#0"
       ]
     },
-    "304": {
+    "339": {
       "op": "dig 1",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
@@ -1304,7 +1431,7 @@
         "tmp%4#0 (copy)"
       ]
     },
-    "306": {
+    "341": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -1315,9 +1442,10 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
@@ -1325,7 +1453,7 @@
         "len%2#0"
       ]
     },
-    "307": {
+    "342": {
       "op": "==",
       "defined_out": [
         "caller#0",
@@ -1335,29 +1463,31 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0",
         "eq%2#0"
       ]
     },
-    "308": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+    "343": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "tmp%4#0"
       ]
     },
-    "309": {
+    "344": {
       "op": "extract 2 0",
       "defined_out": [
         "args#0",
@@ -1366,34 +1496,30 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0"
       ]
     },
-    "312": {
+    "347": {
       "op": "dup",
-      "defined_out": [
-        "args#0",
-        "args#0 (copy)",
-        "caller#0",
-        "registryID#0"
-      ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0",
-        "args#0 (copy)"
+        "args#0"
       ]
     },
-    "313": {
+    "348": {
       "op": "len",
       "defined_out": [
         "args#0",
@@ -1403,22 +1529,24 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0",
         "tmp%0#1"
       ]
     },
-    "314": {
+    "349": {
       "op": "intc_2 // 8",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0",
@@ -1426,7 +1554,7 @@
         "8"
       ]
     },
-    "315": {
+    "350": {
       "op": "==",
       "defined_out": [
         "args#0",
@@ -1436,903 +1564,1151 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0",
         "tmp%1#1"
       ]
     },
-    "316": {
-      "error": "Invalid number of arguments",
-      "op": "assert // Invalid number of arguments",
+    "351": {
+      "op": "bnz check_after_assert@3",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
         "registryID#0",
         "args#0"
       ]
     },
-    "317": {
-      "op": "swap",
+    "354": {
+      "op": "bytec 5 // \"ERR:IARG\"",
+      "defined_out": [
+        "\"ERR:IARG\"",
+        "args#0",
+        "caller#0",
+        "registryID#0"
+      ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
+        "registryID#0",
+        "args#0",
+        "\"ERR:IARG\""
+      ]
+    },
+    "356": {
+      "op": "log",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ]
+    },
+    "357": {
+      "error": "ERR:IARG",
+      "op": "err // ERR:IARG"
+    },
+    "358": {
+      "block": "check_after_assert@3",
+      "stack_in": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ],
+      "op": "dig 1",
+      "defined_out": [
+        "registryID#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
         "args#0",
         "registryID#0"
       ]
     },
-    "318": {
-      "op": "!",
-      "defined_out": [
-        "args#0",
-        "caller#0",
-        "tmp%2#1"
-      ],
+    "360": {
+      "op": "bz check_after_assert@5",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "args#0",
-        "tmp%2#1"
-      ]
-    },
-    "319": {
-      "error": "Invalid registry ID for this gate",
-      "op": "assert // Invalid registry ID for this gate",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
+        "registryID#0",
         "args#0"
       ]
     },
-    "320": {
+    "363": {
+      "op": "pushbytes \"ERR:IRGA\"",
+      "defined_out": [
+        "\"ERR:IRGA\"",
+        "registryID#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "\"ERR:IRGA\""
+      ]
+    },
+    "373": {
+      "op": "log",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ]
+    },
+    "374": {
+      "error": "ERR:IRGA",
+      "op": "err // ERR:IRGA"
+    },
+    "375": {
+      "block": "check_after_assert@5",
+      "stack_in": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "args#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "args#0"
+      ]
+    },
+    "376": {
       "op": "btoi",
       "defined_out": [
         "appID#0",
-        "caller#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
+        "registryID#0",
+        "args#0",
         "appID#0"
       ]
     },
-    "321": {
-      "op": "dupn 2",
+    "377": {
+      "op": "dup",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "appID#0",
+        "appID#0"
+      ]
+    },
+    "378": {
+      "op": "bury 8",
       "defined_out": [
         "appID#0",
-        "appID#0 (copy)",
-        "caller#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
+        "registryID#0",
+        "args#0",
+        "appID#0"
+      ]
+    },
+    "380": {
+      "op": "dup",
+      "defined_out": [
         "appID#0",
+        "appID#0 (copy)",
+        "args#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "appID#0 (copy)"
       ]
     },
-    "323": {
+    "381": {
       "op": "pushbytes \"i.name\"",
       "defined_out": [
         "\"i.name\"",
         "appID#0",
         "appID#0 (copy)",
-        "caller#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "appID#0 (copy)",
         "\"i.name\""
       ]
     },
-    "331": {
+    "389": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appID#0",
+        "args#0",
         "awst_tmp%1#0",
-        "caller#0",
         "nfdName#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0",
         "awst_tmp%1#0"
       ]
     },
-    "332": {
+    "390": {
       "op": "pop",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0"
       ]
     },
-    "333": {
+    "391": {
       "op": "itxn_begin"
     },
-    "334": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "0"
-      ]
-    },
-    "335": {
-      "op": "bytec_0 // \"akita_dao\"",
+    "392": {
+      "op": "dup",
       "defined_out": [
-        "\"akita_dao\"",
-        "0",
         "appID#0",
-        "caller#0",
-        "nfdName#0"
+        "args#0",
+        "nfdName#0",
+        "nfdName#0 (copy)"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0",
-        "0",
-        "\"akita_dao\""
-      ]
-    },
-    "336": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "akitaDAO#0",
-        "appID#0",
-        "caller#0",
-        "maybe_exists%0#0",
-        "nfdName#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "akitaDAO#0",
-        "maybe_exists%0#0"
-      ]
-    },
-    "337": {
-      "error": "check GlobalState exists",
-      "op": "assert // check GlobalState exists",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "akitaDAO#0"
-      ]
-    },
-    "338": {
-      "op": "pushbytes \"oal\"",
-      "defined_out": [
-        "\"oal\"",
-        "akitaDAO#0",
-        "appID#0",
-        "caller#0",
-        "nfdName#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "akitaDAO#0",
-        "\"oal\""
-      ]
-    },
-    "343": {
-      "op": "app_global_get_ex",
-      "defined_out": [
-        "appID#0",
-        "awst_tmp%1#0",
-        "caller#0",
-        "nfdName#0",
-        "otherAppListBytes#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "otherAppListBytes#0",
-        "awst_tmp%1#0"
-      ]
-    },
-    "344": {
-      "op": "pop",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "otherAppListBytes#0"
-      ]
-    },
-    "345": {
-      "op": "intc_2 // 8",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "otherAppListBytes#0",
-        "8"
-      ]
-    },
-    "346": {
-      "op": "extract_uint64",
-      "defined_out": [
-        "appID#0",
-        "caller#0",
-        "nfdName#0",
-        "values%0#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "values%0#0"
-      ]
-    },
-    "347": {
-      "op": "dig 1",
-      "defined_out": [
-        "appID#0",
-        "caller#0",
-        "nfdName#0",
-        "nfdName#0 (copy)",
-        "values%0#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "appID#0",
-        "nfdName#0",
-        "values%0#0",
         "nfdName#0 (copy)"
       ]
     },
-    "349": {
+    "393": {
       "op": "len",
       "defined_out": [
         "aggregate%length%0#0",
         "appID#0",
-        "caller#0",
-        "nfdName#0",
-        "values%0#0"
+        "args#0",
+        "nfdName#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0",
-        "values%0#0",
         "aggregate%length%0#0"
       ]
     },
-    "350": {
+    "394": {
       "op": "itob",
       "defined_out": [
         "aggregate%as_bytes%0#0",
         "appID#0",
-        "caller#0",
-        "nfdName#0",
-        "values%0#0"
+        "args#0",
+        "nfdName#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0",
-        "values%0#0",
         "aggregate%as_bytes%0#0"
       ]
     },
-    "351": {
+    "395": {
       "op": "extract 6 2",
       "defined_out": [
         "aggregate%length_uint16%0#0",
         "appID#0",
-        "caller#0",
-        "nfdName#0",
-        "values%0#0"
+        "args#0",
+        "nfdName#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
         "nfdName#0",
-        "values%0#0",
         "aggregate%length_uint16%0#0"
       ]
     },
-    "354": {
-      "op": "uncover 2",
+    "398": {
+      "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
-        "appID#0",
-        "values%0#0",
         "aggregate%length_uint16%0#0",
         "nfdName#0"
       ]
     },
-    "356": {
+    "399": {
       "op": "concat",
       "defined_out": [
         "aggregate%encoded_value%0#0",
         "appID#0",
-        "caller#0",
-        "values%0#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
+        "registryID#0",
+        "args#0",
         "appID#0",
-        "appID#0",
-        "values%0#0",
         "aggregate%encoded_value%0#0"
       ]
     },
-    "357": {
-      "op": "uncover 2",
+    "400": {
+      "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_value%0#0",
         "appID#0"
       ]
     },
-    "359": {
+    "401": {
       "op": "itob",
       "defined_out": [
         "aggregate%encoded_value%0#0",
         "aggregate%val_as_bytes%0#0",
         "appID#0",
-        "caller#0",
-        "values%0#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_value%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "360": {
+    "402": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "0"
+      ]
+    },
+    "403": {
+      "op": "bytec_0 // \"akita_dao\"",
+      "defined_out": [
+        "\"akita_dao\"",
+        "0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "appID#0",
+        "args#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "0",
+        "\"akita_dao\""
+      ]
+    },
+    "404": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "akitaDAO#0",
+        "appID#0",
+        "args#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "akitaDAO#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "405": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "akitaDAO#0"
+      ]
+    },
+    "406": {
+      "op": "pushbytes \"oal\"",
+      "defined_out": [
+        "\"oal\"",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "akitaDAO#0",
+        "appID#0",
+        "args#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "akitaDAO#0",
+        "\"oal\""
+      ]
+    },
+    "411": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "appID#0",
+        "args#0",
+        "awst_tmp%1#0",
+        "otherAppListBytes#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "otherAppListBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "412": {
+      "op": "pop",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "otherAppListBytes#0"
+      ]
+    },
+    "413": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "appID#0",
+        "args#0",
+        "otherAppListBytes#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "otherAppListBytes#0",
+        "8"
+      ]
+    },
+    "414": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "appID#0",
+        "args#0",
+        "tmp%3#2"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0",
+        "tmp%3#2"
+      ]
+    },
+    "415": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "aggregate%encoded_value%0#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "417": {
       "op": "pushbytes 0x4be22fc6 // method \"isValidNfdAppId(string,uint64)bool\"",
       "defined_out": [
         "Method(isValidNfdAppId(string,uint64)bool)",
         "aggregate%encoded_value%0#0",
         "aggregate%val_as_bytes%0#0",
         "appID#0",
-        "caller#0",
-        "values%0#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_value%0#0",
         "aggregate%val_as_bytes%0#0",
         "Method(isValidNfdAppId(string,uint64)bool)"
       ]
     },
-    "366": {
+    "423": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_value%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "368": {
+    "425": {
       "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%val_as_bytes%0#0",
         "aggregate%encoded_value%0#0"
       ]
     },
-    "369": {
+    "426": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "values%0#0",
+        "registryID#0",
+        "args#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "371": {
+    "428": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
         "appID#0",
-        "values%0#0"
-      ]
-    },
-    "373": {
-      "op": "itxn_field ApplicationID",
-      "stack_out": [
-        "caAlgoData#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "375": {
+    "430": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appID#0",
         "appl",
-        "caller#0"
+        "args#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appl"
       ]
     },
-    "377": {
+    "432": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "379": {
+    "434": {
       "op": "intc_0 // 0",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "0"
       ]
     },
-    "380": {
+    "435": {
       "op": "itxn_field Fee",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "382": {
+    "437": {
       "op": "itxn_submit"
     },
-    "383": {
+    "438": {
       "op": "itxn LastLog",
       "defined_out": [
         "appID#0",
-        "awst_tmp%2#0",
-        "caller#0"
+        "args#0",
+        "awst_tmp%2#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%2#0"
       ]
     },
-    "385": {
+    "440": {
       "op": "dup",
       "defined_out": [
         "appID#0",
+        "args#0",
         "awst_tmp%2#0",
-        "awst_tmp%2#0 (copy)",
-        "caller#0"
+        "awst_tmp%2#0 (copy)"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%2#0",
         "awst_tmp%2#0 (copy)"
       ]
     },
-    "386": {
+    "441": {
       "op": "extract 4 0",
       "defined_out": [
         "appID#0",
+        "args#0",
         "awst_tmp%2#0",
-        "caller#0",
-        "tmp%3#2"
+        "tmp%4#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%2#0",
-        "tmp%3#2"
-      ]
-    },
-    "389": {
-      "op": "swap",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "tmp%3#2",
-        "awst_tmp%2#0"
-      ]
-    },
-    "390": {
-      "op": "extract 0 4",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "tmp%3#2",
         "tmp%4#0"
       ]
     },
-    "393": {
+    "444": {
+      "op": "swap",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
+        "awst_tmp%2#0"
+      ]
+    },
+    "445": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "appID#0",
+        "args#0",
+        "tmp%4#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
+        "tmp%5#0"
+      ]
+    },
+    "448": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
         "appID#0",
-        "caller#0",
-        "tmp%3#2",
-        "tmp%4#0"
+        "args#0",
+        "tmp%4#0",
+        "tmp%5#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
+        "registryID#0",
+        "args#0",
         "tmp%4#0",
+        "tmp%5#0",
         "0x151f7c75"
       ]
     },
-    "394": {
+    "449": {
       "op": "==",
       "defined_out": [
         "appID#0",
-        "caller#0",
-        "tmp%3#2",
-        "tmp%5#0"
+        "args#0",
+        "tmp%4#0",
+        "tmp%6#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
-        "tmp%5#0"
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
+        "tmp%6#0"
       ]
     },
-    "395": {
+    "450": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2"
+        "registryID#0",
+        "args#0",
+        "tmp%4#0"
       ]
     },
-    "396": {
+    "451": {
       "op": "dup",
       "defined_out": [
         "appID#0",
-        "caller#0",
-        "tmp%3#2",
-        "tmp%3#2 (copy)"
+        "args#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
-        "tmp%3#2 (copy)"
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
       ]
     },
-    "397": {
+    "452": {
       "op": "len",
+      "defined_out": [
+        "appID#0",
+        "args#0",
+        "len%0#0",
+        "tmp%4#0"
+      ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
         "len%0#0"
       ]
     },
-    "398": {
+    "453": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
         "appID#0",
-        "caller#0",
+        "args#0",
         "len%0#0",
-        "tmp%3#2"
+        "tmp%4#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
         "len%0#0",
         "1"
       ]
     },
-    "399": {
+    "454": {
       "op": "==",
+      "defined_out": [
+        "appID#0",
+        "args#0",
+        "eq%0#0",
+        "tmp%4#0"
+      ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
         "eq%0#0"
       ]
     },
-    "400": {
-      "error": "invalid number of bytes for bool8",
-      "op": "assert // invalid number of bytes for bool8",
+    "455": {
+      "error": "invalid number of bytes for bool",
+      "op": "assert // invalid number of bytes for bool",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2"
+        "registryID#0",
+        "args#0",
+        "tmp%4#0"
       ]
     },
-    "401": {
+    "456": {
       "op": "intc_0 // 0",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%3#2",
+        "registryID#0",
+        "args#0",
+        "tmp%4#0",
         "0"
       ]
     },
-    "402": {
+    "457": {
       "op": "getbit",
       "defined_out": [
         "appID#0",
-        "caller#0",
+        "args#0",
         "verified#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "verified#0"
       ]
     },
-    "403": {
-      "op": "bnz check_after_if_else@3",
+    "458": {
+      "op": "bnz check_after_if_else@8",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "406": {
+    "461": {
       "op": "intc_0 // 0",
       "defined_out": [
         "appID#0",
-        "caller#0",
+        "args#0",
         "tmp%4#1"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%4#1"
       ]
     },
-    "407": {
-      "block": "check_after_inlined_smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.nfdGate@9",
+    "462": {
+      "block": "check_after_inlined_smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.nfdGate@14",
       "stack_in": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%4#1"
       ],
       "op": "pushbytes 0x00",
@@ -2341,16 +2717,18 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%4#1",
         "0x00"
       ]
     },
-    "410": {
+    "465": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2358,17 +2736,19 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%4#1",
         "0x00",
         "0"
       ]
     },
-    "411": {
+    "466": {
       "op": "uncover 2",
       "defined_out": [
         "0",
@@ -2377,32 +2757,36 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "0x00",
         "0",
         "tmp%4#1"
       ]
     },
-    "413": {
+    "468": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "414": {
+    "469": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -2410,171 +2794,199 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "aggregate%encoded_bool%0#0",
         "0x151f7c75"
       ]
     },
-    "415": {
+    "470": {
       "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "0x151f7c75",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "416": {
+    "471": {
       "op": "concat",
       "defined_out": [
         "tmp%8#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%8#0"
       ]
     },
-    "417": {
+    "472": {
       "op": "log",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "418": {
+    "473": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "1"
       ]
     },
-    "419": {
+    "474": {
       "op": "return",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "420": {
-      "block": "check_after_if_else@3",
+    "475": {
+      "block": "check_after_if_else@8",
       "stack_in": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ],
       "op": "itxn_begin"
     },
-    "421": {
-      "op": "pushbytes 0x6c13ede4 // method \"readField(byte[])byte[]\"",
-      "defined_out": [
-        "Method(readField(byte[])byte[])"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "Method(readField(byte[])byte[])"
-      ]
-    },
-    "427": {
-      "op": "itxn_field ApplicationArgs",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0"
-      ]
-    },
-    "429": {
-      "op": "pushbytes 0x000d762e6361416c676f2e302e6173",
-      "defined_out": [
-        "0x000d762e6361416c676f2e302e6173"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0",
-        "0x000d762e6361416c676f2e302e6173"
-      ]
-    },
-    "446": {
-      "op": "itxn_field ApplicationArgs",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0"
-      ]
-    },
-    "448": {
-      "op": "dup",
+    "476": {
+      "op": "dig 6",
       "defined_out": [
         "appID#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appID#0"
       ]
     },
-    "449": {
+    "478": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "451": {
+    "480": {
+      "op": "pushbytes 0x6c13ede4 // method \"readField(byte[])byte[]\"",
+      "defined_out": [
+        "Method(readField(byte[])byte[])",
+        "appID#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "Method(readField(byte[])byte[])"
+      ]
+    },
+    "486": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ]
+    },
+    "488": {
+      "op": "pushbytes 0x000d762e6361416c676f2e302e6173",
+      "defined_out": [
+        "0x000d762e6361416c676f2e302e6173",
+        "appID#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "0x000d762e6361416c676f2e302e6173"
+      ]
+    },
+    "505": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ]
+    },
+    "507": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appID#0",
@@ -2582,26 +2994,30 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "appl"
       ]
     },
-    "453": {
+    "509": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "455": {
+    "511": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2609,29 +3025,33 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "0"
       ]
     },
-    "456": {
+    "512": {
       "op": "itxn_field Fee",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "458": {
+    "514": {
       "op": "itxn_submit"
     },
-    "459": {
+    "515": {
       "op": "itxn LastLog",
       "defined_out": [
         "appID#0",
@@ -2639,15 +3059,17 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0"
       ]
     },
-    "461": {
+    "517": {
       "op": "dup",
       "defined_out": [
         "appID#0",
@@ -2656,235 +3078,262 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
         "awst_tmp%3#0 (copy)"
       ]
     },
-    "462": {
+    "518": {
       "op": "extract 4 0",
       "defined_out": [
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ]
     },
-    "465": {
+    "521": {
       "op": "dig 1",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%9#0",
         "awst_tmp%3#0 (copy)"
       ]
     },
-    "467": {
+    "523": {
       "op": "extract 0 4",
       "defined_out": [
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%10#0",
         "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
-        "tmp%9#0"
+        "tmp%9#0",
+        "tmp%10#0"
       ]
     },
-    "470": {
+    "526": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%10#0",
         "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
         "tmp%9#0",
+        "tmp%10#0",
         "0x151f7c75"
       ]
     },
-    "471": {
+    "527": {
       "op": "==",
       "defined_out": [
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%10#0",
-        "tmp%8#0"
+        "tmp%11#0",
+        "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
-        "tmp%10#0"
+        "tmp%9#0",
+        "tmp%11#0"
       ]
     },
-    "472": {
+    "528": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ]
     },
-    "473": {
+    "529": {
       "op": "dup",
       "defined_out": [
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
-        "tmp%8#0 (copy)"
+        "tmp%9#0",
+        "tmp%9#0 (copy)"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
-        "tmp%8#0 (copy)"
+        "tmp%9#0",
+        "tmp%9#0 (copy)"
       ]
     },
-    "474": {
+    "530": {
       "op": "intc_0 // 0",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
-        "tmp%8#0 (copy)",
+        "tmp%9#0",
+        "tmp%9#0 (copy)",
         "0"
       ]
     },
-    "475": {
-      "op": "extract_uint16",
+    "531": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%1#0",
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%9#0",
         "aggregate%array_length%1#0"
       ]
     },
-    "476": {
+    "532": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
         "aggregate%array_length%1#0",
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%9#0",
         "aggregate%array_length%1#0",
         "2"
       ]
     },
-    "477": {
+    "533": {
       "op": "+",
       "defined_out": [
         "add%0#0",
         "appID#0",
         "awst_tmp%3#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
-        "tmp%8#0",
+        "tmp%9#0",
         "add%0#0"
       ]
     },
-    "478": {
+    "534": {
       "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
         "add%0#0",
-        "tmp%8#0"
+        "tmp%9#0"
       ]
     },
-    "479": {
+    "535": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -2894,17 +3343,19 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
         "add%0#0",
         "len%1#0"
       ]
     },
-    "480": {
+    "536": {
       "op": "==",
       "defined_out": [
         "appID#0",
@@ -2913,29 +3364,33 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0",
         "eq%1#0"
       ]
     },
-    "481": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+    "537": {
+      "error": "invalid number of bytes for bytes",
+      "op": "assert // invalid number of bytes for bytes",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "awst_tmp%3#0"
       ]
     },
-    "482": {
+    "538": {
       "op": "extract 6 0",
       "defined_out": [
         "appID#0",
@@ -2943,469 +3398,527 @@
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "caAlgoData#0"
       ]
     },
-    "485": {
+    "541": {
+      "op": "bury 8",
+      "defined_out": [
+        "appID#0",
+        "caAlgoData#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0"
+      ]
+    },
+    "543": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "appID#0",
+        "caAlgoData#0",
+        "exists#0"
+      ],
+      "stack_out": [
+        "caAlgoData#0",
+        "appID#0",
+        "exists#0",
+        "i#0",
+        "tmp%13#0",
+        "caller#0",
+        "registryID#0",
+        "args#0",
+        "exists#0"
+      ]
+    },
+    "544": {
       "op": "bury 6",
       "defined_out": [
         "appID#0",
-        "caAlgoData#0"
+        "caAlgoData#0",
+        "exists#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "487": {
+    "546": {
       "op": "intc_0 // 0",
       "defined_out": [
         "appID#0",
         "caAlgoData#0",
-        "exists#0"
+        "exists#0",
+        "i#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "exists#0"
+        "registryID#0",
+        "args#0",
+        "i#0"
       ]
     },
-    "488": {
+    "547": {
       "op": "bury 5",
-      "defined_out": [
-        "appID#0",
-        "caAlgoData#0",
-        "exists#0"
-      ],
       "stack_out": [
         "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0"
-      ]
-    },
-    "490": {
-      "op": "intc_0 // 0",
-      "defined_out": [
         "appID#0",
-        "caAlgoData#0",
-        "exists#0",
-        "i#0"
-      ],
-      "stack_out": [
-        "caAlgoData#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "i#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "491": {
-      "op": "bury 4",
-      "stack_out": [
-        "caAlgoData#0",
-        "exists#0",
-        "i#0",
-        "tmp%12#0",
-        "caller#0",
-        "appID#0"
-      ]
-    },
-    "493": {
-      "block": "check_while_top@4",
+    "549": {
+      "block": "check_while_top@9",
       "stack_in": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ],
-      "op": "dig 5",
+      "op": "dig 7",
       "defined_out": [
         "caAlgoData#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "caAlgoData#0"
       ]
     },
-    "495": {
+    "551": {
       "op": "len",
       "defined_out": [
         "caAlgoData#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0"
+        "registryID#0",
+        "args#0",
+        "tmp%13#0"
       ]
     },
-    "496": {
+    "552": {
       "op": "dup",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
-        "tmp%12#0"
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
+        "tmp%13#0"
       ]
     },
-    "497": {
-      "op": "bury 4",
+    "553": {
+      "op": "bury 5",
       "defined_out": [
         "caAlgoData#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0"
+        "registryID#0",
+        "args#0",
+        "tmp%13#0"
       ]
     },
-    "499": {
-      "op": "dig 4",
+    "555": {
+      "op": "dig 5",
       "defined_out": [
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "i#0"
       ]
     },
-    "501": {
+    "557": {
       "op": ">",
       "defined_out": [
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0",
-        "tmp%13#0"
+        "tmp%13#0",
+        "tmp%14#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%13#0"
+        "registryID#0",
+        "args#0",
+        "tmp%14#0"
       ]
     },
-    "502": {
-      "op": "bz check_after_while@8",
+    "558": {
+      "op": "bz check_after_while@13",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "505": {
-      "op": "dig 3",
+    "561": {
+      "op": "dig 4",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0"
       ]
     },
-    "507": {
+    "563": {
       "op": "dup",
       "defined_out": [
         "caAlgoData#0",
         "i#0",
         "i#0 (copy)",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0",
         "i#0 (copy)"
       ]
     },
-    "508": {
-      "op": "dig 4",
+    "564": {
+      "op": "dig 5",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0",
         "i#0 (copy)",
-        "tmp%12#0"
+        "tmp%13#0"
       ]
     },
-    "510": {
+    "566": {
       "op": "dup",
       "defined_out": [
         "caAlgoData#0",
         "i#0",
         "i#0 (copy)",
-        "tmp%12#0",
-        "tmp%12#0 (copy)"
+        "tmp%13#0",
+        "tmp%13#0 (copy)"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0",
         "i#0 (copy)",
-        "tmp%12#0 (copy)",
-        "tmp%12#0 (copy)"
+        "tmp%13#0 (copy)",
+        "tmp%13#0 (copy)"
       ]
     },
-    "511": {
+    "567": {
       "op": "cover 3",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "i#0",
         "i#0 (copy)",
-        "tmp%12#0 (copy)"
+        "tmp%13#0 (copy)"
       ]
     },
-    "513": {
+    "569": {
       "op": ">=",
       "defined_out": [
         "caAlgoData#0",
         "i#0",
         "is_out_of_bounds%0#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "i#0",
         "is_out_of_bounds%0#0"
       ]
     },
-    "514": {
+    "570": {
       "op": "dig 2"
     },
-    "516": {
+    "572": {
       "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "i#0",
-        "tmp%12#0 (copy)",
+        "tmp%13#0 (copy)",
         "is_out_of_bounds%0#0"
       ]
     },
-    "517": {
+    "573": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "bounded_index%0#0"
       ]
     },
-    "518": {
-      "op": "pushint 32 // 32",
+    "574": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "bounded_index%0#0",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "bounded_index%0#0",
         "32"
       ]
     },
-    "520": {
+    "576": {
       "op": "dig 2",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "bounded_index%0#0",
         "32",
-        "tmp%12#0 (copy)"
+        "tmp%13#0 (copy)"
       ]
     },
-    "522": {
+    "578": {
       "op": ">=",
       "defined_out": [
         "bounded_index%0#0",
         "caAlgoData#0",
         "i#0",
         "is_out_of_bounds%1#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "bounded_index%0#0",
         "is_out_of_bounds%1#0"
       ]
     },
-    "523": {
-      "op": "pushint 32 // 32",
+    "579": {
+      "op": "pushint 32",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%12#0",
+        "registryID#0",
+        "args#0",
+        "tmp%13#0",
         "bounded_index%0#0",
         "is_out_of_bounds%1#0",
         "32"
       ]
     },
-    "525": {
+    "581": {
       "op": "uncover 3",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "is_out_of_bounds%1#0",
         "32",
-        "tmp%12#0"
+        "tmp%13#0"
       ]
     },
-    "527": {
+    "583": {
       "op": "uncover 2",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "32",
-        "tmp%12#0",
+        "tmp%13#0",
         "is_out_of_bounds%1#0"
       ]
     },
-    "529": {
+    "585": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
         "bounded_index%1#0",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "bounded_index%1#0"
       ]
     },
-    "530": {
+    "586": {
       "op": "dup",
       "defined_out": [
         "bounded_index%0#0",
@@ -3413,21 +3926,23 @@
         "bounded_index%1#0 (copy)",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "bounded_index%1#0",
         "bounded_index%1#0 (copy)"
       ]
     },
-    "531": {
+    "587": {
       "op": "dig 2",
       "defined_out": [
         "bounded_index%0#0",
@@ -3436,22 +3951,24 @@
         "bounded_index%1#0 (copy)",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "bounded_index%1#0",
         "bounded_index%1#0 (copy)",
         "bounded_index%0#0 (copy)"
       ]
     },
-    "533": {
+    "589": {
       "op": "<",
       "defined_out": [
         "bounded_index%0#0",
@@ -3459,289 +3976,325 @@
         "caAlgoData#0",
         "end_before_start%0#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "bounded_index%1#0",
         "end_before_start%0#0"
       ]
     },
-    "534": {
+    "590": {
       "op": "dig 2"
     },
-    "536": {
+    "592": {
       "op": "swap",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "bounded_index%1#0",
         "bounded_index%0#0 (copy)",
         "end_before_start%0#0"
       ]
     },
-    "537": {
+    "593": {
       "op": "select",
       "defined_out": [
         "bounded_index%0#0",
         "caAlgoData#0",
         "end%0#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "end%0#0"
       ]
     },
-    "538": {
-      "op": "dig 7",
+    "594": {
+      "op": "dig 9",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "bounded_index%0#0",
         "end%0#0",
         "caAlgoData#0"
       ]
     },
-    "540": {
+    "596": {
       "op": "cover 2",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "caAlgoData#0",
         "bounded_index%0#0",
         "end%0#0"
       ]
     },
-    "542": {
+    "598": {
       "op": "substring3",
       "defined_out": [
         "addr#0",
         "caAlgoData#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "addr#0"
       ]
     },
-    "543": {
-      "op": "dig 2",
+    "599": {
+      "op": "dig 3",
       "defined_out": [
         "addr#0",
         "caAlgoData#0",
         "caller#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "addr#0",
         "caller#0"
       ]
     },
-    "545": {
+    "601": {
       "op": "==",
       "defined_out": [
         "caAlgoData#0",
         "caller#0",
         "i#0",
-        "tmp%12#0",
-        "tmp%15#0"
+        "tmp%13#0",
+        "tmp%16#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
-        "tmp%15#0"
+        "registryID#0",
+        "args#0",
+        "tmp%16#0"
       ]
     },
-    "546": {
-      "op": "bz check_after_if_else@7",
+    "602": {
+      "op": "bz check_after_if_else@12",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "549": {
+    "605": {
       "op": "intc_1 // 1",
       "defined_out": [
         "caAlgoData#0",
         "caller#0",
         "exists#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "exists#0"
       ]
     },
-    "550": {
-      "op": "bury 5",
+    "606": {
+      "op": "bury 6",
       "defined_out": [
         "caAlgoData#0",
         "caller#0",
         "exists#0",
         "i#0",
-        "tmp%12#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "552": {
-      "block": "check_after_if_else@7",
+    "608": {
+      "block": "check_after_if_else@12",
       "stack_in": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ],
-      "op": "dig 3",
+      "op": "dig 4",
       "defined_out": [
         "i#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0"
       ]
     },
-    "554": {
-      "op": "pushint 32 // 32",
+    "610": {
+      "op": "pushint 32",
       "defined_out": [
         "32",
         "i#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0",
         "32"
       ]
     },
-    "556": {
+    "612": {
       "op": "+",
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "i#0"
       ]
     },
-    "557": {
-      "op": "bury 4",
+    "613": {
+      "op": "bury 5",
       "defined_out": [
         "i#0"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ]
     },
-    "559": {
-      "op": "b check_while_top@4"
+    "615": {
+      "op": "b check_while_top@9"
     },
-    "562": {
-      "block": "check_after_while@8",
+    "618": {
+      "block": "check_after_while@13",
       "stack_in": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0"
+        "registryID#0",
+        "args#0"
       ],
-      "op": "dig 4",
+      "op": "dig 5",
       "defined_out": [
         "tmp%4#1"
       ],
       "stack_out": [
         "caAlgoData#0",
+        "appID#0",
         "exists#0",
         "i#0",
-        "tmp%12#0",
+        "tmp%13#0",
         "caller#0",
-        "appID#0",
+        "registryID#0",
+        "args#0",
         "tmp%4#1"
       ]
     },
-    "564": {
-      "op": "b check_after_inlined_smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.nfdGate@9"
+    "620": {
+      "op": "b check_after_inlined_smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.nfdGate@14"
     },
-    "567": {
+    "623": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.getCheckShape[routing]",
       "params": {},
       "block": "getCheckShape",
@@ -3754,7 +4307,7 @@
         "tmp%0#0"
       ]
     },
-    "570": {
+    "626": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -3765,7 +4318,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "571": {
+    "627": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -3776,7 +4329,7 @@
         "len%0#0"
       ]
     },
-    "572": {
+    "628": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -3789,7 +4342,7 @@
         "8"
       ]
     },
-    "573": {
+    "629": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3800,14 +4353,14 @@
         "eq%0#0"
       ]
     },
-    "574": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+    "630": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "575": {
+    "631": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -3818,14 +4371,14 @@
         "0x151f7c75"
       ]
     },
-    "576": {
+    "632": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "tmp%0#0"
       ]
     },
-    "577": {
+    "633": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -3834,11 +4387,11 @@
         "tmp%4#0"
       ]
     },
-    "578": {
+    "634": {
       "op": "log",
       "stack_out": []
     },
-    "579": {
+    "635": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -3847,11 +4400,11 @@
         "1"
       ]
     },
-    "580": {
+    "636": {
       "op": "return",
       "stack_out": []
     },
-    "581": {
+    "637": {
       "subroutine": "smart_contracts/gates/sub-gates/nfd/contract.algo.ts::NFDGate.getEntry[routing]",
       "params": {},
       "block": "getEntry",
@@ -3864,7 +4417,7 @@
         "tmp%0#0"
       ]
     },
-    "584": {
+    "640": {
       "op": "len",
       "defined_out": [
         "len%0#0"
@@ -3873,7 +4426,7 @@
         "len%0#0"
       ]
     },
-    "585": {
+    "641": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -3884,7 +4437,7 @@
         "8"
       ]
     },
-    "586": {
+    "642": {
       "op": "==",
       "defined_out": [
         "eq%0#0"
@@ -3893,12 +4446,12 @@
         "eq%0#0"
       ]
     },
-    "587": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+    "643": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": []
     },
-    "588": {
+    "644": {
       "op": "pushbytes 0x151f7c750000",
       "defined_out": [
         "0x151f7c750000"
@@ -3907,11 +4460,11 @@
         "0x151f7c750000"
       ]
     },
-    "596": {
+    "652": {
       "op": "log",
       "stack_out": []
     },
-    "597": {
+    "653": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -3920,11 +4473,11 @@
         "1"
       ]
     },
-    "598": {
+    "654": {
       "op": "return",
       "stack_out": []
     },
-    "599": {
+    "655": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]",
       "params": {},
       "block": "updateAkitaDAO",
@@ -3937,7 +4490,7 @@
         "tmp%0#0"
       ]
     },
-    "602": {
+    "658": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -3948,7 +4501,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "603": {
+    "659": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -3959,7 +4512,7 @@
         "len%0#0"
       ]
     },
-    "604": {
+    "660": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -3972,7 +4525,7 @@
         "8"
       ]
     },
-    "605": {
+    "661": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -3983,14 +4536,14 @@
         "eq%0#0"
       ]
     },
-    "606": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+    "662": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "607": {
+    "663": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -3999,7 +4552,7 @@
         "akitaDAO#0"
       ]
     },
-    "608": {
+    "664": {
       "op": "txn Sender",
       "defined_out": [
         "akitaDAO#0",
@@ -4010,20 +4563,15 @@
         "tmp%0#1"
       ]
     },
-    "610": {
+    "666": {
       "op": "intc_0 // 0",
-      "defined_out": [
-        "0",
-        "akitaDAO#0",
-        "tmp%0#1"
-      ],
       "stack_out": [
         "akitaDAO#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "611": {
+    "667": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -4038,7 +4586,7 @@
         "\"akita_dao\""
       ]
     },
-    "612": {
+    "668": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -4053,7 +4601,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "613": {
+    "669": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -4062,7 +4610,7 @@
         "maybe_value%0#0"
       ]
     },
-    "614": {
+    "670": {
       "op": "pushbytes \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -4077,7 +4625,7 @@
         "\"wallet\""
       ]
     },
-    "622": {
+    "678": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -4092,7 +4640,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "623": {
+    "679": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -4100,7 +4648,7 @@
         "walletID#0"
       ]
     },
-    "624": {
+    "680": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -4115,7 +4663,7 @@
         "check%0#0"
       ]
     },
-    "626": {
+    "682": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -4124,7 +4672,7 @@
         "value%0#0"
       ]
     },
-    "627": {
+    "683": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -4135,43 +4683,81 @@
         "tmp%2#0"
       ]
     },
-    "628": {
-      "error": "Only the Akita DAO can call this function",
-      "op": "assert // Only the Akita DAO can call this function",
+    "684": {
+      "op": "bnz updateAkitaDAO_after_assert@3",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "629": {
+    "687": {
+      "op": "pushbytes \"ERR:NDAO\"",
+      "defined_out": [
+        "\"ERR:NDAO\"",
+        "akitaDAO#0"
+      ],
+      "stack_out": [
+        "akitaDAO#0",
+        "\"ERR:NDAO\""
+      ]
+    },
+    "697": {
+      "op": "log",
+      "stack_out": [
+        "akitaDAO#0"
+      ]
+    },
+    "698": {
+      "error": "ERR:NDAO",
+      "op": "err // ERR:NDAO"
+    },
+    "699": {
+      "block": "updateAkitaDAO_after_assert@3",
+      "stack_in": [
+        "akitaDAO#0"
+      ],
       "op": "bytec_0 // \"akita_dao\"",
+      "defined_out": [
+        "\"akita_dao\""
+      ],
       "stack_out": [
         "akitaDAO#0",
         "\"akita_dao\""
       ]
     },
-    "630": {
-      "op": "swap",
+    "700": {
+      "op": "dig 1",
+      "defined_out": [
+        "\"akita_dao\"",
+        "akitaDAO#0"
+      ],
       "stack_out": [
+        "akitaDAO#0",
         "\"akita_dao\"",
         "akitaDAO#0"
       ]
     },
-    "631": {
+    "702": {
       "op": "app_global_put",
-      "stack_out": []
+      "stack_out": [
+        "akitaDAO#0"
+      ]
     },
-    "632": {
+    "703": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1"
+        "1",
+        "akitaDAO#0"
       ],
       "stack_out": [
+        "akitaDAO#0",
         "1"
       ]
     },
-    "633": {
+    "704": {
       "op": "return",
-      "stack_out": []
+      "stack_out": [
+        "akitaDAO#0"
+      ]
     }
   }
 }

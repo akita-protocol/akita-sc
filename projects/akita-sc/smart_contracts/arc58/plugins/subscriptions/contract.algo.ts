@@ -1,4 +1,4 @@
-import { Account, Application, assert, Asset, Box, bytes, Global, gtxn, itxn, itxnCompose, OnCompleteAction, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, Box, bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { GateMustCheckAbiMethod } from "../../../gates/constants"
@@ -11,11 +11,9 @@ import { CID } from "../../../utils/types/base"
 import { BaseSubscriptions } from "../../../subscriptions/base"
 import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
 import type { Subscriptions } from "../../../subscriptions/contract.algo"
-import { ERR_BAD_DESCRIPTION_LENGTH } from "../../../subscriptions/errors"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
-import { ERR_INVALID_CALL_ORDER } from "../../../utils/errors"
 import { BoxKeySubscriptionsDescription, MAX_LOAD_DESCRIPTION_CHUNK_SIZE } from "./constants"
-import { ERR_DESCRIPTION_NOT_INITIALIZED } from "./errors"
+import { ERR_BAD_DESCRIPTION_LENGTH, ERR_DESCRIPTION_NOT_INITIALIZED, ERR_INVALID_CALL_ORDER } from "./errors"
 
 export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseContract) {
 
@@ -32,6 +30,21 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
 
   // SUBSCRIPTIONS PLUGIN METHODS -----------------------------------------------------------------
 
+  /**
+   * Opt the subscriptions contract (and its revenue escrow + split
+   * recipients) into `asset`, funded by the user's wallet.
+   *
+   * Reads `optInCost` from the subscriptions contract to size the
+   * payment, then forwards a correctly-sized payment to
+   * `Subscriptions.optIn`. The contract's base-class `optIn` performs
+   * the contract's own asset opt-in and — because the subscriptions
+   * contract has a named revenue escrow configured
+   * (`this.akitaDAOEscrow.value.name !== ''`) — also rekeys the DAO
+   * wallet to the revenue-manager plugin to opt the escrow and split
+   * recipients in. That DAO-wallet rekey is on a different
+   * AbstractedAccount instance than this plugin's rekey on the caller's
+   * wallet, so there is no nesting conflict.
+   */
   optIn(
     wallet: Application,
     rekeyBack: boolean,
@@ -41,6 +54,12 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
+    const cost = abiCall<typeof Subscriptions.prototype.optInCost>({
+      sender,
+      appId,
+      args: [Asset(asset)],
+    }).returnValue
+
     abiCall<typeof Subscriptions.prototype.optIn>({
       sender,
       appId,
@@ -48,7 +67,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         itxn.payment({
           sender,
           receiver: appId.address,
-          amount: Global.assetOptInMinBalance,
+          amount: cost,
         }),
         Asset(asset),
       ],
@@ -57,7 +76,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
   }
 
   initDescription(wallet: Application, size: uint64): void {
-    assert(size <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
+    loggedAssert(size <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
     if (!this.description.exists) {
       this.description.create({ size })
     } else {
@@ -66,10 +85,10 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
   }
 
   loadDescription(wallet: Application, offset: uint64, data: bytes): void {
-    assert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
+    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
     const expectedPreviousCalls: uint64 = offset / MAX_LOAD_DESCRIPTION_CHUNK_SIZE
     const txn = gtxn.Transaction(Txn.groupIndex - expectedPreviousCalls - 1)
-    assert((
+    loggedAssert((
       txn.type === TransactionType.ApplicationCall
       && txn.appId === Global.currentApplicationId
       && txn.numAppArgs === 3
@@ -77,7 +96,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       && txn.appArgs(0) === methodSelector(this.initDescription)
       && txn.sender === Txn.sender
     ), ERR_INVALID_CALL_ORDER)
-    assert(this.description.exists, ERR_DESCRIPTION_NOT_INITIALIZED)
+    loggedAssert(this.description.exists, ERR_DESCRIPTION_NOT_INITIALIZED)
 
     this.description.replace(offset, data)
   }
@@ -90,6 +109,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     amount: uint64,
     passes: uint64,
     gate: uint64,
+    payoutAddress: Account,
     title: string,
     bannerImage: CID,
     highlightMessage: Uint8,
@@ -99,7 +119,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
 
     const txn = gtxn.Transaction(Txn.groupIndex - 1)
     // require loadDescription to be called first
-    assert(
+    loggedAssert(
       Txn.groupIndex > 2 && // [arc58_rekeyToPlugin, initDescription, loadDescription]
       txn.type === TransactionType.ApplicationCall &&
       txn.appId === Global.currentApplicationId &&
@@ -131,6 +151,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         amount,
         passes,
         gate,
+        payoutAddress,
         title,
         bannerImage,
         highlightMessage,

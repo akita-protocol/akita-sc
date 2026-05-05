@@ -6,7 +6,7 @@ import { MaybeSigner, NewContractSDKParams } from "../types";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { emptySigner } from "../constants";
 import { GateCheckArg, GateEncodingInfo, GateRegistrationArg, GateRegistrationFilterAndArg, GateRegistryConfig, GateType } from "./types";
-import { getABIDecodedValue, getABIEncodedValue } from "@algorandfoundation/algokit-utils/types/app-arc56";
+import { decodeABIValue as getABIDecodedValue, encodeABIValue as getABIEncodedValue } from "../utils";
 import { ABIMethod, encodeUint64, Transaction, TransactionSigner } from "algosdk";
 import { APP_SPEC as AkitaReferrerAppSpec } from '../generated/AkitaReferrerGateClient'
 import { APP_SPEC as AssetAppSpec, AssetGateRegistryInfo } from '../generated/AssetGateClient'
@@ -24,10 +24,11 @@ import { APP_SPEC as StakingAmountGateAppSpec, StakingAmountGateRegistryInfo } f
 import { APP_SPEC as StakingPowerGateAppSpec, StakingPowerGateRegistryInfo } from '../generated/StakingPowerGateClient'
 import { APP_SPEC as SubscriptionGateAppSpec, SubscriptionGateRegistryInfo } from '../generated/SubscriptionGateClient'
 import { APP_SPEC as SubscriptionStreakGateAppSpec, SubscriptionStreakGateRegistryInfo } from '../generated/SubscriptionStreakGateClient'
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 
 type ContractArgs = GateArgs["obj"];
 
+export * from './errors'
 export * from './types'
 
 export class GateSDK extends BaseSDK<GateClient> {

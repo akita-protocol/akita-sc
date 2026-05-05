@@ -1,4 +1,4 @@
-import { Application, Asset, Global, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Application, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { AllocationReclaimDetails, ClaimDetails, UserAllocation } from '../../../rewards/types'
@@ -77,15 +77,13 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     const sender = getSpendingAccount(wallet)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
 
-    const mbrAmount: uint64 = this.mbr('', '').userAllocations * allocations.length
-
     abiCall<typeof Rewards.prototype.createUserAllocations>({
       sender,
       appId: rewardsID,
       args: [
         itxn.payment({
           sender,
-          amount: mbrAmount + sum,
+          amount: sum,
           receiver: Application(rewardsID).address,
         }),
         id,
@@ -107,20 +105,10 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
     const rewardsApp = Application(rewardsID)
 
-    let mbrAmount: uint64 = this.mbr('', '').userAllocations * allocations.length
-    if (!rewardsApp.address.isOptedIn(Asset(assetID))) {
-      mbrAmount += Global.assetOptInMinBalance
-    }
-
     abiCall<typeof Rewards.prototype.createAsaUserAllocations>({
       sender,
       appId: rewardsApp,
       args: [
-        itxn.payment({
-          sender,
-          amount: mbrAmount,
-          receiver: rewardsApp.address,
-        }),
         itxn.assetTransfer({
           sender,
           assetReceiver: rewardsApp.address,

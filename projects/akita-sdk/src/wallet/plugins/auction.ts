@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { AuctionPluginArgs, AuctionPluginClient, AuctionPluginFactory } from "../../generated/AuctionPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -49,7 +50,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
   new(args?: NewAuctionArgs): PluginSDKReturn {
     const methodName = 'new';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -59,7 +60,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -83,7 +84,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
   bid(args?: BidArgs): PluginSDKReturn {
     const methodName = 'bid';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -93,7 +94,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     const { sender, signer,  } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -117,7 +118,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
   claimPrize(args?: ClaimPrizeArgs): PluginSDKReturn {
     const methodName = 'claimPrize';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -127,7 +128,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -151,7 +152,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
   refundBid(args?: RefundBidArgs): PluginSDKReturn {
     const methodName = 'refundBid';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -161,7 +162,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -185,7 +186,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
   cancel(args?: CancelArgs): PluginSDKReturn {
     const methodName = 'cancel';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -195,7 +196,7 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

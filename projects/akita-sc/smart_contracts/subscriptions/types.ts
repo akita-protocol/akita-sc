@@ -26,6 +26,7 @@ export type Service = {
   amount: uint64
   passes: uint64
   gateID: uint64
+  payoutAddress: Account
   title: string
   description: string
   bannerImage: CID
@@ -95,6 +96,7 @@ export type SubscriptionInfoWithDetails = {
   gateID: uint64
   serviceID: uint64
   status: ServiceStatus
+  payoutAddress: Account
   title: string
   description: string
   bannerImage: CID

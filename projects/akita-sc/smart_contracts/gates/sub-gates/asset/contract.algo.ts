@@ -1,8 +1,7 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, clone, GlobalState, gtxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import {
   Equal,
   GreaterThan,
@@ -12,7 +11,7 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { AssetGateRegistryInfoByteLength, GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, OperatorAndValueRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 import { Operator } from '../../types'
 
 type AssetGateRegistryInfo = {
@@ -63,7 +62,7 @@ export class AssetGate extends AkitaBaseContract {
     }
   }
 
-  // LIFE CYCLE METHODS ---------------------------------------------------------------------------  
+  // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
   create(version: string, akitaDAO: uint64): void {
@@ -78,15 +77,9 @@ export class AssetGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length === AssetGateRegistryInfoByteLength, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: OperatorAndValueRegistryMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(args.length === AssetGateRegistryInfoByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, ERR_INVALID_PAYMENT)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<AssetGateRegistryInfo>(args)
@@ -94,7 +87,7 @@ export class AssetGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     const { asset, op, value } = clone(this.registry(registryID).value)
     return this.assetGate(caller, asset, op, value)
   }

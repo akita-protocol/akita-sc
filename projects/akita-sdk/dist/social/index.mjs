@@ -29,13 +29,13 @@ import {
   REACTIONS_MBR,
   REACT_BASE_MBR,
   REACT_NEW_NFT_MBR,
-  REF_TYPE_EXTERNAL,
   REPLY_BASE_MBR,
   REPLY_TYPE_ADDRESS,
   REPLY_TYPE_APP,
   REPLY_TYPE_ASSET,
   REPLY_TYPE_POST,
   RefType,
+  SOCIAL_ERROR_MESSAGES,
   SUBSCRIPTION_STATE_MODIFIER_MBR,
   SocialSDK,
   TIP_ACTION_POST,
@@ -46,12 +46,13 @@ import {
   TWO_YEARS_SECONDS,
   VOTELIST_MBR,
   VOTES_MBR,
-  VOTE_BASE_MBR
-} from "../chunk-FETLFQKE.mjs";
-import "../chunk-P4YWTMZR.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  VOTE_BASE_MBR,
+  parseSocialErrorCode,
+  translateSocialError
+} from "../chunk-N42HA74O.mjs";
+import "../chunk-ST2WN72C.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
   ACTIONS_MBR,
   AMENDMENT_MBR,
@@ -83,13 +84,13 @@ export {
   REACTIONS_MBR,
   REACT_BASE_MBR,
   REACT_NEW_NFT_MBR,
-  REF_TYPE_EXTERNAL,
   REPLY_BASE_MBR,
   REPLY_TYPE_ADDRESS,
   REPLY_TYPE_APP,
   REPLY_TYPE_ASSET,
   REPLY_TYPE_POST,
   RefType,
+  SOCIAL_ERROR_MESSAGES,
   SUBSCRIPTION_STATE_MODIFIER_MBR,
   SocialSDK,
   TIP_ACTION_POST,
@@ -100,6 +101,8 @@ export {
   TWO_YEARS_SECONDS,
   VOTELIST_MBR,
   VOTES_MBR,
-  VOTE_BASE_MBR
+  VOTE_BASE_MBR,
+  parseSocialErrorCode,
+  translateSocialError
 };
 //# sourceMappingURL=index.mjs.map

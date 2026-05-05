@@ -1,30 +1,38 @@
-import { Account, Application, assert, assertMatch, Asset, Bytes, Global, gtxn, itxn, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, Bytes, clone, contract, Global, gtxn, itxn, loggedAssert, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { Txn } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_OPTED_IN, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
+import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
 import { disbursementCost, getFunder, getPrizeBoxOwner, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { AuctionGlobalStateKeySeller } from './constants'
-import { ERR_BIDS_MUST_ALWAYS_INCREASE, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START, ERR_NOT_AN_AUCTION } from './errors'
+import { ERR_BIDS_MUST_ALWAYS_INCREASE, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_AN_AUCTION, ERR_NOT_OPTED_IN } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
+import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
 import { BaseAuction } from './base'
 import { Auction } from './contract.algo'
 
+
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
+  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
     this.version.value = version
     this.childContractVersion.value = childVersion
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
   // AUCTION FACTORY METHODS ----------------------------------------------------------------------
@@ -44,13 +52,13 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     marketplace: Account,
     weightsListCount: uint64
   ): uint64 {
-    assert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
-    assert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
+    loggedAssert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     const isAlgoBid = bidAssetID === 0
 
-    assert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), ERR_NOT_OPTED_IN)
+    loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), ERR_NOT_OPTED_IN)
 
     const optinMBR: uint64 = Global.assetOptInMinBalance * (isAlgoBid ? 1 : 2)
 
@@ -78,25 +86,13 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     )
 
     // ensure they paid enough to cover the contract mint + mbr costs
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     // make sure they actually sent the asset they want to auction
-    assertMatch(
-      assetXfer,
-      {
-        sender: Txn.sender,
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: { greaterThan: 0 },
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.sender === Txn.sender, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
@@ -207,14 +203,14 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     weightsListCount: uint64
   ): uint64 {
     
-    assert((
+    loggedAssert((
       prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
       prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
     ), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
-    assert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
-    assert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
+    loggedAssert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     const isAlgoBid = bidAssetID === 0
     const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
@@ -243,14 +239,8 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     )
 
     // ensure they paid enough to cover the contract mint + mbr costs
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, Asset(0), '', [])
 
@@ -331,9 +321,9 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
   }
 
   deleteAuctionApp(appId: Application): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
     const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
-    assert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
 
     const { account: receiver, amount } = getFunder(appId)
 
@@ -347,9 +337,9 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
   }
 
   cancelAuction(appId: Application): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
     const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
-    assert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
 
     const { account: receiver, amount } = getFunder(appId)
 

@@ -41,6 +41,13 @@ export async function proposeAndExecute<TClient extends SDKClient>(
     throw new Error('Failed to create proposal')
   }
 
-  await dao.executeProposal({ proposalId })
+  await dao.client.send.executeProposal({
+    sender: dao.sendParams.sender!,
+    signer: dao.sendParams.signer!,
+    args: { proposalId },
+    coverAppCallInnerTransactionFees: true,
+    populateAppCallResources: true,
+    maxFee: microAlgo(1_000_000),
+  })
   return proposalId
 }

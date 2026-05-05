@@ -1,16 +1,16 @@
 import { MaybeSigner } from '../types';
-import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/composer';
 export { MetaValue, PostValue, VoteListValue, VotesValue, ViewPayWallValue, AkitaSocialMbrData, TipMbrInfo, } from '../generated/AkitaSocialClient';
 export { MetaValue as ImpactMetaValue, } from '../generated/AkitaSocialImpactClient';
 export type { SocialFees, AkitaAssets } from '../generated/AkitaDAOClient';
 export type CID = Uint8Array;
 export type PostRef = Uint8Array;
 export declare enum RefType {
-    Post = 10,
-    Asset = 20,
-    Address = 30,
-    App = 40,
-    External = 50
+    Post = 1,
+    Asset = 2,
+    Address = 3,
+    App = 4,
+    Collection = 5
 }
 export type PostArgs = MaybeSigner & {
     /** Optional timestamp (unix seconds). Auto-set to current time if not provided. Contract validates it's within 60 seconds of chain time. */
@@ -21,12 +21,16 @@ export type PostArgs = MaybeSigner & {
     gateId?: bigint | number;
     usePayWall?: boolean;
     payWallId?: bigint | number;
+    /** Optional creator-set content flags (defaults to 0) */
+    creatorFlags?: bigint | number;
 };
 export type EditPostArgs = MaybeSigner & {
     /** The new content CID */
     cid: CID;
     /** The post key of the post being edited */
     amendment: PostRef;
+    /** Optional creator-set content flags (defaults to 0) */
+    creatorFlags?: bigint | number;
 };
 export type ReplyArgs = MaybeSigner & {
     /** Optional timestamp (unix seconds). Auto-set to current time if not provided. Contract validates it's within 60 seconds of chain time. */
@@ -40,6 +44,8 @@ export type ReplyArgs = MaybeSigner & {
     usePayWall?: boolean;
     payWallId?: bigint | number;
     gateTxn?: AppCallMethodCall;
+    /** Optional creator-set content flags (defaults to 0) */
+    creatorFlags?: bigint | number;
 };
 export type VoteArgs = MaybeSigner & {
     ref: PostRef;

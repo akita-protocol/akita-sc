@@ -19,7 +19,7 @@ main_get_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b get
 
 main___algots__.defaultCreate@5:
@@ -30,7 +30,7 @@ main___algots__.defaultCreate@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts/utils/types/mock-randomness-beacon.algo.ts::MockRandomnessBeacon.get[routing]() -> void:
@@ -39,20 +39,20 @@ get:
     // get(round: uint64, userData: bytes): bytes {
     txna ApplicationArgs 1
     len
-    pushint 8 // 8
+    pushint 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 2
     dup
-    pushint 0 // 0
-    extract_uint16
-    pushint 2 // 2
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     pushbytes 0x151f7c7500200102030405060708090a0b0c0d0e0f101112131415161718191a1b1c1d1e1f20
     log
-    pushint 1 // 1
+    pushint 1
     return

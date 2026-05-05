@@ -19,10 +19,10 @@ main_ping_route@4:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     pushbytes 0x151f7c750000000000000539
     log
-    pushint 1 // 1
+    pushint 1
     return
 
 main_update_route@3:
@@ -33,7 +33,7 @@ main_update_route@3:
     ==
     txn ApplicationID
     &&
-    assert // OnCompletion must be UpdateApplication && can only call when not creating
+    assert
     b update
 
 main___algots__.defaultCreate@6:
@@ -44,7 +44,7 @@ main___algots__.defaultCreate@6:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.update[routing]() -> void:
@@ -53,11 +53,13 @@ update:
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txna ApplicationArgs 1
     dup
-    pushint 0 // 0
-    extract_uint16
-    pushint 2 // 2
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     swap
     len
     ==
-    return // on error: invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 1
+    return

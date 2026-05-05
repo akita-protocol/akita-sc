@@ -1,11 +1,8 @@
-import algosdk, { Address, AtomicTransactionComposer, decodeAddress } from "algosdk";
+import { Address, decodeAddress } from "algosdk";
 import { AllowanceInfo as SubAllowanceInfo } from "../generated/AbstractedAccountClient";
 import { AddAllowanceArgs, AllowanceInfo } from "./types";
 import { encodeLease } from "@algorandfoundation/algokit-utils";
-import { PluginHookParams } from "../types";
-import { Txn } from "@algorandfoundation/algokit-utils/types/composer";
-import { AlgoAmount } from "@algorandfoundation/algokit-utils/types/amount";
-// import { AppCallParams, AppUpdateParams, Txn } from "@algorandfoundation/algokit-utils/types/composer";
+import { PluginHookParams, PluginTxn } from "../types";
 
 
 // AppCallParams | AppCreateParams | AppUpdateParams
@@ -93,65 +90,6 @@ export function domainBoxKey(address: string | Address): Uint8Array {
   );
 }
 
-export type OverWriteProperties = {
-  sender?: string | algosdk.Address;
-  signer?: algosdk.TransactionSigner;
-  firstValid?: bigint;
-  lastValid?: bigint;
-  lease?: Uint8Array | string;
-  fees?: Map<number, AlgoAmount>;
-};
-
-export function forceProperties(
-  atc: AtomicTransactionComposer,
-  options: OverWriteProperties
-): AtomicTransactionComposer {
-  const group = atc.clone().buildGroup();
-  const newAtc = new algosdk.AtomicTransactionComposer();
-
-  const overWriteProperties = (txn: any, index: number, options: OverWriteProperties) => {
-    txn.txn['group'] = undefined;
-
-    txn.txn['lease'] = (options.lease !== undefined && index === 0)
-      ? (typeof options.lease === 'string'
-        ? encodeLease(options.lease)
-        : options.lease)
-      : txn.txn['lease'];
-
-    txn['signer'] = options.signer !== undefined
-      ? options.signer
-      : txn['signer'];
-
-    txn.txn['sender'] = options.sender !== undefined
-      ? (typeof options.sender === 'string'
-        ? decodeAddress(options.sender)
-        : options.sender)
-      : txn.txn['sender'];
-
-    txn.txn['firstValid'] = options.firstValid !== undefined
-      ? options.firstValid
-      : txn.txn['firstValid'];
-
-    txn.txn['lastValid'] = options.lastValid !== undefined
-      ? options.lastValid
-      : txn.txn['lastValid'];
-
-    txn.txn['fee'] = options.fees !== undefined && options.fees.has(index) && options.fees.get(index)?.microAlgo !== undefined
-      ? options.fees.get(index)?.microAlgo
-      : txn.txn['fee']
-  }
-
-  group.forEach((t, i) => {
-    overWriteProperties(t, i, options);
-    newAtc.addTransaction(t);
-  });
-
-  // Preserve method calls
-  newAtc['methodCalls'] = atc['methodCalls'];
-
-  return newAtc;
-}
-
 export class ValueMap<K extends object, V> {
   private map = new Map<string, V>();
   private keyGenerator: (obj: K) => string;
@@ -223,4 +161,4 @@ export class ValueMap<K extends object, V> {
   }
 }
 
-export const getTxns = async ({ }: PluginHookParams) => { return [{}] as Txn[] }
+export const getTxns = async ({ }: PluginHookParams): Promise<PluginTxn[]> => []

@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { AkitaSocialPluginArgs, AkitaSocialPluginClient, AkitaSocialPluginFactory } from "../../generated/AkitaSocialPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -9,45 +10,45 @@ type ContractArgs = AkitaSocialPluginArgs["obj"];
 
 // ---- Post Methods ----
 type PostArgs = (
-  Omit<ContractArgs['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type EditPostArgs = (
-  Omit<ContractArgs['editPost(uint64,bool,byte[36],byte[32])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['editPost(uint64,bool,byte[36],byte[32],uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 // ---- Reply Methods ----
 type ReplyArgs = (
-  Omit<ContractArgs['reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint8,uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type GatedReplyArgs = (
-  Omit<ContractArgs['gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint8,uint64,byte[][],bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type EditReplyArgs = (
-  Omit<ContractArgs['editReply(uint64,bool,byte[36],byte[32])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['editReply(uint64,bool,byte[36],byte[32],uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type GatedEditReplyArgs = (
-  Omit<ContractArgs['gatedEditReply(uint64,bool,byte[36],byte[32],byte[][])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['gatedEditReply(uint64,bool,byte[36],byte[32],byte[][],uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 // ---- Vote Methods ----
 type VoteArgs = (
-  Omit<ContractArgs['vote(uint64,bool,byte[],uint8,bool)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['vote(uint64,bool,byte[],uint64,bool)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -60,13 +61,13 @@ type EditVoteArgs = (
 
 // ---- React Methods ----
 type ReactArgs = (
-  Omit<ContractArgs['react(uint64,bool,byte[],uint8,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['react(uint64,bool,byte[],uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type GatedReactArgs = (
-  Omit<ContractArgs['gatedReact(uint64,bool,byte[],uint8,uint64,byte[][])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['gatedReact(uint64,bool,byte[],uint64,uint64,byte[][])void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -172,6 +173,20 @@ type UpdateMetaArgs = (
   & { rekeyBack?: boolean }
 );
 
+// ---- Impact Methods ----
+type UpdateSubscriptionStateModifierArgs = (
+  Omit<ContractArgs['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+// ---- Ref Type Registry ----
+type RegisterRefTypeArgs = (
+  Omit<ContractArgs['registerRefType(uint64,bool,string,byte[])uint64'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
 export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
 
   constructor(params: NewContractSDKParams) {
@@ -185,7 +200,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   post(args?: PostArgs): PluginSDKReturn {
     const methodName = 'post';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -195,7 +210,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -221,7 +236,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   editPost(args?: EditPostArgs): PluginSDKReturn {
     const methodName = 'editPost';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -231,7 +246,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -257,7 +272,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   reply(args?: ReplyArgs): PluginSDKReturn {
     const methodName = 'reply';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -267,7 +282,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -293,7 +308,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   gatedReply(args?: GatedReplyArgs): PluginSDKReturn {
     const methodName = 'gatedReply';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -303,7 +318,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -329,7 +344,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   editReply(args?: EditReplyArgs): PluginSDKReturn {
     const methodName = 'editReply';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -339,7 +354,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -363,7 +378,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   gatedEditReply(args?: GatedEditReplyArgs): PluginSDKReturn {
     const methodName = 'gatedEditReply';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -373,7 +388,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -399,7 +414,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   vote(args?: VoteArgs): PluginSDKReturn {
     const methodName = 'vote';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -409,7 +424,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -435,7 +450,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   editVote(args?: EditVoteArgs): PluginSDKReturn {
     const methodName = 'editVote';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -445,7 +460,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -473,7 +488,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   react(args?: ReactArgs): PluginSDKReturn {
     const methodName = 'react';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -483,7 +498,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -509,7 +524,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   gatedReact(args?: GatedReactArgs): PluginSDKReturn {
     const methodName = 'gatedReact';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -519,7 +534,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -545,7 +560,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   deleteReaction(args?: DeleteReactionArgs): PluginSDKReturn {
     const methodName = 'deleteReaction';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -555,7 +570,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -583,7 +598,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   follow(args?: FollowArgs): PluginSDKReturn {
     const methodName = 'follow';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -593,7 +608,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -617,7 +632,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   gatedFollow(args?: GatedFollowArgs): PluginSDKReturn {
     const methodName = 'gatedFollow';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -627,7 +642,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -651,7 +666,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   unfollow(args?: UnfollowArgs): PluginSDKReturn {
     const methodName = 'unfollow';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -661,7 +676,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -687,7 +702,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   block(args?: BlockArgs): PluginSDKReturn {
     const methodName = 'block';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -697,7 +712,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -721,7 +736,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   unblock(args?: UnblockArgs): PluginSDKReturn {
     const methodName = 'unblock';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -731,7 +746,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -757,7 +772,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   addModerator(args?: AddModeratorArgs): PluginSDKReturn {
     const methodName = 'addModerator';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -767,7 +782,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -791,7 +806,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   removeModerator(args?: RemoveModeratorArgs): PluginSDKReturn {
     const methodName = 'removeModerator';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -801,7 +816,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -825,7 +840,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   ban(args?: BanArgs): PluginSDKReturn {
     const methodName = 'ban';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -835,7 +850,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -859,7 +874,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   unban(args?: UnbanArgs): PluginSDKReturn {
     const methodName = 'unban';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -869,7 +884,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -893,7 +908,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   flagPost(args?: FlagPostArgs): PluginSDKReturn {
     const methodName = 'flagPost';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -903,7 +918,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -927,7 +942,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   unflagPost(args?: UnflagPostArgs): PluginSDKReturn {
     const methodName = 'unflagPost';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -937,7 +952,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -963,7 +978,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   addAction(args?: AddActionArgs): PluginSDKReturn {
     const methodName = 'addAction';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -973,7 +988,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -997,7 +1012,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   removeAction(args?: RemoveActionArgs): PluginSDKReturn {
     const methodName = 'removeAction';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -1007,7 +1022,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -1033,7 +1048,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   initMeta(args?: InitMetaArgs): PluginSDKReturn {
     const methodName = 'initMeta';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -1043,7 +1058,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -1069,7 +1084,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
   updateMeta(args?: UpdateMetaArgs): PluginSDKReturn {
     const methodName = 'updateMeta';
     if (args === undefined) {
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -1079,13 +1094,85 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
 
         const params = await this.client.params.updateMeta({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  // ==================== IMPACT METHODS ====================
+
+  updateSubscriptionStateModifier(): PluginSDKReturn;
+  updateSubscriptionStateModifier(args: UpdateSubscriptionStateModifierArgs): PluginSDKReturn;
+  updateSubscriptionStateModifier(args?: UpdateSubscriptionStateModifierArgs): PluginSDKReturn {
+    const methodName = 'updateSubscriptionStateModifier';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.updateSubscriptionStateModifier({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  // ==================== REF TYPE REGISTRY ====================
+
+  registerRefType(): PluginSDKReturn;
+  registerRefType(args: RegisterRefTypeArgs): PluginSDKReturn;
+  registerRefType(args?: RegisterRefTypeArgs): PluginSDKReturn {
+    const methodName = 'registerRefType';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.registerRefType({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
         });

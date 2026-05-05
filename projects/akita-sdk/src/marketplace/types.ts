@@ -6,7 +6,7 @@ import {
   ListingArgs,
   FunderInfo,
 } from '../generated/ListingClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 
 // Re-export types from generated clients for convenience
 export { FunderInfo };
@@ -75,6 +75,11 @@ export type PurchaseParams = BasePurchaseParams & (
 );
 
 export type DelistParams = MaybeSigner & MarketplaceContractArgs['delist(uint64)void'];
+
+export type OptInParams = MaybeSigner & {
+  /** The asset ID to opt the marketplace into (so it can receive/forward that asset) */
+  asset: bigint | number;
+};
 
 // Individual Listing Types
 type ListingContractArgs = ListingArgs["obj"];

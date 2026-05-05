@@ -1,8 +1,9 @@
 import { BaseSDK } from "../base";
 import { RewardsClient, DisbursementDetails, RewardsMbrData } from '../generated/RewardsClient';
 import { NewContractSDKParams } from "../types";
-import { GetMbrParams, GetDisbursementParams, GetUserAllocationParams, RewardsGlobalState, OptInAssetParams, CreateDisbursementParams, EditDisbursementParams, CreateUserAllocationsParams, CreateAsaUserAllocationsParams, FinalizeDisbursementParams, CreateInstantDisbursementParams, CreateInstantAsaDisbursementParams, ClaimRewardsParams, ReclaimRewardsParams, UpdateAkitaDaoParams } from "./types";
+import { GetMbrParams, GetAllocationMbrCreditShortfallParams, GetDisbursementParams, GetUserAllocationParams, RewardsGlobalState, OptInAssetParams, CreateDisbursementParams, EditDisbursementParams, FundMbrCreditsParams, WithdrawMbrCreditsParams, CreateUserAllocationsParams, CreateAsaUserAllocationsParams, FinalizeDisbursementParams, CreateInstantDisbursementParams, CreateInstantAsaDisbursementParams, CreateAsaDisbursementFromGroupParams, ClaimRewardsParams, ReclaimRewardsParams, UpdateAkitaDaoParams } from "./types";
 export * from "./types";
+export * from "./errors";
 /**
  * SDK for interacting with the Rewards contract.
  * Use this to create disbursements, manage allocations, and claim/reclaim rewards.
@@ -41,12 +42,25 @@ export declare class RewardsSDK extends BaseSDK<RewardsClient> {
     getDisbursements(): Promise<Map<bigint, DisbursementDetails>>;
     /**
      * Gets a user's allocation for a specific disbursement and asset.
+     *
+     * NOTE: Property order MUST match the APP_SPEC struct declaration order
+     * (address, asset, disbursementId). v10's ABIStructType encoder uses
+     * Object.values() which iterates in input-object property order and then
+     * maps positionally onto the declared struct fields — a mismatched order
+     * silently produces the wrong box key.
      */
     getUserAllocation({ address, disbursementId, asset }: GetUserAllocationParams): Promise<bigint>;
     /**
      * Checks if a user has an allocation for a specific disbursement and asset.
+     *
+     * NOTE: Property order MUST match APP_SPEC struct order (address, asset,
+     * disbursementId). See getUserAllocation for the full explanation.
      */
     hasAllocation({ address, disbursementId, asset }: GetUserAllocationParams): Promise<boolean>;
+    /**
+     * Gets the additional MBR credit needed to create allocation boxes.
+     */
+    allocationMbrCreditShortfall({ id, allocationCount, }: GetAllocationMbrCreditShortfallParams): Promise<bigint>;
     /**
      * Opts the rewards contract into an asset.
      */
@@ -55,7 +69,7 @@ export declare class RewardsSDK extends BaseSDK<RewardsClient> {
      * Creates a new disbursement.
      * Returns the disbursement ID.
      */
-    createDisbursement({ sender, signer, title, timeToUnlock, expiration, note, }: CreateDisbursementParams): Promise<bigint>;
+    createDisbursement({ sender, signer, title, timeToUnlock, expiration, note, mbrCredits, }: CreateDisbursementParams): Promise<bigint>;
     /**
      * Edits an existing disbursement (only before finalization).
      */
@@ -69,17 +83,34 @@ export declare class RewardsSDK extends BaseSDK<RewardsClient> {
      */
     private sumAllocations;
     /**
-     * Creates ALGO allocations for a disbursement.
-     * The payment includes both MBR for the boxes and the actual ALGO to distribute.
-     * Automatically adds opUp calls for large allocation batches.
+     * Funds reusable MBR credits on a disbursement.
+     */
+    fundMbrCredits({ sender, signer, id, amount }: FundMbrCreditsParams): Promise<void>;
+    /**
+     * Withdraws reusable MBR credits from a disbursement.
+     */
+    withdrawMbrCredits({ sender, signer, id, amount }: WithdrawMbrCreditsParams): Promise<void>;
+    /**
+     * Creates ALGO allocations using existing disbursement MBR credits.
+     * Fund credits separately with fundMbrCredits when allocationMbrCreditShortfall reports a shortfall.
      */
     createUserAllocations({ sender, signer, id, allocations, }: CreateUserAllocationsParams): Promise<void>;
     /**
-     * Creates ASA allocations for a disbursement.
-     * Requires both an MBR payment and an asset transfer.
-     * Automatically adds opUp calls for large allocation batches.
+     * Creates ASA allocations using existing disbursement MBR credits.
+     * Fund credits separately with fundMbrCredits when allocationMbrCreditShortfall reports a shortfall.
      */
     createAsaUserAllocations({ sender, signer, id, asset, allocations, }: CreateAsaUserAllocationsParams): Promise<void>;
+    /**
+     * Creates and finalizes a multi-ASA disbursement in a single transaction group.
+     *
+     * Group shape:
+     *   0: MBR payment
+     *   1..N: ASA transfers to the rewards app
+     *   N+1: createAsaDisbursementFromGroup app call
+     *
+     * This supports up to 14 ASA allocations in one Algorand group.
+     */
+    createAsaDisbursementFromGroup({ sender, signer, title, timeToUnlock, expiration, note, allocations, }: CreateAsaDisbursementFromGroupParams): Promise<bigint>;
     /**
      * Finalizes a disbursement, locking it for distribution.
      */

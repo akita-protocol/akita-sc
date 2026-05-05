@@ -4,29 +4,29 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1 0 8 2
-    bytecblock "akita_dao" 0x151f7c75 "registry_cursor"
+    bytecblock "akita_dao" 0x151f7c75 "registry_cursor" "ERR:IARG" "ERR:IPAY"
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:23
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:22
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
     intc_0 // 1
     app_global_put
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:26
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:25
     // registrationShape = GlobalState<string>({ initialValue: 'uint64', key: GateGlobalStateKeyRegistrationShape })
-    pushbytess "registration_shape" "uint64" // "registration_shape", "uint64"
+    pushbytess "registration_shape" "uint64"
     app_global_put
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:28
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:27
     // checkShape = GlobalState<string>({ initialValue: '', key: GateGlobalStateKeyCheckShape })
-    pushbytess "check_shape" "" // "check_shape", ""
+    pushbytess "check_shape" ""
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:19
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:18
     // export class PollGate extends AkitaBaseContract {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@12
     pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0x90d4fa5d 0x33e92c94 0x854dede0 // method "cost(byte[])uint64", method "register(pay,byte[])uint64", method "check(address,uint64,byte[])bool", method "getEntry(uint64)byte[]", method "updateAkitaDAO(uint64)void", method "opUp()void"
@@ -35,13 +35,13 @@ main_after_if_else@2:
     err
 
 main_opUp_route@10:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_0 // 1
     return
 
 main_create_NoOp@12:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:19
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:18
     // export class PollGate extends AkitaBaseContract {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
@@ -51,41 +51,41 @@ main_create_NoOp@12:
 
 // smart_contracts/gates/sub-gates/poll/contract.algo.ts::PollGate.create[routing]() -> void:
 create:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:58
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:57
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:60
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:59
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:61
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:60
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:58
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:57
     // @abimethod({ onCreate: 'require' })
     intc_0 // 1
     return
@@ -93,18 +93,18 @@ create:
 
 // smart_contracts/gates/sub-gates/poll/contract.algo.ts::PollGate.cost[routing]() -> void:
 cost:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:66
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:65
     // cost(args: bytes): uint64 {
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     pushbytes 0x151f7c7500000000000022c4
     log
     intc_0 // 1
@@ -113,7 +113,7 @@ cost:
 
 // smart_contracts/gates/sub-gates/poll/contract.algo.ts::PollGate.register[routing]() -> void:
 register:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:70
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:69
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     txn GroupIndex
     intc_0 // 1
@@ -126,91 +126,79 @@ register:
     txna ApplicationArgs 1
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:71
-    // assert(args.length === 8, ERR_INVALID_ARG_COUNT)
     dup
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:70
+    // loggedAssert(args.length === 8, ERR_INVALID_ARG_COUNT)
     len
     intc_2 // 8
     ==
-    assert // Invalid number of arguments
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:72-79
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: PollGateRegistryMBR
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    bnz register_after_assert@3
+    bytec_3 // "ERR:IARG"
+    log
+    err // ERR:IARG
+
+register_after_assert@3:
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:71
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     dig 1
     gtxns Receiver
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:75
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:72-79
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: PollGateRegistryMBR
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    uncover 2
+    bnz register_after_assert@5
+    bytec 4 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+register_after_assert@5:
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:72
+    // loggedAssert(mbrPayment.amount === PollGateRegistryMBR, ERR_INVALID_PAYMENT)
+    dig 1
     gtxns Amount
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:76
-    // amount: PollGateRegistryMBR
-    pushint 8900 // 8900
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:72-79
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: PollGateRegistryMBR
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    pushint 8900
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:37
+    bnz register_after_assert@7
+    bytec 4 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+register_after_assert@7:
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:36
     // const id = this.registryCursor.value
     intc_1 // 0
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:23
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:22
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:37
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:36
     // const id = this.registryCursor.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:38
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:37
     // this.registryCursor.value += 1
     dup
     intc_0 // 1
     +
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:23
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:22
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:38
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:37
     // this.registryCursor.value += 1
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:82
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:75
     // this.registry(id).value = decodeArc4<PollGateRegistryInfo>(args)
     itob
     dup
-    uncover 2
+    dig 2
     box_put
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:70
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:69
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     bytec_1 // 0x151f7c75
     swap
@@ -222,51 +210,56 @@ register:
 
 // smart_contracts/gates/sub-gates/poll/contract.algo.ts::PollGate.check[routing]() -> void:
 check:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:86
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:79
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 3
     dup
     intc_1 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:87
-    // assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:80
+    // loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     len
-    !
-    assert // Invalid number of arguments
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:89
+    bz check_after_assert@3
+    bytec_3 // "ERR:IARG"
+    log
+    err // ERR:IARG
+
+check_after_assert@3:
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:82
     // const { poll } = this.registry(registryID).value
+    dup
     itob
     box_get
     assert // Box must have value
     intc_1 // 0
     extract_uint64
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:43
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:42
     // const { poll } = getOtherAppList(this.akitaDAO.value)
     intc_1 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:43
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:42
     // const { poll } = getOtherAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -275,22 +268,22 @@ check:
     pushbytes "oal"
     app_global_get_ex
     pop
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:43
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:42
     // const { poll } = getOtherAppList(this.akitaDAO.value)
-    pushint 32 // 32
+    pushint 32
     extract_uint64
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:45-48
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:44-47
     // const voted = abiCall<typeof Poll.prototype.hasVoted>({
     //     appId,
     //     args: [user],
     // }).returnValue
     itxn_begin
-    pushbytes 0x5a7f4932 // method "hasVoted(address)bool"
-    itxn_field ApplicationArgs
-    uncover 2
-    itxn_field ApplicationArgs
     dig 1
     itxn_field ApplicationID
+    pushbytes 0x5a7f4932 // method "hasVoted(address)bool"
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_1 // 0
@@ -308,10 +301,10 @@ check:
     len
     intc_0 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_1 // 0
     getbit
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:51
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:50
     // appId.creator === Application(poll).address &&
     uncover 2
     app_params_get AppCreator
@@ -320,11 +313,11 @@ check:
     app_params_get AppAddress
     assert // application exists
     ==
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:51-52
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:50-51
     // appId.creator === Application(poll).address &&
     // voted
     &&
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:86
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:79
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     pushbytes 0x00
     intc_1 // 0
@@ -340,21 +333,21 @@ check:
 
 // smart_contracts/gates/sub-gates/poll/contract.algo.ts::PollGate.getEntry[routing]() -> void:
 getEntry:
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:94
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:87
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:96
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:89
     // return encodeArc4(this.registry(registryID).value)
     itob
     box_get
     assert // Box must have value
-    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:94
+    // smart_contracts/gates/sub-gates/poll/contract.algo.ts:87
     // @abimethod({ readonly: true })
     dup
     len
@@ -372,45 +365,50 @@ getEntry:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_1 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    pushbytes "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_0 // 1
     return

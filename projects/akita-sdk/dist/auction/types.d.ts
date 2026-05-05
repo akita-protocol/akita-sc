@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { AuctionArgs, BidInfo, FindWinnerCursors, FunderInfo } from '../generated/AuctionClient';
 import { AuctionFactoryArgs } from '../generated/AuctionFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 export { BidInfo, FindWinnerCursors, FunderInfo };
 type FactoryContractArgs = AuctionFactoryArgs["obj"];
 export type NewAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment' | 'assetXfer'> & ({

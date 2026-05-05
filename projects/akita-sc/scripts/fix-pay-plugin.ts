@@ -22,7 +22,7 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import { getNetworkAppIds, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalActionEnum } from 'akita-sdk/dao'
-import { PayPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, PayPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
 import {
   DEFAULT_CREATION,
@@ -281,7 +281,7 @@ async function fix() {
       {
         type: ProposalActionEnum.AddPlugin,
         client: payPluginSDK,
-        global: true,
+        callerType: CallerType.Global,
         escrow: '',
         sourceLink: 'https://github.com/kylebee/akita-sc',
         useExecutionKey: true,

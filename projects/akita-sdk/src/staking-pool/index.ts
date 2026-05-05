@@ -26,6 +26,7 @@ import {
   GateCheckParams
 } from "./types";
 
+export * from "./errors";
 export * from "./factory";
 export * from "./types";
 
@@ -346,13 +347,13 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
   /**
    * Updates the Akita DAO escrow reference.
    */
-  async updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & PoolContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void> {
+  async updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & PoolContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
     await this.client.send.updateAkitaDaoEscrow({
       ...sendParams,
-      args: { app }
+      args: { config }
     });
   }
 

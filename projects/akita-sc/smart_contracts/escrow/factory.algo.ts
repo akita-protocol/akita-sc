@@ -1,10 +1,18 @@
-import { Account, Application, assert, assertMatch, BoxMap, Bytes, bytes, Contract, Global, gtxn, itxn, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Account, Application, BoxMap, Bytes, bytes, Contract, Global, gtxn, itxn, loggedAssert, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abimethod, compileArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { btoi, itob } from "@algorandfoundation/algorand-typescript/op";
 import { BoxCostPerByte, GLOBAL_STATE_KEY_BYTES_COST } from "../utils/constants";
-import { ERR_INVALID_PAYMENT } from "../utils/errors";
 import { EscrowGlobalStateKeysCreator, MinPages, MinWalletIDsByAccountsMbr } from "./constants";
-import { ERR_ALREADY_REGISTERED, ERR_DOESNT_EXIST, ERR_FORBIDDEN, ERR_INVALID_APP, ERR_INVALID_CREATOR } from "./errors";
+import {
+  ERR_ACCOUNT_NOT_FOUND,
+  ERR_ALREADY_REGISTERED,
+  ERR_DOESNT_EXIST,
+  ERR_FORBIDDEN,
+  ERR_INVALID_APP,
+  ERR_INVALID_CREATOR,
+  ERR_INVALID_PAYMENT,
+  ERR_ONLY_APPS,
+} from "./errors";
 
 // CONTRACT IMPORTS
 import { Escrow } from "./contract.algo";
@@ -41,14 +49,8 @@ export class EscrowFactory extends Contract {
       GLOBAL_STATE_KEY_BYTES_COST
     )
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: childAppMBR + Global.minBalance,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === childAppMBR + Global.minBalance, ERR_INVALID_PAYMENT)
 
     const newEscrow = escrow.call.create(
       {
@@ -75,31 +77,25 @@ export class EscrowFactory extends Contract {
 
   register(payment: gtxn.PaymentTxn, app: uint64): void {
     // only apps can call this method
-    assert(Global.callerApplicationId !== 0)
+    loggedAssert(Global.callerApplicationId !== 0, ERR_ONLY_APPS)
     // this way we ensure apps are always either
     // registering themselves or escrows they can prove they created
-    assert(app === 0 || Application(app).creator === Global.currentApplicationAddress, ERR_INVALID_APP)
+    loggedAssert(app === 0 || Application(app).creator === Global.currentApplicationAddress, ERR_INVALID_APP)
 
     let creator = Bytes('')
     if (Application(app).creator === Global.currentApplicationAddress) {
       creator = op.AppGlobal.getExBytes(app, Bytes(EscrowGlobalStateKeysCreator))[0]
-      assert(btoi(creator) === Global.callerApplicationId, ERR_INVALID_CREATOR)
+      loggedAssert(btoi(creator) === Global.callerApplicationId, ERR_INVALID_CREATOR)
     } else {
       creator = Bytes(itob(Global.callerApplicationId))
       app = Global.callerApplicationId
     }
 
     const appAddress = bytes16(Application(app).address)
-    assert(!this.walletIDsByAccounts(appAddress).exists, ERR_ALREADY_REGISTERED)
+    loggedAssert(!this.walletIDsByAccounts(appAddress).exists, ERR_ALREADY_REGISTERED)
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.mbr(creator.length),
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === this.mbr(creator.length), ERR_INVALID_PAYMENT)
 
     this.walletIDsByAccounts(appAddress).value = creator
   }
@@ -107,13 +103,13 @@ export class EscrowFactory extends Contract {
   delete(id: uint64): void {
     const caller = Global.callerApplicationId
     const key = bytes16(Application(id).address)
-    assert(this.walletIDsByAccounts(key).exists, ERR_DOESNT_EXIST)
+    loggedAssert(this.walletIDsByAccounts(key).exists, ERR_DOESNT_EXIST)
 
     const creator = this.walletIDsByAccounts(key).value
     if (creator.length === 8) {
-      assert(caller === btoi(creator), ERR_FORBIDDEN);
+      loggedAssert(caller === btoi(creator), ERR_FORBIDDEN);
     } else {
-      assert(Bytes(bytes16(Txn.sender)) === creator, ERR_FORBIDDEN);
+      loggedAssert(Bytes(bytes16(Txn.sender)) === creator, ERR_FORBIDDEN);
     }
 
     const spendingAccount = compileArc4(Escrow);
@@ -165,7 +161,7 @@ export class EscrowFactory extends Contract {
 
   @abimethod({ readonly: true })
   mustGet(address: Account): bytes {
-    assert(this.walletIDsByAccounts(bytes16(address)).exists, 'Account not found')
+    loggedAssert(this.walletIDsByAccounts(bytes16(address)).exists, ERR_ACCOUNT_NOT_FOUND)
     return this.walletIDsByAccounts(bytes16(address)).value
   }
 
@@ -188,7 +184,7 @@ export class EscrowFactory extends Contract {
     const apps: bytes[] = []
     for (let i: uint64 = 0; i < addresses.length; i++) {
       const address = addresses[i]
-      assert(this.walletIDsByAccounts(bytes16(address)).exists, 'Account not found')
+      loggedAssert(this.walletIDsByAccounts(bytes16(address)).exists, ERR_ACCOUNT_NOT_FOUND)
       apps.push(this.walletIDsByAccounts(bytes16(address)).value)
     }
     return apps

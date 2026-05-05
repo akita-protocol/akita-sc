@@ -1,17 +1,16 @@
-import { Account, Application, assert, assertMatch, Asset, clone, Global, GlobalState, gtxn, itxn, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, clone, Global, GlobalState, gtxn, itxn, loggedAssert, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER } from '../utils/errors'
 import { calcPercent, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPayment } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
 import { ListingGlobalStateKeyAkitaDAOEscrow, ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeySeller } from './constants'
-import { ERR_INVALID_EXPIRATION, ERR_LISTING_EXPIRED, ERR_MUST_BE_CALLED_FROM_FACTORY, ERR_MUST_BE_SELLER, ERR_ONLY_SELLER_CAN_DELIST, ERR_PAYMENT_ASSET_MUST_BE_ALGO, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO, ERR_RESERVED_FOR_DIFFERENT_ADDRESS } from './errors'
+import { ERR_INVALID_EXPIRATION, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_LISTING_EXPIRED, ERR_MUST_BE_CALLED_FROM_FACTORY, ERR_MUST_BE_SELLER, ERR_ONLY_SELLER_CAN_DELIST, ERR_PAYMENT_ASSET_MUST_BE_ALGO, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO, ERR_RESERVED_FOR_DIFFERENT_ADDRESS } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
-import { AkitaBaseContract } from '../utils/base-contracts/base'
+import { AkitaBaseContract, EscrowConfig } from '../utils/base-contracts/base'
 import { ChildContract } from '../utils/base-contracts/child'
 import { ContractWithCreatorOnlyOptIn } from '../utils/base-contracts/optin'
 
@@ -55,7 +54,7 @@ export class Listing extends classes(
   /** the amount the marketplaces will get for the sale */
   marketplaceRoyalties = GlobalState<uint64>({ key: ListingGlobalStateKeyMarketplaceRoyalties })
   /** the app ID for the akita DAO escrow */
-  akitaDAOEscrow = GlobalState<Application>({ key: ListingGlobalStateKeyAkitaDAOEscrow })
+  akitaDAOEscrow = GlobalState<EscrowConfig>({ key: ListingGlobalStateKeyAkitaDAOEscrow })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
@@ -131,7 +130,7 @@ export class Listing extends classes(
 
     itxn
       .payment({
-        receiver: this.akitaDAOEscrow.value.address,
+        receiver: this.akitaDAOEscrow.value.app.address,
         amount: leftover,
       })
       .submit()
@@ -194,7 +193,7 @@ export class Listing extends classes(
 
     itxn
       .assetTransfer({
-        assetReceiver: this.akitaDAOEscrow.value.address,
+        assetReceiver: this.akitaDAOEscrow.value.app.address,
         assetAmount: leftover,
         xferAsset: this.paymentAsset.value,
       })
@@ -306,15 +305,15 @@ export class Listing extends classes(
     marketplace: Account,
     version: string,
     akitaDAO: Application,
-    akitaDAOEscrow: Application
+    akitaDAOEscrow: EscrowConfig
   ): void {
-    assert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
 
     this.prize.value = prize
     this.isPrizeBox.value = isPrizeBox
     this.price.value = price
     this.paymentAsset.value = Asset(paymentAsset)
-    assert(expiration === 0 || expiration > Global.latestTimestamp, ERR_INVALID_EXPIRATION)
+    loggedAssert(expiration === 0 || expiration > Global.latestTimestamp, ERR_INVALID_EXPIRATION)
     this.expiration.value = expiration
     this.seller.value = seller
     this.funder.value = clone(funder)
@@ -324,7 +323,7 @@ export class Listing extends classes(
     this.marketplace.value = marketplace
     this.version.value = version
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
 
     // internal variables
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).marketplaceComposablePercentage
@@ -347,23 +346,17 @@ export class Listing extends classes(
     buyer: Account,
     marketplace: Account
   ): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(this.paymentAsset.value.id === 0, ERR_PAYMENT_ASSET_MUST_BE_ALGO)
-    assert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(this.paymentAsset.value.id === 0, ERR_PAYMENT_ASSET_MUST_BE_ALGO)
+    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
 
     if (this.reservedFor.value !== Global.zeroAddress) {
-      assert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
+      loggedAssert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
     }
 
-    assertMatch(
-      payment,
-      {
-        sender: Global.creatorAddress,
-        receiver: Global.currentApplicationAddress,
-        amount: this.price.value,
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.sender === Global.creatorAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === this.price.value, ERR_INVALID_PAYMENT)
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAlgoPayments(marketplace)
@@ -386,22 +379,16 @@ export class Listing extends classes(
     buyer: Account,
     marketplace: Account
   ): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(this.paymentAsset.value.id !== 0, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO)
-    assert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(this.paymentAsset.value.id !== 0, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO)
+    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
 
     if (this.reservedFor.value !== Global.zeroAddress) {
-      assert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
+      loggedAssert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
     }
 
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: this.price.value,
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount === this.price.value, ERR_INVALID_TRANSFER)
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAsaPayments(marketplace)
@@ -413,8 +400,8 @@ export class Listing extends classes(
   /** Deletes the app and returns the asset/mbr to the seller */
   @abimethod({ allowActions: 'DeleteApplication' })
   delist(caller: Account): void {
-    assert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    assert(this.seller.value === caller, ERR_ONLY_SELLER_CAN_DELIST)
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(this.seller.value === caller, ERR_ONLY_SELLER_CAN_DELIST)
 
     const assetTransfer = itxn.assetTransfer({
       assetCloseTo: this.seller.value,
@@ -455,7 +442,7 @@ export class Listing extends classes(
   }
 
   changePrice(price: uint64): void {
-    assert(Txn.sender === this.seller.value, ERR_MUST_BE_SELLER)
+    loggedAssert(Txn.sender === this.seller.value, ERR_MUST_BE_SELLER)
     this.price.value = price
   }
 }

@@ -1,4 +1,4 @@
-import { Account, Application, assert, Asset, Bytes, GlobalState, itxn, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { GateMustCheckAbiMethod } from '../../../gates/constants'
@@ -51,7 +51,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): uint64 {
     const sender = getSpendingAccount(wallet)
 
-    assert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, ERR_NOT_ENOUGH_ASSET)
+    loggedAssert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, ERR_NOT_ENOUGH_ASSET)
 
     if (!this.factory.value.address.isOptedIn(Asset(asset))) {
       abiCall<typeof Marketplace.prototype.optIn>({
@@ -143,7 +143,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): uint64 {
     const sender = getSpendingAccount(wallet)
 
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
 
     const prizeBoxTransferTxn = itxn.applicationCall({
       sender,
@@ -219,7 +219,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): void {
     const { origin, sender } = getAccounts(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
 
     const price = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyPrice))[0]
     const paymentAsset = Asset(op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyPaymentAsset))[0])
@@ -329,7 +329,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
 
     abiCall<typeof Listing.prototype.changePrice>({
       sender,
@@ -346,7 +346,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    assert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
 
     abiCall<typeof Listing.prototype.delist>({
       appId,

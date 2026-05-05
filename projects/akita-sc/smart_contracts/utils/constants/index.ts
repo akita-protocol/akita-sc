@@ -7,6 +7,30 @@ export const MAX_PROGRAM_PAGES: uint64 = 400_000
 export const GLOBAL_STATE_KEY_UINT_COST: uint64 = 28_500
 export const GLOBAL_STATE_KEY_BYTES_COST: uint64 = 50_000
 
+/**
+ * Global-state schema reservation for every Akita factory contract. The
+ * AVM caps the total number of global-state slots at 64 (any mix of
+ * uints + bytes), and the schema is frozen at app-create time — you
+ * can't widen it on `UpdateApplication`. Every factory is pinned to
+ * this fixed reservation at deploy time via `@contract({ stateTotals })`,
+ * so future versions can add new global-state fields (bytes- or uint-
+ * typed) without forcing a full redeploy of the factory + every child
+ * app already in use.
+ *
+ * The split is bytes-heavy because complex state (structs, named
+ * escrows, addresses, CIDs, etc.) lives in bytes slots — uint slots
+ * are only used for simple counters and app ID pointers.
+ *
+ * MBR cost per factory (one-time, paid by the creator at deploy):
+ *   56 × 50_000 + 8 × 28_500 = 2_800_000 + 228_000 = 3_028_000 microAlgos
+ *
+ * Changing these values is a breaking change — every future factory
+ * version must declare stateTotals ≥ these numbers, or UpdateApplication
+ * will fail schema validation on-chain.
+ */
+export const FactoryGlobalStateMaxBytes: uint64 = 56
+export const FactoryGlobalStateMaxUints: uint64 = 8
+
 export const Uint64ByteLength: uint64 = 8
 export const AccountLength: uint64 = 32
 

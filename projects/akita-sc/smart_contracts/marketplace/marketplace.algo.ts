@@ -1,20 +1,26 @@
-import { Account, Application, Asset, assert, assertMatch, Bytes, Global, gtxn, itxn, OnCompleteAction, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, Bytes, clone, contract, Global, gtxn, itxn, loggedAssert, OnCompleteAction, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
-import { AkitaDAOEscrowAccountMarketplace } from '../arc58/dao/constants'
 import { ERR_HAS_GATE } from '../social/errors'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
+import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
 import { disbursementCost, gateCheck, getFunder, getPrizeBoxOwner, getWalletIDUsingAkitaDAO, originOrTxnSender, rewardsOptInCost, royalties, splitOptInCount } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { ListingGlobalStateKeyGateID } from './constants'
-import { ERR_NOT_A_LISTING, ERR_PRICE_TOO_LOW } from './errors'
+import { ERR_FAILED_GATE, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_A_LISTING, ERR_PRICE_TOO_LOW } from './errors'
 import type { PrizeBox } from '../prize-box/contract.algo'
 
 // CONTRACT IMPORTS
+import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
 import { Listing } from './listing.algo'
 
 
+@contract({
+  stateTotals: {
+    globalBytes: FactoryGlobalStateMaxBytes,
+    globalUints: FactoryGlobalStateMaxUints
+  }
+})
 export class Marketplace extends FactoryContract {
 
   // BOXES ----------------------------------------------------------------------------------------
@@ -22,11 +28,11 @@ export class Marketplace extends FactoryContract {
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: Application): void {
+  create(version: string, childVersion: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
     this.version.value = version
     this.childContractVersion.value = childVersion
     this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = akitaDAOEscrow
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
   // MARKETPLACE METHODS --------------------------------------------------------------------------
@@ -44,8 +50,8 @@ export class Marketplace extends FactoryContract {
     proof: Proof
   ): uint64 {
     /** lowest split is 4 */
-    assert(price >= 4, ERR_PRICE_TOO_LOW)
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(price >= 4, ERR_PRICE_TOO_LOW)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
     const isAlgoPayment = paymentAsset === 0
     const optinMBR: uint64 = isAlgoPayment
@@ -69,7 +75,7 @@ export class Marketplace extends FactoryContract {
     // Cost to opt akita escrow into payment asset (if not already opted in)
     const escrowOptInCost: uint64 = isAlgoPayment
       ? 0
-      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, Asset(paymentAsset))
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, Asset(paymentAsset))
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const totalMBR: uint64 = (
@@ -80,25 +86,13 @@ export class Marketplace extends FactoryContract {
     )
 
     // ensure they paid enough to cover the contract mint + mbr costs
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     // make sure they actually send the asset they want to sell
-    assertMatch(
-      assetXfer,
-      {
-        sender: Txn.sender,
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: { greaterThan: 0 },
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(assetXfer.sender === Txn.sender, ERR_INVALID_PAYMENT)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_PAYMENT)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
@@ -173,8 +167,8 @@ export class Marketplace extends FactoryContract {
       })
 
       // ensure akita escrow is opted into payment asset for fee collection
-      if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(paymentAsset))) {
-        this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountMarketplace, Asset(paymentAsset), 0)
+      if (!this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(paymentAsset))) {
+        this.optAkitaEscrowInAndSend(Asset(paymentAsset), 0)
       }
     }
 
@@ -191,14 +185,14 @@ export class Marketplace extends FactoryContract {
     gateID: uint64,
     marketplace: Account,
   ): uint64 {
-    assert(price >= 4, ERR_PRICE_TOO_LOW)
-    assert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(price >= 4, ERR_PRICE_TOO_LOW)
+    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
 
-    assert((
+    loggedAssert((
       prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
       prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
     ), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
-    assert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
 
     const isAlgoPayment = paymentAsset === 0
     const optinMBR: uint64 = isAlgoPayment
@@ -222,7 +216,7 @@ export class Marketplace extends FactoryContract {
     // Cost to opt akita escrow into payment asset (if not already opted in)
     const escrowOptInCost: uint64 = isAlgoPayment
       ? 0
-      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.address, Asset(paymentAsset))
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, Asset(paymentAsset))
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const totalMBR: uint64 = (
@@ -232,14 +226,8 @@ export class Marketplace extends FactoryContract {
       childAppMBR
     )
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: totalMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
 
     // Read approval program from box storage
     const approvalProgram = this.boxedContract.extract(0, this.boxedContract.length)
@@ -297,8 +285,8 @@ export class Marketplace extends FactoryContract {
       })
 
       // ensure akita escrow is opted into payment asset for fee collection
-      if (!this.akitaDAOEscrow.value.address.isOptedIn(Asset(paymentAsset))) {
-        this.optAkitaEscrowInAndSend(AkitaDAOEscrowAccountMarketplace, Asset(paymentAsset), 0)
+      if (!this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(paymentAsset))) {
+        this.optAkitaEscrowInAndSend(Asset(paymentAsset), 0)
       }
     }
 
@@ -314,14 +302,10 @@ export class Marketplace extends FactoryContract {
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
 
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
     const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID))
-    assertMatch(
-      payment,
-      { receiver: Global.currentApplicationAddress },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
 
     // Get funder info BEFORE purchase call (which deletes the app)
     const { account: creator, amount } = getFunder(appId)
@@ -352,14 +336,10 @@ export class Marketplace extends FactoryContract {
     appId: Application,
     marketplace: Account,
   ): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
     const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
-    assert(gateID === 0, ERR_HAS_GATE)
-    assertMatch(
-      payment,
-      { receiver: Global.currentApplicationAddress },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(gateID === 0, ERR_HAS_GATE)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
 
     // Get funder info BEFORE purchase call (which deletes the app)
     const { account: creator, amount } = getFunder(appId)
@@ -394,17 +374,11 @@ export class Marketplace extends FactoryContract {
     const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
     const origin = originOrTxnSender(wallet)
 
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
     const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
-    assert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID))
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: { greaterThan: 0 },
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
 
     // Get funder info BEFORE purchase call (which deletes the app)
     const { account: receiver, amount } = getFunder(appId)
@@ -433,17 +407,11 @@ export class Marketplace extends FactoryContract {
     appId: Application,
     marketplace: Account,
   ): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
     const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
-    assert(gateID === 0, ERR_HAS_GATE)
-    assertMatch(
-      assetXfer,
-      {
-        assetReceiver: Global.currentApplicationAddress,
-        assetAmount: { greaterThan: 0 },
-      },
-      ERR_INVALID_TRANSFER
-    )
+    loggedAssert(gateID === 0, ERR_HAS_GATE)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
 
     // Get funder info BEFORE purchase call (which deletes the app)
     const { account: receiver, amount } = getFunder(appId)
@@ -468,7 +436,7 @@ export class Marketplace extends FactoryContract {
   }
 
   delist(appId: Application): void {
-    assert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_LISTING)
 
     // Get funder info BEFORE delist call (which deletes the app)
     const { account: receiver, amount } = getFunder(appId)

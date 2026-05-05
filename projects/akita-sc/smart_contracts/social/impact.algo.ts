@@ -1,21 +1,19 @@
-import { Account, Application, assert, assertMatch, Asset, BoxMap, bytes, Bytes, clone, gtxn, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Account, Application, Asset, BoxMap, bytes, Bytes, clone, gtxn, loggedAssert, match, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
 import { AssetHolding, btoi, Global, Txn } from "@algorandfoundation/algorand-typescript/op";
-import { ERR_NOT_AKITA_DAO } from "../errors";
 import { Staking } from "../staking/contract.algo";
-import { STAKING_TYPE_SOFT } from "../staking/types";
+import { Stake, STAKING_TYPE_SOFT } from "../staking/types";
 import { Subscriptions } from "../subscriptions/contract.algo";
 import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/base";
 import { AkitaCollectionsPrefixAKC, AkitaCollectionsPrefixAOG, AkitaNFTCreatorAddress } from "../utils/constants";
 import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDGlobalStateKeysTimeChanged, NFDGlobalStateKeysVersion, NFDMetaKeyVerifiedAddresses, NFDMetaKeyVerifiedDiscord, NFDMetaKeyVerifiedDomain, NFDMetaKeyVerifiedTelegram, NFDMetaKeyVerifiedTwitter } from "../utils/constants/nfd";
-import { ERR_INVALID_PAYMENT } from "../utils/errors";
 import { getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getOtherAppList } from "../utils/functions";
 import { NFD } from "../utils/types/nfd";
 import { NFDRegistry } from "../utils/types/nfd-registry";
-import { ImpactBoxPrefixMeta, ImpactBoxPrefixSubscriptionStateModifier, ImpactMetaMBR, ONE_MILLION_AKITA, ONE_YEAR, SubscriptionStateModifierMBR, TEN_THOUSAND_AKITA, THIRTY_DAYS, TWO_HUNDRED_THOUSAND_AKITA } from "./constants";
+import { ImpactBoxPrefixMeta, ImpactBoxPrefixSubscriptionStateModifier, ImpactMetaMBR, ONE_MILLION_AKITA, ONE_YEAR, SubscriptionStateModifierMBR, TEN_THOUSAND_AKITA, THIRTY_DAYS, TWO_HUNDRED_THOUSAND_AKITA, TWO_YEARS } from "./constants";
 import type { AkitaSocial } from "./contract.algo";
-import { ERR_INVALID_NFD, ERR_NFD_CHANGED, ERR_NOT_A_SUBSCRIPTION, ERR_NOT_AN_AKITA_NFT, ERR_NOT_AN_NFD, ERR_NOT_SOCIAL, ERR_USER_DOES_NOT_OWN_NFD, ERR_USER_DOES_NOT_OWN_NFT } from "./errors";
-import { AkitaSocialImpactMBRData, ImpactMetaValue } from "./types";
+import { ERR_INVALID_NFD, ERR_INVALID_PAYMENT, ERR_NFD_CHANGED, ERR_NOT_A_SUBSCRIPTION, ERR_NOT_AKITA_DAO, ERR_NOT_AN_AKITA_NFT, ERR_NOT_AN_NFD, ERR_NOT_SOCIAL, ERR_USER_DOES_NOT_OWN_NFD, ERR_USER_DOES_NOT_OWN_NFT } from "./errors";
+import { AkitaSocialImpactMBRData, ImpactMetaValue, SocialImpactInputs } from "./types";
 
 export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
@@ -104,6 +102,14 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
   }
 
   private userImpact(account: Account, includeSocial: boolean): uint64 {
+    const socialImpact: uint64 = includeSocial ? this.getSocialImpactScore(account) : 0 // Social Activity | up to 250
+    return this.userImpactWithSocial(account, socialImpact)
+  }
+
+  // Sums all impact components given a pre-computed social impact. Used by both
+  // `userImpact` (which fetches social from main) and `getUserImpactWithInputs`
+  // (which takes inputs from main directly to avoid an extra inner txn hop).
+  private userImpactWithSocial(account: Account, socialImpact: uint64): uint64 {
     // Check if meta box exists for the account, use defaults if not registered
     let subscriptionIndex: uint64 = 0
     let NFD: uint64 = 0
@@ -118,7 +124,6 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
     const stakedAktaImpact = this.getStakingImpactScore(account) // Staked AKTA | up to 250
     const subscriberImpact = this.getSubscriberImpactScore(account, subscriptionIndex) // Akita Subscriber | up to 250
-    const socialImpact: uint64 = includeSocial ? this.getSocialImpactScore(account) : 0 // Social Activity | up to 250
     const nfdScore: uint64 = NFD !== 0 ? this.getNFDImpactScore(account, Application(NFD)) : 0 // NFD | up to 150
     const heldAkitaImpact = this.getHeldAktaImpactScore(account) // Held AKTA | up to 50
     const nftImpact: uint64 = akitaNFT !== 0 ? this.getNFTImpactScore(account, Asset(akitaNFT)) : 0 // Holds AKC/Omnigem | 50
@@ -131,26 +136,54 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     return total
   }
 
-  private getStakingImpactScore(account: Account): uint64 {
-    // - Staked AKTA | up to 250
-    const akta = getAkitaAssets(this.akitaDAO.value).akta
-
-    // If AKTA asset is not configured, return 0
-    if (akta === 0) {
+  // Computes the social-activity impact score (up to 250) from raw inputs.
+  // Pure arithmetic — reads no state — so it can be safely called with inputs
+  // supplied by the main social contract.
+  private calculateSocialImpact(inputs: SocialImpactInputs): uint64 {
+    if (!inputs.hasMeta) {
       return 0
     }
 
-    const info = abiCall<typeof Staking.prototype.getInfo>({
-      appId: getAkitaAppList(this.akitaDAO.value).staking,
-      args: [
-        account,
-        {
-          asset: akta,
-          type: STAKING_TYPE_SOFT,
-        }
-      ]
-    }).returnValue
+    let socialImpact: uint64 = 0
 
+    // Streak component (up to 100)
+    if (inputs.streak >= 60) {
+      socialImpact += 100
+    } else {
+      socialImpact += (inputs.streak * 100) / 60
+    }
+
+    // Longevity component (up to 75) — proportional to account age up to 2 years
+    const accountAge: uint64 = Global.latestTimestamp - inputs.startDate
+    if (accountAge >= TWO_YEARS) {
+      socialImpact += 75
+    } else {
+      socialImpact += (accountAge * 75) / TWO_YEARS
+    }
+
+    // Vote-based component (up to 75) — caps at 100k votes
+    if (inputs.voteCount > 0) {
+      let voteImpact: uint64 = (inputs.voteCount * 75) / 100_000
+      if (voteImpact > 75) {
+        voteImpact = 75
+      }
+
+      if (inputs.isNegative) {
+        // Subtract from socialImpact if the vote total is net negative
+        if (socialImpact > voteImpact) {
+          socialImpact -= voteImpact
+        } else {
+          socialImpact = 0
+        }
+      } else {
+        socialImpact += voteImpact
+      }
+    }
+
+    return socialImpact
+  }
+
+  private calculateStakingImpactScore(info: Stake): uint64 {
     const elapsed: uint64 = Global.latestTimestamp - info.lastUpdate
 
     // if the amount staked is too low or not much time has passed short circuit
@@ -168,6 +201,40 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     const timeCapped = elapsed >= ONE_YEAR ? ONE_YEAR : elapsed
 
     return (timeCapped * maxScore) / ONE_YEAR
+  }
+
+  private getStakingImpactScore(account: Account): uint64 {
+    // - AKTA staked soft or better | up to 250
+    const akta = getAkitaAssets(this.akitaDAO.value).akta
+
+    // If AKTA asset is not configured, return 0
+    if (akta === 0) {
+      return 0
+    }
+
+    const staking = getAkitaAppList(this.akitaDAO.value).staking
+
+    const stakingInfos = clone(abiCall<typeof Staking.prototype.getInfoAtLeast>({
+      appId: staking,
+      args: [
+        account,
+        {
+          asset: akta,
+          type: STAKING_TYPE_SOFT,
+        }
+      ]
+    }).returnValue)
+
+    let totalScore: uint64 = 0
+    for (let i: uint64 = 0; i < stakingInfos.length; i += 1) {
+      totalScore += this.calculateStakingImpactScore(stakingInfos[i])
+    }
+
+    if (totalScore > 250) {
+      return 250
+    }
+
+    return totalScore
   }
 
   private getHeldAktaImpactScore(account: Account): uint64 {
@@ -210,11 +277,17 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     return subscriberImpact
   }
 
+  // Pulls the raw inputs (streak / startDate / vote totals) from the main
+  // social contract and runs the pure `calculateSocialImpact`. External
+  // callers of `getUserImpact` end up here; main-initiated flows should use
+  // `getUserImpactWithInputs` to avoid an additional inner txn hop.
   private getSocialImpactScore(address: Account): uint64 {
-    return abiCall<typeof AkitaSocial.prototype.getUserSocialImpact>({
+    const inputs = abiCall<typeof AkitaSocial.prototype.getSocialImpactInputs>({
       appId: getAkitaSocialAppList(this.akitaDAO.value).social,
       args: [address]
     }).returnValue
+
+    return this.calculateSocialImpact(inputs)
   }
 
   private nfdReadField(NFDApp: Application, field: string): bytes {
@@ -280,8 +353,8 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     const { NFD, nfdTimeChanged, nfdImpact } = this.meta(account).value
     const timeChanged = btoi(op.AppGlobal.getExBytes(NFD, Bytes(NFDGlobalStateKeysTimeChanged))[0])
 
-    assert(NFDApp.id === Application(NFD).id, ERR_INVALID_NFD)
-    assert(nfdTimeChanged === timeChanged, ERR_NFD_CHANGED)
+    loggedAssert(NFDApp.id === Application(NFD).id, ERR_INVALID_NFD)
+    loggedAssert(nfdTimeChanged === timeChanged, ERR_NFD_CHANGED)
 
     return nfdImpact
   }
@@ -311,18 +384,18 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
   // IMPACT METHODS -------------------------------------------------------------------------------
 
   cacheMeta(address: Account, subscriptionIndex: uint64, NFDAppID: uint64, akitaAssetID: uint64): uint64 {
-    assert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).social).address, ERR_NOT_SOCIAL)
+    loggedAssert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).social).address, ERR_NOT_SOCIAL)
 
     if (subscriptionIndex !== 0) {
-      assert(this.isSubscribed(address, subscriptionIndex).active, ERR_NOT_A_SUBSCRIPTION)
+      loggedAssert(this.isSubscribed(address, subscriptionIndex).active, ERR_NOT_A_SUBSCRIPTION)
     }
 
     let nfdTimeChanged: uint64 = 0
     let nfdImpact: uint64 = 0
     if (NFDAppID !== 0) {
       const nfdApp = Application(NFDAppID)
-      assert(this.isNFD(nfdApp), ERR_NOT_AN_NFD)
-      assert(this.addressVerifiedOnNFD(address, nfdApp), ERR_USER_DOES_NOT_OWN_NFD)
+      loggedAssert(this.isNFD(nfdApp), ERR_NOT_AN_NFD)
+      loggedAssert(this.addressVerifiedOnNFD(address, nfdApp), ERR_USER_DOES_NOT_OWN_NFD)
       const [timeChangedBytes] = op.AppGlobal.getExBytes(nfdApp, Bytes(NFDGlobalStateKeysTimeChanged))
       nfdTimeChanged = btoi(timeChangedBytes)
       nfdImpact = this.calcNFDImpactScore(nfdApp)
@@ -330,8 +403,8 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
     if (akitaAssetID !== 0) {
       const akitaNFT = Asset(akitaAssetID)
-      assert(this.isAkitaNFT(akitaNFT), ERR_NOT_AN_AKITA_NFT)
-      assert(this.userHolds(address, akitaNFT), ERR_USER_DOES_NOT_OWN_NFT)
+      loggedAssert(this.isAkitaNFT(akitaNFT), ERR_NOT_AN_AKITA_NFT)
+      loggedAssert(this.userHolds(address, akitaNFT), ERR_USER_DOES_NOT_OWN_NFT)
     }
 
     this.meta(address).value = {
@@ -346,16 +419,18 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
   }
 
   updateSubscriptionStateModifier(payment: gtxn.PaymentTxn, subscriptionIndex: uint64, newModifier: uint64): void {
-    assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
 
     this.subscriptionStateModifier(subscriptionIndex).value = newModifier
 
-    assertMatch(
-      payment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: this.mbr().subscriptionStateModifier
-      },
+    loggedAssert(
+      match(
+        payment,
+        {
+          receiver: Global.currentApplicationAddress,
+          amount: this.mbr().subscriptionStateModifier
+        }
+      ),
       ERR_INVALID_PAYMENT
     )
   }
@@ -371,6 +446,35 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
   @abimethod({ readonly: true })
   getUserImpact(address: Account): uint64 {
     return this.userImpact(address, true)
+  }
+
+  // Called by the main social contract with social-impact inputs it already
+  // has locally (streak, startDate, voteCount, isNegative). Avoids the extra
+  // inner-txn roundtrip that `getUserImpact` would trigger to fetch them.
+  // Only the social contract is allowed to invoke this.
+  @abimethod({ readonly: true })
+  getUserImpactWithInputs(address: Account, inputs: SocialImpactInputs): uint64 {
+    loggedAssert(
+      Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).social).address,
+      ERR_NOT_SOCIAL
+    )
+
+    const socialImpact = this.calculateSocialImpact(inputs)
+    return this.userImpactWithSocial(address, socialImpact)
+  }
+
+  // Pure helper exposed for the main social contract to compute the social
+  // component in isolation (e.g. when initializing meta, the nfd component is
+  // already known but we still need the social delta). Guarded to main only so
+  // that bad inputs can't pollute any cached results.
+  @abimethod({ readonly: true })
+  calculateSocialImpactScore(inputs: SocialImpactInputs): uint64 {
+    loggedAssert(
+      Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).social).address,
+      ERR_NOT_SOCIAL
+    )
+
+    return this.calculateSocialImpact(inputs)
   }
 
   @abimethod({ readonly: true })

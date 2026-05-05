@@ -20,7 +20,7 @@ main_optIn_route@3:
     !
     txn ApplicationID
     &&
-    assert // OnCompletion must be NoOp && can only call when not creating
+    assert
     b optIn
 
 main___algots__.defaultCreate@5:
@@ -31,7 +31,7 @@ main___algots__.defaultCreate@5:
     txn ApplicationID
     !
     &&
-    return // on error: OnCompletion must be NoOp && can only call when creating
+    return
 
 
 // smart_contracts/arc58/plugins/self-optin/contract.algo.ts::SelfOptInPlugin.optIn[routing]() -> void:
@@ -44,7 +44,7 @@ optIn:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     dup
     txna ApplicationArgs 2
@@ -52,7 +52,7 @@ optIn:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
     swap
@@ -61,17 +61,17 @@ optIn:
     cover 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dup
     cover 3
     intc_2 // 8
     *
-    pushint 2 // 2
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint64[])
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
@@ -92,25 +92,27 @@ optIn_while_top@2:
     dup
     dig 3
     <
-    bz optIn_after_while@8
+    bz optIn_after_while@10
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:11
-    // assert(!sender.isOptedIn(Asset(assets[i])), ERR_ALREADY_OPTED_IN)
+    // loggedAssert(!sender.isOptedIn(Asset(assets[i])), ERR_ALREADY_OPTED_IN)
     dig 3
     extract 2 0
     dig 1
-    dup
-    cover 2
     intc_2 // 8
     *
     extract_uint64
     dup
-    bury 9
-    dig 3
+    bury 8
+    dig 2
     swap
     asset_holding_get AssetBalance
     bury 1
-    !
-    assert // already opted in
+    bz optIn_after_assert@5
+    pushbytes "ERR:AOPT"
+    log
+    err // ERR:AOPT
+
+optIn_after_assert@5:
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:13-21
     // itxn
     //   .assetTransfer({
@@ -124,14 +126,15 @@ optIn_while_top@2:
     itxn_begin
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:19
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    dig 3
+    dig 2
     intc_1 // 1
     -
-    <
-    bz optIn_ternary_false@5
+    dig 1
+    >
+    bz optIn_ternary_false@7
     global ZeroAddress
 
-optIn_ternary_merge@6:
+optIn_ternary_merge@8:
     itxn_field RekeyTo
     dig 6
     itxn_field XferAsset
@@ -152,7 +155,7 @@ optIn_ternary_merge@6:
     //     xferAsset: Asset(assets[i]),
     //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
     //   })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -175,19 +178,19 @@ optIn_ternary_merge@6:
     bury 1
     b optIn_while_top@2
 
-optIn_ternary_false@5:
+optIn_ternary_false@7:
     // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
     dig 4
-    bnz optIn_after_if_else@11
+    bnz optIn_after_if_else@13
     // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:19
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    b optIn_ternary_merge@6
+    b optIn_ternary_merge@8
 
-optIn_after_if_else@11:
+optIn_after_if_else@13:
     // smart_contracts/utils/functions.ts:330
     // return wallet.address
     dig 5
@@ -195,9 +198,9 @@ optIn_after_if_else@11:
     assert // application exists
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:19
     // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
-    b optIn_ternary_merge@6
+    b optIn_ternary_merge@8
 
-optIn_after_while@8:
+optIn_after_while@10:
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:7
     // optIn(wallet: Application, rekeyBack: boolean, assets: uint64[]): void {
     intc_1 // 1

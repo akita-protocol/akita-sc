@@ -3,7 +3,7 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { GateSDK, LogicalOperator, Operator } from 'akita-sdk/gates';
-import { AsaMintPluginSDK, newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
+import { AsaMintPluginSDK, newWallet, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../tests/fixtures/abstracted-account';
 import { deployAkitaDAO } from '../../tests/fixtures/dao';
@@ -108,14 +108,14 @@ describe('Gate Contract', () => {
 
     await wallet.addPlugin({
       client: asaMintSdk,
-      global: true,
+      callerType: CallerType.Global,
     });
 
     walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
     expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
 
     const results = await wallet.usePlugin({
-      global: true,
+      callerType: CallerType.Global,
       calls: [
         asaMintSdk.mint({
           assets: [
@@ -983,7 +983,7 @@ describe('Gate Contract', () => {
 
       // Create a second test asset for combination tests
       const results = await wallet.usePlugin({
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [
@@ -1210,7 +1210,7 @@ describe('Gate Contract', () => {
 
       // Create a second test asset for combination tests
       const results = await wallet.usePlugin({
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [
@@ -1418,7 +1418,7 @@ describe('Gate Contract', () => {
 
       // Create additional test assets for complex combination tests
       const results = await wallet.usePlugin({
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           asaMintSdk.mint({
             assets: [

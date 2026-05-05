@@ -1,6 +1,7 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { sendPrepared } from 'akita-sdk';
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao';
 import { SDKClient } from 'akita-sdk/types';
 import { MockAuctionFactoryClient, MockAuctionFactoryFactory } from '../../../../artifacts/mocks/auction-factory/MockAuctionFactoryClient';
@@ -15,7 +16,8 @@ import { MockSubscriptionsClient, MockSubscriptionsFactory } from '../../../../a
 import { AbstractedAccountFactoryFactory } from '../../../../artifacts/arc58/account/AbstractedAccountFactoryClient';
 import { MockAbstractedAccountFactoryClient, MockAbstractedAccountFactoryFactory } from '../../../../artifacts/mocks/wallet-factory/MockAbstractedAccountFactoryClient';
 import { MockAbstractedAccountClient, MockAbstractedAccountFactory } from '../../../../artifacts/mocks/wallet/MockAbstractedAccountClient';
-import { AkitaDaoFactory } from '../../../../artifacts/arc58/dao-deployable/AkitaDAOClient';
+import { AkitaDaoFactory } from '../../../../artifacts/arc58/dao/AkitaDAOClient';
+import { CallerType } from 'akita-sdk/wallet';
 import {
   bootstrapDaoTestContext,
   proposeAndExecute,
@@ -36,7 +38,8 @@ const fixture = algorandFixture();
  * Test ordering:
  * 1. External Contract Upgrades — upgrades each contract to mock (wallet factory does round-trip: mock then back to original)
  * 2. DAO Self-Upgrade — round-trip: upgrades DAO to mock, verifies, restores to original (needs real wallet)
- * 3. Wallet Update — runs last, replaces wallet with mock via rekey migration (needs real DAO + real factory)
+ * 3. Wallet Update — runs last, replaces DAO's wallet bytecode with mock via the dedicated
+ *    `UpdateWallet` proposal type (DAO → factory.updateWallet → wallet.update). One-way.
  */
 describe('ARC58 DAO Upgrade', () => {
   let context: DaoTestContext;
@@ -55,7 +58,7 @@ describe('ARC58 DAO Upgrade', () => {
     const { algorand } = fixture.context;
     const dispenser = await algorand.account.dispenserFromEnvironment();
     // Fund with 50 ALGO to cover upgrade operations
-    await algorand.account.ensureFunded(sender, dispenser, microAlgo(50_000_000n));
+    await algorand.account.ensureFunded(sender, dispenser.addr, microAlgo(50_000_000n));
   };
 
   // External Contract Upgrades — needs real wallet for plugin execution
@@ -104,17 +107,17 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `escrow_upd_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateAkitaDaoEscrowForApp({
             appId: walletFactory!.appId,
-            newEscrow: escrowInfo.id,
+            newEscrow: { name: testEscrow, app: escrowInfo.id },
           }),
         ],
       });
 
-      expect(execution.atcs).toBeDefined();
-      expect(execution.atcs.length).toBeGreaterThan(0);
+      expect(execution.windows).toBeDefined();
+      expect(execution.windows.length).toBeGreaterThan(0);
     });
 
     test('should upgrade WalletFactory to mock and back to original', async () => {
@@ -151,7 +154,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `wf_upg_mock_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -167,7 +170,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(mockExecution.atcs.length),
+        groups: BigInt(mockExecution.windows.length),
       });
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(mockMbr.plugins + mockMbr.executions + 1_000_000n),
@@ -181,7 +184,7 @@ describe('ARC58 DAO Upgrade', () => {
         firstValid: mockExecution.firstValid,
         lastValid: mockExecution.lastValid,
       }]);
-      await mockExecution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(mockExecution.windows[0], wallet.client.algorand.client.algod);
 
       // Verify mock works
       const mockClient = new MockAbstractedAccountFactoryClient({
@@ -217,7 +220,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `wf_upg_restore_${restoreTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -233,7 +236,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(restoreExecution.atcs.length),
+        groups: BigInt(restoreExecution.windows.length),
       });
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(restoreMbr.plugins + restoreMbr.executions + 1_000_000n),
@@ -247,7 +250,7 @@ describe('ARC58 DAO Upgrade', () => {
         firstValid: restoreExecution.firstValid,
         lastValid: restoreExecution.lastValid,
       }]);
-      await restoreExecution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(restoreExecution.windows[0], wallet.client.algorand.client.algod);
     });
 
     test('should verify wallet factory is owned by DAO', async () => {
@@ -291,7 +294,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `af_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -307,7 +310,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -324,7 +327,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockAuctionFactoryClient({
         algorand,
@@ -372,7 +375,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `mp_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -388,7 +391,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -405,7 +408,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockMarketplaceClient({
         algorand,
@@ -453,7 +456,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `rf_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -469,7 +472,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -486,7 +489,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockRaffleFactoryClient({
         algorand,
@@ -534,7 +537,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `pf_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -550,7 +553,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -567,7 +570,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockPollFactoryClient({
         algorand,
@@ -615,7 +618,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `pb_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -631,7 +634,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -648,7 +651,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockPrizeBoxFactoryClient({
         algorand,
@@ -696,7 +699,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `sp_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -712,7 +715,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -729,7 +732,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockStakingPoolFactoryClient({
         algorand,
@@ -777,7 +780,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `sub_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -793,7 +796,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -810,7 +813,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockSubscriptionsClient({
         algorand,
@@ -858,7 +861,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `soc_upg_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -874,7 +877,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(execution.atcs.length),
+        groups: BigInt(execution.windows.length),
       });
       const executionBuffer = 1_000_000n;
       await wallet.client.appClient.fundAppAccount({
@@ -891,7 +894,7 @@ describe('ARC58 DAO Upgrade', () => {
       };
 
       await proposeAndExecute(dao, [upgradeAction]);
-      await execution.atcs[0].submit(wallet.client.algorand.client.algod);
+      await sendPrepared(execution.windows[0], wallet.client.algorand.client.algod);
 
       const mockClient = new MockAkitaSocialClient({
         algorand,
@@ -957,7 +960,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `dao_upg_mock_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -976,7 +979,7 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
         lease: `dao_upg_restore_${restoreTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateApp({
             sender,
@@ -994,7 +997,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(upgradeExecution.atcs.length),
+        groups: BigInt(upgradeExecution.windows.length),
       });
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(upgradeMbr.plugins + upgradeMbr.executions + 1_000_000n),
@@ -1013,7 +1016,7 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(restoreExecution.atcs.length),
+        groups: BigInt(restoreExecution.windows.length),
       });
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(restoreMbr.plugins + restoreMbr.executions + 1_000_000n),
@@ -1031,7 +1034,7 @@ describe('ARC58 DAO Upgrade', () => {
       // --- Phase 3: Execute upgrade, verify mock, then restore ---
 
       // Execute upgrade → DAO becomes mock
-      await upgradeExecution.atcs[0].submit(dao.client.algorand.client.algod);
+      await sendPrepared(upgradeExecution.windows[0], dao.client.algorand.client.algod);
 
       // Verify mock works
       const mockClient = new MockAkitaDaoClient({
@@ -1044,14 +1047,15 @@ describe('ARC58 DAO Upgrade', () => {
       expect(pingResult.return).toBe(1337n);
 
       // Execute restore → DAO becomes original
-      await restoreExecution.atcs[0].submit(dao.client.algorand.client.algod);
+      await sendPrepared(restoreExecution.windows[0], dao.client.algorand.client.algod);
     });
   });
 
-  // Wallet Update — runs last, replaces wallet with mock via rekey migration
-  // Needs real DAO (for proposals + rekeyDao) and real factory
-  describe.skip('Wallet Update', () => {
-    test('should update wallet to MockAbstractedAccount using rekey migration flow', async () => {
+  // Wallet Update — runs last, replaces the DAO's smart wallet with the mock wallet via
+  // the dedicated `UpdateWallet` proposal type. One-way: the wallet is permanently replaced
+  // with the mock since no further plugin executions can run against mock code.
+  describe('Wallet Update', () => {
+    test('should update DAO wallet to MockAbstractedAccount via the UpdateWallet proposal', async () => {
       await ensureSenderFunded();
       const { fixture, dao, sender, signer, daoUpdatePluginSdk, walletFactory } = context;
       const { algorand } = fixture.context;
@@ -1061,7 +1065,10 @@ describe('ARC58 DAO Upgrade', () => {
       const wallet = dao.wallet;
       const daoUpdateSdk = daoUpdatePluginSdk!;
 
-      // Step 1: Upload mock wallet bytecode to factory via updateFactoryChildContract
+      // --- Phase 1: Upload MockAbstractedAccount bytecode to the wallet factory's box ---
+      // `factory.updateWallet()` re-deploys the DAO wallet using bytecode sitting in its own
+      // `boxedContract` box. To swap in the mock wallet, we first transfer the mock bytecode
+      // into that box via the update plugin's `updateFactoryChildContract` method.
       const mockWalletFactory = new MockAbstractedAccountFactory({
         algorand,
         defaultSender: sender,
@@ -1069,7 +1076,7 @@ describe('ARC58 DAO Upgrade', () => {
       });
       const compiledMockWallet = await mockWalletFactory.appFactory.compile();
 
-      // Pre-fund the wallet for the plugin execution
+      // Pre-fund the DAO wallet so it can register the execution key + cover plugin MBR.
       const preFundMbr = await wallet.getMbr({
         escrow: '',
         methodCount: 0n,
@@ -1080,7 +1087,7 @@ describe('ARC58 DAO Upgrade', () => {
         amount: microAlgo(preFundMbr.plugins + preFundMbr.executions + 5_000_000n),
       });
 
-      // Fund the factory for box storage
+      // Fund the factory for its boxedContract MBR (box gets (re)sized to the mock bytecode).
       await algorand.send.payment({
         sender,
         receiver: walletFactory!.client.appAddress,
@@ -1088,13 +1095,14 @@ describe('ARC58 DAO Upgrade', () => {
         signer,
       });
 
+      // Build the plugin execution that pushes mock wallet bytecode into the factory's box.
       const shortTimestamp = Date.now() % 1_000_000;
       const uploadExecution = await wallet.build.usePlugin({
         sender,
         signer,
         lease: `wf_child_${shortTimestamp}`,
         windowSize: 2000n,
-        global: true,
+        callerType: CallerType.Global,
         calls: [
           daoUpdateSdk.updateFactoryChildContract({
             sender,
@@ -1110,12 +1118,13 @@ describe('ARC58 DAO Upgrade', () => {
         escrow: '',
         methodCount: 0n,
         plugin: '',
-        groups: BigInt(uploadExecution.atcs.length),
+        groups: BigInt(uploadExecution.windows.length),
       });
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(uploadMbr.plugins + uploadMbr.executions + 2_000_000n),
       });
 
+      // UpgradeApp proposal registers the execution key on the DAO wallet so the ATC can run.
       const uploadAction: ProposalAction<SDKClient> = {
         type: ProposalActionEnum.UpgradeApp,
         app: walletFactory!.appId,
@@ -1124,34 +1133,36 @@ describe('ARC58 DAO Upgrade', () => {
         firstValid: uploadExecution.firstValid,
         lastValid: uploadExecution.lastValid,
       };
-
       await proposeAndExecute(dao, [uploadAction]);
-      await uploadExecution.atcs[0].submit(wallet.client.algorand.client.algod);
 
-      // Step 2: Rekey DAO to factory address
-      await dao.client.send.rekeyDao({
-        args: { target: walletFactory!.client.appAddress.toString() },
-        extraFee: microAlgo(1_000n),
+      // Submit the ATC — this actually writes the mock wallet bytecode to the factory's box.
+      await sendPrepared(uploadExecution.windows[0], wallet.client.algorand.client.algod);
+
+      // --- Phase 2: Use the UpdateWallet proposal type (dedicated to wallet updates) ---
+      // Executing it calls `DAO.updateWallet()` → `factory.updateWallet(daoWallet)`, which
+      // re-deploys the DAO wallet using the mock bytecode now sitting in the factory's box.
+      //
+      // `executeProposal` is called directly (rather than via the shared `proposeAndExecute`
+      // helper) so we can enable `coverAppCallInnerTransactionFees` + `populateAppCallResources`.
+      // Those are required because UpdateWallet makes two nested inner txns:
+      //   DAO.executeProposal → factory.updateWallet → wallet.update (UpdateApplication).
+      const updateWalletAction: ProposalAction<SDKClient> = { type: ProposalActionEnum.UpdateWallet };
+      const updateCost = await dao.proposalCost({ actions: [updateWalletAction] });
+      await dao.client.appClient.fundAppAccount({ amount: updateCost.total.microAlgo() });
+
+      const { return: updateProposalId } = await dao.newProposal({ actions: [updateWalletAction] });
+      if (updateProposalId === undefined) {
+        throw new Error('Failed to create UpdateWallet proposal');
+      }
+
+      await dao.client.send.executeProposal({
+        args: { proposalId: updateProposalId },
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true,
+        maxFee: microAlgo(1_000_000n),
       });
 
-      // Step 3: Call factory.updateWalletForAdmin(wallet, dao.address) — this rekeys DAO back
-      // Fund the factory for the inner transaction fees
-      await algorand.send.payment({
-        sender,
-        receiver: walletFactory!.client.appAddress,
-        amount: microAlgo(1_000_000n),
-        signer,
-      });
-
-      await walletFactory!.client.send.updateWalletForAdmin({
-        args: {
-          wallet: wallet.client.appId,
-          admin: dao.client.appClient.appAddress.toString(),
-        },
-        extraFee: microAlgo(1_000n),
-      });
-
-      // Verify wallet was updated - call mock's ping()
+      // --- Phase 3: Verify the DAO wallet is now running mock bytecode ---
       const mockClient = new MockAbstractedAccountClient({
         algorand,
         appId: wallet.client.appId,

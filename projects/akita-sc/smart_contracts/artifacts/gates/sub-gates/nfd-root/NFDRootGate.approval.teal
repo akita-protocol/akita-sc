@@ -4,29 +4,29 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 2
-    bytecblock 0x151f7c75 "akita_dao" "registry_cursor"
+    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "ERR:IPAY"
     txn ApplicationID
     bnz main_after_if_else@2
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:22
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:21
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
     intc_1 // 1
     app_global_put
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:25
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:24
     // registrationShape = GlobalState<string>({ initialValue: 'string', key: GateGlobalStateKeyRegistrationShape })
-    pushbytess "registration_shape" "string" // "registration_shape", "string"
+    pushbytess "registration_shape" "string"
     app_global_put
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:27
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:26
     // checkShape = GlobalState<string>({ initialValue: 'uint64', key: GateGlobalStateKeyCheckShape })
-    pushbytess "check_shape" "uint64" // "check_shape", "uint64"
+    pushbytess "check_shape" "uint64"
     app_global_put
 
 main_after_if_else@2:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:18
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:17
     // export class NFDRootGate extends AkitaBaseContract {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@12
     pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0x90d4fa5d 0x33e92c94 0x854dede0 // method "cost(byte[])uint64", method "register(pay,byte[])uint64", method "check(address,uint64,byte[])bool", method "getEntry(uint64)byte[]", method "updateAkitaDAO(uint64)void", method "opUp()void"
@@ -35,13 +35,13 @@ main_after_if_else@2:
     err
 
 main_opUp_route@10:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
 
 main_create_NoOp@12:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:18
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:17
     // export class NFDRootGate extends AkitaBaseContract {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
@@ -51,41 +51,41 @@ main_create_NoOp@12:
 
 // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.create[routing]() -> void:
 create:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:83
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:82
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:85
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:84
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:86
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:85
     // this.akitaDAO.value = Application(akitaDAO)
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:83
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:82
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -93,27 +93,27 @@ create:
 
 // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.cost[routing]() -> void:
 cost:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:91
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:90
     // cost(args: bytes): uint64 {
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:92
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:91
     // return MinNFDRootGateRegistryMBR + (BoxCostPerBox * args.length)
     len
-    pushint 2500 // 2500
+    pushint 2500
     *
-    pushint 5700 // 5700
+    pushint 5700
     +
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:91
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:90
     // cost(args: bytes): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -126,12 +126,12 @@ cost:
 
 // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.register[routing]() -> void:
 register:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:95
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:94
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     txn GroupIndex
     intc_1 // 1
     -
-    dup
+    dupn 2
     gtxns TypeEnum
     intc_1 // pay
     ==
@@ -139,92 +139,79 @@ register:
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:97-104
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: this.cost(args)
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 1
+    swap
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:96
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     gtxns Receiver
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:100
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:97-104
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: this.cost(args)
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    uncover 2
+    bnz register_after_assert@5
+    bytec_3 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+register_after_assert@5:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:97
+    // loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
+    dig 1
     gtxns Amount
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:92
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:91
     // return MinNFDRootGateRegistryMBR + (BoxCostPerBox * args.length)
-    dig 2
+    dig 1
     len
-    pushint 2500 // 2500
+    pushint 2500
     *
-    pushint 5700 // 5700
+    pushint 5700
     +
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:97-104
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: this.cost(args)
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:97
+    // loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:36
+    bnz register_after_assert@7
+    bytec_3 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+register_after_assert@7:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:35
     // const id = this.registryCursor.value
     intc_0 // 0
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:22
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:21
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:36
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:35
     // const id = this.registryCursor.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:37
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:36
     // this.registryCursor.value += 1
     dup
     intc_1 // 1
     +
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:22
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:21
     // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
     bytec_2 // "registry_cursor"
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:37
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:36
     // this.registryCursor.value += 1
     swap
     app_global_put
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:107
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:100
     // this.registry(id).value = String(args)
     itob
     dup
     box_del
     pop
     dup
-    uncover 2
+    dig 2
     box_put
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:95
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:94
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
     bytec_0 // 0x151f7c75
     swap
@@ -237,90 +224,101 @@ register:
 // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.check[routing]() -> void:
 check:
     intc_0 // 0
+    dupn 3
     pushbytes ""
-    dupn 2
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:111
+    dupn 3
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:104
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
     dup
     len
-    pushint 32 // 32
+    pushint 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 3
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:112
-    // assert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
     dup
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:105
+    // loggedAssert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
     len
     intc_2 // 8
     ==
-    assert // Invalid number of arguments
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:113
+    bnz check_after_assert@3
+    pushbytes "ERR:IARG"
+    log
+    err // ERR:IARG
+
+check_after_assert@3:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:106
     // const root = this.registry(registryID).value
-    swap
+    dig 1
     itob
+    dup
+    bury 11
     box_get
     swap
-    cover 2
+    bury 9
     assert // Box must have value
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:114
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:107
     // return this.nfdGate(caller, btoi(args), root)
+    dup
     btoi
-    dupn 2
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:42
+    dup
+    bury 8
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:41
     // const nfdName = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysName))[0]
+    dup
     pushbytes "i.name"
     app_global_get_ex
     pop
-    swap
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:43
+    bury 10
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:42
     // const parentExists = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysParentAppID))[1]
     pushbytes "i.parentAppID"
     app_global_get_ex
     bury 1
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:47-51
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:46-50
     // parentExists &&
     // rootBytes !== nfdName.slice(
     //   nfdName.length - (rootBytes.length + 5),
     //   nfdName.length - 5
     // )
-    bz check_after_if_else@4
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:48-51
+    bz check_after_if_else@7
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:47-50
     // rootBytes !== nfdName.slice(
     //   nfdName.length - (rootBytes.length + 5),
     //   nfdName.length - 5
     // )
-    dupn 2
-    len
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:49
-    // nfdName.length - (rootBytes.length + 5),
-    dig 4
+    dig 8
     dup
-    cover 3
     len
-    pushint 5 // 5
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:48
+    // nfdName.length - (rootBytes.length + 5),
+    dig 11
+    box_len
+    pop
+    pushint 5
     +
     dig 1
     swap
     -
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:48-51
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:47-50
     // rootBytes !== nfdName.slice(
     //   nfdName.length - (rootBytes.length + 5),
     //   nfdName.length - 5
@@ -331,12 +329,12 @@ check:
     dig 2
     swap
     select
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:50
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:49
     // nfdName.length - 5
     dig 1
-    pushint 5 // 5
+    pushint 5
     -
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:48-51
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:47-50
     // rootBytes !== nfdName.slice(
     //   nfdName.length - (rootBytes.length + 5),
     //   nfdName.length - 5
@@ -355,20 +353,21 @@ check:
     swap
     select
     substring3
+    dig 8
     !=
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:47-51
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:46-50
     // parentExists &&
     // rootBytes !== nfdName.slice(
     //   nfdName.length - (rootBytes.length + 5),
     //   nfdName.length - 5
     // )
-    bz check_after_if_else@4
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:53
+    bz check_after_if_else@7
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:52
     // return false
     intc_0 // 0
 
-check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@12:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:111
+check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@15:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:104
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     pushbytes 0x00
     intc_0 // 0
@@ -381,20 +380,31 @@ check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::N
     intc_1 // 1
     return
 
-check_after_if_else@4:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:56-59
+check_after_if_else@7:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:55-58
     // const verified = abiCall<typeof NFDRegistry.prototype.isValidNfdAppId>({
     //   appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
     //   args: [String(nfdName), appID],
     // }).returnValue
     itxn_begin
     // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:57
+    // args: [String(nfdName), appID],
+    dig 8
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 7
+    itob
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:56
     // appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:57
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:56
     // appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
     app_global_get_ex
     assert // check GlobalState exists
@@ -403,22 +413,12 @@ check_after_if_else@4:
     pushbytes "oal"
     app_global_get_ex
     pop
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:57
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:56
     // appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
     intc_2 // 8
     extract_uint64
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:58
-    // args: [String(nfdName), appID],
-    dig 1
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    dig 3
-    itob
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:56-59
+    itxn_field ApplicationID
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:55-58
     // const verified = abiCall<typeof NFDRegistry.prototype.isValidNfdAppId>({
     //   appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
     //   args: [String(nfdName), appID],
@@ -428,7 +428,6 @@ check_after_if_else@4:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -446,35 +445,35 @@ check_after_if_else@4:
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:61
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:60
     // if (!verified) {
-    bnz check_after_if_else@6
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:62
+    bnz check_after_if_else@9
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:61
     // return false
     intc_0 // 0
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:114
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:107
     // return this.nfdGate(caller, btoi(args), root)
-    b check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@12
+    b check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@15
 
-check_after_if_else@6:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:65-68
+check_after_if_else@9:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:64-67
     // const caAlgoData = abiCall<typeof NFD.prototype.readField>({
     //   appId: appID,
     //   args: [Bytes(NFDMetaKeyVerifiedAddresses)],
     // }).returnValue
     itxn_begin
+    dig 6
+    itxn_field ApplicationID
     pushbytes 0x6c13ede4 // method "readField(byte[])byte[]"
     itxn_field ApplicationArgs
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:67
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:66
     // args: [Bytes(NFDMetaKeyVerifiedAddresses)],
     pushbytes 0x000d762e6361416c676f2e302e6173
     itxn_field ApplicationArgs
-    dig 1
-    itxn_field ApplicationID
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:65-68
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:64-67
     // const caAlgoData = abiCall<typeof NFD.prototype.readField>({
     //   appId: appID,
     //   args: [Bytes(NFDMetaKeyVerifiedAddresses)],
@@ -494,49 +493,49 @@ check_after_if_else@6:
     assert // Bytes has valid prefix
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[])
+    assert // invalid number of bytes for bytes
     extract 6 0
-    bury 8
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:70
+    bury 11
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:69
     // let exists: boolean = false
     intc_0 // 0
-    bury 7
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:71
+    bury 6
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:70
     // for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
     intc_0 // 0
-    bury 6
+    bury 5
 
-check_while_top@7:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:71
+check_while_top@10:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:70
     // for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
-    dig 7
+    dig 10
     len
     dup
-    bury 6
-    dig 6
-    >
-    bz check_after_while@11
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:72
-    // const addr = caAlgoData.slice(i, 32)
+    bury 5
     dig 5
+    >
+    bz check_after_while@14
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:71
+    // const addr = caAlgoData.slice(i, 32)
+    dig 4
     dup
-    dig 6
+    dig 5
     dup
     cover 3
     >=
     dig 2
     swap
     select
-    pushint 32 // 32
+    pushint 32
     dig 2
     >=
-    pushint 32 // 32
+    pushint 32
     uncover 3
     uncover 2
     select
@@ -546,52 +545,52 @@ check_while_top@7:
     dig 2
     swap
     select
-    dig 9
+    dig 12
     cover 2
     substring3
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:73
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:72
     // if (addr === user.bytes) {
-    dig 4
+    dig 3
     ==
-    bz check_after_if_else@10
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:74
+    bz check_after_if_else@13
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:73
     // exists = true
     intc_1 // 1
-    bury 7
-
-check_after_if_else@10:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:71
-    // for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
-    dig 5
-    pushint 32 // 32
-    +
     bury 6
-    b check_while_top@7
 
-check_after_while@11:
-    dig 6
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:114
+check_after_if_else@13:
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:70
+    // for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
+    dig 4
+    pushint 32
+    +
+    bury 5
+    b check_while_top@10
+
+check_after_while@14:
+    dig 5
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:107
     // return this.nfdGate(caller, btoi(args), root)
-    b check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@12
+    b check_after_inlined_smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.nfdGate@15
 
 
 // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts::NFDRootGate.getEntry[routing]() -> void:
 getEntry:
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:117
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:110
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:119
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:112
     // return Bytes(this.registry(registryID).value)
     itob
     box_get
     assert // Box must have value
-    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:117
+    // smart_contracts/gates/sub-gates/nfd-root/contract.algo.ts:110
     // @abimethod({ readonly: true })
     dup
     len
@@ -609,45 +608,50 @@ getEntry:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    pushbytes "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_1 // 1
     return

@@ -91,8 +91,7 @@
       ]
     },
     "26": {
-      "error": "OnCompletion must be NoOp && can only call when not creating",
-      "op": "assert // OnCompletion must be NoOp && can only call when not creating",
+      "op": "assert",
       "stack_out": []
     },
     "27": {
@@ -150,8 +149,7 @@
       ]
     },
     "37": {
-      "error": "OnCompletion must be NoOp && can only call when creating",
-      "op": "return // on error: OnCompletion must be NoOp && can only call when creating",
+      "op": "return",
       "defined_out": [],
       "stack_out": []
     },
@@ -178,7 +176,7 @@
       ]
     },
     "42": {
-      "op": "pushint 8 // 8",
+      "op": "pushint 8",
       "defined_out": [
         "8",
         "len%0#0"
@@ -198,8 +196,8 @@
       ]
     },
     "45": {
-      "error": "invalid number of bytes for uint64",
-      "op": "assert // invalid number of bytes for uint64",
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": []
     },
     "46": {
@@ -223,7 +221,7 @@
       ]
     },
     "50": {
-      "op": "pushint 0 // 0",
+      "op": "pushint 0",
       "defined_out": [
         "0",
         "tmp%2#0",
@@ -236,7 +234,8 @@
       ]
     },
     "52": {
-      "op": "extract_uint16",
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
         "aggregate%array_length%0#0",
         "tmp%2#0"
@@ -247,7 +246,7 @@
       ]
     },
     "53": {
-      "op": "pushint 2 // 2",
+      "op": "pushint 2",
       "defined_out": [
         "2",
         "aggregate%array_length%0#0",
@@ -298,8 +297,8 @@
       ]
     },
     "59": {
-      "error": "invalid number of bytes for (len+uint8[])",
-      "op": "assert // invalid number of bytes for (len+uint8[])",
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": []
     },
     "60": {
@@ -316,7 +315,7 @@
       "stack_out": []
     },
     "101": {
-      "op": "pushint 1 // 1",
+      "op": "pushint 1",
       "defined_out": [
         "1"
       ],

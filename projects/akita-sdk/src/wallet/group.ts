@@ -1,15 +1,13 @@
 import type { WalletSDK } from './index'
 import { AbstractedAccountArgs, AbstractedAccountComposer, PluginKey } from '../generated/AbstractedAccountClient'
-import { AddAllowanceArgs, AddPluginArgs, WalletAddPluginParams, WalletUsePluginParams } from './types'
+import { AddAllowanceArgs, AddPluginArgs, CallerType, WalletAddPluginParams, WalletUsePluginParams } from './types'
 import { AllowancesToTuple } from './utils'
 import { NewEscrowFeeAmount } from './constants'
-import { isPluginSDKReturn, MaybeSigner, SDKClient, GroupReturn, ExpandedSendParams } from '../types'
+import { isPluginSDKReturn, MaybeSigner, SDKClient, GroupReturn, ExpandedSendParams, normalizeSigner } from '../types'
 import { MAX_UINT64 } from '../constants'
-import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount'
-import { SendParams } from '@algorandfoundation/algokit-utils/types/transaction'
-import { prepareGroupWithCost } from '../simulate/prepare'
+import { SendParams } from '@algorandfoundation/algokit-utils/transaction'
 
 type ContractArgs = AbstractedAccountArgs["obj"]
 
@@ -38,7 +36,7 @@ export class WalletGroupComposer {
     return {
       ...this.wallet.sendParams,
       ...(sender !== undefined && { sender }),
-      ...(signer !== undefined && { signer }),
+      ...(signer !== undefined && { signer: normalizeSigner(signer) }),
     }
   }
 
@@ -50,18 +48,20 @@ export class WalletGroupComposer {
     this.resolvers.push(async () => {
       const {
         sender, signer, name = '', client, caller: rawCaller,
-        global = false, methods = [], escrow = '', admin = false,
+        callerType = CallerType.Other, methods = [], escrow = '', admin = false,
         delegationType = 0n, lastValid = MAX_UINT64, cooldown = 0n,
         useRounds = false, useExecutionKey = false, coverFees = false,
         canReclaim = true, defaultToEscrow = false, allowances = []
-      } = params as WalletAddPluginParams<TClient> & { caller?: string; global?: boolean }
+      } = params as WalletAddPluginParams<TClient> & { caller?: string; callerType?: bigint }
 
       let caller = rawCaller
       const sendParams = this.getSendParams({ sender, signer })
       const plugin = client.appId
 
-      if (global) {
+      if (callerType === CallerType.Global) {
         caller = ALGORAND_ZERO_ADDRESS_STRING
+      } else if (callerType === CallerType.Admin) {
+        caller = algosdk.getApplicationAddress(this.wallet.appId).toString()
       }
 
       // Transform methods
@@ -166,10 +166,15 @@ export class WalletGroupComposer {
 
   usePlugin(params: WalletUsePluginParams): this {
     this.resolvers.push(async () => {
+      // Build the plugin rekey + plugin calls in a temp group, then merge into
+      // the main group via utils10's native `addTransactionComposer`. No legacy
+      // ATC bridge needed — the temp composer's params flow straight into the
+      // main composer, which simulates once at send() time and covers inner
+      // transaction fees across the whole group.
       const { group: tempGroup } = await this.wallet.prepareUsePlugin(params)
-      const atc = (await (await tempGroup.composer()).build()).atc
+      const tempComposer = await tempGroup.composer()
       const mainComposer = await this.group.composer()
-      mainComposer.addAtc(atc)
+      mainComposer.addTransactionComposer(tempComposer)
     })
     return this
   }
@@ -241,7 +246,7 @@ export class WalletGroupComposer {
     return this
   }
 
-  canCall({ sender, signer, ...args }: ContractArgs['arc58_canCall(uint64,bool,address,string,byte[4])bool'] & MaybeSigner): this {
+  canCall({ sender, signer, ...args }: ContractArgs['arc58_canCall(uint64,uint64,address,string,byte[4])bool'] & MaybeSigner): this {
     this.resolvers.push(async () => {
       this.group.arc58CanCall({ ...this.getSendParams({ sender, signer }), args })
     })
@@ -325,42 +330,36 @@ export class WalletGroupComposer {
       await resolver()
     }
 
-    // Build the ATC from the composed group
-    const built = await (await this.group.composer()).build()
-    const atc = built.atc
-    const length = built.transactions.length
-
-    // Get suggested params for fee calculation
+    // Ensure every queued app call has a maxFee cap. utils10's inner-fee
+    // distribution requires one when `coverAppCallInnerTransactionFees` is
+    // enabled; without it `analyzeGroupRequirements` throws. We mutate the
+    // composer's internal `txns` array directly (same shape it reads in
+    // `getLogicalMaxFee`) rather than threading a maxFee default through
+    // every resolver and through `prepareUsePlugin`'s sub-group builder.
+    //
+    // minFee * 272 matches the factory cap — plenty of headroom for the
+    // deepest plugin call chain. Only set when missing so explicit per-call
+    // maxFees (e.g. user overrides) are preserved.
     const suggestedParams = await this.wallet.client.algorand.getSuggestedParams()
-
-    // Set max fees for all transactions to allow prepareGroupWithCost to work
-    const maxFees = new Map<number, AlgoAmount>(
-      Array.from({ length }, (_, i) => [i, microAlgo(BigInt(suggestedParams.minFee) * 272n)])
-    )
-
-    // Use prepareGroupWithCost to simulate the group, populate resources,
-    // and calculate exact fees for inner transactions
-    const { atc: populatedAtc } = await prepareGroupWithCost(
-      atc,
-      this.wallet.client.algorand.client.algod,
-      {
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true
-      },
-      {
-        maxFees,
-        suggestedParams
+    const MAX_SIM_FEE = microAlgo(BigInt(suggestedParams.minFee) * 272n)
+    const composer = await this.group.composer()
+    const internalTxns = (composer as unknown as {
+      txns: Array<{ type: string; data: { maxFee?: typeof MAX_SIM_FEE } }>
+    }).txns
+    for (const ctxn of internalTxns) {
+      if (ctxn.type === 'appCall' && ctxn.data.maxFee === undefined) {
+        ctxn.data.maxFee = MAX_SIM_FEE
       }
-    )
+    }
 
-    // Strip flags already handled by prepareGroupWithCost so AlgoKit doesn't
-    // try to handle them a second time (which would require maxFee on every txn)
-    const { coverAppCallInnerTransactionFees, populateAppCallResources, ...sendParams } = params ?? {} as any
-
-    // Send the prepared atomic group
-    const result = await this.wallet.client.algorand.newGroup()
-      .addAtc(populatedAtc)
-      .send(sendParams) as unknown as GroupReturn
+    // Single simulate + send via utils10 native path. Flags default to true
+    // (populate resources, cover inner fees) unless the caller explicitly
+    // disables them via `params`.
+    const result = await composer.send({
+      ...params,
+      populateAppCallResources: params?.populateAppCallResources ?? true,
+      coverAppCallInnerTransactionFees: params?.coverAppCallInnerTransactionFees ?? true,
+    }) as unknown as GroupReturn
 
     // Run post-processors (register escrows, update caches)
     for (const postProcessor of this.postProcessors) {

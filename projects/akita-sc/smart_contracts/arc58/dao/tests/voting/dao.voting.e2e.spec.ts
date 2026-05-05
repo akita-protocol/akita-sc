@@ -1,12 +1,11 @@
 import { algo, microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
-import { EMPTY_CID, ProposalActionEnum } from 'akita-sdk/dao';
-import { AkitaDaoDeployableSDK } from 'akita-sdk/dao-deployable';
+import { AkitaDaoSDK, EMPTY_CID, ProposalActionEnum } from 'akita-sdk/dao';
 import { WalletFactorySDK } from 'akita-sdk/wallet';
 import type { TransactionSigner } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../../../tests/fixtures/abstracted-account';
-import { deployAkitaDAO } from '../../../../../tests/fixtures/dao';
+import { deployAkitaDAO, deployAkitaDAOProposalValidator } from '../../../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../../../tests/fixtures/escrow';
 import { deployStaking } from '../../../../../tests/fixtures/staking';
 import { logger } from '../../../../../tests/utils/logger';
@@ -74,7 +73,7 @@ describe('ARC58 DAO Voting', () => {
     let sender: string;
     let signer: TransactionSigner;
     let escrowFactory: EscrowFactoryClient;
-    let dao: AkitaDaoDeployableSDK;
+    let dao: AkitaDaoSDK;
     let walletFactory: WalletFactorySDK;
     let staking: StakingClient;
 
@@ -116,12 +115,20 @@ describe('ARC58 DAO Voting', () => {
         // Deploy escrow factory
         escrowFactory = await deployEscrowFactory({ fixture, sender, signer });
 
+        // Deploy the proposal validator BEFORE the DAO — its appId is baked
+        // into the DAO's `otherAppList` at `create()` time and every
+        // `newProposal` call delegates to it via `abiCall`.
+        const proposalValidator = await deployAkitaDAOProposalValidator({ fixture, sender, signer });
+
         // Deploy DAO
         dao = await deployAkitaDAO({
             fixture,
             sender,
             signer,
-            apps: { escrow: escrowFactory.appId },
+            apps: {
+                escrow: escrowFactory.appId,
+                daoProposalValidator: proposalValidator.appId,
+            },
         });
 
         // Fund DAO reader account
@@ -145,7 +152,7 @@ describe('ARC58 DAO Voting', () => {
             unitName: 'AKTA',
             defaultFrozen: false,
         });
-        aktaAssetId = BigInt(aktaResult.confirmation.assetIndex!);
+        aktaAssetId = aktaResult.assetId;
 
         // Create Bones governance token
         const bonesResult = await algorand.send.assetCreate({
@@ -157,7 +164,7 @@ describe('ARC58 DAO Voting', () => {
             unitName: 'BONES',
             defaultFrozen: false,
         });
-        bonesAssetId = BigInt(bonesResult.confirmation.assetIndex!);
+        bonesAssetId = bonesResult.assetId;
 
         // Fund staking contract to cover inner transaction fees
         await algorand.account.ensureFunded(staking.appAddress, dispenser, algo(1));
@@ -338,8 +345,8 @@ describe('ARC58 DAO Voting', () => {
             // Stake Akta + Bones with LOCK type for voter1 (1 year lock)
             const stakeAmount = 50_000_000_000n; // 50,000 tokens
             // Use blockchain timestamp instead of Date.now() since localnet timestamp differs from wall-clock time
-            const status = await algorand.client.algod.status().do();
-            const block = await algorand.client.algod.block(status.lastRound).do();
+            const status = await algorand.client.algod.status();
+            const block = await algorand.client.algod.block(status.lastRound);
             const blockTimestamp = BigInt(block.block.header.timestamp);
             const expiration = blockTimestamp + BigInt(ONE_YEAR);
 
@@ -427,8 +434,8 @@ describe('ARC58 DAO Voting', () => {
             // Stake for the sender to have voting power
             const stakeAmount = 10_000_000_000n; // 10,000 tokens
             // Use blockchain timestamp instead of Date.now() since localnet timestamp differs from wall-clock time
-            const status = await algorand.client.algod.status().do();
-            const block = await algorand.client.algod.block(status.lastRound).do();
+            const status = await algorand.client.algod.status();
+            const block = await algorand.client.algod.block(status.lastRound);
             const blockTimestamp = BigInt(block.block.header.timestamp);
             const expiration = blockTimestamp + BigInt(ONE_YEAR);
 
@@ -755,8 +762,8 @@ describe('ARC58 DAO Voting', () => {
             // Setup voter2 with a different stake amount (smaller than voter1)
             const stakeAmount2 = 25_000_000_000n; // 25,000 tokens (half of voter1's 50,000)
             // Use blockchain timestamp instead of Date.now() since localnet timestamp differs from wall-clock time
-            const status = await algorand.client.algod.status().do();
-            const block = await algorand.client.algod.block(status.lastRound).do();
+            const status = await algorand.client.algod.status();
+            const block = await algorand.client.algod.block(status.lastRound);
             const blockTimestamp = BigInt(block.block.header.timestamp);
             const expiration2 = blockTimestamp + BigInt(ONE_YEAR);
 
@@ -930,8 +937,8 @@ describe('ARC58 DAO Voting', () => {
                 amount: 100_000_000_000n, // 100,000 BONES
             });
 
-            const status = await algorand.client.algod.status().do();
-            const block = await algorand.client.algod.block(status.lastRound).do();
+            const status = await algorand.client.algod.status();
+            const block = await algorand.client.algod.block(status.lastRound);
             const blockTimestamp = BigInt(block.block.header.timestamp);
             const expiration = blockTimestamp + BigInt(ONE_YEAR);
 
@@ -1075,8 +1082,8 @@ describe('ARC58 DAO Voting', () => {
             });
 
             // Get the current round's timestamp just before voting - this matches what Global.latestTimestamp will see
-            const preVote3Status = await algorand.client.algod.status().do();
-            const preVote3Block = await algorand.client.algod.block(preVote3Status.lastRound).do();
+            const preVote3Status = await algorand.client.algod.status();
+            const preVote3Block = await algorand.client.algod.block(preVote3Status.lastRound);
             const voter3Timestamp = BigInt(preVote3Block.block.header.timestamp);
 
             const voter3VoteResult = await dao.voteProposal({
@@ -1110,8 +1117,8 @@ describe('ARC58 DAO Voting', () => {
             });
 
             // Get the current round's timestamp just before voting - this matches what Global.latestTimestamp will see
-            const preVote4Status = await algorand.client.algod.status().do();
-            const preVote4Block = await algorand.client.algod.block(preVote4Status.lastRound).do();
+            const preVote4Status = await algorand.client.algod.status();
+            const preVote4Block = await algorand.client.algod.block(preVote4Status.lastRound);
             const voter4Timestamp = BigInt(preVote4Block.block.header.timestamp);
 
             await dao.voteProposal({
@@ -1138,4 +1145,3 @@ describe('ARC58 DAO Voting', () => {
         });
     });
 });
-

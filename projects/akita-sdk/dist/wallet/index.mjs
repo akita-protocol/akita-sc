@@ -2,6 +2,7 @@ import {
   AddPluginDefaults,
   AsaMintPluginSDK,
   AuctionPluginSDK,
+  CallerType,
   DAOPluginSDK,
   DualStakePluginSDK,
   GatePluginSDK,
@@ -22,7 +23,9 @@ import {
   StakingPluginSDK,
   StakingPoolPluginSDK,
   SubscriptionsPluginSDK,
+  SunsetPluginSDK,
   UpdateAkitaDAOPluginSDK,
+  WALLET_ERROR_MESSAGES,
   WalletFactorySDK,
   WalletGroupComposer,
   WalletSDK,
@@ -31,17 +34,20 @@ import {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  newWallet
-} from "../chunk-3TAJZ3DL.mjs";
-import "../chunk-ZRCAYT2V.mjs";
-import "../chunk-KDI5GHOT.mjs";
-import "../chunk-M2DDWZUM.mjs";
-import "../chunk-V3TNOMIB.mjs";
-import "../chunk-BJTO5JO5.mjs";
+  newWallet,
+  parseWalletErrorCode,
+  translateWalletError
+} from "../chunk-BLFSBOWL.mjs";
+import "../chunk-2ZPJXFUS.mjs";
+import "../chunk-5F555WJV.mjs";
+import "../chunk-JNYFBSSA.mjs";
+import "../chunk-X7YBMTJD.mjs";
+import "../chunk-RFJII2P3.mjs";
 export {
   AddPluginDefaults,
   AsaMintPluginSDK,
   AuctionPluginSDK,
+  CallerType,
   DAOPluginSDK,
   DualStakePluginSDK,
   GatePluginSDK,
@@ -62,7 +68,9 @@ export {
   StakingPluginSDK,
   StakingPoolPluginSDK,
   SubscriptionsPluginSDK,
+  SunsetPluginSDK,
   UpdateAkitaDAOPluginSDK,
+  WALLET_ERROR_MESSAGES,
   WalletFactorySDK,
   WalletGroupComposer,
   WalletSDK,
@@ -71,6 +79,8 @@ export {
   isFlatAllowance,
   isValidPluginSDK,
   isWindowAllowance,
-  newWallet
+  newWallet,
+  parseWalletErrorCode,
+  translateWalletError
 };
 //# sourceMappingURL=index.mjs.map

@@ -4,19 +4,19 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 32 34900 222200 68200
-    bytecblock "akita_dao" "o" "aal" "p" 0x151f7c75 0x14 0x0a 0x2bf3cc5a "h" 0x1e 0x0000 0x3c "offer_cursor" 0x28 "pal" 0x80 "version" 0xa24c067c 0x0001 "wallet"
-    // smart_contracts/hyper-swap/contract.algo.ts:22
+    bytecblock "akita_dao" "o" "ERR:IPAY" "" "ERR:NOFR" "ERR:ISTE" "aal" "p" 0x151f7c75 0x14 0x0a 0x0020 0x2bf3cc5a "ERR:OFEX" "ERR:NPRT" "h" 0x1e 0x0000 0x3c "offer_cursor" "ERR:CVLF" "ERR:IXFR" 0x28 "ERR:RNOI" "pal" "version" 0xa24c067c "ERR:LAES" "ERR:LNES" 0x0001 "wallet" "ERR:NDAO"
+    // smart_contracts/hyper-swap/contract.algo.ts:40
     // export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContract, ContractWithOptIn) {
     pushbytes 0xea9180dd // method "update(string)void"
     txna ApplicationArgs 0
     match main_update_route@4
 
 main_switch_case_next@5:
-    // smart_contracts/hyper-swap/contract.algo.ts:22
+    // smart_contracts/hyper-swap/contract.algo.ts:40
     // export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContract, ContractWithOptIn) {
     txn OnCompletion
     !
-    assert // OnCompletion must be NoOp
+    assert
     txn ApplicationID
     bz main_create_NoOp@21
     pushbytess 0x0db3a44b 0xbde1a11e 0xd85febdd 0x466f871a 0x566a62b2 0x0c7ab42e 0x0631868b 0x683bb678 0xd3ee04f0 0x394eaeb2 0x33e92c94 0x854dede0 0x840733dd // method "offer(pay,byte[32],uint64,byte[32],uint64,uint64)void", method "accept(pay,uint64,byte[32][])void", method "escrow(pay,uint64,address,uint64,byte[32][])void", method "escrowAsa(pay,axfer,uint64,address,uint64,uint64,byte[32][])void", method "disburse(uint64,uint64,address,uint64,uint64)void", method "cancel(uint64,byte[32][])void", method "withdraw(uint64,address,uint64,uint64,byte[32][])void", method "cleanupParticipant(uint64,address)void", method "cleanupOffer(uint64)void", method "optIn(pay,uint64)void", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr()(uint64,uint64,uint64,(uint64,uint64))"
@@ -33,13 +33,13 @@ main_mbr_route@19:
     return
 
 main_opUp_route@18:
-    // smart_contracts/utils/base-contracts/base.ts:43
+    // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
 
 main_create_NoOp@21:
-    // smart_contracts/hyper-swap/contract.algo.ts:22
+    // smart_contracts/hyper-swap/contract.algo.ts:40
     // export class HyperSwap extends classes(BaseHyperSwap, UpgradeableAkitaBaseContract, ContractWithOptIn) {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
@@ -47,61 +47,61 @@ main_create_NoOp@21:
     err
 
 main_update_route@4:
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txn OnCompletion
     pushint 4 // UpdateApplication
     ==
     txn ApplicationID
     &&
-    assert // OnCompletion must be UpdateApplication && can only call when not creating
+    assert
     b update
 
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.create[routing]() -> void:
 create:
-    // smart_contracts/hyper-swap/contract.algo.ts:48
+    // smart_contracts/hyper-swap/contract.algo.ts:66
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 16 // "version"
-    // smart_contracts/hyper-swap/contract.algo.ts:50
+    bytec 25 // "version"
+    // smart_contracts/hyper-swap/contract.algo.ts:68
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:51
+    // smart_contracts/hyper-swap/contract.algo.ts:69
     // this.akitaDAO.value = akitaDAO
     swap
     app_global_put
-    // smart_contracts/hyper-swap/contract.algo.ts:27
+    // smart_contracts/hyper-swap/contract.algo.ts:45
     // offerCursor = GlobalState<uint64>({ key: HyperSwapGlobalStateKeyOfferCursor })
-    bytec 12 // "offer_cursor"
-    // smart_contracts/hyper-swap/contract.algo.ts:52
+    bytec 19 // "offer_cursor"
+    // smart_contracts/hyper-swap/contract.algo.ts:70
     // this.offerCursor.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/hyper-swap/contract.algo.ts:48
+    // smart_contracts/hyper-swap/contract.algo.ts:66
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -109,7 +109,8 @@ create:
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.offer[routing]() -> void:
 offer:
-    // smart_contracts/hyper-swap/contract.algo.ts:68-75
+    intc_0 // 0
+    // smart_contracts/hyper-swap/contract.algo.ts:86-93
     // offer(
     //   payment: gtxn.PaymentTxn,
     //   root: bytes<32>,
@@ -127,117 +128,120 @@ offer:
     ==
     assert // transaction type is pay
     txna ApplicationArgs 1
-    dup
+    dupn 2
     len
     dup
+    cover 2
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
+    swap
     txna ApplicationArgs 3
+    dup
+    cover 2
     dup
     len
     dup
+    cover 3
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
+    cover 2
     txna ApplicationArgs 5
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/hyper-swap/contract.algo.ts:76
-    // assert(root !== participantsRoot, ERR_BAD_ROOTS)
-    dig 6
-    dig 4
+    cover 2
+    // smart_contracts/hyper-swap/contract.algo.ts:94
+    // loggedAssert(root !== participantsRoot, ERR_BAD_ROOTS)
     !=
-    assert // root and participantsRoot cannot be the same
-    // smart_contracts/hyper-swap/contract.algo.ts:77
-    // assert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    bnz offer_after_assert@3
+    pushbytes "ERR:BROT"
+    log
+    err // ERR:BROT
+
+offer_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:95
+    // loggedAssert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
     dup
     global LatestTimestamp
     >
-    assert // offer has expired
-    // smart_contracts/hyper-swap/contract.algo.ts:83
+    bnz offer_after_assert@5
+    bytec 13 // "ERR:OFEX"
+    log
+    err // ERR:OFEX
+
+offer_after_assert@5:
+    // smart_contracts/hyper-swap/contract.algo.ts:101
     // const payor = payment.sender
     dig 7
+    dup
     gtxns Sender
-    // smart_contracts/hyper-swap/contract.algo.ts:85-92
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: hyperSwapOfferMBRAmount
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 8
+    bury 10
+    // smart_contracts/hyper-swap/contract.algo.ts:103
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     gtxns Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:88
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:85-92
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: hyperSwapOfferMBRAmount
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    uncover 9
+    bnz offer_after_assert@7
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+offer_after_assert@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:104
+    // loggedAssert(payment.amount === hyperSwapOfferMBRAmount, ERR_INVALID_PAYMENT)
+    dig 7
     gtxns Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:82
+    // smart_contracts/hyper-swap/contract.algo.ts:100
     // const hyperSwapOfferMBRAmount: uint64 = costs.offers + costs.participants + (metaMerklesCost * 2)
     intc 5 // 222200
-    // smart_contracts/hyper-swap/contract.algo.ts:85-92
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: hyperSwapOfferMBRAmount
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    // smart_contracts/hyper-swap/contract.algo.ts:104
+    // loggedAssert(payment.amount === hyperSwapOfferMBRAmount, ERR_INVALID_PAYMENT)
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/hyper-swap/contract.algo.ts:94
+    bnz offer_after_assert@9
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+offer_after_assert@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:106
     // const metaMerklesAppID = getAkitaAppList(this.akitaDAO.value).metaMerkles
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:94
+    // smart_contracts/hyper-swap/contract.algo.ts:106
     // const metaMerklesAppID = getAkitaAppList(this.akitaDAO.value).metaMerkles
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:94
+    // smart_contracts/hyper-swap/contract.algo.ts:106
     // const metaMerklesAppID = getAkitaAppList(this.akitaDAO.value).metaMerkles
-    pushint 72 // 72
+    pushint 72
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:96-107
+    // smart_contracts/hyper-swap/contract.algo.ts:108-119
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -251,17 +255,17 @@ offer:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:100
+    // smart_contracts/hyper-swap/contract.algo.ts:112
     // receiver: Application(metaMerklesAppID).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/hyper-swap/contract.algo.ts:81
+    // smart_contracts/hyper-swap/contract.algo.ts:99
     // const metaMerklesCost: uint64 = costs.mm.root + costs.mm.data
     intc 6 // 68200
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:99-102
+    // smart_contracts/hyper-swap/contract.algo.ts:111-114
     // itxn.payment({
     //   receiver: Application(metaMerklesAppID).address,
     //   amount: metaMerklesCost,
@@ -270,7 +274,7 @@ offer:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:96-107
+    // smart_contracts/hyper-swap/contract.algo.ts:108-119
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -284,18 +288,22 @@ offer:
     //   ],
     // })
     itxn_next
-    // smart_contracts/hyper-swap/contract.algo.ts:103
+    // smart_contracts/hyper-swap/contract.algo.ts:115
     // String(root),
-    uncover 7
+    dig 6
     itob
     extract 6 2
     dig 8
+    dup
+    cover 2
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:105
+    // smart_contracts/hyper-swap/contract.algo.ts:117
     // MerkleTreeTypeTrade
-    pushint 3 // 3
+    pushint 3
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:96-107
+    dig 3
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:108-119
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -308,22 +316,20 @@ offer:
     //     MerkleTreeTypeTrade
     //   ],
     // })
-    bytec 17 // method "addRoot(pay,string,byte[32],uint64)void"
+    bytec 26 // method "addRoot(pay,string,byte[32],uint64)void"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 8
+    dig 1
     itxn_field ApplicationArgs
     dup
     itxn_field ApplicationArgs
-    dig 1
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:110-121
+    // smart_contracts/hyper-swap/contract.algo.ts:122-133
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -337,17 +343,17 @@ offer:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:114
+    // smart_contracts/hyper-swap/contract.algo.ts:126
     // receiver: Application(metaMerklesAppID).address,
-    dig 1
+    dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/hyper-swap/contract.algo.ts:81
+    // smart_contracts/hyper-swap/contract.algo.ts:99
     // const metaMerklesCost: uint64 = costs.mm.root + costs.mm.data
     intc 6 // 68200
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:113-116
+    // smart_contracts/hyper-swap/contract.algo.ts:125-128
     // itxn.payment({
     //   receiver: Application(metaMerklesAppID).address,
     //   amount: metaMerklesCost,
@@ -356,7 +362,7 @@ offer:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:110-121
+    // smart_contracts/hyper-swap/contract.algo.ts:122-133
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -370,14 +376,18 @@ offer:
     //   ],
     // })
     itxn_next
-    // smart_contracts/hyper-swap/contract.algo.ts:117
+    // smart_contracts/hyper-swap/contract.algo.ts:129
     // String(participantsRoot),
-    uncover 5
+    dig 5
     itob
     extract 6 2
-    dig 6
+    dig 7
+    dup
+    cover 2
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:110-121
+    uncover 4
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:122-133
     // abiCall<typeof MetaMerkles.prototype.addRoot>({
     //   appId: metaMerklesAppID,
     //   args: [
@@ -390,47 +400,47 @@ offer:
     //     MerkleTreeTypeTrade
     //   ],
     // })
-    bytec 17 // method "addRoot(pay,string,byte[32],uint64)void"
+    bytec 26 // method "addRoot(pay,string,byte[32],uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    dig 5
+    dup
     itxn_field ApplicationArgs
+    swap
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:41
+    // smart_contracts/hyper-swap/contract.algo.ts:59
     // const id = this.offerCursor.value
     intc_0 // 0
-    // smart_contracts/hyper-swap/contract.algo.ts:27
+    // smart_contracts/hyper-swap/contract.algo.ts:45
     // offerCursor = GlobalState<uint64>({ key: HyperSwapGlobalStateKeyOfferCursor })
-    bytec 12 // "offer_cursor"
-    // smart_contracts/hyper-swap/contract.algo.ts:41
+    bytec 19 // "offer_cursor"
+    // smart_contracts/hyper-swap/contract.algo.ts:59
     // const id = this.offerCursor.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/hyper-swap/contract.algo.ts:42
+    // smart_contracts/hyper-swap/contract.algo.ts:60
     // this.offerCursor.value += 1
     dup
     intc_1 // 1
     +
-    // smart_contracts/hyper-swap/contract.algo.ts:27
+    // smart_contracts/hyper-swap/contract.algo.ts:45
     // offerCursor = GlobalState<uint64>({ key: HyperSwapGlobalStateKeyOfferCursor })
-    bytec 12 // "offer_cursor"
-    // smart_contracts/hyper-swap/contract.algo.ts:42
+    bytec 19 // "offer_cursor"
+    // smart_contracts/hyper-swap/contract.algo.ts:60
     // this.offerCursor.value += 1
     swap
     app_global_put
-    // smart_contracts/hyper-swap/contract.algo.ts:82
+    // smart_contracts/hyper-swap/contract.algo.ts:100
     // const hyperSwapOfferMBRAmount: uint64 = costs.offers + costs.participants + (metaMerklesCost * 2)
     intc 5 // 222200
-    // smart_contracts/hyper-swap/contract.algo.ts:126
+    // smart_contracts/hyper-swap/contract.algo.ts:138
     // this.participants({ id, address: Txn.sender }).value = { payor, amount: hyperSwapOfferMBRAmount }
     itob
-    uncover 2
+    dig 12
     concat
     txn Sender
     uncover 2
@@ -438,19 +448,19 @@ offer:
     dup
     uncover 2
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:126
+    // smart_contracts/hyper-swap/contract.algo.ts:138
     // this.participants({ id, address: Txn.sender }).value = { payor, amount: hyperSwapOfferMBRAmount }
     uncover 2
     box_put
-    // smart_contracts/hyper-swap/contract.algo.ts:130
+    // smart_contracts/hyper-swap/contract.algo.ts:142
     // state: STATE_OFFERED,
-    bytec 6 // 0x0a
-    // smart_contracts/hyper-swap/contract.algo.ts:129-138
+    bytec 10 // 0x0a
+    // smart_contracts/hyper-swap/contract.algo.ts:141-150
     // this.offers(id).value = {
     //   state: STATE_OFFERED,
     //   root,
@@ -461,36 +471,15 @@ offer:
     //   acceptances: 1,
     //   expiration,
     // }
-    uncover 6
+    uncover 3
     concat
-    uncover 5
+    dig 7
     itob
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:133
+    // smart_contracts/hyper-swap/contract.algo.ts:145
     // escrowed: 0,
     intc_0 // 0
-    // smart_contracts/hyper-swap/contract.algo.ts:129-138
-    // this.offers(id).value = {
-    //   state: STATE_OFFERED,
-    //   root,
-    //   leaves,
-    //   escrowed: 0,
-    //   participantsRoot,
-    //   participantsLeaves,
-    //   acceptances: 1,
-    //   expiration,
-    // }
-    itob
-    concat
-    uncover 4
-    concat
-    uncover 3
-    itob
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:136
-    // acceptances: 1,
-    intc_1 // 1
-    // smart_contracts/hyper-swap/contract.algo.ts:129-138
+    // smart_contracts/hyper-swap/contract.algo.ts:141-150
     // this.offers(id).value = {
     //   state: STATE_OFFERED,
     //   root,
@@ -504,14 +493,35 @@ offer:
     itob
     concat
     uncover 2
+    concat
+    dig 3
     itob
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    // smart_contracts/hyper-swap/contract.algo.ts:148
+    // acceptances: 1,
+    intc_1 // 1
+    // smart_contracts/hyper-swap/contract.algo.ts:141-150
+    // this.offers(id).value = {
+    //   state: STATE_OFFERED,
+    //   root,
+    //   leaves,
+    //   escrowed: 0,
+    //   participantsRoot,
+    //   participantsLeaves,
+    //   acceptances: 1,
+    //   expiration,
+    // }
+    itob
+    concat
+    dig 2
+    itob
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
     uncover 2
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:129-138
+    // smart_contracts/hyper-swap/contract.algo.ts:141-150
     // this.offers(id).value = {
     //   state: STATE_OFFERED,
     //   root,
@@ -524,7 +534,7 @@ offer:
     // }
     swap
     box_put
-    // smart_contracts/hyper-swap/contract.algo.ts:68-75
+    // smart_contracts/hyper-swap/contract.algo.ts:86-93
     // offer(
     //   payment: gtxn.PaymentTxn,
     //   root: bytes<32>,
@@ -539,7 +549,11 @@ offer:
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.accept[routing]() -> void:
 accept:
-    // smart_contracts/hyper-swap/contract.algo.ts:148
+    intc_0 // 0
+    dup
+    bytec_3 // ""
+    dupn 3
+    // smart_contracts/hyper-swap/contract.algo.ts:160
     // accept(mbrPayment: gtxn.PaymentTxn, id: uint64, proof: Proof) {
     txn GroupIndex
     intc_1 // 1
@@ -554,68 +568,86 @@ accept:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
+    cover 2
+    dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
-    dig 1
+    swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
-    // smart_contracts/hyper-swap/contract.algo.ts:150
-    // assert(this.offers(id).exists)
-    swap
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    // smart_contracts/hyper-swap/contract.algo.ts:162
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
-    dig 1
+    swap
     concat
     dup
-    cover 4
-    // smart_contracts/hyper-swap/contract.algo.ts:150
-    // assert(this.offers(id).exists)
-    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:162
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:151
+    bnz accept_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+accept_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:163
     // const { state, expiration, participantsRoot, acceptances, participantsLeaves } = this.offers(id).value
     dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dig 1
-    pushint 97 // 97
+    pushint 97
     extract_uint64
-    dig 2
+    bury 9
+    dig 1
     extract 49 32
-    dig 3
-    pushint 89 // 89
+    bury 11
+    dig 1
+    pushint 89
     extract_uint64
-    uncover 4
-    pushint 81 // 81
+    bury 10
+    swap
+    pushint 81
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:153
-    // assert(state === STATE_OFFERED)
-    uncover 4
-    bytec 6 // 0x0a
+    bury 6
+    // smart_contracts/hyper-swap/contract.algo.ts:165
+    // loggedAssert(state === STATE_OFFERED, ERR_INVALID_STATE)
+    bytec 10 // 0x0a
     ==
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:154
-    // assert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    bnz accept_after_assert@5
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+accept_after_assert@5:
+    // smart_contracts/hyper-swap/contract.algo.ts:166
+    // loggedAssert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    dig 6
     global LatestTimestamp
-    uncover 4
-    <
-    assert // offer has expired
-    // smart_contracts/hyper-swap/contract.algo.ts:156-165
+    >
+    bnz accept_after_assert@7
+    bytec 13 // "ERR:OFEX"
+    log
+    err // ERR:OFEX
+
+accept_after_assert@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:168-177
     // const isParticipant = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -627,46 +659,44 @@ accept:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:157
+    // smart_contracts/hyper-swap/contract.algo.ts:171
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/hyper-swap/contract.algo.ts:172
+    // String(participantsRoot),
+    bytec 11 // 0x0020
+    dig 10
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:173
+    // sha256(sha256(Txn.sender.bytes)),
+    txn Sender
+    sha256
+    sha256
+    // smart_contracts/hyper-swap/contract.algo.ts:175
+    // MerkleTreeTypeTrade
+    pushint 3
+    itob
+    // smart_contracts/hyper-swap/contract.algo.ts:169
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:157
+    // smart_contracts/hyper-swap/contract.algo.ts:169
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:157
+    // smart_contracts/hyper-swap/contract.algo.ts:169
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
-    pushint 72 // 72
+    pushint 72
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:159
-    // Global.currentApplicationAddress,
-    global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:160
-    // String(participantsRoot),
-    dig 4
-    len
-    itob
-    extract 6 2
-    uncover 5
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:161
-    // sha256(sha256(Txn.sender.bytes)),
-    txn Sender
-    sha256
-    sha256
-    // smart_contracts/hyper-swap/contract.algo.ts:163
-    // MerkleTreeTypeTrade
-    pushint 3 // 3
-    itob
-    // smart_contracts/hyper-swap/contract.algo.ts:156-165
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:168-177
     // const isParticipant = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -677,7 +707,7 @@ accept:
     //     MerkleTreeTypeTrade
     //   ],
     // }).returnValue
-    bytec 7 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    bytec 12 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
     itxn_field ApplicationArgs
     uncover 3
     itxn_field ApplicationArgs
@@ -685,10 +715,9 @@ accept:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    uncover 6
+    dig 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -699,106 +728,99 @@ accept:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/hyper-swap/contract.algo.ts:167
-    // assert(isParticipant, ERR_NOT_A_PARTICIPANT)
-    assert // not a participant in this swap
-    // smart_contracts/hyper-swap/contract.algo.ts:170
+    // smart_contracts/hyper-swap/contract.algo.ts:179
+    // loggedAssert(isParticipant, ERR_NOT_A_PARTICIPANT)
+    bnz accept_after_assert@10
+    bytec 14 // "ERR:NPRT"
+    log
+    err // ERR:NPRT
+
+accept_after_assert@10:
+    // smart_contracts/hyper-swap/contract.algo.ts:182
     // const senderParticipantKey = { id, address: Txn.sender }
+    dig 1
     txn Sender
-    uncover 4
-    swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:171
-    // assert(!this.participants(senderParticipantKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:183
+    // loggedAssert(!this.participants(senderParticipantKey).exists, ERR_ALREADY_ACCEPTED)
     dup
     extract 0 8
     swap
     extract 8 32
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:171
-    // assert(!this.participants(senderParticipantKey).exists)
     dup
+    bury 11
+    // smart_contracts/hyper-swap/contract.algo.ts:183
+    // loggedAssert(!this.participants(senderParticipantKey).exists, ERR_ALREADY_ACCEPTED)
     box_len
     bury 1
-    !
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:173
+    bz accept_after_assert@12
+    pushbytes "ERR:EACC"
+    log
+    err // ERR:EACC
+
+accept_after_assert@12:
+    // smart_contracts/hyper-swap/contract.algo.ts:185
     // const newAcceptances: uint64 = acceptances + 1
-    uncover 2
+    dig 7
     intc_1 // 1
     +
-    // smart_contracts/hyper-swap/contract.algo.ts:174
-    // this.offers(id).value.acceptances = newAcceptances
     dup
+    bury 7
+    // smart_contracts/hyper-swap/contract.algo.ts:186
+    // this.offers(id).value.acceptances = newAcceptances
     itob
-    uncover 4
-    pushint 89 // 89
+    dig 1
+    pushint 89
     uncover 2
-    box_replace
-    // smart_contracts/hyper-swap/contract.algo.ts:178-185
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: costs.participants
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    box_replace // on error: index out of bounds
+    // smart_contracts/hyper-swap/contract.algo.ts:190
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     dig 3
     gtxns Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:181
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:178-185
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: costs.participants
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    dig 4
+    bnz accept_after_assert@14
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+accept_after_assert@14:
+    // smart_contracts/hyper-swap/contract.algo.ts:191
+    // loggedAssert(mbrPayment.amount === costs.participants, ERR_INVALID_PAYMENT)
+    dig 3
     gtxns Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:182
-    // amount: costs.participants
     intc 4 // 34900
-    // smart_contracts/hyper-swap/contract.algo.ts:178-185
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: costs.participants
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/hyper-swap/contract.algo.ts:189
+    bnz accept_after_assert@16
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+accept_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:195
     // payor: mbrPayment.sender,
-    uncover 3
+    dig 3
     gtxns Sender
-    // smart_contracts/hyper-swap/contract.algo.ts:182
-    // amount: costs.participants
+    // smart_contracts/hyper-swap/contract.algo.ts:191
+    // loggedAssert(mbrPayment.amount === costs.participants, ERR_INVALID_PAYMENT)
     intc 4 // 34900
-    // smart_contracts/hyper-swap/contract.algo.ts:188-191
+    // smart_contracts/hyper-swap/contract.algo.ts:194-197
     // this.participants(senderParticipantKey).value = {
     //   payor: mbrPayment.sender,
     //   amount: costs.participants
@@ -806,22 +828,24 @@ accept:
     itob
     swap
     concat
-    uncover 2
+    dig 10
     swap
     box_put
-    // smart_contracts/hyper-swap/contract.algo.ts:193
+    // smart_contracts/hyper-swap/contract.algo.ts:199
     // if (participantsLeaves === newAcceptances) {
+    dig 4
+    dig 6
     ==
-    bz accept_after_if_else@4
-    // smart_contracts/hyper-swap/contract.algo.ts:194
+    bz accept_after_if_else@18
+    // smart_contracts/hyper-swap/contract.algo.ts:200
     // this.offers(id).value.state = STATE_ESCROWING
     dup
     intc_0 // 0
-    bytec 5 // 0x14
-    box_replace
+    bytec 9 // 0x14
+    box_replace // on error: index out of bounds
 
-accept_after_if_else@4:
-    // smart_contracts/hyper-swap/contract.algo.ts:148
+accept_after_if_else@18:
+    // smart_contracts/hyper-swap/contract.algo.ts:160
     // accept(mbrPayment: gtxn.PaymentTxn, id: uint64, proof: Proof) {
     intc_1 // 1
     return
@@ -829,7 +853,11 @@ accept_after_if_else@4:
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.escrow[routing]() -> void:
 escrow:
-    // smart_contracts/hyper-swap/contract.algo.ts:208
+    intc_0 // 0
+    dupn 2
+    bytec_3 // ""
+    dupn 2
+    // smart_contracts/hyper-swap/contract.algo.ts:214
     // escrow(payment: gtxn.PaymentTxn, id: uint64, receiver: Account, amount: uint64, proof: Proof) {
     txn GroupIndex
     intc_1 // 1
@@ -844,132 +872,165 @@ escrow:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
+    cover 2
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 3
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
+    swap
     txna ApplicationArgs 4
     dup
+    cover 2
+    dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
-    dig 1
+    swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
-    // smart_contracts/hyper-swap/contract.algo.ts:210
-    // assert(this.offers(id).exists)
-    uncover 3
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    // smart_contracts/hyper-swap/contract.algo.ts:216
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
-    dig 1
+    swap
     concat
     dup
-    cover 6
-    // smart_contracts/hyper-swap/contract.algo.ts:210
-    // assert(this.offers(id).exists)
-    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:216
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:211
+    bnz escrow_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+escrow_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:217
     // const { state, root, escrowed, leaves, expiration } = this.offers(id).value
     dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dig 1
     extract 1 32
-    dig 2
-    pushint 41 // 41
+    bury 12
+    dig 1
+    pushint 41
     extract_uint64
-    dig 3
-    pushint 33 // 33
+    bury 11
+    dig 1
+    pushint 33
     extract_uint64
-    uncover 4
-    pushint 97 // 97
+    bury 9
+    swap
+    pushint 97
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:213
-    // assert(state === STATE_ESCROWING, ERR_INVALID_STATE)
-    uncover 4
-    bytec 5 // 0x14
+    bury 9
+    // smart_contracts/hyper-swap/contract.algo.ts:219
+    // loggedAssert(state === STATE_ESCROWING, ERR_INVALID_STATE)
+    bytec 9 // 0x14
     ==
-    assert // wrong state
-    // smart_contracts/hyper-swap/contract.algo.ts:215
-    // assert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    bnz escrow_after_assert@5
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+escrow_after_assert@5:
+    // smart_contracts/hyper-swap/contract.algo.ts:221
+    // loggedAssert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    dig 7
     global LatestTimestamp
     >
-    assert // offer has expired
-    // smart_contracts/hyper-swap/contract.algo.ts:217
+    bnz escrow_after_assert@7
+    bytec 13 // "ERR:OFEX"
+    log
+    err // ERR:OFEX
+
+escrow_after_assert@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:223
     // const senderParticipantKey = { id, address: Txn.sender }
-    dig 4
+    dig 1
     txn Sender
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:218
-    // assert(this.participants(senderParticipantKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:224
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_A_PARTICIPANT)
     dup
     extract 0 8
     swap
     extract 8 32
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:218
-    // assert(this.participants(senderParticipantKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:224
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_A_PARTICIPANT)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:220
+    bnz escrow_after_assert@9
+    bytec 14 // "ERR:NPRT"
+    log
+    err // ERR:NPRT
+
+escrow_after_assert@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:226
     // const hash = sha256(sha256(Bytes`${Txn.sender.bytes}${receiver.bytes}${itob(0)}${itob(amount)}`))
     txn Sender
-    uncover 8
+    dig 5
     concat
     intc_0 // 0
     itob
     concat
-    dig 7
+    dig 4
     itob
     concat
     sha256
     sha256
-    // smart_contracts/hyper-swap/contract.algo.ts:221
+    dup
+    bury 13
+    // smart_contracts/hyper-swap/contract.algo.ts:227
     // const hashKey: HashKey = { id, hash }
-    uncover 5
-    dig 1
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:36
-    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
-    bytec 8 // "h"
+    dig 2
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:222
-    // assert(!this.hashes(hashKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:54
+    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
+    bytec 15 // "h"
+    swap
+    concat
     dup
+    bury 12
+    // smart_contracts/hyper-swap/contract.algo.ts:228
+    // loggedAssert(!this.hashes(hashKey).exists, ERR_LEAF_ALREADY_ESCROWED)
     box_len
     bury 1
-    !
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:224-233
+    bz escrow_after_assert@11
+    bytec 27 // "ERR:LAES"
+    log
+    err // ERR:LAES
+
+escrow_after_assert@11:
+    // smart_contracts/hyper-swap/contract.algo.ts:230-239
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -981,41 +1042,39 @@ escrow:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:225
+    // smart_contracts/hyper-swap/contract.algo.ts:233
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/hyper-swap/contract.algo.ts:234
+    // String(root),
+    bytec 11 // 0x0020
+    dig 11
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:237
+    // MerkleTreeTypeTrade
+    pushint 3
+    itob
+    // smart_contracts/hyper-swap/contract.algo.ts:231
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:225
+    // smart_contracts/hyper-swap/contract.algo.ts:231
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:225
-    // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
-    pushint 72 // 72
-    extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:227
-    // Global.currentApplicationAddress,
-    global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:228
-    // String(root),
-    dig 6
-    len
-    itob
-    extract 6 2
-    uncover 7
-    concat
     // smart_contracts/hyper-swap/contract.algo.ts:231
-    // MerkleTreeTypeTrade
-    pushint 3 // 3
-    itob
-    // smart_contracts/hyper-swap/contract.algo.ts:224-233
+    // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
+    pushint 72
+    extract_uint64
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:230-239
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -1026,18 +1085,17 @@ escrow:
     //     MerkleTreeTypeTrade
     //   ],
     // }).returnValue
-    bytec 7 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    bytec 12 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    uncover 3
+    dig 12
     itxn_field ApplicationArgs
-    uncover 6
+    dig 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1048,68 +1106,56 @@ escrow:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/hyper-swap/contract.algo.ts:235
-    // assert(verified, ERR_CANT_VERIFY_LEAF)
-    assert // cannot verify leaf
-    // smart_contracts/hyper-swap/contract.algo.ts:239-246
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: amount + costs.hashes
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
+    // smart_contracts/hyper-swap/contract.algo.ts:241
+    // loggedAssert(verified, ERR_CANT_VERIFY_LEAF)
+    bnz escrow_after_assert@14
+    bytec 20 // "ERR:CVLF"
+    log
+    err // ERR:CVLF
+
+escrow_after_assert@14:
+    // smart_contracts/hyper-swap/contract.algo.ts:245
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     dig 5
     gtxns Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:242
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:239-246
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: amount + costs.hashes
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    dig 6
+    bnz escrow_after_assert@16
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+escrow_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:246
+    // loggedAssert(payment.amount === amount + costs.hashes, ERR_INVALID_PAYMENT)
+    dig 5
     gtxns Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:243
-    // amount: amount + costs.hashes
-    uncover 6
+    dig 4
     intc 4 // 34900
     +
-    // smart_contracts/hyper-swap/contract.algo.ts:239-246
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: amount + costs.hashes
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    &&
-    assert // Invalid payment
+    bnz escrow_after_assert@18
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+escrow_after_assert@18:
     // smart_contracts/hyper-swap/contract.algo.ts:250
     // payor: payment.sender,
-    uncover 4
+    dig 5
     gtxns Sender
-    // smart_contracts/hyper-swap/contract.algo.ts:243
-    // amount: amount + costs.hashes
+    // smart_contracts/hyper-swap/contract.algo.ts:246
+    // loggedAssert(payment.amount === amount + costs.hashes, ERR_INVALID_PAYMENT)
     intc 4 // 34900
     // smart_contracts/hyper-swap/contract.algo.ts:249-252
     // this.hashes(hashKey).value = {
@@ -1119,33 +1165,36 @@ escrow:
     itob
     swap
     concat
+    dig 11
+    swap
     box_put
     // smart_contracts/hyper-swap/contract.algo.ts:254
     // const newEscrowed: uint64 = escrowed + 1
-    swap
+    dig 8
     intc_1 // 1
     +
     // smart_contracts/hyper-swap/contract.algo.ts:255
     // this.offers(id).value.escrowed = newEscrowed
     dup
     itob
-    uncover 3
-    pushint 41 // 41
+    dig 2
+    pushint 41
     uncover 2
-    box_replace
+    box_replace // on error: index out of bounds
     // smart_contracts/hyper-swap/contract.algo.ts:258
     // if (leaves === newEscrowed) {
+    dig 7
     ==
-    bz escrow_after_if_else@4
+    bz escrow_after_if_else@20
     // smart_contracts/hyper-swap/contract.algo.ts:259
     // this.offers(id).value.state = STATE_DISBURSING
     dup
     intc_0 // 0
-    bytec 9 // 0x1e
-    box_replace
+    bytec 16 // 0x1e
+    box_replace // on error: index out of bounds
 
-escrow_after_if_else@4:
-    // smart_contracts/hyper-swap/contract.algo.ts:208
+escrow_after_if_else@20:
+    // smart_contracts/hyper-swap/contract.algo.ts:214
     // escrow(payment: gtxn.PaymentTxn, id: uint64, receiver: Account, amount: uint64, proof: Proof) {
     intc_1 // 1
     return
@@ -1153,6 +1202,10 @@ escrow_after_if_else@4:
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.escrowAsa[routing]() -> void:
 escrowAsa:
+    intc_0 // 0
+    dupn 2
+    bytec_3 // ""
+    dupn 3
     // smart_contracts/hyper-swap/contract.algo.ts:273-281
     // escrowAsa(
     //   mbrPayment: gtxn.PaymentTxn,
@@ -1164,7 +1217,7 @@ escrowAsa:
     //   proof: Proof
     // ) {
     txn GroupIndex
-    pushint 2 // 2
+    pushint 2
     -
     dup
     gtxns TypeEnum
@@ -1184,146 +1237,172 @@ escrowAsa:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
+    cover 2
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 3
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 2
-    cover 3
+    swap
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 2
-    cover 4
+    swap
     txna ApplicationArgs 5
     dup
+    cover 2
+    dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
-    dig 1
+    swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
     // smart_contracts/hyper-swap/contract.algo.ts:283
-    // assert(this.offers(id).exists)
-    uncover 4
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
-    dig 1
+    swap
     concat
     dup
-    cover 6
     // smart_contracts/hyper-swap/contract.algo.ts:283
-    // assert(this.offers(id).exists)
-    dup
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
+    bnz escrowAsa_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+escrowAsa_after_assert@3:
     // smart_contracts/hyper-swap/contract.algo.ts:284
     // const { state, root, escrowed, leaves, expiration } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dig 1
     extract 1 32
-    dig 2
-    pushint 41 // 41
+    bury 15
+    dig 1
+    pushint 41
     extract_uint64
-    cover 8
-    dig 2
-    pushint 33 // 33
+    bury 14
+    dig 1
+    pushint 33
     extract_uint64
-    cover 8
-    uncover 2
-    pushint 97 // 97
+    bury 12
+    swap
+    pushint 97
     extract_uint64
+    bury 12
     // smart_contracts/hyper-swap/contract.algo.ts:286
-    // assert(state === STATE_ESCROWING, ERR_INVALID_STATE)
-    uncover 2
-    bytec 5 // 0x14
+    // loggedAssert(state === STATE_ESCROWING, ERR_INVALID_STATE)
+    bytec 9 // 0x14
     ==
-    assert // wrong state
+    bnz escrowAsa_after_assert@5
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+escrowAsa_after_assert@5:
     // smart_contracts/hyper-swap/contract.algo.ts:288
-    // assert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    // loggedAssert(expiration > Global.latestTimestamp, ERR_OFFER_EXPIRED)
+    dig 10
     global LatestTimestamp
     >
-    assert // offer has expired
+    bnz escrowAsa_after_assert@7
+    bytec 13 // "ERR:OFEX"
+    log
+    err // ERR:OFEX
+
+escrowAsa_after_assert@7:
     // smart_contracts/hyper-swap/contract.algo.ts:290
     // const senderParticipantKey = { id, address: Txn.sender }
     dig 1
     txn Sender
     concat
     // smart_contracts/hyper-swap/contract.algo.ts:291
-    // assert(this.participants(senderParticipantKey).exists)
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_A_PARTICIPANT)
     dup
     extract 0 8
     swap
     extract 8 32
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
     // smart_contracts/hyper-swap/contract.algo.ts:291
-    // assert(this.participants(senderParticipantKey).exists)
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_A_PARTICIPANT)
     box_len
     bury 1
-    assert
+    bnz escrowAsa_after_assert@9
+    bytec 14 // "ERR:NPRT"
+    log
+    err // ERR:NPRT
+
+escrowAsa_after_assert@9:
     // smart_contracts/hyper-swap/contract.algo.ts:293
     // const hash = sha256(sha256(Bytes`${Txn.sender.bytes}${receiver.bytes}${itob(asset)}${itob(amount)}`))
     txn Sender
-    dig 4
-    concat
     dig 6
+    concat
+    dig 5
     itob
     concat
-    uncover 5
+    dig 4
     itob
     concat
     sha256
     sha256
+    dup
+    bury 16
     // smart_contracts/hyper-swap/contract.algo.ts:294
     // const hashKey: HashKey = { id, hash }
-    uncover 2
-    dig 1
+    dig 2
+    swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:36
+    // smart_contracts/hyper-swap/contract.algo.ts:54
     // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
-    bytec 8 // "h"
+    bytec 15 // "h"
     swap
     concat
     dup
-    cover 6
+    bury 15
     // smart_contracts/hyper-swap/contract.algo.ts:295
-    // assert(!this.hashes(hashKey).exists)
+    // loggedAssert(!this.hashes(hashKey).exists, ERR_LEAF_ALREADY_ESCROWED)
     box_len
     bury 1
-    !
-    assert
+    bz escrowAsa_after_assert@11
+    bytec 27 // "ERR:LAES"
+    log
+    err // ERR:LAES
+
+escrowAsa_after_assert@11:
     // smart_contracts/hyper-swap/contract.algo.ts:297-306
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
@@ -1336,10 +1415,22 @@ escrowAsa:
     //   ],
     // }).returnValue
     itxn_begin
+    // smart_contracts/hyper-swap/contract.algo.ts:300
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/hyper-swap/contract.algo.ts:301
+    // String(root),
+    bytec 11 // 0x0020
+    dig 14
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:304
+    // MerkleTreeTypeTrade
+    pushint 3
+    itob
     // smart_contracts/hyper-swap/contract.algo.ts:298
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
     // smart_contracts/hyper-swap/contract.algo.ts:298
@@ -1348,28 +1439,14 @@ escrowAsa:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/hyper-swap/contract.algo.ts:298
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
-    pushint 72 // 72
+    pushint 72
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:300
-    // Global.currentApplicationAddress,
-    global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:301
-    // String(root),
-    dig 3
-    len
-    itob
-    extract 6 2
-    uncover 4
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:304
-    // MerkleTreeTypeTrade
-    pushint 3 // 3
-    itob
+    itxn_field ApplicationID
     // smart_contracts/hyper-swap/contract.algo.ts:297-306
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
@@ -1381,18 +1458,17 @@ escrowAsa:
     //     MerkleTreeTypeTrade
     //   ],
     // }).returnValue
-    bytec 7 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    bytec 12 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    uncover 2
+    dig 15
     itxn_field ApplicationArgs
-    uncover 2
+    dig 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -1403,29 +1479,35 @@ escrowAsa:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
     // smart_contracts/hyper-swap/contract.algo.ts:308
-    // assert(verified, ERR_CANT_VERIFY_LEAF)
-    assert // cannot verify leaf
+    // loggedAssert(verified, ERR_CANT_VERIFY_LEAF)
+    bnz escrowAsa_after_assert@14
+    bytec 20 // "ERR:CVLF"
+    log
+    err // ERR:CVLF
+
+escrowAsa_after_assert@14:
     // smart_contracts/hyper-swap/contract.algo.ts:312
     // let mbrAmount = costs.hashes
     intc 4 // 34900
-    cover 2
+    bury 9
     // smart_contracts/hyper-swap/contract.algo.ts:315
     // if (!receiver.isOptedIn(Asset(asset))) {
-    swap
+    dig 5
+    dig 5
     asset_holding_get AssetBalance
     bury 1
-    bnz escrowAsa_after_if_else@4
+    bnz escrowAsa_after_if_else@16
     // smart_contracts/hyper-swap/contract.algo.ts:312
     // let mbrAmount = costs.hashes
     intc 4 // 34900
@@ -1433,122 +1515,111 @@ escrowAsa:
     // mbrAmount += Global.assetOptInMinBalance
     global AssetOptInMinBalance
     +
-    bury 1
+    bury 9
 
-escrowAsa_after_if_else@4:
-    // smart_contracts/hyper-swap/contract.algo.ts:319-326
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: mbrAmount
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 8
-    dup
+escrowAsa_after_if_else@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:319
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    dig 7
     gtxns Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:322
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:319-326
-    // assertMatch(
-    //   mbrPayment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: mbrAmount
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    dig 1
+    bnz escrowAsa_after_assert@18
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+escrowAsa_after_assert@18:
+    // smart_contracts/hyper-swap/contract.algo.ts:320
+    // loggedAssert(mbrPayment.amount === mbrAmount, ERR_INVALID_PAYMENT)
+    dig 7
     gtxns Amount
-    dig 3
-    dup
-    cover 3
-    ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/hyper-swap/contract.algo.ts:328-336
-    // assertMatch(
-    //   assetXfer,
-    //   {
-    //     assetReceiver: Global.currentApplicationAddress,
-    //     xferAsset: Asset(asset),
-    //     assetAmount: amount
-    //   },
-    //   ERR_INVALID_TRANSFER
-    // )
     dig 9
-    dup
+    ==
+    bnz escrowAsa_after_assert@20
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+escrowAsa_after_assert@20:
+    // smart_contracts/hyper-swap/contract.algo.ts:322
+    // loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
+    dig 6
     gtxns AssetReceiver
-    // smart_contracts/hyper-swap/contract.algo.ts:331
-    // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:328-336
-    // assertMatch(
-    //   assetXfer,
-    //   {
-    //     assetReceiver: Global.currentApplicationAddress,
-    //     xferAsset: Asset(asset),
-    //     assetAmount: amount
-    //   },
-    //   ERR_INVALID_TRANSFER
-    // )
     ==
-    dig 1
+    bnz escrowAsa_after_assert@22
+    bytec 21 // "ERR:IXFR"
+    log
+    err // ERR:IXFR
+
+escrowAsa_after_assert@22:
+    // smart_contracts/hyper-swap/contract.algo.ts:323
+    // loggedAssert(assetXfer.xferAsset === Asset(asset), ERR_INVALID_TRANSFER)
+    dig 6
     gtxns XferAsset
-    dig 11
+    dig 5
     ==
-    &&
-    swap
+    bnz escrowAsa_after_assert@24
+    bytec 21 // "ERR:IXFR"
+    log
+    err // ERR:IXFR
+
+escrowAsa_after_assert@24:
+    // smart_contracts/hyper-swap/contract.algo.ts:324
+    // loggedAssert(assetXfer.assetAmount === amount, ERR_INVALID_TRANSFER)
+    dig 6
     gtxns AssetAmount
-    dig 9
+    dig 4
     ==
-    &&
-    assert // Invalid transfer
-    // smart_contracts/hyper-swap/contract.algo.ts:340
+    bnz escrowAsa_after_assert@26
+    bytec 21 // "ERR:IXFR"
+    log
+    err // ERR:IXFR
+
+escrowAsa_after_assert@26:
+    // smart_contracts/hyper-swap/contract.algo.ts:328
     // payor: mbrPayment.sender,
-    swap
+    dig 7
     gtxns Sender
-    // smart_contracts/hyper-swap/contract.algo.ts:339-342
+    // smart_contracts/hyper-swap/contract.algo.ts:327-330
     // this.hashes(hashKey).value = {
     //   payor: mbrPayment.sender,
     //   amount: mbrAmount
     // }
-    swap
+    dig 9
     itob
     swap
     concat
-    dig 2
+    dig 14
     swap
     box_put
-    // smart_contracts/hyper-swap/contract.algo.ts:344
+    // smart_contracts/hyper-swap/contract.algo.ts:332
     // const newEscrowed: uint64 = escrowed + 1
-    dig 3
+    dig 11
     intc_1 // 1
     +
-    // smart_contracts/hyper-swap/contract.algo.ts:345
+    // smart_contracts/hyper-swap/contract.algo.ts:333
     // this.offers(id).value.escrowed = newEscrowed
     dup
     itob
-    dig 6
-    pushint 41 // 41
+    dig 2
+    pushint 41
     uncover 2
-    box_replace
-    // smart_contracts/hyper-swap/contract.algo.ts:347
+    box_replace // on error: index out of bounds
+    // smart_contracts/hyper-swap/contract.algo.ts:335
     // if (leaves === newEscrowed) {
-    dig 3
+    dig 10
     ==
-    bz escrowAsa_after_if_else@6
-    // smart_contracts/hyper-swap/contract.algo.ts:348
+    bz escrowAsa_after_if_else@28
+    // smart_contracts/hyper-swap/contract.algo.ts:336
     // this.offers(id).value.state = STATE_DISBURSING
-    dig 4
+    dup
     intc_0 // 0
-    bytec 9 // 0x1e
-    box_replace
+    bytec 16 // 0x1e
+    box_replace // on error: index out of bounds
 
-escrowAsa_after_if_else@6:
+escrowAsa_after_if_else@28:
     // smart_contracts/hyper-swap/contract.algo.ts:273-281
     // escrowAsa(
     //   mbrPayment: gtxn.PaymentTxn,
@@ -1566,17 +1637,17 @@ escrowAsa_after_if_else@6:
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.disburse[routing]() -> void:
 disburse:
     intc_0 // 0
-    dupn 2
-    pushbytes ""
-    dupn 4
-    // smart_contracts/hyper-swap/contract.algo.ts:361
+    dupn 7
+    bytec_3 // ""
+    dupn 6
+    // smart_contracts/hyper-swap/contract.algo.ts:349
     // disburse(id: uint64, receiverWallet: uint64, receiver: Account, asset: uint64, amount: uint64) {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
@@ -1585,138 +1656,154 @@ disburse:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     swap
     txna ApplicationArgs 3
     dup
     cover 2
-    dup
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 3
+    swap
     txna ApplicationArgs 5
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 4
-    // smart_contracts/hyper-swap/contract.algo.ts:363
-    // assert(this.offers(id).exists)
-    uncover 3
+    swap
+    // smart_contracts/hyper-swap/contract.algo.ts:351
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
-    dig 1
+    swap
     concat
     dup
-    cover 5
-    // smart_contracts/hyper-swap/contract.algo.ts:363
-    // assert(this.offers(id).exists)
-    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:351
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:364
+    bnz disburse_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+disburse_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:352
     // const { state, escrowed } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     swap
-    pushint 41 // 41
+    pushint 41
     extract_uint64
-    cover 5
-    // smart_contracts/hyper-swap/contract.algo.ts:366
-    // assert(state === STATE_DISBURSING)
-    bytec 9 // 0x1e
+    bury 13
+    // smart_contracts/hyper-swap/contract.algo.ts:354
+    // loggedAssert(state === STATE_DISBURSING, ERR_INVALID_STATE)
+    bytec 16 // 0x1e
     ==
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:369
+    bnz disburse_after_assert@5
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+disburse_after_assert@5:
+    // smart_contracts/hyper-swap/contract.algo.ts:357
     // const hash = sha256(sha256(Bytes`${Txn.sender.bytes}${receiver.bytes}${itob(asset)}${itob(amount)}`))
     txn Sender
-    uncover 4
+    dig 5
+    concat
+    dig 4
+    itob
+    dup
+    bury 18
     concat
     dig 3
     itob
     dup
-    cover 5
-    concat
-    uncover 2
-    itob
-    dup
-    cover 4
+    bury 17
     concat
     sha256
     sha256
-    // smart_contracts/hyper-swap/contract.algo.ts:370
+    // smart_contracts/hyper-swap/contract.algo.ts:358
     // const hashKey: HashKey = { id, hash }
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:36
-    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
-    bytec 8 // "h"
+    dig 2
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:371
-    // assert(this.hashes(hashKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:54
+    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
+    bytec 15 // "h"
+    swap
+    concat
     dup
+    bury 19
+    // smart_contracts/hyper-swap/contract.algo.ts:359
+    // loggedAssert(this.hashes(hashKey).exists, ERR_LEAF_NOT_ESCROWED)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:373
+    bnz disburse_after_assert@7
+    bytec 28 // "ERR:LNES"
+    log
+    err // ERR:LNES
+
+disburse_after_assert@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:361
     // let { payor, amount: refundAmount } = this.hashes(hashKey).value
+    dig 17
     dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 8 32
-    cover 3
+    bury 19
     intc_0 // 0
     extract_uint64
-    cover 2
-    // smart_contracts/hyper-swap/contract.algo.ts:374
+    bury 10
+    // smart_contracts/hyper-swap/contract.algo.ts:362
     // this.hashes(hashKey).delete()
     box_del
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:377
+    // smart_contracts/hyper-swap/contract.algo.ts:365
     // if (asset === 0) {
-    bnz disburse_else_body@5
-    // smart_contracts/hyper-swap/contract.algo.ts:379-381
+    dig 3
+    bnz disburse_else_body@11
+    // smart_contracts/hyper-swap/contract.algo.ts:367-369
     // itxn
     //   .payment({ amount, receiver })
     //   .submit()
     itxn_begin
-    dig 8
+    dig 4
     itxn_field Receiver
-    dig 6
+    dig 2
     itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:379-380
+    // smart_contracts/hyper-swap/contract.algo.ts:367-368
     // itxn
     //   .payment({ amount, receiver })
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:379-381
+    // smart_contracts/hyper-swap/contract.algo.ts:367-369
     // itxn
     //   .payment({ amount, receiver })
     //   .submit()
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:384-389
+    // smart_contracts/hyper-swap/contract.algo.ts:372-377
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -1724,11 +1811,11 @@ disburse:
     //   })
     //   .submit()
     itxn_begin
-    dig 1
+    dig 16
     itxn_field Receiver
-    dup
+    dig 8
     itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:384-388
+    // smart_contracts/hyper-swap/contract.algo.ts:372-376
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -1738,7 +1825,7 @@ disburse:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:384-389
+    // smart_contracts/hyper-swap/contract.algo.ts:372-377
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -1747,137 +1834,154 @@ disburse:
     //   .submit()
     itxn_submit
 
-disburse_after_if_else@15:
-    // smart_contracts/hyper-swap/contract.algo.ts:449
+disburse_after_if_else@29:
+    // smart_contracts/hyper-swap/contract.algo.ts:437
     // const newEscrowed: uint64 = escrowed - 1
-    dig 4
+    dig 11
     intc_1 // 1
     -
-    // smart_contracts/hyper-swap/contract.algo.ts:450
+    // smart_contracts/hyper-swap/contract.algo.ts:438
     // this.offers(id).value.escrowed = newEscrowed
     dup
     itob
-    dig 7
-    pushint 41 // 41
+    dig 2
+    pushint 41
     uncover 2
-    box_replace
-    // smart_contracts/hyper-swap/contract.algo.ts:452
+    box_replace // on error: index out of bounds
+    // smart_contracts/hyper-swap/contract.algo.ts:440
     // if (newEscrowed === 0) {
-    bnz disburse_after_if_else@17
-    // smart_contracts/hyper-swap/contract.algo.ts:453
+    bnz disburse_after_if_else@31
+    // smart_contracts/hyper-swap/contract.algo.ts:441
     // this.offers(id).value.state = STATE_COMPLETED
-    dig 5
+    dup
     intc_0 // 0
-    bytec 13 // 0x28
-    box_replace
+    bytec 22 // 0x28
+    box_replace // on error: index out of bounds
 
-disburse_after_if_else@17:
-    // smart_contracts/hyper-swap/contract.algo.ts:361
+disburse_after_if_else@31:
+    // smart_contracts/hyper-swap/contract.algo.ts:349
     // disburse(id: uint64, receiverWallet: uint64, receiver: Account, asset: uint64, amount: uint64) {
     intc_1 // 1
     return
 
-disburse_else_body@5:
-    // smart_contracts/hyper-swap/contract.algo.ts:392
+disburse_else_body@11:
+    // smart_contracts/hyper-swap/contract.algo.ts:380
     // const [, isOptedIn] = AssetHolding.assetBalance(receiver, asset)
-    dig 8
-    dig 8
+    dig 4
+    dig 4
     asset_holding_get AssetBalance
     bury 1
-    // smart_contracts/hyper-swap/contract.algo.ts:394
+    // smart_contracts/hyper-swap/contract.algo.ts:382
     // if (!isOptedIn) {
-    bnz disburse_else_body@11
-    // smart_contracts/hyper-swap/contract.algo.ts:396
-    // assert(receiverWallet !== 0, ERR_RECEIVER_NOT_OPTED_IN)
-    dig 9
-    dup
-    assert // receiver is not opted into asset
-    // smart_contracts/hyper-swap/contract.algo.ts:397
-    // assert(Application(receiverWallet).address === receiver, 'receiverWallet address mismatch')
-    dup
+    bnz disburse_else_body@25
+    // smart_contracts/hyper-swap/contract.algo.ts:384
+    // loggedAssert(receiverWallet !== 0, ERR_RECEIVER_NOT_OPTED_IN)
+    dig 5
+    bnz disburse_after_assert@14
+    bytec 23 // "ERR:RNOI"
+    log
+    err // ERR:RNOI
+
+disburse_after_assert@14:
+    // smart_contracts/hyper-swap/contract.algo.ts:385
+    // loggedAssert(Application(receiverWallet).address === receiver, ERR_RECEIVER_WALLET_MISMATCH)
+    dig 5
     app_params_get AppAddress
     assert // application exists
-    dig 10
+    dig 5
     ==
-    assert // receiverWallet address mismatch
-    // smart_contracts/hyper-swap/contract.algo.ts:399
-    // assert(refundAmount >= Global.assetOptInMinBalance, ERR_RECEIVER_NOT_OPTED_IN)
-    dig 1
+    bnz disburse_after_assert@16
+    pushbytes "ERR:RWMM"
+    log
+    err // ERR:RWMM
+
+disburse_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:387
+    // loggedAssert(refundAmount >= Global.assetOptInMinBalance, ERR_RECEIVER_NOT_OPTED_IN)
+    dig 8
     global AssetOptInMinBalance
     >=
-    assert // receiver is not opted into asset
-    // smart_contracts/hyper-swap/contract.algo.ts:402
+    bnz disburse_after_assert@18
+    bytec 23 // "ERR:RNOI"
+    log
+    err // ERR:RNOI
+
+disburse_after_assert@18:
+    // smart_contracts/hyper-swap/contract.algo.ts:390
     // const optinPlugin = getPluginAppList(this.akitaDAO.value).optin
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:402
+    // smart_contracts/hyper-swap/contract.algo.ts:390
     // const optinPlugin = getPluginAppList(this.akitaDAO.value).optin
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
-    dup
-    bytec 14 // "pal"
+    bytec 24 // "pal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:402
+    // smart_contracts/hyper-swap/contract.algo.ts:390
     // const optinPlugin = getPluginAppList(this.akitaDAO.value).optin
     extract 0 8
-    // smart_contracts/hyper-swap/contract.algo.ts:403-412
+    // smart_contracts/hyper-swap/contract.algo.ts:391-400
     // const canOptIn = abiCall<typeof AbstractedAccount.prototype.arc58_canCall>({
     //   appId: receiverWallet,
     //   args: [
     //     optinPlugin,
-    //     true,
+    //     CallerTypeGlobal,
     //     Global.currentApplicationAddress,
     //     '',
     //     op.bzero(4).toFixed({ length: 4 }),
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:408
+    // smart_contracts/hyper-swap/contract.algo.ts:395
+    // CallerTypeGlobal,
+    intc_1 // 1
+    itob
+    dup
+    bury 24
+    // smart_contracts/hyper-swap/contract.algo.ts:396
     // Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:410
+    // smart_contracts/hyper-swap/contract.algo.ts:398
     // op.bzero(4).toFixed({ length: 4 }),
-    pushint 4 // 4
+    pushint 4
     bzero
-    // smart_contracts/hyper-swap/contract.algo.ts:403-412
+    dig 9
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:391-400
     // const canOptIn = abiCall<typeof AbstractedAccount.prototype.arc58_canCall>({
     //   appId: receiverWallet,
     //   args: [
     //     optinPlugin,
-    //     true,
+    //     CallerTypeGlobal,
     //     Global.currentApplicationAddress,
     //     '',
     //     op.bzero(4).toFixed({ length: 4 }),
     //   ]
     // }).returnValue
-    pushbytes 0x4727af21 // method "arc58_canCall(uint64,bool,address,string,byte[4])bool"
+    pushbytes 0xb36234a5 // method "arc58_canCall(uint64,uint64,address,string,byte[4])bool"
+    itxn_field ApplicationArgs
+    uncover 3
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
-    // smart_contracts/hyper-swap/contract.algo.ts:407
-    // true,
-    bytec 15 // 0x80
-    itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    // smart_contracts/hyper-swap/contract.algo.ts:409
+    // smart_contracts/hyper-swap/contract.algo.ts:397
     // '',
-    bytec 10 // 0x0000
+    bytec 17 // 0x0000
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    dig 1
-    itxn_field ApplicationID
-    // smart_contracts/hyper-swap/contract.algo.ts:403-412
+    // smart_contracts/hyper-swap/contract.algo.ts:391-400
     // const canOptIn = abiCall<typeof AbstractedAccount.prototype.arc58_canCall>({
     //   appId: receiverWallet,
     //   args: [
     //     optinPlugin,
-    //     true,
+    //     CallerTypeGlobal,
     //     Global.currentApplicationAddress,
     //     '',
     //     op.bzero(4).toFixed({ length: 4 }),
@@ -1893,49 +1997,62 @@ disburse_else_body@5:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/hyper-swap/contract.algo.ts:414
-    // assert(canOptIn, ERR_RECEIVER_NOT_OPTED_IN)
-    assert // receiver is not opted into asset
-    // smart_contracts/hyper-swap/contract.algo.ts:417
+    // smart_contracts/hyper-swap/contract.algo.ts:402
+    // loggedAssert(canOptIn, ERR_RECEIVER_NOT_OPTED_IN)
+    bnz disburse_after_assert@21
+    bytec 23 // "ERR:RNOI"
+    log
+    err // ERR:RNOI
+
+disburse_after_assert@21:
+    // smart_contracts/hyper-swap/contract.algo.ts:405
     // arc58OptInAndSend(this.akitaDAO.value, Application(receiverWallet), '', [asset], [amount])
-    bytec 18 // 0x0001
-    dig 6
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/hyper-swap/contract.algo.ts:405
+    // arc58OptInAndSend(this.akitaDAO.value, Application(receiverWallet), '', [asset], [amount])
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 29 // 0x0001
+    dig 17
     concat
     dup
-    bury 21
-    bytec 18 // 0x0001
-    dig 6
+    bury 22
+    bytec 29 // 0x0001
+    dig 17
     concat
     dup
     cover 2
-    bury 23
+    bury 24
     // smart_contracts/utils/functions.ts:376
     // assert(assets.length === amounts.length, ERR_ASSETS_AND_AMOUNTS_MISMATCH)
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     uncover 2
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     dup
-    bury 21
+    bury 18
     dig 1
     ==
-    assert // Assets and amounts mismatch
+    assert // AAMM
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     uncover 2
-    bytec 14 // "pal"
+    bytec 24 // "pal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:377
@@ -1950,7 +2067,8 @@ disburse_else_body@5:
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     // )
-    dig 4
+    dig 9
+    dup
     // smart_contracts/utils/functions.ts:167
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
     pushbytes "controlled_address"
@@ -1963,37 +2081,34 @@ disburse_else_body@5:
     pop
     dup
     cover 3
-    bury 23
+    bury 25
     // smart_contracts/utils/functions.ts:380-383
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: recipientWallet.id,
-    //   args: [optinPlugin, true, escrow, [], []]
+    //   args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
     // })
     itxn_begin
-    pushbytes 0x582ff382 // method "arc58_rekeyToPlugin(uint64,bool,string,uint64[],(uint64,uint64)[])void"
+    itxn_field ApplicationID
+    pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     itxn_field ApplicationArgs
-    swap
+    uncover 2
     itxn_field ApplicationArgs
-    // smart_contracts/hyper-swap/contract.algo.ts:407
-    // true,
-    bytec 15 // 0x80
+    dig 25
     itxn_field ApplicationArgs
-    // smart_contracts/hyper-swap/contract.algo.ts:409
+    // smart_contracts/hyper-swap/contract.algo.ts:397
     // '',
-    bytec 10 // 0x0000
+    bytec 17 // 0x0000
     itxn_field ApplicationArgs
     // smart_contracts/utils/functions.ts:382
-    // args: [optinPlugin, true, escrow, [], []]
-    bytec 10 // 0x0000
+    // args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
+    bytec 17 // 0x0000
     itxn_field ApplicationArgs
-    bytec 10 // 0x0000
+    bytec 17 // 0x0000
     itxn_field ApplicationArgs
-    uncover 4
-    itxn_field ApplicationID
     // smart_contracts/utils/functions.ts:380-383
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
     //   appId: recipientWallet.id,
-    //   args: [optinPlugin, true, escrow, [], []]
+    //   args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
     // })
     pushint 6 // appl
     itxn_field TypeEnum
@@ -2044,15 +2159,15 @@ disburse_else_body@5:
     //   ]
     // })
     itxn_next
+    itxn_field ApplicationID
     pushbytes 0x6835e3bc // method "optIn(uint64,bool,uint64[],pay)void"
     itxn_field ApplicationArgs
-    dig 12
+    dig 7
     itxn_field ApplicationArgs
-    // smart_contracts/hyper-swap/contract.algo.ts:407
+    // smart_contracts/utils/functions.ts:389
     // true,
-    bytec 15 // 0x80
+    pushbytes 0x80
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     itxn_field ApplicationArgs
     // smart_contracts/utils/functions.ts:385-396
     // itxnCompose.next<typeof OptInPlugin.prototype.optIn>({
@@ -2074,28 +2189,28 @@ disburse_else_body@5:
     // smart_contracts/utils/functions.ts:398
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     intc_0 // 0
-    bury 14
+    bury 11
 
-disburse_while_top@19:
+disburse_while_top@33:
     // smart_contracts/utils/functions.ts:398
     // for (let i: uint64 = 0; i < amounts.length; i++) {
-    dig 13
-    dig 16
+    dig 10
+    dig 14
     <
-    bz disburse_after_while@23
+    bz disburse_after_while@37
     // smart_contracts/utils/functions.ts:399
     // if (amounts[i] > 0) {
-    dig 18
+    dig 20
     extract 2 0
-    dig 14
+    dig 11
     intc_2 // 8
     *
     dup
-    bury 17
+    bury 15
     extract_uint64
     dup
-    bury 13
-    bz disburse_after_if_else@22
+    bury 9
+    bz disburse_after_if_else@36
     // smart_contracts/utils/functions.ts:400-406
     // itxnCompose.next(
     //   itxn.assetTransfer({
@@ -2107,14 +2222,14 @@ disburse_while_top@19:
     itxn_next
     // smart_contracts/utils/functions.ts:404
     // xferAsset: assets[i]
-    dig 17
+    dig 19
     extract 2 0
-    dig 15
+    dig 13
     extract_uint64
     itxn_field XferAsset
-    dig 16
+    dig 18
     itxn_field AssetReceiver
-    dig 11
+    dig 7
     itxn_field AssetAmount
     // smart_contracts/utils/functions.ts:401-405
     // itxn.assetTransfer({
@@ -2122,30 +2237,30 @@ disburse_while_top@19:
     //   assetReceiver: origin,
     //   xferAsset: assets[i]
     // })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
 
-disburse_after_if_else@22:
+disburse_after_if_else@36:
     // smart_contracts/utils/functions.ts:398
     // for (let i: uint64 = 0; i < amounts.length; i++) {
-    dig 13
+    dig 10
     intc_1 // 1
     +
-    bury 14
-    b disburse_while_top@19
+    bury 11
+    b disburse_while_top@33
 
-disburse_after_while@23:
+disburse_after_while@37:
     // smart_contracts/utils/functions.ts:410-412
     // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({
     //   appId: recipientWallet
     // })
     itxn_next
+    dig 5
+    itxn_field ApplicationID
     pushbytes 0x6cc3f606 // method "arc58_verifyAuthAddress()void"
     itxn_field ApplicationArgs
-    dig 9
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2153,17 +2268,17 @@ disburse_after_while@23:
     // smart_contracts/utils/functions.ts:414
     // itxnCompose.submit()
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:420
+    // smart_contracts/hyper-swap/contract.algo.ts:408
     // const optInCost = Global.assetOptInMinBalance
     global AssetOptInMinBalance
     dup
-    bury 14
-    // smart_contracts/hyper-swap/contract.algo.ts:421
+    bury 11
+    // smart_contracts/hyper-swap/contract.algo.ts:409
     // if (refundAmount > optInCost) {
-    dig 1
+    dig 9
     <
-    bz disburse_after_if_else@15
-    // smart_contracts/hyper-swap/contract.algo.ts:422-427
+    bz disburse_after_if_else@29
+    // smart_contracts/hyper-swap/contract.algo.ts:410-415
     // itxn
     //   .payment({
     //     amount: refundAmount - optInCost,
@@ -2171,62 +2286,62 @@ disburse_after_while@23:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:424
+    // smart_contracts/hyper-swap/contract.algo.ts:412
     // amount: refundAmount - optInCost,
-    dup
-    dig 13
-    -
-    dig 2
-    itxn_field Receiver
-    itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:422-426
-    // itxn
-    //   .payment({
-    //     amount: refundAmount - optInCost,
-    //     receiver: payor,
-    //   })
-    intc_1 // 1
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:422-427
-    // itxn
-    //   .payment({
-    //     amount: refundAmount - optInCost,
-    //     receiver: payor,
-    //   })
-    //   .submit()
-    itxn_submit
-    b disburse_after_if_else@15
-
-disburse_else_body@11:
-    // smart_contracts/hyper-swap/contract.algo.ts:431-437
-    // itxn
-    //   .assetTransfer({
-    //     xferAsset: asset,
-    //     assetAmount: amount,
-    //     assetReceiver: receiver,
-    //   })
-    //   .submit()
-    itxn_begin
     dig 8
-    itxn_field AssetReceiver
-    dig 6
-    itxn_field AssetAmount
-    dig 7
-    itxn_field XferAsset
-    // smart_contracts/hyper-swap/contract.algo.ts:431-436
+    dig 10
+    -
+    dig 17
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/hyper-swap/contract.algo.ts:410-414
+    // itxn
+    //   .payment({
+    //     amount: refundAmount - optInCost,
+    //     receiver: payor,
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/hyper-swap/contract.algo.ts:410-415
+    // itxn
+    //   .payment({
+    //     amount: refundAmount - optInCost,
+    //     receiver: payor,
+    //   })
+    //   .submit()
+    itxn_submit
+    b disburse_after_if_else@29
+
+disburse_else_body@25:
+    // smart_contracts/hyper-swap/contract.algo.ts:419-425
     // itxn
     //   .assetTransfer({
     //     xferAsset: asset,
     //     assetAmount: amount,
     //     assetReceiver: receiver,
     //   })
-    pushint 4 // 4
+    //   .submit()
+    itxn_begin
+    dig 4
+    itxn_field AssetReceiver
+    dig 2
+    itxn_field AssetAmount
+    dig 3
+    itxn_field XferAsset
+    // smart_contracts/hyper-swap/contract.algo.ts:419-424
+    // itxn
+    //   .assetTransfer({
+    //     xferAsset: asset,
+    //     assetAmount: amount,
+    //     assetReceiver: receiver,
+    //   })
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:431-437
+    // smart_contracts/hyper-swap/contract.algo.ts:419-425
     // itxn
     //   .assetTransfer({
     //     xferAsset: asset,
@@ -2235,7 +2350,7 @@ disburse_else_body@11:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:440-445
+    // smart_contracts/hyper-swap/contract.algo.ts:428-433
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2243,11 +2358,11 @@ disburse_else_body@11:
     //   })
     //   .submit()
     itxn_begin
-    dig 1
+    dig 16
     itxn_field Receiver
-    dup
+    dig 8
     itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:440-444
+    // smart_contracts/hyper-swap/contract.algo.ts:428-432
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2257,7 +2372,7 @@ disburse_else_body@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:440-445
+    // smart_contracts/hyper-swap/contract.algo.ts:428-433
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2265,121 +2380,142 @@ disburse_else_body@11:
     //   })
     //   .submit()
     itxn_submit
-    b disburse_after_if_else@15
+    b disburse_after_if_else@29
 
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.cancel[routing]() -> void:
 cancel:
-    // smart_contracts/hyper-swap/contract.algo.ts:461
+    intc_0 // 0
+    dup
+    bytec_3 // ""
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:449
     // cancel(id: uint64, proof: Proof) {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
     cover 2
     dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
     swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
-    // smart_contracts/hyper-swap/contract.algo.ts:463
-    // assert(this.offers(id).exists)
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    // smart_contracts/hyper-swap/contract.algo.ts:451
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
     dup
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
     swap
     concat
-    dupn 2
-    // smart_contracts/hyper-swap/contract.algo.ts:463
-    // assert(this.offers(id).exists)
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:451
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:464
+    bnz cancel_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+cancel_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:452
     // const { state, participantsRoot, escrowed, root, expiration } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dup
-    uncover 2
+    cover 2
+    bury 8
     dup
     extract 49 32
-    cover 2
+    bury 9
     dup
-    pushint 41 // 41
+    pushint 41
     extract_uint64
-    cover 2
-    pushint 97 // 97
+    bury 7
+    pushint 97
     extract_uint64
-    swap
-    // smart_contracts/hyper-swap/contract.algo.ts:467
+    bury 5
+    // smart_contracts/hyper-swap/contract.algo.ts:455
     // state === STATE_OFFERED || state === STATE_ESCROWING ||
-    bytec 6 // 0x0a
+    bytec 10 // 0x0a
     ==
-    bnz cancel_bool_true@5
-    dig 3
-    bytec 5 // 0x14
+    bnz cancel_bool_true@7
+    dig 5
+    bytec 9 // 0x14
     ==
-    bnz cancel_bool_true@5
-    // smart_contracts/hyper-swap/contract.algo.ts:468
+    bnz cancel_bool_true@7
+    // smart_contracts/hyper-swap/contract.algo.ts:456
     // (state === STATE_DISBURSING && expiration <= Global.latestTimestamp),
-    dig 3
-    bytec 9 // 0x1e
+    dig 5
+    bytec 16 // 0x1e
     ==
-    bz cancel_bool_false@6
-    dup
+    bz cancel_bool_false@8
+    dig 3
     global LatestTimestamp
     <=
-    bz cancel_bool_false@6
+    bz cancel_bool_false@8
 
-cancel_bool_true@5:
+cancel_bool_true@7:
     intc_1 // 1
 
-cancel_bool_merge@7:
-    // smart_contracts/hyper-swap/contract.algo.ts:466-470
-    // assert(
+cancel_bool_merge@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:454-458
+    // loggedAssert(
     //   state === STATE_OFFERED || state === STATE_ESCROWING ||
     //   (state === STATE_DISBURSING && expiration <= Global.latestTimestamp),
     //   ERR_INVALID_STATE
     // )
-    assert // wrong state
-    // smart_contracts/hyper-swap/contract.algo.ts:473
+    bnz cancel_after_assert@11
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+cancel_after_assert@11:
+    // smart_contracts/hyper-swap/contract.algo.ts:461
     // const senderParticipantKey = { id, address: Txn.sender }
-    dig 5
+    dig 1
     txn Sender
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:474
-    // assert(this.participants(senderParticipantKey).exists, ERR_NOT_ACCEPTED)
+    // smart_contracts/hyper-swap/contract.algo.ts:462
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_ACCEPTED)
     dup
     extract 0 8
     swap
     extract 8 32
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:474
-    // assert(this.participants(senderParticipantKey).exists, ERR_NOT_ACCEPTED)
+    // smart_contracts/hyper-swap/contract.algo.ts:462
+    // loggedAssert(this.participants(senderParticipantKey).exists, ERR_NOT_ACCEPTED)
     box_len
     bury 1
-    assert // must have accepted to cancel
-    // smart_contracts/hyper-swap/contract.algo.ts:477-486
+    bnz cancel_after_assert@13
+    pushbytes "ERR:NACP"
+    log
+    err // ERR:NACP
+
+cancel_after_assert@13:
+    // smart_contracts/hyper-swap/contract.algo.ts:465-474
     // const isParticipant = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -2391,47 +2527,44 @@ cancel_bool_merge@7:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:478
+    // smart_contracts/hyper-swap/contract.algo.ts:468
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/hyper-swap/contract.algo.ts:469
+    // String(participantsRoot),
+    bytec 11 // 0x0020
+    dig 8
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:470
+    // sha256(sha256(Txn.sender.bytes)),
+    txn Sender
+    sha256
+    sha256
+    // smart_contracts/hyper-swap/contract.algo.ts:472
+    // MerkleTreeTypeTrade
+    pushint 3
+    itob
+    // smart_contracts/hyper-swap/contract.algo.ts:466
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:478
+    // smart_contracts/hyper-swap/contract.algo.ts:466
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:478
+    // smart_contracts/hyper-swap/contract.algo.ts:466
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
-    pushint 72 // 72
+    pushint 72
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:480
-    // Global.currentApplicationAddress,
-    global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:481
-    // String(participantsRoot),
-    dig 4
-    dup
-    len
-    itob
-    extract 6 2
-    swap
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:482
-    // sha256(sha256(Txn.sender.bytes)),
-    txn Sender
-    sha256
-    sha256
-    // smart_contracts/hyper-swap/contract.algo.ts:484
-    // MerkleTreeTypeTrade
-    pushint 3 // 3
-    itob
-    // smart_contracts/hyper-swap/contract.algo.ts:477-486
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:465-474
     // const isParticipant = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -2442,7 +2575,7 @@ cancel_bool_merge@7:
     //     MerkleTreeTypeTrade
     //   ],
     // }).returnValue
-    bytec 7 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    bytec 12 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
     itxn_field ApplicationArgs
     uncover 3
     itxn_field ApplicationArgs
@@ -2450,10 +2583,9 @@ cancel_bool_merge@7:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 8
+    dig 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2464,170 +2596,198 @@ cancel_bool_merge@7:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/hyper-swap/contract.algo.ts:488
-    // assert(isParticipant, ERR_NOT_A_PARTICIPANT)
-    assert // not a participant in this swap
-    // smart_contracts/hyper-swap/contract.algo.ts:490
-    // if (escrowed === 0) {
-    dig 1
-    bnz cancel_else_body@10
-    // smart_contracts/hyper-swap/contract.algo.ts:491
-    // this.offers(id).value.state = STATE_CANCEL_COMPLETED
-    dig 4
-    intc_0 // 0
-    bytec 11 // 0x3c
-    box_replace
+    // smart_contracts/hyper-swap/contract.algo.ts:476
+    // loggedAssert(isParticipant, ERR_NOT_A_PARTICIPANT)
+    bnz cancel_after_assert@16
+    bytec 14 // "ERR:NPRT"
+    log
+    err // ERR:NPRT
 
-cancel_after_if_else@11:
-    // smart_contracts/hyper-swap/contract.algo.ts:461
+cancel_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:478
+    // if (escrowed === 0) {
+    dig 4
+    bnz cancel_else_body@18
+    // smart_contracts/hyper-swap/contract.algo.ts:479
+    // this.offers(id).value.state = STATE_CANCEL_COMPLETED
+    dup
+    intc_0 // 0
+    bytec 18 // 0x3c
+    box_replace // on error: index out of bounds
+
+cancel_after_if_else@19:
+    // smart_contracts/hyper-swap/contract.algo.ts:449
     // cancel(id: uint64, proof: Proof) {
     intc_1 // 1
     return
 
-cancel_else_body@10:
-    // smart_contracts/hyper-swap/contract.algo.ts:493
+cancel_else_body@18:
+    // smart_contracts/hyper-swap/contract.algo.ts:481
     // this.offers(id).value.state = STATE_CANCELLED
-    dig 4
+    dup
     intc_0 // 0
     pushbytes 0x32
-    box_replace
-    b cancel_after_if_else@11
+    box_replace // on error: index out of bounds
+    b cancel_after_if_else@19
 
-cancel_bool_false@6:
+cancel_bool_false@8:
     intc_0 // 0
-    b cancel_bool_merge@7
+    b cancel_bool_merge@9
 
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.withdraw[routing]() -> void:
 withdraw:
-    // smart_contracts/hyper-swap/contract.algo.ts:508
+    intc_0 // 0
+    dupn 3
+    bytec_3 // ""
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:496
     // withdraw(id: uint64, receiver: Account, asset: uint64, amount: uint64, proof: Proof) {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
+    cover 2
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 3
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 2
-    cover 3
+    swap
     txna ApplicationArgs 4
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    dup
-    cover 2
-    cover 4
+    swap
     txna ApplicationArgs 5
     dup
+    cover 2
+    dup
     intc_0 // 0
-    extract_uint16
+    extract_uint16 // on error: invalid array length header
     intc_3 // 32
     *
-    pushint 2 // 2
+    pushint 2
     +
-    dig 1
+    swap
     len
     ==
-    assert // invalid number of bytes for (len+uint8[32][])
-    // smart_contracts/hyper-swap/contract.algo.ts:510
-    // assert(this.offers(id).exists)
-    uncover 4
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    // smart_contracts/hyper-swap/contract.algo.ts:498
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
-    dig 1
+    swap
     concat
     dup
-    cover 7
-    // smart_contracts/hyper-swap/contract.algo.ts:510
-    // assert(this.offers(id).exists)
-    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:498
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:511
+    bnz withdraw_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+withdraw_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:499
     // const { state, escrowed, root } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dig 1
-    pushint 41 // 41
+    pushint 41
     extract_uint64
-    dup
-    cover 3
-    cover 9
+    bury 10
     swap
     extract 1 32
-    // smart_contracts/hyper-swap/contract.algo.ts:513
-    // assert(state === STATE_CANCELLED)
-    swap
+    bury 10
+    // smart_contracts/hyper-swap/contract.algo.ts:501
+    // loggedAssert(state === STATE_CANCELLED, ERR_INVALID_STATE)
     pushbytes 0x32
     ==
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:515
-    // assert(escrowed > 0)
-    swap
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:517
+    bnz withdraw_after_assert@5
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+withdraw_after_assert@5:
+    // smart_contracts/hyper-swap/contract.algo.ts:503
+    // loggedAssert(escrowed > 0, ERR_NOTHING_TO_WITHDRAW)
+    dig 7
+    bnz withdraw_after_assert@7
+    pushbytes "ERR:NTWD"
+    log
+    err // ERR:NTWD
+
+withdraw_after_assert@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:505
     // const hash = sha256(sha256(Bytes`${Txn.sender.bytes}${receiver.bytes}${itob(asset)}${itob(amount)}`))
     txn Sender
-    uncover 4
+    dig 6
     concat
     dig 5
     itob
     concat
-    uncover 4
+    dig 4
     itob
     concat
     sha256
     sha256
-    // smart_contracts/hyper-swap/contract.algo.ts:518
+    dup
+    bury 13
+    // smart_contracts/hyper-swap/contract.algo.ts:506
     // const hashKey: HashKey = { id, hash }
-    uncover 2
-    dig 1
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:36
-    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
-    bytec 8 // "h"
+    dig 2
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:519
-    // assert(this.hashes(hashKey).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:54
+    // hashes = BoxMap<HashKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixHashes })
+    bytec 15 // "h"
+    swap
+    concat
     dup
+    bury 12
+    // smart_contracts/hyper-swap/contract.algo.ts:507
+    // loggedAssert(this.hashes(hashKey).exists, ERR_LEAF_NOT_ESCROWED)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:521-530
+    bnz withdraw_after_assert@9
+    bytec 28 // "ERR:LNES"
+    log
+    err // ERR:LNES
+
+withdraw_after_assert@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:509-518
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -2639,41 +2799,39 @@ withdraw:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:522
+    // smart_contracts/hyper-swap/contract.algo.ts:512
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/hyper-swap/contract.algo.ts:513
+    // String(root),
+    bytec 11 // 0x0020
+    dig 10
+    concat
+    // smart_contracts/hyper-swap/contract.algo.ts:516
+    // MerkleTreeTypeTrade
+    pushint 3
+    itob
+    // smart_contracts/hyper-swap/contract.algo.ts:510
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/hyper-swap/contract.algo.ts:522
+    // smart_contracts/hyper-swap/contract.algo.ts:510
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
-    bytec_2 // "aal"
+    bytec 6 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:522
+    // smart_contracts/hyper-swap/contract.algo.ts:510
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
-    pushint 72 // 72
+    pushint 72
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:524
-    // Global.currentApplicationAddress,
-    global CurrentApplicationAddress
-    // smart_contracts/hyper-swap/contract.algo.ts:525
-    // String(root),
-    dig 4
-    len
-    itob
-    extract 6 2
-    uncover 5
-    concat
-    // smart_contracts/hyper-swap/contract.algo.ts:528
-    // MerkleTreeTypeTrade
-    pushint 3 // 3
-    itob
-    // smart_contracts/hyper-swap/contract.algo.ts:521-530
+    itxn_field ApplicationID
+    // smart_contracts/hyper-swap/contract.algo.ts:509-518
     // const verified = abiCall<typeof MetaMerkles.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
@@ -2684,18 +2842,17 @@ withdraw:
     //     MerkleTreeTypeTrade
     //   ],
     // }).returnValue
-    bytec 7 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    bytec 12 // method "verify(address,string,byte[32],byte[32][],uint64)bool"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    uncover 3
+    dig 12
     itxn_field ApplicationArgs
-    uncover 3
+    dig 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    itxn_field ApplicationID
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
@@ -2706,38 +2863,45 @@ withdraw:
     extract 4 0
     swap
     extract 0 4
-    bytec 4 // 0x151f7c75
+    bytec 8 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     dup
     len
     intc_1 // 1
     ==
-    assert // invalid number of bytes for bool8
+    assert // invalid number of bytes for bool
     intc_0 // 0
     getbit
-    // smart_contracts/hyper-swap/contract.algo.ts:532
-    // assert(verified, ERR_CANT_VERIFY_LEAF)
-    assert // cannot verify leaf
-    // smart_contracts/hyper-swap/contract.algo.ts:534
+    // smart_contracts/hyper-swap/contract.algo.ts:520
+    // loggedAssert(verified, ERR_CANT_VERIFY_LEAF)
+    bnz withdraw_after_assert@12
+    bytec 20 // "ERR:CVLF"
+    log
+    err // ERR:CVLF
+
+withdraw_after_assert@12:
+    // smart_contracts/hyper-swap/contract.algo.ts:522
     // let { payor, amount: refundAmount } = this.hashes(hashKey).value
+    dig 10
     dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 8 32
-    cover 4
+    bury 12
     intc_0 // 0
     extract_uint64
-    cover 3
-    // smart_contracts/hyper-swap/contract.algo.ts:535
+    bury 8
+    // smart_contracts/hyper-swap/contract.algo.ts:523
     // this.hashes(hashKey).delete()
     box_del
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:537
+    // smart_contracts/hyper-swap/contract.algo.ts:525
     // if (asset === 0) {
-    bnz withdraw_else_body@5
-    // smart_contracts/hyper-swap/contract.algo.ts:538-543
+    dig 4
+    bnz withdraw_else_body@15
+    // smart_contracts/hyper-swap/contract.algo.ts:526-531
     // itxn
     //   .payment({
     //     amount: amount,
@@ -2745,12 +2909,13 @@ withdraw:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:541
+    // smart_contracts/hyper-swap/contract.algo.ts:529
     // receiver: Txn.sender,
     txn Sender
     itxn_field Receiver
+    dig 3
     itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:538-542
+    // smart_contracts/hyper-swap/contract.algo.ts:526-530
     // itxn
     //   .payment({
     //     amount: amount,
@@ -2760,7 +2925,7 @@ withdraw:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:538-543
+    // smart_contracts/hyper-swap/contract.algo.ts:526-531
     // itxn
     //   .payment({
     //     amount: amount,
@@ -2769,8 +2934,8 @@ withdraw:
     //   .submit()
     itxn_submit
 
-withdraw_after_if_else@7:
-    // smart_contracts/hyper-swap/contract.algo.ts:554-559
+withdraw_after_if_else@17:
+    // smart_contracts/hyper-swap/contract.algo.ts:542-547
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2778,11 +2943,11 @@ withdraw_after_if_else@7:
     //   })
     //   .submit()
     itxn_begin
-    dig 1
+    dig 9
     itxn_field Receiver
-    dup
+    dig 6
     itxn_field Amount
-    // smart_contracts/hyper-swap/contract.algo.ts:554-558
+    // smart_contracts/hyper-swap/contract.algo.ts:542-546
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2792,7 +2957,7 @@ withdraw_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:554-559
+    // smart_contracts/hyper-swap/contract.algo.ts:542-547
     // itxn
     //   .payment({
     //     amount: refundAmount,
@@ -2800,48 +2965,48 @@ withdraw_after_if_else@7:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:562
+    // smart_contracts/hyper-swap/contract.algo.ts:550
     // const newEscrowed: uint64 = escrowed - 1
-    dig 2
+    dig 7
     intc_1 // 1
     -
     dup
-    // smart_contracts/hyper-swap/contract.algo.ts:564
+    // smart_contracts/hyper-swap/contract.algo.ts:552
     // if (newEscrowed === 0) {
-    bnz withdraw_else_body@10
-    // smart_contracts/hyper-swap/contract.algo.ts:565
+    bnz withdraw_else_body@20
+    // smart_contracts/hyper-swap/contract.algo.ts:553
     // this.offers(id).value.escrowed = newEscrowed
     itob
-    dig 4
+    dig 1
     dup
     cover 2
-    pushint 41 // 41
+    pushint 41
     uncover 2
-    box_replace
-    // smart_contracts/hyper-swap/contract.algo.ts:566
+    box_replace // on error: index out of bounds
+    // smart_contracts/hyper-swap/contract.algo.ts:554
     // this.offers(id).value.state = STATE_CANCEL_COMPLETED
     intc_0 // 0
-    bytec 11 // 0x3c
-    box_replace
+    bytec 18 // 0x3c
+    box_replace // on error: index out of bounds
 
-withdraw_after_if_else@11:
-    // smart_contracts/hyper-swap/contract.algo.ts:508
+withdraw_after_if_else@21:
+    // smart_contracts/hyper-swap/contract.algo.ts:496
     // withdraw(id: uint64, receiver: Account, asset: uint64, amount: uint64, proof: Proof) {
     intc_1 // 1
     return
 
-withdraw_else_body@10:
-    // smart_contracts/hyper-swap/contract.algo.ts:568
+withdraw_else_body@20:
+    // smart_contracts/hyper-swap/contract.algo.ts:556
     // this.offers(id).value.escrowed = newEscrowed
     itob
-    dig 4
-    pushint 41 // 41
+    dig 1
+    pushint 41
     uncover 2
-    box_replace
-    b withdraw_after_if_else@11
+    box_replace // on error: index out of bounds
+    b withdraw_after_if_else@21
 
-withdraw_else_body@5:
-    // smart_contracts/hyper-swap/contract.algo.ts:545-551
+withdraw_else_body@15:
+    // smart_contracts/hyper-swap/contract.algo.ts:533-539
     // itxn
     //   .assetTransfer({
     //     xferAsset: asset,
@@ -2850,25 +3015,26 @@ withdraw_else_body@5:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/hyper-swap/contract.algo.ts:549
+    // smart_contracts/hyper-swap/contract.algo.ts:537
     // assetReceiver: Txn.sender,
     txn Sender
     itxn_field AssetReceiver
+    dig 3
     itxn_field AssetAmount
     dig 4
     itxn_field XferAsset
-    // smart_contracts/hyper-swap/contract.algo.ts:545-550
+    // smart_contracts/hyper-swap/contract.algo.ts:533-538
     // itxn
     //   .assetTransfer({
     //     xferAsset: asset,
     //     assetAmount: amount,
     //     assetReceiver: Txn.sender,
     //   })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:545-551
+    // smart_contracts/hyper-swap/contract.algo.ts:533-539
     // itxn
     //   .assetTransfer({
     //     xferAsset: asset,
@@ -2877,20 +3043,23 @@ withdraw_else_body@5:
     //   })
     //   .submit()
     itxn_submit
-    b withdraw_after_if_else@7
+    b withdraw_after_if_else@17
 
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.cleanupParticipant[routing]() -> void:
 cleanupParticipant:
-    pushbytes ""
-    // smart_contracts/hyper-swap/contract.algo.ts:581
+    intc_0 // 0
+    dup
+    bytec_3 // ""
+    dupn 2
+    // smart_contracts/hyper-swap/contract.algo.ts:569
     // cleanupParticipant(id: uint64, participant: Account) {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
     txna ApplicationArgs 2
     dup
@@ -2898,120 +3067,139 @@ cleanupParticipant:
     len
     intc_3 // 32
     ==
-    assert // invalid number of bytes for uint8[32]
-    // smart_contracts/hyper-swap/contract.algo.ts:582
-    // assert(this.offers(id).exists)
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/hyper-swap/contract.algo.ts:570
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
     dup
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
     swap
     concat
-    dupn 2
-    // smart_contracts/hyper-swap/contract.algo.ts:582
-    // assert(this.offers(id).exists)
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:570
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:583
+    bnz cleanupParticipant_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+cleanupParticipant_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:571
     // const { state, expiration, acceptances } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dup
-    uncover 2
-    dup
-    pushint 97 // 97
-    extract_uint64
     cover 2
-    pushint 89 // 89
+    bury 9
+    dup
+    pushint 97
     extract_uint64
-    swap
-    // smart_contracts/hyper-swap/contract.algo.ts:586
-    // const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
-    bytec 13 // 0x28
-    ==
-    bnz cleanupParticipant_bool_true@3
-    dig 2
-    bytec 11 // 0x3c
-    ==
-    bz cleanupParticipant_bool_false@4
-
-cleanupParticipant_bool_true@3:
-    intc_1 // 1
     bury 7
-
-cleanupParticipant_bool_merge@5:
-    // smart_contracts/hyper-swap/contract.algo.ts:587
-    // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
-    dig 2
-    bytec 6 // 0x0a
+    pushint 89
+    extract_uint64
+    bury 7
+    // smart_contracts/hyper-swap/contract.algo.ts:574
+    // const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
+    bytec 22 // 0x28
     ==
-    bnz cleanupParticipant_and_contd@7
-    dig 2
-    bytec 5 // 0x14
+    bnz cleanupParticipant_bool_true@5
+    dig 6
+    bytec 18 // 0x3c
     ==
-    bz cleanupParticipant_bool_false@9
+    bz cleanupParticipant_bool_false@6
 
-cleanupParticipant_and_contd@7:
-    // smart_contracts/hyper-swap/contract.algo.ts:587
+cleanupParticipant_bool_true@5:
+    intc_1 // 1
+    bury 4
+
+cleanupParticipant_bool_merge@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:575
     // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
-    dig 1
+    dig 6
+    bytec 10 // 0x0a
+    ==
+    bnz cleanupParticipant_and_contd@9
+    dig 6
+    bytec 9 // 0x14
+    ==
+    bz cleanupParticipant_bool_false@11
+
+cleanupParticipant_and_contd@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:575
+    // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
+    dig 4
     global LatestTimestamp
     <=
-    bz cleanupParticipant_bool_false@9
+    bz cleanupParticipant_bool_false@11
     intc_1 // 1
 
-cleanupParticipant_bool_merge@10:
-    // smart_contracts/hyper-swap/contract.algo.ts:588
-    // assert(isCompleted || isExpired, ERR_INVALID_STATE)
-    dig 7
-    ||
-    assert // wrong state
-    // smart_contracts/hyper-swap/contract.algo.ts:590
-    // const participantKey: ParticipantKey = { id, address: participant }
+cleanupParticipant_bool_merge@12:
+    // smart_contracts/hyper-swap/contract.algo.ts:576
+    // loggedAssert(isCompleted || isExpired, ERR_INVALID_STATE)
     dig 4
-    dig 6
+    ||
+    bnz cleanupParticipant_after_assert@14
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+cleanupParticipant_after_assert@14:
+    // smart_contracts/hyper-swap/contract.algo.ts:578
+    // const participantKey: ParticipantKey = { id, address: participant }
+    dig 1
+    dig 3
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:34
+    // smart_contracts/hyper-swap/contract.algo.ts:52
     // participants = BoxMap<ParticipantKey, RefundValue>({ keyPrefix: HyperSwapBoxPrefixParticipants })
-    bytec_3 // "p"
+    bytec 7 // "p"
     swap
     concat
-    // smart_contracts/hyper-swap/contract.algo.ts:591
-    // assert(this.participants(participantKey).exists)
     dup
+    bury 9
+    // smart_contracts/hyper-swap/contract.algo.ts:579
+    // loggedAssert(this.participants(participantKey).exists, ERR_PARTICIPANT_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:593
+    bnz cleanupParticipant_after_assert@16
+    pushbytes "ERR:NPFD"
+    log
+    err // ERR:NPFD
+
+cleanupParticipant_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:581
     // const { payor, amount } = this.participants(participantKey).value
+    dig 7
     dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 8 32
     swap
     intc_0 // 0
     extract_uint64
-    // smart_contracts/hyper-swap/contract.algo.ts:594
+    // smart_contracts/hyper-swap/contract.algo.ts:582
     // this.participants(participantKey).delete()
     uncover 2
     box_del
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:597
+    // smart_contracts/hyper-swap/contract.algo.ts:585
     // this.offers(id).value.acceptances = acceptances - 1
-    dig 2
+    dig 7
     intc_1 // 1
     -
     itob
-    dig 6
-    pushint 89 // 89
+    dig 3
+    pushint 89
     uncover 2
-    box_replace
-    // smart_contracts/hyper-swap/contract.algo.ts:600-605
+    box_replace // on error: index out of bounds
+    // smart_contracts/hyper-swap/contract.algo.ts:588-593
     // itxn
     //   .payment({
     //     amount,
@@ -3021,7 +3209,7 @@ cleanupParticipant_bool_merge@10:
     itxn_begin
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/hyper-swap/contract.algo.ts:600-604
+    // smart_contracts/hyper-swap/contract.algo.ts:588-592
     // itxn
     //   .payment({
     //     amount,
@@ -3031,7 +3219,7 @@ cleanupParticipant_bool_merge@10:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/hyper-swap/contract.algo.ts:600-605
+    // smart_contracts/hyper-swap/contract.algo.ts:588-593
     // itxn
     //   .payment({
     //     amount,
@@ -3039,126 +3227,144 @@ cleanupParticipant_bool_merge@10:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/hyper-swap/contract.algo.ts:581
+    // smart_contracts/hyper-swap/contract.algo.ts:569
     // cleanupParticipant(id: uint64, participant: Account) {
     intc_1 // 1
     return
 
-cleanupParticipant_bool_false@9:
+cleanupParticipant_bool_false@11:
     intc_0 // 0
-    b cleanupParticipant_bool_merge@10
+    b cleanupParticipant_bool_merge@12
 
-cleanupParticipant_bool_false@4:
+cleanupParticipant_bool_false@6:
     intc_0 // 0
-    bury 7
-    b cleanupParticipant_bool_merge@5
+    bury 4
+    b cleanupParticipant_bool_merge@7
 
 
 // smart_contracts/hyper-swap/contract.algo.ts::HyperSwap.cleanupOffer[routing]() -> void:
 cleanupOffer:
-    pushbytes ""
-    // smart_contracts/hyper-swap/contract.algo.ts:614
+    intc_0 // 0
+    bytec_3 // ""
+    dupn 2
+    // smart_contracts/hyper-swap/contract.algo.ts:602
     // cleanupOffer(id: uint64) {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/hyper-swap/contract.algo.ts:615
-    // assert(this.offers(id).exists)
+    // smart_contracts/hyper-swap/contract.algo.ts:603
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     itob
-    // smart_contracts/hyper-swap/contract.algo.ts:32
+    // smart_contracts/hyper-swap/contract.algo.ts:50
     // offers = BoxMap<uint64, OfferValue>({ keyPrefix: HyperSwapBoxPrefixOffers })
     bytec_1 // "o"
     swap
     concat
-    dupn 2
-    // smart_contracts/hyper-swap/contract.algo.ts:615
-    // assert(this.offers(id).exists)
+    dup
+    // smart_contracts/hyper-swap/contract.algo.ts:603
+    // loggedAssert(this.offers(id).exists, ERR_OFFER_NOT_FOUND)
     box_len
     bury 1
-    assert
-    // smart_contracts/hyper-swap/contract.algo.ts:616
+    bnz cleanupOffer_after_assert@3
+    bytec 4 // "ERR:NOFR"
+    log
+    err // ERR:NOFR
+
+cleanupOffer_after_assert@3:
+    // smart_contracts/hyper-swap/contract.algo.ts:604
     // const { state, expiration, acceptances } = this.offers(id).value
+    dup
     box_get
-    pop
+    assert // Box must have value
     dup
     extract 0 1
     dup
-    uncover 2
-    dup
-    pushint 97 // 97
-    extract_uint64
     cover 2
-    pushint 89 // 89
+    bury 7
+    dup
+    pushint 97
     extract_uint64
-    swap
-    // smart_contracts/hyper-swap/contract.algo.ts:619
-    // const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
-    bytec 13 // 0x28
-    ==
-    bnz cleanupOffer_bool_true@3
-    dig 2
-    bytec 11 // 0x3c
-    ==
-    bz cleanupOffer_bool_false@4
-
-cleanupOffer_bool_true@3:
-    intc_1 // 1
     bury 5
+    pushint 89
+    extract_uint64
+    bury 5
+    // smart_contracts/hyper-swap/contract.algo.ts:607
+    // const isCompleted = state === STATE_COMPLETED || state === STATE_CANCEL_COMPLETED
+    bytec 22 // 0x28
+    ==
+    bnz cleanupOffer_bool_true@5
+    dig 4
+    bytec 18 // 0x3c
+    ==
+    bz cleanupOffer_bool_false@6
 
-cleanupOffer_bool_merge@5:
-    // smart_contracts/hyper-swap/contract.algo.ts:620
+cleanupOffer_bool_true@5:
+    intc_1 // 1
+    bury 2
+
+cleanupOffer_bool_merge@7:
+    // smart_contracts/hyper-swap/contract.algo.ts:608
+    // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
+    dig 4
+    bytec 10 // 0x0a
+    ==
+    bnz cleanupOffer_and_contd@9
+    dig 4
+    bytec 9 // 0x14
+    ==
+    bz cleanupOffer_bool_false@11
+
+cleanupOffer_and_contd@9:
+    // smart_contracts/hyper-swap/contract.algo.ts:608
     // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
     dig 2
-    bytec 6 // 0x0a
-    ==
-    bnz cleanupOffer_and_contd@7
-    dig 2
-    bytec 5 // 0x14
-    ==
-    bz cleanupOffer_bool_false@9
-
-cleanupOffer_and_contd@7:
-    // smart_contracts/hyper-swap/contract.algo.ts:620
-    // const isExpired = (state === STATE_OFFERED || state === STATE_ESCROWING) && expiration <= Global.latestTimestamp
-    dig 1
     global LatestTimestamp
     <=
-    bz cleanupOffer_bool_false@9
+    bz cleanupOffer_bool_false@11
     intc_1 // 1
 
-cleanupOffer_bool_merge@10:
-    // smart_contracts/hyper-swap/contract.algo.ts:621
-    // assert(isCompleted || isExpired, ERR_INVALID_STATE)
-    dig 5
+cleanupOffer_bool_merge@12:
+    // smart_contracts/hyper-swap/contract.algo.ts:609
+    // loggedAssert(isCompleted || isExpired, ERR_INVALID_STATE)
+    dig 2
     ||
-    assert // wrong state
-    // smart_contracts/hyper-swap/contract.algo.ts:624
-    // assert(acceptances === 0, 'all participants must be cleaned up first')
-    dup
-    !
-    assert // all participants must be cleaned up first
-    // smart_contracts/hyper-swap/contract.algo.ts:626
-    // this.offers(id).delete()
+    bnz cleanupOffer_after_assert@14
+    bytec 5 // "ERR:ISTE"
+    log
+    err // ERR:ISTE
+
+cleanupOffer_after_assert@14:
+    // smart_contracts/hyper-swap/contract.algo.ts:612
+    // loggedAssert(acceptances === 0, ERR_PARTICIPANTS_NOT_CLEANED)
     dig 3
+    bz cleanupOffer_after_assert@16
+    pushbytes "ERR:PNCL"
+    log
+    err // ERR:PNCL
+
+cleanupOffer_after_assert@16:
+    // smart_contracts/hyper-swap/contract.algo.ts:614
+    // this.offers(id).delete()
+    dup
     box_del
     pop
-    // smart_contracts/hyper-swap/contract.algo.ts:614
+    // smart_contracts/hyper-swap/contract.algo.ts:602
     // cleanupOffer(id: uint64) {
     intc_1 // 1
     return
 
-cleanupOffer_bool_false@9:
+cleanupOffer_bool_false@11:
     intc_0 // 0
-    b cleanupOffer_bool_merge@10
+    b cleanupOffer_bool_merge@12
 
-cleanupOffer_bool_false@4:
+cleanupOffer_bool_false@6:
     intc_0 // 0
-    bury 5
-    b cleanupOffer_bool_merge@5
+    bury 2
+    b cleanupOffer_bool_merge@7
 
 
 // smart_contracts/utils/base-contracts/optin.ts::ContractWithOptIn.optIn[routing]() -> void:
@@ -3168,7 +3374,7 @@ optIn:
     txn GroupIndex
     intc_1 // 1
     -
-    dup
+    dupn 2
     gtxns TypeEnum
     intc_1 // pay
     ==
@@ -3178,50 +3384,33 @@ optIn:
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/optin.ts:25-32
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
-    dig 1
+    swap
+    // smart_contracts/utils/base-contracts/optin.ts:25
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
     gtxns Receiver
-    // smart_contracts/utils/base-contracts/optin.ts:28
-    // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/utils/base-contracts/optin.ts:25-32
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    uncover 2
+    bnz optIn_after_assert@3
+    pushbytes "ERR:IPMR"
+    log
+    err // ERR:IPMR
+
+optIn_after_assert@3:
+    // smart_contracts/utils/base-contracts/optin.ts:26
+    // loggedAssert(payment.amount === Global.assetOptInMinBalance, ERR_INVALID_PAYMENT_AMOUNT)
+    dig 1
     gtxns Amount
-    // smart_contracts/utils/base-contracts/optin.ts:29
-    // amount: Global.assetOptInMinBalance,
     global AssetOptInMinBalance
-    // smart_contracts/utils/base-contracts/optin.ts:25-32
-    // assertMatch(
-    //   payment,
-    //   {
-    //     receiver: Global.currentApplicationAddress,
-    //     amount: Global.assetOptInMinBalance,
-    //   },
-    //   ERR_INVALID_PAYMENT
-    // )
     ==
-    &&
-    assert // Invalid payment
-    // smart_contracts/utils/base-contracts/optin.ts:34-40
+    bnz optIn_after_assert@5
+    pushbytes "ERR:IPMA"
+    log
+    err // ERR:IPMA
+
+optIn_after_assert@5:
+    // smart_contracts/utils/base-contracts/optin.ts:28-34
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
@@ -3230,28 +3419,28 @@ optIn:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/utils/base-contracts/optin.ts:36
+    // smart_contracts/utils/base-contracts/optin.ts:30
     // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    swap
+    dig 1
     itxn_field XferAsset
-    // smart_contracts/utils/base-contracts/optin.ts:37
+    // smart_contracts/utils/base-contracts/optin.ts:31
     // assetAmount: 0,
     intc_0 // 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    // smart_contracts/utils/base-contracts/optin.ts:34-39
+    // smart_contracts/utils/base-contracts/optin.ts:28-33
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
     //     assetAmount: 0,
     //     xferAsset: asset
     //   })
-    pushint 4 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/base-contracts/optin.ts:34-40
+    // smart_contracts/utils/base-contracts/optin.ts:28-34
     // itxn
     //   .assetTransfer({
     //     assetReceiver: Global.currentApplicationAddress,
@@ -3268,65 +3457,83 @@ optIn:
 
 // smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]() -> void:
 update:
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txna ApplicationArgs 1
     dup
     intc_0 // 0
-    extract_uint16
-    pushint 2 // 2
+    extract_uint16 // on error: invalid array length header
+    pushint 2
     +
     dig 1
     len
     ==
-    assert // invalid number of bytes for (len+utf8[])
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
-    // smart_contracts/utils/base-contracts/base.ts:50
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    dup
-    bytec 19 // "wallet"
+    bytec 30 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:50
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
-    uncover 2
     ==
-    assert // Only the Akita DAO can call this function
+    bnz update_after_assert@3
+    bytec 31 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+update_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    app_global_get_ex
+    assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
-    bytec 14 // "pal"
+    bytec 24 // "pal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:51
+    // smart_contracts/utils/base-contracts/base.ts:49
     // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    pushint 16 // 16
+    pushint 16
     extract_uint64
-    // smart_contracts/utils/base-contracts/base.ts:52
-    // assert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
+    // smart_contracts/utils/base-contracts/base.ts:50
+    // loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
     global CallerApplicationID
     ==
-    assert // Invalid app upgrade
-    // smart_contracts/utils/base-contracts/base.ts:27
+    bnz update_after_assert@5
+    pushbytes "ERR:IUPG"
+    log
+    err // ERR:IUPG
+
+update_after_assert@5:
+    // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 16 // "version"
-    // smart_contracts/utils/base-contracts/base.ts:53
+    bytec 25 // "version"
+    // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    swap
+    dig 1
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:48
+    // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
     intc_1 // 1
     return
@@ -3334,45 +3541,50 @@ update:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
     len
     intc_2 // 8
     ==
-    assert // invalid number of bytes for uint64
+    assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:29
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:32
+    // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 19 // "wallet"
+    bytec 30 // "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:39
-    // assert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
     app_params_get AppAddress
     assert // application exists
     ==
-    assert // Only the Akita DAO can call this function
-    // smart_contracts/utils/base-contracts/base.ts:29
+    bnz updateAkitaDAO_after_assert@3
+    bytec 31 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:40
-    // this.akitaDAO.value = akitaDAO
-    swap
-    app_global_put
     // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_1 // 1
     return

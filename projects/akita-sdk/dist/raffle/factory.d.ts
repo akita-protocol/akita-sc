@@ -2,7 +2,7 @@ import { BaseSDK } from "../base";
 import { RaffleFactoryClient, RaffleFactoryArgs } from '../generated/RaffleFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { RaffleSDK } from "./index";
-import { NewRaffleParams, DeleteRaffleParams } from "./types";
+import { NewRaffleParams, DeleteRaffleParams, OptInParams } from "./types";
 export type RaffleFactoryContractArgs = RaffleFactoryArgs["obj"];
 /**
  * SDK for interacting with the Raffle Factory contract.
@@ -48,6 +48,20 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
         ticketRewardsOptInCost?: bigint;
     }): bigint;
     /**
+     * Opts the raffle factory into an asset so it can receive/forward that
+     * asset as a rewards referral or prize. When the factory has a named DAO
+     * escrow configured, this also eagerly opts the escrow + every revenue-
+     * split escrow in via the revenue-manager plugin, so downstream raffle
+     * creations/entries don't have to do the rekey dance mid-group.
+     *
+     * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
+     * N split escrows, the asset). Since a single app call only holds 8
+     * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
+     * one opUp) so the resource populator has 16 slots to distribute refs
+     * across.
+     */
+    optIn({ sender, signer, asset }: OptInParams): Promise<void>;
+    /**
      * Deletes a raffle created by this factory.
      * Can only be called after prize is claimed and all MBR is refunded.
      */
@@ -59,7 +73,7 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
     /**
      * Updates the Akita DAO Escrow reference.
      */
-    updateAkitaDAOEscrow({ sender, signer, app }: MaybeSigner & RaffleFactoryContractArgs['updateAkitaDAOEscrow(uint64)void']): Promise<void>;
+    updateAkitaDAOEscrow({ sender, signer, config }: MaybeSigner & RaffleFactoryContractArgs['updateAkitaDAOEscrow((string,uint64))void']): Promise<void>;
 }
 /**
  * Convenience function to create a new raffle and return the SDK.

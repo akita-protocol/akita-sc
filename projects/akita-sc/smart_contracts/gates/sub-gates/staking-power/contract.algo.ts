@@ -1,10 +1,9 @@
-import { Account, Application, assert, assertMatch, BoxMap, bytes, clone, Global, GlobalState, gtxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, BoxMap, bytes, clone, Global, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import {
   abimethod,
   decodeArc4,
   encodeArc4
 } from '@algorandfoundation/algorand-typescript/arc4'
-import { ERR_INVALID_PAYMENT } from '../../../utils/errors'
 import { getAkitaAppList, getStakingPower } from '../../../utils/functions'
 import {
   Equal,
@@ -15,7 +14,7 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_BAD_OPERATION, ERR_INVALID_ARG_COUNT } from '../../errors'
+import { ERR_BAD_OPERATION, ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
 import { Operator } from '../../types'
 
 // CONTRACT IMPORTS
@@ -87,25 +86,19 @@ export class StakingPowerGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    assert(args.length === CheckArgsBytesLength, ERR_INVALID_ARG_COUNT)
-    assertMatch(
-      mbrPayment,
-      {
-        receiver: Global.currentApplicationAddress,
-        amount: StakingPowerGateRegistryMBR
-      },
-      ERR_INVALID_PAYMENT
-    )
+    loggedAssert(args.length === CheckArgsBytesLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(mbrPayment.amount === StakingPowerGateRegistryMBR, ERR_INVALID_PAYMENT)
 
     const params = decodeArc4<StakingPowerGateRegistryInfo>(args)
-    assert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
+    loggedAssert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    assert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     const { op, asset, power } = clone(this.registry(registryID).value)
     return this.stakingPowerGate(caller, op, asset, power)
   }

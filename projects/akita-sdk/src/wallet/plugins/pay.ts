@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { PayPluginArgs, PayPluginClient, PayPluginFactory } from "../../generated/PayPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -35,7 +36,7 @@ export class PayPluginSDK extends BaseSDK<PayPluginClient> {
     const methodName = 'pay';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -46,7 +47,7 @@ export class PayPluginSDK extends BaseSDK<PayPluginClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {

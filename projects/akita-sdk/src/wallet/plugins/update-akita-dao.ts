@@ -1,3 +1,4 @@
+import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { UpdateAkitaDaoPluginArgs, UpdateAkitaDaoPluginClient, UpdateAkitaDaoPluginFactory } from "../../generated/UpdateAkitaDAOPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -5,7 +6,7 @@ import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { getTxns } from "../utils";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
-import { Txn } from "@algorandfoundation/algokit-utils/types/composer";
+import { PluginTxn } from "../../types";
 
 type ContractArgs = UpdateAkitaDaoPluginArgs["obj"];
 
@@ -29,7 +30,7 @@ type UpdateAkitaDaoAppIDForAppArgs = (
 )
 
 type UpdateAkitaDaoEscrowForAppArgs = (
-  Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,(string,uint64))void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 )
@@ -52,7 +53,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     const methodName = 'deleteBoxedContract';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -63,7 +64,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -91,7 +92,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     const methodNames = ['initBoxedContract', 'loadBoxedContract', 'updateApp'];
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: methodNames.map(methodName => this.client.appClient.getABIMethod(methodName).getSelector()),
         getTxns
@@ -102,14 +103,14 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: methodNames.map(methodName => this.client.appClient.getABIMethod(methodName).getSelector()),
       getTxns: async ({ wallet }: PluginHookParams) => {
 
         const rekeyBack = args.rekeyBack ?? true;
 
-        const txns: Txn[] = [];
+        const txns: PluginTxn[] = [];
 
         const initParams = (
           await this.client.params.initBoxedContract({
@@ -165,7 +166,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     const methodName = 'updateAkitaDaoAppIDForApp';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -176,7 +177,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -204,7 +205,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     const methodName = 'updateAkitaDaoEscrowForApp';
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
         getTxns
@@ -215,7 +216,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
@@ -267,7 +268,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     const methodNames = ['initBoxedContract', 'loadBoxedContract', 'updateFactoryChildContract'];
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
-      return (spendingAddress?: Address | string) => ({
+      return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: methodNames.map(methodName => this.client.appClient.getABIMethod(methodName).getSelector()),
         getTxns
@@ -278,14 +279,14 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: Address | string) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: methodNames.map(methodName => this.client.appClient.getABIMethod(methodName).getSelector()),
       getTxns: async ({ wallet }: PluginHookParams) => {
 
         const rekeyBack = args.rekeyBack ?? true;
 
-        const txns: Txn[] = [];
+        const txns: PluginTxn[] = [];
 
         // Step 1: Upload contract to plugin's box storage
         const initParams = (

@@ -18,7 +18,7 @@ export type SocialContractsResult = {
 type DeploySocialSystemParams = FixtureAndAccount & {
     args: {
         akitaDao: bigint;
-        akitaDaoEscrow: bigint;
+        akitaDaoEscrow: { name: string; app: bigint };
         version: string;
     }
 }
@@ -47,6 +47,9 @@ export const deploySocialSystem = async ({
     );
 
     const impactResults = await impactFactory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             akitaDao,
             version,
@@ -65,6 +68,9 @@ export const deploySocialSystem = async ({
     );
 
     const graphResults = await graphFactory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             akitaDao: akitaDao,
             version,
@@ -83,6 +89,9 @@ export const deploySocialSystem = async ({
     );
 
     const socialResults = await socialFactory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             version,
             akitaDao,
@@ -102,6 +111,9 @@ export const deploySocialSystem = async ({
     );
 
     const moderationResults = await moderationFactory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             akitaDao,
             version,
@@ -150,7 +162,7 @@ export const deploySocialSystem = async ({
 type DeploySocialParams = FixtureAndAccount & {
     args: {
         akitaDao: bigint;
-        akitaDaoEscrow: bigint;
+        akitaDaoEscrow: { name: string; app: bigint };
         version: string;
     }
 }
@@ -172,6 +184,9 @@ export const deploySocial = async ({
     );
 
     const results = await factory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             version,
             akitaDao,
@@ -209,6 +224,9 @@ export const deploySocialGraph = async ({
     );
 
     const results = await factory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             akitaDao,
             version,
@@ -244,6 +262,9 @@ export const deploySocialImpact = async ({
     );
 
     const results = await factory.send.create.create({
+        // Reserve max program pages up front — extra_program_pages is immutable
+        // after creation, so we pre-pay MBR to leave room for future upgrades.
+        extraProgramPages: 3,
         args: {
             akitaDao,
             version,

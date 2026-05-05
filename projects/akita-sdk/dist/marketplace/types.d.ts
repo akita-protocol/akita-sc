@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { MarketplaceArgs } from '../generated/MarketplaceClient';
 import { ListingArgs, FunderInfo } from '../generated/ListingClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
+import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 export { FunderInfo };
 type MarketplaceContractArgs = MarketplaceArgs["obj"];
 type BaseListParams = MaybeSigner & {
@@ -55,6 +55,10 @@ export type PurchaseParams = BasePurchaseParams & ({
     paymentAmount: bigint | number;
 });
 export type DelistParams = MaybeSigner & MarketplaceContractArgs['delist(uint64)void'];
+export type OptInParams = MaybeSigner & {
+    /** The asset ID to opt the marketplace into (so it can receive/forward that asset) */
+    asset: bigint | number;
+};
 type ListingContractArgs = ListingArgs["obj"];
 export type ChangePriceParams = MaybeSigner & ListingContractArgs['changePrice(uint64)void'];
 export type ListingState = {

@@ -1,22 +1,23 @@
 import { AbstractAccountBoxMbrData, AbstractedAccountArgs, AbstractedAccountFactory, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer, PluginInfoFromTuple, EscrowInfoFromTuple } from '../generated/AbstractedAccountClient'
-import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CanCallParams, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
-import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, hasSenderSigner, ExpandedSendParamsWithSigner } from '../types';
+import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CallerType, CanCallParams, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
+import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, hasSenderSigner, ExpandedSendParamsWithSigner, PluginTxn } from '../types';
 import { BaseSDK } from '../base';
 import { ENV_VAR_NAMES } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
-import { AllowanceInfoTranslate, AllowancesToTuple, domainBoxKey, executionBoxKey, forceProperties, OverWriteProperties, ValueMap } from './utils';
+import { AllowanceInfoTranslate, AllowancesToTuple, domainBoxKey, executionBoxKey, ValueMap } from './utils';
+import { wrapUtils10Signer } from '../utils';
 import { NewEscrowFeeAmount } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
+import { ABIMethod } from '@algorandfoundation/algokit-utils/abi';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 import { BoxIdentifier, BoxReference } from '@algorandfoundation/algokit-utils/types/app-manager';
-import { Txn } from '@algorandfoundation/algokit-utils/types/composer';
-import { prepareGroupWithCost } from '../simulate/prepare';
-import { ExpectedCost } from '../simulate/types';
-import { estimateFallbackCost } from '../simulate/fallback';
+import { prepareGroup, PreparedGroup, sendPrepared } from '../simulate/prepare';
+import { computeExpectedCost, ExpectedCost } from '../simulate/cost';
 import { WalletGroupComposer } from './group';
 
 export * from './constants';
+export * from './errors';
 export * from './factory';
 export * from './group';
 export * from './plugins';
@@ -100,7 +101,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     sender,
     signer,
     name = '',
-    global = false,
+    callerType = CallerType.Other,
     escrow = '',
     fundsRequest = [],
     calls,
@@ -125,7 +126,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
 
     // Group calls into segments by consecutive appId
-    type PluginSegment = { appId: bigint; txns: Txn[]; opUpCount: number };
+    type PluginSegment = { appId: bigint; txns: PluginTxn[]; opUpCount: number };
     const segments: PluginSegment[] = [];
 
     for (const call of calls) {
@@ -141,14 +142,16 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
 
     let caller = ''
-    if (global) {
+    if (callerType === CallerType.Global) {
       caller = ALGORAND_ZERO_ADDRESS_STRING
+    } else if (callerType === CallerType.Admin) {
+      caller = algosdk.getApplicationAddress(this.appId).toString()
     } else if (sendParams.sender !== undefined) {
-      caller = sendParams.sender instanceof Address
-        ? sendParams.sender.toString()
-        : sendParams.sender;
+      caller = typeof sendParams.sender === 'string'
+        ? sendParams.sender
+        : (sendParams.sender as { toString(): string }).toString();
     } else {
-      throw new Error('Sender must be provided for non-global plugin calls');
+      throw new Error('Sender must be provided when CallerType is Other');
     }
 
     const group = this.client.newGroup()
@@ -196,7 +199,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       }
 
       const rekeyArgs: RekeyArgs = {
-        global,
+        type: callerType,
         escrow,
         methodOffsets,
         // fundsRequest only on the first segment's rekey
@@ -215,7 +218,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
           if (!hasSenderSigner(sendParams)) {
             throw new Error('Sender and signer must be provided');
           }
-          boxReferences.push(domainBoxKey(sendParams.sender))
+          boxReferences.push(domainBoxKey(sendParams.sender as string | Address))
         }
       }
 
@@ -255,12 +258,13 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
           case 'assetOptIn': { composer.addAssetOptIn(txn); break; }
           case 'assetOptOut': { composer.addAssetOptOut(txn); break; }
           case 'appCall': {
-            if ('appId' in txn && 'approvalProgram' in txn) {
-              composer.addAppUpdate(txn);
-            } else if ('appId' in txn) {
-              composer.addAppCall(txn);
+            const asAny = txn as any;
+            if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n && 'approvalProgram' in asAny) {
+              composer.addAppUpdate(asAny);
+            } else if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n) {
+              composer.addAppCall(asAny);
             } else {
-              composer.addAppCreate(txn);
+              composer.addAppCreate(asAny);
             }
             break;
           }
@@ -273,14 +277,14 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
             break;
           }
           case 'txnWithSigner': { composer.addTransaction(txn.txn, txn.signer); break; }
-          case 'atc': { composer.addAtc(txn.atc); break; }
           case 'methodCall': {
-            if ('appId' in txn && 'approvalProgram' in txn) {
-              composer.addAppUpdateMethodCall(txn);
-            } else if ('appId' in txn) {
-              composer.addAppCallMethodCall(txn);
+            const asAny = txn as any;
+            if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n && 'approvalProgram' in asAny) {
+              composer.addAppUpdateMethodCall(asAny);
+            } else if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n) {
+              composer.addAppCallMethodCall(asAny);
             } else {
-              composer.addAppCreateMethodCall(txn);
+              composer.addAppCreateMethodCall(asAny);
             }
             break;
           }
@@ -328,7 +332,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
           sender: sendParams.sender,
           signer: sendParams.signer,
           appId: lastPluginAppId,
-          method: algosdk.ABIMethod.fromSignature('opUp()void'),
+          method: ABIMethod.fromSignature('opUp()void'),
           args: [],
           maxFee: microAlgo(1_000),
           note: new TextEncoder().encode(String(i))
@@ -456,11 +460,13 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     // When coverFees is true, the contract reimburses Txn.fee from the escrow,
     // so we need to inflate the ALGO fundsRequest for simulation (when fees are maxFee)
     // and then deflate to the real calculated fee after simulation.
-    const { global = false, calls } = params;
+    const { callerType = CallerType.Other, calls } = params;
     const firstPluginAppId = calls[0]('').appId;
-    const callerAddr = global
+    const callerAddr = callerType === CallerType.Global
       ? ALGORAND_ZERO_ADDRESS_STRING
-      : (sendParams.sender instanceof Address ? sendParams.sender.toString() : sendParams.sender as string);
+      : callerType === CallerType.Admin
+        ? algosdk.getApplicationAddress(this.appId).toString()
+        : (typeof sendParams.sender === 'string' ? sendParams.sender : (sendParams.sender as { toString(): string }).toString());
     const hasCoverFees = this.plugins.get({ plugin: firstPluginAppId, caller: callerAddr, escrow })?.coverFees ?? false;
 
     const suggestedParams = await this.client.algorand.getSuggestedParams();
@@ -477,70 +483,62 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     let result: GroupReturn;
 
     if (consolidateFees || shouldInflate) {
-      // Build the ATC from the group
-      const atc = (await (await group.composer()).build()).atc;
-      const appliedAtc = forceProperties(atc, {
-        sender: preparedSendParams.sender,
-        signer: preparedSendParams.signer
-      });
-
-      // Set max fees for all transactions to allow prepareGroupWithCost to work
-      const maxFees = new Map<number, AlgoAmount>(
-        Array.from({ length }, (_, i) => [i, microAlgo(MAX_SIM_FEE)])
-      );
-
-      // Use prepareGroupWithCost to populate resources and calculate fees
-      const { atc: populatedAtc } = await prepareGroupWithCost(
-        appliedAtc,
-        this.client.algorand.client.algod,
-        {
-          coverAppCallInnerTransactionFees: true,
-          populateAppCallResources: true
-        },
-        {
-          maxFees,
-          suggestedParams
+      // Utils10-native flow: single simulate via `prepareGroup` populates
+      // resources and distributes inner-txn fees; we then consolidate onto
+      // txn[0] and, when coverFees is on, deflate the fundsRequest from the
+      // simulate-only inflated value to the real fee. No extra simulate.
+      const composer = await group.composer();
+      const internalTxns = (composer as unknown as {
+        txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
+      }).txns;
+      for (const ctxn of internalTxns) {
+        if (ctxn.type === 'appCall' && ctxn.data.maxFee === undefined) {
+          ctxn.data.maxFee = microAlgo(MAX_SIM_FEE);
         }
+      }
+
+      // Single simulate + post-build mutations. Sender/signer already match
+      // `preparedSendParams` on the composer calls, so no override needed.
+      const prepared = await prepareGroup(composer);
+
+      // Sum the fees utils10 just distributed — that's our totalFees cap.
+      const totalFees = prepared.transactions.reduce(
+        (acc, t) => acc + BigInt(t.fee ?? 0n),
+        0n
       );
 
-      // Consolidate all fees to the first transaction
-      const feeGroup = populatedAtc.clone().buildGroup();
-      const totalFees = feeGroup.reduce((acc, txn) => acc + txn.txn.fee, 0n);
-
-      // Deflate the fundsRequest: replace inflated MAX_SIM_FEE with real totalFees.
-      // Only needed when coverFees is enabled (shouldInflate is true).
-      let finalAtc = populatedAtc;
+      // Deflate the fundsRequest: simulate was built with amount + MAX_SIM_FEE,
+      // but the real fee is `totalFees`. Only needed when coverFees is on.
       if (shouldInflate) {
-        const modifiedGroup = populatedAtc.clone().buildGroup();
-        const rekeyTxn = modifiedGroup[0] as any;
-        const appArgs = rekeyTxn.txn.applicationCall.appArgs as Uint8Array[];
+        const rekeyTxn = prepared.transactions[0] as unknown as {
+          applicationCall: { appArgs: Uint8Array[] }
+        };
+        const appArgs = rekeyTxn.applicationCall.appArgs;
         const fundsRequestArgIndex = appArgs.length - 1;
         appArgs[fundsRequestArgIndex] = this.adjustFundsRequestAmounts(
           appArgs[fundsRequestArgIndex],
           fundsRequest,
           totalFees,
         );
-
-        const rebuiltAtc = new algosdk.AtomicTransactionComposer();
-        modifiedGroup.forEach((t: any) => {
-          t.txn['group'] = undefined;
-          rebuiltAtc.addTransaction(t);
-        });
-        (rebuiltAtc as any)['methodCalls'] = (populatedAtc as any)['methodCalls'];
-        finalAtc = rebuiltAtc;
       }
 
-      const consolidatedAtc = forceProperties(finalAtc, {
-        fees: new Map([
-          [0, microAlgo(totalFees)],
-          ...Array.from({ length: length - 1 }, (_, i) => [i + 1, microAlgo(0n)] as [number, AlgoAmount]),
-        ])
-      });
+      // Consolidate: all fees onto txn[0], zero the rest.
+      (prepared.transactions[0] as unknown as { fee: bigint }).fee = totalFees;
+      for (let i = 1; i < prepared.transactions.length; i++) {
+        (prepared.transactions[i] as unknown as { fee: bigint }).fee = 0n;
+      }
 
-      // Use AlgoKit Utils TransactionComposer to send and get proper confirmations
-      result = await this.client.algorand.newGroup()
-        .addAtc(consolidatedAtc)
-        .send() as unknown as GroupReturn;
+      // Reassign group ID since we mutated fields after the initial grouping.
+      for (const t of prepared.transactions) {
+        (t as unknown as { group: Uint8Array | undefined }).group = undefined;
+      }
+      algosdk.assignGroupID(prepared.transactions);
+      prepared.groupId = Buffer.from(prepared.transactions[0].group!).toString('base64');
+
+      result = await sendPrepared(
+        prepared,
+        this.client.algorand.client.algod,
+      ) as unknown as GroupReturn;
     } else {
       result = await group.send({ ...sendParams });
     }
@@ -592,7 +590,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     name = '',
     client,
     caller,
-    global = false,
+    callerType = CallerType.Other,
     methods = [],
     escrow = '',
     admin = false,
@@ -612,8 +610,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     // Get the plugin app ID from the SDK client
     const plugin = client.appId;
 
-    if (global) {
+    if (callerType === CallerType.Global) {
       caller = ALGORAND_ZERO_ADDRESS_STRING
+    } else if (callerType === CallerType.Admin) {
+      caller = algosdk.getApplicationAddress(this.appId).toString()
     }
 
     let transformedMethods: [Uint8Array<ArrayBufferLike>, number | bigint][] = [];
@@ -811,7 +811,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
       const [
         suggestedParams,
-        { plugins: _plugins, useRounds, length, group, sendParams },
+        { plugins: _plugins, useRounds, length: _length, group, sendParams },
         admin
       ] = await Promise.all([
         this.client.algorand.getSuggestedParams(),
@@ -826,8 +826,35 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         windowSize = BigInt(suggestedParams.lastValid) - BigInt(suggestedParams.firstValid);
       }
 
-      const f = (await (await group.composer()).build()).atc
-      const f1 = forceProperties(f, { sender: admin, signer: makeEmptyTransactionSigner() })
+      // Cap per-app-call maxFee so the utils10 simulate can distribute inner-txn
+      // fees up to this limit. 272 × minFee matches the legacy maxFees map and
+      // leaves headroom for a fan-out of inner txns during fee pooling.
+      //
+      // Note: utils10 distinguishes `appCall` (raw) from `methodCall` (ABI)
+      // at the composer-input level, but both resolve to `TransactionType.AppCall`
+      // transactions and both are subject to the `coverAppCallInnerTransactionFees`
+      // maxFee requirement. Cover both input types here or the simulate inside
+      // `prepareGroup` will reject with "Please provide a maxFee for each app
+      // call transaction" on any group whose plugin path issues an ABI call.
+      const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
+      const composer = await group.composer();
+      const internalTxns = (composer as unknown as {
+        txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
+      }).txns;
+      for (const ctxn of internalTxns) {
+        if ((ctxn.type === 'appCall' || ctxn.type === 'methodCall') && ctxn.data.maxFee === undefined) {
+          ctxn.data.maxFee = microAlgo(MAX_SIM_FEE);
+        }
+      }
+
+      // Execution handoff: simulate with admin as sender + empty signer so
+      // resources populate as-if admin submitted the group. The real sender
+      // is swapped back in per-window below, after the simulate completes.
+      // This is the only simulate roundtrip in the whole build.
+      const prepared = await prepareGroup(composer, {
+        sender: admin as string,
+        signer: makeEmptyTransactionSigner(),
+      });
 
       let numGroupsToBuild: number;
       let endTarget: bigint;
@@ -842,124 +869,170 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         numGroupsToBuild = Math.ceil(Number(roundsNeeded) / Number(validityPeriod));
       }
 
-      const maxFees = new Map<number, AlgoAmount>([
-        ...Array.from({ length: length }, (_, i) => [i, microAlgo(BigInt(suggestedParams.minFee) * 272n)] as [number, AlgoAmount]),
-      ]);
-
-      // Use prepareGroupWithCost to get both the prepared group and cost information
-      const { atc: populatedGroup, expectedCost } = await prepareGroupWithCost(
-        f1,
-        this.client.algorand.client.algod,
-        {
-          coverAppCallInnerTransactionFees: true,
-          populateAppCallResources: true
-        },
-        {
-          maxFees,
-          suggestedParams: suggestedParams,
-        },
-        admin, // simulateAccount for account deltas
+      // Total fees distributed by the simulate — our consolidation target.
+      const baseTotalFees = prepared.transactions.reduce(
+        (acc, t) => acc + BigInt(t.fee ?? 0n),
+        0n
       );
 
-      // Determine which signer to use at build time
-      const signerToUse = skipSignatures 
-        ? makeEmptyTransactionSigner()  // Placeholder - will be replaced at send() time
-        : sendParams.signer;
+      // Predict the wallet's ALGO + asset balance delta from the simulate
+      // response we just captured inside `prepareGroup` — no extra RTT. The
+      // tracked address is the wallet's app account, since that's the
+      // balance-holder whose delta downstream callers care about (UI "you
+      // will spend X" prompts, pre-flight balance checks, etc.).
+      //
+      // If the captured response is missing (shouldn't happen under the
+      // `populateAppCallResources`/`coverAppCallInnerTransactionFees` path,
+      // but guard anyway), fall back to a zero-cost snapshot rather than
+      // crashing the build — callers can tell prediction failed by checking
+      // for a zero `totalAlgo` against a non-empty group.
+      const expectedCost: ExpectedCost = prepared.simulateResponse
+        ? computeExpectedCost(
+          prepared.simulateResponse,
+          this.client.appAddress.toString()
+        )
+        : { totalAlgo: 0n, networkFees: 0n, subtotals: [], payments: [] };
+
+      // Encoded lease bytes attached to txn[0] of each window (replay-protection
+      // + execution-key box lookup).
+      const encodedLease = encodeLease(lease)!;
+
+      // Signer baked into each window ATC. `skipSignatures` mode defers signer
+      // selection to send() time — we stamp an empty signer here and require
+      // `options.signer` when send() fires.
+      const windowSigner: algosdk.TransactionSigner = skipSignatures
+        ? makeEmptyTransactionSigner()
+        : wrapUtils10Signer(sendParams.signer);
+
+      // Real sender address the per-window transactions are swapped to.
+      // Accept: algosdk.Address, string, or v10 `Address & AddressWithSigners`
+      // (an Address instance from @algorandfoundation/algokit-common, which is
+      // a different class than algosdk's Address so `instanceof` fails). We
+      // fall back to .toString() which works for all shapes.
+      const realSenderAddr = sendParams.sender instanceof Address
+        ? sendParams.sender
+        : typeof sendParams.sender === 'string'
+          ? algosdk.Address.fromString(sendParams.sender)
+          : algosdk.Address.fromString((sendParams.sender as { toString(): string }).toString());
 
       const groups: ExecutionBuildGroup = {
-        lease: encodeLease(lease)!,
+        lease: encodedLease,
         firstValid: start,
         lastValid: endTarget,
         useRounds,
         ids: [],
-        atcs: [],
+        windows: [],
         expectedCost,
         send: async (options) => {
-          // Get current round to determine which group is valid
-          const status = await this.client.algorand.client.algod.status().do();
+          // Pick the window whose validity range contains the current round.
+          const status = await this.client.algorand.client.algod.status();
           const currentRound = BigInt(status.lastRound);
-          
-          // Find the group whose validity window includes the current round
+
           let selectedIndex = -1;
-          
-          for (let i = 0; i < groups.atcs.length; i++) {
+          for (let i = 0; i < groups.windows.length; i++) {
             const groupStart = groups.firstValid + (BigInt(i) * validityPeriod);
-            const groupEnd = i === groups.atcs.length - 1 
-              ? groups.lastValid 
+            const groupEnd = i === groups.windows.length - 1
+              ? groups.lastValid
               : groupStart + validityPeriod - 1n;
-            
+
             if (currentRound >= groupStart && currentRound <= groupEnd) {
               selectedIndex = i;
               break;
             }
           }
-          
+
           if (selectedIndex === -1) {
             throw new Error(
               `No valid group for current round ${currentRound}. ` +
               `Window: ${groups.firstValid}-${groups.lastValid}`
             );
           }
-          
-          const atc = groups.atcs[selectedIndex];
-          
+
+          const window = groups.windows[selectedIndex];
+
+          // If the caller passed a signer at send() time, override the baked-in
+          // signer on every txn. Otherwise use the signers already attached to
+          // the window (either the build-time signer or an empty signer for
+          // `skipSignatures` mode, in which case a caller-supplied signer is
+          // required and the wrap path above handles it).
+          const providedSigner = options?.signer as unknown as algosdk.TransactionSigner | undefined;
+          let signers: algosdk.TransactionSigner[];
           if (skipSignatures) {
-            if (!options?.signer) {
+            if (!providedSigner) {
               throw new Error('signer is required when skipSignatures is true');
             }
-            const signedAtc = forceProperties(atc, { signer: options.signer });
-            // Use AlgoKit Utils TransactionComposer to send and get proper confirmations
-            return await this.client.algorand.newGroup()
-              .addAtc(signedAtc)
-              .send() as unknown as GroupReturn;
+            const wrapped = wrapUtils10Signer(providedSigner);
+            signers = window.transactions.map(() => wrapped);
+          } else if (providedSigner) {
+            const wrapped = wrapUtils10Signer(providedSigner);
+            signers = window.transactions.map(() => wrapped);
           } else {
-            const finalAtc = options?.signer 
-              ? forceProperties(atc, { signer: options.signer })
-              : atc;
-            // Use AlgoKit Utils TransactionComposer to send and get proper confirmations
-            return await this.client.algorand.newGroup()
-              .addAtc(finalAtc)
-              .send() as unknown as GroupReturn;
+            signers = window.signers;
           }
-        }
-      }
 
+          const result = await sendPrepared(
+            { ...window, signers },
+            this.client.algorand.client.algod,
+          );
+
+          return {
+            ...result,
+            returns: result.returns.filter(({ method }) => method.returns.type !== 'void'),
+          } as unknown as GroupReturn;
+        }
+      };
+
+      // Build one `PreparedGroup` per validity window by cloning the
+      // simulate-populated transactions (msgpack roundtrip gives us fresh
+      // mutable instances) and applying per-window overrides: sender swap,
+      // firstValid/lastValid, lease, and optional fee consolidation. No
+      // additional simulate runs here.
       for (let i = 0; i < numGroupsToBuild; i++) {
         const groupStartRound = start + (BigInt(i) * validityPeriod);
-        let groupEndRound: bigint;
-
-        // For the last group, ensure it ends exactly at the target expiration
-        if (i === (numGroupsToBuild - 1)) {
-          groupEndRound = endTarget - 1n;
-        } else {
-          groupEndRound = groupStartRound + validityPeriod - 1n;
-        }
+        const groupEndRound = i === (numGroupsToBuild - 1)
+          ? endTarget - 1n
+          : groupStartRound + validityPeriod - 1n;
 
         console.log(`Building group ${i + 1}/${numGroupsToBuild} with start: ${groupStartRound}, end: ${groupEndRound}`);
 
-        let overwrite: OverWriteProperties = {
-          sender: sendParams.sender,
-          signer: signerToUse,
-          firstValid: groupStartRound,
-          lastValid: groupEndRound,
-          lease: groups.lease,
-        }
+        const windowTxns = prepared.transactions.map((txn, idx) => {
+          const bytes = algosdk.encodeUnsignedTransaction(txn);
+          const cloned = algosdk.decodeUnsignedTransaction(bytes);
+          const t = cloned as unknown as {
+            sender: algosdk.Address;
+            firstValid: bigint;
+            lastValid: bigint;
+            lease?: Uint8Array;
+            fee: bigint;
+            group?: Uint8Array;
+          };
+          t.group = undefined;
+          t.sender = realSenderAddr;
+          t.firstValid = groupStartRound;
+          t.lastValid = groupEndRound;
+          if (idx === 0) {
+            t.lease = encodedLease;
+          }
+          if (consolidateFees) {
+            t.fee = idx === 0 ? baseTotalFees : 0n;
+          }
+          return cloned;
+        });
 
-        if (consolidateFees) {
-          const feeConsolidation = populatedGroup.clone().buildGroup();
-          const totalFees = feeConsolidation.reduce((acc, txn) => acc + txn.txn.fee, 0n);
-          overwrite.fees = new Map([
-            [0, microAlgo(totalFees)],
-            ...Array.from({ length: length - 1 }, (_, i) => [i + 1, microAlgo(0)] as [number, AlgoAmount]),
-          ])
-        }
+        // Deterministic group ID assignment mirrors what
+        // `AtomicTransactionComposer.buildGroup()` used to do here — it hashes
+        // the transaction headers and stamps the resulting ID onto each txn.
+        algosdk.assignGroupID(windowTxns);
 
-        const finalGroup = forceProperties(populatedGroup, overwrite)
+        const window: PreparedGroup = {
+          transactions: windowTxns,
+          signers: windowTxns.map(() => windowSigner),
+          groupId: Buffer.from(windowTxns[0].group!).toString('base64'),
+          methodCalls: new Map(prepared.methodCalls),
+        };
 
-        const groupID = finalGroup.buildGroup()[0].txn.group!
-
-        groups.ids.push(groupID);
-        groups.atcs.push(finalGroup);
+        groups.ids.push(windowTxns[0].group!);
+        groups.windows.push(window);
       }
 
       return groups;
@@ -998,7 +1071,13 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   async getPluginByKey(key: PluginKey): Promise<PluginInfo> {
-    const info = (await this.client.state.box.plugins.value(key))!
+    // Reorder keys to match the struct's declared field order (plugin, caller,
+    // escrow). utils10's struct-value → tuple conversion walks
+    // `Object.values(value)` positionally, so if a caller passes the object
+    // with properties in a different order we silently encode the wrong box
+    // key and the lookup fails. Defensively reorder here.
+    const orderedKey: PluginKey = { plugin: key.plugin, caller: key.caller, escrow: key.escrow };
+    const info = (await this.client.state.box.plugins.value(orderedKey))!
     const methods = info.methods.map((method) => ({
       name: method[0],
       cooldown: method[1],
@@ -1050,7 +1129,13 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   async getAllowance(key: AllowanceKey): Promise<AllowanceInfo> {
-    return AllowanceInfoTranslate((await this.client.state.box.allowances.value(key))!);
+    // Reorder keys to match the struct's declared field order (escrow, asset).
+    // utils10's struct-value → tuple conversion walks `Object.values(value)`
+    // positionally, so mismatched property order in the source object produces
+    // "Cannot encode value as string: 0" when the bigint `asset` ends up in the
+    // slot reserved for the `escrow` string.
+    const orderedKey: AllowanceKey = { escrow: key.escrow, asset: key.asset };
+    return AllowanceInfoTranslate((await this.client.state.box.allowances.value(orderedKey))!);
   }
 
   async getExecutions(): Promise<Map<Uint8Array, ExecutionInfo>> {
@@ -1064,9 +1149,5 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
   async getMbr(args: MbrParams): Promise<AbstractAccountBoxMbrData> {
     return (await this.client.send.mbr({ args })).return as unknown as AbstractAccountBoxMbrData;
-  }
-
-  async balance(assets: bigint[]): Promise<bigint[]> {
-    return (await this.client.send.balance({ args: { assets }, extraFee: microAlgo((1_000 * assets.length)) })).return as unknown as bigint[];
   }
 }

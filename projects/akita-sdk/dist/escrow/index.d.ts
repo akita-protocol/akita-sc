@@ -3,6 +3,7 @@ import { EscrowClient } from '../generated/EscrowClient';
 import { EscrowFactoryClient } from '../generated/EscrowFactoryClient';
 import { NewContractSDKParams } from "../types";
 import { NewEscrowParams, RegisterParams, DeleteEscrowParams, ExistsParams, GetParams, GetListParams, RekeyParams } from "./types";
+export * from "./errors";
 export * from "./types";
 /**
  * SDK for interacting with an individual Escrow contract.

@@ -47,6 +47,8 @@ export type ClaimDetail = {
 
 export type GetMbrParams = ContractArgs['mbr(string,string)(uint64,uint64)'];
 
+export type GetAllocationMbrCreditShortfallParams = ContractArgs['allocationMbrCreditShortfall(uint64,uint64)uint64'];
+
 export type GetDisbursementParams = {
   /** The disbursement ID */
   id: bigint | number;
@@ -76,9 +78,26 @@ export type RewardsGlobalState = {
 
 export type OptInAssetParams = MaybeSigner & Omit<ContractArgs['optIn(pay,uint64)void'], 'payment'>;
 
-export type CreateDisbursementParams = MaybeSigner & Omit<ContractArgs['createDisbursement(pay,string,uint64,uint64,string)uint64'], 'mbrPayment'>;
+export type CreateDisbursementParams = MaybeSigner & Omit<ContractArgs['createDisbursement(pay,string,uint64,uint64,string)uint64'], 'mbrPayment'> & {
+  /** Optional MBR credits to allocate to this disbursement at creation */
+  mbrCredits?: bigint | number;
+};
 
 export type EditDisbursementParams = MaybeSigner & ContractArgs['editDisbursement(uint64,string,uint64,uint64,string)void'];
+
+export type FundMbrCreditsParams = MaybeSigner & {
+  /** The disbursement ID whose MBR credits should be funded */
+  id: bigint | number;
+  /** Credit amount to add */
+  amount: bigint | number;
+};
+
+export type WithdrawMbrCreditsParams = MaybeSigner & {
+  /** The disbursement ID whose MBR credits should be withdrawn */
+  id: bigint | number;
+  /** Credit amount to release */
+  amount: bigint | number;
+};
 
 export type CreateUserAllocationsParams = MaybeSigner & {
   /** The disbursement ID */
@@ -118,6 +137,19 @@ export type CreateInstantAsaDisbursementParams = MaybeSigner & {
   allocations: UserAllocation[];
 };
 
+export type CreateAsaDisbursementFromGroupParams = MaybeSigner & {
+  /** Disbursement title */
+  title: string;
+  /** Unix timestamp when rewards unlock (0 for immediate) */
+  timeToUnlock: bigint | number;
+  /** Unix timestamp when rewards expire */
+  expiration: bigint | number;
+  /** Disbursement note */
+  note: string;
+  /** One asset transfer will be created for each allocation */
+  allocations: (UserAllocation & { asset: bigint | number })[];
+};
+
 export type ClaimRewardsParams = MaybeSigner & {
   /** Array of rewards to claim */
   rewards: ClaimDetail[];
@@ -131,4 +163,3 @@ export type ReclaimRewardsParams = MaybeSigner & {
 };
 
 export type UpdateAkitaDaoParams = MaybeSigner & ContractArgs['updateAkitaDAO(uint64)void'];
-
