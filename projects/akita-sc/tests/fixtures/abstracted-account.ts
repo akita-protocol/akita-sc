@@ -45,13 +45,6 @@ export const deployAbstractedAccountFactory = async ({
     extraProgramPages: 3
   })
 
-  const fundAmount = (
-    100_000 + // min balance
-    3_280_100 // boxed contract storage
-  )
-
-  await client.appClient.fundAppAccount({ amount: fundAmount.microAlgos() });
-
   const abstractedAccountFactory = algorand.client.getTypedAppFactory(
     AbstractedAccountFactory,
     {
@@ -62,6 +55,14 @@ export const deployAbstractedAccountFactory = async ({
 
   const compiledAbstractedAccount = await abstractedAccountFactory.appFactory.compile();
   const size = compiledAbstractedAccount.approvalProgram.length;
+  const boxedContractMbr = 2_500 + (400 * (2 + size))
+  const fundAmount = (
+    100_000 + // min balance
+    boxedContractMbr
+  )
+
+  await client.appClient.fundAppAccount({ amount: fundAmount.microAlgos() });
+
   const perTxn = (
     2048 // max args
     - 4 // selector

@@ -358,8 +358,7 @@ export class AbstractedAccount extends Contract {
     const epochRef = useRounds ? Global.round : Global.latestTimestamp;
 
     return (
-      lastCalled >= epochRef &&
-      (epochRef - lastCalled) >= cooldown &&
+      !this.isOnCooldown(epochRef, lastCalled, cooldown) &&
       methodAllowed
     )
   }
@@ -396,6 +395,18 @@ export class AbstractedAccount extends Contract {
     loggedAssert(rekeysBack, ERR_MISSING_REKEY_BACK);
   }
 
+  private isOnCooldown(epochRef: uint64, lastCalled: uint64, cooldown: uint64): boolean {
+    if (cooldown === 0 || lastCalled === 0) {
+      return false
+    }
+
+    if (epochRef < lastCalled) {
+      return true
+    }
+
+    return (epochRef - lastCalled) < cooldown
+  }
+
   private pluginCheck(key: PluginKey): PluginValidation {
 
     const exists = this.plugins(key).exists;
@@ -414,7 +425,7 @@ export class AbstractedAccount extends Contract {
     return {
       exists,
       expired: epochRef > lastValid,
-      onCooldown: (epochRef - lastCalled) < cooldown,
+      onCooldown: this.isOnCooldown(epochRef, lastCalled, cooldown),
       hasMethodRestrictions: methods.length > 0,
     }
   }
@@ -513,14 +524,12 @@ export class AbstractedAccount extends Contract {
     const { useRounds } = this.plugins(key).value
     const { selector, cooldown, lastCalled } = this.plugins(key).value.methods[offset]
 
-    const hasCooldown = cooldown > 0
-
     const epochRef = useRounds ? Global.round : Global.latestTimestamp
-    const methodOnCooldown = (epochRef - lastCalled) < cooldown
+    const methodOnCooldown = this.isOnCooldown(epochRef, lastCalled, cooldown)
 
-    if (selector === selectorArg && (!hasCooldown || !methodOnCooldown)) {
+    if (selector === selectorArg && !methodOnCooldown) {
       // update the last called round for the method
-      if (hasCooldown) {
+      if (cooldown > 0) {
         const lastCalled = useRounds ? Global.round : Global.latestTimestamp;
         this.plugins(key).value.methods[offset].lastCalled = lastCalled
       }

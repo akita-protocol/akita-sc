@@ -4,7 +4,7 @@
 
 
 
-var _chunkXD32JOSDjs = require('../chunk-XD32JOSD.js');
+var _chunkDMGTVYYEjs = require('../chunk-DMGTVYYE.js');
 require('../chunk-EY3JLM56.js');
 require('../chunk-GIGYZ6YC.js');
 require('../chunk-OPF2XL3K.js');
@@ -16,5 +16,5 @@ require('../chunk-FZLF55XC.js');
 
 
 
-exports.RAFFLE_ERROR_MESSAGES = _chunkXD32JOSDjs.RAFFLE_ERROR_MESSAGES; exports.RaffleFactorySDK = _chunkXD32JOSDjs.RaffleFactorySDK; exports.RaffleSDK = _chunkXD32JOSDjs.RaffleSDK; exports.newRaffle = _chunkXD32JOSDjs.newRaffle; exports.translateRaffleError = _chunkXD32JOSDjs.translateRaffleError;
+exports.RAFFLE_ERROR_MESSAGES = _chunkDMGTVYYEjs.RAFFLE_ERROR_MESSAGES; exports.RaffleFactorySDK = _chunkDMGTVYYEjs.RaffleFactorySDK; exports.RaffleSDK = _chunkDMGTVYYEjs.RaffleSDK; exports.newRaffle = _chunkDMGTVYYEjs.newRaffle; exports.translateRaffleError = _chunkDMGTVYYEjs.translateRaffleError;
 //# sourceMappingURL=index.js.map

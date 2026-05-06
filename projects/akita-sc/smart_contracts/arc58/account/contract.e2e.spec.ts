@@ -171,6 +171,36 @@ describe('ARC58 Plugin Permissions', () => {
   })
 
   describe('Plugin Restrictions', () => {
+    test('canCall ignores cooldown for a fresh plugin', async () => {
+      const { context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
+
+      await wallet.client.appClient.fundAppAccount({
+        amount: mbr.plugins.microAlgo()
+      })
+
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        callerType: CallerType.Global,
+        cooldown: 100n,
+        useRounds: true
+      })
+
+      const result = await wallet.client.send.arc58CanCall({
+        args: {
+          plugin: payPluginSdk.appId,
+          type: CallerType.Global,
+          address: sender,
+          escrow: '',
+          method: payPluginSdk.pay()().selectors[0],
+        }
+      })
+
+      expect(result.return).toBe(true)
+    })
+
     test('global does not exist, sender valid', async () => {
       const { algorand, context: { testAccount } } = localnet
       const sender = testAccount.toString()
