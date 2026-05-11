@@ -11,6 +11,7 @@ import { CID } from "../../../utils/types/base"
 import { BaseSubscriptions } from "../../../subscriptions/base"
 import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
 import type { Subscriptions } from "../../../subscriptions/contract.algo"
+import { ERR_CANNOT_TRIGGER, ERR_SUBSCRIPTION_DOES_NOT_EXIST } from "../../../subscriptions/errors"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 import { BoxKeySubscriptionsDescription, MAX_LOAD_DESCRIPTION_CHUNK_SIZE } from "./constants"
 import { ERR_BAD_DESCRIPTION_LENGTH, ERR_DESCRIPTION_NOT_INITIALIZED, ERR_INVALID_CALL_ORDER } from "./errors"
@@ -302,7 +303,6 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       sender,
       appId,
       args: [sender],
-      rekeyTo: rekeyAddress(rekeyBack, wallet),
     }).returnValue
 
     if (firstSubscription) {
@@ -471,6 +471,69 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         args: [{ address, id }],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
+    }
+  }
+
+  fundTriggerPayment(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: SubscriptionID,
+    args: GateArgs
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+    const key: SubscriptionKey = { address: sender, id }
+
+    const sub = abiCall<typeof Subscriptions.prototype.getSubscription>({
+      sender,
+      appId,
+      args: [key],
+    }).returnValue
+
+    loggedAssert(sub.exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+
+    const latestWindowStart: uint64 = Global.latestTimestamp - ((Global.latestTimestamp - sub.startDate) % sub.interval)
+    loggedAssert(sub.lastPayment < latestWindowStart, ERR_CANNOT_TRIGGER)
+
+    let fundAmount: uint64 = 0
+    if (sub.amount > sub.escrowed) {
+      fundAmount = sub.amount - sub.escrowed
+    }
+
+    loggedAssert(fundAmount > 0, ERR_CANNOT_TRIGGER)
+
+    if (fundAmount > 0) {
+      if (sub.asset === 0) {
+        abiCall<typeof Subscriptions.prototype.deposit>({
+          sender,
+          appId,
+          args: [
+            itxn.payment({
+              sender,
+              receiver: appId.address,
+              amount: fundAmount,
+            }),
+            id,
+          ],
+          rekeyTo: rekeyAddress(rekeyBack, wallet)
+        })
+      } else {
+        abiCall<typeof Subscriptions.prototype.depositAsa>({
+          sender,
+          appId,
+          args: [
+            itxn.assetTransfer({
+              sender,
+              assetReceiver: appId.address,
+              xferAsset: sub.asset,
+              assetAmount: fundAmount,
+            }),
+            id,
+          ],
+          rekeyTo: rekeyAddress(rekeyBack, wallet)
+        })
+      }
     }
   }
 

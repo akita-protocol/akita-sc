@@ -1,0 +1,51 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    // smart_contracts/sunset/wallet-factory.algo.ts:25
+    // class AbstractedAccountUpdateStub extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0xea9180dd // method "update(string)void"
+    txna ApplicationArgs 0
+    match main_update_route@3
+    err
+
+main_update_route@3:
+    // smart_contracts/sunset/wallet-factory.algo.ts:26
+    // update(version: string): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/sunset/wallet-factory.algo.ts:25
+    // class AbstractedAccountUpdateStub extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/sunset/wallet-factory.algo.ts::AbstractedAccountUpdateStub.update[routing]() -> void:
+update:
+    // smart_contracts/sunset/wallet-factory.algo.ts:26
+    // update(version: string): void {
+    txna ApplicationArgs 1
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 1
+    return

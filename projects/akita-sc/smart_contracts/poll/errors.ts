@@ -29,6 +29,9 @@ export const ERR_INVALID_MAX_SELECTION = 'IMXS'
 
 export const ERR_POLL_ENDED = 'PEND'
 export const ERR_POLL_ACTIVE = 'PACT'
+export const ERR_NOT_A_POLL = 'NAPL'
+export const ERR_STILL_HAS_VOTE_BOXES = 'SHVB'
+export const ERR_MUST_BE_CALLED_FROM_FACTORY = 'MCFF'
 
 // --- Voting -----------------------------------------------------------------
 

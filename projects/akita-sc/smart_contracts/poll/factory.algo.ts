@@ -1,10 +1,12 @@
-import { Application, clone, contract, Global, gtxn, itxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abimethod, compileArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { Application, Bytes, clone, contract, Global, gtxn, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { abimethod, compileArc4, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { GlobalStateKeyFunder } from '../constants'
 import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
+import { FunderInfo } from '../utils/types/mbr'
 import { Poll } from './contract.algo'
-import { ERR_INVALID_PAYMENT } from './errors'
+import { ERR_INVALID_PAYMENT, ERR_NOT_A_POLL } from './errors'
 import { PollType } from './types'
 
 @contract({
@@ -45,6 +47,7 @@ export class PollFactory extends FactoryContract {
           type,
           endTime,
           maxSelected,
+          { account: payment.sender, amount: payment.amount },
           question,
           options,
           gateID
@@ -61,6 +64,20 @@ export class PollFactory extends FactoryContract {
       .submit()
 
     return mint.id
+  }
+
+  deletePoll(appId: Application): void {
+    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_POLL)
+
+    const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
+    const { account: receiver, amount } = decodeArc4<FunderInfo>(funderBytes)
+
+    const poll = compileArc4(Poll)
+    poll.call.deleteApplication({ appId })
+
+    itxn
+      .payment({ amount, receiver })
+      .submit()
   }
 
   @abimethod({ readonly: true })

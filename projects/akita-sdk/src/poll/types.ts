@@ -13,6 +13,8 @@ export type NewPollParams = MaybeSigner & Omit<
   'payment'
 >;
 
+export type DeletePollParams = MaybeSigner & { appId: bigint | number };
+
 // Individual Poll Types
 type PollContractArgs = PollArgs["obj"];
 
@@ -57,4 +59,3 @@ export enum PollTypeEnum {
 
 // MBR constant for votes box
 export const VOTES_MBR = 15_300n;
-

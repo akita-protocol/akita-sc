@@ -1,14 +1,14 @@
-import * as algokit from '@algorandfoundation/algokit-utils'
+import { Config, Address, microAlgos } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { PollSDK, PollTypeEnum } from 'akita-sdk/poll'
 import algosdk from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
+import { AddressWithSigners, AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 
-algokit.Config.configure({ populateAppCallResources: true })
+Config.configure({ populateAppCallResources: true })
 
 const fixture = algorandFixture()
 
@@ -25,16 +25,14 @@ const getBlockTimestamp = async (algorand: import('@algorandfoundation/algokit-u
 }
 
 describe('Poll SDK', () => {
-  let deployer: Address & TransactionSignerAccount
-  let creator: Address & TransactionSignerAccount
-  let voter1: Address & TransactionSignerAccount
-  let voter2: Address & TransactionSignerAccount
+  let deployer: Address & AddressWithSigners
+  let creator: Address & AddressWithSigners
+  let voter1: Address & AddressWithSigners
+  let voter2: Address & AddressWithSigners
   let akitaUniverse: AkitaUniverse
   let pollSDK: PollSDK
   let timeWarp: TimeWarp
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
-    account: SigningAccount;
-  }
+  let dispenser: AddressWithTransactionSigner
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
   beforeAll(async () => {
@@ -47,15 +45,15 @@ describe('Poll SDK', () => {
     await timeWarp.resetTimeWarp()
 
     const ctx = fixture.context
-    deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
-    creator = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
-    voter1 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(100_000_000) })
-    voter2 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(100_000_000) })
+    deployer = await ctx.generateAccount({ initialFunds: microAlgos(2_000_000_000) })
+    creator = await ctx.generateAccount({ initialFunds: microAlgos(500_000_000) })
+    voter1 = await ctx.generateAccount({ initialFunds: microAlgos(100_000_000) })
+    voter2 = await ctx.generateAccount({ initialFunds: microAlgos(100_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(creator.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(voter1.addr, dispenser, (100).algo())
-    await algorand.account.ensureFunded(voter2.addr, dispenser, (100).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(creator.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(voter1.addr, dispenser.addr, (100).algo())
+    await algorand.account.ensureFunded(voter2.addr, dispenser.addr, (100).algo())
 
     // Build the full Akita DAO universe (includes pollFactory with escrow configured)
     akitaUniverse = await buildAkitaUniverse({
@@ -66,7 +64,7 @@ describe('Poll SDK', () => {
     })
 
     // Fund the poll factory to cover poll creation MBR
-    await algorand.account.ensureFunded(akitaUniverse.pollFactory.client.appAddress, dispenser, (100).algo())
+    await algorand.account.ensureFunded(akitaUniverse.pollFactory.client.appAddress, dispenser.addr, (100).algo())
   })
 
   describe('PollFactorySDK', () => {
@@ -199,11 +197,29 @@ describe('Poll SDK', () => {
       })
     })
 
+    describe('deletePoll()', () => {
+      test('should reject deleting an active poll', async () => {
+        await expect(akitaUniverse.pollFactory.deletePoll({
+          sender: creator.addr,
+          signer: creator.signer,
+          appId: pollSDK.client.appId,
+        })).rejects.toThrow()
+      })
+    })
+
     describe('deleteBoxes()', () => {
-      test('should delete boxes and refund MBR after poll ends', async () => {
+      test('should reject deleting a finished poll while vote boxes remain', async () => {
         // Time warp to after poll ends
         await timeWarp.timeWarp(BigInt(ONE_DAY + 10))
 
+        await expect(akitaUniverse.pollFactory.deletePoll({
+          sender: creator.addr,
+          signer: creator.signer,
+          appId: pollSDK.client.appId,
+        })).rejects.toThrow()
+      })
+
+      test('should delete boxes and refund MBR after poll ends', async () => {
         await pollSDK.deleteBoxes({
           sender: creator.addr,
           signer: creator.signer,
@@ -213,6 +229,18 @@ describe('Poll SDK', () => {
         // Boxes should be deleted
         const state = await pollSDK.state()
         expect(state.boxCount).toBe(0n)
+      })
+    })
+
+    describe('deletePoll() after cleanup', () => {
+      test('should delete a finished poll after boxes are deleted', async () => {
+        await akitaUniverse.pollFactory.deletePoll({
+          sender: creator.addr,
+          signer: creator.signer,
+          appId: pollSDK.client.appId,
+        })
+
+        await expect(algorand.client.algod.applicationById(Number(pollSDK.client.appId))).rejects.toThrow()
       })
     })
   })

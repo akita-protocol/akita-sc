@@ -4,6 +4,9 @@ import { PollFactoryArgs } from '../generated/PollFactoryClient';
 import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 type FactoryContractArgs = PollFactoryArgs["obj"];
 export type NewPollParams = MaybeSigner & Omit<FactoryContractArgs['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'], 'payment'>;
+export type DeletePollParams = MaybeSigner & {
+    appId: bigint | number;
+};
 type PollContractArgs = PollArgs["obj"];
 export type VoteParams = MaybeSigner & {
     /** Array of option indices (0-based) to vote for */

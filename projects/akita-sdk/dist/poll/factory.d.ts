@@ -2,7 +2,7 @@ import { BaseSDK } from "../base";
 import { PollFactoryClient, PollFactoryArgs } from '../generated/PollFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { PollSDK } from "./index";
-import { NewPollParams } from "./types";
+import { DeletePollParams, NewPollParams } from "./types";
 export type PollFactoryContractArgs = PollFactoryArgs["obj"];
 /**
  * SDK for interacting with the Poll Factory contract.
@@ -27,6 +27,10 @@ export declare class PollFactorySDK extends BaseSDK<PollFactoryClient> {
      * Gets the cost to create a new poll.
      */
     cost(): Promise<bigint>;
+    /**
+     * Deletes a finished poll after all vote boxes have been cleared.
+     */
+    deletePoll({ sender, signer, appId }: DeletePollParams): Promise<void>;
     /**
      * Updates the Akita DAO reference.
      */

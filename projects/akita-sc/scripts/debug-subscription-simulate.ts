@@ -194,7 +194,7 @@ async function main() {
   // Service definition (matches first service in setup script)
   const service = {
     title: 'Plus',
-    price: usdcAmount(10),
+    price: usdcAmount(20),
     interval: SECONDS_PER_MONTH,
     highlightMessage: HighlightMessage.None,
     highlightColor: '#3EE1A1',
@@ -202,8 +202,10 @@ async function main() {
       'Boost your social impact and unlock gated experiences across the Akita ecosystem.',
       '',
       '- Social impact boost',
+      '- Core agent access',
       '- Exclusive Plus badge',
       '- Gated staking pools, auctions, and raffles',
+      '- Customizable gallery',
     ].join('\n'),
   }
   // Use a placeholder banner CID (36 bytes) — content irrelevant for the failing assert.

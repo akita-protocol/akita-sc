@@ -1,3 +1,4 @@
+import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import { BaseSDK } from "../../base";
 import { SubscriptionsPluginArgs, SubscriptionsPluginClient, SubscriptionsPluginFactory } from "../../generated/SubscriptionsPluginClient";
@@ -76,6 +77,15 @@ type TriggerPaymentArgs = (
   Omit<ContractArgs['triggerPayment(uint64,bool,address,uint64,byte[][])void'], 'wallet' | 'rekeyBack' | 'args'>
   & MaybeSigner
   & {
+    rekeyBack?: boolean;
+    args?: Uint8Array[];
+  }
+);
+
+type FundTriggerPaymentArgs = (
+  MaybeSigner
+  & {
+    id: bigint | number;
     rekeyBack?: boolean;
     args?: Uint8Array[];
   }
@@ -459,6 +469,41 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
         const params = await this.client.params.triggerPayment({
           ...sendParams,
           args: { wallet, rekeyBack, args: gateArgs, ...rest },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  fundTriggerPayment(): PluginSDKReturn;
+  fundTriggerPayment(args: FundTriggerPaymentArgs): PluginSDKReturn;
+  fundTriggerPayment(args?: FundTriggerPaymentArgs): PluginSDKReturn {
+    const methodName = 'fundTriggerPayment';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, args: gateArgs = [], ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await (this.client.params.fundTriggerPayment as any)({
+          ...sendParams,
+          args: { wallet, rekeyBack, args: gateArgs, ...rest },
+          maxFee: microAlgo(10_000n),
         });
 
         return [{

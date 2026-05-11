@@ -3,6 +3,7 @@ import {
   Application,
   BoxMap,
   bytes,
+  clone,
   GlobalState,
   gtxn,
   itxn,
@@ -11,8 +12,11 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Global, Txn } from '@algorandfoundation/algorand-typescript/op'
+import { GlobalStateKeyFunder } from '../constants'
 import { ERR_HAS_GATE } from '../social/errors'
+import { AkitaBaseContract } from '../utils/base-contracts/base'
 import { gateCheck, getUserImpact } from '../utils/functions'
+import { FunderInfo } from '../utils/types/mbr'
 import {
   PollGlobalStateKeyBoxCount,
   PollGlobalStateKeyEndTime,
@@ -45,14 +49,13 @@ import {
   ERR_INVALID_VOTE,
   ERR_INVALID_VOTE_COUNT,
   ERR_INVALID_VOTE_OPTION,
+  ERR_MUST_BE_CALLED_FROM_FACTORY,
   ERR_NOT_VOTED,
   ERR_POLL_ACTIVE,
   ERR_POLL_ENDED,
+  ERR_STILL_HAS_VOTE_BOXES,
 } from './errors'
 import { MultipleChoice, MultipleChoiceImpact, PollType, SingleChoice, SingleChoiceImpact } from './types'
-
-// CONTRACT IMPORTS
-import { AkitaBaseContract } from '../utils/base-contracts/base'
 
 export class Poll extends AkitaBaseContract {
 
@@ -70,6 +73,8 @@ export class Poll extends AkitaBaseContract {
   maxSelected = GlobalState<uint64>({ key: PollGlobalStateKeyMaxSelected })
   /** the number of boxes created during the poll */
   boxCount = GlobalState<uint64>({ key: PollGlobalStateKeyBoxCount })
+  /** the creator-side MBR funder to refund after the poll is deleted */
+  funder = GlobalState<FunderInfo>({ key: GlobalStateKeyFunder })
   /** the question being asked */
   question = GlobalState<string>({ key: PollGlobalStateKeyQuestion })
   /** the options and vote counts of the poll */
@@ -148,6 +153,7 @@ export class Poll extends AkitaBaseContract {
     type: PollType,
     endTime: uint64,
     maxSelected: uint64,
+    funder: FunderInfo,
     question: string,
     options: string[],
     gateID: uint64
@@ -160,6 +166,7 @@ export class Poll extends AkitaBaseContract {
     this.type.value = type
     this.gateID.value = gateID
     this.endTime.value = endTime
+    this.funder.value = clone(funder)
     this.question.value = question
 
     loggedAssert(options.length >= 2 && options.length <= 5, ERR_INVALID_OPTION_COUNT)
@@ -206,6 +213,13 @@ export class Poll extends AkitaBaseContract {
 
       this.boxCount.value -= 1
     }
+  }
+
+  @abimethod({ allowActions: 'DeleteApplication' })
+  deleteApplication(): void {
+    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(Global.latestTimestamp > this.endTime.value, ERR_POLL_ACTIVE)
+    loggedAssert(this.boxCount.value === 0, ERR_STILL_HAS_VOTE_BOXES)
   }
 
   // POLL METHODS --------------------------------------------------------------------------------

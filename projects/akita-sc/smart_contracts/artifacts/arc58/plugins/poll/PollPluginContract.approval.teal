@@ -270,7 +270,7 @@ new_after_for@4:
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
-    pushint 813500
+    pushint 863500
     // smart_contracts/arc58/plugins/poll/contract.algo.ts:53
     // Global.minBalance
     global MinBalance

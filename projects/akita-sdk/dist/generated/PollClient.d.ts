@@ -33,6 +33,14 @@ export interface BinaryState {
 export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expand<A>) => Expand<R> : T extends infer O ? {
     [K in keyof O]: O[K];
 } : never;
+export type FunderInfo = {
+    account: string;
+    amount: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a FunderInfo to the struct representation
+ */
+export declare function FunderInfoFromTuple(abiTuple: [string, bigint]): FunderInfo;
 /**
  * The argument types for the Poll contract
  */
@@ -41,11 +49,12 @@ export type PollArgs = {
      * The object representation of the arguments for each method
      */
     obj: {
-        'create(uint64,uint8,uint64,uint64,string,string[],uint64)void': {
+        'create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void': {
             akitaDao: bigint | number;
             type: bigint | number;
             endTime: bigint | number;
             maxSelected: bigint | number;
+            funder: FunderInfo;
             question: string;
             options: string[];
             gateId: bigint | number;
@@ -53,6 +62,7 @@ export type PollArgs = {
         'deleteBoxes(address[])void': {
             addresses: string[];
         };
+        'deleteApplication()void': Record<string, never>;
         'gatedVote(pay,appl,uint64[])void': {
             mbrPayment?: AppMethodCallTransactionArgument;
             gateTxn: AppMethodCallTransactionArgument;
@@ -74,8 +84,9 @@ export type PollArgs = {
      * The tuple representation of the arguments for each method
      */
     tuple: {
-        'create(uint64,uint8,uint64,uint64,string,string[],uint64)void': [akitaDao: bigint | number, type: bigint | number, endTime: bigint | number, maxSelected: bigint | number, question: string, options: string[], gateId: bigint | number];
+        'create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void': [akitaDao: bigint | number, type: bigint | number, endTime: bigint | number, maxSelected: bigint | number, funder: FunderInfo, question: string, options: string[], gateId: bigint | number];
         'deleteBoxes(address[])void': [addresses: string[]];
+        'deleteApplication()void': [];
         'gatedVote(pay,appl,uint64[])void': [mbrPayment: AppMethodCallTransactionArgument | undefined, gateTxn: AppMethodCallTransactionArgument, votes: bigint[] | number[]];
         'vote(pay,uint64[])void': [mbrPayment: AppMethodCallTransactionArgument, votes: bigint[] | number[]];
         'hasVoted(address)bool': [user: string];
@@ -87,8 +98,9 @@ export type PollArgs = {
  * The return type for each method
  */
 export type PollReturns = {
-    'create(uint64,uint8,uint64,uint64,string,string[],uint64)void': void;
+    'create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void': void;
     'deleteBoxes(address[])void': void;
+    'deleteApplication()void': void;
     'gatedVote(pay,appl,uint64[])void': void;
     'vote(pay,uint64[])void': void;
     'hasVoted(address)bool': boolean;
@@ -102,14 +114,18 @@ export type PollTypes = {
     /**
      * Maps method signatures / names to their argument and return types.
      */
-    methods: Record<'create(uint64,uint8,uint64,uint64,string,string[],uint64)void' | 'create', {
-        argsObj: PollArgs['obj']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void'];
-        argsTuple: PollArgs['tuple']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void'];
-        returns: PollReturns['create(uint64,uint8,uint64,uint64,string,string[],uint64)void'];
+    methods: Record<'create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void' | 'create', {
+        argsObj: PollArgs['obj']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void'];
+        argsTuple: PollArgs['tuple']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void'];
+        returns: PollReturns['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void'];
     }> & Record<'deleteBoxes(address[])void' | 'deleteBoxes', {
         argsObj: PollArgs['obj']['deleteBoxes(address[])void'];
         argsTuple: PollArgs['tuple']['deleteBoxes(address[])void'];
         returns: PollReturns['deleteBoxes(address[])void'];
+    }> & Record<'deleteApplication()void' | 'deleteApplication', {
+        argsObj: PollArgs['obj']['deleteApplication()void'];
+        argsTuple: PollArgs['tuple']['deleteApplication()void'];
+        returns: PollReturns['deleteApplication()void'];
     }> & Record<'gatedVote(pay,appl,uint64[])void' | 'gatedVote', {
         argsObj: PollArgs['obj']['gatedVote(pay,appl,uint64[])void'];
         argsTuple: PollArgs['tuple']['gatedVote(pay,appl,uint64[])void'];
@@ -161,6 +177,10 @@ export type PollTypes = {
                  * the number of boxes created during the poll
                  */
                 boxCount: bigint;
+                /**
+                 * the creator-side MBR funder to refund after the poll is deleted
+                 */
+                funder: FunderInfo;
                 /**
                  * the question being asked
                  */
@@ -237,15 +257,23 @@ export type BoxKeysState = PollTypes['state']['box']['keys'];
 /**
  * Defines supported create method params for this smart contract
  */
-export type PollCreateCallParams = Expand<CallParams<PollArgs['obj']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void'] | PollArgs['tuple']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void']> & {
+export type PollCreateCallParams = Expand<CallParams<PollArgs['obj']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void'] | PollArgs['tuple']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void']> & {
     method: 'create';
 } & {
     onComplete?: OnApplicationComplete.NoOp;
-} & CreateSchema> | Expand<CallParams<PollArgs['obj']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void'] | PollArgs['tuple']['create(uint64,uint8,uint64,uint64,string,string[],uint64)void']> & {
-    method: 'create(uint64,uint8,uint64,uint64,string,string[],uint64)void';
+} & CreateSchema> | Expand<CallParams<PollArgs['obj']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void'] | PollArgs['tuple']['create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void']> & {
+    method: 'create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void';
 } & {
     onComplete?: OnApplicationComplete.NoOp;
 } & CreateSchema>;
+/**
+ * Defines supported delete method params for this smart contract
+ */
+export type PollDeleteCallParams = Expand<CallParams<PollArgs['obj']['deleteApplication()void'] | PollArgs['tuple']['deleteApplication()void']> & {
+    method: 'deleteApplication';
+}> | Expand<CallParams<PollArgs['obj']['deleteApplication()void'] | PollArgs['tuple']['deleteApplication()void']> & {
+    method: 'deleteApplication()void';
+}>;
 /**
  * Defines arguments required for the deploy method.
  */
@@ -254,6 +282,10 @@ export type PollDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams
      * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
      */
     createParams?: PollCreateCallParams;
+    /**
+     * Delete transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    deleteParams?: PollDeleteCallParams;
 }>;
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the Poll smart contract
@@ -290,16 +322,52 @@ export declare abstract class PollParamsFactory {
             onComplete?: OnApplicationComplete.NoOp;
         };
         /**
-         * Constructs create ABI call params for the Poll smart contract using the create(uint64,uint8,uint64,uint64,string,string[],uint64)void ABI method
+         * Constructs create ABI call params for the Poll smart contract using the create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void ABI method
          *
          * @param params Parameters for the call
          * @returns An `AppClientMethodCallParams` object for the call
          */
-        create(params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"]> & AppClientCompilationParams & {
+        create(params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"]> & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }): AppClientMethodCallParams & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOp;
         };
+    };
+    /**
+     * Gets available delete ABI call param factories
+     */
+    static get delete(): {
+        _resolveByMethod<TParams extends PollDeleteCallParams & {
+            method: string;
+        }>(params: TParams): {
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            sender?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            method: string;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | AppMethodCallTransactionArgument | undefined)[] | undefined;
+        };
+        /**
+         * Constructs delete ABI call params for the Poll smart contract using the deleteApplication()void ABI method
+         *
+         * @param params Parameters for the call
+         * @returns An `AppClientMethodCallParams` object for the call
+         */
+        deleteApplication(params: CallParams<PollArgs["obj"]["deleteApplication()void"] | PollArgs["tuple"]["deleteApplication()void"]>): AppClientMethodCallParams;
     };
     /**
      * Constructs a no op call for the deleteBoxes(address[])void ABI method
@@ -488,12 +556,12 @@ export declare class PollFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Poll smart contract using the create(uint64,uint8,uint64,uint64,string,string[],uint64)void ABI method.
+             * Creates a new instance of the Poll smart contract using the create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create params
              */
-            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 deployTimeParams: import("@algorandfoundation/algokit-utils").TealTemplateParams | undefined;
@@ -589,6 +657,98 @@ export declare class PollFactory {
                 onComplete: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.UpdateApplication | OnApplicationComplete.DeleteApplication;
             }>;
         };
+        /**
+         * Gets available deployDelete methods
+         */
+        deployDelete: {
+            /**
+             * Deletes an existing instance of the Poll smart contract using the deleteApplication()void ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The deployDelete params
+             */
+            deleteApplication: (params?: CallParams<PollArgs["obj"]["deleteApplication()void"] | PollArgs["tuple"]["deleteApplication()void"]>) => {
+                signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                note?: (Uint8Array | string) | undefined;
+                lease?: (Uint8Array | string) | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                onComplete?: OnApplicationComplete | undefined;
+                accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                rejectVersion?: number | undefined;
+                sender?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                method: string;
+                args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | AppMethodCallTransactionArgument | undefined)[] | undefined;
+            } & {
+                sender: Address;
+                signer: import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner | TransactionSigner | undefined;
+                method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+                args: (Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.UpdateApplication | OnApplicationComplete.DeleteApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    appId?: 0 | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+                onComplete: OnApplicationComplete.DeleteApplication;
+            };
+        };
     };
     /**
      * Create transactions for the current app
@@ -599,12 +759,12 @@ export declare class PollFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Poll smart contract using the create(uint64,uint8,uint64,uint64,string,string[],uint64)void ABI method.
+             * Creates a new instance of the Poll smart contract using the create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create transaction
              */
-            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 transactions: Transaction[];
@@ -622,16 +782,16 @@ export declare class PollFactory {
          */
         create: {
             /**
-             * Creates a new instance of the Poll smart contract using an ABI method call using the create(uint64,uint8,uint64,uint64,string,string[],uint64)void ABI method.
+             * Creates a new instance of the Poll smart contract using an ABI method call using the create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create result
              */
-            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
+            create: (params: CallParams<PollArgs["obj"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"] | PollArgs["tuple"]["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 result: {
-                    return: (undefined | PollReturns["create(uint64,uint8,uint64,uint64,string,string[],uint64)void"]);
+                    return: (undefined | PollReturns["create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"]);
                     compiledApproval?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
                     compiledClear?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
                     groupId: string | undefined;
@@ -698,6 +858,42 @@ export declare class PollClient {
      */
     readonly params: {
         /**
+         * Gets available delete methods
+         */
+        delete: {
+            /**
+             * Deletes an existing instance of the Poll smart contract using the `deleteApplication()void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The delete params
+             */
+            deleteApplication: (params?: CallParams<PollArgs["obj"]["deleteApplication()void"] | PollArgs["tuple"]["deleteApplication()void"]> & {
+                onComplete?: OnApplicationComplete.DeleteApplication;
+            }) => Promise<{
+                signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                appId: bigint;
+                sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                note?: (Uint8Array | string) | undefined;
+                lease?: (Uint8Array | string) | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                onComplete?: OnApplicationComplete.DeleteApplication | undefined;
+                accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                rejectVersion?: number | undefined;
+                method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+                args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+            }>;
+        };
+        /**
          * Makes a clear_state call to an existing instance of the Poll smart contract.
          *
          * @param params The params for the bare (raw) call
@@ -898,6 +1094,24 @@ export declare class PollClient {
      */
     readonly createTransaction: {
         /**
+         * Gets available delete methods
+         */
+        delete: {
+            /**
+             * Deletes an existing instance of the Poll smart contract using the `deleteApplication()void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The delete transaction
+             */
+            deleteApplication: (params?: CallParams<PollArgs["obj"]["deleteApplication()void"] | PollArgs["tuple"]["deleteApplication()void"]> & {
+                onComplete?: OnApplicationComplete.DeleteApplication;
+            }) => Promise<{
+                transactions: Transaction[];
+                methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+                signers: Map<number, TransactionSigner>;
+            }>;
+        };
+        /**
          * Makes a clear_state call to an existing instance of the Poll smart contract.
          *
          * @param params The params for the bare (raw) call
@@ -989,6 +1203,29 @@ export declare class PollClient {
      * Send calls to the current app
      */
     readonly send: {
+        /**
+         * Gets available delete methods
+         */
+        delete: {
+            /**
+             * Deletes an existing instance of the Poll smart contract using the `deleteApplication()void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The delete result
+             */
+            deleteApplication: (params?: CallParams<PollArgs["obj"]["deleteApplication()void"] | PollArgs["tuple"]["deleteApplication()void"]> & SendParams & {
+                onComplete?: OnApplicationComplete.DeleteApplication;
+            }) => Promise<{
+                return: (undefined | PollReturns["deleteApplication()void"]);
+                groupId: string | undefined;
+                txIds: string[];
+                returns?: ABIReturn[] | undefined | undefined;
+                confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+                transactions: Transaction[];
+                confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+                transaction: Transaction;
+            }>;
+        };
         /**
          * Makes a clear_state call to an existing instance of the Poll smart contract.
          *
@@ -1160,6 +1397,10 @@ export declare class PollClient {
              */
             boxCount: () => Promise<bigint | undefined>;
             /**
+             * Get the current value of the funder key in global state
+             */
+            funder: () => Promise<FunderInfo | undefined>;
+            /**
              * Get the current value of the question key in global state
              */
             question: () => Promise<string | undefined>;
@@ -1280,6 +1521,18 @@ export type PollComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     opUp(params?: CallParams<PollArgs['obj']['opUp()void'] | PollArgs['tuple']['opUp()void']>): PollComposer<[...TReturns, PollReturns['opUp()void'] | undefined]>;
+    /**
+     * Gets available delete methods
+     */
+    readonly delete: {
+        /**
+         * Deletes an existing instance of the Poll smart contract using the deleteApplication()void ABI method.
+         *
+         * @param params Any additional parameters for the call
+         * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+         */
+        deleteApplication(params?: CallParams<PollArgs['obj']['deleteApplication()void'] | PollArgs['tuple']['deleteApplication()void']>): PollComposer<[...TReturns, PollReturns['deleteApplication()void'] | undefined]>;
+    };
     /**
      * Makes a clear_state call to an existing instance of the Poll smart contract.
      *

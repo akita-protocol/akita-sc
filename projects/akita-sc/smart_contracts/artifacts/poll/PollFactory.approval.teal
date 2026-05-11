@@ -3,9 +3,9 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 2 8 813500
+    intcblock 0 1 2 8 863500
     bytecblock "akita_dao" "wallet" "bc" "ERR:NDAO" "akita_escrow" 0x151f7c75 0xc53b32cc "version" "child_contract_version" "ERR:IPAY" "pal"
-    // smart_contracts/poll/factory.algo.ts:10-16
+    // smart_contracts/poll/factory.algo.ts:12-18
     // @contract({
     //   stateTotals: {
     //     globalBytes: FactoryGlobalStateMaxBytes,
@@ -18,7 +18,7 @@ main:
     match main_update_route@2
 
 main_switch_case_next@3:
-    // smart_contracts/poll/factory.algo.ts:10-16
+    // smart_contracts/poll/factory.algo.ts:12-18
     // @contract({
     //   stateTotals: {
     //     globalBytes: FactoryGlobalStateMaxBytes,
@@ -30,22 +30,22 @@ main_switch_case_next@3:
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@16
-    pushbytess 0x119bc698 0x83661703 // method "new(pay,uint8,uint64,uint64,string,string[],uint64)uint64", method "newPollCost()uint64"
+    bz main_create_NoOp@17
+    pushbytess 0x119bc698 0x44d13a74 0x83661703 // method "new(pay,uint8,uint64,uint64,string,string[],uint64)uint64", method "deletePoll(uint64)void", method "newPollCost()uint64"
     bytec 6 // method "initBoxedContract(string,uint64)void"
     pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0xae84cbd8 0x33e92c94 0x854dede0 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow((string,uint64))void", method "updateAkitaDAO(uint64)void", method "opUp()void"
     txna ApplicationArgs 0
-    match new newPollCost initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@14
+    match new deletePoll newPollCost initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@15
     err
 
-main_opUp_route@14:
+main_opUp_route@15:
     // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
 
-main_create_NoOp@16:
-    // smart_contracts/poll/factory.algo.ts:10-16
+main_create_NoOp@17:
+    // smart_contracts/poll/factory.algo.ts:12-18
     // @contract({
     //   stateTotals: {
     //     globalBytes: FactoryGlobalStateMaxBytes,
@@ -113,7 +113,7 @@ splitOptInCount_after_if_else@2:
 
 // smart_contracts/poll/factory.algo.ts::PollFactory.create[routing]() -> void:
 create:
-    // smart_contracts/poll/factory.algo.ts:18
+    // smart_contracts/poll/factory.algo.ts:20
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -167,32 +167,32 @@ create:
     // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     bytec 7 // "version"
-    // smart_contracts/poll/factory.algo.ts:20
+    // smart_contracts/poll/factory.algo.ts:22
     // this.version.value = version
     uncover 4
     app_global_put
     // smart_contracts/utils/base-contracts/factory.ts:34
     // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
     bytec 8 // "child_contract_version"
-    // smart_contracts/poll/factory.algo.ts:21
+    // smart_contracts/poll/factory.algo.ts:23
     // this.childContractVersion.value = childVersion
     uncover 3
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/poll/factory.algo.ts:22
+    // smart_contracts/poll/factory.algo.ts:24
     // this.akitaDAO.value = akitaDAO
     uncover 2
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
     bytec 4 // "akita_escrow"
-    // smart_contracts/poll/factory.algo.ts:23
+    // smart_contracts/poll/factory.algo.ts:25
     // this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
     swap
     app_global_put
-    // smart_contracts/poll/factory.algo.ts:18
+    // smart_contracts/poll/factory.algo.ts:20
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -201,7 +201,8 @@ create:
 // smart_contracts/poll/factory.algo.ts::PollFactory.new[routing]() -> void:
 new:
     intc_0 // 0
-    // smart_contracts/poll/factory.algo.ts:26-34
+    pushbytes ""
+    // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
     //   type: PollType,
@@ -263,7 +264,7 @@ new:
     intc_0 // 0
 
 new_for_header@1:
-    // smart_contracts/poll/factory.algo.ts:26-34
+    // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
     //   type: PollType,
@@ -305,7 +306,7 @@ new_for_header@1:
     b new_for_header@1
 
 new_after_for@4:
-    // smart_contracts/poll/factory.algo.ts:26-34
+    // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
     //   type: PollType,
@@ -323,12 +324,12 @@ new_after_for@4:
     assert // invalid number of bytes for arc4.dynamic_array<string>
     txna ApplicationArgs 6
     dup
-    bury 13
+    bury 14
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
-    // smart_contracts/poll/factory.algo.ts:38
+    // smart_contracts/poll/factory.algo.ts:40
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     dig 10
     gtxns Receiver
@@ -340,25 +341,27 @@ new_after_for@4:
     err // ERR:IPAY
 
 new_after_assert@7:
-    // smart_contracts/poll/factory.algo.ts:39
+    // smart_contracts/poll/factory.algo.ts:41
     // loggedAssert(payment.amount === this.newPollCost(), ERR_INVALID_PAYMENT)
     dig 10
     gtxns Amount
-    // smart_contracts/poll/factory.algo.ts:70-72
+    dup
+    bury 13
+    // smart_contracts/poll/factory.algo.ts:87-89
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
-    intc 4 // 813500
-    // smart_contracts/poll/factory.algo.ts:73
+    intc 4 // 863500
+    // smart_contracts/poll/factory.algo.ts:90
     // Global.minBalance
     global MinBalance
-    // smart_contracts/poll/factory.algo.ts:70-73
+    // smart_contracts/poll/factory.algo.ts:87-90
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
     // Global.minBalance
     +
-    // smart_contracts/poll/factory.algo.ts:39
+    // smart_contracts/poll/factory.algo.ts:41
     // loggedAssert(payment.amount === this.newPollCost(), ERR_INVALID_PAYMENT)
     ==
     bnz new_after_assert@9
@@ -367,7 +370,7 @@ new_after_assert@7:
     err // ERR:IPAY
 
 new_after_assert@9:
-    // smart_contracts/poll/factory.algo.ts:41-52
+    // smart_contracts/poll/factory.algo.ts:43-55
     // const mint = poll.call
     //   .create({
     //     args: [
@@ -375,34 +378,42 @@ new_after_assert@9:
     //       type,
     //       endTime,
     //       maxSelected,
+    //       { account: payment.sender, amount: payment.amount },
     //       question,
     //       options,
     //       gateID
     //     ],
     //   })
     itxn_begin
-    // smart_contracts/poll/factory.algo.ts:44
+    // smart_contracts/poll/factory.algo.ts:46
     // this.akitaDAO.value.id,
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/poll/factory.algo.ts:44
+    // smart_contracts/poll/factory.algo.ts:46
     // this.akitaDAO.value.id,
     app_global_get_ex
     assert // check GlobalState exists
     itob
-    // smart_contracts/poll/factory.algo.ts:36
+    // smart_contracts/poll/factory.algo.ts:50
+    // { account: payment.sender, amount: payment.amount },
+    dig 11
+    gtxns Sender
+    dig 13
+    itob
+    concat
+    // smart_contracts/poll/factory.algo.ts:38
     // const poll = compileArc4(Poll)
-    intc_3 // 8
+    pushint 9
     itxn_field GlobalNumByteSlice
     pushint 11
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(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)
+    pushbytes base64(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)
     itxn_field ApprovalProgramPages
-    // smart_contracts/poll/factory.algo.ts:41-52
+    // smart_contracts/poll/factory.algo.ts:43-55
     // const mint = poll.call
     //   .create({
     //     args: [
@@ -410,6 +421,7 @@ new_after_assert@9:
     //       type,
     //       endTime,
     //       maxSelected,
+    //       { account: payment.sender, amount: payment.amount },
     //       question,
     //       options,
     //       gateID
@@ -417,27 +429,29 @@ new_after_assert@9:
     //   })
     intc_0 // 0
     itxn_field OnCompletion
-    pushbytes 0x9fa835a8 // method "create(uint64,uint8,uint64,uint64,string,string[],uint64)void"
+    pushbytes 0x95aaf5eb // method "create(uint64,uint8,uint64,uint64,(address,uint64),string,string[],uint64)void"
     itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    dig 10
     itxn_field ApplicationArgs
     dig 9
     itxn_field ApplicationArgs
     dig 8
     itxn_field ApplicationArgs
-    dig 7
     itxn_field ApplicationArgs
     dig 6
     itxn_field ApplicationArgs
     dig 5
     itxn_field ApplicationArgs
-    dig 11
+    dig 12
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/poll/factory.algo.ts:41-54
+    // smart_contracts/poll/factory.algo.ts:43-57
     // const mint = poll.call
     //   .create({
     //     args: [
@@ -445,6 +459,7 @@ new_after_assert@9:
     //       type,
     //       endTime,
     //       maxSelected,
+    //       { account: payment.sender, amount: payment.amount },
     //       question,
     //       options,
     //       gateID
@@ -453,7 +468,7 @@ new_after_assert@9:
     //   .itxn
     //   .createdApp
     gitxn 0 CreatedApplicationID
-    // smart_contracts/poll/factory.algo.ts:56-61
+    // smart_contracts/poll/factory.algo.ts:59-64
     // itxn
     //   .payment({
     //     receiver: mint.address,
@@ -461,17 +476,17 @@ new_after_assert@9:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/poll/factory.algo.ts:58
+    // smart_contracts/poll/factory.algo.ts:61
     // receiver: mint.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/poll/factory.algo.ts:59
+    // smart_contracts/poll/factory.algo.ts:62
     // amount: Global.minBalance
     global MinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/poll/factory.algo.ts:56-60
+    // smart_contracts/poll/factory.algo.ts:59-63
     // itxn
     //   .payment({
     //     receiver: mint.address,
@@ -481,7 +496,7 @@ new_after_assert@9:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/poll/factory.algo.ts:56-61
+    // smart_contracts/poll/factory.algo.ts:59-64
     // itxn
     //   .payment({
     //     receiver: mint.address,
@@ -489,7 +504,7 @@ new_after_assert@9:
     //   })
     //   .submit()
     itxn_submit
-    // smart_contracts/poll/factory.algo.ts:26-34
+    // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
     //   type: PollType,
@@ -508,23 +523,99 @@ new_after_assert@9:
     return
 
 
+// smart_contracts/poll/factory.algo.ts::PollFactory.deletePoll[routing]() -> void:
+deletePoll:
+    // smart_contracts/poll/factory.algo.ts:69
+    // deletePoll(appId: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/poll/factory.algo.ts:70
+    // loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_POLL)
+    app_params_get AppCreator
+    assert // application exists
+    global CurrentApplicationAddress
+    ==
+    bnz deletePoll_after_assert@3
+    pushbytes "ERR:NAPL"
+    log
+    err // ERR:NAPL
+
+deletePoll_after_assert@3:
+    // smart_contracts/poll/factory.algo.ts:72
+    // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
+    dupn 2
+    pushbytes "funder"
+    app_global_get_ex
+    pop
+    // smart_contracts/poll/factory.algo.ts:73
+    // const { account: receiver, amount } = decodeArc4<FunderInfo>(funderBytes)
+    dup
+    extract 0 32
+    swap
+    pushint 32
+    extract_uint64
+    // smart_contracts/poll/factory.algo.ts:76
+    // poll.call.deleteApplication({ appId })
+    itxn_begin
+    pushint 5
+    itxn_field OnCompletion
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x2487c32c // method "deleteApplication()void"
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/poll/factory.algo.ts:78-80
+    // itxn
+    //   .payment({ amount, receiver })
+    //   .submit()
+    itxn_begin
+    itxn_field Amount
+    itxn_field Receiver
+    // smart_contracts/poll/factory.algo.ts:78-79
+    // itxn
+    //   .payment({ amount, receiver })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/poll/factory.algo.ts:78-80
+    // itxn
+    //   .payment({ amount, receiver })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/poll/factory.algo.ts:69
+    // deletePoll(appId: Application): void {
+    intc_1 // 1
+    return
+
+
 // smart_contracts/poll/factory.algo.ts::PollFactory.newPollCost[routing]() -> void:
 newPollCost:
-    // smart_contracts/poll/factory.algo.ts:70-72
+    // smart_contracts/poll/factory.algo.ts:87-89
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
-    intc 4 // 813500
-    // smart_contracts/poll/factory.algo.ts:73
+    intc 4 // 863500
+    // smart_contracts/poll/factory.algo.ts:90
     // Global.minBalance
     global MinBalance
-    // smart_contracts/poll/factory.algo.ts:70-73
+    // smart_contracts/poll/factory.algo.ts:87-90
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
     // (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
     // Global.minBalance
     +
-    // smart_contracts/poll/factory.algo.ts:66
+    // smart_contracts/poll/factory.algo.ts:83
     // @abimethod({ readonly: true })
     itob
     bytec 5 // 0x151f7c75

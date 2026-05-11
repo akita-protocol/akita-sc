@@ -26,6 +26,9 @@ export const POLL_ERROR_MESSAGES: Record<string, string> = {
   // --- Poll lifecycle -----------------------------------------------------
   PEND: 'Poll has ended',
   PACT: 'Poll is still active',
+  NAPL: 'App is not a poll created by this factory',
+  SHVB: 'Poll still has vote boxes',
+  MCFF: 'Method must be called from poll factory',
 
   // --- Voting -------------------------------------------------------------
   AVOT: 'User has already voted',

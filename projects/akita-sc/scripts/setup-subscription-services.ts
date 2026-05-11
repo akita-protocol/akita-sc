@@ -78,32 +78,37 @@ const BANNER_DIR = resolve(__dirname, '../../../../akita-rn/assets/badges')
 const SERVICES = [
   {
     title: 'Plus',
-    price: usdcAmount(10),
+    price: usdcAmount(20),
     interval: SECONDS_PER_MONTH,
     highlightMessage: HighlightMessage.None,
     highlightColor: '#3EE1A1',
     modifier: 3n,
+    agentAccessTier: 'Core agent access',
     banner: resolve(BANNER_DIR, 'akita_plus_banner.png'),
     description: [
       'Boost your social impact and unlock gated experiences across the Akita ecosystem.',
       '',
       '- Social impact boost',
+      '- Core agent access',
       '- Exclusive Plus badge',
       '- Gated staking pools, auctions, and raffles',
+      '- Customizable gallery',
     ].join('\n'),
   },
   {
     title: 'Pro',
-    price: usdcAmount(25),
+    price: usdcAmount(60),
     interval: SECONDS_PER_MONTH,
     highlightMessage: HighlightMessage.Popular,
     highlightColor: '#4BC9FF',
     modifier: 2n,
+    agentAccessTier: 'Expanded agent access',
     banner: resolve(BANNER_DIR, 'akita_pro_banner.png'),
     description: [
       'Enhanced social impact with everything in Plus, Pro-exclusive events, and a custom app theme.',
       '',
       '- Enhanced social impact boost',
+      '- Expanded agent access',
       '- Exclusive Pro badge',
       '- Everything in Plus',
       '- Pro-exclusive staking pools, auctions, and raffles',
@@ -117,15 +122,16 @@ const SERVICES = [
     highlightMessage: HighlightMessage.None,
     highlightColor: '#D16BA5',
     modifier: 1n,
+    agentAccessTier: 'Priority agent access',
     banner: resolve(BANNER_DIR, 'akita_ultra_banner.png'),
     description: [
       'Maximum social impact with everything in Pro, Ultra-exclusive events, and early access to new features.',
       '',
       '- Maximum social impact boost',
+      '- Priority agent access',
       '- Exclusive Ultra badge',
       '- Everything in Pro',
       '- Ultra-exclusive staking pools, auctions, and raffles',
-      '- Customizable NFT gallery',
       '- Early access to new features',
     ].join('\n'),
   },
@@ -553,7 +559,7 @@ export async function setupSubscriptionServices({
 
   console.log(`\n   ✅ Subscription services created:`)
   for (let i = 0; i < SERVICES.length; i++) {
-    console.log(`      ${SERVICES[i].title} — $${Number(SERVICES[i].price) / 10 ** USDC_DECIMALS}/month (serviceId=${serviceIds[i]}, modifier=${SERVICES[i].modifier})`)
+    console.log(`      ${SERVICES[i].title} — $${Number(SERVICES[i].price) / 10 ** USDC_DECIMALS}/month (${SERVICES[i].agentAccessTier}, serviceId=${serviceIds[i]}, modifier=${SERVICES[i].modifier})`)
   }
   console.log()
 }
@@ -573,7 +579,8 @@ if (require.main === module) {
       console.log('   1. Install subscriptions plugin on DAO wallet (global)')
       console.log('   2. Upload banner images to IPFS')
       console.log('   3. Opt Subscriptions contract into USDC')
-      console.log('   4. Create 3 subscription services (Plus $10, Pro $25, Ultra $100) in USDC')
+      console.log('   4. Create 3 subscription services (Plus $20, Pro $60, Ultra $100) in USDC')
+      console.log('      with agent access tiers: Core, Expanded, Priority')
       console.log('      with payoutAddress = rev_subscriptions escrow')
       console.log('   5. Install social plugin on DAO wallet')
       console.log('   6. Set subscription state modifiers (3, 2, 1)\n')

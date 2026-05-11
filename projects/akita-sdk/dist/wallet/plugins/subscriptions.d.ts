@@ -36,6 +36,11 @@ type TriggerPaymentArgs = (Omit<ContractArgs['triggerPayment(uint64,bool,address
     rekeyBack?: boolean;
     args?: Uint8Array[];
 });
+type FundTriggerPaymentArgs = (MaybeSigner & {
+    id: bigint | number;
+    rekeyBack?: boolean;
+    args?: Uint8Array[];
+});
 type StreakCheckArgs = (Omit<ContractArgs['streakCheck(uint64,bool,(address,uint64))void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -70,6 +75,8 @@ export declare class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginC
     subscribe(args: SubscribeArgs): PluginSDKReturn;
     triggerPayment(): PluginSDKReturn;
     triggerPayment(args: TriggerPaymentArgs): PluginSDKReturn;
+    fundTriggerPayment(): PluginSDKReturn;
+    fundTriggerPayment(args: FundTriggerPaymentArgs): PluginSDKReturn;
     streakCheck(): PluginSDKReturn;
     streakCheck(args: StreakCheckArgs): PluginSDKReturn;
     setPasses(): PluginSDKReturn;

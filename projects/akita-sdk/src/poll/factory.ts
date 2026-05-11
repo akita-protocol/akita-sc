@@ -1,4 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
+import { ABIMethod } from "@algorandfoundation/algokit-utils/abi";
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import {
@@ -8,7 +9,7 @@ import {
 } from '../generated/PollFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { PollSDK } from "./index";
-import { NewPollParams } from "./types";
+import { DeletePollParams, NewPollParams } from "./types";
 
 export type PollFactoryContractArgs = PollFactoryArgs["obj"];
 
@@ -99,6 +100,28 @@ export class PollFactorySDK extends BaseSDK<PollFactoryClient> {
   }
 
   /**
+   * Deletes a finished poll after all vote boxes have been cleared.
+   */
+  async deletePoll({ sender, signer, appId }: DeletePollParams): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const composer = this.algorand.newGroup();
+
+    composer.addAppCallMethodCall({
+      ...sendParams,
+      appId: this.appId,
+      method: ABIMethod.fromSignature('deletePoll(uint64)void'),
+      args: [appId],
+      maxFee: microAlgo(4_000),
+    });
+
+    await composer.send({
+      populateAppCallResources: true,
+      coverAppCallInnerTransactionFees: true,
+    });
+  }
+
+  /**
    * Updates the Akita DAO reference.
    */
   async updateAkitaDAO({ sender, signer, akitaDao }: MaybeSigner & PollFactoryContractArgs['updateAkitaDAO(uint64)void']): Promise<void> {
@@ -137,4 +160,3 @@ export async function newPoll({
   const factory = new PollFactorySDK({ factoryParams, algorand, readerAccount, sendParams });
   return await factory.new(pollParams);
 }
-
