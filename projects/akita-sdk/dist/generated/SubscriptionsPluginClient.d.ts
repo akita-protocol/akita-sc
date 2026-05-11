@@ -118,11 +118,10 @@ export type SubscriptionsPluginArgs = {
             id: bigint | number;
             args: Uint8Array[];
         };
-        'fundTriggerPayment(uint64,bool,uint64,byte[][])void': {
+        'fundTriggerPayment(uint64,bool,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
             id: bigint | number;
-            args: Uint8Array[];
         };
         'streakCheck(uint64,bool,(address,uint64))void': {
             wallet: bigint | number;
@@ -155,7 +154,7 @@ export type SubscriptionsPluginArgs = {
         'unblock(uint64,bool,address)void': [wallet: bigint | number, rekeyBack: boolean, address: string];
         'subscribe(uint64,bool,uint64,address,uint64,uint64,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, recipient: string, amount: bigint | number, interval: bigint | number, index: bigint | number, args: Uint8Array[]];
         'triggerPayment(uint64,bool,address,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, address: string, id: bigint | number, args: Uint8Array[]];
-        'fundTriggerPayment(uint64,bool,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, args: Uint8Array[]];
+        'fundTriggerPayment(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number];
         'streakCheck(uint64,bool,(address,uint64))void': [wallet: bigint | number, rekeyBack: boolean, key: SubscriptionKey];
         'setPasses(uint64,bool,uint64,address[])void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, addresses: string[]];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
@@ -177,7 +176,7 @@ export type SubscriptionsPluginReturns = {
     'unblock(uint64,bool,address)void': void;
     'subscribe(uint64,bool,uint64,address,uint64,uint64,uint64,byte[][])void': void;
     'triggerPayment(uint64,bool,address,uint64,byte[][])void': void;
-    'fundTriggerPayment(uint64,bool,uint64,byte[][])void': void;
+    'fundTriggerPayment(uint64,bool,uint64)void': void;
     'streakCheck(uint64,bool,(address,uint64))void': void;
     'setPasses(uint64,bool,uint64,address[])void': void;
     'updateAkitaDAO(uint64)void': void;
@@ -234,10 +233,10 @@ export type SubscriptionsPluginTypes = {
         argsObj: SubscriptionsPluginArgs['obj']['triggerPayment(uint64,bool,address,uint64,byte[][])void'];
         argsTuple: SubscriptionsPluginArgs['tuple']['triggerPayment(uint64,bool,address,uint64,byte[][])void'];
         returns: SubscriptionsPluginReturns['triggerPayment(uint64,bool,address,uint64,byte[][])void'];
-    }> & Record<'fundTriggerPayment(uint64,bool,uint64,byte[][])void' | 'fundTriggerPayment', {
-        argsObj: SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64,byte[][])void'];
-        argsTuple: SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64,byte[][])void'];
-        returns: SubscriptionsPluginReturns['fundTriggerPayment(uint64,bool,uint64,byte[][])void'];
+    }> & Record<'fundTriggerPayment(uint64,bool,uint64)void' | 'fundTriggerPayment', {
+        argsObj: SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64)void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64)void'];
+        returns: SubscriptionsPluginReturns['fundTriggerPayment(uint64,bool,uint64)void'];
     }> & Record<'streakCheck(uint64,bool,(address,uint64))void' | 'streakCheck', {
         argsObj: SubscriptionsPluginArgs['obj']['streakCheck(uint64,bool,(address,uint64))void'];
         argsTuple: SubscriptionsPluginArgs['tuple']['streakCheck(uint64,bool,(address,uint64))void'];
@@ -464,12 +463,12 @@ export declare abstract class SubscriptionsPluginParamsFactory {
      */
     static triggerPayment(params: CallParams<SubscriptionsPluginArgs['obj']['triggerPayment(uint64,bool,address,uint64,byte[][])void'] | SubscriptionsPluginArgs['tuple']['triggerPayment(uint64,bool,address,uint64,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the fundTriggerPayment(uint64,bool,uint64,byte[][])void ABI method
+     * Constructs a no op call for the fundTriggerPayment(uint64,bool,uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static fundTriggerPayment(params: CallParams<SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64,byte[][])void'] | SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static fundTriggerPayment(params: CallParams<SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64)void'] | SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the streakCheck(uint64,bool,(address,uint64))void ABI method
      *
@@ -1185,12 +1184,12 @@ export declare class SubscriptionsPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"]> & {
+        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1497,12 +1496,12 @@ export declare class SubscriptionsPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"]> & {
+        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1769,15 +1768,15 @@ export declare class SubscriptionsPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the SubscriptionsPlugin smart contract using the `fundTriggerPayment(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64,byte[][])void"]> & SendParams & {
+        fundTriggerPayment: (params: CallParams<SubscriptionsPluginArgs["obj"]["fundTriggerPayment(uint64,bool,uint64)void"] | SubscriptionsPluginArgs["tuple"]["fundTriggerPayment(uint64,bool,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | SubscriptionsPluginReturns["fundTriggerPayment(uint64,bool,uint64,byte[][])void"]);
+            return: (undefined | SubscriptionsPluginReturns["fundTriggerPayment(uint64,bool,uint64)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1990,12 +1989,12 @@ export type SubscriptionsPluginComposer<TReturns extends [...any[]] = []> = {
      */
     triggerPayment(params?: CallParams<SubscriptionsPluginArgs['obj']['triggerPayment(uint64,bool,address,uint64,byte[][])void'] | SubscriptionsPluginArgs['tuple']['triggerPayment(uint64,bool,address,uint64,byte[][])void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['triggerPayment(uint64,bool,address,uint64,byte[][])void'] | undefined]>;
     /**
-     * Calls the fundTriggerPayment(uint64,bool,uint64,byte[][])void ABI method.
+     * Calls the fundTriggerPayment(uint64,bool,uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    fundTriggerPayment(params?: CallParams<SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64,byte[][])void'] | SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64,byte[][])void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['fundTriggerPayment(uint64,bool,uint64,byte[][])void'] | undefined]>;
+    fundTriggerPayment(params?: CallParams<SubscriptionsPluginArgs['obj']['fundTriggerPayment(uint64,bool,uint64)void'] | SubscriptionsPluginArgs['tuple']['fundTriggerPayment(uint64,bool,uint64)void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['fundTriggerPayment(uint64,bool,uint64)void'] | undefined]>;
     /**
      * Calls the streakCheck(uint64,bool,(address,uint64))void ABI method.
      *

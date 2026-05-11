@@ -15,7 +15,7 @@ main:
     pushbytes 0xba973cd0 // method "optIn(uint64,bool,uint64)void"
     bytec 7 // method "initDescription(uint64,uint64)void"
     bytec 8 // method "loadDescription(uint64,uint64,byte[])void"
-    pushbytess 0xb6aac39d 0x39a3ae47 0x19b1fc2b 0xbec86c34 0x9f59a970 0xc9cca45c 0x23e337bd 0xd5502861 0xea2178aa 0x1c42461b 0x33e92c94 0x854dede0 // method "newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64", method "pauseService(uint64,bool,uint64)void", method "shutdownService(uint64,bool,uint64)void", method "block(uint64,bool,address)void", method "unblock(uint64,bool,address)void", method "subscribe(uint64,bool,uint64,address,uint64,uint64,uint64,byte[][])void", method "triggerPayment(uint64,bool,address,uint64,byte[][])void", method "fundTriggerPayment(uint64,bool,uint64,byte[][])void", method "streakCheck(uint64,bool,(address,uint64))void", method "setPasses(uint64,bool,uint64,address[])void", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    pushbytess 0xb6aac39d 0x39a3ae47 0x19b1fc2b 0xbec86c34 0x9f59a970 0xc9cca45c 0x23e337bd 0xbf11d94e 0xea2178aa 0x1c42461b 0x33e92c94 0x854dede0 // method "newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64", method "pauseService(uint64,bool,uint64)void", method "shutdownService(uint64,bool,uint64)void", method "block(uint64,bool,address)void", method "unblock(uint64,bool,address)void", method "subscribe(uint64,bool,uint64,address,uint64,uint64,uint64,byte[][])void", method "triggerPayment(uint64,bool,address,uint64,byte[][])void", method "fundTriggerPayment(uint64,bool,uint64)void", method "streakCheck(uint64,bool,(address,uint64))void", method "setPasses(uint64,bool,uint64,address[])void", method "updateAkitaDAO(uint64)void", method "opUp()void"
     txna ApplicationArgs 0
     match optIn initDescription loadDescription newService pauseService shutdownService block unblock subscribe triggerPayment fundTriggerPayment streakCheck setPasses updateAkitaDAO main_opUp_route@19
     err
@@ -3165,16 +3165,13 @@ triggerPayment_else_body@10:
 
 // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts::SubscriptionsPlugin.fundTriggerPayment[routing]() -> void:
 fundTriggerPayment:
-    intc_0 // 0
-    dup
     pushbytes ""
-    dupn 4
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-482
+    dupn 3
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-481
     // fundTriggerPayment(
     //   wallet: Application,
     //   rekeyBack: boolean,
-    //   id: SubscriptionID,
-    //   args: GateArgs
+    //   id: SubscriptionID
     // ): void {
     txna ApplicationArgs 1
     dup
@@ -3183,6 +3180,7 @@ fundTriggerPayment:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    dup
     txna ApplicationArgs 2
     dup
     len
@@ -3191,87 +3189,22 @@ fundTriggerPayment:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
+    swap
     txna ApplicationArgs 3
-    dupn 2
+    dup
+    cover 2
+    dup
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    txna ApplicationArgs 4
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    dup
-    cover 2
-    pushint 2
-    *
-    swap
-    dup
-    len
-    swap
-    extract 2 0
-    intc_0 // 0
-
-fundTriggerPayment_for_header@1:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-482
-    // fundTriggerPayment(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   id: SubscriptionID,
-    //   args: GateArgs
-    // ): void {
-    dup
-    dig 5
-    <
-    bz fundTriggerPayment_after_for@4
-    dupn 2
-    pushint 2
-    *
-    dig 3
-    dup
-    uncover 2
-    extract_uint16 // on error: invalid array encoding
-    dup
-    dig 7
-    dup
-    cover 4
-    ==
-    assert // invalid tail pointer for (len+(len+uint8[])[])
-    dig 1
-    len
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    pushint 2
-    +
-    +
-    bury 5
-    intc_1 // 1
-    +
-    bury 1
-    b fundTriggerPayment_for_header@1
-
-fundTriggerPayment_after_for@4:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-482
-    // fundTriggerPayment(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   id: SubscriptionID,
-    //   args: GateArgs
-    // ): void {
-    dig 3
-    pushint 2
-    +
-    dig 3
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<bytes>
     // smart_contracts/utils/functions.ts:270-273
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    dig 8
+    swap
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_3 // "spending_address"
@@ -3283,14 +3216,14 @@ fundTriggerPayment_after_for@4:
     app_global_get_ex
     pop
     dup
-    bury 16
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:485
+    cover 2
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:484
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:485
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:484
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3299,20 +3232,20 @@ fundTriggerPayment_after_for@4:
     bytec_1 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:485
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:484
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     pushint 32
     extract_uint64
     dup
-    bury 16
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:486
+    cover 3
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:485
     // const key: SubscriptionKey = { address: sender, id }
-    dig 7
+    uncover 2
     itob
     dig 2
     swap
     concat
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:488-492
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:487-491
     // const sub = abiCall<typeof Subscriptions.prototype.getSubscription>({
     //   sender,
     //   appId,
@@ -3332,9 +3265,7 @@ fundTriggerPayment_after_for@4:
     itxn_field Fee
     itxn_submit
     itxn LastLog
-    dup
-    bury 17
-    dup
+    dupn 2
     extract 4 0
     swap
     extract 0 4
@@ -3346,21 +3277,21 @@ fundTriggerPayment_after_for@4:
     pushint 105
     ==
     assert // invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionInfoWithExistence
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:494
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:493
     // loggedAssert(sub.exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
     intc_0 // 0
     getbit
-    bnz fundTriggerPayment_after_assert@8
+    bnz fundTriggerPayment_after_assert@4
     pushbytes "ERR:UDNE"
     log
     err // ERR:UDNE
 
-fundTriggerPayment_after_assert@8:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:496
+fundTriggerPayment_after_assert@4:
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:495
     // const latestWindowStart: uint64 = Global.latestTimestamp - ((Global.latestTimestamp - sub.startDate) % sub.interval)
     global LatestTimestamp
     dup
-    dig 17
+    dig 2
     dup
     cover 2
     pushint 45
@@ -3373,67 +3304,66 @@ fundTriggerPayment_after_assert@8:
     uncover 2
     swap
     -
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:497
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:496
     // loggedAssert(sub.lastPayment < latestWindowStart, ERR_CANNOT_TRIGGER)
     swap
     pushint 85
     extract_uint64
     >
+    bnz fundTriggerPayment_after_assert@6
+    bytec 13 // "ERR:CTRG"
+    log
+    err // ERR:CTRG
+
+fundTriggerPayment_after_assert@6:
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:498
+    // let fundAmount: uint64 = 0
+    intc_0 // 0
+    bury 10
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:499
+    // if (sub.amount > sub.escrowed) {
+    dupn 2
+    pushint 53
+    extract_uint64
+    dup
+    cover 2
+    bury 11
+    pushint 101
+    extract_uint64
+    dup
+    bury 10
+    >
+    bz fundTriggerPayment_after_if_else@8
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:500
+    // fundAmount = sub.amount - sub.escrowed
+    dig 8
+    dig 8
+    -
+    bury 10
+
+fundTriggerPayment_after_if_else@8:
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:503
+    // loggedAssert(fundAmount > 0, ERR_CANNOT_TRIGGER)
+    dig 9
     bnz fundTriggerPayment_after_assert@10
     bytec 13 // "ERR:CTRG"
     log
     err // ERR:CTRG
 
 fundTriggerPayment_after_assert@10:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:499
-    // let fundAmount: uint64 = 0
-    intc_0 // 0
-    bury 13
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:500
-    // if (sub.amount > sub.escrowed) {
-    dig 15
-    dup
-    pushint 53
-    extract_uint64
-    dup
-    cover 2
-    bury 14
-    pushint 101
-    extract_uint64
-    dup
-    bury 13
-    >
-    bz fundTriggerPayment_after_if_else@12
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:501
-    // fundAmount = sub.amount - sub.escrowed
-    dig 11
-    dig 11
-    -
-    bury 13
-
-fundTriggerPayment_after_if_else@12:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:504
-    // loggedAssert(fundAmount > 0, ERR_CANNOT_TRIGGER)
-    dig 12
-    bnz fundTriggerPayment_after_assert@14
-    bytec 13 // "ERR:CTRG"
-    log
-    err // ERR:CTRG
-
-fundTriggerPayment_after_assert@14:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:506
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:505
     // if (fundAmount > 0) {
-    dig 12
-    bz fundTriggerPayment_after_if_else@23
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:507
+    dig 9
+    bz fundTriggerPayment_after_if_else@19
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:506
     // if (sub.asset === 0) {
-    dig 15
+    dup
     pushint 69
     extract_uint64
     dup
-    bury 11
-    bnz fundTriggerPayment_else_body@19
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:508-520
+    bury 8
+    bnz fundTriggerPayment_else_body@15
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:507-519
     // abiCall<typeof Subscriptions.prototype.deposit>({
     //   sender,
     //   appId,
@@ -3448,19 +3378,19 @@ fundTriggerPayment_after_assert@14:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:514
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:513
     // receiver: appId.address,
-    dig 13
+    dig 1
     dup
     app_params_get AppAddress
     assert // application exists
-    dig 14
+    dig 11
     itxn_field Amount
     itxn_field Receiver
-    dig 15
+    dig 3
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:512-516
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:511-515
     // itxn.payment({
     //   sender,
     //   receiver: appId.address,
@@ -3470,7 +3400,7 @@ fundTriggerPayment_after_assert@14:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:508-520
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:507-519
     // abiCall<typeof Subscriptions.prototype.deposit>({
     //   sender,
     //   appId,
@@ -3485,15 +3415,15 @@ fundTriggerPayment_after_assert@14:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:519
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:518
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
-    dig 11
+    dig 6
+    dig 8
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:508-520
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:507-519
     // abiCall<typeof Subscriptions.prototype.deposit>({
     //   sender,
     //   appId,
@@ -3509,7 +3439,7 @@ fundTriggerPayment_after_assert@14:
     // })
     pushbytes 0xf2355b55 // method "deposit(pay,uint64)void"
     itxn_field ApplicationArgs
-    dig 6
+    dig 3
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -3517,19 +3447,18 @@ fundTriggerPayment_after_assert@14:
     itxn_field Fee
     itxn_submit
 
-fundTriggerPayment_after_if_else@23:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-482
+fundTriggerPayment_after_if_else@19:
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:477-481
     // fundTriggerPayment(
     //   wallet: Application,
     //   rekeyBack: boolean,
-    //   id: SubscriptionID,
-    //   args: GateArgs
+    //   id: SubscriptionID
     // ): void {
     intc_1 // 1
     return
 
-fundTriggerPayment_else_body@19:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:522-535
+fundTriggerPayment_else_body@15:
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:521-534
     // abiCall<typeof Subscriptions.prototype.depositAsa>({
     //   sender,
     //   appId,
@@ -3545,21 +3474,21 @@ fundTriggerPayment_else_body@19:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:528
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:527
     // assetReceiver: appId.address,
-    dig 13
+    dig 1
     dup
     app_params_get AppAddress
     assert // application exists
-    dig 14
-    itxn_field AssetAmount
     dig 11
+    itxn_field AssetAmount
+    dig 8
     itxn_field XferAsset
     itxn_field AssetReceiver
-    dig 15
+    dig 3
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:526-531
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:525-530
     // itxn.assetTransfer({
     //   sender,
     //   assetReceiver: appId.address,
@@ -3570,7 +3499,7 @@ fundTriggerPayment_else_body@19:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:522-535
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:521-534
     // abiCall<typeof Subscriptions.prototype.depositAsa>({
     //   sender,
     //   appId,
@@ -3586,15 +3515,15 @@ fundTriggerPayment_else_body@19:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:534
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:533
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
-    dig 11
+    dig 6
+    dig 8
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:522-535
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:521-534
     // abiCall<typeof Subscriptions.prototype.depositAsa>({
     //   sender,
     //   appId,
@@ -3611,19 +3540,19 @@ fundTriggerPayment_else_body@19:
     // })
     pushbytes 0x1ac4a758 // method "depositAsa(axfer,uint64)void"
     itxn_field ApplicationArgs
-    dig 6
+    dig 3
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    b fundTriggerPayment_after_if_else@23
+    b fundTriggerPayment_after_if_else@19
 
 
 // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts::SubscriptionsPlugin.streakCheck[routing]() -> void:
 streakCheck:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:540-544
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:539-543
     // streakCheck(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3667,13 +3596,13 @@ streakCheck:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:547
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:546
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:547
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:546
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3682,11 +3611,11 @@ streakCheck:
     bytec_1 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:547
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:546
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:549-554
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:548-553
     // abiCall<typeof Subscriptions.prototype.streakCheck>({
     //   sender,
     //   appId,
@@ -3694,7 +3623,7 @@ streakCheck:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:553
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:552
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 3
     uncover 4
@@ -3703,7 +3632,7 @@ streakCheck:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:549-554
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:548-553
     // abiCall<typeof Subscriptions.prototype.streakCheck>({
     //   sender,
     //   appId,
@@ -3718,7 +3647,7 @@ streakCheck:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:540-544
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:539-543
     // streakCheck(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3730,7 +3659,7 @@ streakCheck:
 
 // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts::SubscriptionsPlugin.setPasses[routing]() -> void:
 setPasses:
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:557-562
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:556-561
     // setPasses(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -3787,13 +3716,13 @@ setPasses:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:565
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:564
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:565
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:564
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     app_global_get_ex
     assert // check GlobalState exists
@@ -3802,11 +3731,11 @@ setPasses:
     bytec_1 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:565
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:564
     // const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     pushint 32
     extract_uint64
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:566-571
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:565-570
     // abiCall<typeof Subscriptions.prototype.setPasses>({
     //   sender,
     //   appId,
@@ -3814,7 +3743,7 @@ setPasses:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:570
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:569
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 4
     uncover 5
@@ -3823,7 +3752,7 @@ setPasses:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:566-571
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:565-570
     // abiCall<typeof Subscriptions.prototype.setPasses>({
     //   sender,
     //   appId,
@@ -3840,7 +3769,7 @@ setPasses:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:557-562
+    // smart_contracts/arc58/plugins/subscriptions/contract.algo.ts:556-561
     // setPasses(
     //   wallet: Application,
     //   rekeyBack: boolean,

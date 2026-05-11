@@ -87,7 +87,6 @@ type FundTriggerPaymentArgs = (
   & {
     id: bigint | number;
     rekeyBack?: boolean;
-    args?: Uint8Array[];
   }
 );
 
@@ -491,7 +490,7 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
       });
     }
 
-    const { sender, signer, args: gateArgs = [], ...rest } = args;
+    const { sender, signer, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
@@ -500,9 +499,9 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
 
-        const params = await (this.client.params.fundTriggerPayment as any)({
+        const params = await this.client.params.fundTriggerPayment({
           ...sendParams,
-          args: { wallet, rekeyBack, args: gateArgs, ...rest },
+          args: { wallet, rekeyBack, ...rest },
           maxFee: microAlgo(10_000n),
         });
 

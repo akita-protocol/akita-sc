@@ -39,7 +39,6 @@ type TriggerPaymentArgs = (Omit<ContractArgs['triggerPayment(uint64,bool,address
 type FundTriggerPaymentArgs = (MaybeSigner & {
     id: bigint | number;
     rekeyBack?: boolean;
-    args?: Uint8Array[];
 });
 type StreakCheckArgs = (Omit<ContractArgs['streakCheck(uint64,bool,(address,uint64))void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;

@@ -477,8 +477,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
   fundTriggerPayment(
     wallet: Application,
     rekeyBack: boolean,
-    id: SubscriptionID,
-    args: GateArgs
+    id: SubscriptionID
   ): void {
     const sender = getSpendingAccount(wallet)
 
