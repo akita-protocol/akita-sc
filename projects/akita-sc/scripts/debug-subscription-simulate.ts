@@ -199,13 +199,14 @@ async function main() {
     highlightMessage: HighlightMessage.None,
     highlightColor: '#3EE1A1',
     description: [
-      'Boost your social impact and unlock gated experiences across the Akita ecosystem.',
+      'Boost your social impact, unlock gated experiences, and customize your app theme across the Akita ecosystem.',
       '',
       '- Social impact boost',
       '- Core agent access',
       '- Exclusive Plus badge',
       '- Gated staking pools, auctions, and raffles',
       '- Customizable gallery',
+      '- Custom app theme',
     ].join('\n'),
   }
   // Use a placeholder banner CID (36 bytes) — content irrelevant for the failing assert.

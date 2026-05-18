@@ -81,6 +81,19 @@ export type SubscriptionsPluginArgs = {
             highlightMessage: bigint | number;
             highlightColor: Uint8Array;
         };
+        'updateServiceTitle(uint64,bool,uint64,string)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            id: bigint | number;
+            title: string;
+        };
+        'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            id: bigint | number;
+            offset: bigint | number;
+            data: Uint8Array;
+        };
         'pauseService(uint64,bool,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -148,6 +161,8 @@ export type SubscriptionsPluginArgs = {
         'initDescription(uint64,uint64)void': [wallet: bigint | number, size: bigint | number];
         'loadDescription(uint64,uint64,byte[])void': [wallet: bigint | number, offset: bigint | number, data: Uint8Array];
         'newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': [wallet: bigint | number, rekeyBack: boolean, interval: bigint | number, asset: bigint | number, amount: bigint | number, passes: bigint | number, gate: bigint | number, payoutAddress: string, title: string, bannerImage: Uint8Array, highlightMessage: bigint | number, highlightColor: Uint8Array];
+        'updateServiceTitle(uint64,bool,uint64,string)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, title: string];
+        'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, offset: bigint | number, data: Uint8Array];
         'pauseService(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number];
         'shutdownService(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, index: bigint | number];
         'block(uint64,bool,address)void': [wallet: bigint | number, rekeyBack: boolean, address: string];
@@ -170,6 +185,8 @@ export type SubscriptionsPluginReturns = {
     'initDescription(uint64,uint64)void': void;
     'loadDescription(uint64,uint64,byte[])void': void;
     'newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': bigint;
+    'updateServiceTitle(uint64,bool,uint64,string)void': void;
+    'setServiceDescription(uint64,bool,uint64,uint64,byte[])void': void;
     'pauseService(uint64,bool,uint64)void': void;
     'shutdownService(uint64,bool,uint64)void': void;
     'block(uint64,bool,address)void': void;
@@ -209,6 +226,14 @@ export type SubscriptionsPluginTypes = {
         argsObj: SubscriptionsPluginArgs['obj']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
         argsTuple: SubscriptionsPluginArgs['tuple']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
         returns: SubscriptionsPluginReturns['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
+    }> & Record<'updateServiceTitle(uint64,bool,uint64,string)void' | 'updateServiceTitle', {
+        argsObj: SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void'];
+        returns: SubscriptionsPluginReturns['updateServiceTitle(uint64,bool,uint64,string)void'];
+    }> & Record<'setServiceDescription(uint64,bool,uint64,uint64,byte[])void' | 'setServiceDescription', {
+        argsObj: SubscriptionsPluginArgs['obj']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'];
+        argsTuple: SubscriptionsPluginArgs['tuple']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'];
+        returns: SubscriptionsPluginReturns['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'];
     }> & Record<'pauseService(uint64,bool,uint64)void' | 'pauseService', {
         argsObj: SubscriptionsPluginArgs['obj']['pauseService(uint64,bool,uint64)void'];
         argsTuple: SubscriptionsPluginArgs['tuple']['pauseService(uint64,bool,uint64)void'];
@@ -420,6 +445,20 @@ export declare abstract class SubscriptionsPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static newService(params: CallParams<SubscriptionsPluginArgs['obj']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | SubscriptionsPluginArgs['tuple']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the updateServiceTitle(uint64,bool,uint64,string)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateServiceTitle(params: CallParams<SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'] | SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setServiceDescription(uint64,bool,uint64,uint64,byte[])void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setServiceDescription(params: CallParams<SubscriptionsPluginArgs['obj']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'] | SubscriptionsPluginArgs['tuple']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the pauseService(uint64,bool,uint64)void ABI method
      *
@@ -998,6 +1037,68 @@ export declare class SubscriptionsPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceTitle(uint64,bool,uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceTitle(uint64,bool,uint64,string)void"] | SubscriptionsPluginArgs["tuple"]["updateServiceTitle(uint64,bool,uint64,string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setServiceDescription(uint64,bool,uint64,uint64,byte[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setServiceDescription: (params: CallParams<SubscriptionsPluginArgs["obj"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"] | SubscriptionsPluginArgs["tuple"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the SubscriptionsPlugin smart contract using the `pauseService(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1418,6 +1519,32 @@ export declare class SubscriptionsPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceTitle(uint64,bool,uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceTitle(uint64,bool,uint64,string)void"] | SubscriptionsPluginArgs["tuple"]["updateServiceTitle(uint64,bool,uint64,string)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setServiceDescription(uint64,bool,uint64,uint64,byte[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setServiceDescription: (params: CallParams<SubscriptionsPluginArgs["obj"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"] | SubscriptionsPluginArgs["tuple"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the SubscriptionsPlugin smart contract using the `pauseService(uint64,bool,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1651,6 +1778,42 @@ export declare class SubscriptionsPluginClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | SubscriptionsPluginReturns["newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `updateServiceTitle(uint64,bool,uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsPluginArgs["obj"]["updateServiceTitle(uint64,bool,uint64,string)void"] | SubscriptionsPluginArgs["tuple"]["updateServiceTitle(uint64,bool,uint64,string)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | SubscriptionsPluginReturns["updateServiceTitle(uint64,bool,uint64,string)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the SubscriptionsPlugin smart contract using the `setServiceDescription(uint64,bool,uint64,uint64,byte[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setServiceDescription: (params: CallParams<SubscriptionsPluginArgs["obj"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"] | SubscriptionsPluginArgs["tuple"]["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | SubscriptionsPluginReturns["setServiceDescription(uint64,bool,uint64,uint64,byte[])void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1946,6 +2109,20 @@ export type SubscriptionsPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     newService(params?: CallParams<SubscriptionsPluginArgs['obj']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | SubscriptionsPluginArgs['tuple']['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['newService(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | undefined]>;
+    /**
+     * Calls the updateServiceTitle(uint64,bool,uint64,string)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateServiceTitle(params?: CallParams<SubscriptionsPluginArgs['obj']['updateServiceTitle(uint64,bool,uint64,string)void'] | SubscriptionsPluginArgs['tuple']['updateServiceTitle(uint64,bool,uint64,string)void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['updateServiceTitle(uint64,bool,uint64,string)void'] | undefined]>;
+    /**
+     * Calls the setServiceDescription(uint64,bool,uint64,uint64,byte[])void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setServiceDescription(params?: CallParams<SubscriptionsPluginArgs['obj']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'] | SubscriptionsPluginArgs['tuple']['setServiceDescription(uint64,bool,uint64,uint64,byte[])void']>): SubscriptionsPluginComposer<[...TReturns, SubscriptionsPluginReturns['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'] | undefined]>;
     /**
      * Calls the pauseService(uint64,bool,uint64)void ABI method.
      *

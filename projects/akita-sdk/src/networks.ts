@@ -46,6 +46,7 @@ export interface NetworkAppIds {
   selfOptinPlugin: bigint;
   asaMintPlugin: bigint;
   payPlugin: bigint;
+  haystackRouterPlugin: bigint;
   hyperSwapPlugin: bigint;
   subscriptionsPlugin: bigint;
   auctionPlugin: bigint;
@@ -135,6 +136,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   selfOptinPlugin: 757594161n,
   asaMintPlugin: 751968373n,
   payPlugin: 751968379n,
+  haystackRouterPlugin: 0n,
   hyperSwapPlugin: 751972295n,
   subscriptionsPlugin: 752474150n,
   auctionPlugin: 757503999n,
@@ -224,6 +226,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   selfOptinPlugin: 3490296923n,
   asaMintPlugin: 3368398964n,
   payPlugin: 3368399056n,
+  haystackRouterPlugin: 0n,
   hyperSwapPlugin: 3368399121n,
   subscriptionsPlugin: 3378296099n,
   auctionPlugin: 3488090697n,
@@ -297,7 +300,7 @@ export function createEmptyAppIds(): NetworkAppIds {
     social: 0n, socialGraph: 0n, socialImpact: 0n, socialModeration: 0n,
     auctionFactory: 0n, marketplace: 0n, raffleFactory: 0n, pollFactory: 0n, prizeBoxFactory: 0n,
     revenueManagerPlugin: 0n, updatePlugin: 0n, optinPlugin: 0n, selfOptinPlugin: 0n,
-    asaMintPlugin: 0n, payPlugin: 0n, hyperSwapPlugin: 0n, subscriptionsPlugin: 0n,
+    asaMintPlugin: 0n, payPlugin: 0n, haystackRouterPlugin: 0n, hyperSwapPlugin: 0n, subscriptionsPlugin: 0n,
     auctionPlugin: 0n, daoPlugin: 0n, dualStakePlugin: 0n, gatePlugin: 0n,
     marketplacePlugin: 0n, nfdPlugin: 0n, paySiloPlugin: 0n, paySiloFactoryPlugin: 0n,
     pollPlugin: 0n, rafflePlugin: 0n, rewardsPlugin: 0n, socialPlugin: 0n,
@@ -355,6 +358,7 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   SELF_OPTIN_PLUGIN_APP_ID: 'selfOptinPlugin',
   ASA_MINT_PLUGIN_APP_ID: 'asaMintPlugin',
   PAY_PLUGIN_APP_ID: 'payPlugin',
+  HAYSTACK_ROUTER_PLUGIN_APP_ID: 'haystackRouterPlugin',
   HYPER_SWAP_PLUGIN_APP_ID: 'hyperSwapPlugin',
   SUBSCRIPTIONS_PLUGIN_APP_ID: 'subscriptionsPlugin',
   AUCTION_PLUGIN_APP_ID: 'auctionPlugin',
@@ -452,4 +456,3 @@ export function getAppIdFromNetwork(network: AkitaNetwork, envVarName: string): 
   const appId = networkAppIds[key];
   return appId > 0n ? appId : undefined;
 }
-

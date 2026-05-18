@@ -8,6 +8,7 @@ export * from './auction';
 export * from './dao';
 export * from './dual-stake';
 export * from './gate';
+export * from './haystack-router';
 export * from './hyper-swap';
 export * from './marketplace';
 export * from './nfd';

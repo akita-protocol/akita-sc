@@ -26,7 +26,6 @@ import { calcPercent, gateCheck, getSubscriptionFees, getWalletIDUsingAkitaDAO, 
 import { CID } from '../utils/types/base'
 import {
   HighlightMessageNone,
-  MAX_DESCRIPTION_CHUNK_SIZE,
   MAX_DESCRIPTION_LENGTH,
   MAX_PASSES,
   MAX_TITLE_LENGTH,
@@ -46,7 +45,6 @@ import {
   ERR_BLOCKED,
   ERR_CANNOT_TRIGGER,
   ERR_FAILED_GATE,
-  ERR_GROUP_INDEX_OUT_OF_BOUNDS,
   ERR_INVALID_ASSET_RECEIVER,
   ERR_INVALID_PAYMENT,
   ERR_INVALID_SEQUENCE,
@@ -469,7 +467,6 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
         break
       }
 
-      loggedAssert(txn.appArgs(0) === methodSelector(this.setServiceDescription), ERR_INVALID_SEQUENCE)
     }
 
     loggedAssert(activated, ERR_SERVICE_NOT_ACTIVATED)
@@ -570,25 +567,10 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     return id
   }
 
-  setServiceDescription(offset: uint64, data: bytes): void {
-    loggedAssert(Txn.groupIndex > 0, ERR_GROUP_INDEX_OUT_OF_BOUNDS)
-    const previousCalls: uint64 = offset / MAX_DESCRIPTION_CHUNK_SIZE
-    const newServiceTxnIndex: uint64 = Txn.groupIndex - 1 - previousCalls
-    const txn = gtxn.Transaction(newServiceTxnIndex)
-    // force the call to be after newService
-    loggedAssert(
-      txn.type === TransactionType.ApplicationCall &&
-      txn.appId === Global.currentApplicationId &&
-      txn.onCompletion === OnCompleteAction.NoOp &&
-      txn.appArgs(0) === methodSelector(this.newService),
-      ERR_INVALID_SEQUENCE
-    )
-
-    const id: uint64 = this.serviceslist(Txn.sender).value - 1
+  setServiceDescription(id: ServiceID, offset: uint64, data: bytes): void {
     const key: ServicesKey = { address: Txn.sender, id }
 
     loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    loggedAssert(this.services(key).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
     loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
 
     let descBytes = Bytes(this.services(key).value.description)
@@ -600,6 +582,15 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     }
 
     this.services(key).value.description = String(descBytes.concat(data))
+  }
+
+  updateServiceTitle(id: ServiceID, title: string): void {
+    const key: ServicesKey = { address: Txn.sender, id }
+
+    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
+
+    this.services(key).value.title = title
   }
 
   /**

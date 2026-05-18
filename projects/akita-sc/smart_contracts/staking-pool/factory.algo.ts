@@ -7,7 +7,6 @@ import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KE
 import { ERR_CONTRACT_NOT_SET } from "../utils/errors";
 import { ERR_INVALID_PAYMENT, ERR_NOT_CREATOR } from "./errors";
 import { getFunder, getStakingFees, referralFee, sendReferralPayment } from "../utils/functions";
-import { PoolGlobalStateBytesCount, PoolGlobalStateUintCount } from "./constants";
 
 // CONTRACT IMPORTS
 import { EscrowConfig } from "../utils/base-contracts/base";
@@ -57,8 +56,8 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
 
     const childMBR: uint64 = (
       MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * PoolGlobalStateUintCount) +
-      (GLOBAL_STATE_KEY_BYTES_COST * PoolGlobalStateBytesCount) +
+      (GLOBAL_STATE_KEY_UINT_COST * pool.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * pool.globalBytes) +
       Global.minBalance
     )
 
@@ -138,11 +137,12 @@ export class StakingPoolFactory extends classes(BaseStakingPool, FactoryContract
 
   @abimethod({ readonly: true })
   newPoolCost(): uint64 {
+    const pool = compileArc4(StakingPool)
 
     const childMBR: uint64 = (
       MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * PoolGlobalStateUintCount) +
-      (GLOBAL_STATE_KEY_BYTES_COST * PoolGlobalStateBytesCount) +
+      (GLOBAL_STATE_KEY_UINT_COST * pool.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * pool.globalBytes) +
       Global.minBalance
     )
 

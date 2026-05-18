@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "gate_app_id"
+    bytecblock "gate_app_id" 0x151f7c75
     // smart_contracts/arc58/plugins/gate/contract.algo.ts:13
     // export class GatePlugin extends BaseGate {
     txn OnCompletion
@@ -80,8 +80,6 @@ register:
     dupn 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    dup
-    cover 2
     pushint 17
     *
     intc_2 // 2
@@ -163,7 +161,7 @@ register_after_for@4:
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    dig 9
+    dig 8
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
@@ -175,8 +173,60 @@ register_after_for@4:
     app_global_get_ex
     pop
     dup
+    bury 12
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:35-38
+    // const amount = abiCall<typeof Gate.prototype.cost>({
+    //   appId: this.gateAppID.value,
+    //   args: [filters, args],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:36
+    // appId: this.gateAppID.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:17
+    // gateAppID = GlobalState<Application>({ key: GatePluginGlobalStateKeyGateAppID })
+    bytec_0 // "gate_app_id"
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:36
+    // appId: this.gateAppID.value,
+    app_global_get_ex
+    swap
+    dup
+    cover 2
     bury 13
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:36-49
+    assert // check GlobalState exists
+    dup
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:35-38
+    // const amount = abiCall<typeof Gate.prototype.cost>({
+    //   appId: this.gateAppID.value,
+    //   args: [filters, args],
+    // }).returnValue
+    pushbytes 0xc5c91f8f // method "cost((uint64,uint64,uint8)[],byte[][])uint64"
+    itxn_field ApplicationArgs
+    dig 8
+    itxn_field ApplicationArgs
+    dig 7
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:40-53
     // abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: this.gateAppID.value,
@@ -184,7 +234,7 @@ register_after_for@4:
     //     itxn.payment({
     //       sender,
     //       receiver: this.gateAppID.value.address,
-    //       amount: this.mbr(filters.length).gateRegistry
+    //       amount,
     //     }),
     //     filters,
     //     args,
@@ -192,59 +242,25 @@ register_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:42
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:46
     // receiver: this.gateAppID.value.address,
-    intc_0 // 0
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:17
-    // gateAppID = GlobalState<Application>({ key: GatePluginGlobalStateKeyGateAppID })
-    bytec_0 // "gate_app_id"
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:42
-    // receiver: this.gateAppID.value.address,
-    app_global_get_ex
     swap
-    dup
-    cover 2
-    bury 14
-    assert // check GlobalState exists
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/gates/base.ts:8
-    // gateRegistry: 6_100 + (400 * (32 * length)),
-    dig 8
-    pushint 12800
-    *
-    pushint 6100
-    +
-    // smart_contracts/gates/base.ts:7
-    // appRegistry: 6_100,
-    pushint 6100
-    // smart_contracts/gates/base.ts:6-9
-    // return {
-    //   appRegistry: 6_100,
-    //   gateRegistry: 6_100 + (400 * (32 * length)),
-    // }
-    itob
-    swap
-    itob
-    concat
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:43
-    // amount: this.mbr(filters.length).gateRegistry
-    intc_3 // 8
-    extract_uint64
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     itxn_field Sender
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:40-44
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:44-48
     // itxn.payment({
     //   sender,
     //   receiver: this.gateAppID.value.address,
-    //   amount: this.mbr(filters.length).gateRegistry
+    //   amount,
     // }),
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:36-49
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:40-53
     // abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: this.gateAppID.value,
@@ -252,7 +268,7 @@ register_after_for@4:
     //     itxn.payment({
     //       sender,
     //       receiver: this.gateAppID.value.address,
-    //       amount: this.mbr(filters.length).gateRegistry
+    //       amount,
     //     }),
     //     filters,
     //     args,
@@ -262,19 +278,19 @@ register_after_for@4:
     itxn_next
     // smart_contracts/utils/functions.ts:326
     // if (!rekeyBack) {
-    dig 8
-    bnz register_after_if_else@11
+    dig 7
+    bnz register_after_if_else@9
     // smart_contracts/utils/functions.ts:327
     // return Global.zeroAddress
     global ZeroAddress
 
-register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12:
+register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@10:
     itxn_field RekeyTo
-    dig 10
+    dig 9
     itxn_field ApplicationID
-    dig 11
+    dig 10
     itxn_field Sender
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:36-49
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:40-53
     // abiCall<typeof Gate.prototype.register>({
     //   sender,
     //   appId: this.gateAppID.value,
@@ -282,7 +298,7 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12:
     //     itxn.payment({
     //       sender,
     //       receiver: this.gateAppID.value.address,
-    //       amount: this.mbr(filters.length).gateRegistry
+    //       amount,
     //     }),
     //     filters,
     //     args,
@@ -291,7 +307,7 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12:
     // })
     pushbytes 0xc21c7ba0 // method "register(pay,(uint64,uint64,uint8)[],byte[][])uint64"
     itxn_field ApplicationArgs
-    dig 7
+    dig 6
     itxn_field ApplicationArgs
     dig 5
     itxn_field ApplicationArgs
@@ -305,7 +321,7 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12:
     extract 4 0
     swap
     extract 0 4
-    pushbytes 0x151f7c75
+    bytec_1 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     len
@@ -322,12 +338,12 @@ register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12:
     intc_1 // 1
     return
 
-register_after_if_else@11:
+register_after_if_else@9:
     // smart_contracts/utils/functions.ts:330
     // return wallet.address
-    dig 9
+    dig 8
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/gate/contract.algo.ts:48
+    // smart_contracts/arc58/plugins/gate/contract.algo.ts:52
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    b register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@12
+    b register_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@10

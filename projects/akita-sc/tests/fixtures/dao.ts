@@ -1,6 +1,6 @@
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing';
-import { proposeAndExecute } from '../../scripts/utils';
+import { getAppFundingNeeded, proposeAndExecute } from '../../scripts/utils';
 import { sendPrepared, setCurrentNetwork } from 'akita-sdk';
 import { AuctionFactorySDK } from 'akita-sdk/auction';
 import { AkitaDaoSDK, EMPTY_CID, ProposalActionEnum, SplitDistributionType } from 'akita-sdk/dao';
@@ -18,6 +18,7 @@ import {
   DAOPluginSDK,
   DualStakePluginSDK,
   GatePluginSDK,
+  HaystackRouterPluginSDK,
   HyperSwapPluginSDK,
   MarketplacePluginSDK,
   NFDPluginSDK,
@@ -59,6 +60,7 @@ import { deployAuctionPlugin } from './plugins/auction';
 import { deployDAOPlugin } from './plugins/dao';
 import { deployDualStakePlugin } from './plugins/dual-stake';
 import { deployGatePlugin } from './plugins/gate';
+import { deployHaystackRouterPlugin } from './plugins/haystack-router';
 import { deployHyperSwapPlugin } from './plugins/hyper-swap';
 import { deployMarketplacePlugin } from './plugins/marketplace';
 import { deployNFDPlugin } from './plugins/nfd';
@@ -91,7 +93,24 @@ type BuildUniverseParams = DeployParams & {
   aktaAssetId?: bigint
   usdcAssetId?: bigint
   network?: 'localnet' | 'testnet' | 'mainnet'
+  haystackRouter?: {
+    appId?: bigint
+    methodSelector?: Uint8Array
+    referrerTreasuryAppId?: bigint
+  }
 }
+
+const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array(Buffer.from('c890dc20', 'hex'));
+const HAYSTACK_ROUTER_APP_IDS: Record<'localnet' | 'testnet' | 'mainnet', bigint> = {
+  localnet: 0n,
+  testnet: 0n,
+  mainnet: 3172554435n,
+};
+const HAYSTACK_REFERRER_TREASURY_APP_IDS: Record<'localnet' | 'testnet' | 'mainnet', bigint> = {
+  localnet: 0n,
+  testnet: 0n,
+  mainnet: 3041355560n,
+};
 
 // Asset configurations for localnet test assets
 // Note: Using 6 decimals to match the fee structure (DEFAULT_POST_FEE = 100_000_000 = 100 AKTA)
@@ -391,6 +410,7 @@ export type AkitaUniverse = {
   selfOptInPlugin: SelfOptInPluginSDK;
   asaMintPlugin: AsaMintPluginSDK;
   payPlugin: PayPluginSDK;
+  haystackRouterPlugin: HaystackRouterPluginSDK;
   hyperSwapPlugin: HyperSwapPluginSDK;
   subscriptionsPlugin: SubscriptionsPluginSDK;
   auctionPlugin: AuctionPluginSDK;
@@ -427,6 +447,9 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   const { fixture, aktaAssetId: providedAktaAssetId, usdcAssetId: providedUsdcAssetId, network = 'localnet' } = params;
   const isLocalnet = network === 'localnet';
+  const haystackRouterAppId = params.haystackRouter?.appId ?? HAYSTACK_ROUTER_APP_IDS[network];
+  const haystackRouterMethod = params.haystackRouter?.methodSelector ?? HAYSTACK_ROUTER_METHOD_SELECTOR;
+  const haystackReferrerTreasuryAppId = params.haystackRouter?.referrerTreasuryAppId ?? HAYSTACK_REFERRER_TREASURY_APP_IDS[network];
 
   // Set the current network so SDKs can resolve app IDs correctly
   setCurrentNetwork(network);
@@ -781,13 +804,13 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   // We need MBR for:
   // - 2 global plugins with execution keys (revenue manager, update plugin)
   // - 2 execution key groups
-  // - 7 escrows (rec_krby, rec_mod, rec_gov, rev_wallet, rev_subscriptions, rev_pool, rev_social)
+  // - revenue and recipient escrows
   // - 1 global plugin per escrow for opt-in (3 recipient escrows)
   // - 1 global plugin per escrow for revenue manager (4 revenue escrows, each with 3 methods)
   // - Additional buffer for transaction fees and proposal executions
 
   const recipientEscrowNames = ['rec_krby', 'rec_mod', 'rec_gov'];
-  const revenueEscrowNames = ['rev_wallet', 'rev_subscriptions', 'rev_pool', 'rev_social', 'rev_auction', 'rev_marketplace', 'rev_raffle', 'rev_poll'];
+  const revenueEscrowNames = ['rev_wallet', 'rev_subscriptions', 'rev_pool', 'rev_social', 'rev_auction', 'rev_marketplace', 'rev_raffle', 'rev_poll', 'rev_haystack'];
   const bonesEscrowNames = ['bones_dau', 'bones_gov', 'bones_public', 'bones_liquidity', 'bones_akta', 'bones_nft', 'bones_team', 'bones_event'];
   const escrowNames = [...recipientEscrowNames, ...revenueEscrowNames, ...bonesEscrowNames];
 
@@ -836,6 +859,31 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   // Fund the wallet with all required MBR upfront
   await dao.wallet.client.appClient.fundAppAccount({ amount: totalWalletMbr.microAlgo() });
+
+  const fundDaoWalletExecutionSender = async (
+    requiredSurplus: bigint = 2_000_000n,
+    buffer: bigint = 1_000_000n
+  ) => {
+    const daoWalletAdmin = await dao.wallet.client.state.global.admin();
+    if (!daoWalletAdmin) {
+      throw new Error('DAO wallet admin is not set');
+    }
+
+    const funding = await getAppFundingNeeded(
+      fixture.algorand,
+      daoWalletAdmin,
+      requiredSurplus,
+      buffer
+    );
+    if (funding > 0n) {
+      await fixture.algorand.send.payment({
+        sender: params.sender,
+        signer: params.signer,
+        receiver: daoWalletAdmin,
+        amount: microAlgo(funding),
+      });
+    }
+  };
 
   // ═══════════════════════════════════════════════════════════════════════════
   // PHASE 3: Deploy & Install Plugins
@@ -950,6 +998,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   const subscriptionsFactoryRevenueEscrow = 'rev_subscriptions';
   const stakingPoolFactoryRevenueEscrow = 'rev_pool';
   const pollFactoryRevenueEscrow = 'rev_poll';
+  const haystackRouterRevenueEscrow = 'rev_haystack';
 
   // Create rev_wallet escrow first so we can get its ID for wallet factory configuration
   await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow: walletFactoryRevenueEscrow }]);
@@ -957,6 +1006,8 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   // Get rev_wallet escrow info and update wallet factory escrow
   const revWallet = await dao.wallet.getEscrow(walletFactoryRevenueEscrow);
+
+  await fundDaoWalletExecutionSender();
 
   const { lease, firstValid, lastValid, ids: groups, windows } = await dao.wallet.build.usePlugin({
     sender: params.sender,
@@ -1037,6 +1088,25 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     signer: params.signer,
   });
   logger.plugin('deploy', 'PayPlugin', payPluginSDK.appId);
+
+  await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow: haystackRouterRevenueEscrow }]);
+  logger.escrow(haystackRouterRevenueEscrow, 'create');
+
+  const haystackRouterEscrowInfo = await dao.wallet.getEscrow(haystackRouterRevenueEscrow);
+  const haystackRouterReferrer = getApplicationAddress(haystackRouterEscrowInfo.id).toString();
+
+  const haystackRouterPluginSDK = await deployHaystackRouterPlugin({
+    fixture,
+    sender: params.sender,
+    signer: params.signer,
+    args: {
+      router: haystackRouterAppId,
+      routerMethod: haystackRouterMethod,
+      referrer: haystackRouterReferrer,
+      referrerTreasury: haystackReferrerTreasuryAppId,
+    }
+  });
+  logger.plugin('deploy', 'HaystackRouterPlugin', haystackRouterPluginSDK.appId);
 
   const hyperSwapPluginSDK = await deployHyperSwapPlugin({
     fixture,
@@ -1292,6 +1362,12 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       alreadyCreated: false
     },
     {
+      escrow: haystackRouterRevenueEscrow,
+      source: haystackRouterAppId > 0n ? getApplicationAddress(haystackRouterAppId).toString() : ALGORAND_ZERO_ADDRESS_STRING,
+      appToUpdate: 0n,
+      alreadyCreated: true
+    },
+    {
       escrow: stakingPoolFactoryRevenueEscrow,
       source: stakingPoolFactorySdk.client.appAddress.toString(),
       appToUpdate: stakingPoolFactorySdk.appId,
@@ -1315,6 +1391,8 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     if (!alreadyCreated) {
       await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow }]);
     }
+
+    await fundDaoWalletExecutionSender();
 
     const newReceiveEscrowPluginBuild = await dao.wallet.build.usePlugin({
       sender: params.sender,
@@ -1432,6 +1510,8 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
       }
 
       const escrowInfo = await dao.wallet.getEscrow(escrow);
+
+      await fundDaoWalletExecutionSender();
 
       const updateEscrowBuild = await dao.wallet.build.usePlugin({
         sender: params.sender,
@@ -1621,6 +1701,8 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     const escrowAddress = getApplicationAddress(escrowInfo.id).toString();
     const amount = bonesDistributions[escrow] * 1_000_000n; // Convert to base units (6 decimals)
 
+    await fundDaoWalletExecutionSender();
+
     const { lease, firstValid, lastValid, ids: groups, windows } = await dao.wallet.build.usePlugin({
       sender: params.sender,
       signer: params.signer,
@@ -1707,6 +1789,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     selfOptInPlugin: selfOptInPluginSDK,
     asaMintPlugin: asaMintPluginSDK,
     payPlugin: payPluginSDK,
+    haystackRouterPlugin: haystackRouterPluginSDK,
     hyperSwapPlugin: hyperSwapPluginSDK,
     subscriptionsPlugin: subscriptionsPluginSDK,
     auctionPlugin: auctionPluginSDK,

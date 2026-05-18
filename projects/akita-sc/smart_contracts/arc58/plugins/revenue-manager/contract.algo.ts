@@ -3,7 +3,7 @@ import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typ
 import { AssetHolding } from "@algorandfoundation/algorand-typescript/op";
 import { ONE_DAY } from "../../../social/constants";
 import { DIVISOR } from "../../../utils/constants";
-import { arc58OptInAndSend, calcPercent, getEscrow, getRekeyIndex, getSpendingAccount, mustGetEscrowInfo, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions";
+import { arc58OptInAndSend, calcPercent, getEscrow, getOriginAccount, getRekeyIndex, getSpendingAccount, mustGetEscrowInfo, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions";
 import { ERR_ESCROW_DOES_NOT_EXIST, ERR_FORBIDDEN } from "../../account/errors";
 import { RevenueManagerBoxPrefixEscrows, RevenueManagerBoxPrefixReceiveAssets, RevenueManagerBoxPrefixSplitRefs, RevenueManagerBoxPrefixSplits } from "./constants";
 import { ERR_ALREADY_OPTED_IN, ERR_ASSET_ALREADY_ALLOCATED, ERR_ASSET_NOT_ALLOCATED, ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW, ERR_ESCROW_NOT_ALLOCATABLE, ERR_ESCROW_NOT_ALLOWED_TO_OPTIN, ERR_ESCROW_NOT_IDLE, ERR_ESCROW_NOT_IN_ALLOCATION_PHASE, ERR_ESCROW_NOT_IN_FINALIZATION_PHASE, ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT, ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER, ERR_INVALID_ASSET, ERR_INVALID_PAYMENT, ERR_OVER_ALLOCATION, ERR_PERCENTAGE_EXCEEDS_100, ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER, ERR_RECEIVE_ESCROW_DOES_NOT_EXIST, ERR_REMAINDER_MUST_BE_LAST, ERR_SPLIT_REF_NOT_FOUND, ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER, ERR_SPLITS_CANNOT_BE_EMPTY, ERR_SPLITS_CANNOT_BE_MORE_THAN_10, ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER, ERR_SPLITS_OR_REF_REQUIRED } from "./errors";
@@ -282,10 +282,10 @@ export class RevenueManagerPlugin extends AkitaBaseContract {
           args: [[receiver.escrow]]
         }).returnValue[0]
 
-        const receiverAddress = Application(receiverEscrowInfo.id).address
+        const receiverAddress = receiver.escrow === '' ? getOriginAccount(receiver.wallet) : Application(receiverEscrowInfo.id).address
 
-        // entrypoint escrows should have the required funds to opt all splits in
-        if (!receiverAddress.isOptedIn(Asset(asset))) {
+        // ALGO never requires an asset opt-in; ASA receivers are opted in on demand.
+        if (asset !== 0 && !receiverAddress.isOptedIn(Asset(asset))) {
           arc58OptInAndSend(this.akitaDAO.value, receiver.wallet, receiver.escrow, [asset], [0])
         }
 

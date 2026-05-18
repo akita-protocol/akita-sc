@@ -273,16 +273,16 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     const { bids, bidsByAddress, locations } = this.mbr()
     let mbr = bids
     const bidFee = op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyBidFee))[0]
-    if (bidFee > 0) {
-      const hasBid = abiCall<typeof Auction.prototype.hasBid>({
-        sender,
-        appId: appId,
-        args: [sender],
-        rekeyTo: rekeyAddress(rekeyBack, wallet)
-      }).returnValue
+    const hasBid = abiCall<typeof Auction.prototype.hasBid>({
+      sender,
+      appId: appId,
+      args: [sender]
+    }).returnValue
 
-      if (!hasBid) {
-        mbr += (bidsByAddress + locations)
+    if (!hasBid) {
+      mbr += bidsByAddress
+      if (bidFee > 0) {
+        mbr += locations
       }
     }
 

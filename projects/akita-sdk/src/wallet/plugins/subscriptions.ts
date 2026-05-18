@@ -7,7 +7,7 @@ import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { getTxns } from "../utils";
 
-const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2026;
+const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2017;
 const MAX_DESCRIPTION_LENGTH = 3151;
 
 type ContractArgs = SubscriptionsPluginArgs["obj"];
@@ -37,6 +37,31 @@ type NewServiceArgs = (
 type NewServiceWithDescriptionArgs = NewServiceArgs & {
   description: string;
 };
+
+type UpdateServiceTitleArgs = (
+  Omit<ContractArgs['updateServiceTitle(uint64,bool,uint64,string)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type SetServiceDescriptionArgs = (
+  Omit<ContractArgs['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type UpdateServiceDescriptionArgs = (
+  Omit<SetServiceDescriptionArgs, 'offset' | 'data'>
+  & { description: string }
+);
+
+type UpdateServiceMetadataArgs = (
+  Omit<UpdateServiceTitleArgs, 'title'>
+  & {
+    title?: string;
+    description?: string;
+  }
+);
 
 type PauseServiceArgs = (
   Omit<ContractArgs['pauseService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
@@ -270,6 +295,122 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
 
     // 3. newService
     calls.push(this.newService({ sender, signer, rekeyBack, ...serviceArgs }));
+
+    return calls;
+  }
+
+  updateServiceTitle(): PluginSDKReturn;
+  updateServiceTitle(args: UpdateServiceTitleArgs): PluginSDKReturn;
+  updateServiceTitle(args?: UpdateServiceTitleArgs): PluginSDKReturn {
+    const methodName = 'updateServiceTitle';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = rekeyBackArg ?? true;
+
+        const params = await this.client.params.updateServiceTitle({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  setServiceDescription(): PluginSDKReturn;
+  setServiceDescription(args: SetServiceDescriptionArgs): PluginSDKReturn;
+  setServiceDescription(args?: SetServiceDescriptionArgs): PluginSDKReturn {
+    const methodName = 'setServiceDescription';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = rekeyBackArg ?? true;
+
+        const params = await this.client.params.setServiceDescription({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  updateServiceDescription(args: UpdateServiceDescriptionArgs): PluginSDKReturn[] {
+    const { description, sender, signer, rekeyBack: rekeyBackArg, id } = args;
+    const rekeyBack = rekeyBackArg ?? true;
+    const descBytes = Buffer.from(description);
+
+    if (descBytes.length > MAX_DESCRIPTION_LENGTH) {
+      throw new Error(`Description length (${descBytes.length}) exceeds maximum of ${MAX_DESCRIPTION_LENGTH}`);
+    }
+
+    if (descBytes.length === 0) {
+      return [this.setServiceDescription({ sender, signer, rekeyBack, id, offset: 0n, data: new Uint8Array() })];
+    }
+
+    const calls: PluginSDKReturn[] = [];
+    const chunks = Math.ceil(descBytes.length / MAX_LOAD_DESCRIPTION_CHUNK_SIZE);
+    for (let offset = 0, index = 0; offset < descBytes.length; offset += MAX_LOAD_DESCRIPTION_CHUNK_SIZE, index++) {
+      const chunk = descBytes.subarray(offset, Math.min(offset + MAX_LOAD_DESCRIPTION_CHUNK_SIZE, descBytes.length));
+      calls.push(this.setServiceDescription({
+        sender,
+        signer,
+        rekeyBack: index === chunks - 1 ? rekeyBack : false,
+        id,
+        offset: BigInt(offset),
+        data: chunk
+      }));
+    }
+
+    return calls;
+  }
+
+  updateServiceMetadata(args: UpdateServiceMetadataArgs): PluginSDKReturn[] {
+    const { title, description, ...rest } = args;
+    const calls: PluginSDKReturn[] = [];
+
+    if (title !== undefined) {
+      calls.push(this.updateServiceTitle({
+        ...rest,
+        rekeyBack: description === undefined ? rest.rekeyBack : false,
+        title
+      }));
+    }
+    if (description !== undefined) {
+      calls.push(...this.updateServiceDescription({ ...rest, description }));
+    }
 
     return calls;
   }

@@ -1,6 +1,8 @@
 import { PendingTransactionResponse, SimulateResponse } from "@algorandfoundation/algokit-utils/algod-client";
 import { TransactionType } from "@algorandfoundation/algokit-utils/transact";
 
+const MIN_TXN_FEE_MICROALGOS = 1_000n;
+
 // -----------------------------------------------------------------------------
 // Expected-cost extraction from a simulate response
 // -----------------------------------------------------------------------------
@@ -108,8 +110,10 @@ function addressToString(addr: unknown): string | undefined {
  * @param ptr - The pending transaction response to inspect.
  * @param tracked - Canonical base32 address we're attributing outflow to.
  * @param payments - Accumulator mutated with any outflow entries found.
- * @param feeAcc - Accumulator mutated with the sum of all fees seen
- *   (regardless of sender). Returned to the caller as `networkFees`.
+ * @param feeAcc - Accumulator mutated with fee units seen during execution.
+ *   Simulate responses can preserve app-call maxFee values that were only used
+ *   as caps for inner-fee coverage, so `networkFees` counts executed
+ *   transactions at the protocol minimum instead of summing those max fees.
  */
 function collectOutflows(
   ptr: PendingTransactionResponse,
@@ -130,11 +134,13 @@ function collectOutflows(
   }
 
   const sender = addressToString(txn.sender);
-  const fee = BigInt(txn.fee ?? 0n);
+  const rawFee = BigInt(txn.fee ?? 0n);
+  const fee = rawFee > 0n ? MIN_TXN_FEE_MICROALGOS : 0n;
 
-  // `networkFees` counts all fees in the group, not just the tracked
-  // address's fees, so accumulate regardless of sender identity.
-  feeAcc.total += fee;
+  // `networkFees` counts all executed transactions in the group, not just the
+  // tracked address's fees. Use one minimum-fee unit per transaction instead
+  // of the simulated txn.fee, which may be an app-call maxFee cap.
+  feeAcc.total += MIN_TXN_FEE_MICROALGOS;
 
   if (sender === tracked) {
     // Principal outflow (payment / asset transfer) first, then fee. Keeping

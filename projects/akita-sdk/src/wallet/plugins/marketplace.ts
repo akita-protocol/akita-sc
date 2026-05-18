@@ -3,8 +3,6 @@ import { BaseSDK } from "../../base";
 import { MarketplacePluginArgs, MarketplacePluginClient, MarketplacePluginFactory } from "../../generated/MarketplacePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
-import { Address } from "algosdk";
-import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { getTxns } from "../utils";
 
 type ContractArgs = MarketplacePluginArgs["obj"];
@@ -15,8 +13,20 @@ type ListArgs = (
   & { rekeyBack?: boolean }
 );
 
+type ListPrizeBoxArgs = (
+  Omit<ContractArgs['listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,address,uint64,address)uint64'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
 type PurchaseArgs = (
   Omit<ContractArgs['purchase(uint64,bool,uint64,address,byte[][])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type ChangePriceArgs = (
+  Omit<ContractArgs['changePrice(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -67,6 +77,40 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     });
   }
 
+  listPrizeBox(): PluginSDKReturn;
+  listPrizeBox(args: ListPrizeBoxArgs): PluginSDKReturn;
+  listPrizeBox(args?: ListPrizeBoxArgs): PluginSDKReturn {
+    const methodName = 'listPrizeBox';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.listPrizeBox({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
   purchase(): PluginSDKReturn;
   purchase(args: PurchaseArgs): PluginSDKReturn;
   purchase(args?: PurchaseArgs): PluginSDKReturn {
@@ -99,6 +143,40 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
         }];
       },
       opUpCount: 1
+    });
+  }
+
+  changePrice(): PluginSDKReturn;
+  changePrice(args: ChangePriceArgs): PluginSDKReturn;
+  changePrice(args?: ChangePriceArgs): PluginSDKReturn {
+    const methodName = 'changePrice';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.changePrice({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
     });
   }
 
@@ -136,4 +214,3 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
     });
   }
 }
-

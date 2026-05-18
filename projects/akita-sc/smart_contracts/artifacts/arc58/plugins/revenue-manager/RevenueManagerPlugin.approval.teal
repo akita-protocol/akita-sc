@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 2 100000
-    bytecblock "" "spending_address" 0x000a "e" 0x00 "ERR:NESC" 0x1e "akita_dao" "ERR:FORB" 0x14 "ERR:CAME" 0x6835e3bc 0x00010002 0xa2403ddf 0x151f7c75 "ERR:IPAY" "ERR:SPEM" "ERR:SPGT" 0x0000
+    bytecblock "" "spending_address" 0x000a "e" 0x00 "ERR:NESC" 0x1e "akita_dao" "ERR:FORB" 0x14 "ERR:CAME" 0x6835e3bc 0x00010002 0xa2403ddf 0x151f7c75 "ERR:IPAY" "ERR:SPEM" "ERR:SPGT" "controlled_address" 0x0000
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:27
     // export class RevenueManagerPlugin extends AkitaBaseContract {
     txn OnCompletion
@@ -1423,7 +1423,7 @@ startEscrowDisbursement_after_assert@15:
 // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.processEscrowAllocation[routing]() -> void:
 processEscrowAllocation:
     intc_0 // 0
-    dupn 15
+    dupn 16
     bytec_0 // ""
     dupn 15
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:242
@@ -1580,7 +1580,7 @@ processEscrowAllocation_after_assert@7:
     // if (this.splits(key).exists) {
     box_len
     bury 1
-    bz processEscrowAllocation_after_if_else@58
+    bz processEscrowAllocation_after_if_else@62
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:50
     // return clone(this.splits(key).value)
     dig 28
@@ -1588,7 +1588,7 @@ processEscrowAllocation_after_assert@7:
     assert // Box must have value
     bury 23
 
-processEscrowAllocation_after_inlined_smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.resolveSplits@63:
+processEscrowAllocation_after_inlined_smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.resolveSplits@67:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:257
     // loggedAssert(splits.length > 0, ERR_SPLITS_CANNOT_BE_EMPTY)
     dig 22
@@ -1629,7 +1629,7 @@ processEscrowAllocation_while_top@12:
     dig 13
     dig 2
     <
-    bz processEscrowAllocation_after_while@44
+    bz processEscrowAllocation_after_while@48
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:263
     // const asset = ids[i]
     dig 2
@@ -1647,7 +1647,7 @@ processEscrowAllocation_while_top@12:
     swap
     itob
     dup
-    bury 36
+    bury 37
     concat
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:31
     // receiveAssets = BoxMap<EscrowAssetKey, bytes<0>>({ keyPrefix: RevenueManagerBoxPrefixReceiveAssets })
@@ -1697,7 +1697,7 @@ processEscrowAllocation_while_top@21:
     extract_uint16 // on error: invalid array length header
     dig 12
     >
-    bz processEscrowAllocation_after_while@43
+    bz processEscrowAllocation_after_while@47
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:277
     // const { type, receiver, value } = clone(splits[j])
     dig 22
@@ -1738,24 +1738,24 @@ processEscrowAllocation_while_top@21:
     len
     substring3
     dup
-    bury 38
+    bury 39
     extract 2 0
     intc_1 // 1
     itob
-    bury 40
+    bury 41
     dup
     len
     itob
     extract 6 2
-    swap
+    dig 1
     concat
     bytec 12 // 0x00010002
     swap
     concat
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:281
     // appId: receiver.wallet,
-    swap
     uncover 2
+    uncover 3
     callsub dynamic_array_read_dynamic_element
     dup
     intc_0 // 0
@@ -1765,11 +1765,11 @@ processEscrowAllocation_while_top@21:
     substring3
     dup
     extract 0 8
-    bury 38
+    bury 40
     intc_0 // 0
     extract_uint64
     dup
-    bury 12
+    bury 13
     itxn_field ApplicationID
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:280-283
     // const receiverEscrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
@@ -1786,8 +1786,10 @@ processEscrowAllocation_while_top@21:
     itxn_submit
     itxn LastLog
     dup
+    bury 35
+    dup
     extract 4 0
-    dig 1
+    swap
     extract 0 4
     bytec 14 // 0x151f7c75
     ==
@@ -1804,22 +1806,38 @@ processEscrowAllocation_while_top@21:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:285
-    // const receiverAddress = Application(receiverEscrowInfo.id).address
-    extract 6 9
-    intc_0 // 0
-    extract_uint64
-    app_params_get AppAddress
-    swap
-    dup
-    cover 2
-    bury 28
-    assert // application exists
+    // const receiverAddress = receiver.escrow === '' ? getOriginAccount(receiver.wallet) : Application(receiverEscrowInfo.id).address
+    bytec_0 // ""
+    ==
+    bz processEscrowAllocation_ternary_false@25
+    // smart_contracts/utils/functions.ts:165-168
+    // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    // )
+    dig 9
+    // smart_contracts/utils/functions.ts:167
+    // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    bytec 18 // "controlled_address"
+    // smart_contracts/utils/functions.ts:165-168
+    // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    // )
+    app_global_get_ex
+    pop
+    bury 26
+
+processEscrowAllocation_ternary_merge@26:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:288
-    // if (!receiverAddress.isOptedIn(Asset(asset))) {
+    // if (asset !== 0 && !receiverAddress.isOptedIn(Asset(asset))) {
+    dig 16
+    bz processEscrowAllocation_after_if_else@29
+    dig 25
     dig 17
     asset_holding_get AssetBalance
     bury 1
-    bnz processEscrowAllocation_after_if_else@25
+    bnz processEscrowAllocation_after_if_else@29
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:289
     // arc58OptInAndSend(this.akitaDAO.value, receiver.wallet, receiver.escrow, [asset], [0])
     intc_0 // 0
@@ -1831,10 +1849,10 @@ processEscrowAllocation_while_top@21:
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes 0x0001
-    dig 35
+    dig 36
     concat
     dup
-    bury 35
+    bury 36
     // smart_contracts/utils/functions.ts:376
     // assert(assets.length === amounts.length, ERR_ASSETS_AND_AMOUNTS_MISMATCH)
     dup
@@ -1866,7 +1884,7 @@ processEscrowAllocation_while_top@21:
     dup
     // smart_contracts/utils/functions.ts:167
     // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
-    pushbytes "controlled_address"
+    bytec 18 // "controlled_address"
     // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
@@ -1888,15 +1906,15 @@ processEscrowAllocation_while_top@21:
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
-    dig 40
+    dig 41
     itxn_field ApplicationArgs
-    dig 38
+    dig 39
     itxn_field ApplicationArgs
     // smart_contracts/utils/functions.ts:382
     // args: [optinPlugin, CallerTypeGlobal, escrow, [], []]
-    bytec 18 // 0x0000
+    bytec 19 // 0x0000
     itxn_field ApplicationArgs
-    bytec 18 // 0x0000
+    bytec 19 // 0x0000
     itxn_field ApplicationArgs
     // smart_contracts/utils/functions.ts:380-383
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
@@ -1955,7 +1973,7 @@ processEscrowAllocation_while_top@21:
     itxn_field ApplicationID
     bytec 11 // method "optIn(uint64,bool,uint64[],pay)void"
     itxn_field ApplicationArgs
-    dig 36
+    dig 37
     itxn_field ApplicationArgs
     // smart_contracts/utils/functions.ts:389
     // true,
@@ -1984,13 +2002,13 @@ processEscrowAllocation_while_top@21:
     intc_0 // 0
     bury 13
 
-processEscrowAllocation_while_top@50:
+processEscrowAllocation_while_top@54:
     // smart_contracts/utils/functions.ts:398
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     dig 12
     intc_1 // 1
     <
-    bz processEscrowAllocation_after_while@54
+    bz processEscrowAllocation_after_while@58
     // smart_contracts/utils/functions.ts:399
     // if (amounts[i] > 0) {
     dig 12
@@ -2003,7 +2021,7 @@ processEscrowAllocation_while_top@50:
     extract_uint64
     dup
     bury 9
-    bz processEscrowAllocation_after_if_else@53
+    bz processEscrowAllocation_after_if_else@57
     // smart_contracts/utils/functions.ts:400-406
     // itxnCompose.next(
     //   itxn.assetTransfer({
@@ -2015,7 +2033,7 @@ processEscrowAllocation_while_top@50:
     itxn_next
     // smart_contracts/utils/functions.ts:404
     // xferAsset: assets[i]
-    dig 32
+    dig 33
     extract 2 0
     dig 20
     extract_uint64
@@ -2035,16 +2053,16 @@ processEscrowAllocation_while_top@50:
     intc_0 // 0
     itxn_field Fee
 
-processEscrowAllocation_after_if_else@53:
+processEscrowAllocation_after_if_else@57:
     // smart_contracts/utils/functions.ts:398
     // for (let i: uint64 = 0; i < amounts.length; i++) {
     dig 12
     intc_1 // 1
     +
     bury 13
-    b processEscrowAllocation_while_top@50
+    b processEscrowAllocation_while_top@54
 
-processEscrowAllocation_after_while@54:
+processEscrowAllocation_after_while@58:
     // smart_contracts/utils/functions.ts:410-412
     // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({
     //   appId: recipientWallet
@@ -2062,7 +2080,7 @@ processEscrowAllocation_after_while@54:
     // itxnCompose.submit()
     itxn_submit
 
-processEscrowAllocation_after_if_else@25:
+processEscrowAllocation_after_if_else@29:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:292
     // let amount: uint64 = 0
     intc_0 // 0
@@ -2076,22 +2094,22 @@ processEscrowAllocation_after_if_else@25:
     // case SplitDistributionTypeFlat:
     //   amount = value
     //   break
-    bz processEscrowAllocation_after_if_else@28
+    bz processEscrowAllocation_after_if_else@32
     dig 5
     bury 18
 
-processEscrowAllocation_block@35:
+processEscrowAllocation_block@39:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:306
     // loggedAssert(amount <= remaining, ERR_OVER_ALLOCATION)
     dig 17
     dig 9
     <=
-    bnz processEscrowAllocation_after_assert@37
+    bnz processEscrowAllocation_after_assert@41
     pushbytes "ERR:OVAL"
     log
     err // ERR:OVAL
 
-processEscrowAllocation_after_assert@37:
+processEscrowAllocation_after_assert@41:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:307
     // remaining -= amount
     dig 8
@@ -2101,7 +2119,7 @@ processEscrowAllocation_after_assert@37:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:309
     // if (asset === 0) {
     dig 16
-    bnz processEscrowAllocation_else_body@40
+    bnz processEscrowAllocation_else_body@44
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:310-316
     // itxn
     //   .payment({
@@ -2138,7 +2156,7 @@ processEscrowAllocation_after_assert@37:
     //   .submit()
     itxn_submit
 
-processEscrowAllocation_after_if_else@42:
+processEscrowAllocation_after_if_else@46:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:276
     // for (let j: uint64 = 0; j < splits.length; j++) {
     dig 11
@@ -2147,7 +2165,7 @@ processEscrowAllocation_after_if_else@42:
     bury 12
     b processEscrowAllocation_while_top@21
 
-processEscrowAllocation_else_body@40:
+processEscrowAllocation_else_body@44:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:318-325
     // itxn
     //   .assetTransfer({
@@ -2188,9 +2206,9 @@ processEscrowAllocation_else_body@40:
     //   })
     //   .submit()
     itxn_submit
-    b processEscrowAllocation_after_if_else@42
+    b processEscrowAllocation_after_if_else@46
 
-processEscrowAllocation_after_if_else@28:
+processEscrowAllocation_after_if_else@32:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:297
     // case SplitDistributionTypePercentage:
     dig 21
@@ -2200,7 +2218,7 @@ processEscrowAllocation_after_if_else@28:
     // case SplitDistributionTypePercentage:
     //   amount = calcPercent(balance, value)
     //   break
-    bz processEscrowAllocation_after_if_else@31
+    bz processEscrowAllocation_after_if_else@35
     // smart_contracts/utils/functions.ts:108
     // assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
     dig 5
@@ -2217,9 +2235,9 @@ processEscrowAllocation_after_if_else@28:
     bury 18
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:299
     // break
-    b processEscrowAllocation_block@35
+    b processEscrowAllocation_block@39
 
-processEscrowAllocation_after_if_else@31:
+processEscrowAllocation_after_if_else@35:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:300
     // case SplitDistributionTypeRemainder:
     dig 21
@@ -2230,14 +2248,26 @@ processEscrowAllocation_after_if_else@31:
     //   // Remainder gets whatever is left
     //   amount = remaining
     //   break
-    bz processEscrowAllocation_block@35
+    bz processEscrowAllocation_block@39
     dig 8
     bury 18
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:303
     // break
-    b processEscrowAllocation_block@35
+    b processEscrowAllocation_block@39
 
-processEscrowAllocation_after_while@43:
+processEscrowAllocation_ternary_false@25:
+    // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:285
+    // const receiverAddress = receiver.escrow === '' ? getOriginAccount(receiver.wallet) : Application(receiverEscrowInfo.id).address
+    dig 32
+    extract 6 9
+    intc_0 // 0
+    extract_uint64
+    app_params_get AppAddress
+    assert // application exists
+    bury 26
+    b processEscrowAllocation_ternary_merge@26
+
+processEscrowAllocation_after_while@47:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:329
     // this.receiveAssets({ escrow: escrowID, asset }).create()
     dig 27
@@ -2267,7 +2297,7 @@ processEscrowAllocation_else_body@17:
     log
     err // ERR:IAST
 
-processEscrowAllocation_after_while@44:
+processEscrowAllocation_after_while@48:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:332
     // this.escrows({ wallet, escrow }).value.allocationCounter += ids.length
     dig 29
@@ -2291,7 +2321,7 @@ processEscrowAllocation_after_while@44:
     +
     dig 7
     ==
-    bz processEscrowAllocation_after_if_else@46
+    bz processEscrowAllocation_after_if_else@50
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:334
     // this.escrows({ wallet, escrow }).value.phase = EscrowDisbursementPhaseFinalization
     dig 29
@@ -2299,7 +2329,7 @@ processEscrowAllocation_after_while@44:
     bytec 6 // 0x1e
     box_replace // on error: index out of bounds
 
-processEscrowAllocation_after_if_else@46:
+processEscrowAllocation_after_if_else@50:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:337
     // rekeyBackIfNecessary(rekeyBack, wallet)
     dig 3
@@ -2310,7 +2340,7 @@ processEscrowAllocation_after_if_else@46:
     intc_1 // 1
     return
 
-processEscrowAllocation_after_if_else@58:
+processEscrowAllocation_after_if_else@62:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:35
     // splitRefs = BoxMap<WalletEscrowKey, SplitRef>({ keyPrefix: RevenueManagerBoxPrefixSplitRefs })
     pushbytes "r"
@@ -2322,12 +2352,12 @@ processEscrowAllocation_after_if_else@58:
     // loggedAssert(this.splitRefs(key).exists, ERR_SPLITS_OR_REF_REQUIRED)
     box_len
     bury 1
-    bnz processEscrowAllocation_after_assert@60
+    bnz processEscrowAllocation_after_assert@64
     pushbytes "ERR:SPOR"
     log
     err // ERR:SPOR
 
-processEscrowAllocation_after_assert@60:
+processEscrowAllocation_after_assert@64:
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:55
     // const { app, key: refKey } = this.splitRefs(key).value
     dig 26
@@ -2355,17 +2385,17 @@ processEscrowAllocation_after_assert@60:
     bury 26
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:59
     // loggedAssert(exists, ERR_SPLIT_REF_NOT_FOUND)
-    bnz processEscrowAllocation_after_assert@62
+    bnz processEscrowAllocation_after_assert@66
     pushbytes "ERR:NSRF"
     log
     err // ERR:NSRF
 
-processEscrowAllocation_after_assert@62:
+processEscrowAllocation_after_assert@66:
     dig 24
     bury 23
     // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts:254
     // const splits = this.resolveSplits(wallet, escrow)
-    b processEscrowAllocation_after_inlined_smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.resolveSplits@63
+    b processEscrowAllocation_after_inlined_smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.resolveSplits@67
 
 
 // smart_contracts/arc58/plugins/revenue-manager/contract.algo.ts::RevenueManagerPlugin.finalizeEscrowDisbursement[routing]() -> void:

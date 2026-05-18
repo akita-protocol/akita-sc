@@ -14,6 +14,19 @@ type NewServiceArgs = (Omit<ContractArgs['newService(uint64,bool,uint64,uint64,u
 type NewServiceWithDescriptionArgs = NewServiceArgs & {
     description: string;
 };
+type UpdateServiceTitleArgs = (Omit<ContractArgs['updateServiceTitle(uint64,bool,uint64,string)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type SetServiceDescriptionArgs = (Omit<ContractArgs['setServiceDescription(uint64,bool,uint64,uint64,byte[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type UpdateServiceDescriptionArgs = (Omit<SetServiceDescriptionArgs, 'offset' | 'data'> & {
+    description: string;
+});
+type UpdateServiceMetadataArgs = (Omit<UpdateServiceTitleArgs, 'title'> & {
+    title?: string;
+    description?: string;
+});
 type PauseServiceArgs = (Omit<ContractArgs['pauseService(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -62,6 +75,12 @@ export declare class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginC
      * array into the `calls` parameter of `wallet.build.usePlugin()`.
      */
     newServiceWithDescription(args: NewServiceWithDescriptionArgs): PluginSDKReturn[];
+    updateServiceTitle(): PluginSDKReturn;
+    updateServiceTitle(args: UpdateServiceTitleArgs): PluginSDKReturn;
+    setServiceDescription(): PluginSDKReturn;
+    setServiceDescription(args: SetServiceDescriptionArgs): PluginSDKReturn;
+    updateServiceDescription(args: UpdateServiceDescriptionArgs): PluginSDKReturn[];
+    updateServiceMetadata(args: UpdateServiceMetadataArgs): PluginSDKReturn[];
     pauseService(): PluginSDKReturn;
     pauseService(args: PauseServiceArgs): PluginSDKReturn;
     shutdownService(): PluginSDKReturn;

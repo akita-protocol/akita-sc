@@ -330,6 +330,11 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     }
 
     const group = this.client.newGroup();
+    const currentServiceList = await this.getServiceList({
+      sender: sendParams.sender.toString(),
+      address: sendParams.sender.toString()
+    });
+    const serviceId = currentServiceList === 0n ? 1n : currentServiceList;
 
     // If contract needs to opt into the asset, add the opt-in call first
     if (needsOptIn) {
@@ -371,6 +376,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       group.setServiceDescription({
         ...sendParams,
         args: {
+          id: serviceId,
           offset: 0n,
           data: Buffer.from(rest.description).subarray(0, MAX_DESCRIPTION_CHUNK_SIZE)
         }
@@ -379,6 +385,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       group.setServiceDescription({
         ...sendParams,
         args: {
+          id: serviceId,
           offset: BigInt(MAX_DESCRIPTION_CHUNK_SIZE),
           data: Buffer.from(rest.description).subarray(MAX_DESCRIPTION_CHUNK_SIZE)
         }
@@ -387,6 +394,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       group.setServiceDescription({
         ...sendParams,
         args: {
+          id: serviceId,
           offset: 0n,
           data: Buffer.from(rest.description)
         }
@@ -422,6 +430,55 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     });
 
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
+  }
+
+  async updateServiceTitle({ sender, signer, id, title }: MaybeSigner & { id: bigint | number; title: string }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    await this.client.send.updateServiceTitle({
+      ...sendParams,
+      args: { id, title }
+    });
+  }
+
+  async updateServiceDescription({ sender, signer, id, description }: MaybeSigner & { id: bigint | number; description: string }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    if (description.length > MAX_DESCRIPTION_LENGTH) {
+      throw new Error(`Description length exceeds maximum of ${MAX_DESCRIPTION_LENGTH} characters`);
+    }
+
+    const group = this.client.newGroup();
+    const descriptionBytes = Buffer.from(description);
+
+    for (let offset = 0; offset < descriptionBytes.length || offset === 0; offset += MAX_DESCRIPTION_CHUNK_SIZE) {
+      group.setServiceDescription({
+        ...sendParams,
+        args: {
+          id,
+          offset: BigInt(offset),
+          data: descriptionBytes.subarray(offset, offset + MAX_DESCRIPTION_CHUNK_SIZE)
+        }
+      });
+    }
+
+    await group.send({ ...sendParams });
+  }
+
+  async updateServiceMetadata({
+    sender,
+    signer,
+    id,
+    title,
+    description
+  }: MaybeSigner & { id: bigint | number; title?: string; description?: string }): Promise<void> {
+    if (title !== undefined) {
+      await this.updateServiceTitle({ sender, signer, id, title });
+    }
+
+    if (description !== undefined) {
+      await this.updateServiceDescription({ sender, signer, id, description });
+    }
   }
 
   async shutdownService({ sender, signer, id }: MaybeSigner & ContractArgs['shutdownService(uint64)void']): Promise<void> {

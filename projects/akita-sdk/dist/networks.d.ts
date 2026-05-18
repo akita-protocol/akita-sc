@@ -37,6 +37,7 @@ export interface NetworkAppIds {
     selfOptinPlugin: bigint;
     asaMintPlugin: bigint;
     payPlugin: bigint;
+    haystackRouterPlugin: bigint;
     hyperSwapPlugin: bigint;
     subscriptionsPlugin: bigint;
     auctionPlugin: bigint;

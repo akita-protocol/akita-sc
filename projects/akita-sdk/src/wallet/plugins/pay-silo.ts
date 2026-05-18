@@ -8,10 +8,18 @@ import { getTxns } from "../utils";
 
 type ContractArgs = PaySiloPluginArgs["obj"];
 
+type PaySiloPaymentParams = {
+  asset: bigint | number,
+  amount: bigint | number,
+}
+
 type PayArgs = (
-  Omit<ContractArgs['pay(uint64,bool,(uint64,uint64)[])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['pay(uint64,bool,(uint64,uint64)[])void'], 'wallet' | 'rekeyBack' | 'payments'>
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & {
+    rekeyBack?: boolean
+    payments: PaySiloPaymentParams[]
+  }
 );
 
 export class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
@@ -32,7 +40,7 @@ export class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, payments } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
@@ -40,10 +48,14 @@ export class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
+        const paymentsTuple = payments.map(payment => [
+          payment.asset,
+          payment.amount,
+        ]) as [bigint | number, bigint | number][];
 
         const params = await this.client.params.pay({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, payments: paymentsTuple },
         });
 
         return [{

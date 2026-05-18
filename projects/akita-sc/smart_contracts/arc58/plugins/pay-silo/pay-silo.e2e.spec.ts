@@ -2,7 +2,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { newWallet, WalletSDK, CallerType, PaySiloPluginSDK } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
@@ -38,7 +38,11 @@ describe('PaySilo plugin contract', () => {
       apps: {},
     });
 
-    // Create a user wallet for testing
+  });
+
+  beforeEach(async () => {
+    await fixture.newScope();
+
     wallet = await newWallet({
       algorand,
       factoryParams: {
@@ -51,8 +55,6 @@ describe('PaySilo plugin contract', () => {
       nickname: 'Test Wallet',
     });
   });
-
-  beforeEach(fixture.newScope);
 
   describe('PaySiloPlugin SDK', () => {
     test('plugin can be added OK', async () => {
@@ -68,6 +70,81 @@ describe('PaySilo plugin contract', () => {
 
       const plugins = await wallet.getPlugins();
       expect(plugins.size).toBe(1);
+    });
+
+    test('pay sends ALGO to the configured silo recipient', async () => {
+      const paySiloPluginSdk = akitaUniverse.paySiloPlugin;
+      const paymentAmount = 250_000n;
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({
+        amount: algokit.microAlgo(mbr.plugins + paymentAmount + 500_000n),
+      });
+      await wallet.addPlugin({ client: paySiloPluginSdk, callerType: CallerType.Global });
+
+      const recipientBefore = await algorand.account.getInformation(deployer.addr);
+
+      const results = await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          paySiloPluginSdk.pay({
+            payments: [{ asset: 0n, amount: paymentAmount }],
+          }),
+        ],
+      });
+
+      const recipientAfter = await algorand.account.getInformation(deployer.addr);
+      expect(results.txIds.length).toBeGreaterThan(0);
+      expect(recipientAfter.balance.microAlgos - recipientBefore.balance.microAlgos).toBe(paymentAmount);
+    });
+
+    test('factory mints a silo that pays a custom recipient', async () => {
+      const recipient = await fixture.context.generateAccount({ initialFunds: (1).algos() });
+      const factoryPluginSdk = akitaUniverse.paySiloFactoryPlugin;
+      const paymentAmount = 150_000n;
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({
+        amount: algokit.microAlgo(mbr.plugins * 2n + paymentAmount + 2_000_000n),
+      });
+      await wallet.addPlugin({ client: factoryPluginSdk, callerType: CallerType.Global });
+
+      const mintResults = await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          factoryPluginSdk.mint({
+            recipient: recipient.addr.toString(),
+          }),
+        ],
+      });
+
+      const mintedAppId = BigInt(mintResults.returns[1]);
+      expect(mintedAppId).toBeGreaterThan(0n);
+
+      const mintedPaySiloPluginSdk = new PaySiloPluginSDK({
+        algorand,
+        factoryParams: {
+          appId: mintedAppId,
+          defaultSender: user.addr,
+          defaultSigner: user.signer,
+        },
+      });
+
+      await wallet.addPlugin({ client: mintedPaySiloPluginSdk, callerType: CallerType.Global });
+
+      const recipientBefore = await algorand.account.getInformation(recipient.addr);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          mintedPaySiloPluginSdk.pay({
+            payments: [{ asset: 0n, amount: paymentAmount }],
+          }),
+        ],
+      });
+
+      const recipientAfter = await algorand.account.getInformation(recipient.addr);
+      expect(recipientAfter.balance.microAlgos - recipientBefore.balance.microAlgos).toBe(paymentAmount);
     });
   });
 });

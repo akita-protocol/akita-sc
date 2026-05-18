@@ -181,9 +181,14 @@ export type SubscriptionsArgs = {
             highlightMessage: bigint | number;
             highlightColor: Uint8Array;
         };
-        'setServiceDescription(uint64,byte[])void': {
+        'setServiceDescription(uint64,uint64,byte[])void': {
+            id: bigint | number;
             offset: bigint | number;
             data: Uint8Array;
+        };
+        'updateServiceTitle(uint64,string)void': {
+            id: bigint | number;
+            title: string;
         };
         'activateService()void': Record<string, never>;
         'pauseService(uint64)void': {
@@ -352,7 +357,8 @@ export type SubscriptionsArgs = {
     tuple: {
         'create(string,uint64,(string,uint64))void': [version: string, akitaDao: bigint | number, akitaDaoEscrow: EscrowConfig];
         'newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': [payment: AppMethodCallTransactionArgument, interval: bigint | number, asset: bigint | number, amount: bigint | number, passes: bigint | number, gateId: bigint | number, payoutAddress: string, title: string, bannerImage: Uint8Array, highlightMessage: bigint | number, highlightColor: Uint8Array];
-        'setServiceDescription(uint64,byte[])void': [offset: bigint | number, data: Uint8Array];
+        'setServiceDescription(uint64,uint64,byte[])void': [id: bigint | number, offset: bigint | number, data: Uint8Array];
+        'updateServiceTitle(uint64,string)void': [id: bigint | number, title: string];
         'activateService()void': [];
         'pauseService(uint64)void': [id: bigint | number];
         'unpauseService(uint64)void': [id: bigint | number];
@@ -399,7 +405,8 @@ export type SubscriptionsArgs = {
 export type SubscriptionsReturns = {
     'create(string,uint64,(string,uint64))void': void;
     'newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64': bigint;
-    'setServiceDescription(uint64,byte[])void': void;
+    'setServiceDescription(uint64,uint64,byte[])void': void;
+    'updateServiceTitle(uint64,string)void': void;
     'activateService()void': void;
     'pauseService(uint64)void': void;
     'unpauseService(uint64)void': void;
@@ -454,10 +461,14 @@ export type SubscriptionsTypes = {
         argsObj: SubscriptionsArgs['obj']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
         argsTuple: SubscriptionsArgs['tuple']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
         returns: SubscriptionsReturns['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'];
-    }> & Record<'setServiceDescription(uint64,byte[])void' | 'setServiceDescription', {
-        argsObj: SubscriptionsArgs['obj']['setServiceDescription(uint64,byte[])void'];
-        argsTuple: SubscriptionsArgs['tuple']['setServiceDescription(uint64,byte[])void'];
-        returns: SubscriptionsReturns['setServiceDescription(uint64,byte[])void'];
+    }> & Record<'setServiceDescription(uint64,uint64,byte[])void' | 'setServiceDescription', {
+        argsObj: SubscriptionsArgs['obj']['setServiceDescription(uint64,uint64,byte[])void'];
+        argsTuple: SubscriptionsArgs['tuple']['setServiceDescription(uint64,uint64,byte[])void'];
+        returns: SubscriptionsReturns['setServiceDescription(uint64,uint64,byte[])void'];
+    }> & Record<'updateServiceTitle(uint64,string)void' | 'updateServiceTitle', {
+        argsObj: SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'];
+        argsTuple: SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void'];
+        returns: SubscriptionsReturns['updateServiceTitle(uint64,string)void'];
     }> & Record<'activateService()void' | 'activateService', {
         argsObj: SubscriptionsArgs['obj']['activateService()void'];
         argsTuple: SubscriptionsArgs['tuple']['activateService()void'];
@@ -818,12 +829,19 @@ export declare abstract class SubscriptionsParamsFactory {
      */
     static newService(params: CallParams<SubscriptionsArgs['obj']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | SubscriptionsArgs['tuple']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the setServiceDescription(uint64,byte[])void ABI method
+     * Constructs a no op call for the setServiceDescription(uint64,uint64,byte[])void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static setServiceDescription(params: CallParams<SubscriptionsArgs['obj']['setServiceDescription(uint64,byte[])void'] | SubscriptionsArgs['tuple']['setServiceDescription(uint64,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static setServiceDescription(params: CallParams<SubscriptionsArgs['obj']['setServiceDescription(uint64,uint64,byte[])void'] | SubscriptionsArgs['tuple']['setServiceDescription(uint64,uint64,byte[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the updateServiceTitle(uint64,string)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateServiceTitle(params: CallParams<SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'] | SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the activateService()void ABI method
      *
@@ -1709,12 +1727,43 @@ export declare class SubscriptionsClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,byte[])void` ABI method.
+         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,uint64,byte[])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,byte[])void"]> & {
+        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,uint64,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceTitle(uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceTitle(uint64,string)void"] | SubscriptionsArgs["tuple"]["updateServiceTitle(uint64,string)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -2999,12 +3048,25 @@ export declare class SubscriptionsClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,byte[])void` ABI method.
+         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,uint64,byte[])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,byte[])void"]> & {
+        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,uint64,byte[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceTitle(uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceTitle(uint64,string)void"] | SubscriptionsArgs["tuple"]["updateServiceTitle(uint64,string)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -3617,15 +3679,33 @@ export declare class SubscriptionsClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,byte[])void` ABI method.
+         * Makes a call to the Subscriptions smart contract using the `setServiceDescription(uint64,uint64,byte[])void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,byte[])void"]> & SendParams & {
+        setServiceDescription: (params: CallParams<SubscriptionsArgs["obj"]["setServiceDescription(uint64,uint64,byte[])void"] | SubscriptionsArgs["tuple"]["setServiceDescription(uint64,uint64,byte[])void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | SubscriptionsReturns["setServiceDescription(uint64,byte[])void"]);
+            return: (undefined | SubscriptionsReturns["setServiceDescription(uint64,uint64,byte[])void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Subscriptions smart contract using the `updateServiceTitle(uint64,string)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateServiceTitle: (params: CallParams<SubscriptionsArgs["obj"]["updateServiceTitle(uint64,string)void"] | SubscriptionsArgs["tuple"]["updateServiceTitle(uint64,string)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | SubscriptionsReturns["updateServiceTitle(uint64,string)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -4640,12 +4720,19 @@ export type SubscriptionsComposer<TReturns extends [...any[]] = []> = {
      */
     newService(params?: CallParams<SubscriptionsArgs['obj']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | SubscriptionsArgs['tuple']['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64'] | undefined]>;
     /**
-     * Calls the setServiceDescription(uint64,byte[])void ABI method.
+     * Calls the setServiceDescription(uint64,uint64,byte[])void ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    setServiceDescription(params?: CallParams<SubscriptionsArgs['obj']['setServiceDescription(uint64,byte[])void'] | SubscriptionsArgs['tuple']['setServiceDescription(uint64,byte[])void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['setServiceDescription(uint64,byte[])void'] | undefined]>;
+    setServiceDescription(params?: CallParams<SubscriptionsArgs['obj']['setServiceDescription(uint64,uint64,byte[])void'] | SubscriptionsArgs['tuple']['setServiceDescription(uint64,uint64,byte[])void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['setServiceDescription(uint64,uint64,byte[])void'] | undefined]>;
+    /**
+     * Calls the updateServiceTitle(uint64,string)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateServiceTitle(params?: CallParams<SubscriptionsArgs['obj']['updateServiceTitle(uint64,string)void'] | SubscriptionsArgs['tuple']['updateServiceTitle(uint64,string)void']>): SubscriptionsComposer<[...TReturns, SubscriptionsReturns['updateServiceTitle(uint64,string)void'] | undefined]>;
     /**
      * Calls the activateService()void ABI method.
      *

@@ -557,6 +557,115 @@ describe('Subscriptions Contract Tests', () => {
       expect(error).toContain(ERR_TITLE_TOO_LONG)
     })
 
+    test('creator can update service title and description after activation, pause, and shutdown', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment()
+      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+
+      const serviceId = await subscriptions.newService({
+        sender,
+        signer,
+        interval: BigInt(MIN_INTERVAL),
+        asset: 0n,
+        amount: 1_000_000n,
+        passes: 0n,
+        gateId: 0n,
+        payoutAddress: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        title: 'Original Title',
+        description: 'Original Description',
+        bannerImage: EMPTY_CID,
+        highlightMessage: 0,
+        highlightColor: '#000000',
+      })
+
+      await subscriptions.updateServiceMetadata({
+        sender,
+        signer,
+        id: serviceId,
+        title: 'Active Title',
+        description: 'Active Description',
+      })
+
+      let service = await subscriptions.getService({ sender, address: sender, id: Number(serviceId) })
+      expect(service.title).toBe('Active Title')
+      expect(service.description).toBe('Active Description')
+
+      await subscriptions.pauseService({ sender, signer, id: serviceId })
+      await subscriptions.updateServiceMetadata({
+        sender,
+        signer,
+        id: serviceId,
+        title: 'Paused Title',
+        description: 'Paused Description',
+      })
+
+      service = await subscriptions.getService({ sender, address: sender, id: Number(serviceId) })
+      expect(service.title).toBe('Paused Title')
+      expect(service.description).toBe('Paused Description')
+
+      await subscriptions.shutdownService({ sender, signer, id: serviceId })
+      await subscriptions.updateServiceMetadata({
+        sender,
+        signer,
+        id: serviceId,
+        title: 'Shutdown Title',
+        description: '',
+      })
+
+      service = await subscriptions.getService({ sender, address: sender, id: Number(serviceId) })
+      expect(service.title).toBe('Shutdown Title')
+      expect(service.description).toBe('')
+      expect(service.status).toBe(ServiceStatus.Shutdown)
+    })
+
+    test('non-creator cannot update service metadata', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment()
+      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+
+      const serviceId = await subscriptions.newService({
+        sender,
+        signer,
+        interval: BigInt(MIN_INTERVAL),
+        asset: 0n,
+        amount: 1_000_000n,
+        passes: 0n,
+        gateId: 0n,
+        payoutAddress: 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ',
+        title: 'Creator Owned',
+        description: 'Creator owned description',
+        bannerImage: EMPTY_CID,
+        highlightMessage: 0,
+        highlightColor: '#000000',
+      })
+
+      const otherAccount = algorand.account.random()
+      await algorand.account.ensureFunded(otherAccount.addr, dispenser, (10).algos())
+
+      let error = 'no error thrown'
+      try {
+        await subscriptions.updateServiceTitle({
+          sender: otherAccount.addr.toString(),
+          signer: otherAccount.signer,
+          id: serviceId,
+          title: 'Hijacked Title',
+        })
+      } catch (e: any) {
+        error = e.message
+      }
+
+      expect(error).toContain(ERR_SERVICE_DOES_NOT_EXIST)
+
+      const service = await subscriptions.getService({ sender, address: sender, id: Number(serviceId) })
+      expect(service.title).toBe('Creator Owned')
+    })
+
     test('cannot pause a paused service', async () => {
       const { algorand, context: { testAccount } } = localnet
       const sender = testAccount.toString()

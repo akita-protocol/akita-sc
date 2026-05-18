@@ -41,37 +41,18 @@ export type RootKey = {
  * Converts the ABI tuple representation of a RootKey to the struct representation
  */
 export declare function RootKeyFromTuple(abiTuple: [string, string]): RootKey;
-export type RaffleCursor = {
-    ticket: bigint;
-    stake: bigint;
-    disbursed: bigint;
-};
-/**
- * Converts the ABI tuple representation of a RaffleCursor to the struct representation
- */
-export declare function RaffleCursorFromTuple(abiTuple: [bigint, bigint, bigint]): RaffleCursor;
-export type Reward = {
+export type AddRewardParams = {
     asset: bigint;
     distribution: number;
     rate: bigint;
     expiration: bigint;
     interval: bigint;
-    qualifiedStakers: bigint;
-    qualifiedStake: bigint;
     winnerCount: bigint;
-    winningTickets: bigint[];
-    raffleCursor: RaffleCursor;
-    vrfFailureCount: bigint;
-    phase: number;
-    disbursementCursor: bigint;
-    activeDisbursementId: bigint;
-    activeDisbursementRoundStart: bigint;
-    lastDisbursementTimestamp: bigint;
 };
 /**
- * Converts the ABI tuple representation of a Reward to the struct representation
+ * Converts the ABI tuple representation of a AddRewardParams to the struct representation
  */
-export declare function RewardFromTuple(abiTuple: [bigint, number, bigint, bigint, bigint, bigint, bigint, bigint, bigint[], RaffleCursor, bigint, number, bigint, bigint, bigint, bigint]): Reward;
+export declare function AddRewardParamsFromTuple(abiTuple: [bigint, number, bigint, bigint, bigint, bigint]): AddRewardParams;
 export type StakingPoolMbrData = {
     entries: bigint;
     uniques: bigint;
@@ -118,11 +99,11 @@ export type StakingPoolPluginArgs = {
             rekeyBack: boolean;
             appId: bigint | number;
         };
-        'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': {
+        'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
             appId: bigint | number;
-            reward: Reward;
+            reward: AddRewardParams;
             amount: bigint | number;
         };
         'finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void': {
@@ -152,7 +133,7 @@ export type StakingPoolPluginArgs = {
         'newPool(uint64,bool,string,uint8,address,(address,string),uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, title: string, type: bigint | number, marketplace: string, stakeKey: RootKey, minimumStakeAmount: bigint | number, allowLateSignups: boolean, gateId: bigint | number, maxEntries: bigint | number];
         'initPool(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, poolId: bigint | number];
         'deletePool(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number];
-        'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, reward: Reward, amount: bigint | number];
+        'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, reward: AddRewardParams, amount: bigint | number];
         'finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, poolId: bigint | number, signupTimestamp: bigint | number, startTimestamp: bigint | number, endTimestamp: bigint | number];
         'enter(uint64,bool,uint64,(uint64,uint64,byte[32][])[],byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, entries: [bigint | number, bigint | number, Uint8Array[]][], args: Uint8Array[]];
         'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)': [winningTickets: bigint | number];
@@ -166,7 +147,7 @@ export type StakingPoolPluginReturns = {
     'newPool(uint64,bool,string,uint8,address,(address,string),uint64,bool,uint64,uint64)void': void;
     'initPool(uint64,bool,uint64)void': void;
     'deletePool(uint64,bool,uint64)void': void;
-    'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': void;
+    'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void': void;
     'finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void': void;
     'enter(uint64,bool,uint64,(uint64,uint64,byte[32][])[],byte[][])void': void;
     'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)': StakingPoolMbrData;
@@ -194,10 +175,10 @@ export type StakingPoolPluginTypes = {
         argsObj: StakingPoolPluginArgs['obj']['deletePool(uint64,bool,uint64)void'];
         argsTuple: StakingPoolPluginArgs['tuple']['deletePool(uint64,bool,uint64)void'];
         returns: StakingPoolPluginReturns['deletePool(uint64,bool,uint64)void'];
-    }> & Record<'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void' | 'addReward', {
-        argsObj: StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
-        argsTuple: StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
-        returns: StakingPoolPluginReturns['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
+    }> & Record<'addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void' | 'addReward', {
+        argsObj: StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
+        argsTuple: StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
+        returns: StakingPoolPluginReturns['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'];
     }> & Record<'finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void' | 'finalizePool', {
         argsObj: StakingPoolPluginArgs['obj']['finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void'];
         argsTuple: StakingPoolPluginArgs['tuple']['finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void'];
@@ -350,12 +331,12 @@ export declare abstract class StakingPoolPluginParamsFactory {
      */
     static deletePool(params: CallParams<StakingPoolPluginArgs['obj']['deletePool(uint64,bool,uint64)void'] | StakingPoolPluginArgs['tuple']['deletePool(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void ABI method
+     * Constructs a no op call for the addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static addReward(params: CallParams<StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static addReward(params: CallParams<StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void ABI method
      *
@@ -832,12 +813,12 @@ export declare class StakingPoolPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
+         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & {
+        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1009,12 +990,12 @@ export declare class StakingPoolPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
+         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & {
+        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1129,15 +1110,15 @@ export declare class StakingPoolPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
+         * Makes a call to the StakingPoolPlugin smart contract using the `addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & SendParams & {
+        addReward: (params: CallParams<StakingPoolPluginArgs["obj"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"] | StakingPoolPluginArgs["tuple"]["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingPoolPluginReturns["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]);
+            return: (undefined | StakingPoolPluginReturns["addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1270,12 +1251,12 @@ export type StakingPoolPluginComposer<TReturns extends [...any[]] = []> = {
      */
     deletePool(params?: CallParams<StakingPoolPluginArgs['obj']['deletePool(uint64,bool,uint64)void'] | StakingPoolPluginArgs['tuple']['deletePool(uint64,bool,uint64)void']>): StakingPoolPluginComposer<[...TReturns, StakingPoolPluginReturns['deletePool(uint64,bool,uint64)void'] | undefined]>;
     /**
-     * Calls the addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void ABI method.
+     * Calls the addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    addReward(params?: CallParams<StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void']>): StakingPoolPluginComposer<[...TReturns, StakingPoolPluginReturns['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | undefined]>;
+    addReward(params?: CallParams<StakingPoolPluginArgs['obj']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | StakingPoolPluginArgs['tuple']['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void']>): StakingPoolPluginComposer<[...TReturns, StakingPoolPluginReturns['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'] | undefined]>;
     /**
      * Calls the finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void ABI method.
      *

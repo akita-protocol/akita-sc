@@ -5,7 +5,7 @@ import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersio
 import { GateArgs } from "../../../gates/types";
 import { RootKey } from "../../../meta-merkles/types";
 import { PoolEntriesByAddressMBR, PoolEntriesMBR, PoolUniquesMBR, WinnerCountCap } from "../../../staking-pool/constants";
-import { Reward, StakeEntry } from "../../../staking-pool/types";
+import { AddRewardParams, StakeEntry } from "../../../staking-pool/types";
 import { StakingType } from "../../../staking/types";
 import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../../../utils/constants";
 import { getAccounts, getAkitaAppList, getSpendingAccount, getStakingFees, getStakingPoolGateID, rekeyAddress } from "../../../utils/functions";
@@ -127,7 +127,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     wallet: Application,
     rekeyBack: boolean,
     appId: Application,
-    reward: Reward,
+    reward: AddRewardParams,
     amount: uint64
   ): void {
     loggedAssert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)

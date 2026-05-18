@@ -9,6 +9,15 @@ import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/da
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
+const ONE_DAY = 86_400n;
+
+const getBlockTimestamp = async (
+  algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
+): Promise<bigint> => {
+  const status = await algorand.client.algod.status();
+  const block = await algorand.client.algod.block(status.lastRound);
+  return BigInt(block.block.header.timestamp);
+};
 
 describe('Auction plugin contract', () => {
   let deployer: Address & TransactionSignerAccount;
@@ -73,6 +82,67 @@ describe('Auction plugin contract', () => {
       expect(plugins.size).toBe(2);
       expect(auctionPluginSdk.appId).toBeGreaterThan(0n);
       expect(asaMintSdk.appId).toBeGreaterThan(0n);
+    });
+
+    test('can place first bid on a zero-fee ALGO auction', async () => {
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        total: 1n,
+        decimals: 0,
+        assetName: 'Plugin Auction Prize',
+        unitName: 'PAP',
+      });
+      const prizeAssetId = BigInt(assetId!);
+
+      await algorand.account.ensureFunded(
+        akitaUniverse.auctionFactory.client.appAddress,
+        dispenser,
+        (100).algo(),
+      );
+      await akitaUniverse.auctionFactory.optIn({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        asset: prizeAssetId,
+      });
+
+      const currentTimestamp = await getBlockTimestamp(algorand);
+      const auction = await akitaUniverse.auctionFactory.newAuction({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        isPrizeBox: false,
+        prizeAsset: prizeAssetId,
+        prizeAmount: 1n,
+        name: 'Plugin zero fee auction',
+        proof: [],
+        bidAssetId: 0n,
+        bidFee: 0n,
+        startingBid: 1_000_000n,
+        bidMinimumIncrease: 100_000n,
+        startTimestamp: currentTimestamp,
+        endTimestamp: currentTimestamp + ONE_DAY,
+        gateId: 0n,
+        marketplace: deployer.addr.toString(),
+        weightsListCount: 0n,
+      });
+
+      await wallet.usePlugin({
+        sender: user.addr,
+        signer: user.signer,
+        callerType: CallerType.Global,
+        consolidateFees: true,
+        calls: [
+          auctionPluginSdk.bid({
+            appId: auction.client.appId,
+            amount: 1_000_000n,
+            args: [],
+            marketplace: deployer.addr.toString(),
+          }),
+        ],
+      });
+
+      expect(await auction.hasBid({ address: wallet.client.appAddress.toString() })).toBe(true);
+      expect(await auction.getMinimumBidAmount()).toBe(1_100_000n);
     });
   });
 });

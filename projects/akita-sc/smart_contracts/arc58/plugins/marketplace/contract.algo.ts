@@ -5,7 +5,7 @@ import { GateMustCheckAbiMethod } from '../../../gates/constants'
 import { GateArgs } from '../../../gates/types'
 import { ListingGlobalStateKeyGateID, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice } from '../../../marketplace/constants'
 import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../../../utils/constants'
-import { getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { disbursementCost, getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress, rewardsOptInCost, splitOptInCount } from '../../../utils/functions'
 import { Proof } from '../../../utils/types/merkles'
 import { MarketplacePluginGlobalStateKeyFactory } from './constants'
 import { ERR_NOT_PRIZE_BOX_OWNER } from '../../../utils/errors'
@@ -54,6 +54,12 @@ export class MarketplacePlugin extends AkitaBaseContract {
     loggedAssert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, ERR_NOT_ENOUGH_ASSET)
 
     if (!this.factory.value.address.isOptedIn(Asset(asset))) {
+      const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
+        sender,
+        appId: this.factory.value,
+        args: [Asset(asset)]
+      }).returnValue
+
       abiCall<typeof Marketplace.prototype.optIn>({
         sender,
         appId: this.factory.value,
@@ -61,14 +67,14 @@ export class MarketplacePlugin extends AkitaBaseContract {
           itxn.payment({
             sender,
             receiver: this.factory.value.address,
-            amount: Global.assetOptInMinBalance
+            amount: optinMBR
           }),
           Asset(asset),
         ]
       })
     }
 
-    if (!this.factory.value.address.isOptedIn(Asset(paymentAsset))) {
+    if (paymentAsset !== 0 && !this.factory.value.address.isOptedIn(Asset(paymentAsset))) {
       const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
         sender,
         appId: this.factory.value,
@@ -89,16 +95,28 @@ export class MarketplacePlugin extends AkitaBaseContract {
       })
     }
 
-    const optinMBR: uint64 = paymentAsset === 0 ? Global.assetOptInMinBalance : Global.assetOptInMinBalance * 2
+    const isAlgoPayment = paymentAsset === 0
+    const optinMBR: uint64 = isAlgoPayment ? Global.assetOptInMinBalance : Global.assetOptInMinBalance * 2
 
     const listing = compileArc4(Listing)
 
+    let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, asset)
+    if (isAlgoPayment) {
+      disbursementMBR += disbursementCost(1)
+    } else {
+      disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
+    }
+
+    const escrowOptInCost: uint64 = isAlgoPayment
+      ? 0
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.factory.value.address, Asset(paymentAsset))
+
+    const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
     const childContractMBR: uint64 = (
-      MIN_PROGRAM_PAGES +
+      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
       (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
-      Global.minBalance +
-      optinMBR
+      childAppMBR
     )
 
     return abiCall<typeof Marketplace.prototype.list>({
@@ -155,7 +173,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
       ],
     })
 
-    if (!this.factory.value.address.isOptedIn(Asset(paymentAsset))) {
+    if (paymentAsset !== 0 && !this.factory.value.address.isOptedIn(Asset(paymentAsset))) {
       const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
         sender,
         appId: this.factory.value,
@@ -176,16 +194,28 @@ export class MarketplacePlugin extends AkitaBaseContract {
       })
     }
 
-    const optinMBR: uint64 = paymentAsset === 0 ? 0 : Global.assetOptInMinBalance
-
+    const isAlgoPayment = paymentAsset === 0
+    const optinMBR: uint64 = isAlgoPayment ? 0 : Global.assetOptInMinBalance
     const listing = compileArc4(Listing)
+    let disbursementMBR: uint64 = 0
+    if (isAlgoPayment) {
+      disbursementMBR = disbursementCost(1)
+    } else {
+      disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
+    }
+
+    const escrowOptInCost: uint64 = isAlgoPayment
+      ? 0
+      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.factory.value.address, Asset(paymentAsset))
 
     const childContractMBR: uint64 = (
-      MIN_PROGRAM_PAGES +
+      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
       (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
       Global.minBalance +
-      optinMBR
+      optinMBR +
+      disbursementMBR +
+      escrowOptInCost
     )
 
     return abiCall<typeof Marketplace.prototype.listPrizeBox>({
@@ -348,9 +378,10 @@ export class MarketplacePlugin extends AkitaBaseContract {
 
     loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
 
-    abiCall<typeof Listing.prototype.delist>({
-      appId,
-      args: [sender],
+    abiCall<typeof Marketplace.prototype.delist>({
+      sender,
+      appId: this.factory.value,
+      args: [appId],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }

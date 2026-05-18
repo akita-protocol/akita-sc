@@ -27,7 +27,7 @@ type DeletePoolArgs = (
 );
 
 type AddRewardArgs = (
-  Omit<ContractArgs['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -62,18 +62,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.newPool({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -96,18 +96,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.initPool({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -130,18 +130,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.deletePool({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -164,18 +164,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.addReward({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -198,18 +198,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.finalizePool({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -232,18 +232,18 @@ export class StakingPoolPluginSDK extends BaseSDK<StakingPoolPluginClient> {
       });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+        const rekeyBack = rekeyBackArg ?? true;
 
         const params = await this.client.params.enter({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{

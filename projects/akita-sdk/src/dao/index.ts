@@ -677,8 +677,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
     const group = this.client.newGroup()
 
-    const { total } = await this.client.proposalCost({ args: { actions: preppedActions } })
-
+    const { total } = await this.client.proposalCost({
+      ...sendParams,
+      args: { actions: preppedActions },
+    })
     const payment = this.client.algorand.createTransaction.payment({
       ...sendParams,
       receiver: this.client.appAddress.toString(),

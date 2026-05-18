@@ -1,7 +1,7 @@
 import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions';
-import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey } from './constants';
+import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey, DualStakePluginGlobalStateKeyLSTID } from './constants';
 import { ERR_NOT_A_DUALSTAKE_APP, ERR_NOT_ENOUGH_OF_ASA } from './errors';
 
 // CONTRACT IMPORTS
@@ -82,11 +82,22 @@ export class DualStakePlugin extends Contract {
     itxnCompose.submit()
   }
 
-  redeem(wallet: Application, rekeyBack: boolean, appId: Application): void {
+  redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
     const sender = getSpendingAccount(wallet)
 
     loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    
+    const dualStakeTokenId: uint64 = op.AppGlobal.getExUint64(appId, Bytes(DualStakePluginGlobalStateKeyLSTID))[0]
 
+    itxn
+      .assetTransfer({
+        sender,
+        assetReceiver: appId.address,
+        assetAmount: amount,
+        xferAsset: dualStakeTokenId,
+      })
+      .submit()
+    
     abiCall<typeof DualStake.prototype.redeem>({
       sender,
       appId,

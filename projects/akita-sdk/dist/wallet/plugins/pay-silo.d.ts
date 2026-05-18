@@ -3,8 +3,13 @@ import { PaySiloPluginArgs, PaySiloPluginClient } from "../../generated/PaySiloP
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
 type ContractArgs = PaySiloPluginArgs["obj"];
-type PayArgs = (Omit<ContractArgs['pay(uint64,bool,(uint64,uint64)[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type PaySiloPaymentParams = {
+    asset: bigint | number;
+    amount: bigint | number;
+};
+type PayArgs = (Omit<ContractArgs['pay(uint64,bool,(uint64,uint64)[])void'], 'wallet' | 'rekeyBack' | 'payments'> & MaybeSigner & {
     rekeyBack?: boolean;
+    payments: PaySiloPaymentParams[];
 });
 export declare class PaySiloPluginSDK extends BaseSDK<PaySiloPluginClient> {
     constructor(params: NewContractSDKParams);

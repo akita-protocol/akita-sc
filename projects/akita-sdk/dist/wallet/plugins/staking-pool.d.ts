@@ -12,7 +12,7 @@ type InitPoolArgs = (Omit<ContractArgs['initPool(uint64,bool,uint64)void'], 'wal
 type DeletePoolArgs = (Omit<ContractArgs['deletePool(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type AddRewardArgs = (Omit<ContractArgs['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type AddRewardArgs = (Omit<ContractArgs['addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type FinalizePoolArgs = (Omit<ContractArgs['finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {

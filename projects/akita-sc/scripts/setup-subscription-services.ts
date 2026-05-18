@@ -80,39 +80,39 @@ const SERVICES = [
     title: 'Plus',
     price: usdcAmount(20),
     interval: SECONDS_PER_MONTH,
-    highlightMessage: HighlightMessage.None,
+    highlightMessage: HighlightMessage.Popular,
     highlightColor: '#3EE1A1',
     modifier: 3n,
     agentAccessTier: 'Core agent access',
     banner: resolve(BANNER_DIR, 'akita_plus_banner.png'),
     description: [
-      'Boost your social impact and unlock gated experiences across the Akita ecosystem.',
+      'Boost your social impact, unlock gated experiences, and customize your app theme across the Akita ecosystem.',
       '',
       '- Social impact boost',
       '- Core agent access',
       '- Exclusive Plus badge',
       '- Gated staking pools, auctions, and raffles',
       '- Customizable gallery',
+      '- Custom app theme',
     ].join('\n'),
   },
   {
     title: 'Pro',
     price: usdcAmount(60),
     interval: SECONDS_PER_MONTH,
-    highlightMessage: HighlightMessage.Popular,
+    highlightMessage: HighlightMessage.None,
     highlightColor: '#4BC9FF',
     modifier: 2n,
     agentAccessTier: 'Expanded agent access',
     banner: resolve(BANNER_DIR, 'akita_pro_banner.png'),
     description: [
-      'Enhanced social impact with everything in Plus, Pro-exclusive events, and a custom app theme.',
+      'Enhanced social impact with everything in Plus and Pro-exclusive events.',
       '',
       '- Enhanced social impact boost',
       '- Expanded agent access',
       '- Exclusive Pro badge',
       '- Everything in Plus',
       '- Pro-exclusive staking pools, auctions, and raffles',
-      '- Custom app theme',
     ].join('\n'),
   },
   {
@@ -438,6 +438,12 @@ export async function setupSubscriptionServices({
     const service = SERVICES[i]
     console.log(`         ${service.title} ($${Number(service.price) / 10 ** USDC_DECIMALS} USDC/month)...`)
 
+    // `getServiceList` stores the next service id, not the most recently
+    // created id. Capture it before creation so social-impact modifiers are
+    // keyed to the actual service id users will subscribe to.
+    const currentServiceList = await subscriptionsSdk.getServiceList({ address: daoWalletAddress })
+    const serviceId = currentServiceList === 0n ? 1n : currentServiceList
+
     const execution = await daoWallet.build.usePlugin({
       sender,
       signer,
@@ -482,9 +488,7 @@ export async function setupSubscriptionServices({
       await sendPrepared(window, algorand.client.algod)
     }
 
-    // Services are now created under the DAO wallet's controlled address.
-    const serviceCount = await subscriptionsSdk.getServiceList({ address: daoWalletAddress })
-    serviceIds.push(serviceCount)
+    serviceIds.push(serviceId)
   }
 
   // ─── Step 5: Install social plugin on DAO wallet ───────────────────────

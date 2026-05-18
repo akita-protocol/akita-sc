@@ -12,7 +12,7 @@ main:
     assert
     txn ApplicationID
     bz main_create_NoOp@11
-    pushbytess 0xab93ac1a 0x26c0c31c 0x2552d89a 0xe7439919 0x26747a7a 0x8875f467 0xa4b3e789 // method "newPool(uint64,bool,string,uint8,address,(address,string),uint64,bool,uint64,uint64)void", method "initPool(uint64,bool,uint64)void", method "deletePool(uint64,bool,uint64)void", method "addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,uint64[],(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64),uint64)void", method "finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void", method "enter(uint64,bool,uint64,(uint64,uint64,byte[32][])[],byte[][])void", method "mbr(uint64)(uint64,uint64,uint64,uint64,uint64)"
+    pushbytess 0xab93ac1a 0x26c0c31c 0x2552d89a 0x8f818006 0x26747a7a 0x8875f467 0xa4b3e789 // method "newPool(uint64,bool,string,uint8,address,(address,string),uint64,bool,uint64,uint64)void", method "initPool(uint64,bool,uint64)void", method "deletePool(uint64,bool,uint64)void", method "addReward(uint64,bool,uint64,(uint64,uint8,uint64,uint64,uint64,uint64),uint64)void", method "finalizePool(uint64,bool,uint64,uint64,uint64,uint64)void", method "enter(uint64,bool,uint64,(uint64,uint64,byte[32][])[],byte[][])void", method "mbr(uint64)(uint64,uint64,uint64,uint64,uint64)"
     txna ApplicationArgs 0
     match newPool initPool deletePool addReward finalizePool enter mbr
     err
@@ -633,7 +633,7 @@ addReward:
     //   wallet: Application,
     //   rekeyBack: boolean,
     //   appId: Application,
-    //   reward: Reward,
+    //   reward: AddRewardParams,
     //   amount: uint64
     // ): void {
     txna ApplicationArgs 1
@@ -662,27 +662,10 @@ addReward:
     txna ApplicationArgs 4
     dup
     cover 2
-    dup
     len
-    dig 1
-    pushint 57
-    extract_uint16 // on error: invalid tuple encoding
-    dup
-    pushint 124
+    pushint 41
     ==
-    assert // invalid tail pointer at index 8 of (uint64,uint8,uint64,uint64,uint64,uint64,uint64,uint64,(len+uint64[]),(uint64,uint64,uint64),uint64,uint8,uint64,uint64,uint64,uint64)
-    uncover 2
-    swap
-    dig 2
-    substring3
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_2 // 8
-    *
-    pushint 126
-    +
-    ==
-    assert // invalid number of bytes for smart_contracts/staking-pool/types.ts::Reward
+    assert // invalid number of bytes for smart_contracts/staking-pool/types.ts::AddRewardParams
     txna ApplicationArgs 5
     dup
     len
@@ -765,24 +748,21 @@ addReward_after_assert@3:
     // amount: amount + this.rewardsMbr(reward.winnerCount)
     dig 3
     dup
-    cover 2
-    pushint 49
+    cover 3
+    pushint 33
     extract_uint64
     // smart_contracts/staking-pool/base.ts:9
     // return MinPoolRewardsMBR + (BoxCostPerByte * winningTickets)
     intc 4 // 400
-    dig 1
     *
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:145
     // amount: amount + this.rewardsMbr(reward.winnerCount)
-    dig 5
+    dig 4
     +
     itxn_field Amount
-    swap
     itxn_field Receiver
-    dig 9
+    dig 8
     dup
-    cover 3
     itxn_field Sender
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:142-146
     // itxn.payment({
@@ -809,39 +789,14 @@ addReward_after_assert@3:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:147
-    // reward
-    dig 1
-    extract 8 1
-    dig 2
-    extract 9 8
-    dig 3
-    extract 17 8
-    uncover 4
-    extract 25 8
-    dig 12
-    itob
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    swap
-    itob
-    concat
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:149
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     dig 6
     dig 8
     callsub rekeyAddress
     itxn_field RekeyTo
-    uncover 2
-    itxn_field ApplicationID
-    swap
     itxn_field Sender
+    itxn_field ApplicationID
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:138-150
     // abiCall<typeof StakingPool.prototype.addReward>({
     //   sender,
@@ -871,7 +826,7 @@ addReward_after_if_else@15:
     //   wallet: Application,
     //   rekeyBack: boolean,
     //   appId: Application,
-    //   reward: Reward,
+    //   reward: AddRewardParams,
     //   amount: uint64
     // ): void {
     intc_1 // 1
@@ -1028,17 +983,15 @@ addReward_after_if_else@11:
     dig 3
     dup
     cover 3
-    pushint 49
+    pushint 33
     extract_uint64
     // smart_contracts/staking-pool/base.ts:9
     // return MinPoolRewardsMBR + (BoxCostPerByte * winningTickets)
     intc 4 // 400
-    dig 1
     *
     itxn_field Amount
-    swap
     itxn_field Receiver
-    dig 9
+    dig 8
     dup
     itxn_field Sender
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:182-186
@@ -1061,14 +1014,12 @@ addReward_after_if_else@11:
     itxn_next
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:189
     // assetReceiver: appId.address,
-    dig 2
+    dig 1
     app_params_get AppAddress
     assert // application exists
-    dig 10
-    dup
-    cover 3
+    dig 9
     itxn_field XferAsset
-    dig 6
+    dig 4
     itxn_field AssetAmount
     itxn_field AssetReceiver
     dup
@@ -1105,39 +1056,14 @@ addReward_after_if_else@11:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:193
-    // reward
-    dig 4
-    extract 8 1
-    dig 5
-    extract 9 8
-    dig 6
-    extract 17 8
-    uncover 7
-    extract 25 8
-    uncover 5
-    itob
-    uncover 4
-    concat
-    uncover 3
-    concat
-    uncover 2
-    concat
-    swap
-    concat
-    uncover 2
-    itob
-    concat
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:195
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     dig 6
     dig 8
     callsub rekeyAddress
     itxn_field RekeyTo
-    uncover 2
-    itxn_field ApplicationID
-    swap
     itxn_field Sender
+    itxn_field ApplicationID
     // smart_contracts/arc58/plugins/staking-pool/contract.algo.ts:178-196
     // abiCall<typeof StakingPool.prototype.addRewardAsa>({
     //   sender,

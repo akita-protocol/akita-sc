@@ -5,6 +5,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AsaMintPluginSDK, DualStakePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { ERR_NOT_A_DUALSTAKE_APP } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -72,6 +73,29 @@ describe('DualStake plugin contract', () => {
       const plugins = await wallet.getPlugins();
       expect(plugins.size).toBe(2);
       expect(dualStakePluginSdk.appId).toBeGreaterThan(0n);
+    });
+
+    test('mint rejects apps that were not created by the configured dual-stake registry', async () => {
+      await expect(wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          dualStakePluginSdk.mint({
+            appId: wallet.client.appId,
+            amount: 1_000_000n,
+          }),
+        ],
+      })).rejects.toThrow(ERR_NOT_A_DUALSTAKE_APP);
+    });
+
+    test('redeem rejects apps that were not created by the configured dual-stake registry', async () => {
+      await expect(wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          dualStakePluginSdk.redeem({
+            appId: wallet.client.appId,
+          }),
+        ],
+      })).rejects.toThrow(ERR_NOT_A_DUALSTAKE_APP);
     });
   });
 });

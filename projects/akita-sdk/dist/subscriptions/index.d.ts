@@ -123,6 +123,19 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     }): Promise<bigint>;
     newService({ sender, signer, asset, passes, gateId, ...rest }: NewServiceArgs): Promise<bigint>;
     pauseService({ sender, signer, id }: MaybeSigner & ContractArgs['pauseService(uint64)void']): Promise<void>;
+    updateServiceTitle({ sender, signer, id, title }: MaybeSigner & {
+        id: bigint | number;
+        title: string;
+    }): Promise<void>;
+    updateServiceDescription({ sender, signer, id, description }: MaybeSigner & {
+        id: bigint | number;
+        description: string;
+    }): Promise<void>;
+    updateServiceMetadata({ sender, signer, id, title, description }: MaybeSigner & {
+        id: bigint | number;
+        title?: string;
+        description?: string;
+    }): Promise<void>;
     shutdownService({ sender, signer, id }: MaybeSigner & ContractArgs['shutdownService(uint64)void']): Promise<void>;
     block({ sender, signer, block }: MaybeSigner & {
         block: string;

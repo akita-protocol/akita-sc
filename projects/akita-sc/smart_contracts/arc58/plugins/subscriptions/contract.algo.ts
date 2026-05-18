@@ -3,13 +3,13 @@ import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorand
 import { classes } from 'polytype'
 import { GateMustCheckAbiMethod } from "../../../gates/constants"
 import { GateArgs } from "../../../gates/types"
-import { SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
+import { ServiceID, SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
 import { getAccounts, getAkitaAppList, getSpendingAccount, getWalletIDUsingAkitaDAO, originOr, rekeyAddress } from "../../../utils/functions"
 import { CID } from "../../../utils/types/base"
 
 // CONTRACT IMPORTS
 import { BaseSubscriptions } from "../../../subscriptions/base"
-import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
+import { MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
 import type { Subscriptions } from "../../../subscriptions/contract.algo"
 import { ERR_CANNOT_TRIGGER, ERR_SUBSCRIPTION_DOES_NOT_EXIST } from "../../../subscriptions/errors"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
@@ -131,6 +131,12 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     )
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+    const currentServiceList = abiCall<typeof Subscriptions.prototype.getServiceList>({
+      sender,
+      appId,
+      args: [sender],
+    }).returnValue
+    const serviceId: ServiceID = currentServiceList === 0 ? 1 : currentServiceList
 
     const cost = abiCall<typeof Subscriptions.prototype.newServiceCost>({
       sender,
@@ -161,19 +167,19 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
 
     const size = this.description.length
-    if (size > MAX_DESCRIPTION_CHUNK_SIZE) {
-      const chunk = this.description.extract(0, MAX_DESCRIPTION_CHUNK_SIZE)
+    if (size > MAX_LOAD_DESCRIPTION_CHUNK_SIZE) {
+      const chunk = this.description.extract(0, MAX_LOAD_DESCRIPTION_CHUNK_SIZE)
 
       itxnCompose.next<typeof Subscriptions.prototype.setServiceDescription>({
         sender,
         appId,
-        args: [0, chunk],
+        args: [serviceId, 0, chunk],
       })
 
       itxnCompose.next<typeof Subscriptions.prototype.setServiceDescription>({
         sender,
         appId,
-        args: [0, this.description.extract(MAX_DESCRIPTION_CHUNK_SIZE, size - MAX_DESCRIPTION_CHUNK_SIZE)],
+        args: [serviceId, MAX_LOAD_DESCRIPTION_CHUNK_SIZE, this.description.extract(MAX_LOAD_DESCRIPTION_CHUNK_SIZE, size - MAX_LOAD_DESCRIPTION_CHUNK_SIZE)],
       })
 
     } else {
@@ -182,7 +188,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       itxnCompose.next<typeof Subscriptions.prototype.setServiceDescription>({
         sender,
         appId,
-        args: [0, chunk],
+        args: [serviceId, 0, chunk],
       })
     }
 
@@ -205,6 +211,43 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     // so instead we can get the id incrementor and subtract 1 to get the latest created service id
     // for the user
     return (id - 1)
+  }
+
+  updateServiceTitle(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: ServiceID,
+    title: string
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.updateServiceTitle>({
+      sender,
+      appId,
+      args: [id, title],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  setServiceDescription(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: ServiceID,
+    offset: uint64,
+    data: bytes
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.setServiceDescription>({
+      sender,
+      appId,
+      args: [id, offset, data],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
   }
 
   pauseService(
@@ -296,24 +339,13 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
-    const costs = this.mbr()
-    let mbrAmount = costs.subscriptions
-
-    const firstSubscription = abiCall<typeof Subscriptions.prototype.isFirstSubscription>({
+    const subscriptionCost = abiCall<typeof Subscriptions.prototype.newSubscriptionCost>({
       sender,
       appId,
-      args: [sender],
+      args: [recipient, asset, index],
     }).returnValue
 
-    if (firstSubscription) {
-      mbrAmount += costs.subscriptionslist
-    }
-
-    // For ASA subscriptions, check if opt-in is needed
     const isAsa = asset !== 0
-    if (isAsa && !this.akitaDAO.value.address.isOptedIn(Asset(asset))) {
-      mbrAmount += Global.assetOptInMinBalance
-    }
 
     if (args.length > 0) {
       const gate = getAkitaAppList(this.akitaDAO.value).gate
@@ -343,7 +375,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             itxn.payment({
               sender,
               receiver: appId.address,
-              amount: mbrAmount,
+              amount: subscriptionCost,
             }),
             itxn.assetTransfer({
               sender,
@@ -367,7 +399,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             itxn.payment({
               sender,
               receiver: appId.address,
-              amount: amount + mbrAmount,
+              amount: amount + subscriptionCost,
             }),
             gateTxn,
             recipient,
@@ -387,7 +419,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             itxn.payment({
               sender,
               receiver: appId.address,
-              amount: mbrAmount,
+              amount: subscriptionCost,
             }),
             itxn.assetTransfer({
               sender,
@@ -410,7 +442,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             itxn.payment({
               sender,
               receiver: appId.address,
-              amount: amount + mbrAmount,
+              amount: amount + subscriptionCost,
             }),
             recipient,
             amount,

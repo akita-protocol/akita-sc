@@ -15,6 +15,20 @@ interface DeployOptions {
   network: Network
   mnemonic?: string
   apps?: Partial<AkitaDaoApps>
+  importLoraAppLab: boolean
+  haystackRouter?: {
+    appId?: bigint
+    methodSelector?: Uint8Array
+    referrerTreasuryAppId?: bigint
+  }
+}
+
+function parseFourByteSelector(value: string): Uint8Array {
+  const hex = value.startsWith('0x') ? value.slice(2) : value
+  if (!/^[0-9a-fA-F]{8}$/.test(hex)) {
+    throw new Error(`Invalid Haystack router method selector: ${value}. Expected 4 bytes as 8 hex characters.`)
+  }
+  return new Uint8Array(Buffer.from(hex, 'hex'))
 }
 
 // Get network-specific defaults for OtherAppList
@@ -55,7 +69,19 @@ function parseArgs(): DeployOptions {
   const args = process.argv.slice(2)
   let network: Network = 'localnet'
   let mnemonic: string | undefined
+  let importLoraAppLab = process.env.CI !== 'true' && process.env.AKITA_SKIP_LORA_APP_LAB !== '1'
   const apps: Partial<AkitaDaoApps> = {}
+  const haystackRouter: DeployOptions['haystackRouter'] = {}
+
+  if (process.env.HAYSTACK_ROUTER_APP_ID) {
+    haystackRouter.appId = BigInt(process.env.HAYSTACK_ROUTER_APP_ID)
+  }
+  if (process.env.HAYSTACK_ROUTER_METHOD_SELECTOR) {
+    haystackRouter.methodSelector = parseFourByteSelector(process.env.HAYSTACK_ROUTER_METHOD_SELECTOR)
+  }
+  if (process.env.HAYSTACK_REFERRER_TREASURY_APP_ID) {
+    haystackRouter.referrerTreasuryAppId = BigInt(process.env.HAYSTACK_REFERRER_TREASURY_APP_ID)
+  }
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--network' || args[i] === '-n') {
@@ -94,6 +120,28 @@ function parseArgs(): DeployOptions {
         apps.akitaNfd = BigInt(value)
         i++
       }
+    } else if (args[i] === '--haystack-router') {
+      const value = args[i + 1]
+      if (value) {
+        haystackRouter.appId = BigInt(value)
+        i++
+      }
+    } else if (args[i] === '--haystack-router-method') {
+      const value = args[i + 1]
+      if (value) {
+        haystackRouter.methodSelector = parseFourByteSelector(value)
+        i++
+      }
+    } else if (args[i] === '--haystack-referrer-treasury') {
+      const value = args[i + 1]
+      if (value) {
+        haystackRouter.referrerTreasuryAppId = BigInt(value)
+        i++
+      }
+    } else if (args[i] === '--skip-lora-app-lab') {
+      importLoraAppLab = false
+    } else if (args[i] === '--lora-app-lab') {
+      importLoraAppLab = true
     } else if (args[i] === '--help' || args[i] === '-h') {
       console.log(`
 Usage: ts-node scripts/deploy-universe.ts [options]
@@ -105,6 +153,11 @@ Options:
   --nfd-registry <appId>        NFD Registry app ID (optional, uses network defaults if not provided)
   --asset-inbox <appId>         Asset Inbox app ID (optional, uses network defaults if not provided)
   --akita-nfd <appId>           Akita NFD app ID (optional, uses network defaults if not provided)
+  --haystack-router <appId>     Haystack Router app ID (optional, defaults to known mainnet ID; can use HAYSTACK_ROUTER_APP_ID)
+  --haystack-router-method <hex> Haystack Router finalize selector (optional, defaults to c890dc20; can use HAYSTACK_ROUTER_METHOD_SELECTOR)
+  --haystack-referrer-treasury <appId> Haystack Referrer Treasury app ID (optional, defaults to known mainnet ID; can use HAYSTACK_REFERRER_TREASURY_APP_ID)
+  --skip-lora-app-lab           Do not import deployed contracts into Lora App Lab after deployment
+  --lora-app-lab                Import deployed contracts into Lora App Lab after deployment (default outside CI)
   --help, -h                    Show this help message
 
 Cost Information:
@@ -142,7 +195,9 @@ Examples:
   return {
     network,
     mnemonic,
-    apps: hasNonZeroValue ? finalApps : undefined
+    apps: hasNonZeroValue ? finalApps : undefined,
+    importLoraAppLab,
+    haystackRouter: Object.keys(haystackRouter).length > 0 ? haystackRouter : undefined,
   }
 }
 
@@ -213,7 +268,8 @@ async function createFixtureForNetwork(
 function generateEnvFile(
   universe: AkitaUniverse,
   network: Network,
-  apps?: Partial<AkitaDaoApps>
+  apps?: Partial<AkitaDaoApps>,
+  localnetDaoCreatorMnemonic?: string,
 ): string {
   const lines: string[] = [
     `# Akita Universe Deployment - ${network}`,
@@ -221,6 +277,7 @@ function generateEnvFile(
     ``,
     `# Network`,
     `ALGORAND_NETWORK=${network}`,
+    ...(localnetDaoCreatorMnemonic ? [`LOCALNET_DAO_CREATOR_MNEMONIC="${localnetDaoCreatorMnemonic}"`] : []),
     ``,
     `# Core Contracts`,
     `DAO_APP_ID=${universe.dao.appId}`,
@@ -253,6 +310,7 @@ function generateEnvFile(
     `SELF_OPTIN_PLUGIN_APP_ID=${universe.selfOptInPlugin.appId}`,
     `ASA_MINT_PLUGIN_APP_ID=${universe.asaMintPlugin.appId}`,
     `PAY_PLUGIN_APP_ID=${universe.payPlugin.appId}`,
+    `HAYSTACK_ROUTER_PLUGIN_APP_ID=${universe.haystackRouterPlugin.appId}`,
     `HYPER_SWAP_PLUGIN_APP_ID=${universe.hyperSwapPlugin.appId}`,
     `SUBSCRIPTIONS_PLUGIN_APP_ID=${universe.subscriptionsPlugin.appId}`,
     `AUCTION_PLUGIN_APP_ID=${universe.auctionPlugin.appId}`,
@@ -372,6 +430,7 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   selfOptinPlugin: ${universe.selfOptInPlugin.appId}n,
   asaMintPlugin: ${universe.asaMintPlugin.appId}n,
   payPlugin: ${universe.payPlugin.appId}n,
+  haystackRouterPlugin: ${universe.haystackRouterPlugin.appId}n,
   hyperSwapPlugin: ${universe.hyperSwapPlugin.appId}n,
   subscriptionsPlugin: ${universe.subscriptionsPlugin.appId}n,
   auctionPlugin: ${universe.auctionPlugin.appId}n,
@@ -513,6 +572,10 @@ async function formatSummary(
         appId: universe.dao.appId.toString(),
         address: universe.dao.client.appAddress.toString(),
       },
+      proposalValidator: {
+        appId: universe.proposalValidator.appId.toString(),
+        address: universe.proposalValidator.client.appAddress.toString(),
+      },
       wallet: {
         appId: universe.dao.wallet.client.appId.toString(),
         address: universe.dao.wallet.client.appAddress.toString(),
@@ -600,6 +663,10 @@ async function formatSummary(
       payPlugin: {
         appId: universe.payPlugin.appId.toString(),
         address: universe.payPlugin.client.appAddress.toString(),
+      },
+      haystackRouterPlugin: {
+        appId: universe.haystackRouterPlugin.appId.toString(),
+        address: universe.haystackRouterPlugin.client.appAddress.toString(),
       },
       hyperSwapPlugin: {
         appId: universe.hyperSwapPlugin.appId.toString(),
@@ -794,12 +861,15 @@ async function deploy() {
     let signer: algosdk.TransactionSigner
 
     if (options.network === 'localnet') {
-      // For localnet, use the fixture's test account
+      // For localnet, keep the fixture for generated test accounts but deploy
+      // from a KMD-backed account so follow-up scripts can recover the DAO
+      // creator signer in a separate process.
       fixture = algorandFixture()
       await fixture.newScope()
-      account = fixture.context.testAccount as algosdk.Account
-      sender = account.addr.toString()
-      signer = (account as any).signer
+      const localnetDeployer = await algorand.account.dispenserFromEnvironment()
+      account = localnetDeployer as unknown as algosdk.Account
+      sender = localnetDeployer.addr.toString()
+      signer = localnetDeployer.signer as algosdk.TransactionSigner
     } else {
       if (!options.mnemonic) {
         throw new Error('Mnemonic is required for non-localnet networks')
@@ -897,9 +967,10 @@ async function deploy() {
       signer,
       apps: options.apps,
       network: options.network,
+      haystackRouter: options.haystackRouter,
     })
 
-    // For localnet, transfer AKTA to every KMD dispenser-candidate account so mock-init
+    // For localnet, transfer test assets to every KMD dispenser-candidate account so mock-init
     // and other scripts can fund test wallets regardless of which algokit-utils version
     // they use to pick a dispenser.
     //
@@ -908,10 +979,10 @@ async function deploy() {
     //                                   with amount > 1000 ALGO.
     //   v10 (akita-sc → here):          account matching `comment === "Wallet1"` in genesis.
     //
-    // Funding all candidates ensures downstream scripts always find AKTA on the account
+    // Funding all candidates ensures downstream scripts always find test assets on the account
     // they pick — no cross-version coupling required.
-    if (options.network === 'localnet' && universe.aktaAssetId > 0n) {
-      console.log('\n💰 Transferring AKTA to all KMD dispenser candidates...')
+    if (options.network === 'localnet') {
+      console.log('\n💰 Transferring test assets to all KMD dispenser candidates...')
       try {
         const kmd = await algorand.account.kmd.kmd()
         const wallets = (await kmd.listWallets()).wallets
@@ -926,11 +997,20 @@ async function deploy() {
 
         const addresses = (await kmd.listKeysInWallet({ walletHandleToken })).addresses
 
-        // Per-recipient AKTA allotment (6 decimals). 500M split across all candidates.
-        const totalAkta = 500_000_000_000_000n
-        const perAccount = totalAkta / BigInt(Math.max(addresses.length, 1))
+        const testAssets = [
+          {
+            name: 'AKTA',
+            assetId: universe.aktaAssetId,
+            totalAmount: 500_000_000_000_000n,
+          },
+          {
+            name: 'USDC',
+            assetId: universe.usdcAssetId,
+            totalAmount: 500_000_000_000_000n,
+          },
+        ].filter((asset) => asset.assetId > 0n)
 
-        let funded = 0
+        const fundedByAsset = new Map<string, number>()
         for (const addr of addresses) {
           const addrStr = addr.toString()
           const info = await algorand.client.algod.accountInformation(addr)
@@ -945,37 +1025,44 @@ async function deploy() {
           )
           if (!exported) continue
 
-          // Opt in (idempotent: skip if already holding the asset)
-          const alreadyOpted = (info.assets ?? []).some(
-            (a) => a.assetId === universe.aktaAssetId,
-          )
-          if (!alreadyOpted) {
-            await algorand.send.assetOptIn({
-              sender: addrStr,
-              signer: exported.signer,
-              assetId: universe.aktaAssetId,
-            })
-          }
+          for (const asset of testAssets) {
+            const perAccount = asset.totalAmount / BigInt(Math.max(addresses.length, 1))
+            const latestInfo = await algorand.client.algod.accountInformation(addr)
+            const alreadyOpted = (latestInfo.assets ?? []).some(
+              (a) => a.assetId === asset.assetId,
+            )
+            if (!alreadyOpted) {
+              await algorand.send.assetOptIn({
+                sender: addrStr,
+                signer: exported.signer,
+                assetId: asset.assetId,
+              })
+            }
 
-          await algorand.send.assetTransfer({
-            sender,
-            signer,
-            receiver: addrStr,
-            assetId: universe.aktaAssetId,
-            amount: perAccount,
-          })
-          console.log(`   ${alreadyOpted ? 'Topped up' : 'Funded'} ${addrStr} with ${perAccount} AKTA ✓`)
-          funded++
+            await algorand.send.assetTransfer({
+              sender,
+              signer,
+              receiver: addrStr,
+              assetId: asset.assetId,
+              amount: perAccount,
+            })
+            console.log(`   ${alreadyOpted ? 'Topped up' : 'Funded'} ${addrStr} with ${perAccount} ${asset.name} ✓`)
+            fundedByAsset.set(asset.name, (fundedByAsset.get(asset.name) ?? 0) + 1)
+          }
         }
 
-        if (funded === 0) {
-          console.log('   ⚠️  No eligible KMD accounts found to fund with AKTA')
-        } else {
-          console.log(`   Funded ${funded} dispenser candidate(s) with ${perAccount} AKTA each`)
+        for (const asset of testAssets) {
+          const funded = fundedByAsset.get(asset.name) ?? 0
+          if (funded === 0) {
+            console.log(`   ⚠️  No eligible KMD accounts found to fund with ${asset.name}`)
+          } else {
+            const perAccount = asset.totalAmount / BigInt(Math.max(addresses.length, 1))
+            console.log(`   Funded ${funded} dispenser candidate(s) with ${perAccount} ${asset.name} each`)
+          }
         }
       } catch (e) {
-        console.log(`   ⚠️  Failed to transfer AKTA to KMD dispensers: ${e instanceof Error ? e.message : e}`)
-        console.log(`   (This is okay if you don't need AKTA for testing)`)
+        console.log(`   ⚠️  Failed to transfer test assets to KMD dispensers: ${e instanceof Error ? e.message : e}`)
+        console.log(`   (This is okay if you don't need test assets for testing)`)
       }
     }
 
@@ -1037,8 +1124,35 @@ async function deploy() {
     await fs.writeFile(summaryPath, summary, 'utf-8')
     console.log(`\n📄 Summary saved to: ${summaryPath}`)
 
+    if (options.importLoraAppLab) {
+      try {
+        const pathModule = await import('path')
+        const osModule = await import('os')
+        const { importLoraAppLab } = await import('./import-lora-app-lab')
+        await importLoraAppLab({
+          network: options.network,
+          summaryPath,
+          loraUrl: process.env.LORA_URL ?? 'https://lora.algokit.io',
+          cdpUrl: process.env.LORA_CDP_URL,
+          chromePath: process.env.LORA_CHROME_PATH ?? '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
+          chromeUserDataDir: process.env.LORA_CHROME_USER_DATA_DIR ?? pathModule.join(osModule.homedir(), 'Library/Application Support/BraveSoftware/Brave-Browser'),
+          chromeProfileDirectory: process.env.LORA_CHROME_PROFILE_DIRECTORY ?? 'Profile 1',
+          relaunchBrowser: process.env.LORA_RELAUNCH_BROWSER === '1',
+          keepBrowserOpen: process.env.LORA_CLOSE_BROWSER !== '1',
+        })
+      } catch (error) {
+        console.warn(`⚠️  Could not import contracts into Lora App Lab: ${error instanceof Error ? error.message : error}`)
+        console.warn(`   Deployment succeeded. Re-run manually with: npm run lora:import -- --summary ${summaryPath}`)
+      }
+    } else {
+      console.log(`🧪 Skipping Lora App Lab import`)
+    }
+
     // Generate and save environment file
-    const envContent = generateEnvFile(universe, options.network, options.apps)
+    const localnetDaoCreatorMnemonic = options.network === 'localnet' && options.mnemonic
+      ? options.mnemonic
+      : undefined
+    const envContent = generateEnvFile(universe, options.network, options.apps, localnetDaoCreatorMnemonic)
     const path = await import('path')
     const envPath = `.env.${options.network}`
     await fs.writeFile(envPath, envContent, 'utf-8')

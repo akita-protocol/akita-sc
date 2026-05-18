@@ -28,9 +28,15 @@ export async function proposeAndExecute<TClient extends SDKClient>(
   dao: AkitaDaoSDK,
   actions: ProposalAction<TClient>[]
 ): Promise<bigint> {
-  const info = await dao.proposalCost({ actions })
+  const info = await dao.proposalCost({
+    sender: dao.sendParams.sender!,
+    signer: dao.sendParams.signer!,
+    actions,
+  })
   const funding = await getAppFundingNeeded(
-    algorand, dao.client.appClient.appAddress.toString(), info.total
+    algorand,
+    dao.client.appClient.appAddress.toString(),
+    info.total + 1_000_000n
   )
   if (funding > 0n) {
     await dao.client.appClient.fundAppAccount({ amount: microAlgo(funding) })

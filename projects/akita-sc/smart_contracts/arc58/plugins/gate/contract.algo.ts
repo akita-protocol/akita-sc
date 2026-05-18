@@ -32,6 +32,10 @@ export class GatePlugin extends BaseGate {
     args: GateArgs
   ): void {
     const sender = getSpendingAccount(wallet)
+    const amount = abiCall<typeof Gate.prototype.cost>({
+      appId: this.gateAppID.value,
+      args: [filters, args],
+    }).returnValue
 
     abiCall<typeof Gate.prototype.register>({
       sender,
@@ -40,7 +44,7 @@ export class GatePlugin extends BaseGate {
         itxn.payment({
           sender,
           receiver: this.gateAppID.value.address,
-          amount: this.mbr(filters.length).gateRegistry
+          amount,
         }),
         filters,
         args,
@@ -48,4 +52,4 @@ export class GatePlugin extends BaseGate {
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }
-}  
+}
