@@ -50,9 +50,10 @@ export class DualStakePlugin extends Contract {
         appId
       })
 
+      // https://docs.myth.finance/dualSTAKE/rate
       const asaID = op.AppGlobal.getExUint64(appId, Bytes(DualStakeGlobalStateKeyAsaID))[0]
       const precision = op.AppGlobal.getExUint64(appId, Bytes(DualStakeGlobalStateKeyRatePrecision))[0]
-      const asaAmount = op.divw(...op.mulw(amount, rate), precision)
+      const asaAmount: uint64 = op.divw(...op.mulw(amount, rate), precision) + 1
 
       const [holdings, isOptedIn] = op.AssetHolding.assetBalance(sender, asaID)
       loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
