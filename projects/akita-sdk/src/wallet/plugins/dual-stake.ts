@@ -15,7 +15,7 @@ type MintArgs = (
 );
 
 type RedeemArgs = (
-  Omit<ContractArgs['redeem(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['redeem(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );

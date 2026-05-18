@@ -50,10 +50,11 @@ export type DualStakePluginArgs = {
             appId: bigint | number;
             amount: bigint | number;
         };
-        'redeem(uint64,bool,uint64)void': {
+        'redeem(uint64,bool,uint64,uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
             appId: bigint | number;
+            amount: bigint | number;
         };
     };
     /**
@@ -62,7 +63,7 @@ export type DualStakePluginArgs = {
     tuple: {
         'create(uint64)void': [registry: bigint | number];
         'mint(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, amount: bigint | number];
-        'redeem(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number];
+        'redeem(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, amount: bigint | number];
     };
 };
 /**
@@ -71,7 +72,7 @@ export type DualStakePluginArgs = {
 export type DualStakePluginReturns = {
     'create(uint64)void': void;
     'mint(uint64,bool,uint64,uint64)void': void;
-    'redeem(uint64,bool,uint64)void': void;
+    'redeem(uint64,bool,uint64,uint64)void': void;
 };
 /**
  * Defines the types of available calls and state of the DualStakePlugin smart contract.
@@ -88,10 +89,10 @@ export type DualStakePluginTypes = {
         argsObj: DualStakePluginArgs['obj']['mint(uint64,bool,uint64,uint64)void'];
         argsTuple: DualStakePluginArgs['tuple']['mint(uint64,bool,uint64,uint64)void'];
         returns: DualStakePluginReturns['mint(uint64,bool,uint64,uint64)void'];
-    }> & Record<'redeem(uint64,bool,uint64)void' | 'redeem', {
-        argsObj: DualStakePluginArgs['obj']['redeem(uint64,bool,uint64)void'];
-        argsTuple: DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64)void'];
-        returns: DualStakePluginReturns['redeem(uint64,bool,uint64)void'];
+    }> & Record<'redeem(uint64,bool,uint64,uint64)void' | 'redeem', {
+        argsObj: DualStakePluginArgs['obj']['redeem(uint64,bool,uint64,uint64)void'];
+        argsTuple: DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64,uint64)void'];
+        returns: DualStakePluginReturns['redeem(uint64,bool,uint64,uint64)void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -203,12 +204,12 @@ export declare abstract class DualStakePluginParamsFactory {
      */
     static mint(params: CallParams<DualStakePluginArgs['obj']['mint(uint64,bool,uint64,uint64)void'] | DualStakePluginArgs['tuple']['mint(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the redeem(uint64,bool,uint64)void ABI method
+     * Constructs a no op call for the redeem(uint64,bool,uint64,uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static redeem(params: CallParams<DualStakePluginArgs['obj']['redeem(uint64,bool,uint64)void'] | DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static redeem(params: CallParams<DualStakePluginArgs['obj']['redeem(uint64,bool,uint64,uint64)void'] | DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the DualStakePlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -602,12 +603,12 @@ export declare class DualStakePluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64)void` ABI method.
+         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64)void"]> & {
+        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -658,12 +659,12 @@ export declare class DualStakePluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64)void` ABI method.
+         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64)void"]> & {
+        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -701,15 +702,15 @@ export declare class DualStakePluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64)void` ABI method.
+         * Makes a call to the DualStakePlugin smart contract using the `redeem(uint64,bool,uint64,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64)void"]> & SendParams & {
+        redeem: (params: CallParams<DualStakePluginArgs["obj"]["redeem(uint64,bool,uint64,uint64)void"] | DualStakePluginArgs["tuple"]["redeem(uint64,bool,uint64,uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | DualStakePluginReturns["redeem(uint64,bool,uint64)void"]);
+            return: (undefined | DualStakePluginReturns["redeem(uint64,bool,uint64,uint64)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -755,12 +756,12 @@ export type DualStakePluginComposer<TReturns extends [...any[]] = []> = {
      */
     mint(params?: CallParams<DualStakePluginArgs['obj']['mint(uint64,bool,uint64,uint64)void'] | DualStakePluginArgs['tuple']['mint(uint64,bool,uint64,uint64)void']>): DualStakePluginComposer<[...TReturns, DualStakePluginReturns['mint(uint64,bool,uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the redeem(uint64,bool,uint64)void ABI method.
+     * Calls the redeem(uint64,bool,uint64,uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    redeem(params?: CallParams<DualStakePluginArgs['obj']['redeem(uint64,bool,uint64)void'] | DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64)void']>): DualStakePluginComposer<[...TReturns, DualStakePluginReturns['redeem(uint64,bool,uint64)void'] | undefined]>;
+    redeem(params?: CallParams<DualStakePluginArgs['obj']['redeem(uint64,bool,uint64,uint64)void'] | DualStakePluginArgs['tuple']['redeem(uint64,bool,uint64,uint64)void']>): DualStakePluginComposer<[...TReturns, DualStakePluginReturns['redeem(uint64,bool,uint64,uint64)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the DualStakePlugin smart contract.
      *

@@ -6,7 +6,7 @@ type ContractArgs = DualStakePluginArgs["obj"];
 type MintArgs = (Omit<ContractArgs['mint(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type RedeemArgs = (Omit<ContractArgs['redeem(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type RedeemArgs = (Omit<ContractArgs['redeem(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 export declare class DualStakePluginSDK extends BaseSDK<DualStakePluginClient> {

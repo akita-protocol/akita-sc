@@ -12,7 +12,7 @@ main:
     assert
     txn ApplicationID
     bz main_create_NoOp@6
-    pushbytess 0x134aeb87 0xdff7cd15 // method "mint(uint64,bool,uint64,uint64)void", method "redeem(uint64,bool,uint64)void"
+    pushbytess 0x134aeb87 0xed16f5cb // method "mint(uint64,bool,uint64,uint64)void", method "redeem(uint64,bool,uint64,uint64)void"
     txna ApplicationArgs 0
     match mint redeem
     err
@@ -238,7 +238,7 @@ mint_after_assert@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:53
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:54
     // const asaID = op.AppGlobal.getExUint64(appId, Bytes(DualStakeGlobalStateKeyAsaID))[0]
     dup
     pushbytes "asa_id"
@@ -247,25 +247,27 @@ mint_after_assert@3:
     dup
     cover 2
     bury 11
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:54
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:55
     // const precision = op.AppGlobal.getExUint64(appId, Bytes(DualStakeGlobalStateKeyRatePrecision))[0]
     pushbytes "rate_precision"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:55
-    // const asaAmount = op.divw(...op.mulw(amount, rate), precision)
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:56
+    // const asaAmount: uint64 = op.divw(...op.mulw(amount, rate), precision) + 1
     dig 4
     dig 9
     mulw
     uncover 2
     divw
+    intc_2 // 1
+    +
     bury 11
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:57
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:58
     // const [holdings, isOptedIn] = op.AssetHolding.assetBalance(sender, asaID)
     asset_holding_get AssetBalance
     swap
     bury 8
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:59
     // loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
     bz mint_bool_false@8
     dig 6
@@ -275,7 +277,7 @@ mint_after_assert@3:
     intc_2 // 1
 
 mint_bool_merge@9:
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:58
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:59
     // loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
     bnz mint_after_assert@11
     pushbytes "ERR:NEOA"
@@ -283,7 +285,7 @@ mint_bool_merge@9:
     err // ERR:NEOA
 
 mint_after_assert@11:
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:60-68
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:61-69
     // itxnCompose.next(
     //   itxn.assetTransfer({
     //     sender,
@@ -294,12 +296,12 @@ mint_after_assert@11:
     //   })
     // )
     itxn_next
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:63
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:64
     // assetReceiver: appId.address,
     dig 2
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:66
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:67
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     dig 4
     dig 6
@@ -312,7 +314,7 @@ mint_after_assert@11:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:61-67
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:62-68
     // itxn.assetTransfer({
     //   sender,
     //   assetReceiver: appId.address,
@@ -324,7 +326,7 @@ mint_after_assert@11:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:70
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:71
     // itxnCompose.submit()
     itxn_submit
 
@@ -344,14 +346,14 @@ mint_bool_false@8:
     b mint_bool_merge@9
 
 mint_after_if_else@12:
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:76-80
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:77-81
     // itxnCompose.next<typeof DualStake.prototype.mint>({
     //   sender,
     //   appId,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:79
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:80
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     dig 3
     dig 5
@@ -361,7 +363,7 @@ mint_after_if_else@12:
     itxn_field ApplicationID
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:76-80
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:77-81
     // itxnCompose.next<typeof DualStake.prototype.mint>({
     //   sender,
     //   appId,
@@ -373,7 +375,7 @@ mint_after_if_else@12:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:82
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:83
     // itxnCompose.submit()
     itxn_submit
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:26-31
@@ -388,8 +390,8 @@ mint_after_if_else@12:
 
 // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts::DualStakePlugin.redeem[routing]() -> void:
 redeem:
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:85
-    // redeem(wallet: Application, rekeyBack: boolean, appId: Application): void {
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:86
+    // redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
     txna ApplicationArgs 1
     dup
     len
@@ -415,7 +417,21 @@ redeem:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    uncover 2
+    cover 2
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/utils/functions.ts:270-273
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    swap
     // smart_contracts/utils/functions.ts:272
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
@@ -427,13 +443,13 @@ redeem:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:88
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:89
     // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
     intc_0 // 0
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:15
     // registry = GlobalState<Application>({ key: DualStakePluginGlobalStateKey })
     bytec_0 // "registry"
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:88
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:89
     // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
     app_global_get_ex
     assert // check GlobalState exists
@@ -449,24 +465,75 @@ redeem:
     err // ERR:NDSA
 
 redeem_after_assert@3:
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:90-94
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:91
+    // const dualStakeTokenId: uint64 = op.AppGlobal.getExUint64(appId, Bytes(DualStakePluginGlobalStateKeyLSTID))[0]
+    dig 2
+    dup
+    pushbytes "lst_id"
+    app_global_get_ex
+    pop
+    swap
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:93-100
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: appId.address,
+    //     assetAmount: amount,
+    //     xferAsset: dualStakeTokenId,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:96
+    // assetReceiver: appId.address,
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 2
+    itxn_field XferAsset
+    dig 3
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    dig 1
+    dup
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:93-99
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: appId.address,
+    //     assetAmount: amount,
+    //     xferAsset: dualStakeTokenId,
+    //   })
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:93-100
+    // itxn
+    //   .assetTransfer({
+    //     sender,
+    //     assetReceiver: appId.address,
+    //     assetAmount: amount,
+    //     xferAsset: dualStakeTokenId,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:102-106
     // abiCall<typeof DualStake.prototype.redeem>({
     //   sender,
     //   appId,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:93
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:105
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 2
-    dig 4
+    dig 5
+    dig 7
     callsub rekeyAddress
     itxn_field RekeyTo
-    dig 1
-    itxn_field ApplicationID
-    dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:90-94
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:102-106
     // abiCall<typeof DualStake.prototype.redeem>({
     //   sender,
     //   appId,
@@ -479,7 +546,7 @@ redeem_after_assert@3:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:85
-    // redeem(wallet: Application, rekeyBack: boolean, appId: Application): void {
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:86
+    // redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
     intc_2 // 1
     return
