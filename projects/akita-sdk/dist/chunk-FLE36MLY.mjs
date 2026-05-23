@@ -5079,20 +5079,6 @@ var WalletFactorySDK = class extends BaseSDK {
       },
       maxFee: microAlgo3(MAX_SIM_FEE)
     });
-    const hasSetup = plugins.length > 0 || assets.length > 0 || bio;
-    const innerCallCount = plugins.length + (assets.length > 0 ? assets.length + 1 : 0) + (bio ? 1 : 0) + (hasSetup ? 1 : 0);
-    const maxGroupSize = 16;
-    const walletCreationBaseSize = 2;
-    const opUpCount = Math.min(Math.max(1, innerCallCount), maxGroupSize - walletCreationBaseSize);
-    if (opUpCount < innerCallCount) {
-      console.warn("[WalletFactorySDK] Capping wallet creation op-ups to fit group limit", {
-        requested: innerCallCount,
-        included: opUpCount
-      });
-    }
-    for (let i = 0; i < opUpCount; i++) {
-      group.opUp({ args: {}, note: String(i), maxFee: microAlgo3(MAX_SIM_FEE) });
-    }
     const results = await (await group.composer()).send({
       coverAppCallInnerTransactionFees: true,
       populateAppCallResources: true
@@ -26512,4 +26498,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-S4OJ4Y5G.mjs.map
+//# sourceMappingURL=chunk-FLE36MLY.mjs.map

@@ -5079,20 +5079,6 @@ var WalletFactorySDK = class extends _chunkH7PRBD4Tjs.BaseSDK {
       },
       maxFee: _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE)
     });
-    const hasSetup = plugins.length > 0 || assets.length > 0 || bio;
-    const innerCallCount = plugins.length + (assets.length > 0 ? assets.length + 1 : 0) + (bio ? 1 : 0) + (hasSetup ? 1 : 0);
-    const maxGroupSize = 16;
-    const walletCreationBaseSize = 2;
-    const opUpCount = Math.min(Math.max(1, innerCallCount), maxGroupSize - walletCreationBaseSize);
-    if (opUpCount < innerCallCount) {
-      console.warn("[WalletFactorySDK] Capping wallet creation op-ups to fit group limit", {
-        requested: innerCallCount,
-        included: opUpCount
-      });
-    }
-    for (let i = 0; i < opUpCount; i++) {
-      group.opUp({ args: {}, note: String(i), maxFee: _algokitutils.microAlgo.call(void 0, MAX_SIM_FEE) });
-    }
     const results = await (await group.composer()).send({
       coverAppCallInnerTransactionFees: true,
       populateAppCallResources: true
@@ -26512,4 +26498,4 @@ var WalletSDK = (_class55 = class extends _chunkH7PRBD4Tjs.BaseSDK {
 
 
 exports.CallerType = CallerType; exports.AddPluginDefaults = AddPluginDefaults; exports.isFlatAllowance = isFlatAllowance; exports.isWindowAllowance = isWindowAllowance; exports.isDripAllowance = isDripAllowance; exports.isValidPluginSDK = isValidPluginSDK; exports.getPluginAppId = getPluginAppId; exports.NewEscrowFeeAmount = NewEscrowFeeAmount; exports.prepareGroup = prepareGroup; exports.sendPrepared = sendPrepared; exports.WalletGroupComposer = WalletGroupComposer; exports.WALLET_ERROR_MESSAGES = WALLET_ERROR_MESSAGES; exports.parseWalletErrorCode = parseWalletErrorCode; exports.translateWalletError = translateWalletError; exports.WalletFactorySDK = WalletFactorySDK; exports.newWallet = newWallet; exports.OptInPluginSDK = OptInPluginSDK; exports.SelfOptInPluginSDK = SelfOptInPluginSDK; exports.PayPluginSDK = PayPluginSDK; exports.AsaMintPluginSDK = AsaMintPluginSDK; exports.UpdateAkitaDAOPluginSDK = UpdateAkitaDAOPluginSDK; exports.RevenueManagerPluginSDK = RevenueManagerPluginSDK; exports.AuctionPluginSDK = AuctionPluginSDK; exports.DAOPluginSDK = DAOPluginSDK; exports.DualStakePluginSDK = DualStakePluginSDK; exports.GatePluginSDK = GatePluginSDK; exports.HaystackRouterPluginSDK = HaystackRouterPluginSDK; exports.HyperSwapPluginSDK = HyperSwapPluginSDK; exports.MarketplacePluginSDK = MarketplacePluginSDK; exports.NFDPluginSDK = NFDPluginSDK; exports.PaySiloPluginSDK = PaySiloPluginSDK; exports.PaySiloFactoryPluginSDK = PaySiloFactoryPluginSDK; exports.PollPluginSDK = PollPluginSDK; exports.RafflePluginSDK = RafflePluginSDK; exports.RewardsPluginSDK = RewardsPluginSDK; exports.SocialPluginSDK = SocialPluginSDK; exports.StakingPluginSDK = StakingPluginSDK; exports.StakingPoolPluginSDK = StakingPoolPluginSDK; exports.SubscriptionsPluginSDK = SubscriptionsPluginSDK; exports.SunsetPluginSDK = SunsetPluginSDK; exports.WalletSDK = WalletSDK;
-//# sourceMappingURL=chunk-XFCO2RZP.js.map
+//# sourceMappingURL=chunk-YCJNR4ZP.js.map
