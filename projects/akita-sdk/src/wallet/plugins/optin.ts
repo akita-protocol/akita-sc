@@ -40,9 +40,12 @@ export class OptInPluginSDK extends BaseSDK<OptInPluginClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
+    const opUpCount = Math.max(1, assets.length);
+
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      opUpCount,
       getTxns: async ({ wallet }: PluginHookParams) => {
 
         const rekeyBack = args.rekeyBack ?? true;

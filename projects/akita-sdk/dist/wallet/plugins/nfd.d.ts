@@ -3,6 +3,11 @@ import { NfdPluginArgs, NfdPluginClient } from "../../generated/NFDPluginClient"
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
 type ContractArgs = NfdPluginArgs["obj"];
+type MintContractArgs = ContractArgs['mint(uint64,bool,string,uint64,address,bool)uint64'];
+type MintArgs = (Omit<MintContractArgs, 'wallet' | 'rekeyBack' | 'amount'> & Partial<Pick<MintContractArgs, 'amount'>> & MaybeSigner & {
+    rekeyBack?: boolean;
+    years?: bigint | number;
+});
 type DeleteFieldsArgs = (Omit<ContractArgs['deleteFields(uint64,bool,uint64,byte[][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -47,6 +52,10 @@ type SetPrimaryAddressArgs = (Omit<ContractArgs['setPrimaryAddress(uint64,bool,u
 });
 export declare class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     constructor(params: NewContractSDKParams);
+    private getRegistryAppId;
+    private getMintAmount;
+    mint(): PluginSDKReturn;
+    mint(args: MintArgs): PluginSDKReturn;
     deleteFields(): PluginSDKReturn;
     deleteFields(args: DeleteFieldsArgs): PluginSDKReturn;
     updateFields(): PluginSDKReturn;

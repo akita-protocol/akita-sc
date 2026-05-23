@@ -44,6 +44,14 @@ export type NfdPluginArgs = {
         'create(uint64)void': {
             registry: bigint | number;
         };
+        'mint(uint64,bool,string,uint64,address,bool)uint64': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            nfdName: string;
+            amount: bigint | number;
+            reservedFor: string;
+            linkOnMint: boolean;
+        };
         'deleteFields(uint64,bool,uint64,byte[][])void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -140,6 +148,7 @@ export type NfdPluginArgs = {
      */
     tuple: {
         'create(uint64)void': [registry: bigint | number];
+        'mint(uint64,bool,string,uint64,address,bool)uint64': [wallet: bigint | number, rekeyBack: boolean, nfdName: string, amount: bigint | number, reservedFor: string, linkOnMint: boolean];
         'deleteFields(uint64,bool,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldNames: Uint8Array[]];
         'updateFields(uint64,bool,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldAndVals: Uint8Array[]];
         'offerForSale(uint64,bool,uint64,uint64,address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, sellAmount: bigint | number, reservedFor: string];
@@ -161,6 +170,7 @@ export type NfdPluginArgs = {
  */
 export type NfdPluginReturns = {
     'create(uint64)void': void;
+    'mint(uint64,bool,string,uint64,address,bool)uint64': bigint;
     'deleteFields(uint64,bool,uint64,byte[][])void': void;
     'updateFields(uint64,bool,uint64,byte[][])void': void;
     'offerForSale(uint64,bool,uint64,uint64,address)void': void;
@@ -187,6 +197,10 @@ export type NfdPluginTypes = {
         argsObj: NfdPluginArgs['obj']['create(uint64)void'];
         argsTuple: NfdPluginArgs['tuple']['create(uint64)void'];
         returns: NfdPluginReturns['create(uint64)void'];
+    }> & Record<'mint(uint64,bool,string,uint64,address,bool)uint64' | 'mint', {
+        argsObj: NfdPluginArgs['obj']['mint(uint64,bool,string,uint64,address,bool)uint64'];
+        argsTuple: NfdPluginArgs['tuple']['mint(uint64,bool,string,uint64,address,bool)uint64'];
+        returns: NfdPluginReturns['mint(uint64,bool,string,uint64,address,bool)uint64'];
     }> & Record<'deleteFields(uint64,bool,uint64,byte[][])void' | 'deleteFields', {
         argsObj: NfdPluginArgs['obj']['deleteFields(uint64,bool,uint64,byte[][])void'];
         argsTuple: NfdPluginArgs['tuple']['deleteFields(uint64,bool,uint64,byte[][])void'];
@@ -260,6 +274,10 @@ export type NfdPluginTypes = {
  * Defines the possible abi call signatures.
  */
 export type NfdPluginSignatures = keyof NfdPluginTypes['methods'];
+/**
+ * Defines the possible abi call signatures for methods that return a non-void value.
+ */
+export type NfdPluginNonVoidMethodSignatures = keyof NfdPluginTypes['methods'] extends infer T ? T extends keyof NfdPluginTypes['methods'] ? MethodReturn<T> extends void ? never : T : never : never;
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -346,6 +364,13 @@ export declare abstract class NfdPluginParamsFactory {
             onComplete?: OnApplicationComplete.NoOp;
         };
     };
+    /**
+     * Constructs a no op call for the mint(uint64,bool,string,uint64,address,bool)uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static mint(params: CallParams<NfdPluginArgs['obj']['mint(uint64,bool,string,uint64,address,bool)uint64'] | NfdPluginArgs['tuple']['mint(uint64,bool,string,uint64,address,bool)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the deleteFields(uint64,bool,uint64,byte[][])void ABI method
      *
@@ -806,6 +831,37 @@ export declare class NfdPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
+         * Makes a call to the NFDPlugin smart contract using the `mint(uint64,bool,string,uint64,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        mint: (params: CallParams<NfdPluginArgs["obj"]["mint(uint64,bool,string,uint64,address,bool)uint64"] | NfdPluginArgs["tuple"]["mint(uint64,bool,string,uint64,address,bool)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the NFDPlugin smart contract using the `deleteFields(uint64,bool,uint64,byte[][])void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1252,6 +1308,19 @@ export declare class NfdPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
+         * Makes a call to the NFDPlugin smart contract using the `mint(uint64,bool,string,uint64,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        mint: (params: CallParams<NfdPluginArgs["obj"]["mint(uint64,bool,string,uint64,address,bool)uint64"] | NfdPluginArgs["tuple"]["mint(uint64,bool,string,uint64,address,bool)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the NFDPlugin smart contract using the `deleteFields(uint64,bool,uint64,byte[][])void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1445,6 +1514,24 @@ export declare class NfdPluginClient {
          * @returns The clearState result
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `mint(uint64,bool,string,uint64,address,bool)uint64` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        mint: (params: CallParams<NfdPluginArgs["obj"]["mint(uint64,bool,string,uint64,address,bool)uint64"] | NfdPluginArgs["tuple"]["mint(uint64,bool,string,uint64,address,bool)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | NfdPluginReturns["mint(uint64,bool,string,uint64,address,bool)uint64"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
         /**
          * Makes a call to the NFDPlugin smart contract using the `deleteFields(uint64,bool,uint64,byte[][])void` ABI method.
          *
@@ -1726,6 +1813,13 @@ export declare class NfdPluginClient {
     newGroup(composerConfig?: TransactionComposerConfig): NfdPluginComposer;
 }
 export type NfdPluginComposer<TReturns extends [...any[]] = []> = {
+    /**
+     * Calls the mint(uint64,bool,string,uint64,address,bool)uint64 ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    mint(params?: CallParams<NfdPluginArgs['obj']['mint(uint64,bool,string,uint64,address,bool)uint64'] | NfdPluginArgs['tuple']['mint(uint64,bool,string,uint64,address,bool)uint64']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['mint(uint64,bool,string,uint64,address,bool)uint64'] | undefined]>;
     /**
      * Calls the deleteFields(uint64,bool,uint64,byte[][])void ABI method.
      *

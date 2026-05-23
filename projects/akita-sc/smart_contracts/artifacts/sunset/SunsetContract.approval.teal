@@ -3,31 +3,31 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 2 40
-    bytecblock TMPL_SUNSET_CALLER
-    // smart_contracts/sunset/contract.algo.ts:7
+    intcblock 0 1 2 8
+    bytecblock "" TMPL_SUNSET_CALLER
+    // smart_contracts/sunset/contract.algo.ts:11
     // export class SunsetContract extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@12
+    bz main___algots__.defaultCreate@14
     pushbytes 0xab8b213a // method "delete(address)void"
     txna ApplicationArgs 0
     match main_delete_route@3
 
 main_switch_case_next@4:
-    // smart_contracts/sunset/contract.algo.ts:7
+    // smart_contracts/sunset/contract.algo.ts:11
     // export class SunsetContract extends Contract {
     txn OnCompletion
     !
     assert
     txn ApplicationID
     assert
-    pushbytess 0x98fd65a7 0x9625ead9 0xc7d81014 // method "deleteBoxes(byte[][])void", method "closeOut((address,uint64)[])void", method "deleteAssets(uint64[])void"
+    pushbytess 0x98fd65a7 0x9625ead9 0xc7d81014 0x14167ee7 0xd9870f5d // method "deleteBoxes(byte[][])void", method "closeOut((address,uint64)[])void", method "deleteAssets(uint64[])void", method "deleteEscrows(uint64,uint64[])void", method "reclaimWalletEscrows(uint64,(string,uint64,uint64,bool)[])void"
     txna ApplicationArgs 0
-    match deleteBoxes closeOut deleteAssets
+    match deleteBoxes closeOut deleteAssets deleteEscrows reclaimWalletEscrows
     err
 
 main_delete_route@3:
-    // smart_contracts/sunset/contract.algo.ts:16
+    // smart_contracts/sunset/contract.algo.ts:20
     // @abimethod({ allowActions: ['DeleteApplication'] })
     txn OnCompletion
     pushint 5 // DeleteApplication
@@ -37,8 +37,8 @@ main_delete_route@3:
     assert
     b delete
 
-main___algots__.defaultCreate@12:
-    // smart_contracts/sunset/contract.algo.ts:7
+main___algots__.defaultCreate@14:
+    // smart_contracts/sunset/contract.algo.ts:11
     // export class SunsetContract extends Contract {
     txn OnCompletion
     !
@@ -48,9 +48,42 @@ main___algots__.defaultCreate@12:
     return
 
 
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    intc_2 // 2
+    *
+    dig 2
+    swap
+    extract_uint16
+    dig 2
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    dup
+    intc_2 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 4
+    uncover 2
+    -
+    select
+    substring3
+    retsub
+
+
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.delete[routing]() -> void:
 delete:
-    // smart_contracts/sunset/contract.algo.ts:16
+    // smart_contracts/sunset/contract.algo.ts:20
     // @abimethod({ allowActions: ['DeleteApplication'] })
     txna ApplicationArgs 1
     dup
@@ -58,10 +91,10 @@ delete:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/sunset/contract.algo.ts:18
+    // smart_contracts/sunset/contract.algo.ts:22
     // this.auth()
     callsub auth
-    // smart_contracts/sunset/contract.algo.ts:19
+    // smart_contracts/sunset/contract.algo.ts:23
     // itxn.payment({ closeRemainderTo }).submit()
     itxn_begin
     itxn_field CloseRemainderTo
@@ -70,7 +103,7 @@ delete:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/sunset/contract.algo.ts:16
+    // smart_contracts/sunset/contract.algo.ts:20
     // @abimethod({ allowActions: ['DeleteApplication'] })
     intc_1 // 1
     return
@@ -78,9 +111,9 @@ delete:
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteBoxes[routing]() -> void:
 deleteBoxes:
-    pushbytes ""
+    bytec_0 // ""
     dup
-    // smart_contracts/sunset/contract.algo.ts:22
+    // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
     txna ApplicationArgs 1
     dup
@@ -98,7 +131,7 @@ deleteBoxes:
     intc_0 // 0
 
 deleteBoxes_for_header@1:
-    // smart_contracts/sunset/contract.algo.ts:22
+    // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
     dup
     dig 5
@@ -132,7 +165,7 @@ deleteBoxes_for_header@1:
     b deleteBoxes_for_header@1
 
 deleteBoxes_after_for@4:
-    // smart_contracts/sunset/contract.algo.ts:22
+    // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
     dig 3
     intc_2 // 2
@@ -140,13 +173,13 @@ deleteBoxes_after_for@4:
     dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/sunset/contract.algo.ts:23
+    // smart_contracts/sunset/contract.algo.ts:27
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_0 // 0
     bury 7
 
 deleteBoxes_while_top@6:
-    // smart_contracts/sunset/contract.algo.ts:23
+    // smart_contracts/sunset/contract.algo.ts:27
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     dig 6
     dig 5
@@ -169,12 +202,12 @@ deleteBoxes_while_top@6:
     intc_2 // 2
     +
     extract3
-    // smart_contracts/sunset/contract.algo.ts:24
+    // smart_contracts/sunset/contract.algo.ts:28
     // op.Box.delete(boxes[i])
     extract 2 0
     box_del
     pop
-    // smart_contracts/sunset/contract.algo.ts:23
+    // smart_contracts/sunset/contract.algo.ts:27
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_1 // 1
     +
@@ -182,7 +215,7 @@ deleteBoxes_while_top@6:
     b deleteBoxes_while_top@6
 
 deleteBoxes_after_while@8:
-    // smart_contracts/sunset/contract.algo.ts:22
+    // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
     intc_1 // 1
     return
@@ -190,7 +223,7 @@ deleteBoxes_after_while@8:
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.closeOut[routing]() -> void:
 closeOut:
-    // smart_contracts/sunset/contract.algo.ts:28
+    // smart_contracts/sunset/contract.algo.ts:32
     // closeOut(closes: AssetCloseParams[]): void {
     txna ApplicationArgs 1
     dupn 2
@@ -198,7 +231,7 @@ closeOut:
     extract_uint16 // on error: invalid array length header
     dup
     cover 2
-    intc_3 // 40
+    pushint 40
     *
     intc_2 // 2
     +
@@ -206,37 +239,37 @@ closeOut:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/sunset/types.ts::AssetCloseParams>
-    // smart_contracts/sunset/contract.algo.ts:29
+    // smart_contracts/sunset/contract.algo.ts:33
     // this.auth()
     callsub auth
-    // smart_contracts/sunset/contract.algo.ts:30
+    // smart_contracts/sunset/contract.algo.ts:34
     // for (let i: uint64 = 0; i < closes.length; i++) {
     intc_0 // 0
 
 closeOut_while_top@2:
-    // smart_contracts/sunset/contract.algo.ts:30
+    // smart_contracts/sunset/contract.algo.ts:34
     // for (let i: uint64 = 0; i < closes.length; i++) {
     dup
     dig 2
     <
     bz closeOut_after_while@5
-    // smart_contracts/sunset/contract.algo.ts:31
+    // smart_contracts/sunset/contract.algo.ts:35
     // const { assetCloseTo, xferAsset } = clone(closes[i])
     dig 2
     extract 2 0
     dig 1
     dup
     cover 2
-    intc_3 // 40
+    pushint 40
     *
-    intc_3 // 40
+    pushint 40
     extract3 // on error: index access is out of bounds
     dup
     extract 0 32
     swap
     pushint 32
     extract_uint64
-    // smart_contracts/sunset/contract.algo.ts:32
+    // smart_contracts/sunset/contract.algo.ts:36
     // itxn.assetTransfer({ assetCloseTo, xferAsset }).submit()
     itxn_begin
     itxn_field XferAsset
@@ -246,7 +279,7 @@ closeOut_while_top@2:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/sunset/contract.algo.ts:30
+    // smart_contracts/sunset/contract.algo.ts:34
     // for (let i: uint64 = 0; i < closes.length; i++) {
     intc_1 // 1
     +
@@ -254,7 +287,7 @@ closeOut_while_top@2:
     b closeOut_while_top@2
 
 closeOut_after_while@5:
-    // smart_contracts/sunset/contract.algo.ts:28
+    // smart_contracts/sunset/contract.algo.ts:32
     // closeOut(closes: AssetCloseParams[]): void {
     intc_1 // 1
     return
@@ -262,7 +295,7 @@ closeOut_after_while@5:
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteAssets[routing]() -> void:
 deleteAssets:
-    // smart_contracts/sunset/contract.algo.ts:36
+    // smart_contracts/sunset/contract.algo.ts:40
     // deleteAssets(assets: Asset[]): void {
     txna ApplicationArgs 1
     dupn 2
@@ -270,7 +303,7 @@ deleteAssets:
     extract_uint16 // on error: invalid array length header
     dup
     cover 2
-    pushint 8
+    intc_3 // 8
     *
     intc_2 // 2
     +
@@ -278,21 +311,21 @@ deleteAssets:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<asset>
-    // smart_contracts/sunset/contract.algo.ts:37
+    // smart_contracts/sunset/contract.algo.ts:41
     // this.auth()
     callsub auth
-    // smart_contracts/sunset/contract.algo.ts:38
+    // smart_contracts/sunset/contract.algo.ts:42
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_0 // 0
 
 deleteAssets_while_top@2:
-    // smart_contracts/sunset/contract.algo.ts:38
+    // smart_contracts/sunset/contract.algo.ts:42
     // for (let i: uint64 = 0; i < assets.length; i++) {
     dup
     dig 2
     <
     bz deleteAssets_after_while@5
-    // smart_contracts/sunset/contract.algo.ts:39
+    // smart_contracts/sunset/contract.algo.ts:43
     // itxn.assetConfig({ configAsset: assets[i] }).submit()
     itxn_begin
     dig 2
@@ -300,7 +333,7 @@ deleteAssets_while_top@2:
     dig 1
     dup
     cover 2
-    pushint 8
+    intc_3 // 8
     *
     extract_uint64
     itxn_field ConfigAsset
@@ -309,7 +342,7 @@ deleteAssets_while_top@2:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/sunset/contract.algo.ts:38
+    // smart_contracts/sunset/contract.algo.ts:42
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_1 // 1
     +
@@ -317,22 +350,288 @@ deleteAssets_while_top@2:
     b deleteAssets_while_top@2
 
 deleteAssets_after_while@5:
-    // smart_contracts/sunset/contract.algo.ts:36
+    // smart_contracts/sunset/contract.algo.ts:40
     // deleteAssets(assets: Asset[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteEscrows[routing]() -> void:
+deleteEscrows:
+    // smart_contracts/sunset/contract.algo.ts:47
+    // deleteEscrows(escrowFactory: Application, escrowIds: uint64[]): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/sunset/contract.algo.ts:48
+    // this.auth()
+    callsub auth
+    // smart_contracts/sunset/contract.algo.ts:49
+    // for (let i: uint64 = 0; i < escrowIds.length; i++) {
+    intc_0 // 0
+
+deleteEscrows_while_top@2:
+    // smart_contracts/sunset/contract.algo.ts:49
+    // for (let i: uint64 = 0; i < escrowIds.length; i++) {
+    dup
+    dig 2
+    <
+    bz deleteEscrows_after_while@5
+    // smart_contracts/sunset/contract.algo.ts:50-53
+    // abiCall<typeof EscrowFactory.prototype.delete>({
+    //   appId: escrowFactory,
+    //   args: [escrowIds[i]],
+    // })
+    itxn_begin
+    // smart_contracts/sunset/contract.algo.ts:52
+    // args: [escrowIds[i]],
+    dig 2
+    extract 2 0
+    dig 1
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    intc_3 // 8
+    extract3 // on error: index access is out of bounds
+    dig 5
+    itxn_field ApplicationID
+    // smart_contracts/sunset/contract.algo.ts:50-53
+    // abiCall<typeof EscrowFactory.prototype.delete>({
+    //   appId: escrowFactory,
+    //   args: [escrowIds[i]],
+    // })
+    pushbytes 0x8a39e79f // method "delete(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/sunset/contract.algo.ts:49
+    // for (let i: uint64 = 0; i < escrowIds.length; i++) {
+    intc_1 // 1
+    +
+    bury 1
+    b deleteEscrows_while_top@2
+
+deleteEscrows_after_while@5:
+    // smart_contracts/sunset/contract.algo.ts:47
+    // deleteEscrows(escrowFactory: Application, escrowIds: uint64[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/sunset/contract.algo.ts::SunsetContract.reclaimWalletEscrows[routing]() -> void:
+reclaimWalletEscrows:
+    bytec_0 // ""
+    // smart_contracts/sunset/contract.algo.ts:57
+    // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    extract 2 0
+    intc_0 // 0
+
+reclaimWalletEscrows_for_header@1:
+    // smart_contracts/sunset/contract.algo.ts:57
+    // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
+    dup
+    dig 5
+    <
+    bz reclaimWalletEscrows_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+((len+utf8[]),uint64,uint64,bool1)[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 19
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64,uint64,bool1)
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 21
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 1
+    b reclaimWalletEscrows_for_header@1
+
+reclaimWalletEscrows_after_for@4:
+    // smart_contracts/sunset/contract.algo.ts:57
+    // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
+    dig 3
+    intc_2 // 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/sunset/types.ts::WalletEscrowReclaim>
+    // smart_contracts/sunset/contract.algo.ts:58
+    // this.auth()
+    callsub auth
+    // smart_contracts/sunset/contract.algo.ts:59
+    // for (let i: uint64 = 0; i < reclaims.length; i++) {
+    intc_0 // 0
+    bury 8
+
+reclaimWalletEscrows_while_top@6:
+    // smart_contracts/sunset/contract.algo.ts:59
+    // for (let i: uint64 = 0; i < reclaims.length; i++) {
+    dig 7
+    dig 5
+    <
+    bz reclaimWalletEscrows_after_while@9
+    // smart_contracts/sunset/contract.algo.ts:62
+    // asset: reclaim.asset,
+    dig 5
+    dup
+    dig 9
+    dup
+    cover 3
+    callsub dynamic_array_read_dynamic_element
+    extract 2 8
+    // smart_contracts/sunset/contract.algo.ts:63
+    // amount: reclaim.amount,
+    dig 1
+    dig 3
+    callsub dynamic_array_read_dynamic_element
+    extract 10 8
+    // smart_contracts/sunset/contract.algo.ts:64
+    // closeOut: reclaim.closeOut,
+    dig 2
+    dig 4
+    callsub dynamic_array_read_dynamic_element
+    pushint 144
+    getbit
+    // smart_contracts/sunset/contract.algo.ts:61-65
+    // const walletReclaims: EscrowReclaim[] = [{
+    //   asset: reclaim.asset,
+    //   amount: reclaim.amount,
+    //   closeOut: reclaim.closeOut,
+    // }]
+    cover 2
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    pushbytes 0x0001
+    swap
+    concat
+    // smart_contracts/sunset/contract.algo.ts:66-69
+    // abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
+    //   appId: wallet,
+    //   args: [reclaim.escrow, walletReclaims],
+    // })
+    itxn_begin
+    // smart_contracts/sunset/contract.algo.ts:68
+    // args: [reclaim.escrow, walletReclaims],
+    swap
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    len
+    substring3
+    dig 9
+    itxn_field ApplicationID
+    // smart_contracts/sunset/contract.algo.ts:66-69
+    // abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
+    //   appId: wallet,
+    //   args: [reclaim.escrow, walletReclaims],
+    // })
+    pushbytes 0xebaf14a0 // method "arc58_reclaim(string,(uint64,uint64,bool)[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/sunset/contract.algo.ts:59
+    // for (let i: uint64 = 0; i < reclaims.length; i++) {
+    intc_1 // 1
+    +
+    bury 8
+    b reclaimWalletEscrows_while_top@6
+
+reclaimWalletEscrows_after_while@9:
+    // smart_contracts/sunset/contract.algo.ts:57
+    // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
     intc_1 // 1
     return
 
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.auth() -> void:
 auth:
-    // smart_contracts/sunset/contract.algo.ts:11
+    // smart_contracts/sunset/contract.algo.ts:15
     // (Txn.sender === Global.creatorAddress || Txn.sender === sunsetCaller),
     txn Sender
     global CreatorAddress
     ==
     bnz auth_bool_true@2
     txn Sender
-    bytec_0 // TMPL_SUNSET_CALLER
+    bytec_1 // TMPL_SUNSET_CALLER
     ==
     bz auth_bool_false@3
 
@@ -340,7 +639,7 @@ auth_bool_true@2:
     intc_1 // 1
 
 auth_bool_merge@4:
-    // smart_contracts/sunset/contract.algo.ts:10-13
+    // smart_contracts/sunset/contract.algo.ts:14-17
     // loggedAssert(
     //   (Txn.sender === Global.creatorAddress || Txn.sender === sunsetCaller),
     //   ERR_NOT_AKITA_DAO

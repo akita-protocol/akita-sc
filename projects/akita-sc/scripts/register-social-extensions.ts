@@ -28,7 +28,7 @@ import {
   DEFAULT_UPGRADE_APP_APPROVAL,
 } from '../smart_contracts/utils/defaults'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk'
+import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import type { AkitaUniverse } from '../tests/fixtures/dao'
 
 // ---------------------------------------------------------------------------
@@ -51,7 +51,7 @@ interface RegisterSocialExtensionsParams {
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
   universe: AkitaUniverse
   sender: string
-  signer: algosdk.TransactionSigner
+  signer: TransactionSigner
   network: string
 }
 
@@ -144,21 +144,21 @@ if (require.main === module) {
 
     const algorand = createAlgorandClient(options.network, options.algodToken)
     let sender: string
-    let signer: algosdk.TransactionSigner
+    let signer: TransactionSigner
 
     if (options.network === 'localnet') {
       const fixture = algorandFixture()
       await fixture.newScope()
-      const account = fixture.context.testAccount as algosdk.Account
+      const account = fixture.context.testAccount
       sender = account.addr.toString()
-      signer = (account as any).signer
+      signer = account.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       await algorand.account.ensureFunded(sender, dispenser, (500).algos())
     } else if (options.mnemonic) {
-      const account = algosdk.mnemonicToSecretKey(options.mnemonic)
+      const account = algorand.account.fromMnemonic(options.mnemonic)
       sender = account.addr.toString()
-      signer = makeBasicAccountTransactionSigner(account)
+      signer = account.signer
     } else {
       throw new Error('Mnemonic is required for non-localnet networks')
     }

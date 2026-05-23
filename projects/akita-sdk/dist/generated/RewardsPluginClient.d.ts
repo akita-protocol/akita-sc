@@ -53,13 +53,14 @@ export type RewardsPluginArgs = {
             version: string;
             akitaDao: bigint | number;
         };
-        'createDisbursement(uint64,bool,string,uint64,uint64,string)uint64': {
+        'createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
             title: string;
             timeToUnlock: bigint | number;
             expiration: bigint | number;
             note: string;
+            mbrCredits: bigint | number;
         };
         'editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void': {
             wallet: bigint | number;
@@ -115,7 +116,7 @@ export type RewardsPluginArgs = {
      */
     tuple: {
         'create(string,uint64)void': [version: string, akitaDao: bigint | number];
-        'createDisbursement(uint64,bool,string,uint64,uint64,string)uint64': [wallet: bigint | number, rekeyBack: boolean, title: string, timeToUnlock: bigint | number, expiration: bigint | number, note: string];
+        'createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, title: string, timeToUnlock: bigint | number, expiration: bigint | number, note: string, mbrCredits: bigint | number];
         'editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, title: string, timeToUnlock: bigint | number, expiration: bigint | number, note: string];
         'createUserAllocations(uint64,bool,uint64,(address,uint64)[],uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, allocations: [string, bigint | number][], sum: bigint | number];
         'createAsaUserAllocations(uint64,bool,uint64,uint64,(address,uint64)[],uint64)void': [wallet: bigint | number, rekeyBack: boolean, id: bigint | number, assetId: bigint | number, allocations: [string, bigint | number][], sum: bigint | number];
@@ -132,7 +133,7 @@ export type RewardsPluginArgs = {
  */
 export type RewardsPluginReturns = {
     'create(string,uint64)void': void;
-    'createDisbursement(uint64,bool,string,uint64,uint64,string)uint64': bigint;
+    'createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64': bigint;
     'editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void': void;
     'createUserAllocations(uint64,bool,uint64,(address,uint64)[],uint64)void': void;
     'createAsaUserAllocations(uint64,bool,uint64,uint64,(address,uint64)[],uint64)void': void;
@@ -154,10 +155,10 @@ export type RewardsPluginTypes = {
         argsObj: RewardsPluginArgs['obj']['create(string,uint64)void'];
         argsTuple: RewardsPluginArgs['tuple']['create(string,uint64)void'];
         returns: RewardsPluginReturns['create(string,uint64)void'];
-    }> & Record<'createDisbursement(uint64,bool,string,uint64,uint64,string)uint64' | 'createDisbursement', {
-        argsObj: RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'];
-        argsTuple: RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'];
-        returns: RewardsPluginReturns['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'];
+    }> & Record<'createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64' | 'createDisbursement', {
+        argsObj: RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'];
+        argsTuple: RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'];
+        returns: RewardsPluginReturns['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'];
     }> & Record<'editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void' | 'editDisbursement', {
         argsObj: RewardsPluginArgs['obj']['editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void'];
         argsTuple: RewardsPluginArgs['tuple']['editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void'];
@@ -309,12 +310,12 @@ export declare abstract class RewardsPluginParamsFactory {
         };
     };
     /**
-     * Constructs a no op call for the createDisbursement(uint64,bool,string,uint64,uint64,string)uint64 ABI method
+     * Constructs a no op call for the createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static createDisbursement(params: CallParams<RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'] | RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static createDisbursement(params: CallParams<RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'] | RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void ABI method
      *
@@ -740,12 +741,12 @@ export declare class RewardsPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string)uint64` ABI method.
+         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"]> & {
+        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1064,12 +1065,12 @@ export declare class RewardsPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string)uint64` ABI method.
+         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"]> & {
+        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1208,15 +1209,15 @@ export declare class RewardsPluginClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string)uint64` ABI method.
+         * Makes a call to the RewardsPlugin smart contract using the `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"]> & SendParams & {
+        createDisbursement: (params: CallParams<RewardsPluginArgs["obj"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"] | RewardsPluginArgs["tuple"]["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | RewardsPluginReturns["createDisbursement(uint64,bool,string,uint64,uint64,string)uint64"]);
+            return: (undefined | RewardsPluginReturns["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1432,12 +1433,12 @@ export declare class RewardsPluginClient {
 }
 export type RewardsPluginComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the createDisbursement(uint64,bool,string,uint64,uint64,string)uint64 ABI method.
+     * Calls the createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64 ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    createDisbursement(params?: CallParams<RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'] | RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64']>): RewardsPluginComposer<[...TReturns, RewardsPluginReturns['createDisbursement(uint64,bool,string,uint64,uint64,string)uint64'] | undefined]>;
+    createDisbursement(params?: CallParams<RewardsPluginArgs['obj']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'] | RewardsPluginArgs['tuple']['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64']>): RewardsPluginComposer<[...TReturns, RewardsPluginReturns['createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64'] | undefined]>;
     /**
      * Calls the editDisbursement(uint64,bool,uint64,string,uint64,uint64,string)void ABI method.
      *

@@ -1,12 +1,135 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+import { getAddress, ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+import type { Arc56Contract } from "@algorandfoundation/algokit-utils/abi";
 import { BaseSDK } from "../../base";
 import { NfdPluginArgs, NfdPluginClient, NfdPluginFactory } from "../../generated/NFDPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
-import { Address } from "algosdk";
 import { getTxns } from "../utils";
 
 type ContractArgs = NfdPluginArgs["obj"];
+type MintContractArgs = ContractArgs['mint(uint64,bool,string,uint64,address,bool)uint64'];
+
+type MintArgs = (
+  Omit<MintContractArgs, 'wallet' | 'rekeyBack' | 'amount'>
+  & Partial<Pick<MintContractArgs, 'amount'>>
+  & MaybeSigner
+  & {
+    rekeyBack?: boolean;
+    years?: bigint | number;
+  }
+);
+
+type RegistryPriceInfo = {
+  oneYearPrice: bigint;
+  carryCost: bigint;
+  exists: boolean;
+  isExpired: boolean;
+  inAuction: boolean;
+};
+
+type RegistryLinkOnMintExtraMbrCosts = {
+  linkingNfdMbrCost: bigint;
+  linkingRegistryMbrCost: bigint;
+};
+
+const NFD_REGISTRY_APP_SPEC = {
+  name: 'NFDRegistry',
+  structs: {
+    PriceInfo: [
+      { name: 'oneYearPrice', type: 'uint64' },
+      { name: 'carryCost', type: 'uint64' },
+      { name: 'exists', type: 'bool' },
+      { name: 'isExpired', type: 'bool' },
+      { name: 'inAuction', type: 'bool' },
+    ],
+    LinkOnMintExtraMbrCosts: [
+      { name: 'linkingNfdMbrCost', type: 'uint64' },
+      { name: 'linkingRegistryMbrCost', type: 'uint64' },
+    ],
+  },
+  methods: [
+    {
+      name: 'getPrice',
+      args: [
+        { name: 'nfdName', type: 'string' },
+        { name: 'caller', type: 'address' },
+      ],
+      returns: { type: '(uint64,uint64,bool,bool,bool)', struct: 'PriceInfo' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+    {
+      name: 'getNfdLinkOnMintExtraMbrCost',
+      args: [
+        { name: 'address', type: 'address' },
+      ],
+      returns: { type: '(uint64,uint64)', struct: 'LinkOnMintExtraMbrCosts' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+  ],
+  arcs: [22, 28],
+  networks: {},
+  state: {
+    schema: {
+      global: { ints: 0, bytes: 0 },
+      local: { ints: 0, bytes: 0 },
+    },
+    keys: { global: {}, local: {}, box: {} },
+    maps: { global: {}, local: {}, box: {} },
+  },
+  bareActions: { create: [], call: [] },
+  events: [],
+  templateVariables: {},
+} as unknown as Arc56Contract;
+
+function toBigInt(value: bigint | number, name: string): bigint {
+  const result = BigInt(value);
+  if (result < 0n) {
+    throw new Error(`${name} must be non-negative`);
+  }
+  return result;
+}
+
+function parsePriceInfo(value: unknown): RegistryPriceInfo {
+  if (Array.isArray(value)) {
+    return {
+      oneYearPrice: BigInt(value[0]),
+      carryCost: BigInt(value[1]),
+      exists: Boolean(value[2]),
+      isExpired: Boolean(value[3]),
+      inAuction: Boolean(value[4]),
+    };
+  }
+
+  const priceInfo = value as RegistryPriceInfo;
+  return {
+    oneYearPrice: BigInt(priceInfo.oneYearPrice),
+    carryCost: BigInt(priceInfo.carryCost),
+    exists: Boolean(priceInfo.exists),
+    isExpired: Boolean(priceInfo.isExpired),
+    inAuction: Boolean(priceInfo.inAuction),
+  };
+}
+
+function parseLinkOnMintExtraMbrCosts(value: unknown): RegistryLinkOnMintExtraMbrCosts {
+  if (Array.isArray(value)) {
+    return {
+      linkingNfdMbrCost: BigInt(value[0]),
+      linkingRegistryMbrCost: BigInt(value[1]),
+    };
+  }
+
+  const costs = value as RegistryLinkOnMintExtraMbrCosts;
+  return {
+    linkingNfdMbrCost: BigInt(costs.linkingNfdMbrCost),
+    linkingRegistryMbrCost: BigInt(costs.linkingRegistryMbrCost),
+  };
+}
 
 type DeleteFieldsArgs = (
   Omit<ContractArgs['deleteFields(uint64,bool,uint64,byte[][])void'], 'wallet' | 'rekeyBack'>
@@ -96,6 +219,111 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
 
   constructor(params: NewContractSDKParams) {
     super({ factory: NfdPluginFactory, ...params });
+  }
+
+  private async getRegistryAppId(): Promise<bigint> {
+    const registry = await this.client.state.global.registry();
+    if (registry === undefined) {
+      throw new Error('NFD plugin registry is not configured');
+    }
+
+    return registry;
+  }
+
+  private async getMintAmount({
+    nfdName,
+    reservedFor,
+    linkOnMint,
+    years,
+    caller,
+  }: {
+    nfdName: string;
+    reservedFor: string;
+    linkOnMint: boolean;
+    years?: bigint | number;
+    caller: ReadableAddress;
+  }): Promise<bigint> {
+    const registrationYears = years === undefined ? 1n : toBigInt(years, 'years');
+    if (registrationYears < 1n) {
+      throw new Error('years must be at least 1');
+    }
+
+    const registryAppId = await this.getRegistryAppId();
+    const registryClient = this.algorand.client.getAppClientById({
+      appId: registryAppId,
+      appSpec: NFD_REGISTRY_APP_SPEC,
+    });
+    const callerAddress = getAddress(caller).toString();
+    const readerParams = this.getReaderSendParams({ sender: callerAddress });
+    const priceResult = await registryClient.send.call({
+      ...readerParams,
+      method: 'getPrice(string,address)(uint64,uint64,bool,bool,bool)',
+      args: [nfdName, callerAddress],
+    });
+    const priceInfo = parsePriceInfo(priceResult.return);
+    let amount = priceInfo.oneYearPrice * registrationYears + priceInfo.carryCost;
+
+    if (linkOnMint) {
+      const linkMbrResult = await registryClient.send.call({
+        ...readerParams,
+        method: 'getNfdLinkOnMintExtraMbrCost(address)(uint64,uint64)',
+        args: [reservedFor],
+      });
+      const linkMbrCosts = parseLinkOnMintExtraMbrCosts(linkMbrResult.return);
+      amount += linkMbrCosts.linkingNfdMbrCost + linkMbrCosts.linkingRegistryMbrCost;
+    }
+
+    return amount;
+  }
+
+  mint(): PluginSDKReturn;
+  mint(args: MintArgs): PluginSDKReturn;
+  mint(args?: MintArgs): PluginSDKReturn {
+    const methodName = 'mint';
+    if (args === undefined) {
+      return (_spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const {
+      sender,
+      signer,
+      amount: providedAmount,
+      years,
+      rekeyBack: requestedRekeyBack,
+      ...mintArgs
+    } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = requestedRekeyBack ?? true;
+        const amount = providedAmount === undefined
+          ? await this.getMintAmount({
+            nfdName: mintArgs.nfdName,
+            reservedFor: mintArgs.reservedFor,
+            linkOnMint: mintArgs.linkOnMint,
+            years,
+            caller: spendingAddress ?? sendParams.sender,
+          })
+          : toBigInt(providedAmount, 'amount');
+
+        const params = await this.client.params.mint({
+          ...sendParams,
+          args: { wallet, rekeyBack, amount, ...mintArgs },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
   }
 
   deleteFields(): PluginSDKReturn;

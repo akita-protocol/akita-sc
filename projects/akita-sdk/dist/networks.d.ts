@@ -84,13 +84,13 @@ export interface NetworkAppIds {
 /**
  * Testnet app IDs
  *
- * Last updated: 2025-12-15T09:23:03.089Z
+ * Last updated: 2026-05-23T07:07:40.259Z
  */
 export declare const TESTNET_APP_IDS: NetworkAppIds;
 /**
  * Mainnet app IDs
  *
- * Last updated: 2025-12-15T10:26:30.297Z
+ * Last updated: 2026-05-23T07:52:58.061Z
  */
 export declare const MAINNET_APP_IDS: NetworkAppIds;
 /**

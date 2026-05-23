@@ -8,14 +8,25 @@ import { getTxns } from "../utils";
 
 type ContractArgs = RewardsPluginArgs["obj"];
 
-type ClaimRewardsArgs = (
-  Omit<ContractArgs['claimRewards(uint64,bool,(uint64,uint64)[])void'], 'wallet' | 'rekeyBack'>
-  & MaybeSigner
-  & { rekeyBack?: boolean }
-);
+type ClaimRewardsArgs = Omit<ContractArgs["claimRewards(uint64,bool,(uint64,uint64)[])void"], "wallet" | "rekeyBack"> &
+  MaybeSigner & { rekeyBack?: boolean };
+
+type CreateDisbursementArgs = Omit<
+  ContractArgs["createDisbursement(uint64,bool,string,uint64,uint64,string,uint64)uint64"],
+  "wallet" | "rekeyBack"
+> &
+  MaybeSigner & { rekeyBack?: boolean };
+
+type CreateAsaUserAllocationsArgs = Omit<
+  ContractArgs["createAsaUserAllocations(uint64,bool,uint64,uint64,(address,uint64)[],uint64)void"],
+  "wallet" | "rekeyBack"
+> &
+  MaybeSigner & { rekeyBack?: boolean };
+
+type FinalizeDisbursementArgs = Omit<ContractArgs["finalizeDisbursement(uint64,bool,uint64)void"], "wallet" | "rekeyBack"> &
+  MaybeSigner & { rekeyBack?: boolean };
 
 export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
-
   constructor(params: NewContractSDKParams) {
     super({ factory: RewardsPluginFactory, ...params });
   }
@@ -40,15 +51,120 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
     return Math.floor((totalRefs - RewardsPluginSDK.BASE_REF_OVERHEAD) / RewardsPluginSDK.REFS_PER_CLAIM);
   }
 
+  createDisbursement(): PluginSDKReturn;
+  createDisbursement(args: CreateDisbursementArgs): PluginSDKReturn;
+  createDisbursement(args?: CreateDisbursementArgs): PluginSDKReturn {
+    const methodName = "createDisbursement";
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns,
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.createDisbursement({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [
+          {
+            type: "methodCall",
+            ...params,
+          },
+        ];
+      },
+    });
+  }
+
+  createAsaUserAllocations(): PluginSDKReturn;
+  createAsaUserAllocations(args: CreateAsaUserAllocationsArgs): PluginSDKReturn;
+  createAsaUserAllocations(args?: CreateAsaUserAllocationsArgs): PluginSDKReturn {
+    const methodName = "createAsaUserAllocations";
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns,
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.createAsaUserAllocations({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [
+          {
+            type: "methodCall",
+            ...params,
+          },
+        ];
+      },
+    });
+  }
+
+  finalizeDisbursement(): PluginSDKReturn;
+  finalizeDisbursement(args: FinalizeDisbursementArgs): PluginSDKReturn;
+  finalizeDisbursement(args?: FinalizeDisbursementArgs): PluginSDKReturn {
+    const methodName = "finalizeDisbursement";
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns,
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.finalizeDisbursement({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [
+          {
+            type: "methodCall",
+            ...params,
+          },
+        ];
+      },
+    });
+  }
+
   private static computeOpUpCount(numClaims: number): number {
-    const refsNeeded = RewardsPluginSDK.BASE_REF_OVERHEAD + (RewardsPluginSDK.REFS_PER_CLAIM * numClaims);
+    const refsNeeded = RewardsPluginSDK.BASE_REF_OVERHEAD + RewardsPluginSDK.REFS_PER_CLAIM * numClaims;
     const opUpCount = Math.max(0, Math.ceil((refsNeeded - RewardsPluginSDK.REFS_PER_TXN) / RewardsPluginSDK.REFS_PER_TXN));
 
     if (opUpCount > RewardsPluginSDK.MAX_OPUP_COUNT) {
       const max = RewardsPluginSDK.getMaxClaimsPerTransaction();
       throw new Error(
         `Too many reward claims in a single transaction (${numClaims}). ` +
-        `Maximum is ${max} claims per transaction. Split into multiple calls.`
+          `Maximum is ${max} claims per transaction. Split into multiple calls.`,
       );
     }
 
@@ -58,12 +174,12 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
   claimRewards(): PluginSDKReturn;
   claimRewards(args: ClaimRewardsArgs): PluginSDKReturn;
   claimRewards(args?: ClaimRewardsArgs): PluginSDKReturn {
-    const methodName = 'claimRewards';
+    const methodName = "claimRewards";
     if (args === undefined) {
       return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
         selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
+        getTxns,
       });
     }
 
@@ -84,13 +200,14 @@ export class RewardsPluginSDK extends BaseSDK<RewardsPluginClient> {
           args: { wallet, rekeyBack, ...args },
         });
 
-        return [{
-          type: 'methodCall',
-          ...params
-        }];
+        return [
+          {
+            type: "methodCall",
+            ...params,
+          },
+        ];
       },
-      opUpCount
+      opUpCount,
     });
   }
 }
-

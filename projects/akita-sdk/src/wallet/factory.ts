@@ -115,7 +115,15 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
       + (assets.length > 0 ? assets.length + 1 : 0)
       + (bio ? 1 : 0)
       + (hasSetup ? 1 : 0)
-    const opUpCount = Math.max(1, innerCallCount)
+    const maxGroupSize = 16
+    const walletCreationBaseSize = 2 // payment arg + newAccount app call
+    const opUpCount = Math.min(Math.max(1, innerCallCount), maxGroupSize - walletCreationBaseSize)
+    if (opUpCount < innerCallCount) {
+      console.warn('[WalletFactorySDK] Capping wallet creation op-ups to fit group limit', {
+        requested: innerCallCount,
+        included: opUpCount,
+      })
+    }
     for (let i = 0; i < opUpCount; i++) {
       group.opUp({ args: {}, note: String(i), maxFee: microAlgo(MAX_SIM_FEE) })
     }

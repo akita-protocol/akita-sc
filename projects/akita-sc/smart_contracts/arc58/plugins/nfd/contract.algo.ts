@@ -36,6 +36,34 @@ export class NFDPlugin extends Contract {
 
   // X METHODS ------------------------------------------------------------------------------
 
+  mint(
+    wallet: Application,
+    rekeyBack: boolean,
+    nfdName: string,
+    amount: uint64,
+    reservedFor: Account,
+    linkOnMint: boolean
+  ): uint64 {
+    const sender = getSpendingAccount(wallet)
+    const appId = this.registry.value
+
+    return abiCall<typeof NFDRegistry.prototype.mintNfd>({
+      sender,
+      appId,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: appId.address,
+          amount
+        }),
+        nfdName,
+        reservedFor,
+        linkOnMint
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet)
+    }).returnValue
+  }
+
   deleteFields(
     wallet: Application,
     rekeyBack: boolean,

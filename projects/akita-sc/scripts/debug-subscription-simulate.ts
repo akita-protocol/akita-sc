@@ -85,6 +85,7 @@ for (let i = 0; i < args.length; i++) {
 
 const SECONDS_PER_MONTH = 30n * 86400n
 const USDC_DECIMALS = 6
+const POST_UPLOAD_LIMIT_BENEFIT = 'Higher post upload limits: 15 MB per image, 24 MB post bundles, and up to 128 files per post.'
 const usdcAmount = (dollars: number) => BigInt(dollars * 10 ** USDC_DECIMALS)
 
 function hexColorToBytes(hex: string): Uint8Array {
@@ -207,6 +208,7 @@ async function main() {
       '- Gated staking pools, auctions, and raffles',
       '- Customizable gallery',
       '- Custom app theme',
+      `- ${POST_UPLOAD_LIMIT_BENEFIT}`,
     ].join('\n'),
   }
   // Use a placeholder banner CID (36 bytes) — content irrelevant for the failing assert.

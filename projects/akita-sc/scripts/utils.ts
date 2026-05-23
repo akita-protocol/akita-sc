@@ -39,7 +39,12 @@ export async function proposeAndExecute<TClient extends SDKClient>(
     info.total + 1_000_000n
   )
   if (funding > 0n) {
-    await dao.client.appClient.fundAppAccount({ amount: microAlgo(funding) })
+    await algorand.send.payment({
+      sender: dao.sendParams.sender!,
+      signer: dao.sendParams.signer!,
+      receiver: dao.client.appClient.appAddress,
+      amount: microAlgo(funding),
+    })
   }
 
   const { return: proposalId } = await dao.newProposal({ actions })

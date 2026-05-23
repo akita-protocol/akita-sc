@@ -1071,13 +1071,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   async getPluginByKey(key: PluginKey): Promise<PluginInfo> {
-    // Reorder keys to match the struct's declared field order (plugin, caller,
-    // escrow). utils10's struct-value → tuple conversion walks
-    // `Object.values(value)` positionally, so if a caller passes the object
-    // with properties in a different order we silently encode the wrong box
-    // key and the lookup fails. Defensively reorder here.
     const orderedKey: PluginKey = { plugin: key.plugin, caller: key.caller, escrow: key.escrow };
-    const info = (await this.client.state.box.plugins.value(orderedKey))!
+    const info = PluginInfoFromTuple((await this.client.send.arc58GetPlugins({
+      args: { keys: [[orderedKey.plugin, orderedKey.caller, orderedKey.escrow]] },
+    })).return![0])
     const methods = info.methods.map((method) => ({
       name: method[0],
       cooldown: method[1],

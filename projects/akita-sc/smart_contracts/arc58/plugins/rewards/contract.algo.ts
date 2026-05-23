@@ -23,7 +23,8 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     title: string,
     timeToUnlock: uint64,
     expiration: uint64,
-    note: string
+    note: string,
+    mbrCredits: uint64
   ): uint64 {
     const sender = getSpendingAccount(wallet)
 
@@ -36,7 +37,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
       args: [
         itxn.payment({
           sender,
-          amount: mbrAmount,
+          amount: mbrAmount + mbrCredits,
           receiver: Application(rewardsID).address,
         }),
         title,

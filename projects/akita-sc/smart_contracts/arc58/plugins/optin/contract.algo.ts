@@ -4,6 +4,8 @@ import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
 
 export class OptInPlugin extends Contract {
 
+  opUp(): void { }
+
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
     const sender = getSpendingAccount(wallet)
 

@@ -1,6 +1,10 @@
-import { abimethod, Account, Asset, bytes, clone, Contract, Global, itxn, loggedAssert, op, TemplateVar, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, Asset, bytes, clone, Contract, Global, itxn, loggedAssert, op, TemplateVar, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
+import { AbstractedAccount } from "../arc58/account/contract.algo"
+import { EscrowReclaim } from "../arc58/account/types"
+import { EscrowFactory } from "../escrow/factory.algo"
 import { ERR_NOT_AKITA_DAO } from "../errors"
-import { AssetCloseParams } from "./types"
+import { AssetCloseParams, WalletEscrowReclaim } from "./types"
 
 const sunsetCaller = TemplateVar<Account>('SUNSET_CALLER')
 
@@ -37,6 +41,32 @@ export class SunsetContract extends Contract {
     this.auth()
     for (let i: uint64 = 0; i < assets.length; i++) {
       itxn.assetConfig({ configAsset: assets[i] }).submit()
+    }
+  }
+
+  deleteEscrows(escrowFactory: Application, escrowIds: uint64[]): void {
+    this.auth()
+    for (let i: uint64 = 0; i < escrowIds.length; i++) {
+      abiCall<typeof EscrowFactory.prototype.delete>({
+        appId: escrowFactory,
+        args: [escrowIds[i]],
+      })
+    }
+  }
+
+  reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
+    this.auth()
+    for (let i: uint64 = 0; i < reclaims.length; i++) {
+      const reclaim = clone(reclaims[i])
+      const walletReclaims: EscrowReclaim[] = [{
+        asset: reclaim.asset,
+        amount: reclaim.amount,
+        closeOut: reclaim.closeOut,
+      }]
+      abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
+        appId: wallet,
+        args: [reclaim.escrow, walletReclaims],
+      })
     }
   }
 }

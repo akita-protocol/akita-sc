@@ -85,6 +85,14 @@ export class WalletFactorySunsetContract extends Contract {
     })
   }
 
+  deleteWalletEscrows(wallet: Application, escrowFactory: Application, escrowIds: uint64[]): void {
+    abiCall<typeof SunsetContract.prototype.deleteEscrows>({
+      sender: Global.currentApplicationAddress,
+      appId: wallet,
+      args: [escrowFactory, escrowIds],
+    })
+  }
+
   deleteWallet(wallet: Application, closeRemainderTo: Account): void {
     abiCall<typeof SunsetContract.prototype.delete>({
       sender: Global.currentApplicationAddress,

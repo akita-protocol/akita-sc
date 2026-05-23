@@ -1,0 +1,282 @@
+{
+  "network": "testnet",
+  "timestamp": "2026-05-23T07:07:40.361Z",
+  "contracts": {
+    "dao": {
+      "appId": "763128236",
+      "address": "2RWGEVK2CNSRRZI6DJW32R54BB7K4FFWNSHUAD4LWIIS3LG6JYDV42K2NE"
+    },
+    "proposalValidator": {
+      "appId": "763128235",
+      "address": "THKSQGHJEWLA7VGFKY2AZWV2PTT6GDNW2QYRUVOGTDCX6JQUYGYAEIU57Q"
+    },
+    "wallet": {
+      "appId": "763128598",
+      "address": "ZUQRBLQV3AXBOJFGRO7U3EFLJ5RJX5QDK3TGQ7UZW2DHSOOHDEVI3G5HHQ"
+    },
+    "escrowFactory": {
+      "appId": "763128227",
+      "address": "FVIJP6MP4QZ6QQXQGOWS4IQBIKHG43RQ4S3YD5N3EH24DSFD7TM77Q7F2Q"
+    },
+    "walletFactory": {
+      "appId": "763128255",
+      "address": "7O2XH24TT6RYZKA3E3UM76Z4WIG2M5XHMLCZPEG2WAYWMSKMV33IOT764E"
+    },
+    "rewards": {
+      "appId": "763128244",
+      "address": "BHGMV3F4SVDNAMH57Y3YNOQUZJ4GBTV2PONHWTXRKSGVRTGGLTPXHWQFYI"
+    },
+    "subscriptions": {
+      "appId": "763128278",
+      "address": "HO2AJNJQ65I7GCAC5CRAVFPJAJQQ2QZZIDIFLEB2WJSXTG5SIXMXDAPXH4"
+    },
+    "stakingPoolFactory": {
+      "appId": "763128285",
+      "address": "4XO4ZPQBA2FNJQJPLQA7W3KW6JLOJC26TP77LVVYZGDZBOV2Y3N3NJJ6SY"
+    },
+    "staking": {
+      "appId": "763128307",
+      "address": "7GEYAV2VCPZBN2YATV4HPUZYQDMUQYMM5HSUAKJWOGP4DGSEOBK2P4Y5PM"
+    },
+    "social": {
+      "appId": "763128333",
+      "address": "LDLYL6XW25JCXZW4ZCUYGCW3LKEY6O7VDCSSKFZ4CRU4JBQWCGMGRFUYRI"
+    },
+    "socialGraph": {
+      "appId": "763128326",
+      "address": "Z5F7M34EXFUJXI3NLPB3KO7DOXH24QGPGRKXQPTRWBLM5QZVTB2E6O6JTY"
+    },
+    "socialImpact": {
+      "appId": "763128316",
+      "address": "BMWKEDCWMY44EBGKWDEHT6YEWK7ROJ3F3DW6YKE6423ZFS5STNOFHE2I2Y"
+    },
+    "socialModeration": {
+      "appId": "763128334",
+      "address": "KNX747AQMZNBAOZZWR37RKHIX6X5UK2LLMFJAVZ2ZNMJAKI57B6PWYRPJ4"
+    },
+    "auctionFactory": {
+      "appId": "763128353",
+      "address": "AFH7SPWTAU5MOLUE5TITJMWLGARCJJ62WOMJLNOYI2CVFW6HLSDQLZDAUE"
+    },
+    "marketplace": {
+      "appId": "763128381",
+      "address": "QBGDKWJHCP4AXG2SCAZOF7A6764NMTOBME26XBFAPDJTKIUMPIXBNYGGOY"
+    },
+    "raffleFactory": {
+      "appId": "763128404",
+      "address": "HR44VCY72CQDKWWPCPFRRGQCSR7OI5CE7FPGILFNOAMAYOL4INNGEA3GJM"
+    },
+    "pollFactory": {
+      "appId": "763128430",
+      "address": "F6JBRWHET4CLSB2F5J5PI43XXMYGT2ZKLSB24Z4CXT6S2BEU6AXDBVB7CY"
+    },
+    "prizeBoxFactory": {
+      "appId": "763128434",
+      "address": "IOCGCYIE6TTOR57NTO27DP3VUWYX5TQKRG6E5AFDUODVQQMBWTT3MP63JY"
+    },
+    "revenueManagerPlugin": {
+      "appId": "763128627",
+      "address": "3OSA2IURFL35XVLYGKKYSPZ7T3TOCRHO4YW2J7CIW7WM3NS42SOKODFMNM"
+    },
+    "updatePlugin": {
+      "appId": "763128671",
+      "address": "MYBBK5CUU2JRV26XKLEQ5CRI5WE324TMCXSOWIXIXGGKMJTJV6RWJWWU64"
+    },
+    "optInPlugin": {
+      "appId": "763128795",
+      "address": "YTWO6CJFOM77YFWNRRL43LSBXNOY67KQ627CT6AHT4IZTWA7AIVDGMDR4Q"
+    },
+    "selfOptInPlugin": {
+      "appId": "763128796",
+      "address": "AH5NDJFTI6TE5NPXXDTNHY3MO52ONBPAJSIVG5LGSZ432CT4PTTMKMDIBM"
+    },
+    "asaMintPlugin": {
+      "appId": "763128820",
+      "address": "APS3H65MQVPSZ3FSDWIK5LHULC4NDBIT55YQLMRTYXTJNDLLPLC2HPHCNU"
+    },
+    "payPlugin": {
+      "appId": "763128821",
+      "address": "RAUUL4MYVFJ7V35IN7ZTYF2OXGL6IVRJ62WB4O3KHARVAAWKPM23YRXYU4"
+    },
+    "haystackRouterPlugin": {
+      "appId": "763128851",
+      "address": "MADOD6TNQL67EW45I4LSDCR2BRMV4QU5NHEQDV5OY2JSHOIVO7W7B72KSM"
+    },
+    "hyperSwapPlugin": {
+      "appId": "763128858",
+      "address": "BT325SKBQ6RIICFIKDWFAZKT4GZ6QVWJ5FJSO7EE7Q2SZ3S3NDNDVDROTA"
+    },
+    "subscriptionsPlugin": {
+      "appId": "763128859",
+      "address": "GP6ACERJO2DYRWBY32CR74BO7W5AZ67ZDDP4XDNQMTAQTR5TVV7XAYYXBU"
+    },
+    "auctionPlugin": {
+      "appId": "763128866",
+      "address": "BHYNAZ2OPNK5WPGIOXVN7NECEIXBBNBNUBHSYDSMYIUFXMF2SPTENXS3PU"
+    },
+    "daoPlugin": {
+      "appId": "763128876",
+      "address": "TOPZZLXUGK4SCE76CDQXU5I7L5NI2OV7ESOP3LQQEKTYFG25APVHFF6QQE"
+    },
+    "dualStakePlugin": {
+      "appId": "763128877",
+      "address": "VJUOKXKCNMLF4SNHVVWHNNRXJSULWHUIDQ66SYQ2VTTQ7SNDXHZCRL22D4"
+    },
+    "gatePlugin": {
+      "appId": "763128884",
+      "address": "CNRK3GHCSCDI5RFESZMLIRCFHBUEATTWOAFDRG4SJANIXIK6ICV2LCXHWU"
+    },
+    "marketplacePlugin": {
+      "appId": "763128885",
+      "address": "ZLRZQWJD3OEI5RZR43XFOWGSLBYQ74NRPD5VSBGOCBZTAI2BU65YHDI4BU"
+    },
+    "nfdPlugin": {
+      "appId": "763128895",
+      "address": "5WZXT3Y6BHLPXF73ZM7WW6RFWV72DB2FE2KOVMKX5EADXOFRQLG3DUZWAU"
+    },
+    "paySiloPlugin": {
+      "appId": "763128904",
+      "address": "BVRKCWVM56RLLROAVCERUOUPYKS3MB65S5RNZMEUCKW6H7QPNJ63BR65FI"
+    },
+    "paySiloFactoryPlugin": {
+      "appId": "763128905",
+      "address": "5OXLOSZRBI4EF2BMNYVPEDEVTZCWFGUD6EDSMKN42QDIOGDLHTMV72GC2U"
+    },
+    "pollPlugin": {
+      "appId": "763128906",
+      "address": "V5MLVHAEIY4BWH6C4UBSWAS72MH7XOM7HZTBR2W23CJYNYAEEBJDDQHCCE"
+    },
+    "rafflePlugin": {
+      "appId": "763128922",
+      "address": "Q2RM6YK2YG55ILSHZ63PUMYYEBUD5JE2OZK3G3NLAQHREK2FXXIJD4ZU4A"
+    },
+    "rewardsPlugin": {
+      "appId": "763128923",
+      "address": "6OVJW24DDM6NI6EWRFQCWQ6MHB2NMOAL5GOXIELQ7BWOT3TGU6ZGHIAQRU"
+    },
+    "socialPlugin": {
+      "appId": "763128930",
+      "address": "ZKVP52NNXUL6DISYF76D4M46CLWVN35D5SEQCZVZOSMKKQIQJJNTUBD2P4"
+    },
+    "stakingPlugin": {
+      "appId": "763128931",
+      "address": "T2E5GW3EWOHOMWRB2A5D53GVNCS63IODLLSNRNNJX45ARXTMP3LATG6BA4"
+    },
+    "stakingPoolPlugin": {
+      "appId": "763128941",
+      "address": "WBUUMDJMYYOL5DQJIBFAUCUCYOXMSNSNB6KYTY7EBLJZBGOE6YAK4LCCKM"
+    },
+    "gate": {
+      "appId": "763128492",
+      "address": "QVBLBF33FX7MUOEFP3SZTMXEGYBY3NUI4KYKC3QAPXA3NL4BF5NTZFIGFM"
+    },
+    "hyperSwap": {
+      "appId": "763128499",
+      "address": "KA6GE6VWL475HE4PDPOUTROT56YC5KQIMKJY4IYDJFVRABBY3FCY3LHDYY"
+    },
+    "metaMerkles": {
+      "appId": "763128435",
+      "address": "DROIRUZUJDGFEIHDRKK76RYYYI5CRYJGP55XUGACBVTUDKE6ZG2IFHRPOU"
+    },
+    "subgates": {
+      "akitaReferrerGate": {
+        "appId": "763128503",
+        "address": "OD5JQCKC4K62JPFRW3SOB7JORON2JWSVHYRCFSI74HPSPSYXBSGWOSTMRI"
+      },
+      "assetGate": {
+        "appId": "763128508",
+        "address": "HKE5HVJ4HZVN5F2ZSB777TF5N5KTA6XNTTL6JZJ3SVMDS7PBYX2LCAJFIM"
+      },
+      "merkleAddressGate": {
+        "appId": "763128509",
+        "address": "RQZEVDZRS56DIJNFMOFJT74A64PIF5HTVJ4VAMDRBLAJ4CNQSGLZ2AHN5Y"
+      },
+      "merkleAssetGate": {
+        "appId": "763128506",
+        "address": "3KAZVSHDSFAVBJ2ZAYOBVQ5R3URRLCWZBLLEXYQFWRZMBXS66NJPDFJTII"
+      },
+      "nfdGate": {
+        "appId": "763128504",
+        "address": "QYUAAETG4JPRJEESH5THGS37CFFO4VP3MIPZG326R5NOHAYMRZMMVJKPJA"
+      },
+      "nfdRootGate": {
+        "appId": "763128511",
+        "address": "C36MPLMGYAQO2YXKZWJE7XB4ENHJPV5R2C2C3BBKXSMU2NMCDCLTH4DH3E"
+      },
+      "pollGate": {
+        "appId": "763128514",
+        "address": "56WCYTJCJ4IDNML46WGA7TJ5QQR7KQYC7KJBN6MQNVXLV6K7S2ZEUXAVR4"
+      },
+      "socialActivityGate": {
+        "appId": "763128517",
+        "address": "XBS34AH7ROGCOXQ7MRBOFALAI3WE63JFECZZ4ZEZBEPLZMRRDCXOK7NNYY"
+      },
+      "socialFollowerCountGate": {
+        "appId": "763128518",
+        "address": "OBMGYQSOMCWHNT2SUNNTCXVS3AMUJ7Y5KQ3RAIOVSC3QUV4V5UNDGNDYHI"
+      },
+      "socialFollowerIndexGate": {
+        "appId": "763128516",
+        "address": "JBB3G6S4URRY4OUJVGMGCWWRYVE4BHB2ZBXNK4QK6SXMU2CV6I3XBLKUVI"
+      },
+      "socialImpactGate": {
+        "appId": "763128505",
+        "address": "NPVDXYGPKZK6HFMY2GNXU66P6BTE6HTKLEMYUFABNLT5QENAV72LVHJLIY"
+      },
+      "socialModeratorGate": {
+        "appId": "763128512",
+        "address": "UD67XQIPGN32NXGU2PJP6W2VFKOMG5AZKXT5FQDA5VZM6DHRTH2TQSX7MM"
+      },
+      "stakingAmountGate": {
+        "appId": "763128513",
+        "address": "4RDIZKP4CIJXIDHJTXY7HVN2MGN3TMO2Y4Q2DB54WQYDYP7EKN3IXQHUCM"
+      },
+      "stakingPowerGate": {
+        "appId": "763128510",
+        "address": "OGBZWC7B7IV6XRNS57OQG63Q6HJ2DTCQ7MECQVASGUSQDFZRU5MJNR2PZI"
+      },
+      "subscriptionGate": {
+        "appId": "763128507",
+        "address": "EUHZGPOYGVI75HXA5TCRXLYRHPQXJ5DZZX3NQUL2OBF4FPJNRBQRXE4INI"
+      },
+      "subscriptionStreakGate": {
+        "appId": "763128515",
+        "address": "4RY24CUSBKEMRO2HPCYPX7GIPIK7PB355666EW7PRGHHE3YLNGFDLEANA4"
+      }
+    },
+    "aktaAssetId": "752884771",
+    "bonesAssetId": "763129960",
+    "usdcAssetId": "10458941",
+    "stickerPack": {
+      "escrow": "stickers",
+      "assetIds": [
+        "763130048",
+        "763130049",
+        "763130050",
+        "763130051",
+        "763130074",
+        "763130075",
+        "763130076",
+        "763130077",
+        "763130091",
+        "763130092",
+        "763130093",
+        "763130094",
+        "763130114"
+      ],
+      "caller": ""
+    }
+  },
+  "otherAppList": {
+    "vrfBeacon": "600011887",
+    "nfdRegistry": "84366825",
+    "assetInbox": "643020148",
+    "akitaNfd": "0",
+    "note": "escrow and poll are set automatically from deployment"
+  },
+  "costs": {
+    "actual": "803 ALGO",
+    "estimated": "287-317 ALGO",
+    "initialBalance": "4860 ALGO"
+  }
+}

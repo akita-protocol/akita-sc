@@ -1,9 +1,11 @@
 #!/usr/bin/env node
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { ABIMethod } from '@algorandfoundation/algokit-utils/abi'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk'
+import type { AddressWithTransactionSigner, TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import { AkitaDaoApps } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
 import { AkitaUniverse, buildAkitaUniverse } from '../tests/fixtures/dao'
 import { setupSubscriptionServices } from './setup-subscription-services'
@@ -11,24 +13,39 @@ import { registerSocialExtensions } from './register-social-extensions'
 
 type Network = 'localnet' | 'testnet' | 'mainnet'
 
+interface HaystackRouterOptions {
+  appId?: bigint
+  methodSelector?: Uint8Array
+  referrerTreasuryAppId?: bigint
+}
+
 interface DeployOptions {
   network: Network
   mnemonic?: string
+  stickerRewardsCaller?: string
   apps?: Partial<AkitaDaoApps>
+  aktaAssetId?: bigint
+  usdcAssetId?: bigint
   importLoraAppLab: boolean
-  haystackRouter?: {
-    appId?: bigint
-    methodSelector?: Uint8Array
-    referrerTreasuryAppId?: bigint
-  }
+  haystackRouter?: HaystackRouterOptions
 }
 
-function parseFourByteSelector(value: string): Uint8Array {
-  const hex = value.startsWith('0x') ? value.slice(2) : value
-  if (!/^[0-9a-fA-F]{8}$/.test(hex)) {
-    throw new Error(`Invalid Haystack router method selector: ${value}. Expected 4 bytes as 8 hex characters.`)
+const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0xc8, 0x90, 0xdc, 0x20])
+
+function getMethodSelector(methodSignature: string): Uint8Array {
+  return ABIMethod.fromSignature(methodSignature).getSelector()
+}
+
+function formatFourByteSelector(value: Uint8Array): string {
+  return Buffer.from(value).toString('hex')
+}
+
+function validateAddress(value: string, label: string): string {
+  if (!algosdk.isValidAddress(value)) {
+    console.error(`Invalid ${label}: ${value}`)
+    process.exit(1)
   }
-  return new Uint8Array(Buffer.from(hex, 'hex'))
+  return value
 }
 
 // Get network-specific defaults for OtherAppList
@@ -64,11 +81,54 @@ function getNetworkOtherAppListDefaults(network: Network): Partial<AkitaDaoApps>
   return defaults[network]
 }
 
+function getNetworkAssetDefaults(network: Network): { aktaAssetId: bigint; usdcAssetId: bigint } {
+  const defaults: Record<Network, { aktaAssetId: bigint; usdcAssetId: bigint }> = {
+    localnet: {
+      // Localnet creates fresh test assets when no IDs are provided.
+      aktaAssetId: 0n,
+      usdcAssetId: 0n,
+    },
+    testnet: {
+      aktaAssetId: 752884771n,
+      usdcAssetId: 10458941n,
+    },
+    mainnet: {
+      aktaAssetId: 523683256n,
+      usdcAssetId: 31566704n,
+    },
+  }
+  return defaults[network]
+}
+
+function getNetworkHaystackRouterDefaults(network: Network): HaystackRouterOptions {
+  const defaults: Record<Network, Required<HaystackRouterOptions>> = {
+    localnet: {
+      appId: 0n,
+      methodSelector: HAYSTACK_ROUTER_METHOD_SELECTOR,
+      referrerTreasuryAppId: 0n,
+    },
+    testnet: {
+      appId: 0n,
+      methodSelector: HAYSTACK_ROUTER_METHOD_SELECTOR,
+      referrerTreasuryAppId: 0n,
+    },
+    mainnet: {
+      appId: 3172554435n,
+      methodSelector: HAYSTACK_ROUTER_METHOD_SELECTOR,
+      referrerTreasuryAppId: 3041355560n,
+    },
+  }
+  return defaults[network]
+}
+
 // Parse command line arguments
 function parseArgs(): DeployOptions {
   const args = process.argv.slice(2)
   let network: Network = 'localnet'
   let mnemonic: string | undefined
+  let stickerRewardsCaller: string | undefined = process.env.AKITA_STICKER_REWARDS_CALLER
+  let aktaAssetId: bigint | undefined
+  let usdcAssetId: bigint | undefined
   let importLoraAppLab = process.env.CI !== 'true' && process.env.AKITA_SKIP_LORA_APP_LAB !== '1'
   const apps: Partial<AkitaDaoApps> = {}
   const haystackRouter: DeployOptions['haystackRouter'] = {}
@@ -77,7 +137,11 @@ function parseArgs(): DeployOptions {
     haystackRouter.appId = BigInt(process.env.HAYSTACK_ROUTER_APP_ID)
   }
   if (process.env.HAYSTACK_ROUTER_METHOD_SELECTOR) {
-    haystackRouter.methodSelector = parseFourByteSelector(process.env.HAYSTACK_ROUTER_METHOD_SELECTOR)
+    console.error('Error: HAYSTACK_ROUTER_METHOD_SELECTOR is deprecated. Use HAYSTACK_ROUTER_METHOD_SIGNATURE instead.')
+    process.exit(1)
+  }
+  if (process.env.HAYSTACK_ROUTER_METHOD_SIGNATURE) {
+    haystackRouter.methodSelector = getMethodSelector(process.env.HAYSTACK_ROUTER_METHOD_SIGNATURE)
   }
   if (process.env.HAYSTACK_REFERRER_TREASURY_APP_ID) {
     haystackRouter.referrerTreasuryAppId = BigInt(process.env.HAYSTACK_REFERRER_TREASURY_APP_ID)
@@ -96,6 +160,24 @@ function parseArgs(): DeployOptions {
     } else if (args[i] === '--mnemonic' || args[i] === '-m') {
       mnemonic = args[i + 1]
       i++
+    } else if (args[i] === '--sticker-rewards-caller' || args[i] === '--rewards-plugin-caller') {
+      const value = args[i + 1]
+      if (value) {
+        stickerRewardsCaller = validateAddress(value, args[i])
+        i++
+      }
+    } else if (args[i] === '--akta-asset-id' || args[i] === '--akta') {
+      const value = args[i + 1]
+      if (value) {
+        aktaAssetId = BigInt(value)
+        i++
+      }
+    } else if (args[i] === '--usdc-asset-id' || args[i] === '--usdc') {
+      const value = args[i + 1]
+      if (value) {
+        usdcAssetId = BigInt(value)
+        i++
+      }
     } else if (args[i] === '--vrf-beacon') {
       const value = args[i + 1]
       if (value) {
@@ -126,10 +208,10 @@ function parseArgs(): DeployOptions {
         haystackRouter.appId = BigInt(value)
         i++
       }
-    } else if (args[i] === '--haystack-router-method') {
+    } else if (args[i] === '--haystack-router-method' || args[i] === '--haystack-router-method-signature') {
       const value = args[i + 1]
       if (value) {
-        haystackRouter.methodSelector = parseFourByteSelector(value)
+        haystackRouter.methodSelector = getMethodSelector(value)
         i++
       }
     } else if (args[i] === '--haystack-referrer-treasury') {
@@ -149,13 +231,18 @@ Usage: ts-node scripts/deploy-universe.ts [options]
 Options:
   --network, -n <network>        Network to deploy to (localnet, testnet, mainnet). Default: localnet
   --mnemonic, -m <mnemonic>      Mnemonic phrase for the deployer account (required for testnet/mainnet, optional for localnet)
+  --sticker-rewards-caller <addr> Address allowed to use RewardsPlugin for sticker pack rewards (can use AKITA_STICKER_REWARDS_CALLER)
+  --rewards-plugin-caller <addr> Alias for --sticker-rewards-caller
+  --akta-asset-id, --akta <id>   AKTA asset ID (optional, uses network defaults; localnet creates a test asset when omitted)
+  --usdc-asset-id, --usdc <id>   USDC asset ID (optional, uses network defaults; localnet creates a test asset when omitted)
   --vrf-beacon <appId>          VRF Beacon app ID (optional, uses network defaults if not provided)
   --nfd-registry <appId>        NFD Registry app ID (optional, uses network defaults if not provided)
   --asset-inbox <appId>         Asset Inbox app ID (optional, uses network defaults if not provided)
   --akita-nfd <appId>           Akita NFD app ID (optional, uses network defaults if not provided)
-  --haystack-router <appId>     Haystack Router app ID (optional, defaults to known mainnet ID; can use HAYSTACK_ROUTER_APP_ID)
-  --haystack-router-method <hex> Haystack Router finalize selector (optional, defaults to c890dc20; can use HAYSTACK_ROUTER_METHOD_SELECTOR)
-  --haystack-referrer-treasury <appId> Haystack Referrer Treasury app ID (optional, defaults to known mainnet ID; can use HAYSTACK_REFERRER_TREASURY_APP_ID)
+  --haystack-router <appId>     Haystack Router app ID (optional, uses network defaults; can use HAYSTACK_ROUTER_APP_ID)
+  --haystack-router-method <signature> Haystack Router ABI method signature (optional, defaults to the live Haystack finalize selector; can use HAYSTACK_ROUTER_METHOD_SIGNATURE)
+  --haystack-router-method-signature <signature> Alias for --haystack-router-method
+  --haystack-referrer-treasury <appId> Haystack Referrer Treasury app ID (optional, uses network defaults; can use HAYSTACK_REFERRER_TREASURY_APP_ID)
   --skip-lora-app-lab           Do not import deployed contracts into Lora App Lab after deployment
   --lora-app-lab                Import deployed contracts into Lora App Lab after deployment (default outside CI)
   --help, -h                    Show this help message
@@ -186,18 +273,28 @@ Examples:
     ...networkDefaults,
     ...apps,
   }
+  const assetDefaults = getNetworkAssetDefaults(network)
+  const finalAktaAssetId = aktaAssetId ?? assetDefaults.aktaAssetId
+  const finalUsdcAssetId = usdcAssetId ?? assetDefaults.usdcAssetId
+  const finalHaystackRouter = {
+    ...getNetworkHaystackRouterDefaults(network),
+    ...haystackRouter,
+  }
 
   // Only include otherAppList if at least one value is non-zero
-  const hasNonZeroValue = Object.values(finalApps).some(
-    (value) => value !== undefined && value > 0n
-  )
+  const hasNonZeroValue = Object.values(finalApps).some((value) => value !== undefined && value > 0n)
 
   return {
     network,
     mnemonic,
+    stickerRewardsCaller: stickerRewardsCaller
+      ? validateAddress(stickerRewardsCaller, 'AKITA_STICKER_REWARDS_CALLER')
+      : undefined,
     apps: hasNonZeroValue ? finalApps : undefined,
+    aktaAssetId: finalAktaAssetId > 0n ? finalAktaAssetId : undefined,
+    usdcAssetId: finalUsdcAssetId > 0n ? finalUsdcAssetId : undefined,
     importLoraAppLab,
-    haystackRouter: Object.keys(haystackRouter).length > 0 ? haystackRouter : undefined,
+    haystackRouter: finalHaystackRouter,
   }
 }
 
@@ -215,9 +312,9 @@ function createAlgorandClient(network: Network): AlgorandClient {
 }
 
 // Create account from mnemonic
-function createAccountFromMnemonic(mnemonic: string): algosdk.Account {
+function createAccountFromMnemonic(algorand: AlgorandClient, mnemonic: string): AddressWithTransactionSigner {
   try {
-    return algosdk.mnemonicToSecretKey(mnemonic)
+    return algorand.account.fromMnemonic(mnemonic)
   } catch (error) {
     console.error('Error: Invalid mnemonic phrase')
     throw error
@@ -228,8 +325,8 @@ function createAccountFromMnemonic(mnemonic: string): algosdk.Account {
 async function createFixtureForNetwork(
   network: Network,
   algorand: AlgorandClient,
-  account: algosdk.Account
-): Promise<{ fixture: AlgorandFixture; sender: string; signer: algosdk.TransactionSigner }> {
+  account: AddressWithTransactionSigner,
+): Promise<{ fixture: AlgorandFixture; sender: string; signer: TransactionSigner }> {
   if (network === 'localnet') {
     // Use the actual fixture for localnet
     const fixture = algorandFixture()
@@ -243,7 +340,7 @@ async function createFixtureForNetwork(
   } else {
     // For testnet/mainnet, create a minimal fixture-like structure
     const sender: string = account.addr.toString()
-    const signer = makeBasicAccountTransactionSigner(account)
+    const signer = account.signer
 
     // Create a minimal fixture structure that matches what buildAkitaUniverse expects
     // The fixture needs both fixture.algorand and fixture.context.algorand
@@ -256,8 +353,8 @@ async function createFixtureForNetwork(
         },
         testAccount: account as any,
       },
-      newScope: async () => { },
-      beforeEach: async () => { },
+      newScope: async () => {},
+      beforeEach: async () => {},
     } as unknown as AlgorandFixture
 
     return { fixture, sender, signer }
@@ -270,6 +367,7 @@ function generateEnvFile(
   network: Network,
   apps?: Partial<AkitaDaoApps>,
   localnetDaoCreatorMnemonic?: string,
+  stickerRewardsCaller?: string,
 ): string {
   const lines: string[] = [
     `# Akita Universe Deployment - ${network}`,
@@ -355,13 +453,14 @@ function generateEnvFile(
     `AKTA_ASSET_ID=${universe.aktaAssetId}`,
     `BONES_ASSET_ID=${universe.bonesAssetId}`,
     `USDC_ASSET_ID=${universe.usdcAssetId}`,
+    `STICKER_PACK_REWARDS_ESCROW=stickers`,
+    `STICKER_PACK_ASSET_IDS=${universe.stickerAssetIds.join(',')}`,
+    ...(stickerRewardsCaller ? [`STICKER_PACK_REWARDS_CALLER=${stickerRewardsCaller}`] : []),
   ]
 
   // Add OtherAppList configuration if provided
   if (apps) {
-    const hasNonZeroValue = Object.values(apps).some(
-      (value) => value !== undefined && value > 0n
-    )
+    const hasNonZeroValue = Object.values(apps).some((value) => value !== undefined && value > 0n)
     if (hasNonZeroValue) {
       lines.push(``)
       lines.push(`# External Apps (OtherAppList)`)
@@ -385,11 +484,7 @@ function generateEnvFile(
 }
 
 // Generate the NetworkAppIds content for a network
-function generateNetworkAppIds(
-  universe: AkitaUniverse,
-  network: Network,
-  apps?: Partial<AkitaDaoApps>
-): string {
+function generateNetworkAppIds(universe: AkitaUniverse, network: Network, apps?: Partial<AkitaDaoApps>): string {
   const timestamp = new Date().toISOString()
   const networkUpper = network.toUpperCase()
 
@@ -489,7 +584,7 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
 async function updateNetworksFile(
   universe: AkitaUniverse,
   network: Network,
-  apps?: Partial<AkitaDaoApps>
+  apps?: Partial<AkitaDaoApps>,
 ): Promise<void> {
   if (network === 'localnet') {
     console.log(`📄 Skipping SDK networks.ts update for localnet (IDs provided via .env.localnet)`)
@@ -513,7 +608,7 @@ async function updateNetworksFile(
     const networkUpper = network.toUpperCase()
     const regex = new RegExp(
       `\\/\\*\\*\\s*\\n\\s*\\*\\s*${network.charAt(0).toUpperCase() + network.slice(1)}\\s+app\\s+IDs[\\s\\S]*?export\\s+const\\s+${networkUpper}_APP_IDS:\\s*NetworkAppIds\\s*=\\s*\\{[\\s\\S]*?\\};`,
-      'g'
+      'g',
     )
 
     if (regex.test(content)) {
@@ -538,7 +633,8 @@ async function updateNetworksFile(
 async function formatSummary(
   universe: AkitaUniverse,
   network: Network,
-  apps?: Partial<AkitaDaoApps>
+  apps?: Partial<AkitaDaoApps>,
+  stickerRewardsCaller?: string,
 ): Promise<string> {
   // Get rewards app ID from DAO's akitaAppList
   let rewardsAppId = 'N/A'
@@ -814,16 +910,19 @@ async function formatSummary(
       aktaAssetId: universe.aktaAssetId.toString(),
       bonesAssetId: universe.bonesAssetId.toString(),
       usdcAssetId: universe.usdcAssetId.toString(),
+      stickerPack: {
+        escrow: 'stickers',
+        assetIds: universe.stickerAssetIds.map((id) => id.toString()),
+        caller: stickerRewardsCaller || '',
+      },
     },
   }
 
   // Add OtherAppList configuration if provided
   if (apps) {
-    const hasNonZeroValue = Object.values(apps).some(
-      (value) => value !== undefined && value > 0n
-    )
+    const hasNonZeroValue = Object.values(apps).some((value) => value !== undefined && value > 0n)
     if (hasNonZeroValue) {
-      (summary as any).otherAppList = {
+      ;(summary as any).otherAppList = {
         vrfBeacon: apps.vrfBeacon?.toString() || '0',
         nfdRegistry: apps.nfdRegistry?.toString() || '0',
         assetInbox: apps.assetInbox?.toString() || '0',
@@ -835,7 +934,7 @@ async function formatSummary(
 
   // Add cost information if available
   if (typeof (summary as any).actualCost !== 'undefined') {
-    (summary as any).costs = {
+    ;(summary as any).costs = {
       actual: (summary as any).actualCost,
       estimated: '287-317 ALGO',
     }
@@ -855,10 +954,10 @@ async function deploy() {
     const algorand = createAlgorandClient(options.network)
 
     // Create account and fixture
-    let account: algosdk.Account
+    let account: AddressWithTransactionSigner
     let fixture: AlgorandFixture
     let sender: string
-    let signer: algosdk.TransactionSigner
+    let signer: TransactionSigner
 
     if (options.network === 'localnet') {
       // For localnet, keep the fixture for generated test accounts but deploy
@@ -867,14 +966,14 @@ async function deploy() {
       fixture = algorandFixture()
       await fixture.newScope()
       const localnetDeployer = await algorand.account.dispenserFromEnvironment()
-      account = localnetDeployer as unknown as algosdk.Account
+      account = localnetDeployer as AddressWithTransactionSigner
       sender = localnetDeployer.addr.toString()
-      signer = localnetDeployer.signer as algosdk.TransactionSigner
+      signer = localnetDeployer.signer
     } else {
       if (!options.mnemonic) {
         throw new Error('Mnemonic is required for non-localnet networks')
       }
-      account = createAccountFromMnemonic(options.mnemonic)
+      account = createAccountFromMnemonic(algorand, options.mnemonic)
       console.log(`📝 Using account: ${account.addr.toString()}\n`)
 
       // For non-localnet, we need to set up the network environment
@@ -886,11 +985,7 @@ async function deploy() {
       }
 
       // Create fixture for non-localnet
-      const result = await createFixtureForNetwork(
-        options.network,
-        algorand,
-        account
-      )
+      const result = await createFixtureForNetwork(options.network, algorand, account)
       fixture = result.fixture
       sender = result.sender
       signer = result.signer
@@ -938,9 +1033,8 @@ async function deploy() {
 
     // Log external apps configuration
     const networkDefaults = getNetworkOtherAppListDefaults(options.network)
-    const hasExternalApps = options.apps && Object.values(options.apps).some(
-      (value) => value !== undefined && value > 0n
-    )
+    const hasExternalApps =
+      options.apps && Object.values(options.apps).some((value) => value !== undefined && value > 0n)
 
     if (hasExternalApps) {
       console.log('📋 External Apps Configuration:')
@@ -961,11 +1055,34 @@ async function deploy() {
       console.log('📋 External Apps: Using network defaults (all external apps set to 0)\n')
     }
 
+    if (options.aktaAssetId || options.usdcAssetId) {
+      console.log('🪙 Asset Configuration:')
+      console.log(`   AKTA: ${options.aktaAssetId ?? 0n}`)
+      console.log(`   USDC: ${options.usdcAssetId ?? 0n}\n`)
+    } else {
+      console.log('🪙 Asset Configuration: Localnet test assets will be created\n')
+    }
+
+    if (options.haystackRouter) {
+      console.log('🔀 Haystack Router Configuration:')
+      console.log(`   Router: ${options.haystackRouter.appId ?? 0n}`)
+      console.log(
+        `   Method Selector: ${options.haystackRouter.methodSelector ? formatFourByteSelector(options.haystackRouter.methodSelector) : 'not set'}`,
+      )
+      console.log(`   Referrer Treasury: ${options.haystackRouter.referrerTreasuryAppId ?? 0n}\n`)
+    }
+
+    console.log('🎁 Sticker Rewards Configuration:')
+    console.log(`   Rewards Plugin Caller: ${options.stickerRewardsCaller ?? sender}\n`)
+
     const universe = await buildAkitaUniverse({
       fixture,
       sender,
       signer,
       apps: options.apps,
+      aktaAssetId: options.aktaAssetId,
+      usdcAssetId: options.usdcAssetId,
+      stickerRewardsCaller: options.stickerRewardsCaller,
       network: options.network,
       haystackRouter: options.haystackRouter,
     })
@@ -985,15 +1102,16 @@ async function deploy() {
       console.log('\n💰 Transferring test assets to all KMD dispenser candidates...')
       try {
         const kmd = await algorand.account.kmd.kmd()
-        const wallets = (await kmd.listWallets()).wallets
-          .filter((w) => w.name === 'unencrypted-default-wallet')
+        const wallets = (await kmd.listWallets()).wallets.filter((w) => w.name === 'unencrypted-default-wallet')
         if (wallets.length === 0) {
           throw new Error('unencrypted-default-wallet not found in KMD')
         }
-        const walletHandleToken = (await kmd.initWalletHandle({
-          walletId: wallets[0].id,
-          walletPassword: '',
-        })).walletHandleToken
+        const walletHandleToken = (
+          await kmd.initWalletHandle({
+            walletId: wallets[0].id,
+            walletPassword: '',
+          })
+        ).walletHandleToken
 
         const addresses = (await kmd.listKeysInWallet({ walletHandleToken })).addresses
 
@@ -1019,18 +1137,15 @@ async function deploy() {
           if (BigInt(info.amount) < 1_000_000_000n) continue
 
           // Export the signer for this address via KMD
-          const exported = await algorand.account.kmd.getWalletAccount(
-            'unencrypted-default-wallet',
-            (a) => a.address.equals(addr),
+          const exported = await algorand.account.kmd.getWalletAccount('unencrypted-default-wallet', (a) =>
+            a.address.equals(addr),
           )
           if (!exported) continue
 
           for (const asset of testAssets) {
             const perAccount = asset.totalAmount / BigInt(Math.max(addresses.length, 1))
             const latestInfo = await algorand.client.algod.accountInformation(addr)
-            const alreadyOpted = (latestInfo.assets ?? []).some(
-              (a) => a.assetId === asset.assetId,
-            )
+            const alreadyOpted = (latestInfo.assets ?? []).some((a) => a.assetId === asset.assetId)
             if (!alreadyOpted) {
               await algorand.send.assetOptIn({
                 sender: addrStr,
@@ -1082,7 +1197,7 @@ async function deploy() {
         if (diff > 50_000_000n) {
           console.log(`   ⚠️  Cost is ${diff / 1_000_000n} ALGO higher than estimated`)
         } else if (diff < -50_000_000n) {
-          console.log(`   ✅ Cost is ${(-diff) / 1_000_000n} ALGO lower than estimated`)
+          console.log(`   ✅ Cost is ${-diff / 1_000_000n} ALGO lower than estimated`)
         } else {
           console.log(`   ✅ Cost is within estimated range`)
         }
@@ -1104,7 +1219,9 @@ async function deploy() {
     console.log('✅ DEPLOYMENT COMPLETE!')
     console.log('='.repeat(80) + '\n')
 
-    const summaryObj = JSON.parse(await formatSummary(universe, options.network, options.apps))
+    const summaryObj = JSON.parse(
+      await formatSummary(universe, options.network, options.apps, options.stickerRewardsCaller),
+    )
 
     // Add cost information to summary
     if (actualCost > 0n) {
@@ -1135,13 +1252,17 @@ async function deploy() {
           loraUrl: process.env.LORA_URL ?? 'https://lora.algokit.io',
           cdpUrl: process.env.LORA_CDP_URL,
           chromePath: process.env.LORA_CHROME_PATH ?? '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
-          chromeUserDataDir: process.env.LORA_CHROME_USER_DATA_DIR ?? pathModule.join(osModule.homedir(), 'Library/Application Support/BraveSoftware/Brave-Browser'),
+          chromeUserDataDir:
+            process.env.LORA_CHROME_USER_DATA_DIR ??
+            pathModule.join(osModule.homedir(), 'Library/Application Support/BraveSoftware/Brave-Browser'),
           chromeProfileDirectory: process.env.LORA_CHROME_PROFILE_DIRECTORY ?? 'Profile 1',
           relaunchBrowser: process.env.LORA_RELAUNCH_BROWSER === '1',
           keepBrowserOpen: process.env.LORA_CLOSE_BROWSER !== '1',
         })
       } catch (error) {
-        console.warn(`⚠️  Could not import contracts into Lora App Lab: ${error instanceof Error ? error.message : error}`)
+        console.warn(
+          `⚠️  Could not import contracts into Lora App Lab: ${error instanceof Error ? error.message : error}`,
+        )
         console.warn(`   Deployment succeeded. Re-run manually with: npm run lora:import -- --summary ${summaryPath}`)
       }
     } else {
@@ -1149,10 +1270,14 @@ async function deploy() {
     }
 
     // Generate and save environment file
-    const localnetDaoCreatorMnemonic = options.network === 'localnet' && options.mnemonic
-      ? options.mnemonic
-      : undefined
-    const envContent = generateEnvFile(universe, options.network, options.apps, localnetDaoCreatorMnemonic)
+    const localnetDaoCreatorMnemonic = options.network === 'localnet' && options.mnemonic ? options.mnemonic : undefined
+    const envContent = generateEnvFile(
+      universe,
+      options.network,
+      options.apps,
+      localnetDaoCreatorMnemonic,
+      options.stickerRewardsCaller,
+    )
     const path = await import('path')
     const envPath = `.env.${options.network}`
     await fs.writeFile(envPath, envContent, 'utf-8')

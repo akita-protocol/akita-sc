@@ -143,6 +143,7 @@ Wallet plugins extend abstracted account functionality:
 | `daoPlugin` | DAO interactions |
 | `dualStakePlugin` | Dual token staking |
 | `gatePlugin` | Gate verification |
+| `haystackRouterPlugin` | Haystack Router swap integration |
 | `hyperSwapPlugin` | P2P multi-party swaps |
 | `marketplacePlugin` | Marketplace operations |
 | `nfdPlugin` | NFD operations |
@@ -162,100 +163,106 @@ Wallet plugins extend abstracted account functionality:
 
 ## Deployment
 
+Testnet last updated from `deployment-summary-testnet-1779520060364.json` on 2026-05-23.
+Mainnet last updated from `deployment-summary-mainnet-1779522778159.json` on 2026-05-23.
+
 ### Core Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `dao` | `751971739` | `3368388956` |
-| `wallet` | `751972058` | `3368395481` |
-| `walletFactory` | `751971757` | `3368389117` |
-| `escrowFactory` | `751967076` | `3368388829` |
+| `dao` | `763128236` | `3569556034` |
+| `daoProposalValidator` | `763128235` | `3569555925` |
+| `wallet` | `763128598` | `3569559153` |
+| `walletFactory` | `763128255` | `3569556257` |
+| `escrowFactory` | `763128227` | `3569555755` |
 
 ### DeFi Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `staking` | `751971819` | `3368393172` |
-| `stakingPoolFactory` | `751971794` | `3368391029` |
-| `subscriptions` | `751971779` | `3368389628` |
-| `rewards` | `751971741` | `3368388985` |
-| `hyperSwap` | `757503297` | `3488065730` |
-| `marketplace` | `751971922` | `3368394180` |
-| `auctionFactory` | `751971901` | `3368393933` |
+| `staking` | `763128307` | `3569556776` |
+| `stakingPoolFactory` | `763128285` | `3569556570` |
+| `subscriptions` | `763128278` | `3569556497` |
+| `rewards` | `763128244` | `3569556095` |
+| `hyperSwap` | `763128499` | `3569558555` |
+| `marketplace` | `763128381` | `3569557584` |
+| `auctionFactory` | `763128353` | `3569557408` |
 
 ### Community Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `social` | `751971872` | `3368393551` |
-| `socialGraph` | `754162173` | `3414941676` |
-| `socialImpact` | `757498720` | `3487942274` |
-| `socialModeration` | `751971873` | `3368393629` |
-| `pollFactory` | `751971931` | `3368394268` |
-| `raffleFactory` | `751971928` | `3368394210` |
-| `prizeBoxFactory` | `751971937` | `3368394289` |
+| `social` | `763128333` | `3569557130` |
+| `socialGraph` | `763128326` | `3569557033` |
+| `socialImpact` | `763128316` | `3569556973` |
+| `socialModeration` | `763128334` | `3569557176` |
+| `pollFactory` | `763128430` | `3569557932` |
+| `raffleFactory` | `763128404` | `3569557743` |
+| `prizeBoxFactory` | `763128434` | `3569557972` |
 
 ### Infrastructure Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `gate` | `757500594` | `3487979365` |
-| `metaMerkles` | `751971947` | `3368394372` |
+| `gate` | `763128492` | `3569558504` |
+| `metaMerkles` | `763128435` | `3569558010` |
 
 ### Plugins
 
 | Plugin | Testnet | Mainnet |
 |--------|---------|---------|
-| `optInPlugin` | `751968346` | `3368398585` |
-| `selfOptInPlugin` | `757594161` | `3490296923` |
-| `payPlugin` | `751968379` | `3368399056` |
-| `asaMintPlugin` | `751968373` | `3368398964` |
-| `auctionPlugin` | `757503999` | `3488090697` |
-| `daoPlugin` | `751972311` | `3368399317` |
-| `dualStakePlugin` | `757504668` | `3488114453` |
-| `gatePlugin` | `751972318` | `3368399411` |
-| `hyperSwapPlugin` | `751972295` | `3368399121` |
-| `marketplacePlugin` | `757504090` | `3488095775` |
-| `nfdPlugin` | `751972324` | `3368399559` |
-| `paySiloPlugin` | `751972334` | `3368399670` |
-| `paySiloFactoryPlugin` | `751968441` | `3368399704` |
-| `pollPlugin` | `751972340` | `3368399770` |
-| `rafflePlugin` | `757504189` | `3488098470` |
-| `revenueManagerPlugin` | `757504722` | `3488128159` |
-| `rewardsPlugin` | `751972347` | `3368399956` |
-| `socialPlugin` | `757769536` | `3494983135` |
-| `stakingPlugin` | `751972363` | `3368400044` |
-| `stakingPoolPlugin` | `757504244` | `3488100384` |
-| `subscriptionsPlugin` | `752474150` | `3378296099` |
-| `updatePlugin` | `757505426` | `3488161934` |
+| `optInPlugin` | `763128795` | `3569560490` |
+| `selfOptInPlugin` | `763128796` | `3569560545` |
+| `payPlugin` | `763128821` | `3569560828` |
+| `asaMintPlugin` | `763128820` | `3569560791` |
+| `auctionPlugin` | `763128866` | `3569561141` |
+| `daoPlugin` | `763128876` | `3569561215` |
+| `dualStakePlugin` | `763128877` | `3569561317` |
+| `gatePlugin` | `763128884` | `3569561367` |
+| `haystackRouterPlugin` | `763128851` | `3569561003` |
+| `hyperSwapPlugin` | `763128858` | `3569561068` |
+| `marketplacePlugin` | `763128885` | `3569561455` |
+| `nfdPlugin` | `763128895` | `3569561505` |
+| `paySiloPlugin` | `763128904` | `3569561570` |
+| `paySiloFactoryPlugin` | `763128905` | `3569561636` |
+| `pollPlugin` | `763128906` | `3569561749` |
+| `rafflePlugin` | `763128922` | `3569561863` |
+| `revenueManagerPlugin` | `763128627` | `3569559335` |
+| `rewardsPlugin` | `763128923` | `3569561963` |
+| `socialPlugin` | `763128930` | `3569562087` |
+| `stakingPlugin` | `763128931` | `3569562153` |
+| `stakingPoolPlugin` | `763128941` | `3569562283` |
+| `subscriptionsPlugin` | `763128859` | `3569561107` |
+| `updatePlugin` | `763128671` | `3569559689` |
 
 ### Sub-Gates
 
 | Sub-Gate | Testnet | Mainnet |
 |----------|---------|---------|
-| `akitaReferrerGate` | `751971962` | `3368394596` |
-| `assetGate` | `751971964` | `3368394608` |
-| `merkleAddressGate` | `751971975` | `3368394591` |
-| `merkleAssetGate` | `751971967` | `3368394598` |
-| `nfdGate` | `751971977` | `3368394599` |
-| `nfdRootGate` | `751971966` | `3368394594` |
-| `pollGate` | `751971963` | `3368394595` |
-| `socialActivityGate` | `757500595` | `3487979397` |
-| `socialFollowerCountGate` | `757500596` | `3487979460` |
-| `socialFollowerIndexGate` | `754162353` | `3414942860` |
-| `socialImpactGate` | `751971971` | `3368394605` |
-| `socialModeratorGate` | `757500598` | `3487979491` |
-| `stakingAmountGate` | `751971968` | `3368394603` |
-| `stakingPowerGate` | `757500610` | `3487979550` |
-| `subscriptionGate` | `757500614` | `3487979601` |
-| `subscriptionStreakGate` | `751971976` | `3368394607` |
+| `akitaReferrerGate` | `763128503` | `3569558604` |
+| `assetGate` | `763128508` | `3569558602` |
+| `merkleAddressGate` | `763128509` | `3569558615` |
+| `merkleAssetGate` | `763128506` | `3569558603` |
+| `nfdGate` | `763128504` | `3569558608` |
+| `nfdRootGate` | `763128511` | `3569558606` |
+| `pollGate` | `763128514` | `3569558607` |
+| `socialActivityGate` | `763128517` | `3569558616` |
+| `socialFollowerCountGate` | `763128518` | `3569558612` |
+| `socialFollowerIndexGate` | `763128516` | `3569558605` |
+| `socialImpactGate` | `763128505` | `3569558618` |
+| `socialModeratorGate` | `763128512` | `3569558617` |
+| `stakingAmountGate` | `763128513` | `3569558613` |
+| `stakingPowerGate` | `763128510` | `3569558611` |
+| `subscriptionGate` | `763128507` | `3569558609` |
+| `subscriptionStreakGate` | `763128515` | `3569558614` |
 
 ### Assets
 
 | Asset | Testnet | Mainnet |
 |-------|---------|---------|
-| `AKITA` | — | `523683256` |
-| `BONES` | `751973254` | `3368406527` |
+| `AKTA` | `752884771` | `523683256` |
+| `BONES` | `763129960` | `3569570855` |
+| `USDC` | `10458941` | `31566704` |
 
 ### External Dependencies
 
@@ -264,7 +271,7 @@ Wallet plugins extend abstracted account functionality:
 | VRF Beacon | `600011887` | `1615566206` |
 | NFD Registry | `84366825` | `760937186` |
 | Asset Inbox | `643020148` | `2449590623` |
-| Akita NFD | — | `765902356` |
+| Akita NFD | `0` | `765902356` |
 
 ---
 

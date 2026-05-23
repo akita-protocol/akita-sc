@@ -205,6 +205,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
     await this.client.send.optIn({
       ...sendParams,
+      extraFee: microAlgo(1000),
       args: {
         payment,
         asset,

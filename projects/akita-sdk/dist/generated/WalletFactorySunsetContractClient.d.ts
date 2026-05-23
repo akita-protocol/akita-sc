@@ -56,6 +56,11 @@ export type WalletFactorySunsetContractArgs = {
             wallet: bigint | number;
             assets: bigint[] | number[];
         };
+        'deleteWalletEscrows(uint64,uint64,uint64[])void': {
+            wallet: bigint | number;
+            escrowFactory: bigint | number;
+            escrowIds: bigint[] | number[];
+        };
         'deleteWallet(uint64,address)void': {
             wallet: bigint | number;
             closeRemainderTo: string;
@@ -82,6 +87,7 @@ export type WalletFactorySunsetContractArgs = {
         'deleteWalletBoxes(uint64,byte[][])void': [wallet: bigint | number, boxes: Uint8Array[]];
         'closeOutWallet(uint64,(address,uint64)[])void': [wallet: bigint | number, closes: [string, bigint | number][]];
         'deleteWalletAssets(uint64,uint64[])void': [wallet: bigint | number, assets: bigint[] | number[]];
+        'deleteWalletEscrows(uint64,uint64,uint64[])void': [wallet: bigint | number, escrowFactory: bigint | number, escrowIds: bigint[] | number[]];
         'deleteWallet(uint64,address)void': [wallet: bigint | number, closeRemainderTo: string];
         'deleteBoxedContract()void': [];
         'deleteBoxes(byte[][])void': [boxes: Uint8Array[]];
@@ -98,6 +104,7 @@ export type WalletFactorySunsetContractReturns = {
     'deleteWalletBoxes(uint64,byte[][])void': void;
     'closeOutWallet(uint64,(address,uint64)[])void': void;
     'deleteWalletAssets(uint64,uint64[])void': void;
+    'deleteWalletEscrows(uint64,uint64,uint64[])void': void;
     'deleteWallet(uint64,address)void': void;
     'deleteBoxedContract()void': void;
     'deleteBoxes(byte[][])void': void;
@@ -128,6 +135,10 @@ export type WalletFactorySunsetContractTypes = {
         argsObj: WalletFactorySunsetContractArgs['obj']['deleteWalletAssets(uint64,uint64[])void'];
         argsTuple: WalletFactorySunsetContractArgs['tuple']['deleteWalletAssets(uint64,uint64[])void'];
         returns: WalletFactorySunsetContractReturns['deleteWalletAssets(uint64,uint64[])void'];
+    }> & Record<'deleteWalletEscrows(uint64,uint64,uint64[])void' | 'deleteWalletEscrows', {
+        argsObj: WalletFactorySunsetContractArgs['obj']['deleteWalletEscrows(uint64,uint64,uint64[])void'];
+        argsTuple: WalletFactorySunsetContractArgs['tuple']['deleteWalletEscrows(uint64,uint64,uint64[])void'];
+        returns: WalletFactorySunsetContractReturns['deleteWalletEscrows(uint64,uint64,uint64[])void'];
     }> & Record<'deleteWallet(uint64,address)void' | 'deleteWallet', {
         argsObj: WalletFactorySunsetContractArgs['obj']['deleteWallet(uint64,address)void'];
         argsTuple: WalletFactorySunsetContractArgs['tuple']['deleteWallet(uint64,address)void'];
@@ -295,6 +306,13 @@ export declare abstract class WalletFactorySunsetContractParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static deleteWalletAssets(params: CallParams<WalletFactorySunsetContractArgs['obj']['deleteWalletAssets(uint64,uint64[])void'] | WalletFactorySunsetContractArgs['tuple']['deleteWalletAssets(uint64,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the deleteWalletEscrows(uint64,uint64,uint64[])void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static deleteWalletEscrows(params: CallParams<WalletFactorySunsetContractArgs['obj']['deleteWalletEscrows(uint64,uint64,uint64[])void'] | WalletFactorySunsetContractArgs['tuple']['deleteWalletEscrows(uint64,uint64,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the deleteWallet(uint64,address)void ABI method
      *
@@ -886,6 +904,37 @@ export declare class WalletFactorySunsetContractClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWalletEscrows(uint64,uint64,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        deleteWalletEscrows: (params: CallParams<WalletFactorySunsetContractArgs["obj"]["deleteWalletEscrows(uint64,uint64,uint64[])void"] | WalletFactorySunsetContractArgs["tuple"]["deleteWalletEscrows(uint64,uint64,uint64[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWallet(uint64,address)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1123,6 +1172,19 @@ export declare class WalletFactorySunsetContractClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWalletEscrows(uint64,uint64,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        deleteWalletEscrows: (params: CallParams<WalletFactorySunsetContractArgs["obj"]["deleteWalletEscrows(uint64,uint64,uint64[])void"] | WalletFactorySunsetContractArgs["tuple"]["deleteWalletEscrows(uint64,uint64,uint64[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWallet(uint64,address)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1295,6 +1357,24 @@ export declare class WalletFactorySunsetContractClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWalletEscrows(uint64,uint64,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        deleteWalletEscrows: (params: CallParams<WalletFactorySunsetContractArgs["obj"]["deleteWalletEscrows(uint64,uint64,uint64[])void"] | WalletFactorySunsetContractArgs["tuple"]["deleteWalletEscrows(uint64,uint64,uint64[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | WalletFactorySunsetContractReturns["deleteWalletEscrows(uint64,uint64,uint64[])void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the WalletFactorySunsetContract smart contract using the `deleteWallet(uint64,address)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1454,6 +1534,13 @@ export type WalletFactorySunsetContractComposer<TReturns extends [...any[]] = []
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     deleteWalletAssets(params?: CallParams<WalletFactorySunsetContractArgs['obj']['deleteWalletAssets(uint64,uint64[])void'] | WalletFactorySunsetContractArgs['tuple']['deleteWalletAssets(uint64,uint64[])void']>): WalletFactorySunsetContractComposer<[...TReturns, WalletFactorySunsetContractReturns['deleteWalletAssets(uint64,uint64[])void'] | undefined]>;
+    /**
+     * Calls the deleteWalletEscrows(uint64,uint64,uint64[])void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    deleteWalletEscrows(params?: CallParams<WalletFactorySunsetContractArgs['obj']['deleteWalletEscrows(uint64,uint64,uint64[])void'] | WalletFactorySunsetContractArgs['tuple']['deleteWalletEscrows(uint64,uint64,uint64[])void']>): WalletFactorySunsetContractComposer<[...TReturns, WalletFactorySunsetContractReturns['deleteWalletEscrows(uint64,uint64,uint64[])void'] | undefined]>;
     /**
      * Calls the deleteWallet(uint64,address)void ABI method.
      *

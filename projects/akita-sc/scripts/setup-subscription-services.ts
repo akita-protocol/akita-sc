@@ -41,7 +41,8 @@ import {
 } from '../smart_contracts/utils/defaults'
 import { createHash } from 'crypto'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk'
+import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import algosdk from 'algosdk'
 import type { AkitaUniverse } from '../tests/fixtures/dao'
 
 // ---------------------------------------------------------------------------
@@ -50,6 +51,7 @@ import type { AkitaUniverse } from '../tests/fixtures/dao'
 
 const SECONDS_PER_MONTH = 30n * 86400n // 30 days
 const USDC_DECIMALS = 6
+const POST_UPLOAD_LIMIT_BENEFIT = 'Higher post upload limits: 15 MB per image, 24 MB post bundles, and up to 128 files per post.'
 
 // Must match `MAX_DESCRIPTION_LENGTH` in smart_contracts/subscriptions/constants.ts
 const MAX_DESCRIPTION_LENGTH = 3151n
@@ -94,6 +96,7 @@ const SERVICES = [
       '- Gated staking pools, auctions, and raffles',
       '- Customizable gallery',
       '- Custom app theme',
+      `- ${POST_UPLOAD_LIMIT_BENEFIT}`,
     ].join('\n'),
   },
   {
@@ -113,6 +116,7 @@ const SERVICES = [
       '- Exclusive Pro badge',
       '- Everything in Plus',
       '- Pro-exclusive staking pools, auctions, and raffles',
+      `- ${POST_UPLOAD_LIMIT_BENEFIT}`,
     ].join('\n'),
   },
   {
@@ -133,6 +137,7 @@ const SERVICES = [
       '- Everything in Pro',
       '- Ultra-exclusive staking pools, auctions, and raffles',
       '- Early access to new features',
+      `- ${POST_UPLOAD_LIMIT_BENEFIT}`,
     ].join('\n'),
   },
 ] as const
@@ -250,7 +255,7 @@ interface SetupSubscriptionServicesParams {
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
   universe: AkitaUniverse
   sender: string
-  signer: algosdk.TransactionSigner
+  signer: TransactionSigner
   network: string
 }
 
@@ -594,21 +599,21 @@ if (require.main === module) {
     // Manual context setup (setupContext requires UpdateAkitaDAOPlugin which we don't need)
     const algorand = createAlgorandClient(options.network, options.algodToken)
     let sender: string
-    let signer: algosdk.TransactionSigner
+    let signer: TransactionSigner
 
     if (options.network === 'localnet') {
       const fixture = algorandFixture()
       await fixture.newScope()
-      const account = fixture.context.testAccount as algosdk.Account
+      const account = fixture.context.testAccount
       sender = account.addr.toString()
-      signer = (account as any).signer
+      signer = account.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       await algorand.account.ensureFunded(sender, dispenser, (500).algos())
     } else if (options.mnemonic) {
-      const account = algosdk.mnemonicToSecretKey(options.mnemonic)
+      const account = algorand.account.fromMnemonic(options.mnemonic)
       sender = account.addr.toString()
-      signer = makeBasicAccountTransactionSigner(account)
+      signer = account.signer
     } else {
       throw new Error('Mnemonic is required for non-localnet networks')
     }
