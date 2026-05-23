@@ -1,6 +1,20 @@
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
+import { encodeTransactionRaw } from '@algorandfoundation/algokit-utils/transact'
 import { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction } from 'akita-sdk/dao'
+import algosdk from 'algosdk'
+
+function wrapAlgodSignerForUtils10(signer: algosdk.TransactionSigner): algosdk.TransactionSigner {
+  return (txnGroup, indexesToSign) => {
+    const algosdkGroup = txnGroup.map((txn) => {
+      if (typeof (txn as { signTxn?: unknown }).signTxn === 'function') {
+        return txn
+      }
+      return algosdk.decodeUnsignedTransaction(encodeTransactionRaw(txn as never))
+    })
+    return signer(algosdkGroup, indexesToSign)
+  }
+}
 
 /**
  * Checks if an app account needs funding and returns the amount to send.
@@ -54,11 +68,22 @@ export async function proposeAndExecute<TClient extends SDKClient>(
 
   await dao.client.send.executeProposal({
     sender: dao.sendParams.sender!,
-    signer: dao.sendParams.signer!,
+    signer: wrapAlgodSignerForUtils10(dao.sendParams.signer!),
     args: { proposalId },
     coverAppCallInnerTransactionFees: true,
     populateAppCallResources: true,
     maxFee: microAlgo(1_000_000),
   })
   return proposalId
+}
+
+export async function executeProposal(dao: AkitaDaoSDK, proposalId: bigint): Promise<void> {
+  await dao.client.send.executeProposal({
+    sender: dao.sendParams.sender!,
+    signer: wrapAlgodSignerForUtils10(dao.sendParams.signer!),
+    args: { proposalId },
+    coverAppCallInnerTransactionFees: true,
+    populateAppCallResources: true,
+    maxFee: microAlgo(1_000_000),
+  })
 }

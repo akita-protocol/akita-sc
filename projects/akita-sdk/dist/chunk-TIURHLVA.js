@@ -74,10 +74,24 @@ function wrapUtils10Signer(utils10Signer) {
       }
       return t;
     });
-    return utils10Signer(
-      utils10Group,
-      indexesToSign
-    );
+    try {
+      return await utils10Signer(
+        utils10Group,
+        indexesToSign
+      );
+    } catch (error) {
+      if (error instanceof TypeError && /signTxn is not a function/.test(error.message)) {
+        const algosdkGroup = txnGroup.map((t) => {
+          if (typeof t.signTxn === "function") {
+            return t;
+          }
+          const bytes = typeof t.getEncodingSchema === "function" ? _algosdk2.default.encodeUnsignedTransaction(t) : _transact.encodeTransactionRaw.call(void 0, t);
+          return _algosdk2.default.decodeUnsignedTransaction(bytes);
+        });
+        return utils10Signer(algosdkGroup, indexesToSign);
+      }
+      throw error;
+    }
   };
 }
 
@@ -89,4 +103,4 @@ function wrapUtils10Signer(utils10Signer) {
 
 
 exports.convertToUnixTimestamp = convertToUnixTimestamp; exports.assertByteArrayLength = assertByteArrayLength; exports.randomByteArray = randomByteArray; exports.encodeABIValue = encodeABIValue; exports.decodeABIValue = decodeABIValue; exports.wrapUtils10Signer = wrapUtils10Signer;
-//# sourceMappingURL=chunk-AW5G7J3L.js.map
+//# sourceMappingURL=chunk-TIURHLVA.js.map

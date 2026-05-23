@@ -16,9 +16,9 @@ import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { getNetworkAppIds, SDKClient, sendPrepared, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
-import { proposeAndExecute } from './utils'
+import { executeProposal, proposeAndExecute } from './utils'
 
 export type Network = AkitaNetwork
 
@@ -28,6 +28,7 @@ export interface ScriptOptions {
   version: string
   dryRun?: boolean
   algodToken?: string
+  proposalId?: bigint
 }
 
 export interface ScriptContext {
@@ -51,6 +52,7 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
   let version = '1.0.0'
   let dryRun = false
   let algodToken: string | undefined
+  let proposalId: bigint | undefined
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--network' || args[i] === '-n') {
@@ -71,6 +73,9 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
     } else if (args[i] === '--token' || args[i] === '-t') {
       algodToken = args[i + 1]
       i++
+    } else if (args[i] === '--proposal-id') {
+      proposalId = BigInt(args[i + 1])
+      i++
     } else if (args[i] === '--dry-run') {
       dryRun = true
     } else if (args[i] === '--help' || args[i] === '-h') {
@@ -82,6 +87,7 @@ Options:
   --mnemonic, -m <mnemonic>   Mnemonic phrase (required for testnet/mainnet)
   --version, -v <version>     New version string. Default: "1.0.0"
   --token, -t <token>         Algod API token (e.g. Nodely API key)
+  --proposal-id <id>          Resume an existing upgrade proposal instead of creating one
   --dry-run                   Compile and prepare but don't execute
   --help, -h                  Show this help message
 ${extraHelp || ''}`)
@@ -94,7 +100,7 @@ ${extraHelp || ''}`)
     process.exit(1)
   }
 
-  return { network, mnemonic, version, dryRun, algodToken }
+  return { network, mnemonic, version, dryRun, algodToken, proposalId }
 }
 
 /** Create an AlgorandClient for the given network. */
@@ -238,6 +244,64 @@ type FactoryParams = {
   defaultSigner: algosdk.TransactionSigner
 }
 
+function groupIdHex(groupId: Uint8Array): string {
+  return Buffer.from(groupId).toString('hex')
+}
+
+function restampExecutionFromProposal(
+  execution: Awaited<ReturnType<ScriptContext['dao']['wallet']['build']['usePlugin']>>,
+  upgradeAction: Extract<Awaited<ReturnType<ScriptContext['dao']['getProposal']>>['actions'][number], { type: typeof ProposalActionEnum.UpgradeApp }>,
+): void {
+  if (execution.windows.length !== upgradeAction.groups.length) {
+    throw new Error(
+      `Existing proposal expects ${upgradeAction.groups.length} group(s), ` +
+      `but rebuilt execution produced ${execution.windows.length}`,
+    )
+  }
+
+  execution.lease = upgradeAction.executionKey
+  execution.firstValid = upgradeAction.firstValid
+  execution.lastValid = upgradeAction.lastValid
+  execution.ids = []
+
+  const validityPeriod = 1000n
+  for (let i = 0; i < execution.windows.length; i++) {
+    const window = execution.windows[i]
+    const groupStart = upgradeAction.firstValid + (BigInt(i) * validityPeriod)
+    const groupEnd = i === execution.windows.length - 1
+      ? upgradeAction.lastValid - 1n
+      : groupStart + validityPeriod - 1n
+
+    for (let txnIndex = 0; txnIndex < window.transactions.length; txnIndex++) {
+      const txn = window.transactions[txnIndex] as unknown as {
+        group?: Uint8Array
+        firstValid: bigint
+        lastValid: bigint
+        lease?: Uint8Array
+      }
+      txn.group = undefined
+      txn.firstValid = groupStart
+      txn.lastValid = groupEnd
+      if (txnIndex === 0) {
+        txn.lease = upgradeAction.executionKey
+      }
+    }
+
+    algosdk.assignGroupID(window.transactions)
+    const rebuiltGroupId = window.transactions[0].group!
+    const expectedGroupId = upgradeAction.groups[i]
+    if (groupIdHex(rebuiltGroupId) !== groupIdHex(expectedGroupId)) {
+      throw new Error(
+        `Rebuilt group ${i + 1} does not match proposal group id. ` +
+        `expected=${groupIdHex(expectedGroupId)} actual=${groupIdHex(rebuiltGroupId)}`,
+      )
+    }
+
+    execution.ids.push(rebuiltGroupId)
+    window.groupId = Buffer.from(rebuiltGroupId).toString('base64')
+  }
+}
+
 /**
  * Run a standard contract update flow for one or more targets.
  *
@@ -249,6 +313,10 @@ type FactoryParams = {
  *   5. Verify the new version
  */
 export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Promise<void> {
+  if (ctx.options.proposalId !== undefined && targets.length !== 1) {
+    throw new Error('--proposal-id resume mode supports exactly one update target')
+  }
+
   await verifyUpdatePlugin(ctx)
 
   const results: { name: string; appId: bigint; proposalId?: bigint }[] = []
@@ -323,7 +391,7 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       signer: ctx.signer,
       lease: `${target.leasePrefix}_${shortTimestamp}`,
       windowSize: 2000n,
-      global: true,
+      callerType: CallerType.Global,
       calls,
     })
     console.log(`   Lease: ${execution.lease}, Groups: ${execution.windows.length}\n`)
@@ -334,19 +402,52 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       continue
     }
 
-    // Create and execute upgrade proposal
-    console.log(`Creating and executing ${target.name} upgrade proposal...`)
-    const upgradeAction: ProposalAction<SDKClient> = {
-      type: ProposalActionEnum.UpgradeApp,
-      app: appId,
-      executionKey: execution.lease,
-      groups: execution.ids,
-      firstValid: execution.firstValid,
-      lastValid: execution.lastValid,
-    }
+    let proposalId: bigint
+    if (ctx.options.proposalId !== undefined) {
+      proposalId = ctx.options.proposalId
+      console.log(`Resuming existing ${target.name} upgrade proposal ${proposalId}...`)
+      const rawProposal = await ctx.dao.client.state.box.proposals.value(proposalId)
+      if (!rawProposal) {
+        throw new Error(`Proposal ${proposalId} not found`)
+      }
+      const proposal = {
+        ...rawProposal,
+        actions: rawProposal.actions.map(([actionType, actionData]) =>
+          (ctx.dao as any).decodeProposalAction(actionType, actionData),
+        ),
+      }
+      const upgradeAction = proposal.actions.find(
+        (action) => action.type === ProposalActionEnum.UpgradeApp && action.app === appId,
+      )
+      if (!upgradeAction || upgradeAction.type !== ProposalActionEnum.UpgradeApp) {
+        throw new Error(`Proposal ${proposalId} does not contain an upgrade action for app ${appId}`)
+      }
 
-    const proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [upgradeAction])
-    console.log(`   Proposal ${proposalId} created and executed`)
+      restampExecutionFromProposal(execution, upgradeAction)
+      console.log(`   Proposal group ids match rebuilt ${target.name} execution`)
+
+      if (proposal.status === 50) {
+        console.log(`   Proposal ${proposalId} is already executed`)
+      } else {
+        console.log(`   Executing proposal ${proposalId}...`)
+        await executeProposal(ctx.dao, proposalId)
+        console.log(`   Proposal ${proposalId} executed`)
+      }
+    } else {
+      // Create and execute upgrade proposal
+      console.log(`Creating and executing ${target.name} upgrade proposal...`)
+      const upgradeAction: ProposalAction<SDKClient> = {
+        type: ProposalActionEnum.UpgradeApp,
+        app: appId,
+        executionKey: execution.lease,
+        groups: execution.ids,
+        firstValid: execution.firstValid,
+        lastValid: execution.lastValid,
+      }
+
+      proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [upgradeAction])
+      console.log(`   Proposal ${proposalId} created and executed`)
+    }
 
     // Submit update transactions
     console.log(`Submitting ${target.name} update transaction...`)

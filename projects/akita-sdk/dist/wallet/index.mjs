@@ -38,9 +38,9 @@ import {
   newWallet,
   parseWalletErrorCode,
   translateWalletError
-} from "../chunk-FLE36MLY.mjs";
+} from "../chunk-KWFYX34V.mjs";
 import "../chunk-2ZPJXFUS.mjs";
-import "../chunk-5F555WJV.mjs";
+import "../chunk-JIDDRUHU.mjs";
 import "../chunk-2EQ6E26U.mjs";
 import "../chunk-XLWSHPHP.mjs";
 import "../chunk-RFJII2P3.mjs";

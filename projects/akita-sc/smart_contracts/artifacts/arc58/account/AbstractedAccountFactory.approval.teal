@@ -31,16 +31,16 @@ main_switch_case_next@3:
     assert
     txn ApplicationID
     bz main_create_NoOp@18
-    pushbytess 0x08d31de4 0x49dcb03e 0x9b67fa6d 0x01e22f3f // method "updateRevocation(uint64)void", method "newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64", method "cost()uint64", method "updateWallet(uint64)void"
+    pushbytess 0x08d31de4 0x49dcb03e 0x9b67fa6d 0x01e22f3f 0x854dede0 // method "updateRevocation(uint64)void", method "newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64", method "cost()uint64", method "updateWallet(uint64)void", method "opUp()void"
     bytec 11 // method "initBoxedContract(string,uint64)void"
-    pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0xae84cbd8 0x33e92c94 0x854dede0 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow((string,uint64))void", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    pushbytess 0xdca2d862 0xd346b1a4 0x394eaeb2 0x33f78808 0xae84cbd8 0x33e92c94 // method "loadBoxedContract(uint64,byte[])void", method "deleteBoxedContract()void", method "optIn(pay,uint64)void", method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow((string,uint64))void", method "updateAkitaDAO(uint64)void"
     txna ApplicationArgs 0
-    match updateRevocation newAccount cost updateWallet initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@16
+    match updateRevocation newAccount cost updateWallet main_opUp_route@9 initBoxedContract loadBoxedContract deleteBoxedContract optIn optInCost updateAkitaDAOEscrow updateAkitaDAO
     err
 
-main_opUp_route@16:
-    // smart_contracts/utils/base-contracts/base.ts:41
-    // opUp(): void { }
+main_opUp_route@9:
+    // smart_contracts/arc58/account/factory.algo.ts:330
+    // opUp(): void {
     intc_1 // 1
     return
 

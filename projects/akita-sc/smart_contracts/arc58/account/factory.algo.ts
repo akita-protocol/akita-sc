@@ -326,4 +326,8 @@ export class AbstractedAccountFactory extends FactoryContract {
       clearStateProgram: clearProgram,
     })
   }
+
+  opUp(): void {
+    
+  }
 }

@@ -79,6 +79,7 @@ export type AbstractedAccountFactoryArgs = {
              */
             wallet: bigint | number;
         };
+        'opUp()void': Record<string, never>;
         'initBoxedContract(string,uint64)void': {
             version: string;
             size: bigint | number;
@@ -110,7 +111,6 @@ export type AbstractedAccountFactoryArgs = {
         'updateAkitaDAO(uint64)void': {
             akitaDao: bigint | number;
         };
-        'opUp()void': Record<string, never>;
     };
     /**
      * The tuple representation of the arguments for each method
@@ -121,6 +121,7 @@ export type AbstractedAccountFactoryArgs = {
         'newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64': [payment: AppMethodCallTransactionArgument, controlledAddress: string, admin: string, nickname: string, referrer: string, salt: Uint8Array, bio: string, extraFunding: bigint | number, assets: bigint[] | number[], plugins: [bigint | number, string, string, boolean, bigint | number, bigint | number, bigint | number, [Uint8Array, bigint | number][], boolean, boolean, boolean, boolean, boolean][]];
         'cost()uint64': [];
         'updateWallet(uint64)void': [wallet: bigint | number];
+        'opUp()void': [];
         'initBoxedContract(string,uint64)void': [version: string, size: bigint | number];
         'loadBoxedContract(uint64,byte[])void': [offset: bigint | number, data: Uint8Array];
         'deleteBoxedContract()void': [];
@@ -129,7 +130,6 @@ export type AbstractedAccountFactoryArgs = {
         'updateAkitaDAOEscrow((string,uint64))void': [config: EscrowConfig];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
-        'opUp()void': [];
     };
 };
 /**
@@ -141,6 +141,7 @@ export type AbstractedAccountFactoryReturns = {
     'newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64': bigint;
     'cost()uint64': bigint;
     'updateWallet(uint64)void': void;
+    'opUp()void': void;
     'initBoxedContract(string,uint64)void': void;
     'loadBoxedContract(uint64,byte[])void': void;
     'deleteBoxedContract()void': void;
@@ -149,7 +150,6 @@ export type AbstractedAccountFactoryReturns = {
     'updateAkitaDAOEscrow((string,uint64))void': void;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
-    'opUp()void': void;
 };
 /**
  * Defines the types of available calls and state of the AbstractedAccountFactory smart contract.
@@ -178,6 +178,10 @@ export type AbstractedAccountFactoryTypes = {
         argsObj: AbstractedAccountFactoryArgs['obj']['updateWallet(uint64)void'];
         argsTuple: AbstractedAccountFactoryArgs['tuple']['updateWallet(uint64)void'];
         returns: AbstractedAccountFactoryReturns['updateWallet(uint64)void'];
+    }> & Record<'opUp()void' | 'opUp', {
+        argsObj: AbstractedAccountFactoryArgs['obj']['opUp()void'];
+        argsTuple: AbstractedAccountFactoryArgs['tuple']['opUp()void'];
+        returns: AbstractedAccountFactoryReturns['opUp()void'];
     }> & Record<'initBoxedContract(string,uint64)void' | 'initBoxedContract', {
         argsObj: AbstractedAccountFactoryArgs['obj']['initBoxedContract(string,uint64)void'];
         argsTuple: AbstractedAccountFactoryArgs['tuple']['initBoxedContract(string,uint64)void'];
@@ -210,10 +214,6 @@ export type AbstractedAccountFactoryTypes = {
         argsObj: AbstractedAccountFactoryArgs['obj']['updateAkitaDAO(uint64)void'];
         argsTuple: AbstractedAccountFactoryArgs['tuple']['updateAkitaDAO(uint64)void'];
         returns: AbstractedAccountFactoryReturns['updateAkitaDAO(uint64)void'];
-    }> & Record<'opUp()void' | 'opUp', {
-        argsObj: AbstractedAccountFactoryArgs['obj']['opUp()void'];
-        argsTuple: AbstractedAccountFactoryArgs['tuple']['opUp()void'];
-        returns: AbstractedAccountFactoryReturns['opUp()void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -440,6 +440,13 @@ export declare abstract class AbstractedAccountFactoryParamsFactory {
      */
     static updateWallet(params: CallParams<AbstractedAccountFactoryArgs['obj']['updateWallet(uint64)void'] | AbstractedAccountFactoryArgs['tuple']['updateWallet(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the opUp()void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static opUp(params: CallParams<AbstractedAccountFactoryArgs['obj']['opUp()void'] | AbstractedAccountFactoryArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the initBoxedContract(string,uint64)void ABI method
      *
      * @param params Parameters for the call
@@ -503,13 +510,6 @@ export declare abstract class AbstractedAccountFactoryParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static updateAkitaDao(params: CallParams<AbstractedAccountFactoryArgs['obj']['updateAkitaDAO(uint64)void'] | AbstractedAccountFactoryArgs['tuple']['updateAkitaDAO(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the opUp()void ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static opUp(params: CallParams<AbstractedAccountFactoryArgs['obj']['opUp()void'] | AbstractedAccountFactoryArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the AbstractedAccountFactory smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -1197,6 +1197,37 @@ export declare class AbstractedAccountFactoryClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the AbstractedAccountFactory smart contract using the `initBoxedContract(string,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1406,37 +1437,6 @@ export declare class AbstractedAccountFactoryClient {
          * @returns The call params
          */
         updateAkitaDao: (params: CallParams<AbstractedAccountFactoryArgs["obj"]["updateAkitaDAO(uint64)void"] | AbstractedAccountFactoryArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
-            appId: bigint;
-            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
-            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
-            note?: (Uint8Array | string) | undefined;
-            lease?: (Uint8Array | string) | undefined;
-            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            validityWindow?: number | bigint | undefined;
-            firstValidRound?: bigint | undefined;
-            lastValidRound?: bigint | undefined;
-            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
-            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
-            appReferences?: bigint[] | undefined;
-            assetReferences?: bigint[] | undefined;
-            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
-            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
-            rejectVersion?: number | undefined;
-            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
-            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
-        }>;
-        /**
-         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1551,6 +1551,19 @@ export declare class AbstractedAccountFactoryClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the AbstractedAccountFactory smart contract using the `initBoxedContract(string,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1652,19 +1665,6 @@ export declare class AbstractedAccountFactoryClient {
          * @returns The call transaction
          */
         updateAkitaDao: (params: CallParams<AbstractedAccountFactoryArgs["obj"]["updateAkitaDAO(uint64)void"] | AbstractedAccountFactoryArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1779,6 +1779,24 @@ export declare class AbstractedAccountFactoryClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | AbstractedAccountFactoryReturns["updateWallet(uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AbstractedAccountFactoryReturns["opUp()void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1930,24 +1948,6 @@ export declare class AbstractedAccountFactoryClient {
             confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
             transaction: Transaction;
         }>;
-        /**
-         * Makes a call to the AbstractedAccountFactory smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        opUp: (params?: CallParams<AbstractedAccountFactoryArgs["obj"]["opUp()void"] | AbstractedAccountFactoryArgs["tuple"]["opUp()void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            return: (undefined | AbstractedAccountFactoryReturns["opUp()void"]);
-            groupId: string | undefined;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
     };
     /**
      * Clone this app client with different params
@@ -2066,6 +2066,13 @@ export type AbstractedAccountFactoryComposer<TReturns extends [...any[]] = []> =
      */
     updateWallet(params?: CallParams<AbstractedAccountFactoryArgs['obj']['updateWallet(uint64)void'] | AbstractedAccountFactoryArgs['tuple']['updateWallet(uint64)void']>): AbstractedAccountFactoryComposer<[...TReturns, AbstractedAccountFactoryReturns['updateWallet(uint64)void'] | undefined]>;
     /**
+     * Calls the opUp()void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    opUp(params?: CallParams<AbstractedAccountFactoryArgs['obj']['opUp()void'] | AbstractedAccountFactoryArgs['tuple']['opUp()void']>): AbstractedAccountFactoryComposer<[...TReturns, AbstractedAccountFactoryReturns['opUp()void'] | undefined]>;
+    /**
      * Calls the initBoxedContract(string,uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
@@ -2129,13 +2136,6 @@ export type AbstractedAccountFactoryComposer<TReturns extends [...any[]] = []> =
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateAkitaDao(params?: CallParams<AbstractedAccountFactoryArgs['obj']['updateAkitaDAO(uint64)void'] | AbstractedAccountFactoryArgs['tuple']['updateAkitaDAO(uint64)void']>): AbstractedAccountFactoryComposer<[...TReturns, AbstractedAccountFactoryReturns['updateAkitaDAO(uint64)void'] | undefined]>;
-    /**
-     * Calls the opUp()void ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    opUp(params?: CallParams<AbstractedAccountFactoryArgs['obj']['opUp()void'] | AbstractedAccountFactoryArgs['tuple']['opUp()void']>): AbstractedAccountFactoryComposer<[...TReturns, AbstractedAccountFactoryReturns['opUp()void'] | undefined]>;
     /**
      * Gets available update methods
      */

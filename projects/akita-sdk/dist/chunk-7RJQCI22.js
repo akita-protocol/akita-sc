@@ -3,7 +3,7 @@
 var _chunkVE4MYPMKjs = require('./chunk-VE4MYPMK.js');
 
 
-var _chunkAW5G7J3Ljs = require('./chunk-AW5G7J3L.js');
+var _chunkTIURHLVAjs = require('./chunk-TIURHLVA.js');
 
 
 var _chunkGIGYZ6YCjs = require('./chunk-GIGYZ6YC.js');
@@ -3171,7 +3171,7 @@ var SubscriptionsSDK = (_class3 = class extends _chunkH7PRBD4Tjs.BaseSDK {
     const result = await this.client.mustGetSubscription({ ...sendParams, args: { key: { address, id } } });
     return {
       ...result,
-      lastPayment: _chunkAW5G7J3Ljs.convertToUnixTimestamp.call(void 0, result.lastPayment)
+      lastPayment: _chunkTIURHLVAjs.convertToUnixTimestamp.call(void 0, result.lastPayment)
     };
   }
   async getSubscriptionWithDetails({ sender, address, id }) {
@@ -3180,7 +3180,7 @@ var SubscriptionsSDK = (_class3 = class extends _chunkH7PRBD4Tjs.BaseSDK {
     return {
       ...result,
       highlightColor: bytesToHexColor(result.highlightColor),
-      lastPayment: _chunkAW5G7J3Ljs.convertToUnixTimestamp.call(void 0, result.lastPayment)
+      lastPayment: _chunkTIURHLVAjs.convertToUnixTimestamp.call(void 0, result.lastPayment)
     };
   }
   /**
@@ -3684,4 +3684,4 @@ var SubscriptionsSDK = (_class3 = class extends _chunkH7PRBD4Tjs.BaseSDK {
 
 
 exports.hexColorToBytes = hexColorToBytes; exports.bytesToHexColor = bytesToHexColor; exports.validateHexColor = validateHexColor; exports.ServiceStatus = ServiceStatus; exports.HighlightMessage = HighlightMessage; exports.MAX_DESCRIPTION_LENGTH = MAX_DESCRIPTION_LENGTH; exports.MAX_DESCRIPTION_CHUNK_SIZE = MAX_DESCRIPTION_CHUNK_SIZE; exports.MAX_LOAD_DESCRIPTION_CHUNK_SIZE = MAX_LOAD_DESCRIPTION_CHUNK_SIZE; exports.SUBSCRIPTIONS_ERROR_MESSAGES = SUBSCRIPTIONS_ERROR_MESSAGES; exports.translateSubscriptionsError = translateSubscriptionsError; exports.SubscriptionsSDK = SubscriptionsSDK;
-//# sourceMappingURL=chunk-Q6CNNTNZ.js.map
+//# sourceMappingURL=chunk-7RJQCI22.js.map

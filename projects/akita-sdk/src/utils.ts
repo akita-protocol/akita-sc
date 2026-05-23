@@ -9,7 +9,7 @@ import {
   getABIEncodedValue as getABIEncodedValueRaw,
   getTupleValueFromStructValue,
 } from "@algorandfoundation/algokit-utils/abi";
-import { decodeTransaction } from "@algorandfoundation/algokit-utils/transact";
+import { decodeTransaction, encodeTransactionRaw } from "@algorandfoundation/algokit-utils/transact";
 
 /**
  * Local alias for the struct-shaped ABIValue. The upstream
@@ -183,9 +183,28 @@ export function wrapUtils10Signer(utils10Signer: unknown): algosdk.TransactionSi
       }
       return t;
     });
-    return (utils10Signer as (g: unknown[], i: number[]) => Promise<Uint8Array[]>)(
-      utils10Group,
-      indexesToSign,
-    );
+    try {
+      return await (utils10Signer as (g: unknown[], i: number[]) => Promise<Uint8Array[]>)(
+        utils10Group,
+        indexesToSign,
+      );
+    } catch (error) {
+      // Some composer paths already carry an algosdk signer, e.g.
+      // makeBasicAccountTransactionSigner. Those signers require algosdk
+      // Transaction objects with signTxn(), so retry with the original group.
+      if (error instanceof TypeError && /signTxn is not a function/.test(error.message)) {
+        const algosdkGroup = txnGroup.map((t) => {
+          if (typeof (t as { signTxn?: unknown }).signTxn === 'function') {
+            return t;
+          }
+          const bytes = typeof (t as { getEncodingSchema?: unknown }).getEncodingSchema === 'function'
+            ? algosdk.encodeUnsignedTransaction(t)
+            : encodeTransactionRaw(t as never);
+          return algosdk.decodeUnsignedTransaction(bytes);
+        });
+        return (utils10Signer as algosdk.TransactionSigner)(algosdkGroup, indexesToSign);
+      }
+      throw error;
+    }
   };
 }

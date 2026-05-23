@@ -8,7 +8,7 @@ import {
   getABIEncodedValue as getABIEncodedValueRaw,
   getTupleValueFromStructValue
 } from "@algorandfoundation/algokit-utils/abi";
-import { decodeTransaction } from "@algorandfoundation/algokit-utils/transact";
+import { decodeTransaction, encodeTransactionRaw } from "@algorandfoundation/algokit-utils/transact";
 function convertToUnixTimestamp(timestamp) {
   return timestamp * 1000n;
 }
@@ -74,10 +74,24 @@ function wrapUtils10Signer(utils10Signer) {
       }
       return t;
     });
-    return utils10Signer(
-      utils10Group,
-      indexesToSign
-    );
+    try {
+      return await utils10Signer(
+        utils10Group,
+        indexesToSign
+      );
+    } catch (error) {
+      if (error instanceof TypeError && /signTxn is not a function/.test(error.message)) {
+        const algosdkGroup = txnGroup.map((t) => {
+          if (typeof t.signTxn === "function") {
+            return t;
+          }
+          const bytes = typeof t.getEncodingSchema === "function" ? algosdk.encodeUnsignedTransaction(t) : encodeTransactionRaw(t);
+          return algosdk.decodeUnsignedTransaction(bytes);
+        });
+        return utils10Signer(algosdkGroup, indexesToSign);
+      }
+      throw error;
+    }
   };
 }
 
@@ -89,4 +103,4 @@ export {
   decodeABIValue,
   wrapUtils10Signer
 };
-//# sourceMappingURL=chunk-5F555WJV.mjs.map
+//# sourceMappingURL=chunk-JIDDRUHU.mjs.map

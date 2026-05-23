@@ -109,6 +109,26 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
       maxFee: microAlgo(MAX_SIM_FEE)
     })
 
+    // Scale opUps: each factory opUp contributes opcode budget to the
+    // wallet creation group for plugin install / asset opt-in setup.
+    const hasSetup = plugins.length > 0 || assets.length > 0 || bio
+    const innerCallCount = plugins.length
+      + (assets.length > 0 ? assets.length + 1 : 0)
+      + (bio ? 1 : 0)
+      + (hasSetup ? 1 : 0)
+    const maxGroupSize = 16
+    const walletCreationBaseSize = 2 // payment arg + newAccount app call
+    const opUpCount = Math.min(Math.max(1, innerCallCount), maxGroupSize - walletCreationBaseSize)
+    if (opUpCount < innerCallCount) {
+      console.warn('[WalletFactorySDK] Capping wallet creation op-ups to fit group limit', {
+        requested: innerCallCount,
+        included: opUpCount,
+      })
+    }
+    for (let i = 0; i < opUpCount; i++) {
+      group.opUp({ args: {}, note: String(i), maxFee: microAlgo(MAX_SIM_FEE) })
+    }
+
     // utils10 composer.send() runs a single simulate internally (via
     // `analyzeGroupRequirements`) that both populates app-call resources and
     // distributes fees to cover inner transactions, up to the `maxFee` set on
