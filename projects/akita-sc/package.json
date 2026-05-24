@@ -56,6 +56,7 @@
     "deploy:social-plugin": "ts-node --transpile-only scripts/deploy-social-plugin.ts",
     "deploy:auction-plugin": "ts-node --transpile-only scripts/deploy-auction-plugin.ts",
     "deploy:marketplace-plugin": "ts-node --transpile-only scripts/deploy-marketplace-plugin.ts",
+    "deploy:nfd-plugin": "ts-node --transpile-only scripts/redeploy-nfd-plugin.ts",
     "deploy:raffle-plugin": "ts-node --transpile-only scripts/deploy-raffle-plugin.ts",
     "deploy:staking-pool-plugin": "ts-node --transpile-only scripts/deploy-staking-pool-plugin.ts",
     "deploy:dual-stake-plugin": "ts-node --transpile-only scripts/deploy-dual-stake-plugin.ts",

@@ -4,10 +4,10 @@ import {
   PrizeBoxSDK,
   newPrizeBox,
   translatePrizeBoxError
-} from "../chunk-QPDFKBXY.mjs";
+} from "../chunk-MKN4KMLD.mjs";
 import "../chunk-2AEP6DTX.mjs";
-import "../chunk-2EQ6E26U.mjs";
-import "../chunk-XLWSHPHP.mjs";
+import "../chunk-S3GSKFUP.mjs";
+import "../chunk-G6VI6JHT.mjs";
 import "../chunk-RFJII2P3.mjs";
 export {
   PRIZE_BOX_ERROR_MESSAGES,

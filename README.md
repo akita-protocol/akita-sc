@@ -164,7 +164,7 @@ Wallet plugins extend abstracted account functionality:
 ## Deployment
 
 Testnet last updated from `deployment-summary-testnet-1779520060364.json` on 2026-05-23.
-Mainnet last updated from `deployment-summary-mainnet-1779522778159.json` on 2026-05-23.
+Mainnet last updated from `deployment-summary-mainnet-1779522778159.json` on 2026-05-24.
 
 ### Core Contracts
 
@@ -222,7 +222,7 @@ Mainnet last updated from `deployment-summary-mainnet-1779522778159.json` on 202
 | `haystackRouterPlugin` | `763128851` | `3569561003` |
 | `hyperSwapPlugin` | `763128858` | `3569561068` |
 | `marketplacePlugin` | `763128885` | `3569561455` |
-| `nfdPlugin` | `763128895` | `3569561505` |
+| `nfdPlugin` | `763128895` | `3570637728` |
 | `paySiloPlugin` | `763128904` | `3569561570` |
 | `paySiloFactoryPlugin` | `763128905` | `3569561636` |
 | `pollPlugin` | `763128906` | `3569561749` |

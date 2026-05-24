@@ -4,11 +4,11 @@
 
 
 
-var _chunkSORM3KIMjs = require('../chunk-SORM3KIM.js');
-require('../chunk-NVSKAUVL.js');
+var _chunkAVBS6WKYjs = require('../chunk-AVBS6WKY.js');
+require('../chunk-WD6JLW4B.js');
 require('../chunk-GIGYZ6YC.js');
-require('../chunk-H7PRBD4T.js');
-require('../chunk-OHIWM57P.js');
+require('../chunk-OQUISEFZ.js');
+require('../chunk-WQU24RDU.js');
 require('../chunk-FZLF55XC.js');
 
 
@@ -16,5 +16,5 @@ require('../chunk-FZLF55XC.js');
 
 
 
-exports.AUCTION_ERROR_MESSAGES = _chunkSORM3KIMjs.AUCTION_ERROR_MESSAGES; exports.AuctionFactorySDK = _chunkSORM3KIMjs.AuctionFactorySDK; exports.AuctionSDK = _chunkSORM3KIMjs.AuctionSDK; exports.newAuction = _chunkSORM3KIMjs.newAuction; exports.translateAuctionError = _chunkSORM3KIMjs.translateAuctionError;
+exports.AUCTION_ERROR_MESSAGES = _chunkAVBS6WKYjs.AUCTION_ERROR_MESSAGES; exports.AuctionFactorySDK = _chunkAVBS6WKYjs.AuctionFactorySDK; exports.AuctionSDK = _chunkAVBS6WKYjs.AuctionSDK; exports.newAuction = _chunkAVBS6WKYjs.newAuction; exports.translateAuctionError = _chunkAVBS6WKYjs.translateAuctionError;
 //# sourceMappingURL=index.js.map

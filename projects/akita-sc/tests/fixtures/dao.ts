@@ -1665,6 +1665,9 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     fixture,
     sender: params.sender,
     signer: params.signer,
+    args: {
+      registry: params.apps?.nfdRegistry ?? 0n,
+    },
   })
   logger.plugin('deploy', 'NFDPlugin', nfdPluginSDK.appId)
 
