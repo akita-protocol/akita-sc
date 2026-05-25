@@ -305,7 +305,7 @@ export class StakingSDK extends BaseSDK<StakingClient> {
 
       const assetXfer = this.client.algorand.createTransaction.assetTransfer({
         ...sendParams,
-        amount,
+        amount: isEscrowed ? amount : 0n,
         assetId: asset,
         receiver: this.client.appAddress,
       });

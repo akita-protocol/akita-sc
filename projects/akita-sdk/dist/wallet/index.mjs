@@ -38,11 +38,11 @@ import {
   newWallet,
   parseWalletErrorCode,
   translateWalletError
-} from "../chunk-CRSQ7GNL.mjs";
+} from "../chunk-LBUWJV35.mjs";
 import "../chunk-2ZPJXFUS.mjs";
 import "../chunk-JIDDRUHU.mjs";
-import "../chunk-S3GSKFUP.mjs";
-import "../chunk-G6VI6JHT.mjs";
+import "../chunk-3YSYCL5B.mjs";
+import "../chunk-3ZOBXS5J.mjs";
 import "../chunk-RFJII2P3.mjs";
 export {
   AddPluginDefaults,

@@ -58,11 +58,34 @@ export type NfdPluginArgs = {
             appId: bigint | number;
             fieldNames: Uint8Array[];
         };
-        'updateFields(uint64,bool,uint64,byte[][])void': {
+        'updateFields(uint64,bool,uint64,byte[][],uint64)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
             appId: bigint | number;
             fieldAndVals: Uint8Array[];
+            mbrCost: bigint | number;
+        };
+        'linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            appId: bigint | number;
+            nfdName: string;
+            nfdMbrCost: bigint | number;
+            registryMbrCost: bigint | number;
+        };
+        'unlinkNfdAddress(uint64,bool,uint64,string,address)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            appId: bigint | number;
+            nfdName: string;
+            address: string;
+        };
+        'setAddressPrimaryNfd(uint64,bool,uint64,string,address)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            appId: bigint | number;
+            nfdName: string;
+            address: string;
         };
         'offerForSale(uint64,bool,uint64,uint64,address)void': {
             wallet: bigint | number;
@@ -135,6 +158,11 @@ export type NfdPluginArgs = {
             appId: bigint | number;
             years: bigint | number;
         };
+        'autoRenew(uint64,bool,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            appId: bigint | number;
+        };
         'setPrimaryAddress(uint64,bool,uint64,string,address)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -150,7 +178,10 @@ export type NfdPluginArgs = {
         'create(uint64)void': [registry: bigint | number];
         'mint(uint64,bool,string,uint64,address,bool)uint64': [wallet: bigint | number, rekeyBack: boolean, nfdName: string, amount: bigint | number, reservedFor: string, linkOnMint: boolean];
         'deleteFields(uint64,bool,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldNames: Uint8Array[]];
-        'updateFields(uint64,bool,uint64,byte[][])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldAndVals: Uint8Array[]];
+        'updateFields(uint64,bool,uint64,byte[][],uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldAndVals: Uint8Array[], mbrCost: bigint | number];
+        'linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, nfdName: string, nfdMbrCost: bigint | number, registryMbrCost: bigint | number];
+        'unlinkNfdAddress(uint64,bool,uint64,string,address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, nfdName: string, address: string];
+        'setAddressPrimaryNfd(uint64,bool,uint64,string,address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, nfdName: string, address: string];
         'offerForSale(uint64,bool,uint64,uint64,address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, sellAmount: bigint | number, reservedFor: string];
         'cancelSale(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number];
         'postOffer(uint64,bool,uint64,uint64,string)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, offer: bigint | number, note: string];
@@ -162,6 +193,7 @@ export type NfdPluginArgs = {
         'vaultOptIn(uint64,bool,uint64,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, assets: bigint[] | number[]];
         'vaultSend(uint64,bool,uint64,uint64,address,string,uint64,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, amount: bigint | number, receiver: string, note: string, asset: bigint | number, otherAssets: bigint[] | number[]];
         'renew(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, years: bigint | number];
+        'autoRenew(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number];
         'setPrimaryAddress(uint64,bool,uint64,string,address)void': [wallet: bigint | number, rekeyBack: boolean, appId: bigint | number, fieldName: string, address: string];
     };
 };
@@ -172,7 +204,10 @@ export type NfdPluginReturns = {
     'create(uint64)void': void;
     'mint(uint64,bool,string,uint64,address,bool)uint64': bigint;
     'deleteFields(uint64,bool,uint64,byte[][])void': void;
-    'updateFields(uint64,bool,uint64,byte[][])void': void;
+    'updateFields(uint64,bool,uint64,byte[][],uint64)void': void;
+    'linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void': void;
+    'unlinkNfdAddress(uint64,bool,uint64,string,address)void': void;
+    'setAddressPrimaryNfd(uint64,bool,uint64,string,address)void': void;
     'offerForSale(uint64,bool,uint64,uint64,address)void': void;
     'cancelSale(uint64,bool,uint64)void': void;
     'postOffer(uint64,bool,uint64,uint64,string)void': void;
@@ -184,6 +219,7 @@ export type NfdPluginReturns = {
     'vaultOptIn(uint64,bool,uint64,uint64[])void': void;
     'vaultSend(uint64,bool,uint64,uint64,address,string,uint64,uint64[])void': void;
     'renew(uint64,bool,uint64,uint64)void': void;
+    'autoRenew(uint64,bool,uint64)void': void;
     'setPrimaryAddress(uint64,bool,uint64,string,address)void': void;
 };
 /**
@@ -205,10 +241,22 @@ export type NfdPluginTypes = {
         argsObj: NfdPluginArgs['obj']['deleteFields(uint64,bool,uint64,byte[][])void'];
         argsTuple: NfdPluginArgs['tuple']['deleteFields(uint64,bool,uint64,byte[][])void'];
         returns: NfdPluginReturns['deleteFields(uint64,bool,uint64,byte[][])void'];
-    }> & Record<'updateFields(uint64,bool,uint64,byte[][])void' | 'updateFields', {
-        argsObj: NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][])void'];
-        argsTuple: NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][])void'];
-        returns: NfdPluginReturns['updateFields(uint64,bool,uint64,byte[][])void'];
+    }> & Record<'updateFields(uint64,bool,uint64,byte[][],uint64)void' | 'updateFields', {
+        argsObj: NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][],uint64)void'];
+        argsTuple: NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][],uint64)void'];
+        returns: NfdPluginReturns['updateFields(uint64,bool,uint64,byte[][],uint64)void'];
+    }> & Record<'linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void' | 'linkNfdAddress', {
+        argsObj: NfdPluginArgs['obj']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'];
+        argsTuple: NfdPluginArgs['tuple']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'];
+        returns: NfdPluginReturns['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'];
+    }> & Record<'unlinkNfdAddress(uint64,bool,uint64,string,address)void' | 'unlinkNfdAddress', {
+        argsObj: NfdPluginArgs['obj']['unlinkNfdAddress(uint64,bool,uint64,string,address)void'];
+        argsTuple: NfdPluginArgs['tuple']['unlinkNfdAddress(uint64,bool,uint64,string,address)void'];
+        returns: NfdPluginReturns['unlinkNfdAddress(uint64,bool,uint64,string,address)void'];
+    }> & Record<'setAddressPrimaryNfd(uint64,bool,uint64,string,address)void' | 'setAddressPrimaryNfd', {
+        argsObj: NfdPluginArgs['obj']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'];
+        argsTuple: NfdPluginArgs['tuple']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'];
+        returns: NfdPluginReturns['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'];
     }> & Record<'offerForSale(uint64,bool,uint64,uint64,address)void' | 'offerForSale', {
         argsObj: NfdPluginArgs['obj']['offerForSale(uint64,bool,uint64,uint64,address)void'];
         argsTuple: NfdPluginArgs['tuple']['offerForSale(uint64,bool,uint64,uint64,address)void'];
@@ -253,6 +301,10 @@ export type NfdPluginTypes = {
         argsObj: NfdPluginArgs['obj']['renew(uint64,bool,uint64,uint64)void'];
         argsTuple: NfdPluginArgs['tuple']['renew(uint64,bool,uint64,uint64)void'];
         returns: NfdPluginReturns['renew(uint64,bool,uint64,uint64)void'];
+    }> & Record<'autoRenew(uint64,bool,uint64)void' | 'autoRenew', {
+        argsObj: NfdPluginArgs['obj']['autoRenew(uint64,bool,uint64)void'];
+        argsTuple: NfdPluginArgs['tuple']['autoRenew(uint64,bool,uint64)void'];
+        returns: NfdPluginReturns['autoRenew(uint64,bool,uint64)void'];
     }> & Record<'setPrimaryAddress(uint64,bool,uint64,string,address)void' | 'setPrimaryAddress', {
         argsObj: NfdPluginArgs['obj']['setPrimaryAddress(uint64,bool,uint64,string,address)void'];
         argsTuple: NfdPluginArgs['tuple']['setPrimaryAddress(uint64,bool,uint64,string,address)void'];
@@ -379,12 +431,33 @@ export declare abstract class NfdPluginParamsFactory {
      */
     static deleteFields(params: CallParams<NfdPluginArgs['obj']['deleteFields(uint64,bool,uint64,byte[][])void'] | NfdPluginArgs['tuple']['deleteFields(uint64,bool,uint64,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the updateFields(uint64,bool,uint64,byte[][])void ABI method
+     * Constructs a no op call for the updateFields(uint64,bool,uint64,byte[][],uint64)void ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static updateFields(params: CallParams<NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][])void'] | NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static updateFields(params: CallParams<NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][],uint64)void'] | NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][],uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static linkNfdAddress(params: CallParams<NfdPluginArgs['obj']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'] | NfdPluginArgs['tuple']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the unlinkNfdAddress(uint64,bool,uint64,string,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static unlinkNfdAddress(params: CallParams<NfdPluginArgs['obj']['unlinkNfdAddress(uint64,bool,uint64,string,address)void'] | NfdPluginArgs['tuple']['unlinkNfdAddress(uint64,bool,uint64,string,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the setAddressPrimaryNfd(uint64,bool,uint64,string,address)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static setAddressPrimaryNfd(params: CallParams<NfdPluginArgs['obj']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'] | NfdPluginArgs['tuple']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the offerForSale(uint64,bool,uint64,uint64,address)void ABI method
      *
@@ -462,6 +535,13 @@ export declare abstract class NfdPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static renew(params: CallParams<NfdPluginArgs['obj']['renew(uint64,bool,uint64,uint64)void'] | NfdPluginArgs['tuple']['renew(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the autoRenew(uint64,bool,uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static autoRenew(params: CallParams<NfdPluginArgs['obj']['autoRenew(uint64,bool,uint64)void'] | NfdPluginArgs['tuple']['autoRenew(uint64,bool,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the setPrimaryAddress(uint64,bool,uint64,string,address)void ABI method
      *
@@ -893,12 +973,105 @@ export declare class NfdPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][],uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][])void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][])void"]> & {
+        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        linkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"] | NfdPluginArgs["tuple"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `unlinkNfdAddress(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        unlinkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `setAddressPrimaryNfd(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        setAddressPrimaryNfd: (params: CallParams<NfdPluginArgs["obj"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1240,6 +1413,37 @@ export declare class NfdPluginClient {
          * @returns The call params
          */
         renew: (params: CallParams<NfdPluginArgs["obj"]["renew(uint64,bool,uint64,uint64)void"] | NfdPluginArgs["tuple"]["renew(uint64,bool,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `autoRenew(uint64,bool,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        autoRenew: (params: CallParams<NfdPluginArgs["obj"]["autoRenew(uint64,bool,uint64)void"] | NfdPluginArgs["tuple"]["autoRenew(uint64,bool,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1334,12 +1538,51 @@ export declare class NfdPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][],uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][])void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][])void"]> & {
+        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        linkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"] | NfdPluginArgs["tuple"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `unlinkNfdAddress(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        unlinkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `setAddressPrimaryNfd(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        setAddressPrimaryNfd: (params: CallParams<NfdPluginArgs["obj"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1490,6 +1733,19 @@ export declare class NfdPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the NFDPlugin smart contract using the `autoRenew(uint64,bool,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        autoRenew: (params: CallParams<NfdPluginArgs["obj"]["autoRenew(uint64,bool,uint64)void"] | NfdPluginArgs["tuple"]["autoRenew(uint64,bool,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the NFDPlugin smart contract using the `setPrimaryAddress(uint64,bool,uint64,string,address)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1551,15 +1807,69 @@ export declare class NfdPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][])void` ABI method.
+         * Makes a call to the NFDPlugin smart contract using the `updateFields(uint64,bool,uint64,byte[][],uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][])void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][])void"]> & SendParams & {
+        updateFields: (params: CallParams<NfdPluginArgs["obj"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"] | NfdPluginArgs["tuple"]["updateFields(uint64,bool,uint64,byte[][],uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | NfdPluginReturns["updateFields(uint64,bool,uint64,byte[][])void"]);
+            return: (undefined | NfdPluginReturns["updateFields(uint64,bool,uint64,byte[][],uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        linkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"] | NfdPluginArgs["tuple"]["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | NfdPluginReturns["linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `unlinkNfdAddress(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        unlinkNfdAddress: (params: CallParams<NfdPluginArgs["obj"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["unlinkNfdAddress(uint64,bool,uint64,string,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | NfdPluginReturns["unlinkNfdAddress(uint64,bool,uint64,string,address)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the NFDPlugin smart contract using the `setAddressPrimaryNfd(uint64,bool,uint64,string,address)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        setAddressPrimaryNfd: (params: CallParams<NfdPluginArgs["obj"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"] | NfdPluginArgs["tuple"]["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | NfdPluginReturns["setAddressPrimaryNfd(uint64,bool,uint64,string,address)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1767,6 +2077,24 @@ export declare class NfdPluginClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the NFDPlugin smart contract using the `autoRenew(uint64,bool,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        autoRenew: (params: CallParams<NfdPluginArgs["obj"]["autoRenew(uint64,bool,uint64)void"] | NfdPluginArgs["tuple"]["autoRenew(uint64,bool,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | NfdPluginReturns["autoRenew(uint64,bool,uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the NFDPlugin smart contract using the `setPrimaryAddress(uint64,bool,uint64,string,address)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1828,12 +2156,33 @@ export type NfdPluginComposer<TReturns extends [...any[]] = []> = {
      */
     deleteFields(params?: CallParams<NfdPluginArgs['obj']['deleteFields(uint64,bool,uint64,byte[][])void'] | NfdPluginArgs['tuple']['deleteFields(uint64,bool,uint64,byte[][])void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['deleteFields(uint64,bool,uint64,byte[][])void'] | undefined]>;
     /**
-     * Calls the updateFields(uint64,bool,uint64,byte[][])void ABI method.
+     * Calls the updateFields(uint64,bool,uint64,byte[][],uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    updateFields(params?: CallParams<NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][])void'] | NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][])void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['updateFields(uint64,bool,uint64,byte[][])void'] | undefined]>;
+    updateFields(params?: CallParams<NfdPluginArgs['obj']['updateFields(uint64,bool,uint64,byte[][],uint64)void'] | NfdPluginArgs['tuple']['updateFields(uint64,bool,uint64,byte[][],uint64)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['updateFields(uint64,bool,uint64,byte[][],uint64)void'] | undefined]>;
+    /**
+     * Calls the linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    linkNfdAddress(params?: CallParams<NfdPluginArgs['obj']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'] | NfdPluginArgs['tuple']['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the unlinkNfdAddress(uint64,bool,uint64,string,address)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    unlinkNfdAddress(params?: CallParams<NfdPluginArgs['obj']['unlinkNfdAddress(uint64,bool,uint64,string,address)void'] | NfdPluginArgs['tuple']['unlinkNfdAddress(uint64,bool,uint64,string,address)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['unlinkNfdAddress(uint64,bool,uint64,string,address)void'] | undefined]>;
+    /**
+     * Calls the setAddressPrimaryNfd(uint64,bool,uint64,string,address)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    setAddressPrimaryNfd(params?: CallParams<NfdPluginArgs['obj']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'] | NfdPluginArgs['tuple']['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'] | undefined]>;
     /**
      * Calls the offerForSale(uint64,bool,uint64,uint64,address)void ABI method.
      *
@@ -1911,6 +2260,13 @@ export type NfdPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     renew(params?: CallParams<NfdPluginArgs['obj']['renew(uint64,bool,uint64,uint64)void'] | NfdPluginArgs['tuple']['renew(uint64,bool,uint64,uint64)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['renew(uint64,bool,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the autoRenew(uint64,bool,uint64)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    autoRenew(params?: CallParams<NfdPluginArgs['obj']['autoRenew(uint64,bool,uint64)void'] | NfdPluginArgs['tuple']['autoRenew(uint64,bool,uint64)void']>): NfdPluginComposer<[...TReturns, NfdPluginReturns['autoRenew(uint64,bool,uint64)void'] | undefined]>;
     /**
      * Calls the setPrimaryAddress(uint64,bool,uint64,string,address)void ABI method.
      *

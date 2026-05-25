@@ -1,10 +1,10 @@
-import { Account, Application, bytes, Bytes, GlobalState, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, bytes, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
-import { NFDGlobalStateKeySaleAmountKey, NFDPluginGlobalStateKeyRegistry } from './constants'
-import { ERR_NOT_AN_NFD, ERR_NO_SALE_AMOUNT } from './errors'
+import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry } from './constants'
+import { ERR_CANNOT_AUTO_RENEW, ERR_NOT_AN_NFD, ERR_NO_SALE_AMOUNT } from './errors'
 
 // CONTRACT IMPORTS
 import type { NFD } from '../../../utils/types/nfd'
@@ -86,18 +86,104 @@ export class NFDPlugin extends Contract {
     wallet: Application,
     rekeyBack: boolean,
     appId: Application,
-    fieldAndVals: bytes[]
+    fieldAndVals: bytes[],
+    mbrCost: uint64
   ): void {
 
     const sender = getSpendingAccount(wallet)
 
     loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
 
+    if (mbrCost > 0) {
+      itxn.payment({
+        sender,
+        receiver: appId.address,
+        amount: mbrCost,
+      }).submit()
+    }
+
     abiCall<typeof NFD.prototype.updateFields>({
       sender,
       appId,
       args: [fieldAndVals],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
+    })
+  }
+
+  linkNfdAddress(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    nfdName: string,
+    nfdMbrCost: uint64,
+    registryMbrCost: uint64
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+
+    if (nfdMbrCost > 0) {
+      itxn.payment({
+        sender,
+        receiver: appId.address,
+        amount: nfdMbrCost,
+      }).submit()
+    }
+
+    if (registryMbrCost > 0) {
+      itxn.payment({
+        sender,
+        receiver: this.registry.value.address,
+        amount: registryMbrCost,
+      }).submit()
+    }
+
+    abiCall<typeof NFDRegistry.prototype.linkNfdAddress>({
+      sender,
+      appId: this.registry.value,
+      args: [nfdName, appId.id, sender],
+      apps: [appId],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  unlinkNfdAddress(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    nfdName: string,
+    address: Account
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+
+    abiCall<typeof NFDRegistry.prototype.unlinkNfdAddress>({
+      sender,
+      appId: this.registry.value,
+      args: [nfdName, appId.id, address],
+      apps: [appId],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  setAddressPrimaryNfd(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    nfdName: string,
+    address: Account
+  ): void {
+    const sender = getSpendingAccount(wallet)
+
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+
+    abiCall<typeof NFDRegistry.prototype.setAddressPrimaryNfd>({
+      sender,
+      appId: this.registry.value,
+      args: [nfdName, appId.id, address],
+      apps: [appId],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
   }
 
@@ -330,6 +416,43 @@ export class NFDPlugin extends Contract {
           sender,
           receiver: appId.address,
           amount: (price * years)
+        })
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet)
+    })
+  }
+
+  autoRenew(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application
+  ): void {
+
+    const sender = getSpendingAccount(wallet)
+
+    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+
+    const [expirationBytes, expirationExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyExpirationTime))
+    loggedAssert(expirationExists, ERR_CANNOT_AUTO_RENEW)
+
+    const expiration = btoi(expirationBytes)
+    loggedAssert(expiration > 0, ERR_CANNOT_AUTO_RENEW)
+    loggedAssert(expiration <= Global.latestTimestamp + NFDPluginAutoRenewWindow, ERR_CANNOT_AUTO_RENEW)
+
+    const price = abiCall<typeof NFD.prototype.getRenewPrice>({
+      sender,
+      appId,
+      args: []
+    }).returnValue
+
+    abiCall<typeof NFD.prototype.renew>({
+      sender,
+      appId,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: appId.address,
+          amount: price
         })
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)

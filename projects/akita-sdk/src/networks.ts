@@ -192,7 +192,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
 /**
  * Mainnet app IDs
  * 
- * Last updated: 2026-05-24T00:09:48Z
+ * Last updated: 2026-05-25T23:08:55Z
  */
 export const MAINNET_APP_IDS: NetworkAppIds = {
   // Core Contracts
@@ -234,14 +234,14 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   dualStakePlugin: 3569561317n,
   gatePlugin: 3569561367n,
   marketplacePlugin: 3569561455n,
-  nfdPlugin: 3570637728n,
+  nfdPlugin: 3572944055n,
   paySiloPlugin: 3569561570n,
   paySiloFactoryPlugin: 3569561636n,
   pollPlugin: 3569561749n,
   rafflePlugin: 3569561863n,
   rewardsPlugin: 3569561963n,
   socialPlugin: 3569562087n,
-  stakingPlugin: 3569562153n,
+  stakingPlugin: 3572944799n,
   stakingPoolPlugin: 3569562283n,
   
   // Gate & Other

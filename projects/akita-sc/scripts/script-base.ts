@@ -48,7 +48,7 @@ export interface ScriptContext {
 export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOptions {
   const args = process.argv.slice(2)
   let network: Network = 'localnet'
-  let mnemonic: string | undefined
+  let mnemonic: string | undefined = process.env.DEPLOYER_MNEMONIC || process.env.MNEMONIC
   let version = '1.0.0'
   let dryRun = false
   let algodToken: string | undefined

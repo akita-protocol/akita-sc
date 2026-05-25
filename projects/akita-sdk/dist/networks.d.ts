@@ -90,7 +90,7 @@ export declare const TESTNET_APP_IDS: NetworkAppIds;
 /**
  * Mainnet app IDs
  *
- * Last updated: 2026-05-24T00:09:48Z
+ * Last updated: 2026-05-25T23:08:55Z
  */
 export declare const MAINNET_APP_IDS: NetworkAppIds;
 /**

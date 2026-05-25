@@ -1,13 +1,15 @@
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import { AkitaDaoSDK, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
+import { CallerType, NFDPluginSDK, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
+import algosdk from 'algosdk'
 
 export type DaoSocialCallerInstallParams = {
   algorand: AlgorandClient
   dao: AkitaDaoSDK
   socialPlugin: SocialPluginSDK
+  nfdPlugin?: NFDPluginSDK
   selfOptInPlugin?: SelfOptInPluginSDK
   sender: string
   signer: TransactionSigner
@@ -24,10 +26,22 @@ function canCallResultAllowed(result: unknown): boolean {
   return false
 }
 
+function getMethodSelectors(method: any): Uint8Array[] {
+  if (typeof method === 'function') {
+    return method().selectors ?? []
+  }
+  return method
+}
+
+function getAbiSelector(methodSignature: string): Uint8Array {
+  return algosdk.ABIMethod.fromSignature(methodSignature).getSelector()
+}
+
 export async function installDaoSocialCaller({
   algorand,
   dao,
   socialPlugin,
+  nfdPlugin,
   selfOptInPlugin,
   sender,
   signer,
@@ -42,10 +56,10 @@ export async function installDaoSocialCaller({
 
   async function installCallerGrant(
     label: string,
-    client: SocialPluginSDK | SelfOptInPluginSDK,
+    client: SocialPluginSDK | NFDPluginSDK | SelfOptInPluginSDK,
     methods: Array<{ name: any; cooldown: bigint }>,
   ): Promise<void> {
-    const methodSelectors = methods.flatMap((method) => method.name().selectors)
+    const methodSelectors = methods.flatMap((method) => getMethodSelectors(method.name))
 
     const canCall = await daoWallet.canCall({
       sender,
@@ -62,6 +76,11 @@ export async function installDaoSocialCaller({
       return
     }
 
+    if (dryRun) {
+      console.log(`DRY RUN - would install ${label} caller ${caller}`)
+      return
+    }
+
     const mbr = await daoWallet.getMbr({
       escrow: '',
       methodCount: BigInt(methods.length),
@@ -73,12 +92,6 @@ export async function installDaoSocialCaller({
       daoWallet.client.appAddress.toString(),
       mbr.plugins,
     )
-
-    if (dryRun) {
-      console.log(`DRY RUN - would fund DAO wallet with ${walletFunding} microALGO if needed`)
-      console.log(`DRY RUN - would install ${label} caller ${caller}`)
-      return
-    }
 
     if (walletFunding > 0n) {
       await daoWallet.client.appClient.fundAppAccount({ amount: microAlgo(walletFunding) })
@@ -107,6 +120,28 @@ export async function installDaoSocialCaller({
     { name: socialPlugin.initMeta(), cooldown: 0n },
     { name: socialPlugin.post(), cooldown: 0n },
   ])
+
+  if (nfdPlugin) {
+    await installCallerGrant('nfd-plugin', nfdPlugin, [
+      { name: [getAbiSelector('mint(uint64,bool,string,uint64,address,bool)uint64')], cooldown: 0n },
+      { name: [getAbiSelector('deleteFields(uint64,bool,uint64,byte[][])void')], cooldown: 0n },
+      { name: [getAbiSelector('updateFields(uint64,bool,uint64,byte[][],uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('setAddressPrimaryNfd(uint64,bool,uint64,string,address)void')], cooldown: 0n },
+      { name: [getAbiSelector('offerForSale(uint64,bool,uint64,uint64,address)void')], cooldown: 0n },
+      { name: [getAbiSelector('cancelSale(uint64,bool,uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('postOffer(uint64,bool,uint64,uint64,string)void')], cooldown: 0n },
+      { name: [getAbiSelector('purchase(uint64,bool,uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('updateHash(uint64,bool,uint64,byte[])void')], cooldown: 0n },
+      { name: [getAbiSelector('contractLock(uint64,bool,uint64,bool)void')], cooldown: 0n },
+      { name: [getAbiSelector('segmentLock(uint64,bool,uint64,bool,uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('vaultOptInLock(uint64,bool,uint64,bool)void')], cooldown: 0n },
+      { name: [getAbiSelector('vaultOptIn(uint64,bool,uint64,uint64[])void')], cooldown: 0n },
+      { name: [getAbiSelector('vaultSend(uint64,bool,uint64,uint64,address,string,uint64,uint64[])void')], cooldown: 0n },
+      { name: [getAbiSelector('renew(uint64,bool,uint64,uint64)void')], cooldown: 0n },
+      { name: [getAbiSelector('setPrimaryAddress(uint64,bool,uint64,string,address)void')], cooldown: 0n },
+    ])
+  }
 
   if (selfOptInPlugin) {
     await installCallerGrant('self-opt-in-plugin', selfOptInPlugin, [

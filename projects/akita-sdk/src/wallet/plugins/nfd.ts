@@ -1,9 +1,10 @@
 import { getAddress, ReadableAddress } from "@algorandfoundation/algokit-utils/common";
 import type { Arc56Contract } from "@algorandfoundation/algokit-utils/abi";
+import { decodeAddress } from "algosdk";
 import { BaseSDK } from "../../base";
 import { NfdPluginArgs, NfdPluginClient, NfdPluginFactory } from "../../generated/NFDPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
-import { PluginHookParams, PluginSDKReturn } from "../../types";
+import { PluginHookParams, PluginSDKReturn, PluginTxn } from "../../types";
 import { getTxns } from "../utils";
 
 type ContractArgs = NfdPluginArgs["obj"];
@@ -31,6 +32,16 @@ type RegistryLinkOnMintExtraMbrCosts = {
   linkingNfdMbrCost: bigint;
   linkingRegistryMbrCost: bigint;
 };
+
+type LinkNfdAddressMbrCosts = {
+  candidateNeedsUpdate: boolean;
+  candidateMbrCost: bigint;
+  nfdMbrCost: bigint;
+  registryMbrCost: bigint;
+};
+
+const NFD_FIELD_CANDIDATE_ALGO_ADDRESS = 'u.cav.algo.a';
+const NFD_FIELD_VERIFIED_ALGO_ADDRESSES = 'v.caAlgo.0.as';
 
 const NFD_REGISTRY_APP_SPEC = {
   name: 'NFDRegistry',
@@ -66,6 +77,71 @@ const NFD_REGISTRY_APP_SPEC = {
         { name: 'address', type: 'address' },
       ],
       returns: { type: '(uint64,uint64)', struct: 'LinkOnMintExtraMbrCosts' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+    {
+      name: 'costToAddToAddress',
+      args: [
+        { name: 'lookupAddress', type: 'address' },
+      ],
+      returns: { type: 'uint64' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+  ],
+  arcs: [22, 28],
+  networks: {},
+  state: {
+    schema: {
+      global: { ints: 0, bytes: 0 },
+      local: { ints: 0, bytes: 0 },
+    },
+    keys: { global: {}, local: {}, box: {} },
+    maps: { global: {}, local: {}, box: {} },
+  },
+  bareActions: { create: [], call: [] },
+  events: [],
+  templateVariables: {},
+} as unknown as Arc56Contract;
+
+const NFD_INSTANCE_APP_SPEC = {
+  name: 'NFD',
+  structs: {},
+  methods: [
+    {
+      name: 'getFieldUpdateCost',
+      args: [
+        { name: 'fieldAndVals', type: 'byte[][]' },
+      ],
+      returns: { type: 'uint64' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+    {
+      name: 'readField',
+      args: [
+        { name: 'fieldName', type: 'byte[]' },
+      ],
+      returns: { type: 'byte[]' },
+      actions: { create: [], call: ['NoOp'] },
+      readonly: true,
+      events: [],
+      recommendations: {},
+    },
+    {
+      name: 'isAddressInField',
+      args: [
+        { name: 'fieldName', type: 'string' },
+        { name: 'address', type: 'address' },
+      ],
+      returns: { type: 'bool' },
       actions: { create: [], call: ['NoOp'] },
       readonly: true,
       events: [],
@@ -116,6 +192,33 @@ function parsePriceInfo(value: unknown): RegistryPriceInfo {
   };
 }
 
+function asciiBytes(value: string): Uint8Array {
+  return Uint8Array.from([...value].map((char) => char.charCodeAt(0)));
+}
+
+function concatBytes(first: Uint8Array, second: Uint8Array): Uint8Array {
+  const result = new Uint8Array(first.length + second.length);
+  result.set(first, 0);
+  result.set(second, first.length);
+  return result;
+}
+
+function bytesEqual(first: Uint8Array, second: Uint8Array): boolean {
+  if (first.length !== second.length) return false;
+  return first.every((value, index) => value === second[index]);
+}
+
+function parseBytes(value: unknown): Uint8Array {
+  if (value instanceof Uint8Array) return value;
+  if (Array.isArray(value)) return Uint8Array.from(value);
+  throw new Error('Expected byte array return value');
+}
+
+function parseUint64(value: unknown): bigint {
+  if (value === undefined) throw new Error('Expected uint64 return value');
+  return BigInt(value as bigint | number | string | boolean);
+}
+
 function parseLinkOnMintExtraMbrCosts(value: unknown): RegistryLinkOnMintExtraMbrCosts {
   if (Array.isArray(value)) {
     return {
@@ -138,7 +241,25 @@ type DeleteFieldsArgs = (
 );
 
 type UpdateFieldsArgs = (
-  Omit<ContractArgs['updateFields(uint64,bool,uint64,byte[][])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['updateFields(uint64,bool,uint64,byte[][],uint64)void'], 'wallet' | 'rekeyBack' | 'mbrCost'>
+  & MaybeSigner
+  & { rekeyBack?: boolean; mbrCost?: bigint | number }
+);
+
+type LinkNfdAddressArgs = (
+  Omit<ContractArgs['linkNfdAddress(uint64,bool,uint64,string,uint64,uint64)void'], 'wallet' | 'rekeyBack' | 'nfdMbrCost' | 'registryMbrCost'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type UnlinkNfdAddressArgs = (
+  Omit<ContractArgs['unlinkNfdAddress(uint64,bool,uint64,string,address)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type SetAddressPrimaryNfdArgs = (
+  Omit<ContractArgs['setAddressPrimaryNfd(uint64,bool,uint64,string,address)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -209,6 +330,12 @@ type RenewArgs = (
   & { rekeyBack?: boolean }
 );
 
+type AutoRenewArgs = (
+  Omit<ContractArgs['autoRenew(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
 type SetPrimaryAddressArgs = (
   Omit<ContractArgs['setPrimaryAddress(uint64,bool,uint64,string,address)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
@@ -274,6 +401,112 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     }
 
     return amount;
+  }
+
+  private async getLinkNfdAddressMbrCosts({
+    appId,
+    caller,
+  }: {
+    appId: bigint | number;
+    caller: ReadableAddress;
+  }): Promise<LinkNfdAddressMbrCosts> {
+    const registryAppId = await this.getRegistryAppId();
+    const callerAddress = getAddress(caller).toString();
+    const callerAddressBytes = decodeAddress(callerAddress).publicKey;
+    const readerParams = this.getReaderSendParams({ sender: callerAddress });
+    const nfdClient = this.algorand.client.getAppClientById({
+      appId: BigInt(appId),
+      appSpec: NFD_INSTANCE_APP_SPEC,
+    });
+    const registryClient = this.algorand.client.getAppClientById({
+      appId: registryAppId,
+      appSpec: NFD_REGISTRY_APP_SPEC,
+    });
+
+    const candidateAddressField = asciiBytes(NFD_FIELD_CANDIDATE_ALGO_ADDRESS);
+    const candidateAddressResult = await nfdClient.send.call({
+      ...readerParams,
+      method: 'readField(byte[])byte[]',
+      args: [candidateAddressField],
+    });
+    const candidateNeedsUpdate = !bytesEqual(
+      parseBytes(candidateAddressResult.return),
+      callerAddressBytes,
+    );
+    const candidateMbrCostResult = candidateNeedsUpdate
+      ? await nfdClient.send.call({
+        ...readerParams,
+        method: 'getFieldUpdateCost(byte[][])uint64',
+        args: [[
+          candidateAddressField,
+          callerAddressBytes,
+        ]],
+      })
+      : null;
+
+    const verifiedAddressField = asciiBytes(NFD_FIELD_VERIFIED_ALGO_ADDRESSES);
+    const existingVerifiedAddressesResult = await nfdClient.send.call({
+      ...readerParams,
+      method: 'readField(byte[])byte[]',
+      args: [verifiedAddressField],
+    });
+    const existingVerifiedAddresses = parseBytes(existingVerifiedAddressesResult.return);
+
+    const isAlreadyVerifiedResult = await nfdClient.send.call({
+      ...readerParams,
+      method: 'isAddressInField(string,address)bool',
+      args: [NFD_FIELD_VERIFIED_ALGO_ADDRESSES, callerAddress],
+    });
+    const updatedVerifiedAddresses = isAlreadyVerifiedResult.return === true
+      ? existingVerifiedAddresses
+      : concatBytes(existingVerifiedAddresses, callerAddressBytes);
+
+    const nfdMbrCostResult = isAlreadyVerifiedResult.return === true
+      ? null
+      : await nfdClient.send.call({
+        ...readerParams,
+        method: 'getFieldUpdateCost(byte[][])uint64',
+        args: [[
+          verifiedAddressField,
+          updatedVerifiedAddresses,
+        ]],
+      });
+
+    const registryMbrCostResult = await registryClient.send.call({
+      ...readerParams,
+      method: 'costToAddToAddress(address)uint64',
+      args: [callerAddress],
+    });
+
+    return {
+      candidateNeedsUpdate,
+      candidateMbrCost: parseUint64(candidateMbrCostResult?.return ?? 0n),
+      nfdMbrCost: parseUint64(nfdMbrCostResult?.return ?? 0n),
+      registryMbrCost: parseUint64(registryMbrCostResult.return),
+    };
+  }
+
+  private async getFieldUpdateCost({
+    appId,
+    fieldAndVals,
+    caller,
+  }: {
+    appId: bigint | number;
+    fieldAndVals: Uint8Array[];
+    caller: ReadableAddress;
+  }): Promise<bigint> {
+    const callerAddress = getAddress(caller).toString();
+    const nfdClient = this.algorand.client.getAppClientById({
+      appId: BigInt(appId),
+      appSpec: NFD_INSTANCE_APP_SPEC,
+    });
+    const result = await nfdClient.send.call({
+      ...this.getReaderSendParams({ sender: callerAddress }),
+      method: 'getFieldUpdateCost(byte[][])uint64',
+      args: [fieldAndVals],
+    });
+
+    return parseUint64(result.return);
   }
 
   mint(): PluginSDKReturn;
@@ -380,8 +613,152 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
+        const mbrCost = args.mbrCost === undefined
+          ? await this.getFieldUpdateCost({
+            appId: args.appId,
+            fieldAndVals: args.fieldAndVals,
+            caller: sendParams.sender,
+          })
+          : toBigInt(args.mbrCost, 'mbrCost');
+        const { mbrCost: _mbrCost, ...contractArgs } = args;
 
         const params = await this.client.params.updateFields({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...contractArgs, mbrCost },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  linkNfdAddress(): PluginSDKReturn;
+  linkNfdAddress(args: LinkNfdAddressArgs): PluginSDKReturn;
+  linkNfdAddress(args?: LinkNfdAddressArgs): PluginSDKReturn {
+    const methodName = 'linkNfdAddress';
+    if (args === undefined) {
+      return (_spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (_spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const mbrCosts = await this.getLinkNfdAddressMbrCosts({
+          appId: args.appId,
+          caller: sendParams.sender,
+        });
+        const methodCalls: PluginTxn[] = [];
+
+        if (mbrCosts.candidateNeedsUpdate) {
+          const updateCandidateParams = await this.client.params.updateFields({
+            ...sendParams,
+            args: {
+              wallet,
+              rekeyBack: false,
+              appId: args.appId,
+              fieldAndVals: [
+                asciiBytes(NFD_FIELD_CANDIDATE_ALGO_ADDRESS),
+                decodeAddress(getAddress(sendParams.sender).toString()).publicKey,
+              ],
+              mbrCost: mbrCosts.candidateMbrCost,
+            },
+          });
+
+          methodCalls.push({
+            type: 'methodCall',
+            ...updateCandidateParams,
+          });
+        }
+
+        const params = await this.client.params.linkNfdAddress({
+          ...sendParams,
+          args: {
+            wallet,
+            rekeyBack,
+            ...args,
+            nfdMbrCost: mbrCosts.nfdMbrCost,
+            registryMbrCost: mbrCosts.registryMbrCost,
+          },
+        });
+
+        methodCalls.push({
+          type: 'methodCall',
+          ...params
+        });
+
+        return methodCalls;
+      }
+    });
+  }
+
+  unlinkNfdAddress(): PluginSDKReturn;
+  unlinkNfdAddress(args: UnlinkNfdAddressArgs): PluginSDKReturn;
+  unlinkNfdAddress(args?: UnlinkNfdAddressArgs): PluginSDKReturn {
+    const methodName = 'unlinkNfdAddress';
+    if (args === undefined) {
+      return (_spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (_spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.unlinkNfdAddress({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  setAddressPrimaryNfd(): PluginSDKReturn;
+  setAddressPrimaryNfd(args: SetAddressPrimaryNfdArgs): PluginSDKReturn;
+  setAddressPrimaryNfd(args?: SetAddressPrimaryNfdArgs): PluginSDKReturn {
+    const methodName = 'setAddressPrimaryNfd';
+    if (args === undefined) {
+      return (_spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (_spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.setAddressPrimaryNfd({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
         });
@@ -756,6 +1133,40 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
         const rekeyBack = args.rekeyBack ?? true;
 
         const params = await this.client.params.renew({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  autoRenew(): PluginSDKReturn;
+  autoRenew(args: AutoRenewArgs): PluginSDKReturn;
+  autoRenew(args?: AutoRenewArgs): PluginSDKReturn {
+    const methodName = 'autoRenew';
+    if (args === undefined) {
+      return (_spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (_spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.autoRenew({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
         });

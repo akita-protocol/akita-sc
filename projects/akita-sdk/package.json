@@ -1,6 +1,6 @@
 {
   "name": "@akta/sdk",
-  "version": "1.3.29",
+  "version": "1.3.31",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -103,24 +103,60 @@
   },
   "typesVersions": {
     "*": {
-      "auction": ["./dist/auction/index.d.ts"],
-      "dao": ["./dist/dao/index.d.ts"],
-      "escrow": ["./dist/escrow/index.d.ts"],
-      "gates": ["./dist/gates/index.d.ts"],
-      "hyper-swap": ["./dist/hyper-swap/index.d.ts"],
-      "marketplace": ["./dist/marketplace/index.d.ts"],
-      "meta-merkles": ["./dist/meta-merkles/index.d.ts"],
-      "poll": ["./dist/poll/index.d.ts"],
-      "prize-box": ["./dist/prize-box/index.d.ts"],
-      "raffle": ["./dist/raffle/index.d.ts"],
-      "rewards": ["./dist/rewards/index.d.ts"],
-      "social": ["./dist/social/index.d.ts"],
-      "staking": ["./dist/staking/index.d.ts"],
-      "staking-pool": ["./dist/staking-pool/index.d.ts"],
-      "subscriptions": ["./dist/subscriptions/index.d.ts"],
-      "wallet": ["./dist/wallet/index.d.ts"],
-      "connect": ["./dist/connect/index.d.ts"],
-      "types": ["./dist/types.d.ts"]
+      "auction": [
+        "./dist/auction/index.d.ts"
+      ],
+      "dao": [
+        "./dist/dao/index.d.ts"
+      ],
+      "escrow": [
+        "./dist/escrow/index.d.ts"
+      ],
+      "gates": [
+        "./dist/gates/index.d.ts"
+      ],
+      "hyper-swap": [
+        "./dist/hyper-swap/index.d.ts"
+      ],
+      "marketplace": [
+        "./dist/marketplace/index.d.ts"
+      ],
+      "meta-merkles": [
+        "./dist/meta-merkles/index.d.ts"
+      ],
+      "poll": [
+        "./dist/poll/index.d.ts"
+      ],
+      "prize-box": [
+        "./dist/prize-box/index.d.ts"
+      ],
+      "raffle": [
+        "./dist/raffle/index.d.ts"
+      ],
+      "rewards": [
+        "./dist/rewards/index.d.ts"
+      ],
+      "social": [
+        "./dist/social/index.d.ts"
+      ],
+      "staking": [
+        "./dist/staking/index.d.ts"
+      ],
+      "staking-pool": [
+        "./dist/staking-pool/index.d.ts"
+      ],
+      "subscriptions": [
+        "./dist/subscriptions/index.d.ts"
+      ],
+      "wallet": [
+        "./dist/wallet/index.d.ts"
+      ],
+      "connect": [
+        "./dist/connect/index.d.ts"
+      ],
+      "types": [
+        "./dist/types.d.ts"
+      ]
     }
   },
   "publishConfig": {

@@ -35,6 +35,16 @@ export class NFDRegistry extends Contract {
         return 0
     }
 
+    linkNfdAddress(nfdName: string, nfdAppId: uint64, addrToVerify: Account): void { }
+
+    unlinkNfdAddress(nfdName: string, nfdAppId: uint64, addrToRemove: Account): void { }
+
+    setAddressPrimaryNfd(nfdName: string, nfdAppId: uint64, addrBeingModified: Account): void { }
+
+    costToAddToAddress(lookupAddress: Account): uint64 {
+        return 0
+    }
+
     // {
     //   "name": "isValidNfdAppId",
     //   "args": [

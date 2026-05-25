@@ -58,6 +58,7 @@
     "deploy:marketplace-plugin": "ts-node --transpile-only scripts/deploy-marketplace-plugin.ts",
     "deploy:nfd-plugin": "ts-node --transpile-only scripts/redeploy-nfd-plugin.ts",
     "deploy:raffle-plugin": "ts-node --transpile-only scripts/deploy-raffle-plugin.ts",
+    "deploy:staking-plugin": "ts-node --transpile-only scripts/deploy-staking-plugin.ts",
     "deploy:staking-pool-plugin": "ts-node --transpile-only scripts/deploy-staking-pool-plugin.ts",
     "deploy:dual-stake-plugin": "ts-node --transpile-only scripts/deploy-dual-stake-plugin.ts",
     "deploy:self-optin-plugin": "ts-node --transpile-only scripts/deploy-self-optin-plugin.ts",

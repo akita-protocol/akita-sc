@@ -1,12 +1,12 @@
 #!/usr/bin/env node
 
 /**
- * Install a DAO wallet social-plugin caller grant.
+ * Install DAO wallet social-plugin and NFD-plugin caller grants.
  *
- * This delegates a specific account to create DAO-authored social posts through
- * the DAO wallet. Localnet defaults to the dispenser account so akita-rn mock
- * posts can be seeded without a user wallet. Testnet/mainnet should pass a
- * personal posting account via --caller or --caller-mnemonic.
+ * This delegates a specific account to create DAO-authored social posts and use
+ * the DAO wallet's NFD plugin. Localnet defaults to the dispenser account so
+ * akita-rn mock posts can be seeded without a user wallet. Testnet/mainnet
+ * should pass a personal posting account via --caller or --caller-mnemonic.
  *
  * Usage:
  *   npm run install:dao-social-caller -- -n localnet
@@ -18,7 +18,7 @@ import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transa
 import { parseBaseArgs, createAlgorandClient, runScript } from './script-base'
 import { buildAppIdsFromEnv, getNetworkAppIds, setCurrentNetwork } from 'akita-sdk'
 import { AkitaDaoSDK } from 'akita-sdk/dao'
-import { SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
+import { NFDPluginSDK, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { makeBasicAccountTransactionSigner } from 'algosdk'
 import dotenv from 'dotenv'
 import { installDaoSocialCaller } from './dao-social-caller'
@@ -42,14 +42,23 @@ function parseCallerArgs(): { caller?: string; callerMnemonic?: string; sourceLi
   return { caller, callerMnemonic, sourceLink }
 }
 
+function getRequestedNetwork(): string {
+  const args = process.argv.slice(2)
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--network' || args[i] === '-n') {
+      return args[i + 1] ?? 'localnet'
+    }
+  }
+  return process.env.ALGORAND_NETWORK ?? 'localnet'
+}
+
 runScript(async () => {
   const callerArgs = parseCallerArgs()
+  dotenv.config({ path: `.env.${getRequestedNetwork()}` })
   const options = parseBaseArgs('install-dao-social-caller.ts', `
   --caller <address>             Account address to delegate for DAO social posts
   --caller-mnemonic <mnemonic>   Derive delegated posting account from mnemonic
   --source-link <url>            Proposal source link override`)
-
-  dotenv.config({ path: `.env.${options.network}` })
 
   const algorand = createAlgorandClient(options.network, options.algodToken)
   let sender: string
@@ -65,6 +74,7 @@ runScript(async () => {
   const networkAppIds = getNetworkAppIds(options.network)
   const daoAppId = envAppIds.dao > 0n ? envAppIds.dao : networkAppIds.dao
   const socialPluginAppId = envAppIds.socialPlugin > 0n ? envAppIds.socialPlugin : networkAppIds.socialPlugin
+  const nfdPluginAppId = envAppIds.nfdPlugin > 0n ? envAppIds.nfdPlugin : networkAppIds.nfdPlugin
   const selfOptInPluginAppId = envAppIds.selfOptinPlugin > 0n ? envAppIds.selfOptinPlugin : networkAppIds.selfOptinPlugin
 
   if (options.network === 'localnet') {
@@ -98,6 +108,10 @@ runScript(async () => {
     const account = algosdk.mnemonicToSecretKey(options.mnemonic)
     sender = account.addr.toString()
     signer = makeBasicAccountTransactionSigner(account) as unknown as TransactionSigner
+  } else if (options.dryRun) {
+    const account = algosdk.generateAccount()
+    sender = account.addr.toString()
+    signer = makeBasicAccountTransactionSigner(account) as unknown as TransactionSigner
   } else {
     throw new Error('Mnemonic is required for non-localnet networks')
   }
@@ -114,6 +128,12 @@ runScript(async () => {
     algorand,
     factoryParams: { appId: socialPluginAppId, defaultSender: sender, defaultSigner: signer as any },
   })
+  const nfdPlugin = nfdPluginAppId > 0n
+    ? new NFDPluginSDK({
+      algorand,
+      factoryParams: { appId: nfdPluginAppId, defaultSender: sender, defaultSigner: signer as any },
+    })
+    : undefined
   const selfOptInPlugin = selfOptInPluginAppId > 0n
     ? new SelfOptInPluginSDK({
       algorand,
@@ -124,6 +144,9 @@ runScript(async () => {
   console.log(`\nInstalling DAO social caller on ${options.network}`)
   console.log(`DAO: ${dao.appId}`)
   console.log(`Social plugin: ${socialPlugin.appId}`)
+  if (nfdPlugin) {
+    console.log(`NFD plugin: ${nfdPlugin.appId}`)
+  }
   if (selfOptInPlugin) {
     console.log(`Self opt-in plugin: ${selfOptInPlugin.appId}`)
   }
@@ -134,6 +157,7 @@ runScript(async () => {
     algorand,
     dao,
     socialPlugin,
+    nfdPlugin,
     selfOptInPlugin,
     sender,
     signer,

@@ -19,7 +19,7 @@ export class NFD extends Contract {
 
   updateSegmentCount(childNfdName: string, childNfdAppID: uint64): void { }
 
-  getFieldUpdateCost(fieldAndVals: uint64[]): uint64 {
+  getFieldUpdateCost(fieldAndVals: bytes[]): uint64 {
     return 0
   }
 

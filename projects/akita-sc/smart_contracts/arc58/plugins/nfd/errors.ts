@@ -13,3 +13,4 @@
 
 export const ERR_NOT_AN_NFD = 'NNFD'
 export const ERR_NO_SALE_AMOUNT = 'NSLA'
+export const ERR_CANNOT_AUTO_RENEW = 'NARN'

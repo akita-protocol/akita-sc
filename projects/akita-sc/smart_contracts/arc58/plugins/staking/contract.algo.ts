@@ -1,6 +1,7 @@
-import { Account, Application, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
+import { totalsMBR } from "../../../staking/constants"
 import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, StakingType } from "../../../staking/types"
 import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
 
@@ -69,6 +70,21 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
     } else {
+      if (isEscrow && !stakingApp.address.isOptedIn(Asset(assetID))) {
+        abiCall<typeof Staking.prototype.optIn>({
+          sender,
+          appId: stakingAppID,
+          args: [
+            itxn.payment({
+              sender,
+              receiver: stakingApp.address,
+              amount: totalsMBR + Global.assetOptInMinBalance,
+            }),
+            assetID,
+          ],
+        })
+      }
+
       abiCall<typeof Staking.prototype.stakeAsa>({
         sender,
         appId: stakingAppID,
@@ -81,7 +97,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
           itxn.assetTransfer({
             sender,
             assetReceiver: stakingApp.address,
-            assetAmount: amount,
+            assetAmount: isEscrow ? amount : 0,
             xferAsset: assetID,
           }),
           type,

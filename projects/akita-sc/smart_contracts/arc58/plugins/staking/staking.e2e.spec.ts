@@ -143,5 +143,65 @@ describe('Staking plugin contract', () => {
       expect(info.amount).toBe(walletInfo.balance.microAlgos);
       expect(info.amount).toBeGreaterThanOrEqual(1_000_000n + additionalAmount);
     });
+
+    test('soft-stakes an ASA via plugin without transferring the staked amount', async () => {
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        total: 1_000_000n,
+        decimals: 0,
+        defaultFrozen: false,
+        assetName: 'Soft Stake Test',
+        unitName: 'SST',
+      });
+      const stakeAsset = BigInt(assetId!);
+      const stakeAmount = 100n;
+
+      await akitaUniverse.staking.optIn({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        asset: stakeAsset,
+      });
+
+      await wallet.addPlugin({
+        client: akitaUniverse.selfOptInPlugin,
+        callerType: CallerType.Global,
+      });
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [stakeAsset] })],
+      });
+
+      await algorand.send.assetTransfer({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        assetId: stakeAsset,
+        amount: stakeAmount,
+        receiver: wallet.client.appAddress,
+      });
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          stakingPluginSdk.stake({
+            assetId: stakeAsset,
+            type: StakingType.Soft,
+            amount: stakeAmount,
+            expiration: 0n,
+            isUpdate: false,
+          }),
+        ],
+      });
+
+      const info = await akitaUniverse.staking.getInfo({
+        address: wallet.client.appAddress.toString(),
+        stake: { asset: stakeAsset, type: StakingType.Soft },
+      });
+      const walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+
+      expect(info.amount).toBe(stakeAmount);
+      expect(walletInfo.assets?.find((asset) => asset.assetId === stakeAsset)?.amount).toBe(stakeAmount);
+    });
   });
 });
