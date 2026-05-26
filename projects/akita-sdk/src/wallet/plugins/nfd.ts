@@ -650,14 +650,15 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
     const { sender, signer } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (_spendingAddress?: ReadableAddress) => ({
+    return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
       selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
+        const addressToVerify = spendingAddress ?? sendParams.sender;
         const rekeyBack = args.rekeyBack ?? true;
         const mbrCosts = await this.getLinkNfdAddressMbrCosts({
           appId: args.appId,
-          caller: sendParams.sender,
+          caller: addressToVerify,
         });
         const methodCalls: PluginTxn[] = [];
 
@@ -670,7 +671,7 @@ export class NFDPluginSDK extends BaseSDK<NfdPluginClient> {
               appId: args.appId,
               fieldAndVals: [
                 asciiBytes(NFD_FIELD_CANDIDATE_ALGO_ADDRESS),
-                decodeAddress(getAddress(sendParams.sender).toString()).publicKey,
+                decodeAddress(getAddress(addressToVerify).toString()).publicKey,
               ],
               mbrCost: mbrCosts.candidateMbrCost,
             },
