@@ -61,6 +61,7 @@
     "deploy:staking-plugin": "ts-node --transpile-only scripts/deploy-staking-plugin.ts",
     "deploy:staking-pool-plugin": "ts-node --transpile-only scripts/deploy-staking-pool-plugin.ts",
     "deploy:dual-stake-plugin": "ts-node --transpile-only scripts/deploy-dual-stake-plugin.ts",
+    "deploy:haystack-router-plugin": "ts-node --transpile-only scripts/deploy-haystack-router-plugin.ts",
     "deploy:self-optin-plugin": "ts-node --transpile-only scripts/deploy-self-optin-plugin.ts",
     "deploy:gates": "ts-node --transpile-only scripts/deploy-gates.ts",
     "deploy:hyper-swap": "ts-node --transpile-only scripts/deploy-hyper-swap.ts",
@@ -69,6 +70,7 @@
     "deploy:social-follower-index-gate": "ts-node --transpile-only scripts/deploy-social-follower-index-gate.ts",
     "setup:subscription-services": "ts-node --transpile-only scripts/setup-subscription-services.ts",
     "install:dao-social-caller": "ts-node --transpile-only scripts/install-dao-social-caller.ts",
+    "install:dao-haystack-claim-plugin": "ts-node --transpile-only scripts/install-dao-haystack-claim-plugin.ts --network mainnet",
     "update:dao": "ts-node --transpile-only scripts/update-dao.ts",
     "update:dao-app-list": "ts-node --transpile-only scripts/update-dao-app-list.ts",
     "update:account-factory": "ts-node --transpile-only scripts/update-account-factory.ts",
@@ -91,6 +93,7 @@
     "opt-in:stickers-akta": "ts-node --transpile-only scripts/opt-in-stickers-escrow-akta.ts",
     "fix:pay-plugin": "ts-node --transpile-only scripts/fix-pay-plugin.ts",
     "report:sizes": "ts-node --transpile-only scripts/report-bytecode-sizes.ts",
+    "register:haystack-referrer": "ts-node --transpile-only scripts/register-haystack-referrer.ts --network mainnet",
 
     "lint": "eslint smart_contracts",
     "lint:fix": "eslint smart_contracts --fix",

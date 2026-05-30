@@ -55,15 +55,6 @@ export type HaystackRouterPluginArgs = {
             outputAsset: bigint | number;
             minOutputAmount: bigint | number;
         };
-        'claim(uint64,bool,address,address,uint64[],uint64,bool)void': {
-            wallet: bigint | number;
-            rekeyBack: boolean;
-            escrow: string;
-            beneficiary: string;
-            assets: bigint[] | number[];
-            amount: bigint | number;
-            closeOut: boolean;
-        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -71,7 +62,6 @@ export type HaystackRouterPluginArgs = {
     tuple: {
         'create(uint64,byte[4],address,uint64)void': [router: bigint | number, routerMethod: Uint8Array, referrer: string, referrerTreasury: bigint | number];
         'swap(uint64,bool,uint64,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, amount: bigint | number, outputAsset: bigint | number, minOutputAmount: bigint | number];
-        'claim(uint64,bool,address,address,uint64[],uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, beneficiary: string, assets: bigint[] | number[], amount: bigint | number, closeOut: boolean];
     };
 };
 /**
@@ -80,7 +70,6 @@ export type HaystackRouterPluginArgs = {
 export type HaystackRouterPluginReturns = {
     'create(uint64,byte[4],address,uint64)void': void;
     'swap(uint64,bool,uint64,uint64,uint64,uint64)void': void;
-    'claim(uint64,bool,address,address,uint64[],uint64,bool)void': void;
 };
 /**
  * Defines the types of available calls and state of the HaystackRouterPlugin smart contract.
@@ -97,10 +86,6 @@ export type HaystackRouterPluginTypes = {
         argsObj: HaystackRouterPluginArgs['obj']['swap(uint64,bool,uint64,uint64,uint64,uint64)void'];
         argsTuple: HaystackRouterPluginArgs['tuple']['swap(uint64,bool,uint64,uint64,uint64,uint64)void'];
         returns: HaystackRouterPluginReturns['swap(uint64,bool,uint64,uint64,uint64,uint64)void'];
-    }> & Record<'claim(uint64,bool,address,address,uint64[],uint64,bool)void' | 'claim', {
-        argsObj: HaystackRouterPluginArgs['obj']['claim(uint64,bool,address,address,uint64[],uint64,bool)void'];
-        argsTuple: HaystackRouterPluginArgs['tuple']['claim(uint64,bool,address,address,uint64[],uint64,bool)void'];
-        returns: HaystackRouterPluginReturns['claim(uint64,bool,address,address,uint64[],uint64,bool)void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -214,13 +199,6 @@ export declare abstract class HaystackRouterPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static swap(params: CallParams<HaystackRouterPluginArgs['obj']['swap(uint64,bool,uint64,uint64,uint64,uint64)void'] | HaystackRouterPluginArgs['tuple']['swap(uint64,bool,uint64,uint64,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the claim(uint64,bool,address,address,uint64[],uint64,bool)void ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static claim(params: CallParams<HaystackRouterPluginArgs['obj']['claim(uint64,bool,address,address,uint64[],uint64,bool)void'] | HaystackRouterPluginArgs['tuple']['claim(uint64,bool,address,address,uint64[],uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the HaystackRouterPlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -613,37 +591,6 @@ export declare class HaystackRouterPluginClient {
             method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
-        /**
-         * Makes a call to the HaystackRouterPlugin smart contract using the `claim(uint64,bool,address,address,uint64[],uint64,bool)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        claim: (params: CallParams<HaystackRouterPluginArgs["obj"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"] | HaystackRouterPluginArgs["tuple"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
-            appId: bigint;
-            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
-            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
-            note?: (Uint8Array | string) | undefined;
-            lease?: (Uint8Array | string) | undefined;
-            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            validityWindow?: number | bigint | undefined;
-            firstValidRound?: bigint | undefined;
-            lastValidRound?: bigint | undefined;
-            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
-            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
-            appReferences?: bigint[] | undefined;
-            assetReferences?: bigint[] | undefined;
-            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
-            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
-            rejectVersion?: number | undefined;
-            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
-            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
-        }>;
     };
     /**
      * Create transactions for the current app
@@ -663,19 +610,6 @@ export declare class HaystackRouterPluginClient {
          * @returns The call transaction
          */
         swap: (params: CallParams<HaystackRouterPluginArgs["obj"]["swap(uint64,bool,uint64,uint64,uint64,uint64)void"] | HaystackRouterPluginArgs["tuple"]["swap(uint64,bool,uint64,uint64,uint64,uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the HaystackRouterPlugin smart contract using the `claim(uint64,bool,address,address,uint64[],uint64,bool)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        claim: (params: CallParams<HaystackRouterPluginArgs["obj"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"] | HaystackRouterPluginArgs["tuple"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -704,24 +638,6 @@ export declare class HaystackRouterPluginClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | HaystackRouterPluginReturns["swap(uint64,bool,uint64,uint64,uint64,uint64)void"]);
-            groupId: string | undefined;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the HaystackRouterPlugin smart contract using the `claim(uint64,bool,address,address,uint64[],uint64,bool)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        claim: (params: CallParams<HaystackRouterPluginArgs["obj"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"] | HaystackRouterPluginArgs["tuple"]["claim(uint64,bool,address,address,uint64[],uint64,bool)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            return: (undefined | HaystackRouterPluginReturns["claim(uint64,bool,address,address,uint64[],uint64,bool)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -778,13 +694,6 @@ export type HaystackRouterPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     swap(params?: CallParams<HaystackRouterPluginArgs['obj']['swap(uint64,bool,uint64,uint64,uint64,uint64)void'] | HaystackRouterPluginArgs['tuple']['swap(uint64,bool,uint64,uint64,uint64,uint64)void']>): HaystackRouterPluginComposer<[...TReturns, HaystackRouterPluginReturns['swap(uint64,bool,uint64,uint64,uint64,uint64)void'] | undefined]>;
-    /**
-     * Calls the claim(uint64,bool,address,address,uint64[],uint64,bool)void ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    claim(params?: CallParams<HaystackRouterPluginArgs['obj']['claim(uint64,bool,address,address,uint64[],uint64,bool)void'] | HaystackRouterPluginArgs['tuple']['claim(uint64,bool,address,address,uint64[],uint64,bool)void']>): HaystackRouterPluginComposer<[...TReturns, HaystackRouterPluginReturns['claim(uint64,bool,address,address,uint64[],uint64,bool)void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the HaystackRouterPlugin smart contract.
      *

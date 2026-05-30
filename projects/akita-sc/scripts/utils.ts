@@ -1,18 +1,33 @@
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
-import { encodeTransactionRaw } from '@algorandfoundation/algokit-utils/transact'
+import { decodeTransaction, encodeTransactionRaw } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction } from 'akita-sdk/dao'
 import algosdk from 'algosdk'
 
-function wrapAlgodSignerForUtils10(signer: algosdk.TransactionSigner): algosdk.TransactionSigner {
-  return (txnGroup, indexesToSign) => {
-    const algosdkGroup = txnGroup.map((txn) => {
-      if (typeof (txn as { signTxn?: unknown }).signTxn === 'function') {
-        return txn
+function wrapUtils10Signer(signer: unknown): TransactionSigner {
+  return async (txnGroup, indexesToSign) => {
+    const utils10Group: unknown[] = txnGroup.map((txn) => {
+      if (typeof (txn as { getEncodingSchema?: unknown }).getEncodingSchema === 'function') {
+        return decodeTransaction(algosdk.encodeUnsignedTransaction(txn as unknown as algosdk.Transaction))
       }
-      return algosdk.decodeUnsignedTransaction(encodeTransactionRaw(txn as never))
+      return txn
     })
-    return signer(algosdkGroup, indexesToSign)
+
+    try {
+      return await (signer as (g: unknown[], i: number[]) => Promise<Uint8Array[]>)(utils10Group, indexesToSign)
+    } catch (error) {
+      if (error instanceof TypeError && /signTxn is not a function/.test(error.message)) {
+        const algosdkGroup: algosdk.Transaction[] = txnGroup.map((txn) => {
+          if (typeof (txn as { signTxn?: unknown }).signTxn === 'function') {
+            return txn as unknown as algosdk.Transaction
+          }
+          return algosdk.decodeUnsignedTransaction(encodeTransactionRaw(txn as never))
+        })
+        return (signer as algosdk.TransactionSigner)(algosdkGroup, indexesToSign)
+      }
+      throw error
+    }
   }
 }
 
@@ -66,9 +81,13 @@ export async function proposeAndExecute<TClient extends SDKClient>(
     throw new Error('Failed to create proposal')
   }
 
+  if (dao.appId === 0n || dao.client.appId === 0n) {
+    throw new Error(`Cannot execute proposal ${proposalId}: DAO client app ID resolved to 0`)
+  }
+
   await dao.client.send.executeProposal({
     sender: dao.sendParams.sender!,
-    signer: wrapAlgodSignerForUtils10(dao.sendParams.signer!),
+    signer: wrapUtils10Signer(dao.sendParams.signer!),
     args: { proposalId },
     coverAppCallInnerTransactionFees: true,
     populateAppCallResources: true,
@@ -80,7 +99,7 @@ export async function proposeAndExecute<TClient extends SDKClient>(
 export async function executeProposal(dao: AkitaDaoSDK, proposalId: bigint): Promise<void> {
   await dao.client.send.executeProposal({
     sender: dao.sendParams.sender!,
-    signer: wrapAlgodSignerForUtils10(dao.sendParams.signer!),
+    signer: wrapUtils10Signer(dao.sendParams.signer!),
     args: { proposalId },
     coverAppCallInnerTransactionFees: true,
     populateAppCallResources: true,

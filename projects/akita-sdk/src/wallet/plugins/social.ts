@@ -441,7 +441,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
         }];
       },
       // Voting needs opUp transactions for resource reference slots
-      opUpCount: 2
+      opUpCount: 3
     });
   }
 

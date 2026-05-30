@@ -4,9 +4,11 @@
  * Install DAO wallet social-plugin and NFD-plugin caller grants.
  *
  * This delegates a specific account to create DAO-authored social posts and use
- * the DAO wallet's NFD plugin. Localnet defaults to the dispenser account so
- * akita-rn mock posts can be seeded without a user wallet. Testnet/mainnet
- * should pass a personal posting account via --caller or --caller-mnemonic.
+ * the DAO wallet's NFD plugin. It also installs the NFD plugin globally so the
+ * plugin-managed auto-renew flow can run without a per-caller grant. Localnet
+ * defaults to the dispenser account so akita-rn mock posts can be seeded without
+ * a user wallet. Testnet/mainnet should pass a personal posting account via
+ * --caller or --caller-mnemonic.
  *
  * Usage:
  *   npm run install:dao-social-caller -- -n localnet
