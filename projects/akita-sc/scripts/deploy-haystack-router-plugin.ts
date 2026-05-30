@@ -9,7 +9,6 @@
  *
  * Usage:
  *   npm run deploy:haystack-router-plugin -- -n mainnet -m "deployer mnemonic"
- *   npm run deploy:haystack-router-plugin -- -n mainnet -m "..." --referrer-escrow rev_haystack
  *   npm run deploy:haystack-router-plugin -- -n mainnet -m "..." --referrer YOIP...
  */
 
@@ -23,11 +22,10 @@ type HaystackRouterOptions = {
   routerAppId?: bigint
   routerMethod?: Uint8Array
   referrerAddress?: string
-  referrerEscrow: string
   referrerTreasuryAppId?: bigint
 }
 
-const DEFAULT_REFERRER_ESCROW = 'rev_haystack'
+const DEFAULT_REFERRER_ADDRESS = 'S3JIY7ACMZWTTM7C3RAI5TSTW22UFYBW7TPXSJU6PAOHPKNXFN33AWEV2U'
 const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0xc8, 0x90, 0xdc, 0x20])
 
 function getMethodSelector(methodSignature: string): Uint8Array {
@@ -45,24 +43,24 @@ function validateAddress(value: string, label: string): string {
   return value
 }
 
-function getNetworkHaystackRouterDefaults(network: Network): Required<Omit<HaystackRouterOptions, 'referrerAddress'>> {
-  const defaults: Record<Network, Required<Omit<HaystackRouterOptions, 'referrerAddress'>>> = {
+function getNetworkHaystackRouterDefaults(network: Network): Required<HaystackRouterOptions> {
+  const defaults: Record<Network, Required<HaystackRouterOptions>> = {
     localnet: {
       routerAppId: 0n,
       routerMethod: HAYSTACK_ROUTER_METHOD_SELECTOR,
-      referrerEscrow: DEFAULT_REFERRER_ESCROW,
+      referrerAddress: DEFAULT_REFERRER_ADDRESS,
       referrerTreasuryAppId: 0n,
     },
     testnet: {
       routerAppId: 0n,
       routerMethod: HAYSTACK_ROUTER_METHOD_SELECTOR,
-      referrerEscrow: DEFAULT_REFERRER_ESCROW,
+      referrerAddress: DEFAULT_REFERRER_ADDRESS,
       referrerTreasuryAppId: 0n,
     },
     mainnet: {
       routerAppId: 3172554435n,
       routerMethod: HAYSTACK_ROUTER_METHOD_SELECTOR,
-      referrerEscrow: DEFAULT_REFERRER_ESCROW,
+      referrerAddress: DEFAULT_REFERRER_ADDRESS,
       referrerTreasuryAppId: 3041355560n,
     },
   }
@@ -71,9 +69,7 @@ function getNetworkHaystackRouterDefaults(network: Network): Required<Omit<Hayst
 
 function parseHaystackArgs(): HaystackRouterOptions {
   const args = process.argv.slice(2)
-  const options: HaystackRouterOptions = {
-    referrerEscrow: process.env.HAYSTACK_REFERRER_ESCROW || DEFAULT_REFERRER_ESCROW,
-  }
+  const options: HaystackRouterOptions = {}
 
   if (process.env.HAYSTACK_ROUTER_APP_ID) {
     options.routerAppId = BigInt(process.env.HAYSTACK_ROUTER_APP_ID)
@@ -107,10 +103,6 @@ function parseHaystackArgs(): HaystackRouterOptions {
       if (!next) throw new Error('--referrer requires an address')
       options.referrerAddress = validateAddress(next, '--referrer')
       i += 1
-    } else if (arg === '--referrer-escrow') {
-      if (!next) throw new Error('--referrer-escrow requires an escrow name')
-      options.referrerEscrow = next
-      i += 1
     } else if (arg === '--haystack-referrer-treasury' || arg === '--referrer-treasury') {
       if (!next) throw new Error(`${arg} requires an app ID`)
       options.referrerTreasuryAppId = BigInt(next)
@@ -121,31 +113,13 @@ function parseHaystackArgs(): HaystackRouterOptions {
   return options
 }
 
-async function resolveReferrerAddress(ctx: Awaited<ReturnType<typeof setupContext>>, options: HaystackRouterOptions) {
-  if (options.referrerAddress) return options.referrerAddress
-
-  const wallet = await ctx.dao.getWallet()
-  const escrows = await wallet.getEscrows()
-  const escrowInfo = escrows.get(options.referrerEscrow)
-  if (!escrowInfo || escrowInfo.id === 0n) {
-    const haystackEscrows = [...escrows.keys()].filter((name) => name.includes('haystack')).sort()
-    const suffix = haystackEscrows.length > 0 ? ` Existing Haystack-like escrows: ${haystackEscrows.join(', ')}.` : ''
-    throw new Error(
-      `Escrow "${options.referrerEscrow}" does not exist on the DAO wallet. Pass --referrer to use an address directly.${suffix}`,
-    )
-  }
-
-  return algosdk.getApplicationAddress(escrowInfo.id).toString()
-}
-
 runScript(async () => {
   const extraHelp = `
   --router, --router-app-id <id>             Haystack Router app ID. Mainnet default: 3172554435
   --haystack-router <id>                    Alias for --router
   --haystack-router-method <signature>      Haystack finalize ABI method signature. Defaults to c890dc20 selector.
   --haystack-router-method-signature <sig>  Alias for --haystack-router-method
-  --referrer <address>                      Referrer address. If omitted, reads --referrer-escrow from DAO wallet.
-  --referrer-escrow <name>                  DAO wallet escrow used as referrer. Defaults to ${DEFAULT_REFERRER_ESCROW}
+  --referrer <address>                      Referrer address. Defaults to ${DEFAULT_REFERRER_ADDRESS}
   --referrer-treasury <id>                  Haystack referrer treasury app ID. Mainnet default: 3041355560
   --haystack-referrer-treasury <id>         Alias for --referrer-treasury`
   const options = parseBaseArgs('deploy-haystack-router-plugin.ts', extraHelp)
@@ -164,13 +138,12 @@ runScript(async () => {
     : undefined
   const sender = deployer?.addr.toString() ?? ctx.sender
   const signer = deployer?.signer ?? ctx.signer
-  const referrerAddress = await resolveReferrerAddress(ctx, haystackOptions)
+  const referrerAddress = haystackOptions.referrerAddress
 
   console.log('Haystack Router Plugin Configuration:')
   console.log(`   Router:             ${haystackOptions.routerAppId}`)
   console.log(`   Method Selector:    ${formatFourByteSelector(haystackOptions.routerMethod)}`)
   console.log(`   Referrer:           ${referrerAddress}`)
-  console.log(`   Referrer Escrow:    ${haystackOptions.referrerAddress ? '(explicit address)' : haystackOptions.referrerEscrow}`)
   console.log(`   Referrer Treasury:  ${haystackOptions.referrerTreasuryAppId}\n`)
 
   if (haystackOptions.routerAppId <= 0n) {

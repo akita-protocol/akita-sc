@@ -219,7 +219,7 @@ Mainnet last updated from manual NFD/staking plugin deployment on 2026-05-25.
 | `daoPlugin` | `763128876` | `3569561215` |
 | `dualStakePlugin` | `763128877` | `3569561317` |
 | `gatePlugin` | `763128884` | `3569561367` |
-| `haystackRouterPlugin` | `763128851` | `3579176091` |
+| `haystackRouterPlugin` | `763128851` | `3579545659` |
 | `hyperSwapPlugin` | `763128858` | `3569561068` |
 | `marketplacePlugin` | `763128885` | `3569561455` |
 | `nfdPlugin` | `763128895` | `3572944055` |

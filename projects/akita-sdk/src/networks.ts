@@ -226,7 +226,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   selfOptinPlugin: 3569560545n,
   asaMintPlugin: 3569560791n,
   payPlugin: 3569560828n,
-  haystackRouterPlugin: 3579176091n,
+  haystackRouterPlugin: 3579545659n,
   hyperSwapPlugin: 3569561068n,
   subscriptionsPlugin: 3569561107n,
   auctionPlugin: 3569561141n,
