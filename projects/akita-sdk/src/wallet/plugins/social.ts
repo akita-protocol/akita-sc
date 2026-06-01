@@ -261,7 +261,9 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      }
+      },
+      // EditPost needs opUp transactions for resource reference slots
+      opUpCount: 2
     });
   }
 
