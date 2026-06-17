@@ -138,7 +138,7 @@ Wallet plugins extend abstracted account functionality:
 |--------|-------------|
 | `optInPlugin` | ASA opt-in operations |
 | `payPlugin` | Payment operations |
-| `asaMintPlugin` | ASA creation and minting |
+| `asaManagerPlugin` | ASA creation and minting |
 | `auctionPlugin` | Auction interactions |
 | `daoPlugin` | DAO interactions |
 | `dualStakePlugin` | Dual token staking |
@@ -214,7 +214,7 @@ Mainnet last updated from manual NFD/staking plugin deployment on 2026-05-25.
 | `optInPlugin` | `763128795` | `3569560490` |
 | `selfOptInPlugin` | `763128796` | `3569560545` |
 | `payPlugin` | `763128821` | `3569560828` |
-| `asaMintPlugin` | `763128820` | `3569560791` |
+| `asaManagerPlugin` | `764705920` | `3605315701` |
 | `auctionPlugin` | `763128866` | `3569561141` |
 | `daoPlugin` | `763128876` | `3569561215` |
 | `dualStakePlugin` | `763128877` | `3569561317` |

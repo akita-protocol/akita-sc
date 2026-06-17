@@ -4,11 +4,11 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
-import { AsaMintPluginSDK, isDripAllowance, isFlatAllowance, isWindowAllowance, newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, isDripAllowance, isFlatAllowance, isWindowAllowance, newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { sendPrepared } from 'akita-sdk';
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
-import { deployAsaMintPlugin } from '../../../tests/fixtures/plugins/asa-mint';
+import { deployAsaManagerPlugin } from '../../../tests/fixtures/plugins/asa-manager';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { TimeWarp } from '../../../tests/utils/time';
@@ -27,8 +27,8 @@ describe('ARC58 Plugin Permissions', () => {
   let payPluginSdk: PayPluginSDK;
   /** the optin plugin sdk */
   let optinPluginSdk: OptInPluginSDK;
-  /** the asa mint plugin sdk */
-  let asaMintPluginSdk: AsaMintPluginSDK;
+  /** the asa manager plugin sdk */
+  let asaManagerPluginSdk: AsaManagerPluginSDK;
 
   let timeWarp: TimeWarp;
 
@@ -55,7 +55,7 @@ describe('ARC58 Plugin Permissions', () => {
 
     payPluginSdk = await deployPayPlugin({ fixture: localnet, sender, signer });
     optinPluginSdk = await deployOptInPlugin({ fixture: localnet, sender, signer });
-    asaMintPluginSdk = await deployAsaMintPlugin({ fixture: localnet, sender, signer });
+    asaManagerPluginSdk = await deployAsaManagerPlugin({ fixture: localnet, sender, signer });
   })
 
   beforeEach(async () => {
@@ -424,7 +424,7 @@ describe('ARC58 Plugin Permissions', () => {
       })
 
       await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global });
-      await wallet.addPlugin({ client: asaMintPluginSdk, callerType: CallerType.Global });
+      await wallet.addPlugin({ client: asaManagerPluginSdk, callerType: CallerType.Global });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
       expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
@@ -466,7 +466,7 @@ describe('ARC58 Plugin Permissions', () => {
       composer.addAppCallMethodCall(payPluginTxn[0])
 
       const assaMintTxn = (
-        await asaMintPluginSdk
+        await asaManagerPluginSdk
           .mint({
             assets: [{
               assetName: 'Test Akita',

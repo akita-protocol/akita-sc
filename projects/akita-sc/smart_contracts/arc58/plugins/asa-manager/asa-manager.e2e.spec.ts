@@ -1,0 +1,125 @@
+import * as algokit from '@algorandfoundation/algokit-utils';
+import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
+import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact';
+import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { ALGORAND_ZERO_ADDRESS_STRING} from 'algosdk';
+import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+
+algokit.Config.configure({ populateAppCallResources: true });
+
+const fixture = algorandFixture();
+
+describe('ASA Manager plugin contract', () => {
+  let deployer: AddressWithTransactionSigner;
+  let user: AddressWithTransactionSigner;
+  let akitaUniverse: AkitaUniverse;
+  let dispenser: AddressWithTransactionSigner;
+  let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
+  let wallet: WalletSDK;
+
+  beforeAll(async () => {
+    await fixture.newScope();
+    algorand = fixture.context.algorand;
+    dispenser = await algorand.account.dispenserFromEnvironment();
+
+    const ctx = fixture.context;
+    deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
+    user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
+
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
+
+    // Build the full Akita DAO universe
+    akitaUniverse = await buildAkitaUniverse({
+      fixture,
+      sender: deployer.addr,
+      signer: deployer.signer,
+      apps: {},
+    });
+
+    // Create a user wallet for testing
+    wallet = await newWallet({
+      algorand,
+      factoryParams: {
+        appId: akitaUniverse.walletFactory.appId,
+        defaultSender: user.addr,
+        defaultSigner: user.signer,
+      },
+      sender: user.addr,
+      signer: user.signer,
+      nickname: 'Test Wallet',
+    });
+  });
+
+  beforeEach(fixture.newScope);
+
+  describe('AsaManager', () => {
+    test('mint OK', async () => {
+      const asaManagerSdk = akitaUniverse.asaManagerPlugin;
+
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+
+      let walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+
+      const fundAmount = mbr.plugins;
+
+      console.log('funding wallet with:', fundAmount, 'microAlgos');
+
+      await wallet.client.appClient.fundAppAccount({
+        amount: algokit.microAlgo(fundAmount)
+      });
+
+      await wallet.addPlugin({
+        client: asaManagerSdk,
+        callerType: CallerType.Global,
+      });
+
+      walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+
+      const results = await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          asaManagerSdk.mint({
+            assets: [{
+              assetName: 'Test Akita',
+              unitName: 'TAKTA',
+              total: 1_000_000_000_000n,
+              decimals: 6n,
+              manager: wallet.client.appAddress.toString(),
+              reserve: wallet.client.appAddress.toString(),
+              freeze: ALGORAND_ZERO_ADDRESS_STRING,
+              clawback: ALGORAND_ZERO_ADDRESS_STRING,
+              defaultFrozen: false,
+              url: 'https://akita.community',
+            }]
+          }),
+        ]
+      });
+
+      const takta = results.returns[1][0];
+
+      expect(takta).toBeGreaterThan(0n);
+
+      expect(results.txIds.length).toBe(4);
+
+      const plugins = await wallet.getPlugins();
+      expect(plugins.size).toBe(1);
+
+      walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(walletInfo?.assets?.length).toBe(1);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          asaManagerSdk.deleteAssets({ assets: [takta] }),
+        ]
+      });
+
+      walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(walletInfo?.assets?.some((asset) => asset.assetId === takta)).toBe(false);
+    });
+  });
+});

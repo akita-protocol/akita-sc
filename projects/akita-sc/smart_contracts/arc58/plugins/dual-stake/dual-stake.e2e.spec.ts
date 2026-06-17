@@ -2,7 +2,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { AsaMintPluginSDK, DualStakePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, DualStakePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { ERR_NOT_A_DUALSTAKE_APP } from './errors';
@@ -18,7 +18,7 @@ describe('DualStake plugin contract', () => {
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
-  let asaMintSdk: AsaMintPluginSDK;
+  let asaMintSdk: AsaManagerPluginSDK;
   let dualStakePluginSdk: DualStakePluginSDK;
 
   beforeAll(async () => {
@@ -55,7 +55,7 @@ describe('DualStake plugin contract', () => {
     });
 
     // Get plugin SDKs from universe
-    asaMintSdk = akitaUniverse.asaMintPlugin;
+    asaMintSdk = akitaUniverse.asaManagerPlugin;
     dualStakePluginSdk = akitaUniverse.dualStakePlugin;
 
     // Fund wallet and add both plugins once

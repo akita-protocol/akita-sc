@@ -1,0 +1,663 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 8 149
+    bytecblock "" "spending_address" "ERR:IPAY"
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:7
+    // export class AsaManagerPlugin extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x854dede0 0x0da39939 0xead7c588 // method "opUp()void", method "mint(uint64,bool,(string,string,uint64,uint64,address,address,address,address,bool,string)[],pay)uint64[]", method "delete(uint64,bool,uint64[])void"
+    txna ApplicationArgs 0
+    match main_opUp_route@4 mint delete
+    err
+
+main_opUp_route@4:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:16
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main___algots__.defaultCreate@10:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:7
+    // export class AsaManagerPlugin extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// _puya_lib.arc4.dynamic_array_read_dynamic_element(array: bytes, index: uint64) -> bytes:
+dynamic_array_read_dynamic_element:
+    proto 2 1
+    frame_dig -2
+    extract 2 0
+    frame_dig -2
+    intc_0 // 0
+    extract_uint16
+    frame_dig -1
+    intc_2 // 2
+    *
+    dig 2
+    swap
+    extract_uint16
+    dig 2
+    len
+    frame_dig -1
+    intc_1 // 1
+    +
+    dup
+    intc_2 // 2
+    *
+    dig 5
+    swap
+    extract_uint16
+    uncover 4
+    uncover 2
+    -
+    select
+    substring3
+    retsub
+
+
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/functions.ts:325
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:326
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/functions.ts:327
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/functions.ts:330
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/arc58/plugins/asa-manager/contract.algo.ts::AsaManagerPlugin.mint[routing]() -> void:
+mint:
+    intc_0 // 0
+    dupn 8
+    bytec_0 // ""
+    dupn 4
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    swap
+    extract 2 0
+    intc_0 // 0
+
+mint_for_header@1:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    dup
+    dig 5
+    <
+    bz mint_after_for@4
+    dupn 2
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 7
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 151
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 153
+    +
+    dig 2
+    intc_2 // 2
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 1 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    dig 3
+    swap
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    dig 2
+    intc 4 // 149
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 9 of ((len+utf8[]),(len+utf8[]),uint64,uint64,uint8[32],uint8[32],uint8[32],uint8[32],bool1,(len+utf8[]))
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    +
+    bury 5
+    intc_1 // 1
+    +
+    bury 1
+    b mint_for_header@1
+
+mint_after_for@4:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    dig 3
+    intc_2 // 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/plugins/asa-manager/types.ts::CreateAssetParams>
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    bury 11
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/utils/functions.ts:270-273
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 8
+    // smart_contracts/utils/functions.ts:272
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_1 // "spending_address"
+    // smart_contracts/utils/functions.ts:270-273
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    bury 18
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:26
+    // loggedAssert(mbrPayment.receiver === sender, ERR_INVALID_PAYMENT)
+    swap
+    gtxns Receiver
+    ==
+    bnz mint_after_assert@7
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+mint_after_assert@7:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:27
+    // loggedAssert(mbrPayment.amount === Global.assetCreateMinBalance * assets.length, ERR_INVALID_PAYMENT)
+    dig 9
+    gtxns Amount
+    global AssetCreateMinBalance
+    dig 6
+    *
+    ==
+    bnz mint_after_assert@9
+    bytec_2 // "ERR:IPAY"
+    log
+    err // ERR:IPAY
+
+mint_after_assert@9:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:29
+    // let assetsCreated: uint64[] = [];
+    pushbytes 0x0000
+    bury 21
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    intc_0 // 0
+    bury 11
+
+mint_while_top@10:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dig 10
+    dig 5
+    <
+    bz mint_after_while@16
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:42
+    // } = assets[i];
+    dig 5
+    dup
+    dig 12
+    dup
+    cover 3
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_0 // 0
+    extract_uint16
+    dig 1
+    intc_2 // 2
+    extract_uint16
+    substring3
+    extract 2 0
+    bury 24
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc_2 // 2
+    extract_uint16
+    dig 1
+    intc 4 // 149
+    extract_uint16
+    substring3
+    extract 2 0
+    bury 17
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 4
+    extract_uint64
+    bury 11
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 12
+    extract_uint64
+    bury 15
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 20 32
+    bury 20
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 52 32
+    bury 19
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 84 32
+    bury 21
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    extract 116 32
+    bury 22
+    dup
+    dig 2
+    callsub dynamic_array_read_dynamic_element
+    pushint 1184
+    getbit
+    bury 14
+    dig 1
+    callsub dynamic_array_read_dynamic_element
+    dup
+    intc 4 // 149
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    bury 15
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:44-59
+    // const createTxn = itxn
+    //   .assetConfig({
+    //     sender,
+    //     assetName,
+    //     unitName,
+    //     total,
+    //     decimals,
+    //     manager,
+    //     reserve,
+    //     freeze,
+    //     clawback,
+    //     defaultFrozen,
+    //     url,
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:57
+    // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 5
+    intc_1 // 1
+    -
+    <
+    bz mint_ternary_false@13
+    global ZeroAddress
+
+mint_ternary_merge@14:
+    itxn_field RekeyTo
+    dig 13
+    itxn_field ConfigAssetURL
+    dig 11
+    itxn_field ConfigAssetDefaultFrozen
+    dig 19
+    itxn_field ConfigAssetClawback
+    dig 18
+    itxn_field ConfigAssetFreeze
+    dig 16
+    itxn_field ConfigAssetReserve
+    dig 17
+    itxn_field ConfigAssetManager
+    dig 12
+    itxn_field ConfigAssetDecimals
+    dig 8
+    itxn_field ConfigAssetTotal
+    dig 14
+    itxn_field ConfigAssetUnitName
+    dig 21
+    itxn_field ConfigAssetName
+    dig 15
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:44-58
+    // const createTxn = itxn
+    //   .assetConfig({
+    //     sender,
+    //     assetName,
+    //     unitName,
+    //     total,
+    //     decimals,
+    //     manager,
+    //     reserve,
+    //     freeze,
+    //     clawback,
+    //     defaultFrozen,
+    //     url,
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    pushint 3
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:44-59
+    // const createTxn = itxn
+    //   .assetConfig({
+    //     sender,
+    //     assetName,
+    //     unitName,
+    //     total,
+    //     decimals,
+    //     manager,
+    //     reserve,
+    //     freeze,
+    //     clawback,
+    //     defaultFrozen,
+    //     url,
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    //   .submit()
+    itxn_submit
+    itxn CreatedAssetID
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:61
+    // assetsCreated.push(createTxn.createdAsset.id);
+    itob
+    dig 21
+    dup
+    intc_0 // 0
+    extract_uint16
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:61
+    // assetsCreated.push(createTxn.createdAsset.id);
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    swap
+    concat
+    bury 21
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:30
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dig 10
+    intc_1 // 1
+    +
+    bury 11
+    b mint_while_top@10
+
+mint_ternary_false@13:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:57
+    // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 6
+    dig 8
+    callsub rekeyAddress
+    b mint_ternary_merge@14
+
+mint_after_while@16:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:18-23
+    // mint(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: CreateAssetParams[],
+    //   mbrPayment: gtxn.PaymentTxn
+    // ): uint64[] {
+    pushbytes 0x151f7c75
+    dig 21
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/asa-manager/contract.algo.ts::AsaManagerPlugin.delete[routing]() -> void:
+delete:
+    bytec_0 // ""
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:67-71
+    // delete(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: uint64[],
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/utils/functions.ts:272
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_1 // "spending_address"
+    // smart_contracts/utils/functions.ts:270-273
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:74
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    intc_0 // 0
+
+delete_while_top@2:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:74
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dup
+    dig 3
+    <
+    bz delete_after_while@8
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:75-81
+    // itxn
+    //   .assetConfig({
+    //     sender,
+    //     configAsset: Asset(assets[i]),
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:78
+    // configAsset: Asset(assets[i]),
+    dig 3
+    extract 2 0
+    dig 1
+    dup
+    cover 2
+    intc_3 // 8
+    *
+    extract_uint64
+    bury 8
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:79
+    // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 3
+    intc_1 // 1
+    -
+    <
+    bz delete_ternary_false@5
+    global ZeroAddress
+
+delete_ternary_merge@6:
+    itxn_field RekeyTo
+    dig 6
+    itxn_field ConfigAsset
+    dig 1
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:75-80
+    // itxn
+    //   .assetConfig({
+    //     sender,
+    //     configAsset: Asset(assets[i]),
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    pushint 3
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:75-81
+    // itxn
+    //   .assetConfig({
+    //     sender,
+    //     configAsset: Asset(assets[i]),
+    //     rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:74
+    // for (let i: uint64 = 0; i < assets.length; i++) {
+    dup
+    intc_1 // 1
+    +
+    bury 1
+    b delete_while_top@2
+
+delete_ternary_false@5:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:79
+    // rekeyTo: i < (assets.length - 1) ? Global.zeroAddress : rekeyAddress(rekeyBack, wallet)
+    dig 4
+    dig 6
+    callsub rekeyAddress
+    b delete_ternary_merge@6
+
+delete_after_while@8:
+    // smart_contracts/arc58/plugins/asa-manager/contract.algo.ts:67-71
+    // delete(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   assets: uint64[],
+    // ): void {
+    intc_1 // 1
+    return

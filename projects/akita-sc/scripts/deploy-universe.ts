@@ -406,7 +406,7 @@ function generateEnvFile(
     `UPDATE_PLUGIN_APP_ID=${universe.updatePlugin.appId}`,
     `OPTIN_PLUGIN_APP_ID=${universe.optInPlugin.appId}`,
     `SELF_OPTIN_PLUGIN_APP_ID=${universe.selfOptInPlugin.appId}`,
-    `ASA_MINT_PLUGIN_APP_ID=${universe.asaMintPlugin.appId}`,
+    `ASA_MINT_PLUGIN_APP_ID=${universe.asaManagerPlugin.appId}`,
     `PAY_PLUGIN_APP_ID=${universe.payPlugin.appId}`,
     `HAYSTACK_ROUTER_PLUGIN_APP_ID=${universe.haystackRouterPlugin.appId}`,
     `HYPER_SWAP_PLUGIN_APP_ID=${universe.hyperSwapPlugin.appId}`,
@@ -523,7 +523,7 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   updatePlugin: ${universe.updatePlugin.appId}n,
   optinPlugin: ${universe.optInPlugin.appId}n,
   selfOptinPlugin: ${universe.selfOptInPlugin.appId}n,
-  asaMintPlugin: ${universe.asaMintPlugin.appId}n,
+  asaManagerPlugin: ${universe.asaManagerPlugin.appId}n,
   payPlugin: ${universe.payPlugin.appId}n,
   haystackRouterPlugin: ${universe.haystackRouterPlugin.appId}n,
   hyperSwapPlugin: ${universe.hyperSwapPlugin.appId}n,
@@ -752,9 +752,9 @@ async function formatSummary(
         appId: universe.selfOptInPlugin.appId.toString(),
         address: universe.selfOptInPlugin.client.appAddress.toString(),
       },
-      asaMintPlugin: {
-        appId: universe.asaMintPlugin.appId.toString(),
-        address: universe.asaMintPlugin.client.appAddress.toString(),
+      asaManagerPlugin: {
+        appId: universe.asaManagerPlugin.appId.toString(),
+        address: universe.asaManagerPlugin.client.appAddress.toString(),
       },
       payPlugin: {
         appId: universe.payPlugin.appId.toString(),

@@ -3,7 +3,7 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { GateSDK, LogicalOperator, Operator } from 'akita-sdk/gates';
-import { AsaMintPluginSDK, newWallet, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, newWallet, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../tests/fixtures/abstracted-account';
 import { deployAkitaDAO } from '../../tests/fixtures/dao';
@@ -14,7 +14,7 @@ import { deployAssetGate } from '../../tests/fixtures/gates/sub-gates/asset';
 import { deployMerkleAddressGate } from '../../tests/fixtures/gates/sub-gates/merkle-address';
 import { deployNFDGate } from '../../tests/fixtures/gates/sub-gates/nfd';
 import { deployNFDRootGate } from '../../tests/fixtures/gates/sub-gates/nfd-root';
-import { deployAsaMintPlugin } from '../../tests/fixtures/plugins/asa-mint';
+import { deployAsaManagerPlugin } from '../../tests/fixtures/plugins/asa-manager';
 import { AssetGateClient } from '../artifacts/gates/sub-gates/asset/AssetGateClient';
 
 /**
@@ -35,8 +35,8 @@ describe('Gate Contract', () => {
   let walletFactory: WalletFactorySDK;
   /** the wallet sdk */
   let wallet: WalletSDK;
-  /** the asa mint plugin sdk */
-  let asaMintSdk: AsaMintPluginSDK;
+  /** the asa manager plugin sdk */
+  let asaMintSdk: AsaManagerPluginSDK;
   /** test asset for asset gate */
   let takta: bigint;
 
@@ -93,7 +93,7 @@ describe('Gate Contract', () => {
       nickname: 'Test Wallet',
     });
 
-    asaMintSdk = await deployAsaMintPlugin({ fixture: localnet, sender, signer });
+    asaMintSdk = await deployAsaManagerPlugin({ fixture: localnet, sender, signer });
 
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
 

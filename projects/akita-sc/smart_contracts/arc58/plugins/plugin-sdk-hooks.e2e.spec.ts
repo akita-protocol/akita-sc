@@ -13,14 +13,16 @@ const fixture = algorandFixture();
 
 type PluginCase = {
   name: string;
-  sdk: Record<string, unknown>;
+  sdk: object;
 };
 
-const getSdkMethods = (sdk: Record<string, unknown>) => {
+const getSdkMethods = (sdk: object) => {
+  const sdkRecord = sdk as Record<string, unknown>;
+
   return Object.getOwnPropertyNames(Object.getPrototypeOf(sdk))
     .filter((name) => name !== 'constructor')
     .filter((name) => name !== 'newServiceWithDescription')
-    .filter((name) => typeof sdk[name] === 'function')
+    .filter((name) => typeof sdkRecord[name] === 'function')
     .sort();
 };
 
@@ -59,7 +61,7 @@ describe('ARC58 plugin SDK hooks', () => {
     });
 
     pluginCases = [
-      { name: 'asaMintPlugin', sdk: akitaUniverse.asaMintPlugin },
+      { name: 'asaManagerPlugin', sdk: akitaUniverse.asaManagerPlugin },
       { name: 'auctionPlugin', sdk: akitaUniverse.auctionPlugin },
       { name: 'daoPlugin', sdk: akitaUniverse.daoPlugin },
       { name: 'dualStakePlugin', sdk: akitaUniverse.dualStakePlugin },
@@ -93,7 +95,7 @@ describe('ARC58 plugin SDK hooks', () => {
       expect(methods, `${pluginCase.name} should expose plugin methods`).not.toHaveLength(0);
 
       for (const method of methods) {
-        const hookFactory = pluginCase.sdk[method] as () => unknown;
+        const hookFactory = (pluginCase.sdk as Record<string, unknown>)[method] as () => unknown;
         const hook = hookFactory.call(pluginCase.sdk);
         expect(typeof hook, `${pluginCase.name}.${method}() should return a hook`).toBe('function');
 

@@ -17,7 +17,7 @@ import { StakingSDK } from 'akita-sdk/staking'
 import { StakingPoolFactorySDK } from 'akita-sdk/staking-pool'
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions'
 import {
-  AsaMintPluginSDK,
+  AsaManagerPluginSDK,
   AuctionPluginSDK,
   DAOPluginSDK,
   DualStakePluginSDK,
@@ -150,7 +150,7 @@ import { deployGate } from './gate'
 import { deployHyperSwap } from './hyper-swap'
 import { deployMarketplace } from './marketplace'
 import { deployMetaMerkles } from './meta-merkles'
-import { deployAsaMintPlugin } from './plugins/asa-mint'
+import { deployAsaManagerPlugin } from './plugins/asa-manager'
 import { deployAuctionPlugin } from './plugins/auction'
 import { deployDAOPlugin } from './plugins/dao'
 import { deployDualStakePlugin } from './plugins/dual-stake'
@@ -401,7 +401,7 @@ async function setupStickerPackRewardsEscrow({
   sender,
   signer,
   dao,
-  asaMintPluginSDK,
+  asaManagerPluginSDK,
   optInPluginSDK,
   payPluginSDK,
   rewardsPluginSDK,
@@ -414,7 +414,7 @@ async function setupStickerPackRewardsEscrow({
   sender: string
   signer: TransactionSigner
   dao: AkitaDaoSDK
-  asaMintPluginSDK: AsaMintPluginSDK
+  asaManagerPluginSDK: AsaManagerPluginSDK
   optInPluginSDK: OptInPluginSDK
   payPluginSDK: PayPluginSDK
   rewardsPluginSDK: RewardsPluginSDK
@@ -483,7 +483,7 @@ async function setupStickerPackRewardsEscrow({
     const mintResult = await dao.wallet.usePlugin({
       sender,
       signer,
-      calls: [asaMintPluginSDK.mint({ assets: assetBatch })],
+      calls: [asaManagerPluginSDK.mint({ assets: assetBatch })],
     })
     stickerAssetIds.push(...((mintResult.returns[1] ?? []) as bigint[]))
   }
@@ -843,7 +843,7 @@ export type AkitaUniverse = {
   updatePlugin: UpdateAkitaDAOPluginSDK
   optInPlugin: OptInPluginSDK
   selfOptInPlugin: SelfOptInPluginSDK
-  asaMintPlugin: AsaMintPluginSDK
+  asaManagerPlugin: AsaManagerPluginSDK
   payPlugin: PayPluginSDK
   haystackRouterPlugin: HaystackRouterPluginSDK
   hyperSwapPlugin: HyperSwapPluginSDK
@@ -1291,7 +1291,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   // Calculate MBR for all escrows and plugins
   const mbrPromises = [
-    // Base wallet MBR with 4 global plugins (revenue manager, update, asa-mint, pay) and 2 execution groups
+    // Base wallet MBR with 4 global plugins (revenue manager, update, asa-manager, pay) and 2 execution groups
     dao.wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 4n }),
     // MBR for each escrow creation
     ...escrowNames.map((escrow) => dao.wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n })),
@@ -1552,12 +1552,12 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   ])
 
   // Deploy additional wallet plugins (not installed on DAO, but available for wallet use)
-  const asaMintPluginSDK = await deployAsaMintPlugin({
+  const asaManagerPluginSDK = await deployAsaManagerPlugin({
     fixture,
     sender: params.sender,
     signer: params.signer,
   })
-  logger.plugin('deploy', 'AsaMintPlugin', asaMintPluginSDK.appId)
+  logger.plugin('deploy', 'AsaManagerPlugin', asaManagerPluginSDK.appId)
 
   const payPluginSDK = await deployPayPlugin({
     fixture: fixture,
@@ -2037,18 +2037,18 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     await fixture.algorand.account.ensureFunded(params.sender, dispenser, (300).algos())
   }
 
-  // Add asa-mint plugin to DAO wallet (global, no escrow)
+  // Add asa-manager plugin to DAO wallet (global, no escrow)
   await proposeAndExecute(fixture.algorand, dao, [
     {
       type: ProposalActionEnum.AddPlugin,
-      client: asaMintPluginSDK,
+      client: asaManagerPluginSDK,
       caller: params.sender.toString(),
       escrow: '',
       sourceLink: 'https://github.com/kylebee/akita-sc',
       useExecutionKey: false,
     },
   ])
-  logger.proposal('Install AsaMintPlugin (global)', 0n)
+  logger.proposal('Install AsaManagerPlugin (global)', 0n)
 
   // Mint the Bones token (total supply: 1,000,000,000 BONES with 6 decimals)
   // Get wallet assets before minting to know what's new
@@ -2060,7 +2060,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     sender: params.sender,
     signer: params.signer,
     calls: [
-      asaMintPluginSDK.mint({
+      asaManagerPluginSDK.mint({
         assets: [
           {
             assetName: 'Bones',
@@ -2124,7 +2124,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     sender: params.sender.toString(),
     signer: params.signer,
     dao,
-    asaMintPluginSDK,
+    asaManagerPluginSDK,
     optInPluginSDK,
     payPluginSDK,
     rewardsPluginSDK,
@@ -2303,7 +2303,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     updatePlugin: daoUpdatePluginSdk,
     optInPlugin: optInPluginSDK,
     selfOptInPlugin: selfOptInPluginSDK,
-    asaMintPlugin: asaMintPluginSDK,
+    asaManagerPlugin: asaManagerPluginSDK,
     payPlugin: payPluginSDK,
     haystackRouterPlugin: haystackRouterPluginSDK,
     hyperSwapPlugin: hyperSwapPluginSDK,

@@ -69,7 +69,7 @@ const CONTRACT_SPEC_BY_SUMMARY_KEY: Record<string, string> = {
   updatePlugin: 'UpdateAkitaDAOPlugin',
   optInPlugin: 'OptInPlugin',
   selfOptInPlugin: 'SelfOptInPlugin',
-  asaMintPlugin: 'AsaMintPlugin',
+  asaManagerPlugin: 'AsaManagerPlugin',
   payPlugin: 'PayPlugin',
   haystackRouterPlugin: 'HaystackRouterPlugin',
   hyperSwapPlugin: 'HyperSwapPlugin',

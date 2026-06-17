@@ -2,7 +2,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { AsaMintPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress} from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
@@ -17,7 +17,7 @@ describe('Optin plugin contract', () => {
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
-  let asaMintSdk: AsaMintPluginSDK;
+  let asaMintSdk: AsaManagerPluginSDK;
 
   beforeAll(async () => {
     await fixture.newScope();
@@ -52,8 +52,8 @@ describe('Optin plugin contract', () => {
       nickname: 'Test Wallet',
     });
 
-    // Use AsaMint plugin from universe
-    asaMintSdk = akitaUniverse.asaMintPlugin;
+    // Use AsaManager plugin from universe
+    asaMintSdk = akitaUniverse.asaManagerPlugin;
   });
 
   beforeEach(fixture.newScope);

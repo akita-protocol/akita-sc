@@ -2,7 +2,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { AsaMintPluginSDK, AuctionPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, AuctionPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
@@ -26,7 +26,7 @@ describe('Auction plugin contract', () => {
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
-  let asaMintSdk: AsaMintPluginSDK;
+  let asaMintSdk: AsaManagerPluginSDK;
   let auctionPluginSdk: AuctionPluginSDK;
 
   beforeAll(async () => {
@@ -63,7 +63,7 @@ describe('Auction plugin contract', () => {
     });
 
     // Get plugin SDKs from universe
-    asaMintSdk = akitaUniverse.asaMintPlugin;
+    asaMintSdk = akitaUniverse.asaManagerPlugin;
     auctionPluginSdk = akitaUniverse.auctionPlugin;
 
     // Fund wallet and add both plugins once

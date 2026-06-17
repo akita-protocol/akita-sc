@@ -44,7 +44,7 @@ export interface NetworkAppIds {
   updatePlugin: bigint;
   optinPlugin: bigint;
   selfOptinPlugin: bigint;
-  asaMintPlugin: bigint;
+  asaManagerPlugin: bigint;
   payPlugin: bigint;
   haystackRouterPlugin: bigint;
   hyperSwapPlugin: bigint;
@@ -134,7 +134,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   updatePlugin: 763128671n,
   optinPlugin: 763128795n,
   selfOptinPlugin: 763128796n,
-  asaMintPlugin: 763128820n,
+  asaManagerPlugin: 764705920n,
   payPlugin: 763128821n,
   haystackRouterPlugin: 763128851n,
   hyperSwapPlugin: 763128858n,
@@ -224,7 +224,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   updatePlugin: 3569559689n,
   optinPlugin: 3569560490n,
   selfOptinPlugin: 3569560545n,
-  asaMintPlugin: 3569560791n,
+  asaManagerPlugin: 3605315701n,
   payPlugin: 3569560828n,
   haystackRouterPlugin: 3579545659n,
   hyperSwapPlugin: 3569561068n,
@@ -300,7 +300,7 @@ export function createEmptyAppIds(): NetworkAppIds {
     social: 0n, socialGraph: 0n, socialImpact: 0n, socialModeration: 0n,
     auctionFactory: 0n, marketplace: 0n, raffleFactory: 0n, pollFactory: 0n, prizeBoxFactory: 0n,
     revenueManagerPlugin: 0n, updatePlugin: 0n, optinPlugin: 0n, selfOptinPlugin: 0n,
-    asaMintPlugin: 0n, payPlugin: 0n, haystackRouterPlugin: 0n, hyperSwapPlugin: 0n, subscriptionsPlugin: 0n,
+    asaManagerPlugin: 0n, payPlugin: 0n, haystackRouterPlugin: 0n, hyperSwapPlugin: 0n, subscriptionsPlugin: 0n,
     auctionPlugin: 0n, daoPlugin: 0n, dualStakePlugin: 0n, gatePlugin: 0n,
     marketplacePlugin: 0n, nfdPlugin: 0n, paySiloPlugin: 0n, paySiloFactoryPlugin: 0n,
     pollPlugin: 0n, rafflePlugin: 0n, rewardsPlugin: 0n, socialPlugin: 0n,
@@ -356,7 +356,7 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   UPDATE_PLUGIN_APP_ID: 'updatePlugin',
   OPTIN_PLUGIN_APP_ID: 'optinPlugin',
   SELF_OPTIN_PLUGIN_APP_ID: 'selfOptinPlugin',
-  ASA_MINT_PLUGIN_APP_ID: 'asaMintPlugin',
+  ASA_MINT_PLUGIN_APP_ID: 'asaManagerPlugin',
   PAY_PLUGIN_APP_ID: 'payPlugin',
   HAYSTACK_ROUTER_PLUGIN_APP_ID: 'haystackRouterPlugin',
   HYPER_SWAP_PLUGIN_APP_ID: 'hyperSwapPlugin',

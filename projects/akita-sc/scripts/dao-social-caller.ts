@@ -2,13 +2,14 @@ import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import type { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, NFDPluginSDK, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
+import { AsaManagerPluginSDK, CallerType, NFDPluginSDK, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
 
 export type DaoSocialCallerInstallParams = {
   algorand: AlgorandClient
   dao: AkitaDaoSDK
   socialPlugin: SocialPluginSDK
+  asaManagerPlugin?: AsaManagerPluginSDK
   nfdPlugin?: NFDPluginSDK
   selfOptInPlugin?: SelfOptInPluginSDK
   sender: string
@@ -18,25 +19,11 @@ export type DaoSocialCallerInstallParams = {
   dryRun?: boolean
 }
 
-function canCallResultAllowed(result: unknown): boolean {
-  if (result === true) return true
-  if (result && typeof result === 'object' && 'return' in result) {
-    return (result as { return?: unknown }).return === true
-  }
-  return false
-}
-
-function getMethodSelectors(method: unknown): Uint8Array[] {
-  if (typeof method === 'function') {
-    return method().selectors ?? []
-  }
-  return method as Uint8Array[]
-}
-
 export async function installDaoSocialCaller({
   algorand,
   dao,
   socialPlugin,
+  asaManagerPlugin,
   nfdPlugin,
   selfOptInPlugin,
   sender,
@@ -52,25 +39,16 @@ export async function installDaoSocialCaller({
 
   async function installCallerGrant(
     label: string,
-    client: SocialPluginSDK | NFDPluginSDK | SelfOptInPluginSDK,
-    callerType: typeof CallerType.Other | typeof CallerType.Global,
-    canCallMethod: unknown,
+    client: SocialPluginSDK | AsaManagerPluginSDK | NFDPluginSDK | SelfOptInPluginSDK,
   ): Promise<void> {
-    const methodSelectors = getMethodSelectors(canCallMethod)
-
-    const canCall = await daoWallet.canCall({
-      sender,
-      signer,
-      plugin: client.appId,
-      type: callerType,
-      address: caller,
-      escrow: '',
-      methods: methodSelectors,
-    })
-
-    if (canCall.every(canCallResultAllowed)) {
-      console.log(`DAO ${label} caller already installed`)
-      return
+    try {
+      const info = await daoWallet.getPluginByKey({ plugin: client.appId, caller, escrow: '' })
+      if (info.start !== 0n) {
+        console.log(`DAO ${label} caller already installed`)
+        return
+      }
+    } catch {
+      // Missing plugin grant; install it below.
     }
 
     if (dryRun) {
@@ -95,17 +73,10 @@ export async function installDaoSocialCaller({
     }
 
     const actions: ProposalAction<SDKClient>[] = [
-      callerType === CallerType.Global ? {
+      {
         type: ProposalActionEnum.AddPlugin,
         client,
-        callerType,
-        escrow: '',
-        sourceLink,
-        useExecutionKey: false,
-      } : {
-        type: ProposalActionEnum.AddPlugin,
-        client,
-        callerType,
+        callerType: CallerType.Other,
         caller,
         escrow: '',
         sourceLink,
@@ -119,15 +90,18 @@ export async function installDaoSocialCaller({
     proposalIds.push(await proposeAndExecute(algorand, dao, actions))
   }
 
-  await installCallerGrant('social-plugin', socialPlugin, CallerType.Other, socialPlugin.post())
+  await installCallerGrant('social-plugin', socialPlugin)
+
+  if (asaManagerPlugin) {
+    await installCallerGrant('asa-manager-plugin', asaManagerPlugin)
+  }
 
   if (nfdPlugin) {
-    await installCallerGrant('nfd-plugin', nfdPlugin, CallerType.Other, nfdPlugin.renew())
-    await installCallerGrant('nfd-plugin auto-renew global', nfdPlugin, CallerType.Global, nfdPlugin.autoRenew())
+    await installCallerGrant('nfd-plugin', nfdPlugin)
   }
 
   if (selfOptInPlugin) {
-    await installCallerGrant('self-opt-in-plugin', selfOptInPlugin, CallerType.Other, selfOptInPlugin.optIn())
+    await installCallerGrant('self-opt-in-plugin', selfOptInPlugin)
   }
 
   return { installed: proposalIds.length > 0, proposalIds }

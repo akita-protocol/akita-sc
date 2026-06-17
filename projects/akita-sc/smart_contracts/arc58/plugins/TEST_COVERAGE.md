@@ -18,7 +18,7 @@ The table below is a conservative source scan: a method is marked as a gap when 
 
 | Plugin | Contract methods needing explicit behavior tests |
 | --- | --- |
-| `asa-mint` | None found |
+| `asa-manager` | None found |
 | `auction` | `new`, `listPrizeBox`, `clearWeightsBoxes`, `deleteAuctionApp`, `bid`, `refundBid`, `claimPrize`, `claimRafflePrize`, `raffle`, `findWinner`, `deleteApplication`, `cancel` |
 | `dao` | `setup`, `newProposal`, `editProposal`, `submitProposal`, `voteProposal`, `finalizeProposal`, `executeProposal` |
 | `dual-stake` | `mint` success path, `redeem` success path |

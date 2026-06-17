@@ -2,7 +2,7 @@ import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
-import { AsaMintPluginSDK, newWallet, PayPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { AsaManagerPluginSDK, newWallet, PayPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING} from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
@@ -17,7 +17,7 @@ describe('Pay plugin contract', () => {
   let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
-  let asaMintSdk: AsaMintPluginSDK;
+  let asaMintSdk: AsaManagerPluginSDK;
   let payPluginSdk: PayPluginSDK;
 
   beforeAll(async () => {
@@ -54,7 +54,7 @@ describe('Pay plugin contract', () => {
     });
 
     // Get plugin SDKs from universe
-    asaMintSdk = akitaUniverse.asaMintPlugin;
+    asaMintSdk = akitaUniverse.asaManagerPlugin;
     payPluginSdk = akitaUniverse.payPlugin;
 
     // Fund wallet and add both plugins once
@@ -103,11 +103,11 @@ describe('Pay plugin contract', () => {
       expect(results.txIds.length).toBeGreaterThan(0);
 
       const plugins = await wallet.getPlugins();
-      expect(plugins.size).toBe(2); // AsaMint + Pay plugins
+      expect(plugins.size).toBe(2); // AsaManager + Pay plugins
     });
 
     test('pay ASA OK', async () => {
-      // First, mint an ASA using the AsaMint plugin
+      // First, mint an ASA using the AsaManager plugin
       const mintResults = await wallet.usePlugin({
         callerType: CallerType.Global,
         calls: [
@@ -213,7 +213,7 @@ describe('Pay plugin contract', () => {
     });
 
     test('pay mixed ALGO and ASA OK', async () => {
-      // First, mint an ASA using the AsaMint plugin
+      // First, mint an ASA using the AsaManager plugin
       const mintResults = await wallet.usePlugin({
         callerType: CallerType.Global,
         calls: [

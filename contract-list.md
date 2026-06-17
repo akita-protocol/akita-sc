@@ -3,7 +3,7 @@
 - infinity dao
 - ed25519 passkey lsig
 - secp256r1 passkey lsig
-- asa mint arc58 plugin
+- asa manager arc58 plugin
 - auction arc58 plugin
 - infinity dao arc58 plugin
 - dual stake arc58 plugin
