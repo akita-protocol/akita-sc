@@ -133,11 +133,6 @@ runScript(async () => {
   console.log(`\nStarting HaystackRouterPlugin deployment on ${options.network}...\n`)
 
   const ctx = await setupContext(options, { minBalance: 2_000_000n })
-  const deployer = options.network !== 'localnet' && options.mnemonic
-    ? ctx.algorand.account.fromMnemonic(options.mnemonic)
-    : undefined
-  const sender = deployer?.addr.toString() ?? ctx.sender
-  const signer = deployer?.signer ?? ctx.signer
   const referrerAddress = haystackOptions.referrerAddress
 
   console.log('Haystack Router Plugin Configuration:')
@@ -159,8 +154,8 @@ runScript(async () => {
   }
 
   const factory = ctx.algorand.client.getTypedAppFactory(HaystackRouterPluginFactory, {
-    defaultSender: sender,
-    defaultSigner: signer as any,
+    defaultSender: ctx.sender,
+    defaultSigner: ctx.signer,
   })
 
   console.log('Deploying new HaystackRouterPlugin...')
@@ -177,8 +172,8 @@ runScript(async () => {
     algorand: ctx.algorand,
     factoryParams: {
       appId: client.appId,
-      defaultSender: sender,
-      defaultSigner: signer as any,
+      defaultSender: ctx.sender,
+      defaultSigner: ctx.signer,
     },
   })
 

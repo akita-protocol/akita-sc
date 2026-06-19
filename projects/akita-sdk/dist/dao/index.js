@@ -8,8 +8,8 @@
 
 
 
-var _chunkHIBT3ZMDjs = require('../chunk-HIBT3ZMD.js');
-require('../chunk-X2QX6AQH.js');
+var _chunkDIL5O626js = require('../chunk-DIL5O626.js');
+require('../chunk-KOH7WXQ4.js');
 require('../chunk-VE4MYPMK.js');
 require('../chunk-PFX6BSCE.js');
 require('../chunk-TIURHLVA.js');
@@ -26,5 +26,5 @@ require('../chunk-FZLF55XC.js');
 
 
 
-exports.AkitaDaoSDK = _chunkHIBT3ZMDjs.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkHIBT3ZMDjs.DAOProposalVotesMBR; exports.DAO_ERROR_MESSAGES = _chunkHIBT3ZMDjs.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunkHIBT3ZMDjs.EMPTY_CID; exports.ProposalActionEnum = _chunkHIBT3ZMDjs.ProposalActionEnum; exports.SplitDistributionType = _chunkHIBT3ZMDjs.SplitDistributionType; exports.SplitsToTuples = _chunkHIBT3ZMDjs.SplitsToTuples; exports.parseDaoErrorCode = _chunkHIBT3ZMDjs.parseDaoErrorCode; exports.translateDaoError = _chunkHIBT3ZMDjs.translateDaoError;
+exports.AkitaDaoSDK = _chunkDIL5O626js.AkitaDaoSDK; exports.DAOProposalVotesMBR = _chunkDIL5O626js.DAOProposalVotesMBR; exports.DAO_ERROR_MESSAGES = _chunkDIL5O626js.DAO_ERROR_MESSAGES; exports.EMPTY_CID = _chunkDIL5O626js.EMPTY_CID; exports.ProposalActionEnum = _chunkDIL5O626js.ProposalActionEnum; exports.SplitDistributionType = _chunkDIL5O626js.SplitDistributionType; exports.SplitsToTuples = _chunkDIL5O626js.SplitsToTuples; exports.parseDaoErrorCode = _chunkDIL5O626js.parseDaoErrorCode; exports.translateDaoError = _chunkDIL5O626js.translateDaoError;
 //# sourceMappingURL=index.js.map

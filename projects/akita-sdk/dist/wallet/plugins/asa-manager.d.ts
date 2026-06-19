@@ -19,7 +19,7 @@ type MintArgs = (Omit<ContractArgs['mint(uint64,bool,(string,string,uint64,uint6
     rekeyBack?: boolean;
     assets: CreateAssetParams[];
 });
-type DeleteAssetsArgs = (Omit<ContractArgs['delete(uint64,bool,uint64[])void'], 'wallet' | 'rekeyBack' | 'assets'> & MaybeSigner & {
+type DeleteArgs = (Omit<ContractArgs['delete(uint64,bool,uint64[])void'], 'wallet' | 'rekeyBack' | 'assets'> & MaybeSigner & {
     rekeyBack?: boolean;
     assets: bigint[] | number[];
 });
@@ -27,7 +27,7 @@ export declare class AsaManagerPluginSDK extends BaseSDK<AsaManagerPluginClient>
     constructor(params: NewContractSDKParams);
     mint(): PluginSDKReturn;
     mint(args: MintArgs): PluginSDKReturn;
-    deleteAssets(): PluginSDKReturn;
-    deleteAssets(args: DeleteAssetsArgs): PluginSDKReturn;
+    delete(): PluginSDKReturn;
+    delete(args: DeleteArgs): PluginSDKReturn;
 }
 export { AsaManagerPluginSDK as AsaMintPluginSDK };

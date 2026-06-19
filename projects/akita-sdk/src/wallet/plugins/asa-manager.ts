@@ -33,7 +33,7 @@ type MintArgs = (
   }
 );
 
-type DeleteAssetsArgs = (
+type DeleteArgs = (
   Omit<ContractArgs['delete(uint64,bool,uint64[])void'], 'wallet' | 'rekeyBack' | 'assets'>
   & MaybeSigner
   & {
@@ -109,10 +109,10 @@ export class AsaManagerPluginSDK extends BaseSDK<AsaManagerPluginClient> {
     });
   }
 
-  deleteAssets(): PluginSDKReturn;
-  deleteAssets(args: DeleteAssetsArgs): PluginSDKReturn;
-  deleteAssets(args?: DeleteAssetsArgs): PluginSDKReturn {
-    const methodName = 'deleteAssets';
+  delete(): PluginSDKReturn;
+  delete(args: DeleteArgs): PluginSDKReturn;
+  delete(args?: DeleteArgs): PluginSDKReturn {
+    const methodName = 'delete';
     if (args === undefined) {
       return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,

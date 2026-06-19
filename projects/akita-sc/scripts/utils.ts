@@ -5,7 +5,7 @@ import { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction } from 'akita-sdk/dao'
 import algosdk from 'algosdk'
 
-function wrapUtils10Signer(signer: unknown): TransactionSigner {
+export function wrapUtils10Signer(signer: unknown): TransactionSigner {
   return async (txnGroup, indexesToSign) => {
     const utils10Group: unknown[] = txnGroup.map((txn) => {
       if (typeof (txn as { getEncodingSchema?: unknown }).getEncodingSchema === 'function') {

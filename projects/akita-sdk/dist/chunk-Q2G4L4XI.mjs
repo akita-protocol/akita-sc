@@ -6802,8 +6802,8 @@ var AsaManagerPluginSDK = class extends BaseSDK {
       }
     });
   }
-  deleteAssets(args) {
-    const methodName = "deleteAssets";
+  delete(args) {
+    const methodName = "delete";
     if (args === void 0) {
       return (spendingAddress) => ({
         appId: this.client.appId,
@@ -27025,4 +27025,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-UJD74LFR.mjs.map
+//# sourceMappingURL=chunk-Q2G4L4XI.mjs.map

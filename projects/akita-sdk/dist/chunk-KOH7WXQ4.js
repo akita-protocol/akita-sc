@@ -6802,8 +6802,8 @@ var AsaManagerPluginSDK = class extends _chunkUWCWNWGWjs.BaseSDK {
       }
     });
   }
-  deleteAssets(args) {
-    const methodName = "deleteAssets";
+  delete(args) {
+    const methodName = "delete";
     if (args === void 0) {
       return (spendingAddress) => ({
         appId: this.client.appId,
@@ -27025,4 +27025,4 @@ var WalletSDK = (_class55 = class extends _chunkUWCWNWGWjs.BaseSDK {
 
 
 exports.CallerType = CallerType; exports.AddPluginDefaults = AddPluginDefaults; exports.isFlatAllowance = isFlatAllowance; exports.isWindowAllowance = isWindowAllowance; exports.isDripAllowance = isDripAllowance; exports.isValidPluginSDK = isValidPluginSDK; exports.getPluginAppId = getPluginAppId; exports.NewEscrowFeeAmount = NewEscrowFeeAmount; exports.prepareGroup = prepareGroup; exports.sendPrepared = sendPrepared; exports.WalletGroupComposer = WalletGroupComposer; exports.WALLET_ERROR_MESSAGES = WALLET_ERROR_MESSAGES; exports.parseWalletErrorCode = parseWalletErrorCode; exports.translateWalletError = translateWalletError; exports.WalletFactorySDK = WalletFactorySDK; exports.newWallet = newWallet; exports.OptInPluginSDK = OptInPluginSDK; exports.SelfOptInPluginSDK = SelfOptInPluginSDK; exports.PayPluginSDK = PayPluginSDK; exports.AsaManagerPluginSDK = AsaManagerPluginSDK; exports.UpdateAkitaDAOPluginSDK = UpdateAkitaDAOPluginSDK; exports.RevenueManagerPluginSDK = RevenueManagerPluginSDK; exports.AuctionPluginSDK = AuctionPluginSDK; exports.DAOPluginSDK = DAOPluginSDK; exports.DualStakePluginSDK = DualStakePluginSDK; exports.GatePluginSDK = GatePluginSDK; exports.HaystackRouterPluginSDK = HaystackRouterPluginSDK; exports.HyperSwapPluginSDK = HyperSwapPluginSDK; exports.MarketplacePluginSDK = MarketplacePluginSDK; exports.NFDPluginSDK = NFDPluginSDK; exports.PaySiloPluginSDK = PaySiloPluginSDK; exports.PaySiloFactoryPluginSDK = PaySiloFactoryPluginSDK; exports.PollPluginSDK = PollPluginSDK; exports.RafflePluginSDK = RafflePluginSDK; exports.RewardsPluginSDK = RewardsPluginSDK; exports.SocialPluginSDK = SocialPluginSDK; exports.StakingPluginSDK = StakingPluginSDK; exports.StakingPoolPluginSDK = StakingPoolPluginSDK; exports.SubscriptionsPluginSDK = SubscriptionsPluginSDK; exports.SunsetPluginSDK = SunsetPluginSDK; exports.WalletSDK = WalletSDK;
-//# sourceMappingURL=chunk-X2QX6AQH.js.map
+//# sourceMappingURL=chunk-KOH7WXQ4.js.map

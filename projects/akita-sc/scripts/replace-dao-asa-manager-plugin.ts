@@ -3,19 +3,20 @@
 /**
  * Replace DAO ASA Mint Plugin With ASA Manager Plugin
  *
- * Removes the current global/root asaMint plugin grant from the DAO wallet and
- * installs the AsaManagerPlugin grant in its place.
+ * Discovers current asaMint plugin grants on the DAO wallet, removes them, and
+ * installs AsaManagerPlugin grants with the same caller/escrow keys.
  *
  * Usage:
  *   npm run replace:dao-asa-manager-plugin -- -n mainnet -m "MNEMONIC" --new-plugin-id 123
- *   npm run replace:dao-asa-manager-plugin -- -n testnet -m "MNEMONIC" --old-plugin-id 111 --new-plugin-id 222
+ *   npm run replace:dao-asa-manager-plugin -- -n testnet -m "MNEMONIC" --old-plugin-id 111 --new-plugin-id 222 --caller ADDR
  */
 
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { AsaManagerPluginSDK, CallerType } from 'akita-sdk/wallet'
-import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import { AsaManagerPluginSDK, CallerType, type PluginInfo } from 'akita-sdk/wallet'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import dotenv from 'dotenv'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
 
@@ -24,18 +25,22 @@ const SOURCE_LINK = 'https://github.com/kylebee/akita-sc'
 type ExtraArgs = {
   oldPluginId?: bigint
   newPluginId?: bigint
+  callers: string[]
   sourceLink: string
 }
 
 function parseExtraArgs(): ExtraArgs {
   const args = process.argv.slice(2)
-  const extra: ExtraArgs = { sourceLink: SOURCE_LINK }
+  const extra: ExtraArgs = { callers: [], sourceLink: SOURCE_LINK }
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--old-plugin-id') {
       extra.oldPluginId = BigInt(args[++i])
     } else if (args[i] === '--new-plugin-id') {
       extra.newPluginId = BigInt(args[++i])
+    } else if (args[i] === '--caller') {
+      const value = args[++i]
+      extra.callers.push(...value.split(',').map((x) => x.trim()).filter(Boolean))
     } else if (args[i] === '--source-link') {
       extra.sourceLink = args[++i]
     }
@@ -44,32 +49,101 @@ function parseExtraArgs(): ExtraArgs {
   return extra
 }
 
+type GrantTarget = {
+  caller: string
+  escrow: string
+}
+
+const pluginKeyAbi = algosdk.ABIType.from('(uint64,address,string)')
+
+function decodePluginBoxKey(name: Uint8Array): ({ plugin: bigint } & GrantTarget) | undefined {
+  if (name.length < 2 || name[0] !== 'p'.charCodeAt(0)) return undefined
+
+  try {
+    const decoded = pluginKeyAbi.decode(name.slice(1)) as [bigint, string, string]
+    return {
+      plugin: BigInt(decoded[0]),
+      caller: decoded[1],
+      escrow: decoded[2],
+    }
+  } catch {
+    return undefined
+  }
+}
+
+function grantLabel({ caller, escrow }: GrantTarget): string {
+  const callerLabel = caller === ALGORAND_ZERO_ADDRESS_STRING ? 'global' : caller
+  return escrow === '' ? callerLabel : `${callerLabel} / escrow "${escrow}"`
+}
+
+function envAppId(name: string): bigint | undefined {
+  const value = process.env[name]
+  if (!value) return undefined
+
+  try {
+    const appId = BigInt(value)
+    return appId > 0n ? appId : undefined
+  } catch {
+    return undefined
+  }
+}
+
 runScript(async () => {
   const extra = parseExtraArgs()
   const options = parseBaseArgs('replace-dao-asa-manager-plugin.ts', `
   --old-plugin-id <appId>       Current asaMint plugin app id. Default: network asaMintPlugin
   --new-plugin-id <appId>       New asaManager plugin app id. Default: network asaManagerPlugin
+  --caller <address[,address]>  Optional caller filter. Can be repeated. Defaults to all old-plugin grants.
   --source-link <url>           Proposal source link. Default: ${SOURCE_LINK}`)
 
   console.log(`\nReplacing DAO ASA plugin on ${options.network}...\n`)
+  dotenv.config({ path: `.env.${options.network}` })
 
   const ctx = await setupContext(options, { minBalance: 20_000_000n })
   const effectiveSender = options.dryRun ? ctx.dao.client.appAddress.toString() : ctx.sender
   ctx.dao.setSendParams({ sender: effectiveSender, signer: ctx.signer })
   const wallet = await ctx.dao.getWallet()
 
-  const oldPluginId = extra.oldPluginId ?? ctx.appIds.asaMintPlugin
+  const oldPluginId = extra.oldPluginId ?? (ctx.appIds as { asaMintPlugin?: bigint }).asaMintPlugin ?? envAppId('ASA_MINT_PLUGIN_APP_ID')
   const newPluginId = extra.newPluginId ?? ctx.appIds.asaManagerPlugin
 
-  if (oldPluginId === 0n) {
-    throw new Error('Old asaMint plugin app id is 0. Pass --old-plugin-id or update network config.')
+  if (!oldPluginId || oldPluginId === 0n) {
+    throw new Error('Old asaMint plugin app id is not configured. Pass --old-plugin-id or set ASA_MINT_PLUGIN_APP_ID in the network .env file.')
   }
-  if (newPluginId === 0n) {
+  if (!newPluginId || newPluginId === 0n) {
     throw new Error('New asaManager plugin app id is 0. Pass --new-plugin-id or update network config.')
   }
 
   console.log(`Old asaMint plugin: ${oldPluginId}`)
   console.log(`New asaManager plugin: ${newPluginId}\n`)
+
+  for (const caller of extra.callers) {
+    try {
+      algosdk.decodeAddress(caller)
+    } catch {
+      throw new Error(`Invalid caller address: ${caller}`)
+    }
+  }
+  const callerFilters = new Set(extra.callers)
+  const boxes = await ctx.algorand.app.getBoxNames(wallet.appId)
+  const targets = boxes
+    .map((box) => decodePluginBoxKey(box.nameRaw))
+    .filter((key): key is { plugin: bigint } & GrantTarget => {
+      if (!key || key.plugin !== oldPluginId) return false
+      return callerFilters.size === 0 || callerFilters.has(key.caller)
+    })
+    .map(({ caller, escrow }) => ({ caller, escrow }))
+
+  if (targets.length === 0) {
+    const suffix = callerFilters.size > 0 ? ` matching caller filter: ${[...callerFilters].join(', ')}` : ''
+    console.log(`No installed old asaMint grants found${suffix}.`)
+  } else {
+    console.log(`Discovered ${targets.length} old asaMint grant(s):`)
+    for (const target of targets) {
+      console.log(`  - ${grantLabel(target)}`)
+    }
+    console.log('')
+  }
 
   const asaManagerPlugin = new AsaManagerPluginSDK({
     algorand: ctx.algorand,
@@ -81,45 +155,70 @@ runScript(async () => {
   })
 
   const actions: ProposalAction<SDKClient>[] = []
+  let installCount = 0n
 
-  async function hasGlobalGrant(plugin: bigint): Promise<boolean> {
+  async function getGrantInfo(plugin: bigint, { caller, escrow }: GrantTarget): Promise<PluginInfo | undefined> {
     try {
-      const info = await wallet.getPluginByKey({
-        plugin,
-        caller: ALGORAND_ZERO_ADDRESS_STRING,
-        escrow: '',
-      })
-      return info.start !== 0n
+      const info = await wallet.getPluginByKey({ plugin, caller, escrow })
+      return info.start !== 0n ? info : undefined
     } catch {
-      return false
+      return undefined
     }
   }
 
-  const oldGrantExists = await hasGlobalGrant(oldPluginId)
-  const newGrantExists = await hasGlobalGrant(newPluginId)
+  for (const target of targets) {
+    const { caller, escrow } = target
+    const label = grantLabel(target)
+    const oldGrant = await getGrantInfo(oldPluginId, target)
+    const newGrant = await getGrantInfo(newPluginId, target)
 
-  if (oldGrantExists && oldPluginId !== newPluginId) {
-    actions.push({
-      type: ProposalActionEnum.RemovePlugin,
-      plugin: oldPluginId,
-      caller: ALGORAND_ZERO_ADDRESS_STRING,
-      escrow: '',
-    })
-    console.log('Will remove old asaMint global grant')
-  } else if (oldPluginId === newPluginId && oldGrantExists) {
-    console.log('Old and new plugin ids match; existing global grant is already installed')
-  } else {
-    console.log('Old asaMint global grant not found; skipping removal')
+    if (oldGrant && oldPluginId !== newPluginId) {
+      actions.push({
+        type: ProposalActionEnum.RemovePlugin,
+        plugin: oldPluginId,
+        caller,
+        escrow,
+      })
+      console.log(`Will remove old asaMint grant for ${label}`)
+    } else if (oldPluginId === newPluginId && oldGrant) {
+      console.log(`Old and new plugin ids match; existing grant for ${label} is already installed`)
+    } else {
+      console.log(`Old asaMint grant for ${label} not found; skipping removal`)
+    }
+
+    if (newGrant) {
+      console.log(`New asaManager grant for ${label} already exists; skipping install`)
+    } else if (oldGrant) {
+      actions.push({
+        type: ProposalActionEnum.AddPlugin,
+        client: asaManagerPlugin,
+        callerType: caller === ALGORAND_ZERO_ADDRESS_STRING ? CallerType.Global : CallerType.Other,
+        caller,
+        escrow,
+        delegationType: oldGrant.delegationType,
+        lastValid: oldGrant.lastValid,
+        cooldown: oldGrant.cooldown,
+        methods: oldGrant.methods.map((method) => ({
+          name: [method.name],
+          cooldown: method.cooldown,
+        })),
+        useRounds: oldGrant.useRounds,
+        coverFees: oldGrant.coverFees,
+        defaultToEscrow: oldGrant.escrow !== 0n,
+        sourceLink: extra.sourceLink,
+        useExecutionKey: false,
+      })
+      installCount += 1n
+      console.log(`Will install new asaManager grant for ${label}`)
+    }
   }
 
-  if (newGrantExists) {
-    console.log('New asaManager global grant already exists; skipping install')
-  } else {
+  if (installCount > 0n) {
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n })
     const funding = await getAppFundingNeeded(
       ctx.algorand,
       wallet.client.appAddress.toString(),
-      mbr.plugins + 1_000_000n,
+      (mbr.plugins * installCount) + 1_000_000n,
     )
 
     if (funding > 0n) {
@@ -132,16 +231,6 @@ runScript(async () => {
     } else {
       console.log('Wallet already has sufficient balance for plugin installation')
     }
-
-    actions.push({
-      type: ProposalActionEnum.AddPlugin,
-      client: asaManagerPlugin,
-      callerType: CallerType.Global,
-      escrow: '',
-      sourceLink: extra.sourceLink,
-      useExecutionKey: false,
-    })
-    console.log('Will install new asaManager global grant')
   }
 
   if (actions.length === 0) {
@@ -172,5 +261,6 @@ Summary:
   Proposal ID: ${proposalId}
   Removed asaMint plugin: ${oldPluginId}
   Installed asaManager plugin: ${newPluginId}
+  Grants: ${targets.map(grantLabel).join(', ')}
 `)
 })

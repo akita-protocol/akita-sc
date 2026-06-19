@@ -18,7 +18,7 @@ import { getNetworkAppIds, SDKClient, sendPrepared, setCurrentNetwork, type Akit
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
-import { executeProposal, proposeAndExecute } from './utils'
+import { executeProposal, proposeAndExecute, wrapUtils10Signer } from './utils'
 
 export type Network = AkitaNetwork
 
@@ -149,15 +149,15 @@ export async function setupContext(
     await fixture.newScope()
     const account = fixture.context.testAccount as algosdk.Account
     sender = account.addr.toString()
-    signer = (account as any).signer
+    signer = wrapUtils10Signer((account as any).signer) as algosdk.TransactionSigner
   } else if (options.mnemonic) {
-    const account = algosdk.mnemonicToSecretKey(options.mnemonic)
+    const account = algorand.account.fromMnemonic(options.mnemonic)
     sender = account.addr.toString()
-    signer = makeBasicAccountTransactionSigner(account)
+    signer = wrapUtils10Signer(account.signer) as algosdk.TransactionSigner
     console.log(`Using account: ${sender}\n`)
   } else if (options.dryRun) {
     sender = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-    signer = makeBasicAccountTransactionSigner({ addr: sender, sk: new Uint8Array(64) } as any)
+    signer = wrapUtils10Signer(makeBasicAccountTransactionSigner({ addr: sender, sk: new Uint8Array(64) } as any)) as algosdk.TransactionSigner
   } else {
     throw new Error('Mnemonic is required for non-localnet networks')
   }

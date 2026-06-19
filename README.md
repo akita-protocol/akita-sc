@@ -170,91 +170,91 @@ Mainnet last updated from manual NFD/staking plugin deployment on 2026-05-25.
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `dao` | `763128236` | `3569556034` |
-| `daoProposalValidator` | `763128235` | `3569555925` |
-| `wallet` | `763128598` | `3569559153` |
-| `walletFactory` | `763128255` | `3569556257` |
-| `escrowFactory` | `763128227` | `3569555755` |
+| `dao` | [`763128236`](https://lora.algokit.io/testnet/application/763128236) | [`3569556034`](https://lora.algokit.io/mainnet/application/3569556034) |
+| `daoProposalValidator` | [`763128235`](https://lora.algokit.io/testnet/application/763128235) | [`3569555925`](https://lora.algokit.io/mainnet/application/3569555925) |
+| `wallet` | [`763128598`](https://lora.algokit.io/testnet/application/763128598) | [`3569559153`](https://lora.algokit.io/mainnet/application/3569559153) |
+| `walletFactory` | [`763128255`](https://lora.algokit.io/testnet/application/763128255) | [`3569556257`](https://lora.algokit.io/mainnet/application/3569556257) |
+| `escrowFactory` | [`763128227`](https://lora.algokit.io/testnet/application/763128227) | [`3569555755`](https://lora.algokit.io/mainnet/application/3569555755) |
 
 ### DeFi Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `staking` | `763128307` | `3569556776` |
-| `stakingPoolFactory` | `763128285` | `3569556570` |
-| `subscriptions` | `763128278` | `3569556497` |
-| `rewards` | `763128244` | `3569556095` |
-| `hyperSwap` | `763128499` | `3569558555` |
-| `marketplace` | `763128381` | `3569557584` |
-| `auctionFactory` | `763128353` | `3569557408` |
+| `staking` | [`763128307`](https://lora.algokit.io/testnet/application/763128307) | [`3569556776`](https://lora.algokit.io/mainnet/application/3569556776) |
+| `stakingPoolFactory` | [`763128285`](https://lora.algokit.io/testnet/application/763128285) | [`3569556570`](https://lora.algokit.io/mainnet/application/3569556570) |
+| `subscriptions` | [`763128278`](https://lora.algokit.io/testnet/application/763128278) | [`3569556497`](https://lora.algokit.io/mainnet/application/3569556497) |
+| `rewards` | [`763128244`](https://lora.algokit.io/testnet/application/763128244) | [`3569556095`](https://lora.algokit.io/mainnet/application/3569556095) |
+| `hyperSwap` | [`763128499`](https://lora.algokit.io/testnet/application/763128499) | [`3569558555`](https://lora.algokit.io/mainnet/application/3569558555) |
+| `marketplace` | [`763128381`](https://lora.algokit.io/testnet/application/763128381) | [`3569557584`](https://lora.algokit.io/mainnet/application/3569557584) |
+| `auctionFactory` | [`763128353`](https://lora.algokit.io/testnet/application/763128353) | [`3569557408`](https://lora.algokit.io/mainnet/application/3569557408) |
 
 ### Community Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `social` | `763128333` | `3569557130` |
-| `socialGraph` | `763128326` | `3569557033` |
-| `socialImpact` | `763128316` | `3569556973` |
-| `socialModeration` | `763128334` | `3569557176` |
-| `pollFactory` | `763128430` | `3569557932` |
-| `raffleFactory` | `763128404` | `3569557743` |
-| `prizeBoxFactory` | `763128434` | `3569557972` |
+| `social` | [`763128333`](https://lora.algokit.io/testnet/application/763128333) | [`3569557130`](https://lora.algokit.io/mainnet/application/3569557130) |
+| `socialGraph` | [`763128326`](https://lora.algokit.io/testnet/application/763128326) | [`3569557033`](https://lora.algokit.io/mainnet/application/3569557033) |
+| `socialImpact` | [`763128316`](https://lora.algokit.io/testnet/application/763128316) | [`3569556973`](https://lora.algokit.io/mainnet/application/3569556973) |
+| `socialModeration` | [`763128334`](https://lora.algokit.io/testnet/application/763128334) | [`3569557176`](https://lora.algokit.io/mainnet/application/3569557176) |
+| `pollFactory` | [`763128430`](https://lora.algokit.io/testnet/application/763128430) | [`3569557932`](https://lora.algokit.io/mainnet/application/3569557932) |
+| `raffleFactory` | [`763128404`](https://lora.algokit.io/testnet/application/763128404) | [`3569557743`](https://lora.algokit.io/mainnet/application/3569557743) |
+| `prizeBoxFactory` | [`763128434`](https://lora.algokit.io/testnet/application/763128434) | [`3569557972`](https://lora.algokit.io/mainnet/application/3569557972) |
 
 ### Infrastructure Contracts
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| `gate` | `763128492` | `3569558504` |
-| `metaMerkles` | `763128435` | `3569558010` |
+| `gate` | [`763128492`](https://lora.algokit.io/testnet/application/763128492) | [`3569558504`](https://lora.algokit.io/mainnet/application/3569558504) |
+| `metaMerkles` | [`763128435`](https://lora.algokit.io/testnet/application/763128435) | [`3569558010`](https://lora.algokit.io/mainnet/application/3569558010) |
 
 ### Plugins
 
 | Plugin | Testnet | Mainnet |
 |--------|---------|---------|
-| `optInPlugin` | `763128795` | `3569560490` |
-| `selfOptInPlugin` | `763128796` | `3569560545` |
-| `payPlugin` | `763128821` | `3569560828` |
-| `asaManagerPlugin` | `764705920` | `3605315701` |
-| `auctionPlugin` | `763128866` | `3569561141` |
-| `daoPlugin` | `763128876` | `3569561215` |
-| `dualStakePlugin` | `763128877` | `3569561317` |
-| `gatePlugin` | `763128884` | `3569561367` |
-| `haystackRouterPlugin` | `763128851` | `3579545659` |
-| `hyperSwapPlugin` | `763128858` | `3569561068` |
-| `marketplacePlugin` | `763128885` | `3569561455` |
-| `nfdPlugin` | `763128895` | `3572944055` |
-| `paySiloPlugin` | `763128904` | `3569561570` |
-| `paySiloFactoryPlugin` | `763128905` | `3569561636` |
-| `pollPlugin` | `763128906` | `3569561749` |
-| `rafflePlugin` | `763128922` | `3569561863` |
-| `revenueManagerPlugin` | `763128627` | `3569559335` |
-| `rewardsPlugin` | `763128923` | `3569561963` |
-| `socialPlugin` | `763128930` | `3569562087` |
-| `stakingPlugin` | `763128931` | `3572944799` |
-| `stakingPoolPlugin` | `763128941` | `3569562283` |
-| `subscriptionsPlugin` | `763128859` | `3569561107` |
-| `updatePlugin` | `763128671` | `3569559689` |
+| `optInPlugin` | [`763128795`](https://lora.algokit.io/testnet/application/763128795) | [`3569560490`](https://lora.algokit.io/mainnet/application/3569560490) |
+| `selfOptInPlugin` | [`763128796`](https://lora.algokit.io/testnet/application/763128796) | [`3569560545`](https://lora.algokit.io/mainnet/application/3569560545) |
+| `payPlugin` | [`763128821`](https://lora.algokit.io/testnet/application/763128821) | [`3569560828`](https://lora.algokit.io/mainnet/application/3569560828) |
+| `asaManagerPlugin` | [`764705920`](https://lora.algokit.io/testnet/application/764705920) | [`3605315701`](https://lora.algokit.io/mainnet/application/3605315701) |
+| `auctionPlugin` | [`763128866`](https://lora.algokit.io/testnet/application/763128866) | [`3569561141`](https://lora.algokit.io/mainnet/application/3569561141) |
+| `daoPlugin` | [`763128876`](https://lora.algokit.io/testnet/application/763128876) | [`3569561215`](https://lora.algokit.io/mainnet/application/3569561215) |
+| `dualStakePlugin` | [`763128877`](https://lora.algokit.io/testnet/application/763128877) | [`3569561317`](https://lora.algokit.io/mainnet/application/3569561317) |
+| `gatePlugin` | [`763128884`](https://lora.algokit.io/testnet/application/763128884) | [`3569561367`](https://lora.algokit.io/mainnet/application/3569561367) |
+| `haystackRouterPlugin` | [`763128851`](https://lora.algokit.io/testnet/application/763128851) | [`3579545659`](https://lora.algokit.io/mainnet/application/3579545659) |
+| `hyperSwapPlugin` | [`763128858`](https://lora.algokit.io/testnet/application/763128858) | [`3569561068`](https://lora.algokit.io/mainnet/application/3569561068) |
+| `marketplacePlugin` | [`763128885`](https://lora.algokit.io/testnet/application/763128885) | [`3569561455`](https://lora.algokit.io/mainnet/application/3569561455) |
+| `nfdPlugin` | [`763128895`](https://lora.algokit.io/testnet/application/763128895) | [`3572944055`](https://lora.algokit.io/mainnet/application/3572944055) |
+| `paySiloPlugin` | [`763128904`](https://lora.algokit.io/testnet/application/763128904) | [`3569561570`](https://lora.algokit.io/mainnet/application/3569561570) |
+| `paySiloFactoryPlugin` | [`763128905`](https://lora.algokit.io/testnet/application/763128905) | [`3569561636`](https://lora.algokit.io/mainnet/application/3569561636) |
+| `pollPlugin` | [`763128906`](https://lora.algokit.io/testnet/application/763128906) | [`3569561749`](https://lora.algokit.io/mainnet/application/3569561749) |
+| `rafflePlugin` | [`763128922`](https://lora.algokit.io/testnet/application/763128922) | [`3569561863`](https://lora.algokit.io/mainnet/application/3569561863) |
+| `revenueManagerPlugin` | [`763128627`](https://lora.algokit.io/testnet/application/763128627) | [`3569559335`](https://lora.algokit.io/mainnet/application/3569559335) |
+| `rewardsPlugin` | [`763128923`](https://lora.algokit.io/testnet/application/763128923) | [`3569561963`](https://lora.algokit.io/mainnet/application/3569561963) |
+| `socialPlugin` | [`763128930`](https://lora.algokit.io/testnet/application/763128930) | [`3569562087`](https://lora.algokit.io/mainnet/application/3569562087) |
+| `stakingPlugin` | [`763128931`](https://lora.algokit.io/testnet/application/763128931) | [`3572944799`](https://lora.algokit.io/mainnet/application/3572944799) |
+| `stakingPoolPlugin` | [`763128941`](https://lora.algokit.io/testnet/application/763128941) | [`3569562283`](https://lora.algokit.io/mainnet/application/3569562283) |
+| `subscriptionsPlugin` | [`763128859`](https://lora.algokit.io/testnet/application/763128859) | [`3569561107`](https://lora.algokit.io/mainnet/application/3569561107) |
+| `updatePlugin` | [`763128671`](https://lora.algokit.io/testnet/application/763128671) | [`3569559689`](https://lora.algokit.io/mainnet/application/3569559689) |
 
 ### Sub-Gates
 
 | Sub-Gate | Testnet | Mainnet |
 |----------|---------|---------|
-| `akitaReferrerGate` | `763128503` | `3569558604` |
-| `assetGate` | `763128508` | `3569558602` |
-| `merkleAddressGate` | `763128509` | `3569558615` |
-| `merkleAssetGate` | `763128506` | `3569558603` |
-| `nfdGate` | `763128504` | `3569558608` |
-| `nfdRootGate` | `763128511` | `3569558606` |
-| `pollGate` | `763128514` | `3569558607` |
-| `socialActivityGate` | `763128517` | `3569558616` |
-| `socialFollowerCountGate` | `763128518` | `3569558612` |
-| `socialFollowerIndexGate` | `763128516` | `3569558605` |
-| `socialImpactGate` | `763128505` | `3569558618` |
-| `socialModeratorGate` | `763128512` | `3569558617` |
-| `stakingAmountGate` | `763128513` | `3569558613` |
-| `stakingPowerGate` | `763128510` | `3569558611` |
-| `subscriptionGate` | `763128507` | `3569558609` |
-| `subscriptionStreakGate` | `763128515` | `3569558614` |
+| `akitaReferrerGate` | [`763128503`](https://lora.algokit.io/testnet/application/763128503) | [`3569558604`](https://lora.algokit.io/mainnet/application/3569558604) |
+| `assetGate` | [`763128508`](https://lora.algokit.io/testnet/application/763128508) | [`3569558602`](https://lora.algokit.io/mainnet/application/3569558602) |
+| `merkleAddressGate` | [`763128509`](https://lora.algokit.io/testnet/application/763128509) | [`3569558615`](https://lora.algokit.io/mainnet/application/3569558615) |
+| `merkleAssetGate` | [`763128506`](https://lora.algokit.io/testnet/application/763128506) | [`3569558603`](https://lora.algokit.io/mainnet/application/3569558603) |
+| `nfdGate` | [`763128504`](https://lora.algokit.io/testnet/application/763128504) | [`3569558608`](https://lora.algokit.io/mainnet/application/3569558608) |
+| `nfdRootGate` | [`763128511`](https://lora.algokit.io/testnet/application/763128511) | [`3569558606`](https://lora.algokit.io/mainnet/application/3569558606) |
+| `pollGate` | [`763128514`](https://lora.algokit.io/testnet/application/763128514) | [`3569558607`](https://lora.algokit.io/mainnet/application/3569558607) |
+| `socialActivityGate` | [`763128517`](https://lora.algokit.io/testnet/application/763128517) | [`3569558616`](https://lora.algokit.io/mainnet/application/3569558616) |
+| `socialFollowerCountGate` | [`763128518`](https://lora.algokit.io/testnet/application/763128518) | [`3569558612`](https://lora.algokit.io/mainnet/application/3569558612) |
+| `socialFollowerIndexGate` | [`763128516`](https://lora.algokit.io/testnet/application/763128516) | [`3569558605`](https://lora.algokit.io/mainnet/application/3569558605) |
+| `socialImpactGate` | [`763128505`](https://lora.algokit.io/testnet/application/763128505) | [`3569558618`](https://lora.algokit.io/mainnet/application/3569558618) |
+| `socialModeratorGate` | [`763128512`](https://lora.algokit.io/testnet/application/763128512) | [`3569558617`](https://lora.algokit.io/mainnet/application/3569558617) |
+| `stakingAmountGate` | [`763128513`](https://lora.algokit.io/testnet/application/763128513) | [`3569558613`](https://lora.algokit.io/mainnet/application/3569558613) |
+| `stakingPowerGate` | [`763128510`](https://lora.algokit.io/testnet/application/763128510) | [`3569558611`](https://lora.algokit.io/mainnet/application/3569558611) |
+| `subscriptionGate` | [`763128507`](https://lora.algokit.io/testnet/application/763128507) | [`3569558609`](https://lora.algokit.io/mainnet/application/3569558609) |
+| `subscriptionStreakGate` | [`763128515`](https://lora.algokit.io/testnet/application/763128515) | [`3569558614`](https://lora.algokit.io/mainnet/application/3569558614) |
 
 ### Assets
 
@@ -268,10 +268,10 @@ Mainnet last updated from manual NFD/staking plugin deployment on 2026-05-25.
 
 | Contract | Testnet | Mainnet |
 |----------|---------|---------|
-| VRF Beacon | `600011887` | `1615566206` |
-| NFD Registry | `84366825` | `760937186` |
-| Asset Inbox | `643020148` | `2449590623` |
-| Akita NFD | `0` | `765902356` |
+| VRF Beacon | [`600011887`](https://lora.algokit.io/testnet/application/600011887) | [`1615566206`](https://lora.algokit.io/mainnet/application/1615566206) |
+| NFD Registry | [`84366825`](https://lora.algokit.io/testnet/application/84366825) | [`760937186`](https://lora.algokit.io/mainnet/application/760937186) |
+| Asset Inbox | [`643020148`](https://lora.algokit.io/testnet/application/643020148) | [`2449590623`](https://lora.algokit.io/mainnet/application/2449590623) |
+| Akita NFD | `0` | [`765902356`](https://lora.algokit.io/mainnet/application/765902356) |
 
 ---
 

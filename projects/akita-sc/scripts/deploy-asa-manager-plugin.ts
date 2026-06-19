@@ -25,15 +25,9 @@ runScript(async () => {
     return
   }
 
-  const deployer = options.mnemonic
-    ? ctx.algorand.account.fromMnemonic(options.mnemonic)
-    : undefined
-  const defaultSender = deployer?.addr.toString() ?? ctx.sender
-  const defaultSigner = deployer?.signer ?? ctx.signer
-
   const factory = ctx.algorand.client.getTypedAppFactory(AsaManagerPluginFactory, {
-    defaultSender,
-    defaultSigner,
+    defaultSender: ctx.sender,
+    defaultSigner: ctx.signer,
   })
 
   console.log('Deploying new AsaManagerPlugin...')
@@ -46,8 +40,8 @@ runScript(async () => {
     algorand: ctx.algorand,
     factoryParams: {
       appId: client.appId,
-      defaultSender,
-      defaultSigner,
+      defaultSender: ctx.sender,
+      defaultSigner: ctx.signer,
     },
   })
 

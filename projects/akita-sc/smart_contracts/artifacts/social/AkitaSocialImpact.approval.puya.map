@@ -5,7 +5,7 @@
     "../../utils/base-contracts/base.ts",
     "../../utils/functions.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -16,9 +16,9 @@
       "op": "intcblock 0 1 8 2 250 1000000000000 200000000000 31536000 10000000000 63072000"
     },
     "34": {
-      "op": "bytecblock \"akita_dao\" 0x151f7c75 \"sal\" \"\" \"ERR:NSOC\" \"m\" \"wallet\" \"ERR:NDAO\" \"version\" \"oal\" 0x6c13ede4 \"i.timeChanged\" base32(AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLQ) \"aal\" \"akita_assets\""
+      "op": "bytecblock \"akita_dao\" 0x151f7c75 \"sal\" \"wallet\" \"ERR:NSOC\" \"m\" \"ERR:NDAO\" \"version\" \"oal\" 0x6c13ede4 \"i.timeChanged\" base32(AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLQ) \"aal\" \"akita_assets\""
     },
-    "164": {
+    "163": {
       "op": "pushbytes 0xea9180dd // method \"update(string)void\"",
       "defined_out": [
         "Method(update(string)void)"
@@ -27,7 +27,7 @@
         "Method(update(string)void)"
       ]
     },
-    "170": {
+    "169": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(update(string)void)",
@@ -38,11 +38,11 @@
         "tmp%0#1"
       ]
     },
-    "173": {
+    "172": {
       "op": "match main_update_route@2",
       "stack_out": []
     },
-    "177": {
+    "176": {
       "block": "main_switch_case_next@3",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -53,7 +53,7 @@
         "tmp%6#0"
       ]
     },
-    "179": {
+    "178": {
       "op": "!",
       "defined_out": [
         "tmp%7#0"
@@ -62,11 +62,11 @@
         "tmp%7#0"
       ]
     },
-    "180": {
+    "179": {
       "op": "assert",
       "stack_out": []
     },
-    "181": {
+    "180": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%8#0"
@@ -75,11 +75,11 @@
         "tmp%8#0"
       ]
     },
-    "183": {
+    "182": {
       "op": "bz main_create_NoOp@15",
       "stack_out": []
     },
-    "186": {
+    "185": {
       "op": "pushbytess 0x27e3bb4f 0x9d74f5a1 0xf81c7b62 0xd574bb10 0xf24d6063 0x8014440e 0xb6ec6a5d 0x33e92c94 0x854dede0 // method \"cacheMeta(address,uint64,uint64,uint64)uint64\", method \"updateSubscriptionStateModifier(pay,uint64,uint64)void\", method \"getUserImpactWithoutSocial(address)uint64\", method \"getUserImpact(address)uint64\", method \"getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64\", method \"calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64\", method \"getMeta(address)(uint64,uint64,uint64,uint64,uint64)\", method \"updateAkitaDAO(uint64)void\", method \"opUp()void\"",
       "defined_out": [
         "Method(cacheMeta(address,uint64,uint64,uint64)uint64)",
@@ -104,7 +104,7 @@
         "Method(opUp()void)"
       ]
     },
-    "233": {
+    "232": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(cacheMeta(address,uint64,uint64,uint64)uint64)",
@@ -131,14 +131,14 @@
         "tmp%10#0"
       ]
     },
-    "236": {
+    "235": {
       "op": "match cacheMeta updateSubscriptionStateModifier getUserImpactWithoutSocial getUserImpact getUserImpactWithInputs calculateSocialImpactScore getMeta updateAkitaDAO main_opUp_route@13",
       "stack_out": []
     },
-    "256": {
+    "255": {
       "op": "err"
     },
-    "257": {
+    "256": {
       "block": "main_opUp_route@13",
       "stack_in": [],
       "op": "intc_1 // 1",
@@ -149,11 +149,11 @@
         "1"
       ]
     },
-    "258": {
+    "257": {
       "op": "return",
       "stack_out": []
     },
-    "259": {
+    "258": {
       "block": "main_create_NoOp@15",
       "stack_in": [],
       "op": "pushbytes 0x6f9817f6 // method \"create(uint64,string)void\"",
@@ -164,7 +164,7 @@
         "Method(create(uint64,string)void)"
       ]
     },
-    "265": {
+    "264": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(create(uint64,string)void)",
@@ -175,14 +175,14 @@
         "tmp%11#0"
       ]
     },
-    "268": {
+    "267": {
       "op": "match create",
       "stack_out": []
     },
-    "272": {
+    "271": {
       "op": "err"
     },
-    "273": {
+    "272": {
       "block": "main_update_route@2",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -193,7 +193,7 @@
         "tmp%1#0"
       ]
     },
-    "275": {
+    "274": {
       "op": "pushint 4 // UpdateApplication",
       "defined_out": [
         "UpdateApplication",
@@ -204,7 +204,7 @@
         "UpdateApplication"
       ]
     },
-    "277": {
+    "276": {
       "op": "==",
       "defined_out": [
         "tmp%2#0"
@@ -213,7 +213,7 @@
         "tmp%2#0"
       ]
     },
-    "278": {
+    "277": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%2#0",
@@ -224,7 +224,7 @@
         "tmp%3#0"
       ]
     },
-    "280": {
+    "279": {
       "op": "&&",
       "defined_out": [
         "tmp%5#0"
@@ -233,14 +233,14 @@
         "tmp%5#0"
       ]
     },
-    "281": {
+    "280": {
       "op": "assert",
       "stack_out": []
     },
-    "282": {
+    "281": {
       "op": "b update"
     },
-    "285": {
+    "284": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.create[routing]",
       "params": {},
       "block": "create",
@@ -253,7 +253,7 @@
         "tmp%0#0"
       ]
     },
-    "288": {
+    "287": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -264,7 +264,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "289": {
+    "288": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -275,7 +275,7 @@
         "len%0#0"
       ]
     },
-    "290": {
+    "289": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -288,7 +288,7 @@
         "8"
       ]
     },
-    "291": {
+    "290": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -299,14 +299,14 @@
         "eq%0#0"
       ]
     },
-    "292": {
+    "291": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "293": {
+    "292": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -315,7 +315,7 @@
         "akitaDAO#0"
       ]
     },
-    "294": {
+    "293": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "akitaDAO#0",
@@ -326,7 +326,7 @@
         "tmp%2#0"
       ]
     },
-    "297": {
+    "296": {
       "op": "dup",
       "defined_out": [
         "akitaDAO#0",
@@ -339,7 +339,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "298": {
+    "297": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -354,7 +354,7 @@
         "0"
       ]
     },
-    "299": {
+    "298": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -368,7 +368,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "300": {
+    "299": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -383,7 +383,7 @@
         "2"
       ]
     },
-    "301": {
+    "300": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -396,7 +396,7 @@
         "add%0#0"
       ]
     },
-    "302": {
+    "301": {
       "op": "dig 1",
       "stack_out": [
         "akitaDAO#0",
@@ -405,7 +405,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "304": {
+    "303": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -420,7 +420,7 @@
         "len%1#0"
       ]
     },
-    "305": {
+    "304": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -433,7 +433,7 @@
         "eq%1#0"
       ]
     },
-    "306": {
+    "305": {
       "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
@@ -441,7 +441,7 @@
         "tmp%2#0"
       ]
     },
-    "307": {
+    "306": {
       "op": "extract 2 0",
       "defined_out": [
         "akitaDAO#0",
@@ -452,8 +452,8 @@
         "version#0"
       ]
     },
-    "310": {
-      "op": "bytec 8 // \"version\"",
+    "309": {
+      "op": "bytec 7 // \"version\"",
       "defined_out": [
         "\"version\"",
         "akitaDAO#0",
@@ -465,7 +465,7 @@
         "\"version\""
       ]
     },
-    "312": {
+    "311": {
       "op": "swap",
       "stack_out": [
         "akitaDAO#0",
@@ -473,13 +473,13 @@
         "version#0"
       ]
     },
-    "313": {
+    "312": {
       "op": "app_global_put",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "314": {
+    "313": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -490,18 +490,18 @@
         "\"akita_dao\""
       ]
     },
-    "315": {
+    "314": {
       "op": "swap",
       "stack_out": [
         "\"akita_dao\"",
         "akitaDAO#0"
       ]
     },
-    "316": {
+    "315": {
       "op": "app_global_put",
       "stack_out": []
     },
-    "317": {
+    "316": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -510,11 +510,11 @@
         "1"
       ]
     },
-    "318": {
+    "317": {
       "op": "return",
       "stack_out": []
     },
-    "319": {
+    "318": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.cacheMeta[routing]",
       "params": {},
       "block": "cacheMeta",
@@ -524,7 +524,7 @@
         "addr#0"
       ]
     },
-    "320": {
+    "319": {
       "op": "dupn 5",
       "stack_out": [
         "addr#0",
@@ -535,8 +535,8 @@
         "twitter#0"
       ]
     },
-    "322": {
-      "op": "bytec_3 // \"\"",
+    "321": {
+      "op": "pushbytes \"\"",
       "stack_out": [
         "addr#0",
         "caAlgoData#0",
@@ -2387,7 +2387,7 @@
       ]
     },
     "449": {
-      "op": "bytec 9 // \"oal\"",
+      "op": "bytec 8 // \"oal\"",
       "defined_out": [
         "\"oal\"",
         "NFDAppID#0",
@@ -3301,7 +3301,7 @@
       ]
     },
     "519": {
-      "op": "bytec 10 // method \"readField(byte[])byte[]\"",
+      "op": "bytec 9 // method \"readField(byte[])byte[]\"",
       "defined_out": [
         "Method(readField(byte[])byte[])",
         "NFDAppID#0"
@@ -5434,7 +5434,7 @@
       ]
     },
     "675": {
-      "op": "bytec 11 // \"i.timeChanged\"",
+      "op": "bytec 10 // \"i.timeChanged\"",
       "defined_out": [
         "\"i.timeChanged\"",
         "NFDAppID#0",
@@ -5901,7 +5901,7 @@
       ]
     },
     "715": {
-      "op": "bytec 9 // \"oal\"",
+      "op": "bytec 8 // \"oal\"",
       "defined_out": [
         "\"oal\"",
         "NFDAppID#0",
@@ -11081,7 +11081,7 @@
       ]
     },
     "1057": {
-      "op": "bytec 12 // addr AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI",
+      "op": "bytec 11 // addr AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI",
       "defined_out": [
         "Address(AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI)",
         "akitaAssetID#0",
@@ -12538,7 +12538,7 @@
       ]
     },
     "1170": {
-      "op": "bytec 6 // \"wallet\"",
+      "op": "bytec_3 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
         "maybe_value%0#0",
@@ -12556,7 +12556,7 @@
         "\"wallet\""
       ]
     },
-    "1172": {
+    "1171": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -12575,7 +12575,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1173": {
+    "1172": {
       "op": "pop",
       "stack_out": [
         "payment#0",
@@ -12585,7 +12585,7 @@
         "walletID#0"
       ]
     },
-    "1174": {
+    "1173": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%0#0",
@@ -12604,7 +12604,7 @@
         "check%0#0"
       ]
     },
-    "1176": {
+    "1175": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -12615,7 +12615,7 @@
         "value%0#0"
       ]
     },
-    "1177": {
+    "1176": {
       "op": "==",
       "defined_out": [
         "newModifier#0",
@@ -12630,7 +12630,7 @@
         "tmp%2#1"
       ]
     },
-    "1178": {
+    "1177": {
       "op": "bnz updateSubscriptionStateModifier_after_assert@3",
       "stack_out": [
         "payment#0",
@@ -12638,8 +12638,8 @@
         "newModifier#0"
       ]
     },
-    "1181": {
-      "op": "bytec 7 // \"ERR:NDAO\"",
+    "1180": {
+      "op": "bytec 6 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "newModifier#0",
@@ -12653,7 +12653,7 @@
         "\"ERR:NDAO\""
       ]
     },
-    "1183": {
+    "1182": {
       "op": "log",
       "stack_out": [
         "payment#0",
@@ -12661,11 +12661,11 @@
         "newModifier#0"
       ]
     },
-    "1184": {
+    "1183": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "1185": {
+    "1184": {
       "block": "updateSubscriptionStateModifier_after_assert@3",
       "stack_in": [
         "payment#0",
@@ -12683,7 +12683,7 @@
         "subscriptionIndex#0"
       ]
     },
-    "1187": {
+    "1186": {
       "op": "itob",
       "defined_out": [
         "encoded_value%0#0",
@@ -12696,7 +12696,7 @@
         "encoded_value%0#0"
       ]
     },
-    "1188": {
+    "1187": {
       "op": "pushbytes \"s\"",
       "defined_out": [
         "\"s\"",
@@ -12711,7 +12711,7 @@
         "\"s\""
       ]
     },
-    "1191": {
+    "1190": {
       "op": "swap",
       "stack_out": [
         "payment#0",
@@ -12721,7 +12721,7 @@
         "encoded_value%0#0"
       ]
     },
-    "1192": {
+    "1191": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -12734,7 +12734,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1193": {
+    "1192": {
       "op": "dig 1",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -12749,7 +12749,7 @@
         "newModifier#0"
       ]
     },
-    "1195": {
+    "1194": {
       "op": "itob",
       "defined_out": [
         "encoded_value%1#0",
@@ -12765,7 +12765,7 @@
         "encoded_value%1#0"
       ]
     },
-    "1196": {
+    "1195": {
       "op": "box_put",
       "stack_out": [
         "payment#0",
@@ -12773,7 +12773,7 @@
         "newModifier#0"
       ]
     },
-    "1197": {
+    "1196": {
       "op": "dig 2",
       "defined_out": [
         "newModifier#0",
@@ -12787,7 +12787,7 @@
         "payment#0"
       ]
     },
-    "1199": {
+    "1198": {
       "op": "dup",
       "defined_out": [
         "newModifier#0",
@@ -12803,7 +12803,7 @@
         "payment#0 (copy)"
       ]
     },
-    "1200": {
+    "1199": {
       "op": "gtxns Receiver",
       "defined_out": [
         "newModifier#0",
@@ -12819,7 +12819,7 @@
         "tmp%3#1"
       ]
     },
-    "1202": {
+    "1201": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "newModifier#0",
@@ -12837,7 +12837,7 @@
         "tmp%4#1"
       ]
     },
-    "1204": {
+    "1203": {
       "op": "==",
       "defined_out": [
         "newModifier#0",
@@ -12853,7 +12853,7 @@
         "tmp%5#0"
       ]
     },
-    "1205": {
+    "1204": {
       "op": "swap",
       "stack_out": [
         "payment#0",
@@ -12863,7 +12863,7 @@
         "payment#0"
       ]
     },
-    "1206": {
+    "1205": {
       "op": "gtxns Amount",
       "defined_out": [
         "newModifier#0",
@@ -12880,7 +12880,7 @@
         "tmp%6#0"
       ]
     },
-    "1208": {
+    "1207": {
       "op": "pushint 9300",
       "defined_out": [
         "9300",
@@ -12899,7 +12899,7 @@
         "9300"
       ]
     },
-    "1211": {
+    "1210": {
       "op": "==",
       "defined_out": [
         "newModifier#0",
@@ -12916,7 +12916,7 @@
         "tmp%9#0"
       ]
     },
-    "1212": {
+    "1211": {
       "op": "&&",
       "defined_out": [
         "newModifier#0",
@@ -12931,7 +12931,7 @@
         "tmp%10#0"
       ]
     },
-    "1213": {
+    "1212": {
       "op": "bnz updateSubscriptionStateModifier_after_assert@5",
       "stack_out": [
         "payment#0",
@@ -12939,7 +12939,7 @@
         "newModifier#0"
       ]
     },
-    "1216": {
+    "1215": {
       "op": "pushbytes \"ERR:IPAY\"",
       "defined_out": [
         "\"ERR:IPAY\"",
@@ -12954,7 +12954,7 @@
         "\"ERR:IPAY\""
       ]
     },
-    "1226": {
+    "1225": {
       "op": "log",
       "stack_out": [
         "payment#0",
@@ -12962,11 +12962,11 @@
         "newModifier#0"
       ]
     },
-    "1227": {
+    "1226": {
       "error": "ERR:IPAY",
       "op": "err // ERR:IPAY"
     },
-    "1228": {
+    "1227": {
       "block": "updateSubscriptionStateModifier_after_assert@5",
       "stack_in": [
         "payment#0",
@@ -12984,7 +12984,7 @@
         "1"
       ]
     },
-    "1229": {
+    "1228": {
       "op": "return",
       "stack_out": [
         "payment#0",
@@ -12992,7 +12992,7 @@
         "newModifier#0"
       ]
     },
-    "1230": {
+    "1229": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getUserImpactWithoutSocial[routing]",
       "params": {},
       "block": "getUserImpactWithoutSocial",
@@ -13005,7 +13005,7 @@
         "address#0"
       ]
     },
-    "1233": {
+    "1232": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -13016,7 +13016,7 @@
         "address#0 (copy)"
       ]
     },
-    "1234": {
+    "1233": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -13027,7 +13027,7 @@
         "len%0#0"
       ]
     },
-    "1235": {
+    "1234": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -13040,7 +13040,7 @@
         "32"
       ]
     },
-    "1237": {
+    "1236": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -13051,14 +13051,14 @@
         "eq%0#0"
       ]
     },
-    "1238": {
+    "1237": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "address#0"
       ]
     },
-    "1239": {
+    "1238": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -13069,7 +13069,7 @@
         "0"
       ]
     },
-    "1240": {
+    "1239": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.userImpact",
       "op": "callsub userImpact",
       "defined_out": [
@@ -13079,7 +13079,7 @@
         "tmp%0#1"
       ]
     },
-    "1243": {
+    "1242": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0"
@@ -13088,7 +13088,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1244": {
+    "1243": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -13099,14 +13099,14 @@
         "0x151f7c75"
       ]
     },
-    "1245": {
+    "1244": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1246": {
+    "1245": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -13115,11 +13115,11 @@
         "tmp%4#0"
       ]
     },
-    "1247": {
+    "1246": {
       "op": "log",
       "stack_out": []
     },
-    "1248": {
+    "1247": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -13128,11 +13128,11 @@
         "1"
       ]
     },
-    "1249": {
+    "1248": {
       "op": "return",
       "stack_out": []
     },
-    "1250": {
+    "1249": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getUserImpact[routing]",
       "params": {},
       "block": "getUserImpact",
@@ -13145,7 +13145,7 @@
         "address#0"
       ]
     },
-    "1253": {
+    "1252": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -13156,7 +13156,7 @@
         "address#0 (copy)"
       ]
     },
-    "1254": {
+    "1253": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -13167,7 +13167,7 @@
         "len%0#0"
       ]
     },
-    "1255": {
+    "1254": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -13180,7 +13180,7 @@
         "32"
       ]
     },
-    "1257": {
+    "1256": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -13191,14 +13191,14 @@
         "eq%0#0"
       ]
     },
-    "1258": {
+    "1257": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "address#0"
       ]
     },
-    "1259": {
+    "1258": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -13209,7 +13209,7 @@
         "1"
       ]
     },
-    "1260": {
+    "1259": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.userImpact",
       "op": "callsub userImpact",
       "defined_out": [
@@ -13219,7 +13219,7 @@
         "tmp%0#1"
       ]
     },
-    "1263": {
+    "1262": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0"
@@ -13228,7 +13228,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1264": {
+    "1263": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -13239,14 +13239,14 @@
         "0x151f7c75"
       ]
     },
-    "1265": {
+    "1264": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1266": {
+    "1265": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -13255,28 +13255,28 @@
         "tmp%4#0"
       ]
     },
-    "1267": {
+    "1266": {
       "op": "log",
       "stack_out": []
     },
-    "1268": {
+    "1267": {
       "op": "intc_1 // 1",
       "stack_out": [
         "1"
       ]
     },
-    "1269": {
+    "1268": {
       "op": "return",
       "stack_out": []
     },
-    "1270": {
+    "1269": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getUserImpactWithInputs[routing]",
       "params": {},
       "block": "getUserImpactWithInputs",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "1273": {
+    "1272": {
       "op": "dup",
       "defined_out": [
         "address#0"
@@ -13286,7 +13286,7 @@
         "address#0"
       ]
     },
-    "1274": {
+    "1273": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -13297,7 +13297,7 @@
         "len%0#0"
       ]
     },
-    "1275": {
+    "1274": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -13310,7 +13310,7 @@
         "32"
       ]
     },
-    "1277": {
+    "1276": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -13321,17 +13321,17 @@
         "eq%0#0"
       ]
     },
-    "1278": {
+    "1277": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "address#0"
       ]
     },
-    "1279": {
+    "1278": {
       "op": "txna ApplicationArgs 2"
     },
-    "1282": {
+    "1281": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -13343,7 +13343,7 @@
         "inputs#0"
       ]
     },
-    "1283": {
+    "1282": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -13356,7 +13356,7 @@
         "len%1#0"
       ]
     },
-    "1284": {
+    "1283": {
       "op": "pushint 26",
       "defined_out": [
         "26",
@@ -13371,7 +13371,7 @@
         "26"
       ]
     },
-    "1286": {
+    "1285": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -13384,7 +13384,7 @@
         "eq%1#0"
       ]
     },
-    "1287": {
+    "1286": {
       "error": "invalid number of bytes for smart_contracts/social/types.ts::SocialImpactInputs",
       "op": "assert // invalid number of bytes for smart_contracts/social/types.ts::SocialImpactInputs",
       "stack_out": [
@@ -13392,7 +13392,7 @@
         "inputs#0"
       ]
     },
-    "1288": {
+    "1287": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
@@ -13405,7 +13405,7 @@
         "tmp%0#1"
       ]
     },
-    "1290": {
+    "1289": {
       "op": "intc_0 // 0",
       "stack_out": [
         "address#0",
@@ -13414,7 +13414,7 @@
         "0"
       ]
     },
-    "1291": {
+    "1290": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -13431,7 +13431,7 @@
         "\"akita_dao\""
       ]
     },
-    "1292": {
+    "1291": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -13448,7 +13448,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1293": {
+    "1292": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -13458,7 +13458,7 @@
         "akitaDAO#0"
       ]
     },
-    "1294": {
+    "1293": {
       "op": "bytec_2 // \"sal\"",
       "defined_out": [
         "\"sal\"",
@@ -13475,7 +13475,7 @@
         "\"sal\""
       ]
     },
-    "1295": {
+    "1294": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -13492,7 +13492,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1296": {
+    "1295": {
       "op": "pop",
       "stack_out": [
         "address#0",
@@ -13501,7 +13501,7 @@
         "appListBytes#0"
       ]
     },
-    "1297": {
+    "1296": {
       "op": "intc_0 // 0",
       "stack_out": [
         "address#0",
@@ -13511,7 +13511,7 @@
         "0"
       ]
     },
-    "1298": {
+    "1297": {
       "op": "extract_uint64",
       "defined_out": [
         "address#0",
@@ -13526,7 +13526,7 @@
         "tmp%2#1"
       ]
     },
-    "1299": {
+    "1298": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "address#0",
@@ -13543,7 +13543,7 @@
         "check%0#0"
       ]
     },
-    "1301": {
+    "1300": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -13553,7 +13553,7 @@
         "value%0#0"
       ]
     },
-    "1302": {
+    "1301": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -13566,14 +13566,14 @@
         "tmp%3#1"
       ]
     },
-    "1303": {
+    "1302": {
       "op": "bnz getUserImpactWithInputs_after_assert@3",
       "stack_out": [
         "address#0",
         "inputs#0"
       ]
     },
-    "1306": {
+    "1305": {
       "op": "bytec 4 // \"ERR:NSOC\"",
       "defined_out": [
         "\"ERR:NSOC\"",
@@ -13586,18 +13586,18 @@
         "\"ERR:NSOC\""
       ]
     },
-    "1308": {
+    "1307": {
       "op": "log",
       "stack_out": [
         "address#0",
         "inputs#0"
       ]
     },
-    "1309": {
+    "1308": {
       "error": "ERR:NSOC",
       "op": "err // ERR:NSOC"
     },
-    "1310": {
+    "1309": {
       "block": "getUserImpactWithInputs_after_assert@3",
       "stack_in": [
         "address#0",
@@ -13613,7 +13613,7 @@
         "inputs#0"
       ]
     },
-    "1311": {
+    "1310": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateSocialImpact",
       "op": "callsub calculateSocialImpact",
       "defined_out": [
@@ -13627,7 +13627,7 @@
         "inputs#0"
       ]
     },
-    "1314": {
+    "1313": {
       "op": "pop",
       "stack_out": [
         "address#0",
@@ -13635,7 +13635,7 @@
         "socialImpact#0"
       ]
     },
-    "1315": {
+    "1314": {
       "op": "dig 2",
       "defined_out": [
         "address#0",
@@ -13649,7 +13649,7 @@
         "address#0"
       ]
     },
-    "1317": {
+    "1316": {
       "op": "swap",
       "stack_out": [
         "address#0",
@@ -13658,7 +13658,7 @@
         "socialImpact#0"
       ]
     },
-    "1318": {
+    "1317": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.userImpactWithSocial",
       "op": "callsub userImpactWithSocial",
       "defined_out": [
@@ -13672,7 +13672,7 @@
         "tmp%4#1"
       ]
     },
-    "1321": {
+    "1320": {
       "op": "itob",
       "defined_out": [
         "address#0",
@@ -13685,7 +13685,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1322": {
+    "1321": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -13700,7 +13700,7 @@
         "0x151f7c75"
       ]
     },
-    "1323": {
+    "1322": {
       "op": "swap",
       "stack_out": [
         "address#0",
@@ -13709,7 +13709,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1324": {
+    "1323": {
       "op": "concat",
       "defined_out": [
         "address#0",
@@ -13722,14 +13722,14 @@
         "tmp%5#0"
       ]
     },
-    "1325": {
+    "1324": {
       "op": "log",
       "stack_out": [
         "address#0",
         "inputs#0"
       ]
     },
-    "1326": {
+    "1325": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -13742,21 +13742,21 @@
         "1"
       ]
     },
-    "1327": {
+    "1326": {
       "op": "return",
       "stack_out": [
         "address#0",
         "inputs#0"
       ]
     },
-    "1328": {
+    "1327": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateSocialImpactScore[routing]",
       "params": {},
       "block": "calculateSocialImpactScore",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "1331": {
+    "1330": {
       "op": "dup",
       "defined_out": [
         "inputs#0"
@@ -13766,7 +13766,7 @@
         "inputs#0"
       ]
     },
-    "1332": {
+    "1331": {
       "op": "len",
       "defined_out": [
         "inputs#0",
@@ -13777,7 +13777,7 @@
         "len%0#0"
       ]
     },
-    "1333": {
+    "1332": {
       "op": "pushint 26",
       "defined_out": [
         "26",
@@ -13790,7 +13790,7 @@
         "26"
       ]
     },
-    "1335": {
+    "1334": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -13801,14 +13801,14 @@
         "eq%0#0"
       ]
     },
-    "1336": {
+    "1335": {
       "error": "invalid number of bytes for smart_contracts/social/types.ts::SocialImpactInputs",
       "op": "assert // invalid number of bytes for smart_contracts/social/types.ts::SocialImpactInputs",
       "stack_out": [
         "inputs#0"
       ]
     },
-    "1337": {
+    "1336": {
       "op": "txn Sender",
       "defined_out": [
         "inputs#0",
@@ -13819,7 +13819,7 @@
         "tmp%0#1"
       ]
     },
-    "1339": {
+    "1338": {
       "op": "intc_0 // 0",
       "stack_out": [
         "inputs#0",
@@ -13827,7 +13827,7 @@
         "0"
       ]
     },
-    "1340": {
+    "1339": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -13842,7 +13842,7 @@
         "\"akita_dao\""
       ]
     },
-    "1341": {
+    "1340": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -13857,7 +13857,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1342": {
+    "1341": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -13866,7 +13866,7 @@
         "akitaDAO#0"
       ]
     },
-    "1343": {
+    "1342": {
       "op": "bytec_2 // \"sal\"",
       "defined_out": [
         "\"sal\"",
@@ -13881,7 +13881,7 @@
         "\"sal\""
       ]
     },
-    "1344": {
+    "1343": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -13896,7 +13896,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1345": {
+    "1344": {
       "op": "pop",
       "stack_out": [
         "inputs#0",
@@ -13904,7 +13904,7 @@
         "appListBytes#0"
       ]
     },
-    "1346": {
+    "1345": {
       "op": "intc_0 // 0",
       "stack_out": [
         "inputs#0",
@@ -13913,7 +13913,7 @@
         "0"
       ]
     },
-    "1347": {
+    "1346": {
       "op": "extract_uint64",
       "defined_out": [
         "inputs#0",
@@ -13926,7 +13926,7 @@
         "tmp%2#1"
       ]
     },
-    "1348": {
+    "1347": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%0#0",
@@ -13941,7 +13941,7 @@
         "check%0#0"
       ]
     },
-    "1350": {
+    "1349": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -13950,7 +13950,7 @@
         "value%0#0"
       ]
     },
-    "1351": {
+    "1350": {
       "op": "==",
       "defined_out": [
         "inputs#0",
@@ -13961,13 +13961,13 @@
         "tmp%3#1"
       ]
     },
-    "1352": {
+    "1351": {
       "op": "bnz calculateSocialImpactScore_after_assert@3",
       "stack_out": [
         "inputs#0"
       ]
     },
-    "1355": {
+    "1354": {
       "op": "bytec 4 // \"ERR:NSOC\"",
       "defined_out": [
         "\"ERR:NSOC\"",
@@ -13978,17 +13978,17 @@
         "\"ERR:NSOC\""
       ]
     },
-    "1357": {
+    "1356": {
       "op": "log",
       "stack_out": [
         "inputs#0"
       ]
     },
-    "1358": {
+    "1357": {
       "error": "ERR:NSOC",
       "op": "err // ERR:NSOC"
     },
-    "1359": {
+    "1358": {
       "block": "calculateSocialImpactScore_after_assert@3",
       "stack_in": [
         "inputs#0"
@@ -14002,7 +14002,7 @@
         "inputs#0"
       ]
     },
-    "1360": {
+    "1359": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateSocialImpact",
       "op": "callsub calculateSocialImpact",
       "defined_out": [
@@ -14015,14 +14015,14 @@
         "inputs#0"
       ]
     },
-    "1363": {
+    "1362": {
       "op": "pop",
       "stack_out": [
         "inputs#0",
         "calculateSocialImpact%0#0"
       ]
     },
-    "1364": {
+    "1363": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -14033,7 +14033,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1365": {
+    "1364": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -14046,7 +14046,7 @@
         "0x151f7c75"
       ]
     },
-    "1366": {
+    "1365": {
       "op": "swap",
       "stack_out": [
         "inputs#0",
@@ -14054,7 +14054,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1367": {
+    "1366": {
       "op": "concat",
       "defined_out": [
         "inputs#0",
@@ -14065,13 +14065,13 @@
         "tmp%3#0"
       ]
     },
-    "1368": {
+    "1367": {
       "op": "log",
       "stack_out": [
         "inputs#0"
       ]
     },
-    "1369": {
+    "1368": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -14082,13 +14082,13 @@
         "1"
       ]
     },
-    "1370": {
+    "1369": {
       "op": "return",
       "stack_out": [
         "inputs#0"
       ]
     },
-    "1371": {
+    "1370": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getMeta[routing]",
       "params": {},
       "block": "getMeta",
@@ -14101,7 +14101,7 @@
         "user#0"
       ]
     },
-    "1374": {
+    "1373": {
       "op": "dup",
       "defined_out": [
         "user#0",
@@ -14112,7 +14112,7 @@
         "user#0 (copy)"
       ]
     },
-    "1375": {
+    "1374": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -14123,7 +14123,7 @@
         "len%0#0"
       ]
     },
-    "1376": {
+    "1375": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -14136,7 +14136,7 @@
         "32"
       ]
     },
-    "1378": {
+    "1377": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -14147,14 +14147,14 @@
         "eq%0#0"
       ]
     },
-    "1379": {
+    "1378": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "user#0"
       ]
     },
-    "1380": {
+    "1379": {
       "op": "bytec 5 // \"m\"",
       "defined_out": [
         "\"m\"",
@@ -14165,14 +14165,14 @@
         "\"m\""
       ]
     },
-    "1382": {
+    "1381": {
       "op": "swap",
       "stack_out": [
         "\"m\"",
         "user#0"
       ]
     },
-    "1383": {
+    "1382": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -14181,7 +14181,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1384": {
+    "1383": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -14192,14 +14192,14 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "1385": {
+    "1384": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
         "aggregate%box_get%0#0"
       ]
     },
-    "1386": {
+    "1385": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -14210,14 +14210,14 @@
         "0x151f7c75"
       ]
     },
-    "1387": {
+    "1386": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%box_get%0#0"
       ]
     },
-    "1388": {
+    "1387": {
       "op": "concat",
       "defined_out": [
         "tmp%3#0"
@@ -14226,11 +14226,11 @@
         "tmp%3#0"
       ]
     },
-    "1389": {
+    "1388": {
       "op": "log",
       "stack_out": []
     },
-    "1390": {
+    "1389": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -14239,11 +14239,11 @@
         "1"
       ]
     },
-    "1391": {
+    "1390": {
       "op": "return",
       "stack_out": []
     },
-    "1392": {
+    "1391": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]",
       "params": {},
       "block": "update",
@@ -14256,7 +14256,7 @@
         "tmp%0#0"
       ]
     },
-    "1395": {
+    "1394": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -14267,7 +14267,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1396": {
+    "1395": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -14280,7 +14280,7 @@
         "0"
       ]
     },
-    "1397": {
+    "1396": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -14292,7 +14292,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "1398": {
+    "1397": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -14305,7 +14305,7 @@
         "2"
       ]
     },
-    "1399": {
+    "1398": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -14316,7 +14316,7 @@
         "add%0#0"
       ]
     },
-    "1400": {
+    "1399": {
       "op": "dig 1",
       "stack_out": [
         "tmp%0#0",
@@ -14324,7 +14324,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1402": {
+    "1401": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -14337,7 +14337,7 @@
         "len%0#0"
       ]
     },
-    "1403": {
+    "1402": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -14348,14 +14348,14 @@
         "eq%0#0"
       ]
     },
-    "1404": {
+    "1403": {
       "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "1405": {
+    "1404": {
       "op": "extract 2 0",
       "defined_out": [
         "newVersion#0"
@@ -14364,7 +14364,7 @@
         "newVersion#0"
       ]
     },
-    "1408": {
+    "1407": {
       "op": "txn Sender",
       "defined_out": [
         "newVersion#0",
@@ -14375,7 +14375,7 @@
         "tmp%0#1"
       ]
     },
-    "1410": {
+    "1409": {
       "op": "intc_0 // 0",
       "stack_out": [
         "newVersion#0",
@@ -14383,7 +14383,7 @@
         "0"
       ]
     },
-    "1411": {
+    "1410": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -14398,7 +14398,7 @@
         "\"akita_dao\""
       ]
     },
-    "1412": {
+    "1411": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%0#0",
@@ -14413,7 +14413,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1413": {
+    "1412": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -14422,8 +14422,8 @@
         "maybe_value%0#0"
       ]
     },
-    "1414": {
-      "op": "bytec 6 // \"wallet\"",
+    "1413": {
+      "op": "bytec_3 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
         "maybe_value%0#0",
@@ -14437,7 +14437,7 @@
         "\"wallet\""
       ]
     },
-    "1416": {
+    "1414": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -14452,7 +14452,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1417": {
+    "1415": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
@@ -14460,7 +14460,7 @@
         "walletID#0"
       ]
     },
-    "1418": {
+    "1416": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%0#0",
@@ -14475,7 +14475,7 @@
         "check%0#0"
       ]
     },
-    "1420": {
+    "1418": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -14484,7 +14484,7 @@
         "value%0#0"
       ]
     },
-    "1421": {
+    "1419": {
       "op": "==",
       "defined_out": [
         "newVersion#0",
@@ -14495,14 +14495,14 @@
         "tmp%2#0"
       ]
     },
-    "1422": {
+    "1420": {
       "op": "bnz update_after_assert@3",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1425": {
-      "op": "bytec 7 // \"ERR:NDAO\"",
+    "1423": {
+      "op": "bytec 6 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "newVersion#0"
@@ -14512,17 +14512,17 @@
         "\"ERR:NDAO\""
       ]
     },
-    "1427": {
+    "1425": {
       "op": "log",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1428": {
+    "1426": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "1429": {
+    "1427": {
       "block": "update_after_assert@3",
       "stack_in": [
         "newVersion#0"
@@ -14536,7 +14536,7 @@
         "0"
       ]
     },
-    "1430": {
+    "1428": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -14548,7 +14548,7 @@
         "\"akita_dao\""
       ]
     },
-    "1431": {
+    "1429": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -14560,7 +14560,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1432": {
+    "1430": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -14568,7 +14568,7 @@
         "akitaDAO#0"
       ]
     },
-    "1433": {
+    "1431": {
       "op": "pushbytes \"pal\"",
       "defined_out": [
         "\"pal\"",
@@ -14580,7 +14580,7 @@
         "\"pal\""
       ]
     },
-    "1438": {
+    "1436": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -14592,14 +14592,14 @@
         "awst_tmp%1#0"
       ]
     },
-    "1439": {
+    "1437": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
         "pluginAppListBytes#0"
       ]
     },
-    "1440": {
+    "1438": {
       "op": "pushint 16",
       "defined_out": [
         "16",
@@ -14611,7 +14611,7 @@
         "16"
       ]
     },
-    "1442": {
+    "1440": {
       "op": "extract_uint64",
       "defined_out": [
         "updatePlugin#0"
@@ -14621,7 +14621,7 @@
         "updatePlugin#0"
       ]
     },
-    "1443": {
+    "1441": {
       "op": "global CallerApplicationID",
       "defined_out": [
         "tmp%5#0",
@@ -14633,7 +14633,7 @@
         "tmp%5#0"
       ]
     },
-    "1445": {
+    "1443": {
       "op": "==",
       "defined_out": [
         "tmp%6#0"
@@ -14643,13 +14643,13 @@
         "tmp%6#0"
       ]
     },
-    "1446": {
+    "1444": {
       "op": "bnz update_after_assert@5",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1449": {
+    "1447": {
       "op": "pushbytes \"ERR:IUPG\"",
       "defined_out": [
         "\"ERR:IUPG\""
@@ -14659,22 +14659,22 @@
         "\"ERR:IUPG\""
       ]
     },
-    "1459": {
+    "1457": {
       "op": "log",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1460": {
+    "1458": {
       "error": "ERR:IUPG",
       "op": "err // ERR:IUPG"
     },
-    "1461": {
+    "1459": {
       "block": "update_after_assert@5",
       "stack_in": [
         "newVersion#0"
       ],
-      "op": "bytec 8 // \"version\"",
+      "op": "bytec 7 // \"version\"",
       "defined_out": [
         "\"version\""
       ],
@@ -14683,7 +14683,7 @@
         "\"version\""
       ]
     },
-    "1463": {
+    "1461": {
       "op": "dig 1",
       "defined_out": [
         "\"version\"",
@@ -14695,13 +14695,13 @@
         "newVersion#0"
       ]
     },
-    "1465": {
+    "1463": {
       "op": "app_global_put",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1466": {
+    "1464": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -14712,13 +14712,13 @@
         "1"
       ]
     },
-    "1467": {
+    "1465": {
       "op": "return",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "1468": {
+    "1466": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]",
       "params": {},
       "block": "updateAkitaDAO",
@@ -14731,7 +14731,7 @@
         "tmp%0#0"
       ]
     },
-    "1471": {
+    "1469": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -14742,7 +14742,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "1472": {
+    "1470": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -14753,7 +14753,7 @@
         "len%0#0"
       ]
     },
-    "1473": {
+    "1471": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -14766,7 +14766,7 @@
         "8"
       ]
     },
-    "1474": {
+    "1472": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -14777,14 +14777,14 @@
         "eq%0#0"
       ]
     },
-    "1475": {
+    "1473": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "1476": {
+    "1474": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -14793,7 +14793,7 @@
         "akitaDAO#0"
       ]
     },
-    "1477": {
+    "1475": {
       "op": "txn Sender",
       "defined_out": [
         "akitaDAO#0",
@@ -14804,7 +14804,7 @@
         "tmp%0#1"
       ]
     },
-    "1479": {
+    "1477": {
       "op": "intc_0 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -14812,7 +14812,7 @@
         "0"
       ]
     },
-    "1480": {
+    "1478": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -14827,7 +14827,7 @@
         "\"akita_dao\""
       ]
     },
-    "1481": {
+    "1479": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -14842,7 +14842,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1482": {
+    "1480": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -14851,8 +14851,8 @@
         "maybe_value%0#0"
       ]
     },
-    "1483": {
-      "op": "bytec 6 // \"wallet\"",
+    "1481": {
+      "op": "bytec_3 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
         "akitaDAO#0",
@@ -14866,7 +14866,7 @@
         "\"wallet\""
       ]
     },
-    "1485": {
+    "1482": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -14881,7 +14881,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1486": {
+    "1483": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -14889,7 +14889,7 @@
         "walletID#0"
       ]
     },
-    "1487": {
+    "1484": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -14904,7 +14904,7 @@
         "check%0#0"
       ]
     },
-    "1489": {
+    "1486": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -14913,7 +14913,7 @@
         "value%0#0"
       ]
     },
-    "1490": {
+    "1487": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -14924,14 +14924,14 @@
         "tmp%2#0"
       ]
     },
-    "1491": {
+    "1488": {
       "op": "bnz updateAkitaDAO_after_assert@3",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1494": {
-      "op": "bytec 7 // \"ERR:NDAO\"",
+    "1491": {
+      "op": "bytec 6 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "akitaDAO#0"
@@ -14941,17 +14941,17 @@
         "\"ERR:NDAO\""
       ]
     },
-    "1496": {
+    "1493": {
       "op": "log",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1497": {
+    "1494": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "1498": {
+    "1495": {
       "block": "updateAkitaDAO_after_assert@3",
       "stack_in": [
         "akitaDAO#0"
@@ -14965,7 +14965,7 @@
         "\"akita_dao\""
       ]
     },
-    "1499": {
+    "1496": {
       "op": "dig 1",
       "defined_out": [
         "\"akita_dao\"",
@@ -14977,13 +14977,13 @@
         "akitaDAO#0"
       ]
     },
-    "1501": {
+    "1498": {
       "op": "app_global_put",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1502": {
+    "1499": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -14994,13 +14994,13 @@
         "1"
       ]
     },
-    "1503": {
+    "1500": {
       "op": "return",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "1504": {
+    "1501": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.isSubscribed",
       "params": {
         "address#0": "bytes",
@@ -15010,10 +15010,10 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "1507": {
+    "1504": {
       "op": "itxn_begin"
     },
-    "1508": {
+    "1505": {
       "op": "frame_dig -1",
       "defined_out": [
         "id#0 (copy)"
@@ -15022,7 +15022,7 @@
         "id#0 (copy)"
       ]
     },
-    "1510": {
+    "1507": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0"
@@ -15031,7 +15031,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1511": {
+    "1508": {
       "op": "frame_dig -2",
       "defined_out": [
         "address#0 (copy)",
@@ -15042,14 +15042,14 @@
         "address#0 (copy)"
       ]
     },
-    "1513": {
+    "1510": {
       "op": "swap",
       "stack_out": [
         "address#0 (copy)",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1514": {
+    "1511": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0"
@@ -15058,7 +15058,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "1515": {
+    "1512": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -15069,7 +15069,7 @@
         "0"
       ]
     },
-    "1516": {
+    "1513": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -15082,7 +15082,7 @@
         "\"akita_dao\""
       ]
     },
-    "1517": {
+    "1514": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%head%1#0",
@@ -15095,7 +15095,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1518": {
+    "1515": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -15103,8 +15103,8 @@
         "akitaDAO#0"
       ]
     },
-    "1519": {
-      "op": "bytec 13 // \"aal\"",
+    "1516": {
+      "op": "bytec 12 // \"aal\"",
       "defined_out": [
         "\"aal\"",
         "aggregate%head%1#0",
@@ -15116,7 +15116,7 @@
         "\"aal\""
       ]
     },
-    "1521": {
+    "1518": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%head%1#0",
@@ -15129,14 +15129,14 @@
         "awst_tmp%1#0"
       ]
     },
-    "1522": {
+    "1519": {
       "op": "pop",
       "stack_out": [
         "aggregate%head%1#0",
         "appListBytes#0"
       ]
     },
-    "1523": {
+    "1520": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -15149,7 +15149,7 @@
         "32"
       ]
     },
-    "1525": {
+    "1522": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%head%1#0",
@@ -15160,13 +15160,13 @@
         "tmp%2#0"
       ]
     },
-    "1526": {
+    "1523": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "aggregate%head%1#0"
       ]
     },
-    "1528": {
+    "1525": {
       "op": "pushbytes 0x25b812a7 // method \"getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)\"",
       "defined_out": [
         "Method(getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64))",
@@ -15177,17 +15177,17 @@
         "Method(getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64))"
       ]
     },
-    "1534": {
+    "1531": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "aggregate%head%1#0"
       ]
     },
-    "1536": {
+    "1533": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": []
     },
-    "1538": {
+    "1535": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -15196,27 +15196,27 @@
         "appl"
       ]
     },
-    "1540": {
+    "1537": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "1542": {
+    "1539": {
       "op": "intc_0 // 0",
       "stack_out": [
         "0"
       ]
     },
-    "1543": {
+    "1540": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "1545": {
+    "1542": {
       "op": "itxn_submit"
     },
-    "1546": {
+    "1543": {
       "op": "itxn LastLog"
     },
-    "1548": {
+    "1545": {
       "op": "dupn 2",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15228,7 +15228,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "1550": {
+    "1547": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15240,7 +15240,7 @@
         "info#0"
       ]
     },
-    "1553": {
+    "1550": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -15248,7 +15248,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "1554": {
+    "1551": {
       "op": "extract 0 4",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15261,7 +15261,7 @@
         "tmp%4#0"
       ]
     },
-    "1557": {
+    "1554": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -15276,7 +15276,7 @@
         "0x151f7c75"
       ]
     },
-    "1558": {
+    "1555": {
       "op": "==",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15289,7 +15289,7 @@
         "tmp%5#0"
       ]
     },
-    "1559": {
+    "1556": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -15297,7 +15297,7 @@
         "info#0"
       ]
     },
-    "1560": {
+    "1557": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15310,7 +15310,7 @@
         "info#0 (copy)"
       ]
     },
-    "1561": {
+    "1558": {
       "op": "len",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15323,7 +15323,7 @@
         "len%0#0"
       ]
     },
-    "1562": {
+    "1559": {
       "op": "pushint 105",
       "defined_out": [
         "105",
@@ -15338,7 +15338,7 @@
         "105"
       ]
     },
-    "1564": {
+    "1561": {
       "op": "==",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15351,7 +15351,7 @@
         "eq%0#0"
       ]
     },
-    "1565": {
+    "1562": {
       "error": "invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionInfoWithExistence",
       "op": "assert // invalid number of bytes for smart_contracts/subscriptions/types.ts::SubscriptionInfoWithExistence",
       "stack_out": [
@@ -15359,7 +15359,7 @@
         "info#0"
       ]
     },
-    "1566": {
+    "1563": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -15367,7 +15367,7 @@
         "0"
       ]
     },
-    "1567": {
+    "1564": {
       "op": "getbit",
       "defined_out": [
         "aggregate%get_bit%0#0",
@@ -15378,13 +15378,13 @@
         "aggregate%get_bit%0#0"
       ]
     },
-    "1568": {
+    "1565": {
       "op": "bnz isSubscribed_after_if_else@3",
       "stack_out": [
         "awst_tmp%0#0"
       ]
     },
-    "1571": {
+    "1568": {
       "op": "pushbytes 0x0000000000000000000000000000000000",
       "defined_out": [
         "0x0000000000000000000000000000000000",
@@ -15395,14 +15395,14 @@
         "0x0000000000000000000000000000000000"
       ]
     },
-    "1590": {
+    "1587": {
       "op": "swap"
     },
-    "1591": {
+    "1588": {
       "retsub": true,
       "op": "retsub"
     },
-    "1592": {
+    "1589": {
       "block": "isSubscribed_after_if_else@3",
       "stack_in": [
         "awst_tmp%0#0"
@@ -15416,7 +15416,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "1594": {
+    "1591": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -15428,7 +15428,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "1595": {
+    "1592": {
       "op": "extract 5 32",
       "defined_out": [
         "aggregate%extract%1#0",
@@ -15440,7 +15440,7 @@
         "aggregate%extract%1#0"
       ]
     },
-    "1598": {
+    "1595": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -15454,7 +15454,7 @@
         "0"
       ]
     },
-    "1599": {
+    "1596": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -15470,30 +15470,71 @@
         "\"akita_dao\""
       ]
     },
-    "1600": {
+    "1597": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%extract%1#0",
+        "akitaDAO#0",
         "awst_tmp%0#0",
-        "maybe_exists%1#0",
-        "maybe_value%1#0"
+        "maybe_exists%1#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "aggregate%extract%1#0",
-        "maybe_value%1#0",
+        "akitaDAO#0",
         "maybe_exists%1#0"
       ]
     },
-    "1601": {
+    "1598": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "aggregate%extract%1#0",
-        "maybe_value%1#0"
+        "akitaDAO#0"
+      ]
+    },
+    "1599": {
+      "op": "bytec_3 // \"wallet\"",
+      "defined_out": [
+        "\"wallet\"",
+        "aggregate%extract%1#0",
+        "akitaDAO#0",
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "aggregate%extract%1#0",
+        "akitaDAO#0",
+        "\"wallet\""
+      ]
+    },
+    "1600": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "aggregate%extract%1#0",
+        "awst_tmp%0#0",
+        "awst_tmp%1#0",
+        "walletID#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "aggregate%extract%1#0",
+        "walletID#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "1601": {
+      "op": "pop",
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "aggregate%extract%1#0",
+        "walletID#0"
       ]
     },
     "1602": {
@@ -15563,38 +15604,21 @@
       "op": "extract_uint64",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0"
+        "tmp%11#0"
       ]
     },
     "1611": {
       "op": "global LatestTimestamp",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "toAkita#0"
-      ],
-      "stack_out": [
-        "awst_tmp%0#0",
-        "awst_tmp%0#0",
-        "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0"
-      ]
-    },
-    "1613": {
-      "op": "dup",
-      "defined_out": [
-        "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
         "tmp%13#0",
         "toAkita#0"
       ],
@@ -15602,9 +15626,26 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
         "tmp%13#0"
+      ]
+    },
+    "1613": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%14#0",
+        "toAkita#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "toAkita#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%14#0"
       ]
     },
     "1614": {
@@ -15613,9 +15654,9 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
         "tmp%13#0",
+        "tmp%14#0",
         "awst_tmp%0#0 (copy)"
       ]
     },
@@ -15625,28 +15666,7 @@
         "45",
         "awst_tmp%0#0",
         "awst_tmp%0#0 (copy)",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%13#0",
-        "toAkita#0"
-      ],
-      "stack_out": [
-        "awst_tmp%0#0",
-        "awst_tmp%0#0",
-        "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%13#0",
-        "awst_tmp%0#0 (copy)",
-        "45"
-      ]
-    },
-    "1618": {
-      "op": "extract_uint64",
-      "defined_out": [
-        "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
         "tmp%13#0",
         "tmp%14#0",
         "toAkita#0"
@@ -15655,18 +15675,20 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
         "tmp%13#0",
-        "tmp%14#0"
+        "tmp%14#0",
+        "awst_tmp%0#0 (copy)",
+        "45"
       ]
     },
-    "1619": {
-      "op": "-",
+    "1618": {
+      "op": "extract_uint64",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%14#0",
         "tmp%15#0",
         "toAkita#0"
       ],
@@ -15674,9 +15696,28 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%14#0",
         "tmp%15#0"
+      ]
+    },
+    "1619": {
+      "op": "-",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0",
+        "toAkita#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "toAkita#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0"
       ]
     },
     "1620": {
@@ -15685,9 +15726,9 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0",
         "awst_tmp%0#0 (copy)"
       ]
     },
@@ -15697,18 +15738,18 @@
         "61",
         "awst_tmp%0#0",
         "awst_tmp%0#0 (copy)",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0",
         "awst_tmp%0#0 (copy)",
         "61"
       ]
@@ -15717,62 +15758,8 @@
       "op": "extract_uint64",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
-        "tmp%16#0",
-        "toAkita#0"
-      ],
-      "stack_out": [
-        "awst_tmp%0#0",
-        "awst_tmp%0#0",
-        "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
-        "tmp%16#0"
-      ]
-    },
-    "1625": {
-      "op": "swap",
-      "stack_out": [
-        "awst_tmp%0#0",
-        "awst_tmp%0#0",
-        "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%16#0",
-        "tmp%15#0"
-      ]
-    },
-    "1626": {
-      "op": "dig 1",
-      "defined_out": [
-        "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%15#0",
-        "tmp%16#0",
-        "tmp%16#0 (copy)",
-        "toAkita#0"
-      ],
-      "stack_out": [
-        "awst_tmp%0#0",
-        "awst_tmp%0#0",
-        "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%16#0",
-        "tmp%15#0",
-        "tmp%16#0 (copy)"
-      ]
-    },
-    "1628": {
-      "op": "%",
-      "defined_out": [
-        "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
+        "tmp%13#0",
         "tmp%16#0",
         "tmp%17#0",
         "toAkita#0"
@@ -15781,28 +15768,82 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
+        "tmp%11#0",
+        "tmp%13#0",
         "tmp%16#0",
         "tmp%17#0"
       ]
     },
-    "1629": {
-      "op": "+",
+    "1625": {
+      "op": "swap",
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "toAkita#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%17#0",
+        "tmp%16#0"
+      ]
+    },
+    "1626": {
+      "op": "dig 1",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%19#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%16#0",
+        "tmp%17#0",
+        "tmp%17#0 (copy)",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
-        "tmp%12#0",
-        "tmp%19#0"
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%17#0",
+        "tmp%16#0",
+        "tmp%17#0 (copy)"
+      ]
+    },
+    "1628": {
+      "op": "%",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%17#0",
+        "tmp%18#0",
+        "toAkita#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "toAkita#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%17#0",
+        "tmp%18#0"
+      ]
+    },
+    "1629": {
+      "op": "+",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%20#0",
+        "toAkita#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0",
+        "toAkita#0",
+        "tmp%11#0",
+        "tmp%13#0",
+        "tmp%20#0"
       ]
     },
     "1630": {
@@ -15810,14 +15851,14 @@
       "defined_out": [
         "awst_tmp%0#0",
         "previousWindowStart#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "previousWindowStart#0"
       ]
     },
@@ -15827,7 +15868,7 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "previousWindowStart#0",
         "awst_tmp%0#0 (copy)"
       ]
@@ -15839,14 +15880,14 @@
         "awst_tmp%0#0",
         "awst_tmp%0#0 (copy)",
         "previousWindowStart#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "previousWindowStart#0",
         "awst_tmp%0#0 (copy)",
         "85"
@@ -15857,17 +15898,17 @@
       "defined_out": [
         "awst_tmp%0#0",
         "previousWindowStart#0",
-        "tmp%10#0",
-        "tmp%21#0",
+        "tmp%11#0",
+        "tmp%22#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "previousWindowStart#0",
-        "tmp%21#0"
+        "tmp%22#0"
       ]
     },
     "1636": {
@@ -15875,14 +15916,14 @@
       "defined_out": [
         "awst_tmp%0#0",
         "notStale#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
         "toAkita#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "notStale#0"
       ]
     },
@@ -15891,7 +15932,7 @@
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "notStale#0",
         "toAkita#0"
       ]
@@ -15901,17 +15942,17 @@
       "defined_out": [
         "awst_tmp%0#0",
         "notStale#0",
-        "tmp%10#0",
-        "tmp%10#0 (copy)",
+        "tmp%11#0",
+        "tmp%11#0 (copy)",
         "toAkita#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "notStale#0",
         "toAkita#0",
-        "tmp%10#0 (copy)"
+        "tmp%11#0 (copy)"
       ]
     },
     "1641": {
@@ -15919,37 +15960,37 @@
       "defined_out": [
         "awst_tmp%0#0",
         "notStale#0",
-        "tmp%10#0",
-        "tmp%23#0"
+        "tmp%11#0",
+        "tmp%24#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "notStale#0",
-        "tmp%23#0"
+        "tmp%24#0"
       ]
     },
     "1642": {
       "op": "&&",
       "defined_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0"
+        "tmp%11#0",
+        "tmp%25#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0"
+        "tmp%11#0",
+        "tmp%25#0"
       ]
     },
     "1643": {
       "op": "uncover 2",
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0",
+        "tmp%11#0",
+        "tmp%25#0",
         "awst_tmp%0#0"
       ]
     },
@@ -15958,13 +15999,13 @@
       "defined_out": [
         "aggregate%extract%6#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0"
+        "tmp%11#0",
+        "tmp%25#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0",
+        "tmp%11#0",
+        "tmp%25#0",
         "aggregate%extract%6#0"
       ]
     },
@@ -15974,13 +16015,13 @@
         "0x00",
         "aggregate%extract%6#0",
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0"
+        "tmp%11#0",
+        "tmp%25#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0",
+        "tmp%11#0",
+        "tmp%25#0",
         "aggregate%extract%6#0",
         "0x00"
       ]
@@ -15989,8 +16030,8 @@
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
-        "tmp%24#0",
+        "tmp%11#0",
+        "tmp%25#0",
         "aggregate%extract%6#0",
         "0x00",
         "0"
@@ -16000,11 +16041,11 @@
       "op": "uncover 3",
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "aggregate%extract%6#0",
         "0x00",
         "0",
-        "tmp%24#0"
+        "tmp%25#0"
       ]
     },
     "1654": {
@@ -16013,11 +16054,11 @@
         "aggregate%encoded_bool%1#0",
         "aggregate%extract%6#0",
         "awst_tmp%0#0",
-        "tmp%10#0"
+        "tmp%11#0"
       ],
       "stack_out": [
         "awst_tmp%0#0",
-        "tmp%10#0",
+        "tmp%11#0",
         "aggregate%extract%6#0",
         "aggregate%encoded_bool%1#0"
       ]
@@ -16028,7 +16069,7 @@
         "awst_tmp%0#0",
         "aggregate%extract%6#0",
         "aggregate%encoded_bool%1#0",
-        "tmp%10#0"
+        "tmp%11#0"
       ]
     },
     "1657": {
@@ -16482,7 +16523,7 @@
       ]
     },
     "1743": {
-      "op": "bytec_3 // \"\"",
+      "op": "pushbytes \"\"",
       "stack_out": [
         "awst_tmp%0#0",
         "map_prefixed_key%0#2",
@@ -16491,7 +16532,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "1744": {
+    "1745": {
       "op": "dupn 15",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16516,16 +16557,16 @@
         "totalScore#0"
       ]
     },
-    "1746": {
+    "1747": {
       "op": "intc_0 // 0"
     },
-    "1747": {
+    "1748": {
       "op": "dupn 2"
     },
-    "1749": {
+    "1750": {
       "op": "bytec 5 // \"m\""
     },
-    "1751": {
+    "1752": {
       "op": "frame_dig -2",
       "defined_out": [
         "\"m\"",
@@ -16562,7 +16603,7 @@
         "account#0 (copy)"
       ]
     },
-    "1753": {
+    "1754": {
       "op": "concat",
       "defined_out": [
         "NFD#0",
@@ -16597,7 +16638,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1754": {
+    "1755": {
       "op": "dup",
       "defined_out": [
         "NFD#0",
@@ -16633,7 +16674,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1755": {
+    "1756": {
       "op": "box_len",
       "defined_out": [
         "NFD#0",
@@ -16672,7 +16713,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1756": {
+    "1757": {
       "op": "bury 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16702,7 +16743,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1758": {
+    "1759": {
       "op": "bz userImpactWithSocial_after_if_else@2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16731,7 +16772,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1761": {
+    "1762": {
       "op": "frame_dig 23",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16761,7 +16802,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1763": {
+    "1764": {
       "op": "box_get",
       "defined_out": [
         "NFD#0",
@@ -16800,7 +16841,7 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "1764": {
+    "1765": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
@@ -16831,7 +16872,7 @@
         "meta#0"
       ]
     },
-    "1765": {
+    "1766": {
       "op": "dup",
       "defined_out": [
         "NFD#0",
@@ -16870,7 +16911,7 @@
         "meta#0 (copy)"
       ]
     },
-    "1766": {
+    "1767": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16902,7 +16943,7 @@
         "0"
       ]
     },
-    "1767": {
+    "1768": {
       "op": "extract_uint64",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16933,7 +16974,7 @@
         "subscriptionIndex#0"
       ]
     },
-    "1768": {
+    "1769": {
       "op": "frame_bury 20",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16963,7 +17004,7 @@
         "meta#0"
       ]
     },
-    "1770": {
+    "1771": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -16994,7 +17035,7 @@
         "meta#0 (copy)"
       ]
     },
-    "1771": {
+    "1772": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -17035,7 +17076,7 @@
         "8"
       ]
     },
-    "1772": {
+    "1773": {
       "op": "extract_uint64",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17066,7 +17107,7 @@
         "NFD#0"
       ]
     },
-    "1773": {
+    "1774": {
       "op": "frame_bury 21",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17096,7 +17137,7 @@
         "meta#0"
       ]
     },
-    "1775": {
+    "1776": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -17135,7 +17176,7 @@
         "32"
       ]
     },
-    "1777": {
+    "1778": {
       "op": "extract_uint64",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17165,7 +17206,7 @@
         "akitaNFT#0"
       ]
     },
-    "1778": {
+    "1779": {
       "op": "frame_bury 22",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17194,7 +17235,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1780": {
+    "1781": {
       "block": "userImpactWithSocial_after_if_else@2",
       "stack_in": [
         "awst_tmp%0#0",
@@ -17254,7 +17295,7 @@
         "0"
       ]
     },
-    "1781": {
+    "1782": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -17289,7 +17330,7 @@
         "\"akita_dao\""
       ]
     },
-    "1782": {
+    "1783": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -17324,7 +17365,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1783": {
+    "1784": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -17355,8 +17396,8 @@
         "akitaDAO#0"
       ]
     },
-    "1784": {
-      "op": "bytec 14 // \"akita_assets\"",
+    "1785": {
+      "op": "bytec 13 // \"akita_assets\"",
       "defined_out": [
         "\"akita_assets\"",
         "akitaDAO#0"
@@ -17390,7 +17431,7 @@
         "\"akita_assets\""
       ]
     },
-    "1786": {
+    "1787": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaAssetsBytes#0",
@@ -17425,7 +17466,7 @@
         "tmp%1#7"
       ]
     },
-    "1787": {
+    "1788": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17455,7 +17496,7 @@
         "akitaAssetsBytes#0"
       ]
     },
-    "1788": {
+    "1789": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17486,7 +17527,7 @@
         "0"
       ]
     },
-    "1789": {
+    "1790": {
       "op": "extract_uint64",
       "defined_out": [
         "akta#0"
@@ -17519,7 +17560,7 @@
         "akta#0"
       ]
     },
-    "1790": {
+    "1791": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17550,7 +17591,7 @@
         "akta#0"
       ]
     },
-    "1791": {
+    "1792": {
       "op": "frame_bury 5",
       "defined_out": [
         "akta#0"
@@ -17583,7 +17624,7 @@
         "akta#0"
       ]
     },
-    "1793": {
+    "1794": {
       "op": "bnz userImpactWithSocial_after_if_else@34",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17612,7 +17653,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1796": {
+    "1797": {
       "op": "intc_0 // 0",
       "defined_out": [
         "akta#0",
@@ -17646,7 +17687,7 @@
         "stakedAktaImpact#0"
       ]
     },
-    "1797": {
+    "1798": {
       "op": "frame_bury 13",
       "defined_out": [
         "akta#0",
@@ -17679,7 +17720,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1799": {
+    "1800": {
       "block": "userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getStakingImpactScore@41",
       "stack_in": [
         "awst_tmp%0#0",
@@ -17739,7 +17780,7 @@
         "subscriberImpact#0"
       ]
     },
-    "1800": {
+    "1801": {
       "op": "frame_bury 14",
       "defined_out": [
         "subscriberImpact#0"
@@ -17771,7 +17812,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1802": {
+    "1803": {
       "op": "frame_dig -2",
       "defined_out": [
         "account#0 (copy)",
@@ -17805,7 +17846,7 @@
         "account#0 (copy)"
       ]
     },
-    "1804": {
+    "1805": {
       "op": "frame_dig 20",
       "defined_out": [
         "account#0 (copy)",
@@ -17841,7 +17882,7 @@
         "subscriptionIndex#0"
       ]
     },
-    "1806": {
+    "1807": {
       "callsub": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.isSubscribed",
       "op": "callsub isSubscribed",
       "defined_out": [
@@ -17877,7 +17918,7 @@
         "subscriptionState#0"
       ]
     },
-    "1809": {
+    "1810": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17908,7 +17949,7 @@
         "subscriptionState#0"
       ]
     },
-    "1810": {
+    "1811": {
       "op": "frame_bury 3",
       "defined_out": [
         "subscriberImpact#0",
@@ -17943,7 +17984,7 @@
         "subscriptionState#0"
       ]
     },
-    "1812": {
+    "1813": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -17974,7 +18015,7 @@
         "0"
       ]
     },
-    "1813": {
+    "1814": {
       "op": "getbit",
       "defined_out": [
         "aggregate%get_bit%0#0",
@@ -18010,7 +18051,7 @@
         "aggregate%get_bit%0#0"
       ]
     },
-    "1814": {
+    "1815": {
       "op": "bz userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getSubscriberImpactScore@49",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18039,7 +18080,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1817": {
+    "1818": {
       "op": "frame_dig 3",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18069,7 +18110,7 @@
         "subscriptionState#0"
       ]
     },
-    "1819": {
+    "1820": {
       "op": "extract 1 8",
       "defined_out": [
         "aggregate%extract%7#0",
@@ -18105,7 +18146,7 @@
         "aggregate%extract%7#0"
       ]
     },
-    "1822": {
+    "1823": {
       "op": "pushbytes \"s\"",
       "defined_out": [
         "\"s\"",
@@ -18143,7 +18184,7 @@
         "\"s\""
       ]
     },
-    "1825": {
+    "1826": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18174,7 +18215,7 @@
         "aggregate%extract%7#0"
       ]
     },
-    "1826": {
+    "1827": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18210,7 +18251,7 @@
         "map_prefixed_key%0#2"
       ]
     },
-    "1827": {
+    "1828": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18241,7 +18282,7 @@
         "map_prefixed_key%0#2"
       ]
     },
-    "1828": {
+    "1829": {
       "op": "frame_bury 1",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18277,7 +18318,7 @@
         "map_prefixed_key%0#2"
       ]
     },
-    "1830": {
+    "1831": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -18316,7 +18357,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1831": {
+    "1832": {
       "op": "bury 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18346,7 +18387,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1833": {
+    "1834": {
       "op": "bz userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getSubscriberImpactScore@49",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18375,7 +18416,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1836": {
+    "1837": {
       "op": "frame_dig 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18405,7 +18446,7 @@
         "map_prefixed_key%0#2"
       ]
     },
-    "1838": {
+    "1839": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%2#0",
@@ -18444,7 +18485,7 @@
         "aggregate%box_get%3#0"
       ]
     },
-    "1839": {
+    "1840": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
@@ -18475,7 +18516,7 @@
         "aggregate%box_get%2#0"
       ]
     },
-    "1840": {
+    "1841": {
       "op": "btoi",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18512,7 +18553,7 @@
         "modifier#0"
       ]
     },
-    "1841": {
+    "1842": {
       "op": "frame_dig 3",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18543,7 +18584,7 @@
         "subscriptionState#0"
       ]
     },
-    "1843": {
+    "1844": {
       "op": "pushint 9",
       "defined_out": [
         "9",
@@ -18583,7 +18624,7 @@
         "9"
       ]
     },
-    "1845": {
+    "1846": {
       "op": "extract_uint64",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18622,7 +18663,7 @@
         "tmp%4#5"
       ]
     },
-    "1846": {
+    "1847": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18654,7 +18695,7 @@
         "tmp%4#5"
       ]
     },
-    "1847": {
+    "1848": {
       "op": "frame_bury 17",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18693,7 +18734,7 @@
         "tmp%4#5"
       ]
     },
-    "1849": {
+    "1850": {
       "op": "pushint 12",
       "defined_out": [
         "12",
@@ -18734,7 +18775,7 @@
         "12"
       ]
     },
-    "1851": {
+    "1852": {
       "op": ">=",
       "defined_out": [
         "map_prefixed_key%0#2",
@@ -18774,7 +18815,7 @@
         "tmp%5#1"
       ]
     },
-    "1852": {
+    "1853": {
       "op": "bz userImpactWithSocial_else_body@47",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18804,7 +18845,7 @@
         "modifier#0"
       ]
     },
-    "1855": {
+    "1856": {
       "op": "intc 4 // 250",
       "defined_out": [
         "250",
@@ -18844,7 +18885,7 @@
         "250"
       ]
     },
-    "1857": {
+    "1858": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18875,7 +18916,7 @@
         "modifier#0"
       ]
     },
-    "1858": {
+    "1859": {
       "op": "/",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18905,7 +18946,7 @@
         "subscriberImpact#0"
       ]
     },
-    "1859": {
+    "1860": {
       "op": "frame_bury 14",
       "stack_out": [
         "awst_tmp%0#0",
@@ -18934,7 +18975,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1861": {
+    "1862": {
       "block": "userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getSubscriberImpactScore@49",
       "stack_in": [
         "awst_tmp%0#0",
@@ -18994,7 +19035,7 @@
         "NFD#0"
       ]
     },
-    "1863": {
+    "1864": {
       "op": "bz userImpactWithSocial_ternary_false@4",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19023,7 +19064,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1866": {
+    "1867": {
       "op": "frame_dig 23",
       "defined_out": [
         "NFD#0",
@@ -19057,7 +19098,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1868": {
+    "1869": {
       "op": "box_get",
       "defined_out": [
         "NFD#0",
@@ -19094,7 +19135,7 @@
         "aggregate%box_get%5#0"
       ]
     },
-    "1869": {
+    "1870": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
@@ -19125,7 +19166,7 @@
         "aggregate%box_get%4#0"
       ]
     },
-    "1870": {
+    "1871": {
       "op": "dup",
       "defined_out": [
         "NFD#0",
@@ -19162,7 +19203,7 @@
         "aggregate%box_get%4#0 (copy)"
       ]
     },
-    "1871": {
+    "1872": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -19201,7 +19242,7 @@
         "8"
       ]
     },
-    "1872": {
+    "1873": {
       "op": "extract_uint64",
       "defined_out": [
         "NFD#0",
@@ -19238,7 +19279,7 @@
         "NFD#3"
       ]
     },
-    "1873": {
+    "1874": {
       "op": "dig 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19270,7 +19311,7 @@
         "aggregate%box_get%4#0 (copy)"
       ]
     },
-    "1875": {
+    "1876": {
       "op": "pushint 16",
       "defined_out": [
         "16",
@@ -19311,7 +19352,7 @@
         "16"
       ]
     },
-    "1877": {
+    "1878": {
       "op": "extract_uint64",
       "defined_out": [
         "NFD#0",
@@ -19350,7 +19391,7 @@
         "nfdTimeChanged#0"
       ]
     },
-    "1878": {
+    "1879": {
       "op": "frame_bury 12",
       "defined_out": [
         "NFD#0",
@@ -19388,7 +19429,7 @@
         "NFD#3"
       ]
     },
-    "1880": {
+    "1881": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19419,7 +19460,7 @@
         "aggregate%box_get%4#0"
       ]
     },
-    "1881": {
+    "1882": {
       "op": "pushint 24",
       "defined_out": [
         "24",
@@ -19459,7 +19500,7 @@
         "24"
       ]
     },
-    "1883": {
+    "1884": {
       "op": "extract_uint64",
       "defined_out": [
         "NFD#0",
@@ -19497,7 +19538,7 @@
         "nfdImpact#0"
       ]
     },
-    "1884": {
+    "1885": {
       "op": "frame_bury 10",
       "defined_out": [
         "NFD#0",
@@ -19534,7 +19575,7 @@
         "NFD#3"
       ]
     },
-    "1886": {
+    "1887": {
       "op": "dup",
       "defined_out": [
         "NFD#0",
@@ -19573,8 +19614,8 @@
         "NFD#3 (copy)"
       ]
     },
-    "1887": {
-      "op": "bytec 11 // \"i.timeChanged\"",
+    "1888": {
+      "op": "bytec 10 // \"i.timeChanged\"",
       "defined_out": [
         "\"i.timeChanged\"",
         "NFD#0",
@@ -19614,7 +19655,7 @@
         "\"i.timeChanged\""
       ]
     },
-    "1889": {
+    "1890": {
       "op": "app_global_get_ex",
       "defined_out": [
         "NFD#0",
@@ -19655,7 +19696,7 @@
         "tmp%4#2"
       ]
     },
-    "1890": {
+    "1891": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19686,7 +19727,7 @@
         "tmp%3#3"
       ]
     },
-    "1891": {
+    "1892": {
       "op": "btoi",
       "defined_out": [
         "NFD#0",
@@ -19725,7 +19766,7 @@
         "timeChanged#0"
       ]
     },
-    "1892": {
+    "1893": {
       "op": "frame_bury 15",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19755,7 +19796,7 @@
         "NFD#3"
       ]
     },
-    "1894": {
+    "1895": {
       "op": "frame_dig 21",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19786,7 +19827,7 @@
         "NFD#0"
       ]
     },
-    "1896": {
+    "1897": {
       "op": "==",
       "defined_out": [
         "NFD#0",
@@ -19824,7 +19865,7 @@
         "tmp%6#1"
       ]
     },
-    "1897": {
+    "1898": {
       "op": "bnz userImpactWithSocial_after_assert@28",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19853,7 +19894,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1900": {
+    "1901": {
       "op": "pushbytes \"ERR:INFD\"",
       "defined_out": [
         "\"ERR:INFD\"",
@@ -19891,7 +19932,7 @@
         "\"ERR:INFD\""
       ]
     },
-    "1910": {
+    "1911": {
       "op": "log",
       "stack_out": [
         "awst_tmp%0#0",
@@ -19920,11 +19961,11 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1911": {
+    "1912": {
       "error": "ERR:INFD",
       "op": "err // ERR:INFD"
     },
-    "1912": {
+    "1913": {
       "block": "userImpactWithSocial_after_assert@28",
       "stack_in": [
         "awst_tmp%0#0",
@@ -19984,7 +20025,7 @@
         "nfdTimeChanged#0"
       ]
     },
-    "1914": {
+    "1915": {
       "op": "frame_dig 15",
       "defined_out": [
         "nfdTimeChanged#0",
@@ -20019,7 +20060,7 @@
         "timeChanged#0"
       ]
     },
-    "1916": {
+    "1917": {
       "op": "==",
       "defined_out": [
         "nfdTimeChanged#0",
@@ -20054,7 +20095,7 @@
         "tmp%7#2"
       ]
     },
-    "1917": {
+    "1918": {
       "op": "bnz userImpactWithSocial_after_assert@30",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20083,7 +20124,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1920": {
+    "1921": {
       "op": "pushbytes \"ERR:CNFD\"",
       "defined_out": [
         "\"ERR:CNFD\"",
@@ -20118,7 +20159,7 @@
         "\"ERR:CNFD\""
       ]
     },
-    "1930": {
+    "1931": {
       "op": "log",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20147,11 +20188,11 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1931": {
+    "1932": {
       "error": "ERR:CNFD",
       "op": "err // ERR:CNFD"
     },
-    "1932": {
+    "1933": {
       "block": "userImpactWithSocial_after_assert@30",
       "stack_in": [
         "awst_tmp%0#0",
@@ -20211,7 +20252,7 @@
         "nfdScore#0"
       ]
     },
-    "1934": {
+    "1935": {
       "op": "frame_bury 11",
       "defined_out": [
         "nfdScore#0"
@@ -20243,7 +20284,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1936": {
+    "1937": {
       "block": "userImpactWithSocial_ternary_merge@5",
       "stack_in": [
         "awst_tmp%0#0",
@@ -20303,7 +20344,7 @@
         "0"
       ]
     },
-    "1937": {
+    "1938": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -20338,7 +20379,7 @@
         "\"akita_dao\""
       ]
     },
-    "1938": {
+    "1939": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -20373,7 +20414,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "1939": {
+    "1940": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -20404,8 +20445,8 @@
         "akitaDAO#0"
       ]
     },
-    "1940": {
-      "op": "bytec 14 // \"akita_assets\"",
+    "1941": {
+      "op": "bytec 13 // \"akita_assets\"",
       "defined_out": [
         "\"akita_assets\"",
         "akitaDAO#0"
@@ -20439,7 +20480,7 @@
         "\"akita_assets\""
       ]
     },
-    "1942": {
+    "1943": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaAssetsBytes#0",
@@ -20474,7 +20515,7 @@
         "tmp%1#7"
       ]
     },
-    "1943": {
+    "1944": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20504,7 +20545,7 @@
         "akitaAssetsBytes#0"
       ]
     },
-    "1944": {
+    "1945": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20535,7 +20576,7 @@
         "0"
       ]
     },
-    "1945": {
+    "1946": {
       "op": "extract_uint64",
       "defined_out": [
         "akta#0"
@@ -20568,7 +20609,7 @@
         "akta#0"
       ]
     },
-    "1946": {
+    "1947": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20599,7 +20640,7 @@
         "akta#0"
       ]
     },
-    "1947": {
+    "1948": {
       "op": "frame_bury 5",
       "defined_out": [
         "akta#0"
@@ -20632,7 +20673,7 @@
         "akta#0"
       ]
     },
-    "1949": {
+    "1950": {
       "op": "bnz userImpactWithSocial_after_if_else@22",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20661,7 +20702,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1952": {
+    "1953": {
       "op": "intc_0 // 0",
       "defined_out": [
         "akta#0",
@@ -20695,7 +20736,7 @@
         "heldAkitaImpact#0"
       ]
     },
-    "1953": {
+    "1954": {
       "op": "frame_bury 8",
       "defined_out": [
         "akta#0",
@@ -20728,7 +20769,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1955": {
+    "1956": {
       "block": "userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getHeldAktaImpactScore@25",
       "stack_in": [
         "awst_tmp%0#0",
@@ -20788,7 +20829,7 @@
         "akitaNFT#0"
       ]
     },
-    "1957": {
+    "1958": {
       "op": "bz userImpactWithSocial_ternary_false@7",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20817,7 +20858,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "1960": {
+    "1961": {
       "op": "frame_dig 22",
       "stack_out": [
         "awst_tmp%0#0",
@@ -20847,7 +20888,7 @@
         "akitaNFT#0"
       ]
     },
-    "1962": {
+    "1963": {
       "op": "dup",
       "defined_out": [
         "akitaNFT#0",
@@ -20882,7 +20923,7 @@
         "akitaNFT#0 (copy)"
       ]
     },
-    "1963": {
+    "1964": {
       "op": "asset_params_get AssetUnitName",
       "defined_out": [
         "akitaNFT#0",
@@ -20919,7 +20960,7 @@
         "check%0#0"
       ]
     },
-    "1965": {
+    "1966": {
       "error": "asset exists",
       "op": "assert // asset exists",
       "stack_out": [
@@ -20951,7 +20992,7 @@
         "value%0#0"
       ]
     },
-    "1966": {
+    "1967": {
       "op": "dup",
       "defined_out": [
         "akitaNFT#0",
@@ -20988,7 +21029,7 @@
         "value%0#0 (copy)"
       ]
     },
-    "1967": {
+    "1968": {
       "op": "len",
       "defined_out": [
         "akitaNFT#0",
@@ -21025,7 +21066,7 @@
         "length%0#0"
       ]
     },
-    "1968": {
+    "1969": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -21064,7 +21105,7 @@
         "0"
       ]
     },
-    "1969": {
+    "1970": {
       "op": "dig 1",
       "defined_out": [
         "0",
@@ -21105,7 +21146,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1971": {
+    "1972": {
       "op": ">=",
       "defined_out": [
         "akitaNFT#0",
@@ -21144,7 +21185,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1972": {
+    "1973": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21178,7 +21219,7 @@
         "0"
       ]
     },
-    "1973": {
+    "1974": {
       "op": "dig 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21213,7 +21254,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1975": {
+    "1976": {
       "op": "uncover 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21248,7 +21289,7 @@
         "is_out_of_bounds%0#0"
       ]
     },
-    "1977": {
+    "1978": {
       "op": "select",
       "defined_out": [
         "akitaNFT#0",
@@ -21287,7 +21328,7 @@
         "bounded_index%0#0"
       ]
     },
-    "1978": {
+    "1979": {
       "op": "pushint 3",
       "defined_out": [
         "3",
@@ -21328,7 +21369,7 @@
         "3"
       ]
     },
-    "1980": {
+    "1981": {
       "op": "dig 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21363,7 +21404,7 @@
         "length%0#0 (copy)"
       ]
     },
-    "1982": {
+    "1983": {
       "op": ">=",
       "defined_out": [
         "akitaNFT#0",
@@ -21404,7 +21445,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1983": {
+    "1984": {
       "op": "pushint 3",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21439,7 +21480,7 @@
         "3"
       ]
     },
-    "1985": {
+    "1986": {
       "op": "uncover 3",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21474,7 +21515,7 @@
         "length%0#0"
       ]
     },
-    "1987": {
+    "1988": {
       "op": "uncover 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21509,7 +21550,7 @@
         "is_out_of_bounds%1#0"
       ]
     },
-    "1989": {
+    "1990": {
       "op": "select",
       "defined_out": [
         "akitaNFT#0",
@@ -21548,7 +21589,7 @@
         "bounded_index%1#0"
       ]
     },
-    "1990": {
+    "1991": {
       "op": "substring3",
       "defined_out": [
         "akitaNFT#0",
@@ -21583,7 +21624,7 @@
         "prefix#0"
       ]
     },
-    "1991": {
+    "1992": {
       "op": "frame_bury 2",
       "defined_out": [
         "akitaNFT#0",
@@ -21617,7 +21658,7 @@
         "akitaNFT#0"
       ]
     },
-    "1993": {
+    "1994": {
       "op": "frame_dig -2",
       "defined_out": [
         "account#0 (copy)",
@@ -21653,7 +21694,7 @@
         "account#0 (copy)"
       ]
     },
-    "1995": {
+    "1996": {
       "op": "dig 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21685,7 +21726,7 @@
         "akitaNFT#0 (copy)"
       ]
     },
-    "1997": {
+    "1998": {
       "op": "asset_holding_get AssetBalance",
       "defined_out": [
         "akitaNFT#0",
@@ -21723,7 +21764,7 @@
         "tmp%2#1"
       ]
     },
-    "1999": {
+    "2000": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21754,7 +21795,7 @@
         "balance#0"
       ]
     },
-    "2000": {
+    "2001": {
       "op": "frame_bury 6",
       "defined_out": [
         "akitaNFT#0",
@@ -21789,7 +21830,7 @@
         "akitaNFT#0"
       ]
     },
-    "2002": {
+    "2003": {
       "op": "asset_params_get AssetCreator",
       "defined_out": [
         "akitaNFT#0",
@@ -21827,7 +21868,7 @@
         "check%1#0"
       ]
     },
-    "2004": {
+    "2005": {
       "error": "asset exists",
       "op": "assert // asset exists",
       "stack_out": [
@@ -21858,8 +21899,8 @@
         "value%1#0"
       ]
     },
-    "2005": {
-      "op": "bytec 12 // addr AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI",
+    "2006": {
+      "op": "bytec 11 // addr AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI",
       "defined_out": [
         "Address(AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI)",
         "akitaNFT#0",
@@ -21896,7 +21937,7 @@
         "Address(AKCTRDK4OWNWHTPH4XPKLNWNLZ333VE35SKQ4FGQK3ZJA4FIHCLTRG3PFI)"
       ]
     },
-    "2007": {
+    "2008": {
       "op": "==",
       "defined_out": [
         "akitaNFT#0",
@@ -21932,7 +21973,7 @@
         "tmp%3#1"
       ]
     },
-    "2008": {
+    "2009": {
       "op": "bz userImpactWithSocial_after_if_else@18",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21961,7 +22002,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2011": {
+    "2012": {
       "op": "frame_dig 6",
       "stack_out": [
         "awst_tmp%0#0",
@@ -21991,7 +22032,7 @@
         "balance#0"
       ]
     },
-    "2013": {
+    "2014": {
       "op": "bz userImpactWithSocial_after_if_else@18",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22020,7 +22061,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2016": {
+    "2017": {
       "op": "frame_dig 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22050,7 +22091,7 @@
         "prefix#0"
       ]
     },
-    "2018": {
+    "2019": {
       "op": "pushbytes \"AKC\"",
       "defined_out": [
         "\"AKC\"",
@@ -22087,7 +22128,7 @@
         "\"AKC\""
       ]
     },
-    "2023": {
+    "2024": {
       "op": "==",
       "defined_out": [
         "akitaNFT#0",
@@ -22123,7 +22164,7 @@
         "tmp%5#1"
       ]
     },
-    "2024": {
+    "2025": {
       "op": "bz userImpactWithSocial_after_if_else@15",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22152,7 +22193,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2027": {
+    "2028": {
       "op": "pushint 50",
       "defined_out": [
         "akitaNFT#0",
@@ -22188,7 +22229,7 @@
         "nftImpact#0"
       ]
     },
-    "2029": {
+    "2030": {
       "block": "userImpactWithSocial_ternary_merge@8",
       "stack_in": [
         "awst_tmp%0#0",
@@ -22250,7 +22291,7 @@
         "stakedAktaImpact#0"
       ]
     },
-    "2031": {
+    "2032": {
       "op": "frame_dig 14",
       "defined_out": [
         "stakedAktaImpact#0",
@@ -22286,7 +22327,7 @@
         "subscriberImpact#0"
       ]
     },
-    "2033": {
+    "2034": {
       "op": "+",
       "defined_out": [
         "stakedAktaImpact#0",
@@ -22322,7 +22363,7 @@
         "tmp%8#0"
       ]
     },
-    "2034": {
+    "2035": {
       "op": "frame_dig -1",
       "defined_out": [
         "socialImpact#0 (copy)",
@@ -22360,7 +22401,7 @@
         "socialImpact#0 (copy)"
       ]
     },
-    "2036": {
+    "2037": {
       "op": "+",
       "defined_out": [
         "stakedAktaImpact#0",
@@ -22396,7 +22437,7 @@
         "tmp%9#0"
       ]
     },
-    "2037": {
+    "2038": {
       "op": "frame_dig 11",
       "defined_out": [
         "nfdScore#0",
@@ -22434,7 +22475,7 @@
         "nfdScore#0"
       ]
     },
-    "2039": {
+    "2040": {
       "op": "+",
       "defined_out": [
         "nfdScore#0",
@@ -22471,7 +22512,7 @@
         "tmp%10#0"
       ]
     },
-    "2040": {
+    "2041": {
       "op": "frame_dig 8",
       "defined_out": [
         "heldAkitaImpact#0",
@@ -22510,7 +22551,7 @@
         "heldAkitaImpact#0"
       ]
     },
-    "2042": {
+    "2043": {
       "op": "+",
       "defined_out": [
         "heldAkitaImpact#0",
@@ -22548,7 +22589,7 @@
         "tmp%11#0"
       ]
     },
-    "2043": {
+    "2044": {
       "op": "+",
       "defined_out": [
         "heldAkitaImpact#0",
@@ -22585,7 +22626,7 @@
         "total#0"
       ]
     },
-    "2044": {
+    "2045": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22616,7 +22657,7 @@
         "total#0"
       ]
     },
-    "2045": {
+    "2046": {
       "op": "frame_bury 18",
       "defined_out": [
         "heldAkitaImpact#0",
@@ -22653,7 +22694,7 @@
         "total#0"
       ]
     },
-    "2047": {
+    "2048": {
       "op": "bnz userImpactWithSocial_after_if_else@10",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22682,7 +22723,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2050": {
+    "2051": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -22720,14 +22761,14 @@
         "1"
       ]
     },
-    "2051": {
+    "2052": {
       "op": "frame_bury 0"
     },
-    "2053": {
+    "2054": {
       "retsub": true,
       "op": "retsub"
     },
-    "2054": {
+    "2055": {
       "block": "userImpactWithSocial_after_if_else@10",
       "stack_in": [
         "awst_tmp%0#0",
@@ -22787,14 +22828,14 @@
         "total#0"
       ]
     },
-    "2056": {
+    "2057": {
       "op": "frame_bury 0"
     },
-    "2058": {
+    "2059": {
       "retsub": true,
       "op": "retsub"
     },
-    "2059": {
+    "2060": {
       "block": "userImpactWithSocial_after_if_else@15",
       "stack_in": [
         "awst_tmp%0#0",
@@ -22854,7 +22895,7 @@
         "prefix#0"
       ]
     },
-    "2061": {
+    "2062": {
       "op": "pushbytes \"AOG\"",
       "defined_out": [
         "\"AOG\"",
@@ -22889,7 +22930,7 @@
         "\"AOG\""
       ]
     },
-    "2066": {
+    "2067": {
       "op": "==",
       "defined_out": [
         "prefix#0",
@@ -22923,7 +22964,7 @@
         "tmp%6#1"
       ]
     },
-    "2067": {
+    "2068": {
       "op": "bz userImpactWithSocial_after_if_else@18",
       "stack_out": [
         "awst_tmp%0#0",
@@ -22952,7 +22993,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2070": {
+    "2071": {
       "op": "pushint 25",
       "defined_out": [
         "prefix#0",
@@ -22986,7 +23027,7 @@
         "ternary_result%1#0"
       ]
     },
-    "2072": {
+    "2073": {
       "op": "b userImpactWithSocial_ternary_merge@8",
       "defined_out": [
         "nftImpact#0",
@@ -23020,7 +23061,7 @@
         "nftImpact#0"
       ]
     },
-    "2075": {
+    "2076": {
       "block": "userImpactWithSocial_after_if_else@18",
       "stack_in": [
         "awst_tmp%0#0",
@@ -23080,7 +23121,7 @@
         "ternary_result%1#0"
       ]
     },
-    "2076": {
+    "2077": {
       "op": "b userImpactWithSocial_ternary_merge@8",
       "defined_out": [
         "nftImpact#0"
@@ -23113,7 +23154,7 @@
         "nftImpact#0"
       ]
     },
-    "2079": {
+    "2080": {
       "block": "userImpactWithSocial_ternary_false@7",
       "stack_in": [
         "awst_tmp%0#0",
@@ -23173,10 +23214,10 @@
         "nftImpact#0"
       ]
     },
-    "2080": {
+    "2081": {
       "op": "b userImpactWithSocial_ternary_merge@8"
     },
-    "2083": {
+    "2084": {
       "block": "userImpactWithSocial_after_if_else@22",
       "stack_in": [
         "awst_tmp%0#0",
@@ -23236,7 +23277,7 @@
         "account#0 (copy)"
       ]
     },
-    "2085": {
+    "2086": {
       "op": "frame_dig 5",
       "defined_out": [
         "account#0 (copy)",
@@ -23271,7 +23312,7 @@
         "akta#0"
       ]
     },
-    "2087": {
+    "2088": {
       "op": "asset_holding_get AssetBalance",
       "defined_out": [
         "akta#0",
@@ -23307,7 +23348,7 @@
         "tmp%4#2"
       ]
     },
-    "2089": {
+    "2090": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -23337,7 +23378,7 @@
         "balance#0"
       ]
     },
-    "2090": {
+    "2091": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -23368,7 +23409,7 @@
         "balance#0"
       ]
     },
-    "2091": {
+    "2092": {
       "op": "frame_bury 6",
       "defined_out": [
         "akta#0",
@@ -23402,7 +23443,7 @@
         "balance#0"
       ]
     },
-    "2093": {
+    "2094": {
       "op": "intc 8 // 10000000000",
       "defined_out": [
         "10000000000",
@@ -23438,7 +23479,7 @@
         "10000000000"
       ]
     },
-    "2095": {
+    "2096": {
       "op": "<",
       "defined_out": [
         "akta#0",
@@ -23473,7 +23514,7 @@
         "tmp%5#1"
       ]
     },
-    "2096": {
+    "2097": {
       "op": "bz userImpactWithSocial_after_if_else@24",
       "stack_out": [
         "awst_tmp%0#0",
@@ -23502,7 +23543,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2099": {
+    "2100": {
       "op": "intc_0 // 0",
       "defined_out": [
         "akta#0",
@@ -23537,7 +23578,7 @@
         "heldAkitaImpact#0"
       ]
     },
-    "2100": {
+    "2101": {
       "op": "frame_bury 8",
       "defined_out": [
         "akta#0",
@@ -23571,10 +23612,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2102": {
+    "2103": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getHeldAktaImpactScore@25"
     },
-    "2105": {
+    "2106": {
       "block": "userImpactWithSocial_after_if_else@24",
       "stack_in": [
         "awst_tmp%0#0",
@@ -23634,7 +23675,7 @@
         "balance#0"
       ]
     },
-    "2107": {
+    "2108": {
       "op": "dup",
       "defined_out": [
         "balance#0",
@@ -23669,7 +23710,7 @@
         "balance#0 (copy)"
       ]
     },
-    "2108": {
+    "2109": {
       "op": "intc 5 // 1000000000000",
       "defined_out": [
         "1000000000000",
@@ -23706,7 +23747,7 @@
         "1000000000000"
       ]
     },
-    "2110": {
+    "2111": {
       "op": ">=",
       "defined_out": [
         "balance#0",
@@ -23741,10 +23782,10 @@
         "tmp%6#1"
       ]
     },
-    "2111": {
+    "2112": {
       "op": "intc 5 // 1000000000000"
     },
-    "2113": {
+    "2114": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -23776,7 +23817,7 @@
         "tmp%6#1"
       ]
     },
-    "2114": {
+    "2115": {
       "op": "select",
       "defined_out": [
         "balance#0",
@@ -23810,7 +23851,7 @@
         "capped#0"
       ]
     },
-    "2115": {
+    "2116": {
       "op": "pushint 50",
       "defined_out": [
         "50",
@@ -23846,7 +23887,7 @@
         "50"
       ]
     },
-    "2117": {
+    "2118": {
       "op": "*",
       "defined_out": [
         "balance#0",
@@ -23880,7 +23921,7 @@
         "tmp%7#1"
       ]
     },
-    "2118": {
+    "2119": {
       "op": "intc 5 // 1000000000000",
       "stack_out": [
         "awst_tmp%0#0",
@@ -23911,7 +23952,7 @@
         "1000000000000"
       ]
     },
-    "2120": {
+    "2121": {
       "op": "/",
       "defined_out": [
         "balance#0",
@@ -23945,7 +23986,7 @@
         "heldAkitaImpact#0"
       ]
     },
-    "2121": {
+    "2122": {
       "op": "frame_bury 8",
       "defined_out": [
         "balance#0",
@@ -23978,10 +24019,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2123": {
+    "2124": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getHeldAktaImpactScore@25"
     },
-    "2126": {
+    "2127": {
       "block": "userImpactWithSocial_ternary_false@4",
       "stack_in": [
         "awst_tmp%0#0",
@@ -24041,7 +24082,7 @@
         "nfdScore#0"
       ]
     },
-    "2127": {
+    "2128": {
       "op": "frame_bury 11",
       "defined_out": [
         "nfdScore#0"
@@ -24073,10 +24114,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2129": {
+    "2130": {
       "op": "b userImpactWithSocial_ternary_merge@5"
     },
-    "2132": {
+    "2133": {
       "block": "userImpactWithSocial_else_body@47",
       "stack_in": [
         "awst_tmp%0#0",
@@ -24138,7 +24179,7 @@
         "tmp%4#5"
       ]
     },
-    "2134": {
+    "2135": {
       "op": "pushint 20",
       "defined_out": [
         "20",
@@ -24174,7 +24215,7 @@
         "20"
       ]
     },
-    "2136": {
+    "2137": {
       "op": "*",
       "defined_out": [
         "tmp%4#5",
@@ -24209,7 +24250,7 @@
         "tmp%9#0"
       ]
     },
-    "2137": {
+    "2138": {
       "op": "swap",
       "defined_out": [
         "modifier#0",
@@ -24245,7 +24286,7 @@
         "modifier#0"
       ]
     },
-    "2138": {
+    "2139": {
       "op": "/",
       "defined_out": [
         "subscriberImpact#0",
@@ -24279,7 +24320,7 @@
         "subscriberImpact#0"
       ]
     },
-    "2139": {
+    "2140": {
       "op": "frame_bury 14",
       "defined_out": [
         "subscriberImpact#0",
@@ -24312,10 +24353,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2141": {
+    "2142": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getSubscriberImpactScore@49"
     },
-    "2144": {
+    "2145": {
       "block": "userImpactWithSocial_after_if_else@34",
       "stack_in": [
         "awst_tmp%0#0",
@@ -24375,7 +24416,7 @@
         "0"
       ]
     },
-    "2145": {
+    "2146": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -24410,7 +24451,7 @@
         "\"akita_dao\""
       ]
     },
-    "2146": {
+    "2147": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -24445,7 +24486,7 @@
         "maybe_exists%1#0"
       ]
     },
-    "2147": {
+    "2148": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -24476,8 +24517,8 @@
         "akitaDAO#0"
       ]
     },
-    "2148": {
-      "op": "bytec 13 // \"aal\"",
+    "2149": {
+      "op": "bytec 12 // \"aal\"",
       "defined_out": [
         "\"aal\"",
         "akitaDAO#0"
@@ -24511,7 +24552,7 @@
         "\"aal\""
       ]
     },
-    "2150": {
+    "2151": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
@@ -24546,7 +24587,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "2151": {
+    "2152": {
       "op": "pop",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24576,7 +24617,7 @@
         "appListBytes#0"
       ]
     },
-    "2152": {
+    "2153": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24607,7 +24648,7 @@
         "0"
       ]
     },
-    "2153": {
+    "2154": {
       "op": "extract_uint64",
       "defined_out": [
         "staking#0"
@@ -24640,10 +24681,10 @@
         "staking#0"
       ]
     },
-    "2154": {
+    "2155": {
       "op": "itxn_begin"
     },
-    "2155": {
+    "2156": {
       "op": "frame_dig 5",
       "defined_out": [
         "akta#0",
@@ -24678,7 +24719,7 @@
         "akta#0"
       ]
     },
-    "2157": {
+    "2158": {
       "op": "itob",
       "defined_out": [
         "aggregate%val_as_bytes%0#0",
@@ -24714,7 +24755,7 @@
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "2158": {
+    "2159": {
       "op": "pushbytes 0x14",
       "defined_out": [
         "0x14",
@@ -24752,7 +24793,7 @@
         "0x14"
       ]
     },
-    "2161": {
+    "2162": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%1#0",
@@ -24788,7 +24829,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "2162": {
+    "2163": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24819,7 +24860,7 @@
         "staking#0"
       ]
     },
-    "2163": {
+    "2164": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24849,7 +24890,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "2165": {
+    "2166": {
       "op": "pushbytes 0x23334c0b // method \"getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]\"",
       "defined_out": [
         "Method(getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[])",
@@ -24885,7 +24926,7 @@
         "Method(getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[])"
       ]
     },
-    "2171": {
+    "2172": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24915,7 +24956,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "2173": {
+    "2174": {
       "op": "frame_dig -2",
       "defined_out": [
         "account#0 (copy)",
@@ -24951,7 +24992,7 @@
         "account#0 (copy)"
       ]
     },
-    "2175": {
+    "2176": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "awst_tmp%0#0",
@@ -24981,7 +25022,7 @@
         "aggregate%head%1#0"
       ]
     },
-    "2177": {
+    "2178": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25010,7 +25051,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2179": {
+    "2180": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "akta#0",
@@ -25044,7 +25085,7 @@
         "appl"
       ]
     },
-    "2181": {
+    "2182": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25073,7 +25114,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2183": {
+    "2184": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25103,7 +25144,7 @@
         "0"
       ]
     },
-    "2184": {
+    "2185": {
       "op": "itxn_field Fee",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25132,13 +25173,13 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2186": {
+    "2187": {
       "op": "itxn_submit"
     },
-    "2187": {
+    "2188": {
       "op": "itxn LastLog"
     },
-    "2189": {
+    "2190": {
       "op": "dup",
       "defined_out": [
         "akta#0",
@@ -25173,7 +25214,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2190": {
+    "2191": {
       "op": "frame_bury 0",
       "defined_out": [
         "akta#0",
@@ -25207,7 +25248,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2192": {
+    "2193": {
       "op": "dup",
       "defined_out": [
         "akta#0",
@@ -25243,7 +25284,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "2193": {
+    "2194": {
       "op": "extract 4 0",
       "defined_out": [
         "akta#0",
@@ -25279,7 +25320,7 @@
         "stakingInfos#0"
       ]
     },
-    "2196": {
+    "2197": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25310,7 +25351,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2197": {
+    "2198": {
       "op": "extract 0 4",
       "defined_out": [
         "akta#0",
@@ -25347,7 +25388,7 @@
         "tmp%8#2"
       ]
     },
-    "2200": {
+    "2201": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -25386,7 +25427,7 @@
         "0x151f7c75"
       ]
     },
-    "2201": {
+    "2202": {
       "op": "==",
       "defined_out": [
         "akta#0",
@@ -25423,7 +25464,7 @@
         "tmp%9#1"
       ]
     },
-    "2202": {
+    "2203": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -25454,7 +25495,7 @@
         "stakingInfos#0"
       ]
     },
-    "2203": {
+    "2204": {
       "op": "dup",
       "defined_out": [
         "akta#0",
@@ -25491,7 +25532,7 @@
         "stakingInfos#0 (copy)"
       ]
     },
-    "2204": {
+    "2205": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25523,7 +25564,7 @@
         "0"
       ]
     },
-    "2205": {
+    "2206": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -25561,7 +25602,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2206": {
+    "2207": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25593,7 +25634,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2207": {
+    "2208": {
       "op": "frame_bury 4",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -25630,7 +25671,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2209": {
+    "2210": {
       "op": "pushint 24",
       "defined_out": [
         "24",
@@ -25669,7 +25710,7 @@
         "24"
       ]
     },
-    "2211": {
+    "2212": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -25707,7 +25748,7 @@
         "mul%0#0"
       ]
     },
-    "2212": {
+    "2213": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -25747,7 +25788,7 @@
         "2"
       ]
     },
-    "2213": {
+    "2214": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -25785,7 +25826,7 @@
         "add%0#0"
       ]
     },
-    "2214": {
+    "2215": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -25816,7 +25857,7 @@
         "stakingInfos#0"
       ]
     },
-    "2215": {
+    "2216": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -25854,7 +25895,7 @@
         "len%0#0"
       ]
     },
-    "2216": {
+    "2217": {
       "op": "==",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -25890,7 +25931,7 @@
         "eq%0#0"
       ]
     },
-    "2217": {
+    "2218": {
       "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/staking/types.ts::Stake>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/staking/types.ts::Stake>",
       "stack_out": [
@@ -25920,7 +25961,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2218": {
+    "2219": {
       "op": "intc_0 // 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -25956,7 +25997,7 @@
         "totalScore#0"
       ]
     },
-    "2219": {
+    "2220": {
       "op": "frame_bury 19",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -25991,7 +26032,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2221": {
+    "2222": {
       "op": "intc_0 // 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26028,7 +26069,7 @@
         "i#0"
       ]
     },
-    "2222": {
+    "2223": {
       "op": "frame_bury 9",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26064,7 +26105,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2224": {
+    "2225": {
       "block": "userImpactWithSocial_while_top@36",
       "stack_in": [
         "awst_tmp%0#0",
@@ -26124,7 +26165,7 @@
         "i#0"
       ]
     },
-    "2226": {
+    "2227": {
       "op": "frame_dig 4",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26159,7 +26200,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2228": {
+    "2229": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26194,7 +26235,7 @@
         "tmp%11#1"
       ]
     },
-    "2229": {
+    "2230": {
       "op": "bz userImpactWithSocial_after_while@38",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26223,7 +26264,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2232": {
+    "2233": {
       "op": "global LatestTimestamp",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26258,7 +26299,7 @@
         "tmp%0#5"
       ]
     },
-    "2234": {
+    "2235": {
       "op": "frame_dig 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26295,7 +26336,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2236": {
+    "2237": {
       "op": "extract 6 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26333,7 +26374,7 @@
         "aggregate%array_trimmed%0#0"
       ]
     },
-    "2239": {
+    "2240": {
       "op": "frame_dig 9",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26365,7 +26406,7 @@
         "i#0"
       ]
     },
-    "2241": {
+    "2242": {
       "op": "pushint 24",
       "defined_out": [
         "24",
@@ -26406,7 +26447,7 @@
         "24"
       ]
     },
-    "2243": {
+    "2244": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26446,7 +26487,7 @@
         "aggregate%bytes_offset%0#0"
       ]
     },
-    "2244": {
+    "2245": {
       "op": "pushint 24",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26479,7 +26520,7 @@
         "24"
       ]
     },
-    "2246": {
+    "2247": {
       "error": "index access is out of bounds",
       "op": "extract3 // on error: index access is out of bounds",
       "defined_out": [
@@ -26518,7 +26559,7 @@
         "aggregate%encoded_element%0#0"
       ]
     },
-    "2247": {
+    "2248": {
       "op": "dup",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26558,7 +26599,7 @@
         "aggregate%encoded_element%0#0 (copy)"
       ]
     },
-    "2248": {
+    "2249": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
@@ -26600,7 +26641,7 @@
         "8"
       ]
     },
-    "2249": {
+    "2250": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26640,7 +26681,7 @@
         "tmp%1#6"
       ]
     },
-    "2250": {
+    "2251": {
       "op": "uncover 2",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26672,7 +26713,7 @@
         "tmp%0#5"
       ]
     },
-    "2252": {
+    "2253": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26704,7 +26745,7 @@
         "tmp%1#6"
       ]
     },
-    "2253": {
+    "2254": {
       "op": "-",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26742,7 +26783,7 @@
         "elapsed#0"
       ]
     },
-    "2254": {
+    "2255": {
       "op": "frame_bury 7",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26779,7 +26820,7 @@
         "aggregate%encoded_element%0#0"
       ]
     },
-    "2256": {
+    "2257": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26810,7 +26851,7 @@
         "0"
       ]
     },
-    "2257": {
+    "2258": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26847,7 +26888,7 @@
         "tmp%3#5"
       ]
     },
-    "2258": {
+    "2259": {
       "op": "dup",
       "stack_out": [
         "awst_tmp%0#0",
@@ -26878,7 +26919,7 @@
         "tmp%3#5"
       ]
     },
-    "2259": {
+    "2260": {
       "op": "frame_bury 16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26915,7 +26956,7 @@
         "tmp%3#5"
       ]
     },
-    "2261": {
+    "2262": {
       "op": "intc 8 // 10000000000",
       "defined_out": [
         "10000000000",
@@ -26954,7 +26995,7 @@
         "10000000000"
       ]
     },
-    "2263": {
+    "2264": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -26992,7 +27033,7 @@
         "tmp%4#2"
       ]
     },
-    "2264": {
+    "2265": {
       "op": "bnz userImpactWithSocial_if_body@52",
       "stack_out": [
         "awst_tmp%0#0",
@@ -27021,7 +27062,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2267": {
+    "2268": {
       "op": "frame_dig 7",
       "stack_out": [
         "awst_tmp%0#0",
@@ -27051,7 +27092,7 @@
         "elapsed#0"
       ]
     },
-    "2269": {
+    "2270": {
       "op": "pushint 2592000",
       "defined_out": [
         "2592000",
@@ -27090,7 +27131,7 @@
         "2592000"
       ]
     },
-    "2274": {
+    "2275": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -27128,7 +27169,7 @@
         "tmp%5#1"
       ]
     },
-    "2275": {
+    "2276": {
       "op": "bz userImpactWithSocial_after_if_else@53",
       "stack_out": [
         "awst_tmp%0#0",
@@ -27157,7 +27198,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2278": {
+    "2279": {
       "block": "userImpactWithSocial_if_body@52",
       "stack_in": [
         "awst_tmp%0#0",
@@ -27217,7 +27258,7 @@
         "calculateStakingImpactScore%0#0"
       ]
     },
-    "2279": {
+    "2280": {
       "block": "userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateStakingImpactScore@57",
       "stack_in": [
         "awst_tmp%0#0",
@@ -27279,7 +27320,7 @@
         "totalScore#0"
       ]
     },
-    "2281": {
+    "2282": {
       "op": "+",
       "defined_out": [
         "totalScore#0"
@@ -27312,7 +27353,7 @@
         "totalScore#0"
       ]
     },
-    "2282": {
+    "2283": {
       "op": "frame_bury 19",
       "defined_out": [
         "totalScore#0"
@@ -27344,7 +27385,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2284": {
+    "2285": {
       "op": "frame_dig 9",
       "defined_out": [
         "i#0",
@@ -27378,7 +27419,7 @@
         "i#0"
       ]
     },
-    "2286": {
+    "2287": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -27414,7 +27455,7 @@
         "1"
       ]
     },
-    "2287": {
+    "2288": {
       "op": "+",
       "stack_out": [
         "awst_tmp%0#0",
@@ -27444,7 +27485,7 @@
         "i#0"
       ]
     },
-    "2288": {
+    "2289": {
       "op": "frame_bury 9",
       "defined_out": [
         "i#0",
@@ -27477,10 +27518,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2290": {
+    "2291": {
       "op": "b userImpactWithSocial_while_top@36"
     },
-    "2293": {
+    "2294": {
       "block": "userImpactWithSocial_after_if_else@53",
       "stack_in": [
         "awst_tmp%0#0",
@@ -27540,7 +27581,7 @@
         "tmp%3#5"
       ]
     },
-    "2295": {
+    "2296": {
       "op": "intc 6 // 200000000000",
       "defined_out": [
         "200000000000",
@@ -27575,7 +27616,7 @@
         "200000000000"
       ]
     },
-    "2297": {
+    "2298": {
       "op": ">=",
       "defined_out": [
         "tmp%3#5",
@@ -27609,7 +27650,7 @@
         "tmp%7#2"
       ]
     },
-    "2298": {
+    "2299": {
       "op": "bz userImpactWithSocial_ternary_false@55",
       "stack_out": [
         "awst_tmp%0#0",
@@ -27638,7 +27679,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2301": {
+    "2302": {
       "op": "intc 6 // 200000000000",
       "defined_out": [
         "amtCapped#0",
@@ -27672,7 +27713,7 @@
         "amtCapped#0"
       ]
     },
-    "2303": {
+    "2304": {
       "block": "userImpactWithSocial_ternary_merge@56",
       "stack_in": [
         "awst_tmp%0#0",
@@ -27735,7 +27776,7 @@
         "250"
       ]
     },
-    "2305": {
+    "2306": {
       "op": "*",
       "defined_out": [
         "tmp%9#0"
@@ -27768,7 +27809,7 @@
         "tmp%9#0"
       ]
     },
-    "2306": {
+    "2307": {
       "op": "intc 6 // 200000000000",
       "defined_out": [
         "200000000000",
@@ -27803,7 +27844,7 @@
         "200000000000"
       ]
     },
-    "2308": {
+    "2309": {
       "op": "/",
       "defined_out": [
         "maxScore#0"
@@ -27836,7 +27877,7 @@
         "maxScore#0"
       ]
     },
-    "2309": {
+    "2310": {
       "op": "frame_dig 7",
       "defined_out": [
         "elapsed#0",
@@ -27871,7 +27912,7 @@
         "elapsed#0"
       ]
     },
-    "2311": {
+    "2312": {
       "op": "dup",
       "defined_out": [
         "elapsed#0",
@@ -27908,7 +27949,7 @@
         "elapsed#0 (copy)"
       ]
     },
-    "2312": {
+    "2313": {
       "op": "intc 7 // 31536000",
       "defined_out": [
         "31536000",
@@ -27947,7 +27988,7 @@
         "31536000"
       ]
     },
-    "2314": {
+    "2315": {
       "op": ">=",
       "defined_out": [
         "elapsed#0",
@@ -27984,10 +28025,10 @@
         "tmp%11#1"
       ]
     },
-    "2315": {
+    "2316": {
       "op": "intc 7 // 31536000"
     },
-    "2317": {
+    "2318": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -28020,7 +28061,7 @@
         "tmp%11#1"
       ]
     },
-    "2318": {
+    "2319": {
       "op": "select",
       "defined_out": [
         "elapsed#0",
@@ -28056,7 +28097,7 @@
         "timeCapped#0"
       ]
     },
-    "2319": {
+    "2320": {
       "op": "*",
       "defined_out": [
         "elapsed#0",
@@ -28090,7 +28131,7 @@
         "tmp%12#0"
       ]
     },
-    "2320": {
+    "2321": {
       "op": "intc 7 // 31536000",
       "stack_out": [
         "awst_tmp%0#0",
@@ -28121,7 +28162,7 @@
         "31536000"
       ]
     },
-    "2322": {
+    "2323": {
       "op": "/",
       "defined_out": [
         "calculateStakingImpactScore%0#0",
@@ -28155,10 +28196,10 @@
         "calculateStakingImpactScore%0#0"
       ]
     },
-    "2323": {
+    "2324": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateStakingImpactScore@57"
     },
-    "2326": {
+    "2327": {
       "block": "userImpactWithSocial_ternary_false@55",
       "stack_in": [
         "awst_tmp%0#0",
@@ -28218,10 +28259,10 @@
         "amtCapped#0"
       ]
     },
-    "2328": {
+    "2329": {
       "op": "b userImpactWithSocial_ternary_merge@56"
     },
-    "2331": {
+    "2332": {
       "block": "userImpactWithSocial_after_while@38",
       "stack_in": [
         "awst_tmp%0#0",
@@ -28281,7 +28322,7 @@
         "totalScore#0"
       ]
     },
-    "2333": {
+    "2334": {
       "op": "intc 4 // 250",
       "defined_out": [
         "250",
@@ -28316,7 +28357,7 @@
         "250"
       ]
     },
-    "2335": {
+    "2336": {
       "op": ">",
       "defined_out": [
         "tmp%14#0",
@@ -28350,7 +28391,7 @@
         "tmp%14#0"
       ]
     },
-    "2336": {
+    "2337": {
       "op": "bz userImpactWithSocial_after_if_else@40",
       "stack_out": [
         "awst_tmp%0#0",
@@ -28379,7 +28420,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2339": {
+    "2340": {
       "op": "intc 4 // 250",
       "defined_out": [
         "stakedAktaImpact#0",
@@ -28413,7 +28454,7 @@
         "stakedAktaImpact#0"
       ]
     },
-    "2341": {
+    "2342": {
       "op": "frame_bury 13",
       "defined_out": [
         "stakedAktaImpact#0",
@@ -28446,10 +28487,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2343": {
+    "2344": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getStakingImpactScore@41"
     },
-    "2346": {
+    "2347": {
       "block": "userImpactWithSocial_after_if_else@40",
       "stack_in": [
         "awst_tmp%0#0",
@@ -28509,7 +28550,7 @@
         "stakedAktaImpact#0"
       ]
     },
-    "2348": {
+    "2349": {
       "op": "frame_bury 13",
       "defined_out": [
         "stakedAktaImpact#0"
@@ -28541,10 +28582,10 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "2350": {
+    "2351": {
       "op": "b userImpactWithSocial_after_inlined_smart_contracts/social/impact.algo.ts::AkitaSocialImpact.getStakingImpactScore@41"
     },
-    "2353": {
+    "2354": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.calculateSocialImpact",
       "params": {
         "inputs#0": "bytes"
@@ -28553,13 +28594,13 @@
       "stack_in": [],
       "op": "proto 1 2"
     },
-    "2356": {
-      "op": "bytec_3 // \"\"",
+    "2357": {
+      "op": "pushbytes \"\"",
       "stack_out": [
         "accountAge#0"
       ]
     },
-    "2357": {
+    "2359": {
       "op": "dupn 4",
       "stack_out": [
         "accountAge#0",
@@ -28569,7 +28610,7 @@
         "voteImpact#0"
       ]
     },
-    "2359": {
+    "2361": {
       "op": "frame_dig -1",
       "defined_out": [
         "inputs#0 (copy)"
@@ -28583,7 +28624,7 @@
         "inputs#0 (copy)"
       ]
     },
-    "2361": {
+    "2363": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -28599,7 +28640,7 @@
         "0"
       ]
     },
-    "2362": {
+    "2364": {
       "op": "getbit",
       "defined_out": [
         "aggregate%get_bit%0#0"
@@ -28613,7 +28654,7 @@
         "aggregate%get_bit%0#0"
       ]
     },
-    "2363": {
+    "2365": {
       "op": "bnz calculateSocialImpact_after_if_else@2",
       "stack_out": [
         "accountAge#0",
@@ -28623,7 +28664,7 @@
         "voteImpact#0"
       ]
     },
-    "2366": {
+    "2368": {
       "op": "intc_0 // 0",
       "stack_out": [
         "accountAge#0",
@@ -28634,7 +28675,7 @@
         "0"
       ]
     },
-    "2367": {
+    "2369": {
       "op": "frame_dig -1",
       "stack_out": [
         "accountAge#0",
@@ -28646,17 +28687,17 @@
         "inputs#0 (copy)"
       ]
     },
-    "2369": {
+    "2371": {
       "op": "frame_bury 1"
     },
-    "2371": {
+    "2373": {
       "op": "frame_bury 0"
     },
-    "2373": {
+    "2375": {
       "retsub": true,
       "op": "retsub"
     },
-    "2374": {
+    "2376": {
       "block": "calculateSocialImpact_after_if_else@2",
       "stack_in": [
         "accountAge#0",
@@ -28678,7 +28719,7 @@
         "inputs#0 (copy)"
       ]
     },
-    "2376": {
+    "2378": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -28694,7 +28735,7 @@
         "1"
       ]
     },
-    "2377": {
+    "2379": {
       "op": "extract_uint64",
       "defined_out": [
         "tmp%1#0"
@@ -28708,7 +28749,7 @@
         "tmp%1#0"
       ]
     },
-    "2378": {
+    "2380": {
       "op": "dup",
       "stack_out": [
         "accountAge#0",
@@ -28720,7 +28761,7 @@
         "tmp%1#0"
       ]
     },
-    "2379": {
+    "2381": {
       "op": "frame_bury 2",
       "defined_out": [
         "tmp%1#0"
@@ -28734,7 +28775,7 @@
         "tmp%1#0"
       ]
     },
-    "2381": {
+    "2383": {
       "op": "pushint 60",
       "defined_out": [
         "60",
@@ -28750,7 +28791,7 @@
         "60"
       ]
     },
-    "2383": {
+    "2385": {
       "op": ">=",
       "defined_out": [
         "tmp%1#0",
@@ -28765,7 +28806,7 @@
         "tmp%2#0"
       ]
     },
-    "2384": {
+    "2386": {
       "op": "bz calculateSocialImpact_else_body@4",
       "stack_out": [
         "accountAge#0",
@@ -28775,7 +28816,7 @@
         "voteImpact#0"
       ]
     },
-    "2387": {
+    "2389": {
       "op": "pushint 100",
       "defined_out": [
         "socialImpact#1",
@@ -28790,7 +28831,7 @@
         "socialImpact#1"
       ]
     },
-    "2389": {
+    "2391": {
       "op": "frame_bury 1",
       "defined_out": [
         "socialImpact#1",
@@ -28804,7 +28845,7 @@
         "voteImpact#0"
       ]
     },
-    "2391": {
+    "2393": {
       "block": "calculateSocialImpact_after_if_else@5",
       "stack_in": [
         "accountAge#0",
@@ -28826,7 +28867,7 @@
         "tmp%8#0"
       ]
     },
-    "2393": {
+    "2395": {
       "op": "frame_dig -1",
       "defined_out": [
         "inputs#0 (copy)",
@@ -28842,7 +28883,7 @@
         "inputs#0 (copy)"
       ]
     },
-    "2395": {
+    "2397": {
       "op": "pushint 9",
       "defined_out": [
         "9",
@@ -28860,7 +28901,7 @@
         "9"
       ]
     },
-    "2397": {
+    "2399": {
       "op": "extract_uint64",
       "defined_out": [
         "tmp%8#0",
@@ -28876,7 +28917,7 @@
         "tmp%9#0"
       ]
     },
-    "2398": {
+    "2400": {
       "op": "-",
       "defined_out": [
         "accountAge#0"
@@ -28890,7 +28931,7 @@
         "accountAge#0"
       ]
     },
-    "2399": {
+    "2401": {
       "op": "dup",
       "stack_out": [
         "accountAge#0",
@@ -28902,7 +28943,7 @@
         "accountAge#0"
       ]
     },
-    "2400": {
+    "2402": {
       "op": "frame_bury 0",
       "defined_out": [
         "accountAge#0"
@@ -28916,7 +28957,7 @@
         "accountAge#0"
       ]
     },
-    "2402": {
+    "2404": {
       "op": "intc 9 // 63072000",
       "defined_out": [
         "63072000",
@@ -28932,7 +28973,7 @@
         "63072000"
       ]
     },
-    "2404": {
+    "2406": {
       "op": ">=",
       "defined_out": [
         "accountAge#0",
@@ -28947,7 +28988,7 @@
         "tmp%11#0"
       ]
     },
-    "2405": {
+    "2407": {
       "op": "bz calculateSocialImpact_else_body@7",
       "stack_out": [
         "accountAge#0",
@@ -28957,7 +28998,7 @@
         "voteImpact#0"
       ]
     },
-    "2408": {
+    "2410": {
       "op": "frame_dig 1",
       "defined_out": [
         "accountAge#0",
@@ -28972,7 +29013,7 @@
         "socialImpact#1"
       ]
     },
-    "2410": {
+    "2412": {
       "op": "pushint 75",
       "defined_out": [
         "75",
@@ -28989,7 +29030,7 @@
         "75"
       ]
     },
-    "2412": {
+    "2414": {
       "op": "+",
       "stack_out": [
         "accountAge#0",
@@ -29000,7 +29041,7 @@
         "socialImpact#1"
       ]
     },
-    "2413": {
+    "2415": {
       "op": "frame_bury 1",
       "defined_out": [
         "accountAge#0",
@@ -29014,7 +29055,7 @@
         "voteImpact#0"
       ]
     },
-    "2415": {
+    "2417": {
       "block": "calculateSocialImpact_after_if_else@8",
       "stack_in": [
         "accountAge#0",
@@ -29036,7 +29077,7 @@
         "inputs#0 (copy)"
       ]
     },
-    "2417": {
+    "2419": {
       "op": "pushint 17",
       "defined_out": [
         "17",
@@ -29052,7 +29093,7 @@
         "17"
       ]
     },
-    "2419": {
+    "2421": {
       "op": "extract_uint64",
       "defined_out": [
         "tmp%16#0"
@@ -29066,7 +29107,7 @@
         "tmp%16#0"
       ]
     },
-    "2420": {
+    "2422": {
       "op": "dup",
       "stack_out": [
         "accountAge#0",
@@ -29078,7 +29119,7 @@
         "tmp%16#0"
       ]
     },
-    "2421": {
+    "2423": {
       "op": "frame_bury 3",
       "defined_out": [
         "tmp%16#0"
@@ -29092,7 +29133,7 @@
         "tmp%16#0"
       ]
     },
-    "2423": {
+    "2425": {
       "op": "bz calculateSocialImpact_after_if_else@18",
       "stack_out": [
         "accountAge#0",
@@ -29102,7 +29143,7 @@
         "voteImpact#0"
       ]
     },
-    "2426": {
+    "2428": {
       "op": "frame_dig 3",
       "stack_out": [
         "accountAge#0",
@@ -29113,7 +29154,7 @@
         "tmp%16#0"
       ]
     },
-    "2428": {
+    "2430": {
       "op": "pushint 75",
       "defined_out": [
         "75",
@@ -29129,7 +29170,7 @@
         "75"
       ]
     },
-    "2430": {
+    "2432": {
       "op": "*",
       "defined_out": [
         "tmp%16#0",
@@ -29144,7 +29185,7 @@
         "tmp%19#0"
       ]
     },
-    "2431": {
+    "2433": {
       "op": "pushint 100000",
       "defined_out": [
         "100000",
@@ -29161,7 +29202,7 @@
         "100000"
       ]
     },
-    "2435": {
+    "2437": {
       "op": "/",
       "defined_out": [
         "tmp%16#0",
@@ -29176,7 +29217,7 @@
         "voteImpact#0"
       ]
     },
-    "2436": {
+    "2438": {
       "op": "dup",
       "stack_out": [
         "accountAge#0",
@@ -29188,7 +29229,7 @@
         "voteImpact#0"
       ]
     },
-    "2437": {
+    "2439": {
       "op": "frame_bury 4",
       "defined_out": [
         "tmp%16#0",
@@ -29203,7 +29244,7 @@
         "voteImpact#0"
       ]
     },
-    "2439": {
+    "2441": {
       "op": "pushint 75",
       "stack_out": [
         "accountAge#0",
@@ -29215,7 +29256,7 @@
         "75"
       ]
     },
-    "2441": {
+    "2443": {
       "op": ">",
       "defined_out": [
         "tmp%16#0",
@@ -29231,7 +29272,7 @@
         "tmp%21#0"
       ]
     },
-    "2442": {
+    "2444": {
       "op": "bz calculateSocialImpact_after_if_else@11",
       "stack_out": [
         "accountAge#0",
@@ -29241,7 +29282,7 @@
         "voteImpact#0"
       ]
     },
-    "2445": {
+    "2447": {
       "op": "pushint 75",
       "stack_out": [
         "accountAge#0",
@@ -29252,7 +29293,7 @@
         "voteImpact#0"
       ]
     },
-    "2447": {
+    "2449": {
       "op": "frame_bury 4",
       "stack_out": [
         "accountAge#0",
@@ -29262,7 +29303,7 @@
         "voteImpact#0"
       ]
     },
-    "2449": {
+    "2451": {
       "block": "calculateSocialImpact_after_if_else@11",
       "stack_in": [
         "accountAge#0",
@@ -29284,7 +29325,7 @@
         "inputs#0 (copy)"
       ]
     },
-    "2451": {
+    "2453": {
       "op": "pushint 200",
       "defined_out": [
         "200",
@@ -29300,7 +29341,7 @@
         "200"
       ]
     },
-    "2454": {
+    "2456": {
       "op": "getbit",
       "defined_out": [
         "aggregate%get_bit%1#0"
@@ -29314,7 +29355,7 @@
         "aggregate%get_bit%1#0"
       ]
     },
-    "2455": {
+    "2457": {
       "op": "bz calculateSocialImpact_else_body@16",
       "stack_out": [
         "accountAge#0",
@@ -29324,7 +29365,7 @@
         "voteImpact#0"
       ]
     },
-    "2458": {
+    "2460": {
       "op": "frame_dig 1",
       "defined_out": [
         "socialImpact#1"
@@ -29338,7 +29379,7 @@
         "socialImpact#1"
       ]
     },
-    "2460": {
+    "2462": {
       "op": "frame_dig 4",
       "defined_out": [
         "socialImpact#1",
@@ -29354,7 +29395,7 @@
         "voteImpact#0"
       ]
     },
-    "2462": {
+    "2464": {
       "op": ">",
       "defined_out": [
         "socialImpact#1",
@@ -29370,7 +29411,7 @@
         "tmp%23#0"
       ]
     },
-    "2463": {
+    "2465": {
       "op": "bz calculateSocialImpact_else_body@14",
       "stack_out": [
         "accountAge#0",
@@ -29380,7 +29421,7 @@
         "voteImpact#0"
       ]
     },
-    "2466": {
+    "2468": {
       "op": "frame_dig 1",
       "stack_out": [
         "accountAge#0",
@@ -29391,7 +29432,7 @@
         "socialImpact#1"
       ]
     },
-    "2468": {
+    "2470": {
       "op": "frame_dig 4",
       "stack_out": [
         "accountAge#0",
@@ -29403,7 +29444,7 @@
         "voteImpact#0"
       ]
     },
-    "2470": {
+    "2472": {
       "op": "-",
       "stack_out": [
         "accountAge#0",
@@ -29414,7 +29455,7 @@
         "socialImpact#1"
       ]
     },
-    "2471": {
+    "2473": {
       "op": "frame_bury 1",
       "defined_out": [
         "socialImpact#1",
@@ -29428,7 +29469,7 @@
         "voteImpact#0"
       ]
     },
-    "2473": {
+    "2475": {
       "block": "calculateSocialImpact_after_if_else@18",
       "stack_in": [
         "accountAge#0",
@@ -29450,7 +29491,7 @@
         "socialImpact#1"
       ]
     },
-    "2475": {
+    "2477": {
       "op": "frame_dig -1",
       "defined_out": [
         "inputs#0 (copy)",
@@ -29466,17 +29507,17 @@
         "inputs#0 (copy)"
       ]
     },
-    "2477": {
+    "2479": {
       "op": "frame_bury 1"
     },
-    "2479": {
+    "2481": {
       "op": "frame_bury 0"
     },
-    "2481": {
+    "2483": {
       "retsub": true,
       "op": "retsub"
     },
-    "2482": {
+    "2484": {
       "block": "calculateSocialImpact_else_body@14",
       "stack_in": [
         "accountAge#0",
@@ -29498,7 +29539,7 @@
         "socialImpact#1"
       ]
     },
-    "2483": {
+    "2485": {
       "op": "frame_bury 1",
       "defined_out": [
         "socialImpact#1"
@@ -29511,10 +29552,10 @@
         "voteImpact#0"
       ]
     },
-    "2485": {
+    "2487": {
       "op": "b calculateSocialImpact_after_if_else@18"
     },
-    "2488": {
+    "2490": {
       "block": "calculateSocialImpact_else_body@16",
       "stack_in": [
         "accountAge#0",
@@ -29536,7 +29577,7 @@
         "socialImpact#1"
       ]
     },
-    "2490": {
+    "2492": {
       "op": "frame_dig 4",
       "defined_out": [
         "socialImpact#1",
@@ -29552,7 +29593,7 @@
         "voteImpact#0"
       ]
     },
-    "2492": {
+    "2494": {
       "op": "+",
       "stack_out": [
         "accountAge#0",
@@ -29563,7 +29604,7 @@
         "socialImpact#1"
       ]
     },
-    "2493": {
+    "2495": {
       "op": "frame_bury 1",
       "defined_out": [
         "socialImpact#1",
@@ -29577,10 +29618,10 @@
         "voteImpact#0"
       ]
     },
-    "2495": {
+    "2497": {
       "op": "b calculateSocialImpact_after_if_else@18"
     },
-    "2498": {
+    "2500": {
       "block": "calculateSocialImpact_else_body@7",
       "stack_in": [
         "accountAge#0",
@@ -29602,7 +29643,7 @@
         "accountAge#0"
       ]
     },
-    "2500": {
+    "2502": {
       "op": "pushint 75",
       "defined_out": [
         "75",
@@ -29618,7 +29659,7 @@
         "75"
       ]
     },
-    "2502": {
+    "2504": {
       "op": "*",
       "defined_out": [
         "accountAge#0",
@@ -29633,7 +29674,7 @@
         "tmp%13#0"
       ]
     },
-    "2503": {
+    "2505": {
       "op": "intc 9 // 63072000",
       "defined_out": [
         "63072000",
@@ -29650,7 +29691,7 @@
         "63072000"
       ]
     },
-    "2505": {
+    "2507": {
       "op": "/",
       "defined_out": [
         "accountAge#0",
@@ -29665,7 +29706,7 @@
         "tmp%14#0"
       ]
     },
-    "2506": {
+    "2508": {
       "op": "frame_dig 1",
       "defined_out": [
         "accountAge#0",
@@ -29682,7 +29723,7 @@
         "socialImpact#1"
       ]
     },
-    "2508": {
+    "2510": {
       "op": "+",
       "stack_out": [
         "accountAge#0",
@@ -29693,7 +29734,7 @@
         "socialImpact#1"
       ]
     },
-    "2509": {
+    "2511": {
       "op": "frame_bury 1",
       "defined_out": [
         "accountAge#0",
@@ -29707,10 +29748,10 @@
         "voteImpact#0"
       ]
     },
-    "2511": {
+    "2513": {
       "op": "b calculateSocialImpact_after_if_else@8"
     },
-    "2514": {
+    "2516": {
       "block": "calculateSocialImpact_else_body@4",
       "stack_in": [
         "accountAge#0",
@@ -29732,7 +29773,7 @@
         "tmp%1#0"
       ]
     },
-    "2516": {
+    "2518": {
       "op": "pushint 100",
       "defined_out": [
         "100",
@@ -29748,7 +29789,7 @@
         "100"
       ]
     },
-    "2518": {
+    "2520": {
       "op": "*",
       "defined_out": [
         "tmp%1#0",
@@ -29763,7 +29804,7 @@
         "tmp%5#0"
       ]
     },
-    "2519": {
+    "2521": {
       "op": "pushint 60",
       "defined_out": [
         "60",
@@ -29780,7 +29821,7 @@
         "60"
       ]
     },
-    "2521": {
+    "2523": {
       "op": "/",
       "defined_out": [
         "socialImpact#1",
@@ -29795,7 +29836,7 @@
         "socialImpact#1"
       ]
     },
-    "2522": {
+    "2524": {
       "op": "frame_bury 1",
       "defined_out": [
         "socialImpact#1",
@@ -29809,10 +29850,10 @@
         "voteImpact#0"
       ]
     },
-    "2524": {
+    "2526": {
       "op": "b calculateSocialImpact_after_if_else@5"
     },
-    "2527": {
+    "2529": {
       "subroutine": "smart_contracts/social/impact.algo.ts::AkitaSocialImpact.nfdReadField",
       "params": {
         "NFDApp#0": "uint64",
@@ -29822,10 +29863,10 @@
       "stack_in": [],
       "op": "proto 2 1"
     },
-    "2530": {
+    "2532": {
       "op": "itxn_begin"
     },
-    "2531": {
+    "2533": {
       "op": "frame_dig -1",
       "defined_out": [
         "field#0 (copy)"
@@ -29834,7 +29875,7 @@
         "field#0 (copy)"
       ]
     },
-    "2533": {
+    "2535": {
       "op": "len",
       "defined_out": [
         "aggregate%length%0#0"
@@ -29843,7 +29884,7 @@
         "aggregate%length%0#0"
       ]
     },
-    "2534": {
+    "2536": {
       "op": "itob",
       "defined_out": [
         "aggregate%as_bytes%0#0"
@@ -29852,7 +29893,7 @@
         "aggregate%as_bytes%0#0"
       ]
     },
-    "2535": {
+    "2537": {
       "op": "extract 6 2",
       "defined_out": [
         "aggregate%length_uint16%0#0"
@@ -29861,14 +29902,14 @@
         "aggregate%length_uint16%0#0"
       ]
     },
-    "2538": {
+    "2540": {
       "op": "frame_dig -1",
       "stack_out": [
         "aggregate%length_uint16%0#0",
         "field#0 (copy)"
       ]
     },
-    "2540": {
+    "2542": {
       "op": "concat",
       "defined_out": [
         "aggregate%encoded_value%0#0"
@@ -29877,7 +29918,7 @@
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2541": {
+    "2543": {
       "op": "frame_dig -2",
       "defined_out": [
         "NFDApp#0 (copy)",
@@ -29888,14 +29929,14 @@
         "NFDApp#0 (copy)"
       ]
     },
-    "2543": {
+    "2545": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2545": {
-      "op": "bytec 10 // method \"readField(byte[])byte[]\"",
+    "2547": {
+      "op": "bytec 9 // method \"readField(byte[])byte[]\"",
       "defined_out": [
         "Method(readField(byte[])byte[])",
         "aggregate%encoded_value%0#0"
@@ -29905,17 +29946,17 @@
         "Method(readField(byte[])byte[])"
       ]
     },
-    "2547": {
+    "2549": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2549": {
+    "2551": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": []
     },
-    "2551": {
+    "2553": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -29924,11 +29965,11 @@
         "appl"
       ]
     },
-    "2553": {
+    "2555": {
       "op": "itxn_field TypeEnum",
       "stack_out": []
     },
-    "2555": {
+    "2557": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -29937,14 +29978,14 @@
         "0"
       ]
     },
-    "2556": {
+    "2558": {
       "op": "itxn_field Fee",
       "stack_out": []
     },
-    "2558": {
+    "2560": {
       "op": "itxn_submit"
     },
-    "2559": {
+    "2561": {
       "op": "itxn LastLog",
       "defined_out": [
         "awst_tmp%0#0"
@@ -29953,7 +29994,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2561": {
+    "2563": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -29964,7 +30005,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "2562": {
+    "2564": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%0#0",
@@ -29975,7 +30016,7 @@
         "tmp%1#0"
       ]
     },
-    "2565": {
+    "2567": {
       "op": "dig 1",
       "stack_out": [
         "awst_tmp%0#0",
@@ -29983,7 +30024,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "2567": {
+    "2569": {
       "op": "extract 0 4",
       "defined_out": [
         "awst_tmp%0#0",
@@ -29996,7 +30037,7 @@
         "tmp%2#0"
       ]
     },
-    "2570": {
+    "2572": {
       "op": "bytec_1 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -30011,7 +30052,7 @@
         "0x151f7c75"
       ]
     },
-    "2571": {
+    "2573": {
       "op": "==",
       "defined_out": [
         "awst_tmp%0#0",
@@ -30024,7 +30065,7 @@
         "tmp%3#0"
       ]
     },
-    "2572": {
+    "2574": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -30032,7 +30073,7 @@
         "tmp%1#0"
       ]
     },
-    "2573": {
+    "2575": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -30045,7 +30086,7 @@
         "tmp%1#0 (copy)"
       ]
     },
-    "2574": {
+    "2576": {
       "op": "intc_0 // 0",
       "stack_out": [
         "awst_tmp%0#0",
@@ -30054,7 +30095,7 @@
         "0"
       ]
     },
-    "2575": {
+    "2577": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -30068,7 +30109,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2576": {
+    "2578": {
       "op": "intc_3 // 2",
       "defined_out": [
         "2",
@@ -30083,7 +30124,7 @@
         "2"
       ]
     },
-    "2577": {
+    "2579": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -30096,7 +30137,7 @@
         "add%0#0"
       ]
     },
-    "2578": {
+    "2580": {
       "op": "swap",
       "stack_out": [
         "awst_tmp%0#0",
@@ -30104,7 +30145,7 @@
         "tmp%1#0"
       ]
     },
-    "2579": {
+    "2581": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -30117,7 +30158,7 @@
         "len%0#0"
       ]
     },
-    "2580": {
+    "2582": {
       "op": "==",
       "defined_out": [
         "awst_tmp%0#0",
@@ -30128,14 +30169,14 @@
         "eq%0#0"
       ]
     },
-    "2581": {
+    "2583": {
       "error": "invalid number of bytes for bytes",
       "op": "assert // invalid number of bytes for bytes",
       "stack_out": [
         "awst_tmp%0#0"
       ]
     },
-    "2582": {
+    "2584": {
       "op": "extract 6 0",
       "defined_out": [
         "fieldBytes#0"
@@ -30144,7 +30185,7 @@
         "fieldBytes#0"
       ]
     },
-    "2585": {
+    "2587": {
       "retsub": true,
       "op": "retsub"
     }

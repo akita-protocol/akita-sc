@@ -7,7 +7,7 @@ import { Subscriptions } from "../subscriptions/contract.algo";
 import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/base";
 import { AkitaCollectionsPrefixAKC, AkitaCollectionsPrefixAOG, AkitaNFTCreatorAddress } from "../utils/constants";
 import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDGlobalStateKeysTimeChanged, NFDGlobalStateKeysVersion, NFDMetaKeyVerifiedAddresses, NFDMetaKeyVerifiedDiscord, NFDMetaKeyVerifiedDomain, NFDMetaKeyVerifiedTelegram, NFDMetaKeyVerifiedTwitter } from "../utils/constants/nfd";
-import { getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getOtherAppList } from "../utils/functions";
+import { getAkitaAppList, getAkitaAssets, getAkitaSocialAppList, getDAOARC58Wallet, getOtherAppList } from "../utils/functions";
 import { NFD } from "../utils/types/nfd";
 import { NFDRegistry } from "../utils/types/nfd-registry";
 import { ImpactBoxPrefixMeta, ImpactBoxPrefixSubscriptionStateModifier, ImpactMetaMBR, ONE_MILLION_AKITA, ONE_YEAR, SubscriptionStateModifierMBR, TEN_THOUSAND_AKITA, THIRTY_DAYS, TWO_HUNDRED_THOUSAND_AKITA, TWO_YEARS } from "./constants";
@@ -52,7 +52,7 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     }
 
     // ensure they're subscribed to an Akita offering
-    const toAkita = info.recipient === this.akitaDAO.value.address
+    const toAkita = info.recipient === getDAOARC58Wallet(this.akitaDAO.value).address
 
     // box index zero is reserved for donations
     // if its higher than zero then they're subscribed to an offer

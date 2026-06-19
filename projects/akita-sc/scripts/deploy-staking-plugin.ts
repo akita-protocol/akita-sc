@@ -19,11 +19,6 @@ runScript(async () => {
   console.log(`\nStarting StakingPlugin deployment on ${options.network}...\n`)
 
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
-  if (options.mnemonic && options.network !== 'localnet') {
-    const deployer = ctx.algorand.account.fromMnemonic(options.mnemonic)
-    ctx.sender = deployer.addr.toString()
-    ctx.signer = deployer.signer
-  }
 
   if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
     console.log('DRY RUN - Would deploy new StakingPlugin contract\n')

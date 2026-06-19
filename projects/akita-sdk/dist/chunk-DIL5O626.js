@@ -3,7 +3,7 @@
 
 
 
-var _chunkX2QX6AQHjs = require('./chunk-X2QX6AQH.js');
+var _chunkKOH7WXQ4js = require('./chunk-KOH7WXQ4.js');
 
 
 var _chunkVE4MYPMKjs = require('./chunk-VE4MYPMK.js');
@@ -1176,7 +1176,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
     if (!walletAppId) {
       throw new Error("Could not read wallet app ID from DAO global state. Has the DAO been set up?");
     }
-    this._wallet = new (0, _chunkX2QX6AQHjs.WalletSDK)({
+    this._wallet = new (0, _chunkKOH7WXQ4js.WalletSDK)({
       ...this._constructorParams,
       factoryParams: {
         ...this._constructorParams.factoryParams,
@@ -1231,7 +1231,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
             name = "",
             client,
             caller,
-            callerType: pluginCallerType = _chunkX2QX6AQHjs.CallerType.Other,
+            callerType: pluginCallerType = _chunkKOH7WXQ4js.CallerType.Other,
             methods = [],
             escrow = "",
             delegationType = 0n,
@@ -1260,9 +1260,9 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
             }
           }
           const plugin = client.appId;
-          if (pluginCallerType === _chunkX2QX6AQHjs.CallerType.Global) {
+          if (pluginCallerType === _chunkKOH7WXQ4js.CallerType.Global) {
             caller = _algosdk.ALGORAND_ZERO_ADDRESS_STRING;
-          } else if (pluginCallerType === _chunkX2QX6AQHjs.CallerType.Admin) {
+          } else if (pluginCallerType === _chunkKOH7WXQ4js.CallerType.Admin) {
             caller = _algosdk2.default.getApplicationAddress(client.appId).toString();
           }
           let transformedMethods = [];
@@ -1659,7 +1659,7 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
     if (result.returns === void 0) {
       throw new Error("Failed to setup Akita DAO");
     }
-    this._wallet = new (0, _chunkX2QX6AQHjs.WalletSDK)({
+    this._wallet = new (0, _chunkKOH7WXQ4js.WalletSDK)({
       algorand: this.algorand,
       factoryParams: {
         appId: result.returns[0],
@@ -1701,11 +1701,11 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
     for (let i = 0; i < actions.length; i++) {
       group.opUp({ args: {}, note: `${i}`, maxFee: _algokitutils.microAlgo.call(void 0, 257000n) });
     }
-    const prepared = await _chunkX2QX6AQHjs.prepareGroup.call(void 0, 
+    const prepared = await _chunkKOH7WXQ4js.prepareGroup.call(void 0, 
       await group.composer(),
       consolidateFees ? { consolidateFees: true } : {}
     );
-    const { groupId, txIds, confirmedRound, returns } = await _chunkX2QX6AQHjs.sendPrepared.call(void 0, 
+    const { groupId, txIds, confirmedRound, returns } = await _chunkKOH7WXQ4js.sendPrepared.call(void 0, 
       prepared,
       this.client.algorand.client.algod
     );
@@ -1957,4 +1957,4 @@ var AkitaDaoSDK = (_class2 = class extends _chunkUWCWNWGWjs.BaseSDK {
 
 
 exports.SplitDistributionType = SplitDistributionType; exports.SplitsToTuples = SplitsToTuples; exports.ProposalActionEnum = ProposalActionEnum; exports.EMPTY_CID = EMPTY_CID; exports.DAOProposalVotesMBR = DAOProposalVotesMBR; exports.DAO_ERROR_MESSAGES = DAO_ERROR_MESSAGES; exports.parseDaoErrorCode = parseDaoErrorCode; exports.translateDaoError = translateDaoError; exports.AkitaDaoSDK = AkitaDaoSDK;
-//# sourceMappingURL=chunk-HIBT3ZMD.js.map
+//# sourceMappingURL=chunk-DIL5O626.js.map
