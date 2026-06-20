@@ -142,7 +142,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
           ...params
         }];
       },
-      opUpCount: 1
+      opUpCount: 2
     });
   }
 

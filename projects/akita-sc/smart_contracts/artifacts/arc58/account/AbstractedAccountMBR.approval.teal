@@ -1,0 +1,268 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 2 400
+    bytecblock 0x151f7c75
+    // smart_contracts/arc58/account/mbr.algo.ts:10
+    // export class AbstractedAccountMBR extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x13cd8f63 // method "mbr(uint64,string,uint64,string,uint64)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64)"
+    txna ApplicationArgs 0
+    match main_mbr_route@3
+    err
+
+main_mbr_route@3:
+    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // @abimethod({ readonly: true })
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b mbr
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/arc58/account/mbr.algo.ts:10
+    // export class AbstractedAccountMBR extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/arc58/account/mbr.algo.ts::AbstractedAccountMBR.mbr[routing]() -> void:
+mbr:
+    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/account/mbr.algo.ts:25
+    // return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
+    dig 3
+    len
+    // smart_contracts/arc58/account/mbr.algo.ts:13
+    // return BoxCostPerByte * len
+    intc_3 // 400
+    dig 1
+    *
+    // smart_contracts/arc58/account/mbr.algo.ts:25
+    // return MinEscrowsMBR + this._calcBCPB(Bytes(escrow).length)
+    pushint 6500
+    dig 1
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:59-62
+    // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
+    //   appId,
+    //   args: [[escrow]]
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/account/mbr.algo.ts:61
+    // args: [[escrow]]
+    dig 2
+    itob
+    extract 6 2
+    uncover 7
+    concat
+    pushbytes 0x00010002
+    swap
+    concat
+    uncover 7
+    itxn_field ApplicationID
+    // smart_contracts/arc58/account/mbr.algo.ts:59-62
+    // const escrowInfo = abiCall<typeof AbstractedAccount.prototype.arc58_getEscrows>({
+    //   appId,
+    //   args: [[escrow]]
+    // }).returnValue
+    pushbytes 0xa2403ddf // method "arc58_getEscrows(string[])(uint64,bool)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 9
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
+    // smart_contracts/arc58/account/mbr.algo.ts:17
+    // return MinPluginMBR + this._calcBCPB((MethodRestrictionByteLength * methodCount) + Bytes(escrow).length)
+    pushint 20
+    uncover 7
+    *
+    uncover 4
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:13
+    // return BoxCostPerByte * len
+    intc_3 // 400
+    *
+    // smart_contracts/arc58/account/mbr.algo.ts:17
+    // return MinPluginMBR + this._calcBCPB((MethodRestrictionByteLength * methodCount) + Bytes(escrow).length)
+    pushint 38900
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:21
+    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
+    uncover 5
+    len
+    // smart_contracts/arc58/account/mbr.algo.ts:13
+    // return BoxCostPerByte * len
+    intc_3 // 400
+    *
+    // smart_contracts/arc58/account/mbr.algo.ts:21
+    // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
+    pushint 18900
+    dig 1
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:29
+    // return MinAllowanceMBR + this._calcBCPB(Bytes(escrow).length)
+    pushint 27700
+    uncover 6
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:37
+    // return MinDomainKeysMBR + this._calcBCPB(Bytes(domain).length)
+    pushint 15700
+    uncover 3
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:13
+    // return BoxCostPerByte * len
+    uncover 6
+    pushint 12800
+    *
+    // smart_contracts/arc58/account/mbr.algo.ts:33
+    // return MinExecutionsMBR + this._calcBCPB(groups * 32)
+    pushint 20500
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:71
+    // escrowExists: escrowInfo[0].id !== 0,
+    uncover 5
+    extract 6 9
+    intc_0 // 0
+    extract_uint64
+    intc_0 // 0
+    !=
+    // smart_contracts/arc58/account/mbr.algo.ts:74
+    // Global.minBalance +
+    global MinBalance
+    // smart_contracts/arc58/account/mbr.algo.ts:73-75
+    // NewCostForARC58 +
+    // Global.minBalance +
+    // ARC58WalletIDsByAccountsMbr +
+    pushint 162100
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:73-76
+    // NewCostForARC58 +
+    // Global.minBalance +
+    // ARC58WalletIDsByAccountsMbr +
+    // escrows
+    dig 7
+    +
+    // smart_contracts/arc58/account/mbr.algo.ts:64-78
+    // return {
+    //   plugins: this.pluginsMbr(escrow, methodCount),
+    //   namedPlugins: this.namedPluginsMbr(plugin),
+    //   escrows,
+    //   allowances: this.allowancesMbr(escrow),
+    //   domainKeys: this.domainKeysMbr(plugin),
+    //   executions: this.executionsMbr(groups),
+    //   escrowExists: escrowInfo[0].id !== 0,
+    //   newEscrowMintCost: (
+    //     NewCostForARC58 +
+    //     Global.minBalance +
+    //     ARC58WalletIDsByAccountsMbr +
+    //     escrows
+    //   )
+    // }
+    uncover 6
+    itob
+    uncover 6
+    itob
+    concat
+    uncover 6
+    itob
+    concat
+    uncover 5
+    itob
+    concat
+    uncover 3
+    itob
+    concat
+    uncover 3
+    itob
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 4
+    setbit
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/account/mbr.algo.ts:49
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return

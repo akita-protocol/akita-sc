@@ -14021,7 +14021,7 @@ var MarketplacePluginSDK = class extends BaseSDK {
           ...params
         }];
       },
-      opUpCount: 1
+      opUpCount: 2
     });
   }
   changePrice(args) {
@@ -27025,4 +27025,4 @@ export {
   SunsetPluginSDK,
   WalletSDK
 };
-//# sourceMappingURL=chunk-Q2G4L4XI.mjs.map
+//# sourceMappingURL=chunk-3LDLTOO2.mjs.map

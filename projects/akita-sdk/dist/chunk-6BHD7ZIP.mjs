@@ -3,7 +3,7 @@ import {
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-Q2G4L4XI.mjs";
+} from "./chunk-3LDLTOO2.mjs";
 import {
   AllowancesToTuple
 } from "./chunk-2ZPJXFUS.mjs";
@@ -1957,4 +1957,4 @@ export {
   translateDaoError,
   AkitaDaoSDK
 };
-//# sourceMappingURL=chunk-AQV62Q2C.mjs.map
+//# sourceMappingURL=chunk-6BHD7ZIP.mjs.map
