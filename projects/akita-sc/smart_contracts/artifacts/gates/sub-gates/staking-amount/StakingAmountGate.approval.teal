@@ -172,11 +172,11 @@ register_after_assert@5:
 
 register_after_assert@7:
     // smart_contracts/gates/sub-gates/staking-amount/contract.algo.ts:113
-    // loggedAssert(params.op.asUint64() <= 6, ERR_BAD_OPERATION)
+    // loggedAssert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
     dig 1
     intc_2 // 2
     getbyte
-    pushint 6
+    pushint 60
     <=
     bnz register_after_assert@9
     pushbytes "ERR:BOPR"
@@ -523,7 +523,7 @@ check_else_body@6:
     //   appId,
     //   args: [user, { asset, type }],
     // }).returnValue
-    pushbytes 0xf5232bf3 // method "mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"
+    pushbytes 0xea7da955 // method "mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
     dig 2
     itxn_field ApplicationArgs
@@ -542,7 +542,7 @@ check_else_body@6:
     ==
     assert // Bytes has valid prefix
     len
-    pushint 24
+    pushint 32
     ==
     assert // invalid number of bytes for smart_contracts/staking/types.ts::Stake
     pushint 4

@@ -18,10 +18,16 @@ type PluginCase = {
 
 const getSdkMethods = (sdk: object) => {
   const sdkRecord = sdk as Record<string, unknown>;
+  const client = sdkRecord.client as {
+    appSpec?: { methods?: Array<{ name?: string }> };
+  } | undefined;
+  const abiMethodNames = new Set(
+    client?.appSpec?.methods?.flatMap(({ name }) => name === undefined ? [] : [name]) ?? [],
+  );
 
   return Object.getOwnPropertyNames(Object.getPrototypeOf(sdk))
     .filter((name) => name !== 'constructor')
-    .filter((name) => name !== 'newServiceWithDescription')
+    .filter((name) => abiMethodNames.has(name))
     .filter((name) => typeof sdkRecord[name] === 'function')
     .sort();
 };
@@ -66,6 +72,7 @@ describe('ARC58 plugin SDK hooks', () => {
       { name: 'daoPlugin', sdk: akitaUniverse.daoPlugin },
       { name: 'dualStakePlugin', sdk: akitaUniverse.dualStakePlugin },
       { name: 'gatePlugin', sdk: akitaUniverse.gatePlugin },
+      { name: 'haystackRouterPlugin', sdk: akitaUniverse.haystackRouterPlugin },
       { name: 'hyperSwapPlugin', sdk: akitaUniverse.hyperSwapPlugin },
       { name: 'marketplacePlugin', sdk: akitaUniverse.marketplacePlugin },
       { name: 'nfdPlugin', sdk: akitaUniverse.nfdPlugin },

@@ -6,31 +6,35 @@
  * Gates and sub-gates extend AkitaBaseContract (not UpgradeableAkitaBaseContract),
  * so they CANNOT be updated in place. This script deploys fresh instances.
  *
- * After deployment, the DAO's gate app ID (and any sub-gate references) must be
- * updated via a DAO proposal (UpdateFields).
+ * Replacing the main Gate requires a DAO UpdateFields proposal. Sub-gate
+ * replacements do not have DAO pointers; this script records their new SDK and
+ * README IDs while historical main-gate registry entries keep their old app IDs.
  *
  * Available contracts: gate, socialActivity, socialFollowerCount,
- *   socialModerator, stakingPower, subscription
+ *   socialModerator, stakingAmount, stakingPower, subscription
  *
  * Usage:
  *   ts-node scripts/deploy-gates.ts --network testnet --mnemonic "your mnemonic" --version "1.0.1"
  *   ts-node scripts/deploy-gates.ts --contracts gate,socialActivity --network testnet --mnemonic "..." --version "1.0.1"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { microAlgo } from '@algorandfoundation/algokit-utils'
+import { parseBaseArgs, recordNetworkAppDeployment, setupContext, runScript } from './script-base'
 import { GateFactory } from '../smart_contracts/artifacts/gates/GateClient'
 import { SocialActivityGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/social-activity/SocialActivityGateClient'
 import { SocialFollowerCountGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/social-follower-count/SocialFollowerCountGateClient'
 import { SocialModeratorGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/social-moderator/SocialModeratorGateClient'
+import { StakingAmountGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/staking-amount/StakingAmountGateClient'
 import { StakingPowerGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/staking-power/StakingPowerGateClient'
 import { SubscriptionGateFactory } from '../smart_contracts/artifacts/gates/sub-gates/subscription/SubscriptionGateClient'
 
-const GATE_CONTRACTS = ['gate', 'socialActivity', 'socialFollowerCount', 'socialModerator', 'stakingPower', 'subscription'] as const
+const GATE_CONTRACTS = ['gate', 'socialActivity', 'socialFollowerCount', 'socialModerator', 'stakingAmount', 'stakingPower', 'subscription'] as const
 type GateContract = typeof GATE_CONTRACTS[number]
 
 const GATE_CONFIG: Record<GateContract, {
   name: string
   appIdKey: string
+  fundBaseMbr?: boolean
   getFactory: (params: { algorand: any; sender: string; signer: any }) => any
 }> = {
   gate: {
@@ -57,9 +61,17 @@ const GATE_CONFIG: Record<GateContract, {
     getFactory: ({ algorand, sender, signer }) =>
       algorand.client.getTypedAppFactory(SocialModeratorGateFactory, { defaultSender: sender, defaultSigner: signer }),
   },
+  stakingAmount: {
+    name: 'StakingAmountGate',
+    appIdKey: 'stakingAmountGate',
+    fundBaseMbr: true,
+    getFactory: ({ algorand, sender, signer }) =>
+      algorand.client.getTypedAppFactory(StakingAmountGateFactory, { defaultSender: sender, defaultSigner: signer }),
+  },
   stakingPower: {
     name: 'StakingPowerGate',
     appIdKey: 'stakingPowerGate',
+    fundBaseMbr: true,
     getFactory: ({ algorand, sender, signer }) =>
       algorand.client.getTypedAppFactory(StakingPowerGateFactory, { defaultSender: sender, defaultSigner: signer }),
   },
@@ -106,7 +118,7 @@ runScript(async () => {
 
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
 
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log('DRY RUN - Would deploy the following gate contracts:\n')
     for (const c of contracts) {
       console.log(`   ${GATE_CONFIG[c].name} (replaces app ID: ${(ctx.appIds as any)[GATE_CONFIG[c].appIdKey]})`)
@@ -137,6 +149,13 @@ runScript(async () => {
       },
     })
 
+    if (config.fundBaseMbr) {
+      await client.appClient.fundAppAccount({ amount: microAlgo(100_000n) })
+      console.log(`   Funded ${config.name} base MBR: 100000 microALGO`)
+    }
+
+    await recordNetworkAppDeployment(options.network, config.appIdKey, client.appId)
+
     console.log(`   New ${config.name}: ${client.appId}`)
     console.log(`   Old ${config.name}: ${oldAppId}\n`)
 
@@ -153,8 +172,5 @@ runScript(async () => {
     console.log(`    Old App ID: ${r.oldAppId}`)
     console.log(`    New App ID: ${r.newAppId}`)
   }
-  console.log(`
-IMPORTANT: Update the SDK networks.ts file with the new app IDs.
-The DAO's gate configuration may also need updating via a DAO proposal.
-`)
+  console.log('\nSDK network IDs and README deployment links were updated.\n')
 })

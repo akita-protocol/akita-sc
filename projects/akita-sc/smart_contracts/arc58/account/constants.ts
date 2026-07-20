@@ -12,9 +12,9 @@ export const MAX_OUTER_TXN_COUNT: uint64 = 16
 export const AbstractAccountNumGlobalBytes: uint64 = 30 // 1_500_000 (10 used, 20 spare)
 export const AbstractAccountNumGlobalUints: uint64 = 12 //   342_000 (9 used,  3 spare)
 
-// global state MBR: 1_342_000
-// total wallet MBR (incl. MAX_PROGRAM_PAGES + Global.minBalance + ARC58WalletIDsByAccountsMbr):
-//   1_342_000 + 400_000 + 100_000 + min-bal-extras
+// global state MBR: 1_842_000
+// total zero-fee wallet MBR (MAX_PROGRAM_PAGES + Global.minBalance +
+// ARC58WalletIDsByAccountsMbr): 1_842_000 + 400_000 + 100_000 + 12_100
 
 export const AbstractAccountGlobalStateKeysAdmin = 'admin'
 export const AbstractAccountGlobalStateKeysDomain = 'domain'
@@ -45,14 +45,16 @@ export const AbstractAccountBoxPrefixExecutions = 'x'
 export const MethodRestrictionByteLength: uint64 = 20
 
 export const MinPluginMBR: uint64 = 38_900
-export const MinNamedPluginMBR: uint64 = 18_900
-export const MinEscrowsMBR: uint64 = 6_500
+// name box: 1-byte prefix + the 44-byte empty PluginKey ARC-4 value
+export const MinNamedPluginMBR: uint64 = 20_500
+export const MinEscrowsMBR: uint64 = 19_300
 export const MinAllowanceMBR: uint64 = 27_700
-export const MinExecutionsMBR: uint64 = 20_500
+// execution box: 33-byte name + 20-byte empty ExecutionInfo ARC-4 value
+export const MinExecutionsMBR: uint64 = 23_700
 export const MinDomainKeysMBR: uint64 = 15_700
 
 export const AbstractedAccountFactoryGlobalStateKeyDomain = 'domain'
 
 export const AbstractAccountFactoryBoxKeyCompiledContract = 'c' // holds the compiled contract
 
-export const ABSTRACTED_ACCOUNT_MINT_PAYMENT: uint64 = 1_028_000 + 12_100 // 1_028_000 for the account, 12_100 for the escrow factory
+export const ABSTRACTED_ACCOUNT_MINT_PAYMENT: uint64 = 2_342_000 + 12_100

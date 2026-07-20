@@ -32,10 +32,12 @@ export const ERR_BAD_EXPIRATION_UPDATE = 'BEXU'
 
 // --- Stake lifecycle --------------------------------------------------------
 
+export const ERR_ALREADY_INITIALIZED = 'INIT'
 export const ERR_STAKE_NOT_FOUND = 'SNFD'
 export const ERR_STAKE_DOESNT_EXIST = 'SNEX'
 export const ERR_BAD_AMOUNT_HELD = 'BAMH'
 export const ERR_INSUFFICIENT_BALANCE = 'IBAL'
+export const ERR_APP_CALL_REQUIRED = 'ACRQ'
 export const ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK = 'WHOL'
 
 // --- Heartbeat --------------------------------------------------------------

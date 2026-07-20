@@ -53,12 +53,6 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
      * escrow configured, this also eagerly opts the escrow + every revenue-
      * split escrow in via the revenue-manager plugin, so downstream raffle
      * creations/entries don't have to do the rekey dance mid-group.
-     *
-     * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
-     * N split escrows, the asset). Since a single app call only holds 8
-     * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
-     * one opUp) so the resource populator has 16 slots to distribute refs
-     * across.
      */
     optIn({ sender, signer, asset }: OptInParams): Promise<void>;
     /**

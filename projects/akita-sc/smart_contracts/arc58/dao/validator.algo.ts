@@ -266,7 +266,7 @@ export class AkitaDAOProposalValidator extends Contract {
       args: [[escrow]]
     }).returnValue[0]
 
-    return info.id !== 0
+    return info.address !== Global.zeroAddress
   }
 
   private allowanceCheck(wallet: Application, escrow: string, assets: uint64[]): { existences: boolean[], anyExist: boolean, allExist: boolean } {

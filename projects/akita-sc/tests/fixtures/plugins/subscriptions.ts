@@ -38,5 +38,12 @@ export const deploySubscriptionsPlugin = async ({ fixture, sender, signer, args 
 
   console.log('SubscriptionsPlugin deployed with appId:', client.appId);
 
-  return new SubscriptionsPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new SubscriptionsPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

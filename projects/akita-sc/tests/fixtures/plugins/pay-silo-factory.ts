@@ -26,5 +26,12 @@ export const deployPaySiloFactoryPlugin = async ({ fixture, sender, signer }: De
 
   console.log('PaySiloFactoryPlugin deployed with appId:', client.appId);
 
-  return new PaySiloFactoryPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new PaySiloFactoryPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

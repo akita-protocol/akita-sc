@@ -35,5 +35,12 @@ export const deployStakingPoolPlugin = async ({ fixture, sender, signer, args: {
 
   console.log('StakingPoolPlugin deployed with appId:', client.appId);
 
-  return new StakingPoolPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new StakingPoolPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

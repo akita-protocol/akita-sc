@@ -85,7 +85,10 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
    * Checks eligibility and stake amount for an address/asset combination.
    */
   async check({ address, asset }: CheckParams): Promise<CheckResult> {
-    const { return: result } = await this.client.send.check({ args: { address, asset } });
+    const { return: result } = await this.client.send.check({
+      args: { address, asset },
+      extraFee: microAlgo(1_000),
+    });
 
     if (result === undefined) {
       throw new Error('Failed to check eligibility');
@@ -98,9 +101,9 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
   }
 
   async gateCheck({ gateTxn, address, asset }: GateCheckParams): Promise<void> {
-    
-    
-    await this.client.send.gateCheck({ args: { gateTxn, address, asset } });
+    const group = this.client.newGroup();
+    group.gateCheck({ ...this.getSendParams(), args: { gateTxn, address, asset } });
+    await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
   /**
@@ -142,7 +145,7 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
 
     await this.client.send.init({
       ...sendParams,
-      args: {}
+      args: { akitaRoyalty: 0n }
     });
   }
 
@@ -169,11 +172,6 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
         payment,
         asset
       }
-    });
-
-    group.opUp({
-      ...sendParams,
-      args: {},
     });
 
     return await group.send({ ...sendParams, });
@@ -230,12 +228,16 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
   }
 
   /**
-   * Gets the cost to enter the pool for a given address and entry count.
-   * This calls the contract's enterCost method which accounts for box MBR and any pool funding shortfall.
+   * Gets the cost to enter the pool for a given address and set of assets.
+   * This calls the contract's enterCost method, which accounts for entry box MBR
+   * and any app-scoped SOFT stake MBR.
    */
-  async enterCost({ address, entryCount }: { address: string; entryCount: number }): Promise<bigint> {
+  async enterCost({ address, assets }: { address: string; assets: (bigint | number)[] }): Promise<bigint> {
     return await this.client.enterCost({
-      args: { address, entryCount }
+      args: {
+        address,
+        entries: assets.map((asset) => [BigInt(asset), 0n, []]),
+      }
     });
   }
 
@@ -243,13 +245,17 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
    * Enters the pool with specified entries.
    */
   async enter({ sender, signer, entries, gateTxn }: EnterPoolParams): Promise<void> {
+    const assets = entries.map(({ asset }) => BigInt(asset));
+    if (new Set(assets).size !== assets.length) {
+      throw new Error('Each asset can only be entered once per staking pool request');
+    }
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Get the total cost from the contract (includes box MBR + any pool funding shortfall)
+    // Get the entry box MBR and any app-scoped SOFT stake MBR from the contract.
     const paymentAmount = await this.enterCost({
       address: sendParams.sender.toString(),
-      entryCount: entries.length
+      assets
     });
 
     const payment = await this.client.algorand.createTransaction.payment({
@@ -268,24 +274,26 @@ export class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
     const isGated = gateTxn !== undefined;
 
     if (isGated) {
-      await this.client.send.gatedEnter({
+      const group = this.client.newGroup();
+      group.gatedEnter({
         ...sendParams,
-        extraFee: microAlgo(1000 * entries.length), // Cover inner transactions to Staking contract
         args: {
           payment,
           gateTxn,
           entries: formattedEntries,
         }
       });
+      await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
     } else {
-      await this.client.send.enter({
+      const group = this.client.newGroup();
+      group.enter({
         ...sendParams,
-        extraFee: microAlgo(1000 * entries.length), // Cover inner transactions to Staking contract
         args: {
           payment,
           entries: formattedEntries,
         }
       });
+      await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
     }
   }
 

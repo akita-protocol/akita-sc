@@ -10,13 +10,13 @@ import {
   hexColorToBytes,
   translateSubscriptionsError,
   validateHexColor
-} from "../chunk-FPYGL24H.mjs";
+} from "../chunk-RVN7NVBS.mjs";
 import "../chunk-2ZPJXFUS.mjs";
-import "../chunk-JIDDRUHU.mjs";
+import "../chunk-GTMXTPOL.mjs";
 import "../chunk-2AEP6DTX.mjs";
-import "../chunk-SFOVKGKN.mjs";
-import "../chunk-RSCXLEUQ.mjs";
-import "../chunk-RFJII2P3.mjs";
+import "../chunk-PZ4NO5WZ.mjs";
+import "../chunk-74OFYN6Q.mjs";
+import "../chunk-F33UFLKV.mjs";
 export {
   HighlightMessage,
   MAX_DESCRIPTION_CHUNK_SIZE,

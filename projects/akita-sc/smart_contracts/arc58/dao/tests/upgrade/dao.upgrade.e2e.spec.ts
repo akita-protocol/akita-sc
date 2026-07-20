@@ -4,6 +4,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { sendPrepared } from 'akita-sdk';
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao';
 import { SDKClient } from 'akita-sdk/types';
+import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { MockAuctionFactoryClient, MockAuctionFactoryFactory } from '../../../../artifacts/mocks/auction-factory/MockAuctionFactoryClient';
 import { MockAkitaDaoClient, MockAkitaDaoFactory } from '../../../../artifacts/mocks/dao/MockAkitaDAOClient';
 import { MockMarketplaceClient, MockMarketplaceFactory } from '../../../../artifacts/mocks/marketplace/MockMarketplaceClient';
@@ -80,7 +81,11 @@ describe('ARC58 DAO Upgrade', () => {
 
       try {
         await proposeAndExecute(dao, [
-          { type: ProposalActionEnum.NewEscrow, escrow: testEscrow },
+          {
+            type: ProposalActionEnum.NewEscrow,
+            escrow: testEscrow,
+            address: ALGORAND_ZERO_ADDRESS_STRING,
+          },
         ]);
       } catch {
         // Escrow might already exist

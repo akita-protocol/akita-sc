@@ -75,14 +75,14 @@ main_purchase_route@4:
 
 // smart_contracts/utils/functions.ts::createInstantDisbursement(akitaDAO: uint64, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: bytes, sum: uint64, closeOut: uint64) -> bytes, bytes:
 createInstantDisbursement:
-    // smart_contracts/utils/functions.ts:518
+    // smart_contracts/utils/functions.ts:534
     // export function createInstantDisbursement(akitaDAO: Application, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: UserAllocation[], sum: uint64, closeOut: boolean): { id: uint64, cost: uint64 } {
     proto 7 2
     intc_0 // 0
     pushbytes ""
     dupn 3
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:519
+    // smart_contracts/utils/functions.ts:535
     // assert(asset !== 0 || closeOut === false, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN)
     frame_dig -6
     bnz createInstantDisbursement_bool_true@2
@@ -93,7 +93,7 @@ createInstantDisbursement_bool_true@2:
     intc_1 // 1
 
 createInstantDisbursement_bool_merge@4:
-    // smart_contracts/utils/functions.ts:519
+    // smart_contracts/utils/functions.ts:535
     // assert(asset !== 0 || closeOut === false, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN)
     assert // NCCA
     // smart_contracts/utils/functions.ts:44
@@ -102,12 +102,12 @@ createInstantDisbursement_bool_merge@4:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:520
+    // smart_contracts/utils/functions.ts:536
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
     intc_2 // 8
     extract_uint64
     frame_bury 3
-    // smart_contracts/utils/functions.ts:523
+    // smart_contracts/utils/functions.ts:539
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
     frame_dig -3
     intc_0 // 0
@@ -117,11 +117,11 @@ createInstantDisbursement_bool_merge@4:
     pushint 41700
     +
     frame_bury 1
-    // smart_contracts/utils/functions.ts:524
+    // smart_contracts/utils/functions.ts:540
     // if (asset === 0) {
     frame_dig -6
     bnz createInstantDisbursement_else_body@8
-    // smart_contracts/utils/functions.ts:525-536
+    // smart_contracts/utils/functions.ts:541-552
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -135,20 +135,20 @@ createInstantDisbursement_bool_merge@4:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:529
+    // smart_contracts/utils/functions.ts:545
     // receiver: Application(rewardsApp).address,
     frame_dig 3
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:530
+    // smart_contracts/utils/functions.ts:546
     // amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length) + sum
     frame_dig 1
     frame_dig -2
     +
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/utils/functions.ts:528-531
+    // smart_contracts/utils/functions.ts:544-547
     // itxn.payment({
     //   receiver: Application(rewardsApp).address,
     //   amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length) + sum
@@ -157,7 +157,7 @@ createInstantDisbursement_bool_merge@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:525-536
+    // smart_contracts/utils/functions.ts:541-552
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -171,17 +171,17 @@ createInstantDisbursement_bool_merge@4:
     //   ]
     // }).returnValue
     itxn_next
-    // smart_contracts/utils/functions.ts:532
+    // smart_contracts/utils/functions.ts:548
     // timeToUnlock,
     frame_dig -5
     itob
-    // smart_contracts/utils/functions.ts:533
+    // smart_contracts/utils/functions.ts:549
     // expiration,
     frame_dig -4
     itob
     uncover 2
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:525-536
+    // smart_contracts/utils/functions.ts:541-552
     // id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -222,7 +222,7 @@ createInstantDisbursement_bool_merge@4:
     btoi
 
 createInstantDisbursement_after_if_else@20:
-    // smart_contracts/utils/functions.ts:577
+    // smart_contracts/utils/functions.ts:593
     // return { id, cost }
     itob
     frame_dig 1
@@ -234,7 +234,7 @@ createInstantDisbursement_after_if_else@20:
     retsub
 
 createInstantDisbursement_else_body@8:
-    // smart_contracts/utils/functions.ts:538
+    // smart_contracts/utils/functions.ts:554
     // if (!Application(rewardsApp).address.isOptedIn(Asset(asset))) {
     frame_dig 3
     app_params_get AppAddress
@@ -247,22 +247,22 @@ createInstantDisbursement_else_body@8:
     frame_bury 2
 
 createInstantDisbursement_after_if_else@12:
-    // smart_contracts/utils/functions.ts:553
+    // smart_contracts/utils/functions.ts:569
     // assetReceiver: Application(rewardsApp).address,
     frame_dig 3
     app_params_get AppAddress
     swap
     frame_bury 0
     assert // application exists
-    // smart_contracts/utils/functions.ts:552
+    // smart_contracts/utils/functions.ts:568
     // const transferTxn = itxn.assetTransfer({
     intc_0 // 0
     frame_bury 4
-    // smart_contracts/utils/functions.ts:558
+    // smart_contracts/utils/functions.ts:574
     // if (closeOut) {
     frame_dig -1
     bz createInstantDisbursement_after_if_else@14
-    // smart_contracts/utils/functions.ts:559
+    // smart_contracts/utils/functions.ts:575
     // transferTxn.set({ assetCloseTo: Application(rewardsApp).address })
     frame_dig 3
     app_params_get AppAddress
@@ -272,7 +272,7 @@ createInstantDisbursement_after_if_else@12:
     frame_bury 5
 
 createInstantDisbursement_after_if_else@14:
-    // smart_contracts/utils/functions.ts:562-574
+    // smart_contracts/utils/functions.ts:578-590
     // id = abiCall<typeof Rewards.prototype.createInstantAsaDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -287,7 +287,7 @@ createInstantDisbursement_after_if_else@14:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:566
+    // smart_contracts/utils/functions.ts:582
     // receiver: Application(rewardsApp).address,
     frame_dig 3
     app_params_get AppAddress
@@ -295,7 +295,7 @@ createInstantDisbursement_after_if_else@14:
     frame_dig 1
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/utils/functions.ts:565-568
+    // smart_contracts/utils/functions.ts:581-584
     // itxn.payment({
     //   receiver: Application(rewardsApp).address,
     //   amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
@@ -304,7 +304,7 @@ createInstantDisbursement_after_if_else@14:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:569
+    // smart_contracts/utils/functions.ts:585
     // transferTxn,
     itxn_next
     frame_dig 4
@@ -319,7 +319,7 @@ createInstantDisbursement_next_field@17:
     itxn_field AssetAmount
     frame_dig 0
     itxn_field AssetReceiver
-    // smart_contracts/utils/functions.ts:552-556
+    // smart_contracts/utils/functions.ts:568-572
     // const transferTxn = itxn.assetTransfer({
     //   assetReceiver: Application(rewardsApp).address,
     //   assetAmount: sum,
@@ -329,7 +329,7 @@ createInstantDisbursement_next_field@17:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:562-574
+    // smart_contracts/utils/functions.ts:578-590
     // id = abiCall<typeof Rewards.prototype.createInstantAsaDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -344,17 +344,17 @@ createInstantDisbursement_next_field@17:
     //   ]
     // }).returnValue
     itxn_next
-    // smart_contracts/utils/functions.ts:570
+    // smart_contracts/utils/functions.ts:586
     // timeToUnlock,
     frame_dig -5
     itob
-    // smart_contracts/utils/functions.ts:571
+    // smart_contracts/utils/functions.ts:587
     // expiration,
     frame_dig -4
     itob
     frame_dig 3
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:562-574
+    // smart_contracts/utils/functions.ts:578-590
     // id = abiCall<typeof Rewards.prototype.createInstantAsaDisbursement>({
     //   appId: rewardsApp,
     //   args: [
@@ -399,13 +399,13 @@ createInstantDisbursement_next_field@17:
     b createInstantDisbursement_after_if_else@20
 
 createInstantDisbursement_if_body@9:
-    // smart_contracts/utils/functions.ts:539
+    // smart_contracts/utils/functions.ts:555
     // cost += Global.assetOptInMinBalance
     frame_dig 1
     global AssetOptInMinBalance
     +
     frame_bury 2
-    // smart_contracts/utils/functions.ts:540-549
+    // smart_contracts/utils/functions.ts:556-565
     // abiCall<typeof Rewards.prototype.optIn>({
     //   appId: rewardsApp,
     //   args: [
@@ -417,18 +417,18 @@ createInstantDisbursement_if_body@9:
     //   ]
     // })
     itxn_begin
-    // smart_contracts/utils/functions.ts:544
+    // smart_contracts/utils/functions.ts:560
     // receiver: Application(rewardsApp).address,
     frame_dig 3
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/utils/functions.ts:545
+    // smart_contracts/utils/functions.ts:561
     // amount: Global.assetOptInMinBalance
     global AssetOptInMinBalance
     itxn_field Amount
     itxn_field Receiver
-    // smart_contracts/utils/functions.ts:543-546
+    // smart_contracts/utils/functions.ts:559-562
     // itxn.payment({
     //   receiver: Application(rewardsApp).address,
     //   amount: Global.assetOptInMinBalance
@@ -437,7 +437,7 @@ createInstantDisbursement_if_body@9:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/utils/functions.ts:540-549
+    // smart_contracts/utils/functions.ts:556-565
     // abiCall<typeof Rewards.prototype.optIn>({
     //   appId: rewardsApp,
     //   args: [
@@ -449,13 +449,13 @@ createInstantDisbursement_if_body@9:
     //   ]
     // })
     itxn_next
-    // smart_contracts/utils/functions.ts:547
+    // smart_contracts/utils/functions.ts:563
     // Asset(asset)
     frame_dig -6
     itob
     swap
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:540-549
+    // smart_contracts/utils/functions.ts:556-565
     // abiCall<typeof Rewards.prototype.optIn>({
     //   appId: rewardsApp,
     //   args: [
@@ -483,14 +483,14 @@ createInstantDisbursement_bool_false@3:
 
 // smart_contracts/utils/functions.ts::sendReferralPayment(akitaDAO: uint64, asset: uint64, amount: uint64) -> bytes:
 sendReferralPayment:
-    // smart_contracts/utils/functions.ts:591
+    // smart_contracts/utils/functions.ts:607
     // export function sendReferralPayment(akitaDAO: Application, asset: uint64, amount: uint64): ReferralPaymentInfo {
     proto 3 1
     intc_0 // 0
     dup
     pushbytes ""
     dup
-    // smart_contracts/utils/functions.ts:592
+    // smart_contracts/utils/functions.ts:608
     // const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
     txn Sender
     // smart_contracts/utils/functions.ts:59
@@ -566,7 +566,7 @@ sendReferralPayment_after_inlined_smart_contracts/utils/functions.ts::getWalletI
     frame_bury 1
 
 sendReferralPayment_after_inlined_smart_contracts/utils/functions.ts::referrerOr@18:
-    // smart_contracts/utils/functions.ts:596
+    // smart_contracts/utils/functions.ts:612
     // if (amount > 0 && referrer !== Global.zeroAddress) {
     frame_dig -1
     bz sendReferralPayment_after_if_else@6
@@ -580,7 +580,7 @@ sendReferralPayment_after_inlined_smart_contracts/utils/functions.ts::referrerOr
     pushbytes "wallet_fees"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:598
+    // smart_contracts/utils/functions.ts:614
     // const { referrerPercentage } = getWalletFees(akitaDAO)
     intc_2 // 8
     extract_uint64
@@ -598,26 +598,26 @@ sendReferralPayment_after_inlined_smart_contracts/utils/functions.ts::referrerOr
     divw
     dup
     frame_bury 2
-    // smart_contracts/utils/functions.ts:601
+    // smart_contracts/utils/functions.ts:617
     // if (referralFee === 0 && amount > 0) {
     bnz sendReferralPayment_after_if_else@5
     frame_dig -1
     bz sendReferralPayment_after_if_else@5
-    // smart_contracts/utils/functions.ts:602
+    // smart_contracts/utils/functions.ts:618
     // referralFee = 1
     intc_1 // 1
     frame_bury 2
 
 sendReferralPayment_after_if_else@5:
-    // smart_contracts/utils/functions.ts:608
+    // smart_contracts/utils/functions.ts:624
     // Global.latestTimestamp,
     global LatestTimestamp
-    // smart_contracts/utils/functions.ts:609
+    // smart_contracts/utils/functions.ts:625
     // (Global.latestTimestamp + ONE_WEEK),
     dup
     pushint 604800
     +
-    // smart_contracts/utils/functions.ts:610
+    // smart_contracts/utils/functions.ts:626
     // [{ address: referrer, amount: referralFee }],
     frame_dig 2
     dup
@@ -629,7 +629,7 @@ sendReferralPayment_after_if_else@5:
     bytec 4 // 0x0001
     swap
     concat
-    // smart_contracts/utils/functions.ts:605-613
+    // smart_contracts/utils/functions.ts:621-629
     // const { cost: referralMbr } = createInstantDisbursement(
     //   akitaDAO,
     //   asset,
@@ -645,10 +645,10 @@ sendReferralPayment_after_if_else@5:
     uncover 4
     uncover 4
     dig 5
-    // smart_contracts/utils/functions.ts:612
+    // smart_contracts/utils/functions.ts:628
     // false
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:605-613
+    // smart_contracts/utils/functions.ts:621-629
     // const { cost: referralMbr } = createInstantDisbursement(
     //   akitaDAO,
     //   asset,
@@ -661,7 +661,7 @@ sendReferralPayment_after_if_else@5:
     callsub createInstantDisbursement
     pop
     extract 8 8
-    // smart_contracts/utils/functions.ts:615
+    // smart_contracts/utils/functions.ts:631
     // return { leftover: (amount - referralFee), referralMbr }
     frame_dig -1
     uncover 2
@@ -673,7 +673,7 @@ sendReferralPayment_after_if_else@5:
     retsub
 
 sendReferralPayment_after_if_else@6:
-    // smart_contracts/utils/functions.ts:618
+    // smart_contracts/utils/functions.ts:634
     // return { leftover: amount, referralMbr: 0 }
     frame_dig -1
     itob

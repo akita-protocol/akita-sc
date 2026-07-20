@@ -1,11 +1,13 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { StakingSDK, StakingType } from 'akita-sdk/staking'
 import { DisbursementPhase, StakingPoolFactorySDK, StakingPoolSDK } from 'akita-sdk/staking-pool'
+import { GateSDK, LogicalOperator, Operator } from 'akita-sdk/gates'
 import algosdk from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
+import { MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 import {
   completeBalanceVerification,
   createExpectedCost,
@@ -37,18 +39,14 @@ const DISTRIBUTION_TYPE_SHUFFLE = 40
 const POOL_STATUS_DRAFT = 0
 const POOL_STATUS_FINAL = 10
 
-// Disbursement Phase Constants
-const DISBURSEMENT_PHASE_IDLE = 0
-const DISBURSEMENT_PHASE_PREPARATION = 10
-const DISBURSEMENT_PHASE_ALLOCATION = 20
-const DISBURSEMENT_PHASE_FINALIZATION = 30
-
 // MBR Constants (from contract constants.ts)
 const POOL_ENTRIES_MBR = 25_300n
 const POOL_UNIQUES_MBR = 18_900n
 const POOL_ENTRIES_BY_ADDRESS_MBR = 25_300n
+const STAKING_APP_STAKES_MBR = 34_900n
 const WINNER_COUNT_CAP = 10n
-const MIN_POOL_REWARDS_MBR = 0n
+const MIN_POOL_REWARDS_MBR = 59_700n
+const POOL_REWARD_WINNING_TICKET_BYTES = 8n
 const BOX_COST_PER_BYTE = 400n
 const POOL_DISBURSEMENTS_MBR = 6_100n
 const ASSET_OPT_IN_MBR = 100_000n // Standard ASA opt-in MBR
@@ -59,7 +57,7 @@ const ASSET_OPT_IN_MBR = 100_000n // Standard ASA opt-in MBR
  * Calculate the MBR required for rewards storage based on winning tickets
  */
 const calculateRewardsMbr = (winningTickets: bigint): bigint => {
-  return MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * winningTickets)
+  return MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * winningTickets)
 }
 
 /**
@@ -76,15 +74,6 @@ const calculateEntryMbr = (entryCount: bigint, isFirstEntry: boolean): bigint =>
   return total
 }
 
-/**
- * Calculate the MBR required for adding a reward to the pool
- * @param winnerCount Number of winners for shuffle distribution (0 for other types)
- * @param rewardAmount The reward amount being added (for ALGO rewards)
- */
-const calculateAddRewardMbr = (winnerCount: bigint, rewardAmount: bigint): bigint => {
-  return calculateRewardsMbr(winnerCount) + rewardAmount
-}
-
 // Balance verification utilities are now imported from tests/utils/balance
 
 /**
@@ -97,8 +86,8 @@ const calculateAddRewardMbr = (winnerCount: bigint, rewardAmount: bigint): bigin
  */
 const generateSignerAccount = (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
-): Address & TransactionSignerAccount => {
-  return algorand.account.random() as unknown as Address & TransactionSignerAccount
+): AddressWithTransactionSigner => {
+  return algorand.account.random()
 }
 
 // Time Constants
@@ -146,19 +135,16 @@ const createReward = (overrides: Partial<AddRewardInput> = {}): AddRewardInput =
 })
 
 describe('Staking Pool Contract', () => {
-  let deployer: Address & TransactionSignerAccount
-  let creator: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
+  let deployer: AddressWithTransactionSigner
+  let creator: AddressWithTransactionSigner
+  let user1: AddressWithTransactionSigner
+  let user2: AddressWithTransactionSigner
   let akitaUniverse: AkitaUniverse
   let factorySDK: StakingPoolFactorySDK
   let poolSDK: StakingPoolSDK
   let testAssetId: bigint
   let timeWarp: TimeWarp
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
-    account: SigningAccount;
-  }
-  let poolCreationCost: bigint
+  let dispenser: AddressWithTransactionSigner
   // Store algorand client for consistent access across tests
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
@@ -187,24 +173,28 @@ describe('Staking Pool Contract', () => {
     user1 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
     user2 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2500).algo())
-    await algorand.account.ensureFunded(creator.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(user1.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(user2.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2500).algo())
+    await algorand.account.ensureFunded(creator.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(user1.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(user2.addr, dispenser.addr, (500).algo())
+
+    const mockBeaconFactory = algorand.client.getTypedAppFactory(MockRandomnessBeaconFactory, {
+      defaultSender: deployer.addr,
+      defaultSigner: deployer.signer,
+    })
+    const { appClient: mockBeacon } = await mockBeaconFactory.send.create.bare()
 
     // Build the full Akita DAO universe (required for staking pool factory to work)
     akitaUniverse = await buildAkitaUniverse({
       fixture,
       sender: deployer.addr,
       signer: deployer.signer,
-      apps: {},
+      apps: { vrfBeacon: mockBeacon.appId },
     })
 
     factorySDK = akitaUniverse.stakingPoolFactory
 
     // Get the pool creation cost from factory for reference in tests
-    poolCreationCost = await factorySDK.cost()
-
     // Fund the factory with minimum needed for pool creations
     // Pool creation cost is ~51 ALGO, we fund for a few pools with small buffer
     const poolCost = await factorySDK.cost()
@@ -273,11 +263,9 @@ describe('Staking Pool Contract', () => {
       // Get expected cost from factory
       const expectedPayment = await factorySDK.cost()
 
-      // Verify expected cost before operation (opUp calls add 2 extra transactions)
-      // Account for: app call fee + payment transaction fee + 2 opUp transaction fees + inner txns
-      // Note: opUp calls are separate transactions, not inner transactions
-      // coverAppCallInnerTransactionFees adds fees for inner txns
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 11n) // payment + 2 opUp + inner txns + covered fees
+      // Account for the composed group and covered inner-transaction fees. Any
+      // required opcode-budget carriers are selected by simulation.
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 11n)
       const verification = await verifyBalanceChange(
         algorand,
         creator.addr.toString(),
@@ -312,6 +300,9 @@ describe('Staking Pool Contract', () => {
       expect(completed.actualCost).toBe(expectedCost.total)
 
       expect(poolSDK.appId).toBeGreaterThan(0n)
+      const poolAccount = await algorand.account.getInformation(poolSDK.client.appAddress)
+      expect(poolAccount.balance.microAlgos).toBe(100_000n)
+      expect(poolAccount.minBalance.microAlgos).toBe(100_000n)
     })
 
     test('should fail to create pool with insufficient payment (direct call)', async () => {
@@ -517,10 +508,11 @@ describe('Staking Pool Contract', () => {
       expect(mbr5.rewards).toBe(calculateRewardsMbr(5n))
       expect(mbr10.rewards).toBe(calculateRewardsMbr(10n))
 
-      // Verify the formula: MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * winningTickets)
-      expect(mbr0.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * 0n))
-      expect(mbr5.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * 5n))
-      expect(mbr10.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * 10n))
+      // Verify the full reward box formula (9-byte key + 134-byte fixed
+      // value + 8 bytes per winning ticket).
+      expect(mbr0.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * 0n))
+      expect(mbr5.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * 5n))
+      expect(mbr10.rewards).toBe(MIN_POOL_REWARDS_MBR + (BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * 10n))
     })
 
     test('entry MBR helper should calculate correct values', async () => {
@@ -621,7 +613,7 @@ describe('Staking Pool Contract', () => {
         expect(completed.actualCost).toBe(expectedCost.total)
 
         const state = await rewardPoolSDK.getState()
-        expect(state.rewardCount).toBeGreaterThan(0n)
+        expect(state.rewardCount).toBe(1n)
       })
 
       test('should add ALGO reward with even distribution', async () => {
@@ -673,7 +665,7 @@ describe('Staking Pool Contract', () => {
         expect(completed.actualCost).toBe(expectedCost.total)
 
         const state = await rewardPoolSDK.getState()
-        expect(state.rewardCount).toBeGreaterThan(1n)
+        expect(state.rewardCount).toBe(2n)
       })
 
       test('should fail to add reward with zero rate', async () => {
@@ -791,7 +783,7 @@ describe('Staking Pool Contract', () => {
         expect(completed.actualCost).toBe(expectedCost.total)
 
         const state = await rewardPoolSDK.getState()
-        expect(state.rewardCount).toBeGreaterThan(2n)
+        expect(state.rewardCount).toBe(3n)
       })
 
       test('should fail shuffle with winner count greater than rate', async () => {
@@ -858,8 +850,8 @@ describe('Staking Pool Contract', () => {
 
   describe('Pool Entry', () => {
     let entryPoolSDK: StakingPoolSDK
-    let entryUser1: Address & TransactionSignerAccount
-    let entryUser2: Address & TransactionSignerAccount
+    let entryUser1: AddressWithTransactionSigner
+    let entryUser2: AddressWithTransactionSigner
     let stakingSDK: StakingSDK
 
     beforeAll(async () => {
@@ -948,16 +940,16 @@ describe('Staking Pool Contract', () => {
     })
 
     test('should allow entry when pool is live using SDK', async () => {
-      // Get expected cost from contract (includes MBR + any pool funding shortfall)
+      // Get the expected entry box and app-scoped SOFT stake MBR from the contract.
       const expectedPayment = await entryPoolSDK.enterCost({
         address: entryUser1.addr.toString(),
-        entryCount: 1
+        assets: [0n]
       })
 
       // Verify expected cost before operation
       // Account for: app call fee + payment transaction fee + inner txns
       // Note: inner transaction fees are covered by extraFee in the SDK call
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 2n) // payment transaction + inner txns
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 3n) // payment + app call + staking payment/app call
       const verification = await verifyBalanceChange(
         algorand,
         entryUser1.addr.toString(),
@@ -989,6 +981,7 @@ describe('Staking Pool Contract', () => {
       // Verify entry was successful
       const isEntered = await entryPoolSDK.isEntered({ address: entryUser1.addr.toString() })
       expect(isEntered).toBe(true)
+
     })
 
     test('should update entry count after entry', async () => {
@@ -996,157 +989,71 @@ describe('Staking Pool Contract', () => {
       expect(state.entryCount).toBeGreaterThan(0n)
     })
 
-    test('should allow multiple entries from same user', async () => {
-      // Get expected cost from contract (includes MBR for 2 entries)
-      const expectedPayment = await entryPoolSDK.enterCost({
+    test('SDK should reject duplicate asset entries before constructing the group', async () => {
+      await expect(
+        entryPoolSDK.enter({
+          sender: entryUser2.addr,
+          signer: entryUser2.signer,
+          entries: [
+            { asset: 0n, amount: 500_000n },
+            { asset: 0n, amount: 500_000n },
+          ],
+        }),
+      ).rejects.toThrow('Each asset can only be entered once per staking pool request')
+
+      expect(await entryPoolSDK.isEntered({ address: entryUser2.addr.toString() })).toBe(false)
+    })
+
+    test('contract should reject duplicate asset entries in the same request', async () => {
+      const paymentAmount = await entryPoolSDK.enterCost({
         address: entryUser2.addr.toString(),
-        entryCount: 2
+        assets: [0n, 0n],
+      })
+      const payment = await algorand.createTransaction.payment({
+        sender: entryUser2.addr,
+        signer: entryUser2.signer,
+        receiver: entryPoolSDK.client.appAddress,
+        amount: algokit.microAlgos(paymentAmount),
       })
 
-      // Verify expected cost before operation
-      // Account for: app call fee + payment transaction fee + inner txns
-      // Note: inner transaction fees (staking checks) are covered by extraFee in the SDK call
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 3n) // payment transaction + inner txns
+      await expect(
+        entryPoolSDK.client.send.enter({
+          sender: entryUser2.addr,
+          signer: entryUser2.signer,
+          extraFee: algokit.microAlgos(2_000),
+          args: {
+            payment,
+            entries: [
+              [0n, 500_000n, []],
+              [0n, 500_000n, []],
+            ],
+          },
+        }),
+      ).rejects.toThrow()
+
+      expect(await entryPoolSDK.isEntered({ address: entryUser2.addr.toString() })).toBe(false)
+    })
+
+    test('should allow a user to enter an asset once', async () => {
+      const expectedPayment = await entryPoolSDK.enterCost({
+        address: entryUser2.addr.toString(),
+        assets: [0n]
+      })
+      expect(expectedPayment).toBe(
+        POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR + STAKING_APP_STAKES_MBR,
+      )
+
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 3n)
       const verification = await verifyBalanceChange(
         algorand,
         entryUser2.addr.toString(),
         expectedCost,
-        'enter pool with multiple entries'
+        'enter pool with one asset'
       )
 
-      // Use SDK method which handles payment automatically
       await entryPoolSDK.enter({
         sender: entryUser2.addr,
         signer: entryUser2.signer,
-        entries: [
-          {
-            asset: 0n,
-            amount: 500_000n, // First ALGO entry (0.5 ALGO)
-          },
-          {
-            asset: 0n,
-            amount: 500_000n, // Second ALGO entry (0.5 ALGO)
-          },
-        ],
-      })
-
-      // Verify balance change matches expected cost
-      const completed = await completeBalanceVerification(
-        verification,
-        algorand,
-        entryUser2.addr.toString()
-      )
-      expectBalanceChange(completed, 'enter pool with multiple entries')
-      expect(completed.actualCost).toBe(expectedCost.total)
-
-      const isEntered = await entryPoolSDK.isEntered({ address: entryUser2.addr.toString() })
-      expect(isEntered).toBe(true)
-    })
-  })
-
-  describe('Pool with Max Entries', () => {
-    let limitedPoolSDK: StakingPoolSDK
-    let limitedUser: Address & TransactionSignerAccount
-    let stakingSDK: StakingSDK
-
-    beforeAll(async () => {
-      // Using module-level algorand client
-      const timeWarp = new TimeWarp(algorand)
-      stakingSDK = akitaUniverse.staking
-
-      // Create fresh user account and fund from deployer (same pattern as Pool Entry tests)
-      limitedUser = generateSignerAccount(algorand)
-      await algorand.send.payment({
-        sender: deployer.addr,
-        signer: deployer.signer,
-        receiver: limitedUser.addr,
-        amount: algokit.microAlgos(150_000_000), // 150 ALGO for staking + entries + MBR + fees
-      })
-
-      // Create a pool with max entries = 2 using SDK
-      limitedPoolSDK = await factorySDK.new({
-        sender: creator.addr,
-        signer: creator.signer,
-        title: 'Limited Entry Pool',
-        type: POOL_STAKING_TYPE_SOFT, // Use SOFT staking
-        marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
-        minimumStakeAmount: 0n,
-        allowLateSignups: true,
-        gateId: 0n,
-        maxEntries: 2n, // Only 2 entries allowed
-      })
-
-      console.log('limitedPoolSDK', limitedPoolSDK.client.appAddress.toString())
-
-      // Fund the pool with minimum balance requirement
-      await algorand.send.payment({
-        sender: creator.addr,
-        signer: creator.signer,
-        receiver: limitedPoolSDK.client.appAddress,
-        amount: algokit.microAlgos(200_000), // 0.2 ALGO for pool MBR
-      })
-
-      // Get current block timestamp RIGHT BEFORE finalize to avoid timing issues
-      const blockTs = await getBlockTimestamp(algorand)
-
-      // Finalize with timestamps based on actual block timestamp
-      await limitedPoolSDK.finalize({
-        signupTimestamp: blockTs + 2n,
-        startTimestamp: blockTs + 3n,
-        endTimestamp: blockTs + BigInt(ONE_DAY * 30),
-      })
-
-      // Use TimeWarp to advance block timestamp past start time
-      await timeWarp.timeWarp(10n)
-
-      // User must stake ALGO before entering the pool
-      await stakingSDK.stake({
-        sender: limitedUser.addr,
-        signer: limitedUser.signer,
-        type: StakingType.Soft,
-        asset: 0n,
-        amount: 10_000_000n, // 10 ALGO
-      })
-
-      // Fund account again after staking to ensure enough balance for entry MBR + fees + minimum balance
-      await algorand.send.payment({
-        sender: deployer.addr,
-        signer: deployer.signer,
-        receiver: limitedUser.addr,
-        amount: algokit.microAlgos(20_000_000), // 20 ALGO additional for entry costs and minimum balance
-      })
-    })
-
-    test('should verify pool has max entries set', async () => {
-      const state = await limitedPoolSDK.getState()
-      expect(state.maxEntries).toBe(2n)
-    })
-
-    test('should allow entry within limit', async () => {
-      // Get expected cost from contract (includes MBR)
-      const expectedPayment = await limitedPoolSDK.enterCost({
-        address: limitedUser.addr.toString(),
-        entryCount: 1
-      })
-
-      // Verify expected cost before operation
-      // Account for: app call fee + payment transaction fee + inner txns
-      // Note: inner transaction fees are covered by extraFee in the SDK call
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 2n) // payment transaction + inner txns
-      const verification = await verifyBalanceChange(
-        algorand,
-        limitedUser.addr.toString(),
-        expectedCost,
-        'enter pool within limit'
-      )
-
-      await limitedPoolSDK.enter({
-        sender: limitedUser.addr,
-        signer: limitedUser.signer,
         entries: [
           {
             asset: 0n,
@@ -1155,23 +1062,150 @@ describe('Staking Pool Contract', () => {
         ],
       })
 
-      // Verify balance change matches expected cost
       const completed = await completeBalanceVerification(
         verification,
         algorand,
-        limitedUser.addr.toString()
+        entryUser2.addr.toString()
       )
-      expectBalanceChange(completed, 'enter pool within limit')
+      expectBalanceChange(completed, 'enter pool with one asset')
       expect(completed.actualCost).toBe(expectedCost.total)
 
-      const isEntered = await limitedPoolSDK.isEntered({ address: limitedUser.addr.toString() })
+      const isEntered = await entryPoolSDK.isEntered({ address: entryUser2.addr.toString() })
       expect(isEntered).toBe(true)
+
+    })
+
+    test('should reject a later entry for the same asset', async () => {
+      await expect(
+        entryPoolSDK.enter({
+          sender: entryUser2.addr,
+          signer: entryUser2.signer,
+          entries: [{ asset: 0n, amount: 500_000n }],
+        }),
+      ).rejects.toThrow()
+
+    })
+
+  })
+
+  describe('Pool with Max Entries', () => {
+    let limitedPoolSDK: StakingPoolSDK
+    let limitedUsers: AddressWithTransactionSigner[]
+
+    beforeAll(async () => {
+      limitedUsers = [
+        generateSignerAccount(algorand),
+        generateSignerAccount(algorand),
+        generateSignerAccount(algorand),
+      ]
+      for (const user of limitedUsers) {
+        await algorand.send.payment({
+          sender: deployer.addr,
+          signer: deployer.signer,
+          receiver: user.addr,
+          amount: algokit.microAlgos(5_000_000),
+        })
+      }
+
+      limitedPoolSDK = await factorySDK.new({
+        sender: creator.addr,
+        signer: creator.signer,
+        title: 'Limited Entry Pool',
+        type: POOL_STAKING_TYPE_NONE,
+        marketplace: creator.addr.toString(),
+        stakeKey: {
+          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+          name: '',
+        },
+        minimumStakeAmount: 0n,
+        allowLateSignups: true,
+        gateId: 0n,
+        maxEntries: 2n,
+      })
+
+      const blockTs = await getBlockTimestamp(algorand)
+      await limitedPoolSDK.finalize({
+        signupTimestamp: 0n,
+        startTimestamp: 0n,
+        endTimestamp: blockTs + BigInt(ONE_DAY * 30),
+      })
+    })
+
+    test('should verify pool has max entries set', async () => {
+      const state = await limitedPoolSDK.getState()
+      expect(state.maxEntries).toBe(2n)
+    })
+
+    test('should allow exactly the configured number of entries and reject the next', async () => {
+      for (const user of limitedUsers.slice(0, 2)) {
+        await limitedPoolSDK.enter({
+          sender: user.addr,
+          signer: user.signer,
+          entries: [{ asset: 0n, amount: 1n }],
+        })
+      }
+
+      expect((await limitedPoolSDK.getState()).entryCount).toBe(2n)
+
+      const thirdUser = limitedUsers[2]
+      await expect(limitedPoolSDK.enter({
+        sender: thirdUser.addr,
+        signer: thirdUser.signer,
+        entries: [{ asset: 0n, amount: 1n }],
+      })).rejects.toThrow('ERR:PMER')
+
+      expect((await limitedPoolSDK.getState()).entryCount).toBe(2n)
+      expect(await limitedPoolSDK.isEntered({ address: thirdUser.addr.toString() })).toBe(false)
+    })
+
+    test('should reject an oversized batch atomically', async () => {
+      const batchUser = generateSignerAccount(algorand)
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: batchUser.addr,
+        amount: algokit.microAlgos(5_000_000),
+      })
+
+      const batchPool = await factorySDK.new({
+        sender: creator.addr,
+        signer: creator.signer,
+        title: 'Limited Batch Pool',
+        type: POOL_STAKING_TYPE_NONE,
+        marketplace: creator.addr.toString(),
+        stakeKey: {
+          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+          name: '',
+        },
+        minimumStakeAmount: 0n,
+        allowLateSignups: true,
+        gateId: 0n,
+        maxEntries: 2n,
+      })
+      await batchPool.finalize({
+        signupTimestamp: 0n,
+        startTimestamp: 0n,
+        endTimestamp: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY),
+      })
+
+      await expect(batchPool.enter({
+        sender: batchUser.addr,
+        signer: batchUser.signer,
+        entries: [
+          { asset: 0n, amount: 1n },
+          { asset: akitaUniverse.aktaAssetId, amount: 1n },
+          { asset: akitaUniverse.bonesAssetId, amount: 1n },
+        ],
+      })).rejects.toThrow('ERR:PMER')
+
+      expect((await batchPool.getState()).entryCount).toBe(0n)
+      expect(await batchPool.isEntered({ address: batchUser.addr.toString() })).toBe(false)
     })
   })
 
   describe('Pool with Minimum Stake', () => {
     let minStakePoolSDK: StakingPoolSDK
-    let minStakeUser: Address & TransactionSignerAccount
+    let minStakeUser: AddressWithTransactionSigner
     let stakingSDK: StakingSDK
 
     beforeAll(async () => {
@@ -1207,12 +1241,11 @@ describe('Staking Pool Contract', () => {
         maxEntries: 0n,
       })
 
-      // Fund the pool with minimum balance requirement
       await algorand.send.payment({
         sender: creator.addr,
         signer: creator.signer,
         receiver: minStakePoolSDK.client.appAddress,
-        amount: algokit.microAlgos(200_000), // 0.2 ALGO for pool MBR
+        amount: algokit.microAlgos(200_000),
       })
 
       // Get current block timestamp RIGHT BEFORE finalize to avoid timing issues
@@ -1244,8 +1277,10 @@ describe('Staking Pool Contract', () => {
     })
 
     test('should reject entry below minimum stake', async () => {
-      // Calculate MBR
-      const totalMbr = calculateEntryMbr(1n, true)
+      const totalMbr = await minStakePoolSDK.enterCost({
+        address: minStakeUser.addr.toString(),
+        assets: [0n],
+      })
 
       // Create payment
       const payment = await algorand.createTransaction.payment({
@@ -1269,10 +1304,10 @@ describe('Staking Pool Contract', () => {
     })
 
     test('should allow entry meeting minimum stake', async () => {
-      // Calculate exact MBR using helper function
-      const isFirstEntry = true
-      const entryCount = 1n
-      const totalMbr = calculateEntryMbr(entryCount, isFirstEntry)
+      const totalMbr = await minStakePoolSDK.enterCost({
+        address: minStakeUser.addr.toString(),
+        assets: [0n],
+      })
 
       // Create payment
       const payment = await algorand.createTransaction.payment({
@@ -1282,11 +1317,11 @@ describe('Staking Pool Contract', () => {
       })
 
       // Use direct client call with 10 ALGO entry (above 5 ALGO minimum)
-      // extraFee covers the inner transaction to Staking contract
+      // extraFee covers the inner payment and app call to Staking.
       await minStakePoolSDK.client.send.enter({
         sender: minStakeUser.addr,
         signer: minStakeUser.signer,
-        extraFee: algokit.microAlgos(1000),
+        extraFee: algokit.microAlgos(2000),
         args: {
           payment,
           entries: [[0n, 10_000_000n, []]], // 10 ALGO, above minimum
@@ -1299,36 +1334,98 @@ describe('Staking Pool Contract', () => {
   })
 
   describe('Pool Deletion', () => {
-    test('should allow creator to delete draft pool', async () => {
-      // Create a new pool to delete using SDK
-      const deletePoolSDK = await factorySDK.new({
-        sender: creator.addr,
-        signer: creator.signer,
-        title: 'Delete Test Pool',
-        type: POOL_STAKING_TYPE_SOFT,
-        marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
-        minimumStakeAmount: 0n,
-        allowLateSignups: false,
-        gateId: 0n,
-        maxEntries: 0n,
+    test('should refund the full creation MBR to the payment funder when deleting a draft pool', async () => {
+      const funder = generateSignerAccount(algorand)
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: funder.addr,
+        amount: algokit.microAlgos(100_000_000),
       })
 
-      const poolIdToDelete = deletePoolSDK.appId
+      const factoryBeforeCreate = await algorand.account.getInformation(factorySDK.client.appAddress)
+      const poolCost = await factorySDK.cost({ sender: creator.addr, signer: creator.signer })
+      const payment = await algorand.createTransaction.payment({
+        sender: funder.addr,
+        receiver: factorySDK.client.appAddress,
+        amount: algokit.microAlgo(poolCost),
+      })
+      const group = factorySDK.client.newGroup()
+      group.newPool({
+        sender: creator.addr,
+        signer: creator.signer,
+        maxFee: algokit.microAlgos(20_000),
+        args: {
+          payment: { txn: payment, signer: funder.signer },
+          title: 'Delete Refund Test Pool',
+          type: POOL_STAKING_TYPE_SOFT,
+          marketplace: creator.addr.toString(),
+          stakeKey: {
+            address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+            name: '',
+          },
+          minimumStakeAmount: 0n,
+          allowLateSignups: false,
+          gateId: 0n,
+          maxEntries: 0n,
+        },
+      })
+      group.opUp({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: {},
+        maxFee: algokit.microAlgos(1_000),
+      })
+      group.opUp({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: {},
+        maxFee: algokit.microAlgos(1_000),
+        note: '1',
+      })
+      const createResult = await group.send({
+        populateAppCallResources: true,
+        coverAppCallInnerTransactionFees: true,
+      })
+      const poolIdToDelete = createResult.returns[0] as bigint | undefined
+      expect(poolIdToDelete).toBeDefined()
+      if (poolIdToDelete === undefined) {
+        throw new Error('Failed to create pool for deletion refund test')
+      }
 
-      // Delete via factory client with extraFee to cover inner transactions
-      // deletePool makes inner calls: factory -> pool.delete -> close payment, factory -> payment to funder
+      const deletePoolSDK = factorySDK.get({ appId: poolIdToDelete })
+      const factoryAfterCreate = await algorand.account.getInformation(factorySDK.client.appAddress)
+      const childCreationMbr = factoryAfterCreate.minBalance.microAlgos - factoryBeforeCreate.minBalance.microAlgos
+      const funderInfo = await deletePoolSDK.client.state.global.funder()
+      expect(funderInfo).toBeDefined()
+      if (funderInfo === undefined) {
+        throw new Error('Pool funder information was not stored')
+      }
+
+      expect(funderInfo.account).toBe(funder.addr.toString())
+      expect(funderInfo.amount).toBe(childCreationMbr + 100_000n)
+
+      const poolAccount = await algorand.account.getInformation(deletePoolSDK.client.appAddress)
+      expect(poolAccount.balance.microAlgos).toBe(100_000n)
+      expect(poolAccount.minBalance.microAlgos).toBe(100_000n)
+
+      const funderBeforeDelete = await algorand.account.getInformation(funder.addr)
+      const factoryBeforeDelete = await algorand.account.getInformation(factorySDK.client.appAddress)
+      const factoryLiquidBeforeDelete = factoryBeforeDelete.balance.microAlgos - factoryBeforeDelete.minBalance.microAlgos
+
       await factorySDK.client.send.deletePool({
         sender: creator.addr,
         signer: creator.signer,
         args: { appId: poolIdToDelete },
-        extraFee: algokit.microAlgos(3_000), // Cover inner transaction fees
+        extraFee: algokit.microAlgos(3_000),
       })
 
-      // Verify pool is deleted (should throw when trying to access)
+      const funderAfterDelete = await algorand.account.getInformation(funder.addr)
+      const factoryAfterDelete = await algorand.account.getInformation(factorySDK.client.appAddress)
+      const factoryLiquidAfterDelete = factoryAfterDelete.balance.microAlgos - factoryAfterDelete.minBalance.microAlgos
+
+      expect(funderAfterDelete.balance.microAlgos - funderBeforeDelete.balance.microAlgos).toBe(funderInfo.amount)
+      expect(factoryLiquidAfterDelete).toBe(factoryLiquidBeforeDelete)
       await expect(deletePoolSDK.getState()).rejects.toThrow()
     })
 
@@ -1397,6 +1494,7 @@ describe('Staking Pool Contract', () => {
         })
       ).rejects.toThrow()
     })
+
   })
 
   describe('Different Pool Types', () => {
@@ -1485,14 +1583,6 @@ describe('Staking Pool Contract', () => {
         maxEntries: 0n,
       })
 
-      // Fund the pool with enough balance for asset opt-ins
-      // The optIn method will add more via payment, but pool needs base balance first
-      await algorand.send.payment({
-        sender: creator.addr,
-        signer: creator.signer,
-        receiver: optinPoolSDK.client.appAddress,
-        amount: algokit.microAlgos(500_000), // 0.5 ALGO for base MBR
-      })
     })
 
 
@@ -1650,15 +1740,78 @@ describe('Staking Pool Contract', () => {
       expect(mbr10.rewards).toBeGreaterThan(mbr5.rewards)
 
       // Verify exact formula is applied
-      expect(mbr5.rewards - mbr0.rewards).toBe(BOX_COST_PER_BYTE * 5n)
-      expect(mbr10.rewards - mbr5.rewards).toBe(BOX_COST_PER_BYTE * 5n)
+      expect(mbr5.rewards - mbr0.rewards).toBe(BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * 5n)
+      expect(mbr10.rewards - mbr5.rewards).toBe(BOX_COST_PER_BYTE * POOL_REWARD_WINNING_TICKET_BYTES * 5n)
     })
   })
 
   describe('Check Eligibility', () => {
-    // Previously stubbed with expect(true).toBe(true). Requires a fresh account
-    // context that the current shared-fixture structure can't easily provide.
-    test.todo('should check eligibility for ALGO stake (needs isolated account fixture)')
+    test('checks an isolated hard-staked ALGO entry against the staking contract', async () => {
+      const poolCreator = generateSignerAccount(algorand)
+      const staker = generateSignerAccount(algorand)
+
+      for (const account of [poolCreator, staker]) {
+        await algorand.send.payment({
+          sender: deployer.addr,
+          signer: deployer.signer,
+          receiver: account.addr,
+          amount: (100).algos(),
+        })
+      }
+
+      const eligibilityPool = await factorySDK.new({
+        sender: poolCreator.addr,
+        signer: poolCreator.signer,
+        title: 'Hard ALGO eligibility pool',
+        type: POOL_STAKING_TYPE_HARD,
+        marketplace: poolCreator.addr.toString(),
+        stakeKey: {
+          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+          name: '',
+        },
+        minimumStakeAmount: 1_000_000n,
+        allowLateSignups: true,
+        gateId: 0n,
+        // Entry-cap behavior is covered separately; keep this eligibility test
+        // focused on HARD stake validation.
+        maxEntries: 0n,
+      })
+
+      await algorand.send.payment({
+        sender: poolCreator.addr,
+        signer: poolCreator.signer,
+        receiver: eligibilityPool.client.appAddress,
+        amount: algokit.microAlgos(200_000),
+      })
+
+      const now = await getBlockTimestamp(algorand)
+      await eligibilityPool.finalize({
+        sender: poolCreator.addr,
+        signer: poolCreator.signer,
+        signupTimestamp: now + 2n,
+        startTimestamp: now + 3n,
+        endTimestamp: now + BigInt(ONE_DAY),
+      })
+      await new TimeWarp(algorand).timeWarp(10n)
+
+      await akitaUniverse.staking.stake({
+        sender: staker.addr,
+        signer: staker.signer,
+        type: StakingType.Hard,
+        asset: 0n,
+        amount: 2_000_000n,
+        expiration: now + BigInt(ONE_DAY),
+      })
+      await eligibilityPool.enter({
+        sender: staker.addr,
+        signer: staker.signer,
+        entries: [{ asset: 0n, amount: 1_000_000n }],
+      })
+
+      await expect(
+        eligibilityPool.check({ address: staker.addr.toString(), asset: 0n })
+      ).resolves.toEqual({ isEligible: true, stake: 2_000_000n })
+    })
   })
 
   describe('Factory SDK Helper Methods', () => {
@@ -1733,7 +1886,7 @@ describe('Staking Pool Contract', () => {
 
       // Verify reward was added by checking reward count
       const state = await percentPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n) // At least the one we added
+      expect(state.rewardCount).toBe(1n)
     })
   })
 
@@ -1890,7 +2043,7 @@ describe('Staking Pool Contract', () => {
       })
 
       const state = await shufflePoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n)
+      expect(state.rewardCount).toBe(1n)
     })
 
     test('should fail shuffle with more winners than rate', async () => {
@@ -1944,7 +2097,6 @@ describe('Staking Pool Contract', () => {
 
   describe('Pool Check Methods', () => {
     let checkPoolSDK: StakingPoolSDK
-    let stakingSDK: StakingSDK
 
     beforeAll(async () => {
       // Create a pool with SOFT staking type to test check methods
@@ -2048,16 +2200,15 @@ describe('Staking Pool Contract', () => {
         amount: algokit.microAlgos(10_000_000),
       })
 
-      const entryCost = await lateSignupPoolSDK.client.send.enterCost({
-        sender: lateUser.addr,
-        signer: lateUser.signer,
-        args: { address: lateUser.addr.toString(), entryCount: 1n },
+      const entryCost = await lateSignupPoolSDK.enterCost({
+        address: lateUser.addr.toString(),
+        assets: [0n],
       })
 
       const payment = await algorand.createTransaction.payment({
         sender: lateUser.addr,
         receiver: lateSignupPoolSDK.client.appAddress,
-        amount: algokit.microAlgos(Number(entryCost.return!)),
+        amount: algokit.microAlgos(Number(entryCost)),
       })
 
       await lateSignupPoolSDK.client.send.enter({
@@ -2129,16 +2280,15 @@ describe('Staking Pool Contract', () => {
         amount: algokit.microAlgos(10_000_000),
       })
 
-      const entryCost = await lateEntryPoolSDK.client.send.enterCost({
-        sender: lateUser.addr,
-        signer: lateUser.signer,
-        args: { address: lateUser.addr.toString(), entryCount: 1n },
+      const entryCost = await lateEntryPoolSDK.enterCost({
+        address: lateUser.addr.toString(),
+        assets: [0n],
       })
 
       const payment = await algorand.createTransaction.payment({
         sender: lateUser.addr,
         receiver: lateEntryPoolSDK.client.appAddress,
-        amount: algokit.microAlgos(Number(entryCost.return!)),
+        amount: algokit.microAlgos(Number(entryCost)),
       })
 
       await expect(
@@ -2312,23 +2462,154 @@ describe('Staking Pool Contract', () => {
       })
 
       // Check entry cost for first entry (should include uniques MBR)
-      const firstEntryCost = await costPoolSDK.client.send.enterCost({
-        sender: user1.addr,
-        signer: user1.signer,
-        args: { address: user1.addr.toString(), entryCount: 1n },
+      const firstEntryCost = await costPoolSDK.enterCost({
+        address: user1.addr.toString(),
+        assets: [0n],
       })
 
-      expect(firstEntryCost.return).toBeDefined()
-      expect(firstEntryCost.return!).toBeGreaterThan(0n)
+      expect(firstEntryCost).toBeDefined()
+      expect(firstEntryCost).toBeGreaterThan(0n)
       // First entry cost should include POOL_UNIQUES_MBR
-      expect(firstEntryCost.return!).toBeGreaterThanOrEqual(POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR)
+      expect(firstEntryCost).toBeGreaterThanOrEqual(POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR)
     })
   })
 
   describe('Pool with Gates', () => {
-    // Note: Creating a pool with a non-zero gateId requires the gate app to exist.
-    // The factory validates the gate app during pool creation.
-    // Full gate testing requires deploying a Gate contract first.
+    test('should preserve or disqualify an entry from the Gate.check return value', async () => {
+      const gatedUser = generateSignerAccount(algorand)
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: gatedUser.addr,
+        amount: algokit.microAlgos(10_000_000),
+      })
+      await algorand.send.assetOptIn({
+        sender: gatedUser.addr,
+        signer: gatedUser.signer,
+        assetId: testAssetId,
+      })
+      await algorand.send.assetTransfer({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: gatedUser.addr,
+        assetId: testAssetId,
+        amount: 1n,
+      })
+
+      const gateSDK = akitaUniverse.gate as unknown as GateSDK
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: akitaUniverse.subgates.assetGate.client.appAddress,
+        amount: algokit.microAlgos(500_000),
+      })
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: gateSDK.client.appAddress,
+        amount: algokit.microAlgos(500_000),
+      })
+      const registration = await gateSDK.register({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: [{
+          type: 'asset',
+          appId: akitaUniverse.subgates.assetGate.appId,
+          layer: 0n,
+          logicalOperator: LogicalOperator.None,
+          asset: testAssetId,
+          op: Operator.GreaterThanOrEqualTo,
+          value: 1n,
+        }],
+      })
+      expect(registration.return).toBeDefined()
+      const gateId = registration.return!
+
+      const gatedPoolSDK = await factorySDK.new({
+        sender: creator.addr,
+        signer: creator.signer,
+        title: 'Soft Gate Check Pool',
+        type: POOL_STAKING_TYPE_SOFT,
+        marketplace: creator.addr.toString(),
+        stakeKey: {
+          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+          name: '',
+        },
+        minimumStakeAmount: 0n,
+        allowLateSignups: true,
+        gateId,
+        maxEntries: 0n,
+      })
+      await algorand.send.payment({
+        sender: creator.addr,
+        signer: creator.signer,
+        receiver: gatedPoolSDK.client.appAddress,
+        amount: algokit.microAlgos(200_000),
+      })
+      await gatedPoolSDK.finalize({
+        signupTimestamp: 0n,
+        startTimestamp: 0n,
+        endTimestamp: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY),
+      })
+
+      // SOFT pools commit an existing stake to the pool when entering.
+      await akitaUniverse.staking.stake({
+        sender: gatedUser.addr,
+        signer: gatedUser.signer,
+        type: StakingType.Soft,
+        asset: 0n,
+        amount: 1_000_000n,
+      })
+
+      const entryGateTxn = await gateSDK.build.mustCheck({
+        sender: gatedUser.addr,
+        signer: gatedUser.signer,
+        caller: gatedUser.addr.toString(),
+        gateId,
+        args: [{ type: 'asset' }],
+      })
+      await gatedPoolSDK.enter({
+        sender: gatedUser.addr,
+        signer: gatedUser.signer,
+        entries: [{ asset: 0n, amount: 1_000_000n }],
+        gateTxn: entryGateTxn,
+      })
+
+      const passingGateTxn = await gateSDK.build.check({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        caller: gatedUser.addr.toString(),
+        gateId,
+        args: [{ type: 'asset' }],
+      })
+      await gatedPoolSDK.gateCheck({
+        gateTxn: passingGateTxn,
+        address: gatedUser.addr.toString(),
+        asset: 0n,
+      })
+      expect((await gatedPoolSDK.check({ address: gatedUser.addr.toString(), asset: 0n })).isEligible).toBe(true)
+
+      await algorand.send.assetTransfer({
+        sender: gatedUser.addr,
+        signer: gatedUser.signer,
+        receiver: deployer.addr,
+        assetId: testAssetId,
+        amount: 1n,
+      })
+      const failingGateTxn = await gateSDK.build.check({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        caller: gatedUser.addr.toString(),
+        gateId,
+        args: [{ type: 'asset' }],
+      })
+      await gatedPoolSDK.gateCheck({
+        gateTxn: failingGateTxn,
+        address: gatedUser.addr.toString(),
+        asset: 0n,
+      })
+      expect((await gatedPoolSDK.check({ address: gatedUser.addr.toString(), asset: 0n })).isEligible).toBe(false)
+    })
 
     test('should fail gatedEnter if gate not set', async () => {
       const noGatePoolSDK = await factorySDK.new({
@@ -2415,7 +2696,7 @@ describe('Staking Pool Contract', () => {
       })
 
       const state = await intervalPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n)
+      expect(state.rewardCount).toBe(1n)
     })
 
     test('should create reward with hourly interval', async () => {
@@ -2465,7 +2746,7 @@ describe('Staking Pool Contract', () => {
       })
 
       const state = await hourlyPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n)
+      expect(state.rewardCount).toBe(1n)
     })
   })
 
@@ -2476,8 +2757,8 @@ describe('Staking Pool Contract', () => {
     // finalizeDistribution) are skipped as they require the full Akita ecosystem.
 
     let disbursementPoolSDK: StakingPoolSDK
-    let disbursementUser1: Address & TransactionSignerAccount
-    let disbursementUser2: Address & TransactionSignerAccount
+    let disbursementUser1: AddressWithTransactionSigner
+    let disbursementUser2: AddressWithTransactionSigner
 
     beforeAll(async () => {
       const localTimeWarp = new TimeWarp(algorand)
@@ -2566,18 +2847,17 @@ describe('Staking Pool Contract', () => {
       expect(isLive).toBe(true)
 
       const state = await disbursementPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n) // At least the reward we added
+      expect(state.rewardCount).toBe(1n)
     })
 
     test('should calculate correct entry cost', async () => {
-      const entryCost = await disbursementPoolSDK.client.send.enterCost({
-        sender: disbursementUser1.addr,
-        signer: disbursementUser1.signer,
-        args: { address: disbursementUser1.addr.toString(), entryCount: 1n },
+      const entryCost = await disbursementPoolSDK.enterCost({
+        address: disbursementUser1.addr.toString(),
+        assets: [0n],
       })
 
-      expect(entryCost.return).toBeDefined()
-      expect(entryCost.return!).toBeGreaterThan(0n)
+      expect(entryCost).toBeDefined()
+      expect(entryCost).toBeGreaterThan(0n)
     })
 
     test('should allow users to enter the pool', async () => {
@@ -2798,8 +3078,7 @@ describe('Staking Pool Contract', () => {
 
     test('should verify pool has multiple rewards configured', async () => {
       const state = await multiRewardPoolSDK.getState()
-      // Pool should have at least 3 rewards added (FLAT, EVEN, SHUFFLE)
-      expect(state.rewardCount).toBeGreaterThanOrEqual(4n)
+      expect(state.rewardCount).toBe(3n)
     })
   })
 
@@ -2809,6 +3088,7 @@ describe('Staking Pool Contract', () => {
     // Full fee processing tests require the Rewards app integration.
 
     let feeTestPoolSDK: StakingPoolSDK
+    let feeTestUser: AddressWithTransactionSigner
 
     beforeAll(async () => {
       // Create pool
@@ -2836,28 +3116,29 @@ describe('Staking Pool Contract', () => {
         amount: algokit.microAlgos(10_000_000), // 10 ALGO
       })
 
-      // Add reward
-      const rewardAmount = 5_000_000n // 5 ALGO
-      const reward = createReward({
-        distribution: DISTRIBUTION_TYPE_EVEN,
-        rate: rewardAmount,
-        interval: BigInt(60),
-        expiration: BigInt(ONE_DAY),
-      })
+      // Add two differently sized rewards so their disbursement lifecycles can
+      // overlap without sharing royalty state.
+      for (const rewardAmount of [5_000_000n, 2_000_000n]) {
+        const reward = createReward({
+          distribution: DISTRIBUTION_TYPE_EVEN,
+          rate: rewardAmount,
+          interval: BigInt(60),
+          expiration: BigInt(ONE_DAY),
+        })
 
-      const mbr = await feeTestPoolSDK.getMbr({ winningTickets: 0 })
+        const mbr = await feeTestPoolSDK.getMbr({ winningTickets: 0 })
+        const payment = await algorand.createTransaction.payment({
+          sender: creator.addr,
+          receiver: feeTestPoolSDK.client.appAddress,
+          amount: algokit.microAlgos(Number(mbr.rewards + rewardAmount)),
+        })
 
-      const payment = await algorand.createTransaction.payment({
-        sender: creator.addr,
-        receiver: feeTestPoolSDK.client.appAddress,
-        amount: algokit.microAlgos(Number(mbr.rewards + rewardAmount)),
-      })
-
-      await feeTestPoolSDK.client.send.addReward({
-        sender: creator.addr,
-        signer: creator.signer,
-        args: { payment, reward },
-      })
+        await feeTestPoolSDK.client.send.addReward({
+          sender: creator.addr,
+          signer: creator.signer,
+          args: { payment, reward },
+        })
+      }
     })
 
     test('should verify pool was created with fee configuration', async () => {
@@ -2870,14 +3151,16 @@ describe('Staking Pool Contract', () => {
 
     test('should have reward configured for fee processing', async () => {
       const state = await feeTestPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n) // At least the one we added
+      expect(state.rewardCount).toBe(2n)
     })
 
-    test('should process disbursement with fees deducted', async () => {
+    test('should isolate royalties across concurrent reward disbursements', async () => {
       const localTimeWarp = new TimeWarp(algorand)
+      await localTimeWarp.resetTimeWarp()
+      await localTimeWarp.roundWarp()
 
       // Create a user for the fee test pool
-      const feeTestUser = generateSignerAccount(algorand)
+      feeTestUser = generateSignerAccount(algorand)
       await algorand.send.payment({
         sender: deployer.addr,
         signer: deployer.signer,
@@ -2906,10 +3189,21 @@ describe('Staking Pool Contract', () => {
       // Time warp past the reward interval
       await localTimeWarp.timeWarp(65n)
 
-      // Start disbursement
+      const royaltyRate = await feeTestPoolSDK.client.state.global.akitaRoyalty()
+      expect(royaltyRate).toBeGreaterThan(0n)
+
+      const escrow = await factorySDK.client.state.global.akitaDaoEscrow()
+      if (!escrow?.app || royaltyRate === undefined) {
+        throw new Error('Missing staking royalty or DAO escrow configuration')
+      }
+      const escrowAddress = algosdk.getApplicationAddress(escrow.app).toString()
+      const escrowBalanceBefore = await getAccountBalance(algorand, escrowAddress)
+
+      // Start both disbursements before either one allocates rewards.
       await feeTestPoolSDK.startDisbursement({ rewardId: 1n })
+      await feeTestPoolSDK.startDisbursement({ rewardId: 2n })
 
-      // Process preparation phase (this is where fees are calculated and paid)
+      // Prepare reward one and pay its royalty.
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -2917,7 +3211,6 @@ describe('Staking Pool Contract', () => {
         iterationAmount: 100n,
       })
 
-      // Second call transitions to allocation phase
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -2925,7 +3218,35 @@ describe('Staking Pool Contract', () => {
         iterationAmount: 100n,
       })
 
-      // Process allocation phase (single call for one entry)
+      const rewardOnePrepared = await feeTestPoolSDK.getReward(1)
+      const expectedRoyaltyOne = (rewardOnePrepared.rate * royaltyRate) / 100_000n
+      expect(rewardOnePrepared.phase).toBe(DisbursementPhase.Allocation)
+      expect(rewardOnePrepared.royaltyAmount).toBe(expectedRoyaltyOne)
+
+      // Preparing reward two used to overwrite reward one's global royalty.
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId: 2n,
+        iterationAmount: 100n,
+      })
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId: 2n,
+        iterationAmount: 100n,
+      })
+
+      const rewardTwoPrepared = await feeTestPoolSDK.getReward(2)
+      const expectedRoyaltyTwo = (rewardTwoPrepared.rate * royaltyRate) / 100_000n
+      expect(rewardTwoPrepared.phase).toBe(DisbursementPhase.Allocation)
+      expect(rewardTwoPrepared.royaltyAmount).toBe(expectedRoyaltyTwo)
+      expect(rewardTwoPrepared.royaltyAmount).not.toBe(rewardOnePrepared.royaltyAmount)
+
+      const escrowBalanceAfter = await getAccountBalance(algorand, escrowAddress)
+      expect(escrowBalanceAfter - escrowBalanceBefore).toBe(expectedRoyaltyOne + expectedRoyaltyTwo)
+
+      // Allocate reward one after reward two has paid its different royalty.
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -2933,24 +3254,116 @@ describe('Staking Pool Contract', () => {
         iterationAmount: 100n,
       })
 
-      // Verify phase is Finalization
-      const rewardsAfterAllocation = await feeTestPoolSDK.getRewards()
-      expect(rewardsAfterAllocation.get(1)?.phase).toBe(DisbursementPhase.Finalization)
+      const allocationOne = await akitaUniverse.rewards.client.state.box.userAllocations.value({
+        address: feeTestUser.addr.toString(),
+        asset: 0n,
+        disbursementId: rewardOnePrepared.activeDisbursementId,
+      })
+      expect(allocationOne).toBe(rewardOnePrepared.rate - rewardOnePrepared.royaltyAmount)
 
-      // Finalize distribution
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId: 2n,
+        iterationAmount: 100n,
+      })
+
+      const allocationTwo = await akitaUniverse.rewards.client.state.box.userAllocations.value({
+        address: feeTestUser.addr.toString(),
+        asset: 0n,
+        disbursementId: rewardTwoPrepared.activeDisbursementId,
+      })
+      expect(allocationTwo).toBe(rewardTwoPrepared.rate - rewardTwoPrepared.royaltyAmount)
+
       await feeTestPoolSDK.finalizeDistribution({
         sender: creator.addr,
         signer: creator.signer,
         rewardId: 1n,
       })
+      await feeTestPoolSDK.finalizeDistribution({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId: 2n,
+      })
 
-      // Verify phase is back to Idle
       const rewardsAfterFinalize = await feeTestPoolSDK.getRewards()
       expect(rewardsAfterFinalize.get(1)?.phase).toBe(DisbursementPhase.Idle)
+      expect(rewardsAfterFinalize.get(1)?.royaltyAmount).toBe(0n)
+      expect(rewardsAfterFinalize.get(2)?.phase).toBe(DisbursementPhase.Idle)
+      expect(rewardsAfterFinalize.get(2)?.royaltyAmount).toBe(0n)
+    })
 
-      // Fee processing occurs during processPreparationPhase via payAkitaRoyalty
-      // The exact fee amount depends on creator's impact score (impactTaxMin/Max)
-      // This test verifies the full disbursement flow completes successfully with fees
+    test('should disburse a shuffle reward using its net royalty amount and quoted ticket MBR', async () => {
+      const rewardAmount = 3_000_001n
+      const winnerCount = 1n
+      const reward = createReward({
+        distribution: DISTRIBUTION_TYPE_SHUFFLE,
+        rate: rewardAmount,
+        interval: 60n,
+        expiration: BigInt(ONE_DAY),
+        winnerCount,
+      })
+      const mbr = await feeTestPoolSDK.getMbr({ winningTickets: Number(winnerCount) })
+      const payment = await algorand.createTransaction.payment({
+        sender: creator.addr,
+        receiver: feeTestPoolSDK.client.appAddress,
+        amount: algokit.microAlgos(Number(mbr.rewards + rewardAmount)),
+      })
+
+      await feeTestPoolSDK.client.send.addReward({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: { payment, reward },
+      })
+
+      const rewardId = 3n
+      await feeTestPoolSDK.startDisbursement({ rewardId })
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId,
+        iterationAmount: 100n,
+      })
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId,
+        iterationAmount: 100n,
+      })
+
+      const prepared = await feeTestPoolSDK.getReward(Number(rewardId))
+      expect(prepared.phase).toBe(DisbursementPhase.Allocation)
+      expect(prepared.royaltyAmount).toBeGreaterThan(0n)
+
+      await feeTestPoolSDK.raffle({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId,
+      })
+      expect((await feeTestPoolSDK.getReward(Number(rewardId))).winningTickets).toHaveLength(Number(winnerCount))
+
+      await feeTestPoolSDK.disburseRewards({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId,
+        iterationAmount: 100n,
+      })
+
+      const allocation = await akitaUniverse.rewards.client.state.box.userAllocations.value({
+        address: feeTestUser.addr.toString(),
+        asset: 0n,
+        disbursementId: prepared.activeDisbursementId,
+      })
+      expect(allocation).toBe(prepared.rate - prepared.royaltyAmount)
+
+      await feeTestPoolSDK.finalizeDistribution({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId,
+      })
+      const finalized = await feeTestPoolSDK.getReward(Number(rewardId))
+      expect(finalized.phase).toBe(DisbursementPhase.Idle)
+      expect(finalized.royaltyAmount).toBe(0n)
     })
   })
 
@@ -3012,7 +3425,7 @@ describe('Staking Pool Contract', () => {
 
     test('should verify even distribution reward was added', async () => {
       const state = await evenPoolSDK.getState()
-      expect(state.rewardCount).toBeGreaterThanOrEqual(2n)
+      expect(state.rewardCount).toBe(1n)
     })
 
     test('should calculate entry cost for potential users', async () => {
@@ -3024,14 +3437,13 @@ describe('Staking Pool Contract', () => {
         amount: algokit.microAlgos(10_000_000),
       })
 
-      const cost = await evenPoolSDK.client.send.enterCost({
-        sender: evenUser.addr,
-        signer: evenUser.signer,
-        args: { address: evenUser.addr.toString(), entryCount: 1n },
+      const cost = await evenPoolSDK.enterCost({
+        address: evenUser.addr.toString(),
+        assets: [0n],
       })
 
-      expect(cost.return).toBeDefined()
-      expect(cost.return!).toBeGreaterThan(0n)
+      expect(cost).toBeDefined()
+      expect(cost).toBeGreaterThan(0n)
     })
 
     test('should allow three users to enter and complete even distribution', async () => {
@@ -3173,7 +3585,7 @@ describe('Staking Pool Contract', () => {
       // and rewards out of `creator`, which started with 2000 ALGO. By the time we
       // reach Distribution Validation the creator is below the ~51 ALGO cost for a
       // new pool; top it back up so both sub-tests can spin up fresh pools.
-      await algorand.account.ensureFunded(creator.addr, dispenser, (200).algo())
+      await algorand.account.ensureFunded(creator.addr, dispenser.addr, (200).algo())
     })
 
     test('should allow first disbursement immediately when pool starts', async () => {

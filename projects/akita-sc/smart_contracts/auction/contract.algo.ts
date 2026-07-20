@@ -774,7 +774,7 @@ export class Auction extends classes(
     // make upper bounds inclusive if we can
     let upperBound = this.weightedBidTotal.value
     if (upperBound < MAX_UINT64) {
-      upperBound = upperBound += 1
+      upperBound += 1
     }
 
     const rngResult = pcg64Random(rngState, 1, upperBound, 1)

@@ -4,17 +4,17 @@
 
 
 
-var _chunkSDNXL23Sjs = require('../chunk-SDNXL23S.js');
-require('../chunk-UIV6KYEY.js');
+var _chunk3W64K4H2js = require('../chunk-3W64K4H2.js');
+require('../chunk-PN3P2ZZX.js');
 require('../chunk-GIGYZ6YC.js');
-require('../chunk-UWCWNWGW.js');
-require('../chunk-J3FKGT5E.js');
-require('../chunk-FZLF55XC.js');
+require('../chunk-IDSXL6XO.js');
+require('../chunk-AG5OP4JO.js');
+require('../chunk-L3SAIW4G.js');
 
 
 
 
 
 
-exports.AUCTION_ERROR_MESSAGES = _chunkSDNXL23Sjs.AUCTION_ERROR_MESSAGES; exports.AuctionFactorySDK = _chunkSDNXL23Sjs.AuctionFactorySDK; exports.AuctionSDK = _chunkSDNXL23Sjs.AuctionSDK; exports.newAuction = _chunkSDNXL23Sjs.newAuction; exports.translateAuctionError = _chunkSDNXL23Sjs.translateAuctionError;
+exports.AUCTION_ERROR_MESSAGES = _chunk3W64K4H2js.AUCTION_ERROR_MESSAGES; exports.AuctionFactorySDK = _chunk3W64K4H2js.AuctionFactorySDK; exports.AuctionSDK = _chunk3W64K4H2js.AuctionSDK; exports.newAuction = _chunk3W64K4H2js.newAuction; exports.translateAuctionError = _chunk3W64K4H2js.translateAuctionError;
 //# sourceMappingURL=index.js.map

@@ -24,5 +24,12 @@ export const deployPayPlugin = async ({ fixture, sender, signer }: DeployParams)
 
   console.log('PayPlugin deployed with appId:', client.appId);
 
-  return new PayPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new PayPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

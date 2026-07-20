@@ -22,9 +22,18 @@ export type ExecutionInfo = {
   lastValid: uint64;
 }
 
+export type OldEscrowInfo = {
+  /** the app id of the escrow account */
+  id: uint64;
+  /** whether the escrow is locked, eg plugins & allowance changes are allowed */
+  locked: boolean;
+}
+
 export type EscrowInfo = {
   /** the app id of the escrow account */
   id: uint64;
+  /** the address of the escrow account */
+  address: Account;
   /** whether the escrow is locked, eg plugins & allowance changes are allowed */
   locked: boolean;
 }

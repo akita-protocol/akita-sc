@@ -24,5 +24,12 @@ export const deployOptInPlugin = async ({ fixture, sender, signer }: DeployParam
 
   console.log('OptInPlugin deployed with appId:', client.appId);
 
-  return new OptInPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new OptInPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

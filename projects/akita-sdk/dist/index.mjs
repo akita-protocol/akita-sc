@@ -4,69 +4,69 @@ import {
   SubscriptionsSDK,
   bytesToHexColor,
   hexColorToBytes
-} from "./chunk-FPYGL24H.mjs";
+} from "./chunk-RVN7NVBS.mjs";
 import {
   MetaMerklesSDK
-} from "./chunk-UP6OTAWM.mjs";
+} from "./chunk-7SUPKHQZ.mjs";
 import {
   PollFactorySDK,
   PollSDK
-} from "./chunk-Y4LHSLRC.mjs";
+} from "./chunk-RKHXOI62.mjs";
 import {
   RaffleFactorySDK,
   RaffleSDK
-} from "./chunk-FPWIBU44.mjs";
+} from "./chunk-VX5UHS73.mjs";
 import {
   RewardsSDK
-} from "./chunk-F3OQ3B3P.mjs";
+} from "./chunk-S3J5VGLP.mjs";
 import {
   SocialSDK
-} from "./chunk-BDJA6YKQ.mjs";
+} from "./chunk-B2RLLG4Z.mjs";
 import {
   StakingSDK
-} from "./chunk-UCW7VUNH.mjs";
+} from "./chunk-2SVZ7CSK.mjs";
 import {
   StakingPoolFactorySDK,
   StakingPoolSDK
-} from "./chunk-ICIUEYWJ.mjs";
+} from "./chunk-2Y5GZF2K.mjs";
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-CYVGMLQ7.mjs";
+} from "./chunk-HSLD4LEJ.mjs";
 import {
   decodeConnectUri,
   encodeConnectUri
 } from "./chunk-X37WDNTN.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-6BHD7ZIP.mjs";
+} from "./chunk-RMOXYUXU.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-3LDLTOO2.mjs";
+} from "./chunk-ZW5QYSK2.mjs";
 import "./chunk-2ZPJXFUS.mjs";
-import "./chunk-ST2WN72C.mjs";
+import "./chunk-NJUJQAIN.mjs";
 import {
   EscrowFactorySDK,
   EscrowSDK
-} from "./chunk-HJ5VX62D.mjs";
+} from "./chunk-M6VKWICQ.mjs";
 import {
   GateSDK
-} from "./chunk-B2OTJPG3.mjs";
-import "./chunk-JIDDRUHU.mjs";
+} from "./chunk-7IWUBJOH.mjs";
+import "./chunk-GTMXTPOL.mjs";
 import {
   HyperSwapSDK
-} from "./chunk-6QWYRJGU.mjs";
+} from "./chunk-OUKET5NB.mjs";
 import {
   ListingSDK,
   MarketplaceSDK
-} from "./chunk-WN5DNPWD.mjs";
+} from "./chunk-MWA3UJXM.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK
-} from "./chunk-KLT2DTL6.mjs";
+} from "./chunk-ZVQR7I5C.mjs";
 import {
   ARC65_ALT_PREFIX,
   ARC65_PREFIX,
@@ -75,13 +75,19 @@ import {
   parseArc65Code,
   translateCommonError
 } from "./chunk-2AEP6DTX.mjs";
-import "./chunk-SFOVKGKN.mjs";
+import "./chunk-PZ4NO5WZ.mjs";
 import {
+  DAO_ESCROW_ACTION_V2_ROUNDS,
   ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
   MAINNET_APP_IDS,
+  MAINNET_PLUGIN_DEPLOYMENTS,
   NETWORK_APP_IDS,
+  NETWORK_PLUGIN_DEPLOYMENTS,
+  PLUGIN_APP_ID_KEYS,
+  PLUGIN_DEFINITIONS,
   TESTNET_APP_IDS,
+  TESTNET_PLUGIN_DEPLOYMENTS,
   buildAppIdsFromEnv,
   createEmptyAppIds,
   detectNetworkFromClient,
@@ -89,18 +95,24 @@ import {
   getAppIdFromEnv,
   getConfigFromEnv,
   getCurrentNetwork,
+  getDaoEscrowActionV2Cutover,
   getEnvVar,
+  getKnownPluginAppIds,
+  getLatestPluginDeployment,
   getNetworkAppIds,
   getNetworkFromEnv,
+  getPluginDeployments,
+  getPluginUpdate,
   resolveAppId,
   resolveAppIdWithClient,
+  resolvePluginDeployment,
   setCurrentNetwork
-} from "./chunk-RSCXLEUQ.mjs";
+} from "./chunk-74OFYN6Q.mjs";
 import {
   hasSenderSigner,
   isPluginSDKReturn,
   normalizeSigner
-} from "./chunk-RFJII2P3.mjs";
+} from "./chunk-F33UFLKV.mjs";
 export {
   ARC65_ALT_PREFIX,
   ARC65_PREFIX,
@@ -108,6 +120,7 @@ export {
   AuctionFactorySDK,
   AuctionSDK,
   COMMON_ERROR_MESSAGES,
+  DAO_ESCROW_ACTION_V2_ROUNDS,
   ENV_TO_NETWORK_KEY,
   ENV_VAR_NAMES,
   EscrowFactorySDK,
@@ -117,9 +130,13 @@ export {
   HyperSwapSDK,
   ListingSDK,
   MAINNET_APP_IDS,
+  MAINNET_PLUGIN_DEPLOYMENTS,
   MarketplaceSDK,
   MetaMerklesSDK,
   NETWORK_APP_IDS,
+  NETWORK_PLUGIN_DEPLOYMENTS,
+  PLUGIN_APP_ID_KEYS,
+  PLUGIN_DEFINITIONS,
   PollFactorySDK,
   PollSDK,
   PrizeBoxFactorySDK,
@@ -134,6 +151,7 @@ export {
   StakingSDK,
   SubscriptionsSDK,
   TESTNET_APP_IDS,
+  TESTNET_PLUGIN_DEPLOYMENTS,
   WalletFactorySDK,
   WalletSDK,
   buildAppIdsFromEnv,
@@ -146,9 +164,14 @@ export {
   getAppIdFromEnv,
   getConfigFromEnv,
   getCurrentNetwork,
+  getDaoEscrowActionV2Cutover,
   getEnvVar,
+  getKnownPluginAppIds,
+  getLatestPluginDeployment,
   getNetworkAppIds,
   getNetworkFromEnv,
+  getPluginDeployments,
+  getPluginUpdate,
   hasSenderSigner,
   hexColorToBytes,
   isPluginSDKReturn,
@@ -158,6 +181,7 @@ export {
   prepareGroup,
   resolveAppId,
   resolveAppIdWithClient,
+  resolvePluginDeployment,
   sendPrepared,
   setCurrentNetwork,
   translateCommonError

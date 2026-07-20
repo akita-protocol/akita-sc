@@ -35,5 +35,12 @@ export const deployAuctionPlugin = async ({ fixture, sender, signer, args: { ver
 
   console.log('AuctionPlugin deployed with appId:', client.appId);
 
-  return new AuctionPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new AuctionPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

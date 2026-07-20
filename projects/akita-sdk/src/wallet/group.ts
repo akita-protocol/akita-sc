@@ -260,7 +260,7 @@ export class WalletGroupComposer {
     return this
   }
 
-  newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string)uint64'] & MaybeSigner): this {
+  newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): this {
     this.resolvers.push(async () => {
       this.group.arc58NewEscrow({ ...this.getSendParams({ sender, signer }), args })
       this.newEscrows.add(args.escrow)
@@ -268,7 +268,7 @@ export class WalletGroupComposer {
     return this
   }
 
-  toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,bool)'] & MaybeSigner): this {
+  toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): this {
     this.resolvers.push(async () => {
       this.group.arc58ToggleEscrowLock({ ...this.getSendParams({ sender, signer }), args })
     })

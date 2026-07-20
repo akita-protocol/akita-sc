@@ -1,4 +1,4 @@
-import { sha256 } from '@noble/hashes/sha256';
+import { sha256 } from '@noble/hashes/sha2.js';
 import { SchemaPart } from './types';
 
 /**
@@ -515,4 +515,3 @@ export function verifyProof(root: Uint8Array, leaf: Uint8Array, proof: Uint8Arra
   }
   return true;
 }
-

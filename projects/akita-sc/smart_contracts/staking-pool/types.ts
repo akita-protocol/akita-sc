@@ -51,6 +51,7 @@ export type Reward = {
     interval: uint64 // how often this reward is eligible to be disbursed
     qualifiedStakers: uint64 // the total stake that qualifies for this reward
     qualifiedStake: uint64 // the total stake that qualifies for the reward
+    royaltyAmount: uint64 // the Akita DAO royalty paid for the active disbursement
     winnerCount: uint64 // shuffle distribution only: the number of winners to select
     winningTickets: uint64[] // the winning tickets for the raffle
     raffleCursor: RaffleCursor // the cursor for the raffle
@@ -73,7 +74,6 @@ export type StakingPoolState = {
     maxEntries: uint64
     entryCount: uint64
     rewardCount: uint64
-    totalStaked: uint64
     stakeKey: RootKey
     minimumStakeAmount: uint64
     gateID: uint64

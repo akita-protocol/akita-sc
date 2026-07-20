@@ -1,65 +1,93 @@
-- abstracted account (arc58)
-- abstracted account factory
-- infinity dao
-- ed25519 passkey lsig
-- secp256r1 passkey lsig
-- asa manager arc58 plugin
-- auction arc58 plugin
-- infinity dao arc58 plugin
-- dual stake arc58 plugin
-- gate arc58 plugin
-- hyper swap arc58 plugin
-- marketplace arc58 plugin
-- nfd arc58 plugin
-- optin arc58 pluigin
-- pay arc58 plugin
-- pay silo factory
-- pay silo arc58 plugin
-- poll arc58 plugin
-- raffle arc58 plugin
-- revenue manager arc58 plugin
-- rewards arc58 plugin
-- akita social arc58 plugin
-- staking arc58 plugin
-- staking pool arc58 plugin
-- subscriptions arc58 plugin
-- auction (crack auction, option to use bid fees for VRF raffle for losers)
-- auction factory
-- escrow
-- escrow factory
-- gate
-- akita referrer subgate
-- asset subgate
-- merkle address subgate
-- merkle asset subgate
-- nfd subgate
-- nfd root subgate
-- poll subgate
-- social activity subgate
-- social follower count subgate
-- social follower index subgate
-- social impact subgate
-- social moderator subgate
-- staking amount subgate
-- staking power subgate
-- subscription subgate
-- subscription streak subgate
-- hyper swap ( limitless atomic swaps via merkle trees )
-- marketplace ( listing factory )
-- listing
-- meta merkles ( onchain verifiable metadata for asset groups )
-- poll
-- poll factory
-- prize box
-- prize box factory
-- raffle
-- raffle factory
-- rewards
-- akita social
-- akita social graph
-- akita social impact
-- akita social moderation
-- staking
-- staking pool
-- staking pool factory
-- subscriptions
+# Contract inventory
+
+See [CONTRACT_AUDIT.md](./CONTRACT_AUDIT.md) for end-to-end lifecycle,
+inter-contract dependencies, invariants, findings, tests, and migration notes.
+
+## Governance and ARC-58 accounts
+
+- Akita DAO
+- DAO proposal validator
+- DAO ABI types helper
+- Abstracted account
+- Abstracted account factory
+- Abstracted account MBR helper
+- Abstracted account balance reader
+- Abstracted account update stub
+- Ed25519 passkey logic signature
+- secp256r1 passkey logic signature
+
+## ARC-58 plugins
+
+- ASA manager
+- Auction
+- DAO
+- Dual stake
+- Gate
+- Haystack Router
+- HyperSwap
+- Marketplace
+- NFD
+- Opt-in
+- Self opt-in
+- Pay
+- Pay silo
+- Pay silo factory
+- Poll
+- Raffle
+- Revenue manager
+- Rewards
+- Social
+- Staking
+- Staking pool
+- Subscriptions
+- Sunset
+- Update Akita DAO
+
+The test close-out and test proxy-rekey plugins are LocalNet-only helpers.
+
+## Protocol and infrastructure
+
+- Escrow and Escrow Factory
+- Staking
+- Rewards
+- Subscriptions
+- Akita Social
+- Akita Social Graph
+- Akita Social Impact
+- Akita Social Moderation
+- Gate
+- MetaMerkles
+- Plugin DEX
+- HyperSwap
+- Marketplace and Listing
+- Auction and Auction Factory
+- Raffle and Raffle Factory
+- Poll and Poll Factory
+- PrizeBox and PrizeBox Factory
+- Staking Pool and Staking Pool Factory
+- Sunset and Wallet Factory Sunset
+
+## Gate implementations
+
+- Akita referrer
+- Asset
+- Merkle address
+- Merkle asset
+- NFD
+- NFD root
+- Poll
+- Social activity
+- Social follower count
+- Social follower index
+- Social impact
+- Social moderator
+- Staking amount
+- Staking power
+- Subscription
+- Subscription streak
+
+## Test-only support
+
+- Mock DAO, wallet, wallet factory, Social, Subscriptions, Staking consumer,
+  randomness beacon, and child factories
+- PCG32 and PCG64 deterministic random-number libraries

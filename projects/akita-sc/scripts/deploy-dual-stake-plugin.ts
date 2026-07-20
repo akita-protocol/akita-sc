@@ -11,7 +11,7 @@
  *   ts-node scripts/deploy-dual-stake-plugin.ts --network testnet --mnemonic "..." --registry 12345
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { DualStakePluginSDK } from 'akita-sdk/wallet'
 import { DualStakePluginFactory } from '../smart_contracts/artifacts/arc58/plugins/dual-stake/DualStakePluginClient'
 
@@ -64,6 +64,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'dualStakePlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('DUAL STAKE PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -73,7 +75,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Registry: ${registry}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  dualStakePlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'dualStakePlugin', plugin.appId, options.version)}
 `)
 })

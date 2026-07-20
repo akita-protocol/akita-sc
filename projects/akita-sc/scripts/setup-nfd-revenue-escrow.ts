@@ -13,7 +13,7 @@ import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { SDKClient } from 'akita-sdk'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { CallerType, NFDPluginSDK, RevenueManagerPluginSDK } from 'akita-sdk/wallet'
-import algosdk from 'algosdk'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
 
@@ -131,7 +131,11 @@ runScript(async () => {
   } else {
     const mbr = await daoWallet.getMbr({ escrow: extra.escrow, methodCount: 0n, plugin: '', groups: 0n })
     requiredWalletFunding += mbr.newEscrowMintCost
-    actions.push({ type: ProposalActionEnum.NewEscrow, escrow: extra.escrow })
+    actions.push({
+      type: ProposalActionEnum.NewEscrow,
+      escrow: extra.escrow,
+      address: ALGORAND_ZERO_ADDRESS_STRING,
+    })
     console.log(`Will create escrow "${extra.escrow}"`)
   }
 

@@ -10,7 +10,7 @@
  *   ts-node scripts/deploy-raffle-plugin.ts --network testnet --mnemonic "your mnemonic"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { RafflePluginSDK } from 'akita-sdk/wallet'
 import { RafflePluginFactory } from '../smart_contracts/artifacts/arc58/plugins/raffle/RafflePluginClient'
 
@@ -49,6 +49,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'rafflePlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('RAFFLE PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -58,7 +60,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Version: ${options.version}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  rafflePlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'rafflePlugin', plugin.appId, options.version)}
 `)
 })

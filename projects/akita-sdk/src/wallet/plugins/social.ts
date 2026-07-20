@@ -225,9 +225,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // Posting needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -261,9 +259,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // EditPost needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -299,9 +295,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // Reply needs opUp transactions for resource reference slots
-      opUpCount: 3
+      }
     });
   }
 
@@ -335,9 +329,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // GatedReply needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -441,9 +433,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // Voting needs opUp transactions for resource reference slots
-      opUpCount: 3
+      }
     });
   }
 
@@ -477,9 +467,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // editVote needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -515,9 +503,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // React needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -551,9 +537,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // Gated react needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -587,9 +571,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // Delete reaction needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 
@@ -1075,9 +1057,7 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      // initMeta needs opUp transactions for resource reference slots
-      opUpCount: 2
+      }
     });
   }
 

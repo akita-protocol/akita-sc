@@ -9,6 +9,8 @@ import { deployAkitaDAO, deployAkitaDAOProposalValidator } from '../../../../../
 import { deployEscrowFactory } from '../../../../../tests/fixtures/escrow';
 import { deployStaking } from '../../../../../tests/fixtures/staking';
 import { logger } from '../../../../../tests/utils/logger';
+import { TimeWarp } from '../../../../../tests/utils/time';
+import { AbstractedAccountMbrFactory } from '../../../../artifacts/arc58/account/AbstractedAccountMBRClient';
 import { EscrowFactoryClient } from '../../../../artifacts/escrow/EscrowFactoryClient';
 import { StakingClient } from '../../../../artifacts/staking/StakingClient';
 import { proposeAndExecute } from '../utils';
@@ -30,8 +32,8 @@ const ONE_WEEK = 604_800n;
 const ONE_YEAR_IN_DAYS = 365n;
 
 // MBR costs from staking constants
-const STAKES_MBR = 28_900n;
-const TOTALS_MBR = 12_500n;
+const STAKES_MBR = 32_100n;
+const TOTALS_MBR = 15_700n;
 const ASSET_OPT_IN_MBR = 100_000n;
 
 const toBigInt = (value: bigint | number) => BigInt(value);
@@ -86,6 +88,7 @@ describe('ARC58 DAO Voting', () => {
     let voter1Signer: TransactionSigner;
     let voter2: string;
     let voter2Signer: TransactionSigner;
+    let previousWalletMbrAppId: string | undefined;
 
     beforeAll(async () => {
         logger.setMode('silent');
@@ -100,6 +103,15 @@ describe('ARC58 DAO Voting', () => {
 
         const dispenser = await algorand.account.dispenserFromEnvironment();
         await algorand.account.ensureFunded(sender, dispenser, algo(500));
+
+        // Keep this suite independent from whichever test happens to run first.
+        previousWalletMbrAppId = process.env.WALLET_MBR_APP_ID;
+        const walletMbrFactory = algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+            defaultSender: sender,
+            defaultSigner: signer,
+        });
+        const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare();
+        process.env.WALLET_MBR_APP_ID = walletMbrClient.appId.toString();
 
         // Create additional voter accounts
         const voter1Account = await algorand.account.random();
@@ -306,6 +318,8 @@ describe('ARC58 DAO Voting', () => {
     });
 
     afterAll(() => {
+        if (previousWalletMbrAppId === undefined) delete process.env.WALLET_MBR_APP_ID;
+        else process.env.WALLET_MBR_APP_ID = previousWalletMbrAppId;
         logger.setMode('full');
     });
 
@@ -1144,4 +1158,51 @@ describe('ARC58 DAO Voting', () => {
             expect(voter4Power).toBeLessThanOrEqual(voter3Power);
         });
     });
+
+    describe('Proposal Finalization', () => {
+        test('should reject an abstain-only proposal that meets participation', async () => {
+            const { algorand } = fixture.context;
+            const actions = [
+                {
+                    type: ProposalActionEnum.UpdateFields as const,
+                    field: 'min_rewards_impact' as const,
+                    value: 750,
+                },
+            ];
+            const costInfo = await dao.proposalCost({ actions });
+
+            await dao.client.appClient.fundAppAccount({ amount: costInfo.total.microAlgo() });
+
+            const { return: proposalId } = await dao.newProposal({ cid: EMPTY_CID, actions });
+            await dao.submitProposal({ proposalId: proposalId! });
+
+            await dao.voteProposal({
+                sender: voter1,
+                signer: voter1Signer,
+                proposalId: proposalId!,
+                vote: VOTE_ABSTAIN,
+            } as unknown as Parameters<typeof dao.voteProposal>[0]);
+            await dao.voteProposal({
+                sender: voter2,
+                signer: voter2Signer,
+                proposalId: proposalId!,
+                vote: VOTE_ABSTAIN,
+            } as unknown as Parameters<typeof dao.voteProposal>[0]);
+
+            const timeWarp = new TimeWarp(algorand);
+            try {
+                await timeWarp.timeWarp(costInfo.duration + 2n);
+                await dao.finalizeProposal({ proposalId: proposalId! });
+            } finally {
+                await timeWarp.resetTimeWarp();
+            }
+
+            const proposal = await dao.getProposal(proposalId!);
+            expect(proposal.votes.approvals).toBe(0n);
+            expect(proposal.votes.rejections).toBe(0n);
+            expect(proposal.votes.abstains).toBeGreaterThan(0n);
+            expect(proposal.status).toBe(30); // Rejected
+        });
+    });
+
 });

@@ -35,4 +35,3 @@ export type PrizeBoxState = {
   owner: string;
   optinCount: bigint;
 };
-

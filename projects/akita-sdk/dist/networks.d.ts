@@ -5,8 +5,9 @@
  * These are used when the SDK auto-detects the network from the AlgorandClient.
  *
  * To update after a deployment:
- * 1. Run deploy-universe.ts for the target network
- * 2. Copy the app IDs from the generated .env file to this file
+ * 1. Run the deployment script for the target network.
+ * 2. Plugin scripts append their deployment below; deploy-universe updates the
+ *    complete network and appends every plugin deployment.
  */
 import { AkitaNetwork } from './config';
 /**
@@ -16,6 +17,7 @@ export interface NetworkAppIds {
     dao: bigint;
     daoProposalValidator: bigint;
     wallet: bigint;
+    walletMbr: bigint;
     escrowFactory: bigint;
     walletFactory: bigint;
     subscriptions: bigint;
@@ -81,6 +83,33 @@ export interface NetworkAppIds {
     assetInbox: bigint;
     akitaNfd: bigint;
 }
+export declare const PLUGIN_APP_ID_KEYS: readonly ["revenueManagerPlugin", "updatePlugin", "optinPlugin", "selfOptinPlugin", "asaManagerPlugin", "payPlugin", "haystackRouterPlugin", "hyperSwapPlugin", "subscriptionsPlugin", "auctionPlugin", "daoPlugin", "dualStakePlugin", "gatePlugin", "marketplacePlugin", "nfdPlugin", "paySiloPlugin", "paySiloFactoryPlugin", "pollPlugin", "rafflePlugin", "rewardsPlugin", "socialPlugin", "stakingPlugin", "stakingPoolPlugin"];
+export type PluginAppIdKey = (typeof PLUGIN_APP_ID_KEYS)[number];
+export interface PluginDefinition {
+    key: PluginAppIdKey;
+    name: string;
+    description: string;
+}
+export interface PluginDeployment {
+    appId: bigint;
+    /** Contract-reported version, when it has been recorded during deployment. */
+    version?: string;
+    /** ISO timestamp for traceability; ordering in the deployment list is authoritative. */
+    deployedAt?: string;
+}
+export type NetworkPluginDeployments = Record<PluginAppIdKey, readonly PluginDeployment[]>;
+export interface ResolvedPluginDeployment extends PluginDefinition, PluginDeployment {
+    network: AkitaNetwork;
+    revision: number;
+    isLatest: boolean;
+    latest: PluginDeployment;
+}
+export declare const PLUGIN_DEFINITIONS: Record<PluginAppIdKey, PluginDefinition>;
+/** Ordered oldest to newest. Append replacements; never remove deployed app IDs. */
+export declare const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments;
+/** Ordered oldest to newest. Append replacements; never remove deployed app IDs. */
+export declare const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments;
+export declare const NETWORK_PLUGIN_DEPLOYMENTS: Partial<Record<AkitaNetwork, NetworkPluginDeployments>>;
 /**
  * Testnet app IDs
  *
@@ -100,6 +129,21 @@ export declare const MAINNET_APP_IDS: NetworkAppIds;
  */
 export declare const NETWORK_APP_IDS: Partial<Record<AkitaNetwork, NetworkAppIds>>;
 /**
+ * First round where the deployed DAO encodes NewEscrow actions as
+ * `(string,address)`. Proposals created before this round use the historical
+ * `(string)` shape. A zero value means the cutover has not been recorded yet.
+ *
+ * `update-dao.ts` replaces the appropriate zero with the exact confirmation
+ * round after a successful DAO update.
+ */
+export interface DaoEscrowActionV2Cutover {
+    round: bigint;
+    /** Block timestamp; proposal.created is a timestamp rather than a round. */
+    timestamp: bigint;
+}
+export declare const DAO_ESCROW_ACTION_V2_ROUNDS: Partial<Record<AkitaNetwork, DaoEscrowActionV2Cutover>>;
+export declare function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoEscrowActionV2Cutover | undefined;
+/**
  * Create an empty NetworkAppIds object (all 0n).
  * Used as the base for localnet — consumers must overlay with real IDs.
  */
@@ -109,6 +153,21 @@ export declare function createEmptyAppIds(): NetworkAppIds;
  * For localnet, returns all zeros — callers must merge in IDs from .env.localnet.
  */
 export declare function getNetworkAppIds(network: AkitaNetwork): NetworkAppIds;
+/** Return every known deployment for a plugin, ordered oldest to newest. */
+export declare function getPluginDeployments(network: AkitaNetwork, key: PluginAppIdKey): readonly PluginDeployment[];
+/** Return the canonical deployment new installations should use. */
+export declare function getLatestPluginDeployment(network: AkitaNetwork, key: PluginAppIdKey): PluginDeployment | undefined;
+/**
+ * Resolve any historical plugin app ID to its stable product identity.
+ * Revision numbers are one-based and follow deployment order, independent of
+ * the contract's own semantic version string.
+ */
+export declare function resolvePluginDeployment(network: AkitaNetwork, appId: bigint | number): ResolvedPluginDeployment | undefined;
+export declare function getPluginUpdate(network: AkitaNetwork, appId: bigint | number): {
+    current: ResolvedPluginDeployment;
+    latest: ResolvedPluginDeployment;
+} | undefined;
+export declare function getKnownPluginAppIds(network: AkitaNetwork): readonly bigint[];
 /**
  * Mapping from SDK/env var names to NetworkAppIds keys
  */

@@ -1,5 +1,5 @@
 import algosdk from "algosdk";
-import { randomBytes as nobleRandomBytes } from "@noble/hashes/utils";
+import { randomBytes as nobleRandomBytes } from "@noble/hashes/utils.js";
 import {
   ABIStructType,
   ABIType,

@@ -93,6 +93,7 @@ describe('DualStake plugin contract', () => {
         calls: [
           dualStakePluginSdk.redeem({
             appId: wallet.client.appId,
+            amount: 1_000_000n,
           }),
         ],
       })).rejects.toThrow(ERR_NOT_A_DUALSTAKE_APP);

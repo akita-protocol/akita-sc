@@ -1,4 +1,5 @@
-import { AbstractAccountBoxMbrData, AbstractedAccountArgs, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer } from '../generated/AbstractedAccountClient';
+import { AbstractedAccountArgs, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer } from '../generated/AbstractedAccountClient';
+import { AbstractAccountBoxMbrData, AbstractedAccountMbrClient } from '../generated/AbstractedAccountMBRClient';
 import { AddAllowanceArgs, AllowanceInfo, BuildWalletUsePluginParams, CanCallParams, ExecutionBuildGroup, MbrParams, PluginInfo, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
 import { MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, ExpandedSendParamsWithSigner } from '../types';
 import { BaseSDK } from '../base';
@@ -13,12 +14,13 @@ export * from "./types";
 type ContractArgs = AbstractedAccountArgs["obj"];
 export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     private pluginMapKeyGenerator;
+    private allowanceMapKeyGenerator;
     plugins: ValueMap<PluginKey, PluginInfo>;
     namedPlugins: Map<string, PluginKey>;
     escrows: Map<string, EscrowInfo>;
-    private allowanceMapKeyGenerator;
     allowances: ValueMap<AllowanceKey, AllowanceInfo>;
     executions: Map<Uint8Array, ExecutionInfo>;
+    mbrClient: AbstractedAccountMbrClient;
     constructor(params: NewContractSDKParams);
     group(): WalletGroupComposer;
     updateCache(key: PluginKey, allowances?: bigint[]): Promise<void>;
@@ -64,8 +66,8 @@ export declare class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     private adjustFundsRequestAmounts;
     addPlugin<TClient extends SDKClient>({ sender, signer, name, client, caller, callerType, methods, escrow, admin, delegationType, lastValid, cooldown, useRounds, useExecutionKey, coverFees, canReclaim, defaultToEscrow, allowances }: WalletAddPluginParams<TClient>): Promise<GroupReturn>;
     removePlugin({ sender, signer, ...args }: ContractArgs['arc58_removePlugin(uint64,address,string)void'] & MaybeSigner): Promise<TxnReturn<void>>;
-    newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>>;
-    toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
+    newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>>;
+    toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>>;
     reclaimFunds({ sender, signer, ...args }: ContractArgs['arc58_reclaim(string,(uint64,uint64,bool)[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     optInEscrow({ sender, signer, ...args }: ContractArgs['arc58_optInEscrow(string,uint64[])void'] & MaybeSigner): Promise<TxnReturn<void>>;
     addAllowances({ sender, signer, escrow, allowances }: {

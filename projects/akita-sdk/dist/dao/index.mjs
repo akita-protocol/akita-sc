@@ -3,28 +3,34 @@ import {
   DAOProposalVotesMBR,
   DAO_ERROR_MESSAGES,
   EMPTY_CID,
+  LEGACY_DAO_ACTION_STRUCTS,
   ProposalActionEnum,
   SplitDistributionType,
   SplitsToTuples,
+  decodeLegacyProposalNewEscrow,
   parseDaoErrorCode,
-  translateDaoError
-} from "../chunk-6BHD7ZIP.mjs";
-import "../chunk-3LDLTOO2.mjs";
+  translateDaoError,
+  usesLegacyEscrowActionShape
+} from "../chunk-RMOXYUXU.mjs";
+import "../chunk-ZW5QYSK2.mjs";
 import "../chunk-2ZPJXFUS.mjs";
-import "../chunk-ST2WN72C.mjs";
-import "../chunk-JIDDRUHU.mjs";
-import "../chunk-SFOVKGKN.mjs";
-import "../chunk-RSCXLEUQ.mjs";
-import "../chunk-RFJII2P3.mjs";
+import "../chunk-NJUJQAIN.mjs";
+import "../chunk-GTMXTPOL.mjs";
+import "../chunk-PZ4NO5WZ.mjs";
+import "../chunk-74OFYN6Q.mjs";
+import "../chunk-F33UFLKV.mjs";
 export {
   AkitaDaoSDK,
   DAOProposalVotesMBR,
   DAO_ERROR_MESSAGES,
   EMPTY_CID,
+  LEGACY_DAO_ACTION_STRUCTS,
   ProposalActionEnum,
   SplitDistributionType,
   SplitsToTuples,
+  decodeLegacyProposalNewEscrow,
   parseDaoErrorCode,
-  translateDaoError
+  translateDaoError,
+  usesLegacyEscrowActionShape
 };
 //# sourceMappingURL=index.mjs.map

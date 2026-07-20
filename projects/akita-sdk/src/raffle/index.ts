@@ -248,7 +248,6 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     const mbrData = await this.mbr();
     const mbrCost = mbrData.entries + mbrData.entriesByAddress;
 
-    // Use opUps to handle app reference limits (gate checks, DAO access, etc.)
     const group = this.client.newGroup();
 
     if (isAsa) {
@@ -298,11 +297,6 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
       }
     }
 
-    // Add opUps to increase app reference limit
-    for (let i = 0; i < 10; i++) {
-      group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-    }
-
     await group.send(sendParams);
   }
 
@@ -320,7 +314,6 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
   }: AddParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Use opUps to handle app reference limits (gate checks, DAO access, etc.)
     const group = this.client.newGroup();
 
     if (isAsa) {
@@ -362,11 +355,6 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
           args: { payment },
         });
       }
-    }
-
-    // Add opUps to increase app reference limit
-    for (let i = 0; i < 10; i++) {
-      group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
     }
 
     await group.send(sendParams);
@@ -443,4 +431,3 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     return returnAmount;
   }
 }
-

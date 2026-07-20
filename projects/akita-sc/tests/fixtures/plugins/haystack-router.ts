@@ -40,6 +40,10 @@ export const deployHaystackRouterPlugin = async ({
 
   return new HaystackRouterPluginSDK({
     algorand,
-    factoryParams: { appId: client.appId },
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
   });
 };

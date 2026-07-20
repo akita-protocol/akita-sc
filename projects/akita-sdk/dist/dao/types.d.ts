@@ -3,6 +3,7 @@ import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, Propo
 import { ProposalActionEnum } from "./constants";
 import { AddAllowanceArgs, AddPluginArgs, WalletAddPluginParams } from "../wallet";
 import { MaybeSigner, SDKClient } from "../types";
+import { LegacyProposalNewEscrow } from "./legacy";
 type ContractArgs = AkitaDaoArgs["obj"];
 export type AkitaDaoGlobalState = GlobalKeysState;
 export type ProposalAction<TClient extends SDKClient> = ({
@@ -52,8 +53,10 @@ export type ProposalAction<TClient extends SDKClient> = ({
     type: ProposalActionEnum.RemoveAllowances;
     escrow: string;
     assets: bigint[];
-} | {
-    type: ProposalActionEnum.NewEscrow | ProposalActionEnum.ToggleEscrowLock;
+} | ({
+    type: ProposalActionEnum.NewEscrow;
+} & ProposalNewEscrow) | {
+    type: ProposalActionEnum.ToggleEscrowLock;
     escrow: string;
 } | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields;
@@ -160,7 +163,7 @@ export type DecodedProposalAction = (({
     type: ProposalActionEnum.RemoveAllowances;
 } & ProposalRemoveAllowances) | ({
     type: ProposalActionEnum.NewEscrow;
-} & ProposalNewEscrow) | ({
+} & (ProposalNewEscrow | LegacyProposalNewEscrow)) | ({
     type: ProposalActionEnum.ToggleEscrowLock;
 } & ProposalToggleEscrowLock) | ({
     type: ProposalActionEnum.UpdateFields;

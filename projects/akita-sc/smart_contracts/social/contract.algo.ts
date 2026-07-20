@@ -698,7 +698,8 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
     const { reactFee, impactTaxMin, impactTaxMax } = getSocialFees(this.akitaDAO.value)
     const recipientImpact = this.getUserImpact(creator)
-    const tax = impactRange(recipientImpact, impactTaxMin, impactTaxMax)
+    const taxPercentage = impactRange(recipientImpact, impactTaxMin, impactTaxMax)
+    const tax = calcPercent(reactFee, taxPercentage)
 
     const reactionKey: ReactionsKey = { ref, NFT }
     const reactionExists = this.reactions(reactionKey).exists

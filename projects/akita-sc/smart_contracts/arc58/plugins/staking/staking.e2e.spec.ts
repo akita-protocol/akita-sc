@@ -57,7 +57,7 @@ describe('Staking plugin contract', () => {
     stakingPluginSdk = akitaUniverse.stakingPlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     // Over-fund the wallet with 10 ALGO: plenty of headroom for SOFT stake MBR
-    // (~28_900 microAlgos) + inner-txn fees for a stake → withdraw round trip.
+    // (32_100 microAlgos) + inner-transaction fees.
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 10_000_000n) });
     await wallet.addPlugin({ client: stakingPluginSdk, callerType: CallerType.Global });
   });
@@ -77,10 +77,11 @@ describe('Staking plugin contract', () => {
       //  (1) invoke `stake` via `wallet.usePlugin`
       //  (2) read back the resulting stake state from the base Staking contract
       //      (the plugin forwards the call via `abiCall<typeof Staking.prototype.stake>`)
-      //  (3) assert the reported SOFT amount matches the wallet's live ALGO balance.
+      //  (3) assert the stored SOFT commitment matches the requested amount and
+      //      remains backed by the wallet's live ALGO balance.
       //
       // SOFT staking is the simplest variant — no escrow is moved, only the
-      // stakes-box MBR (~28_900 microAlgos) flows from the wallet to the Staking
+      // stakes-box MBR (32_100 microAlgos) flows from the wallet to the Staking
       // contract via an inner payment. No ASA opt-in, no heartbeat entries, no
       // expiration math.
       const stakeAmount = 1_000_000n; // 1 ALGO — recorded amount, not transferred
@@ -104,8 +105,8 @@ describe('Staking plugin contract', () => {
       });
 
       const walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(info.amount).toBe(walletInfo.balance.microAlgos);
-      expect(info.amount).toBeGreaterThanOrEqual(stakeAmount);
+      expect(info.amount).toBe(stakeAmount);
+      expect(walletInfo.balance.microAlgos).toBeGreaterThanOrEqual(info.amount);
     });
 
     test('updates the soft stake via plugin and reflects the new amount on the base contract', async () => {
@@ -115,10 +116,8 @@ describe('Staking plugin contract', () => {
       // must then report the summed amount.
       //
       // Note: the base Staking contract explicitly rejects `withdraw` for
-      // SOFT stakes (ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK). SOFT stakes are
-      // balance-backed and are invalidated by `softCheck`, not tracked with a
-      // moveable escrow — so updating amount is the real plugin-flow mutation
-      // we can assert against here without also fixturing AKTA + escrow.
+      // SOFT stakes (ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK). Commitments remain
+      // balance-backed; permissionless `checkpointSoftStake` records a shortfall.
       const additionalAmount = 500_000n; // 0.5 ALGO
 
       await wallet.usePlugin({
@@ -140,8 +139,8 @@ describe('Staking plugin contract', () => {
       });
 
       const walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(info.amount).toBe(walletInfo.balance.microAlgos);
-      expect(info.amount).toBeGreaterThanOrEqual(1_000_000n + additionalAmount);
+      expect(info.amount).toBe(1_000_000n + additionalAmount);
+      expect(walletInfo.balance.microAlgos).toBeGreaterThanOrEqual(info.amount);
     });
 
     test('soft-stakes an ASA via plugin without transferring the staked amount', async () => {

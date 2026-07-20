@@ -67,6 +67,7 @@ export const ERR_DAO_NOT_OPTED_IN = 'DNOI'
 // --- Entry validation -------------------------------------------------------
 
 export const ERR_QUANTITY_BELOW_MIN_STAKE = 'QBMS'
+export const ERR_ENTRY_ALREADY_EXISTS = 'EEXS'
 export const ERR_FAILED_STAKE_VERIFY = 'FSVF'
 export const ERR_USER_BALANCE_TOO_LOW = 'UBLO'
 export const ERR_USER_STAKE_TOO_LOW = 'USLO'

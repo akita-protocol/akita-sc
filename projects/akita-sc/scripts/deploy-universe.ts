@@ -6,6 +6,7 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
 import type { AddressWithTransactionSigner, TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
 import algosdk from 'algosdk'
+import { AbstractedAccountMbrFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient'
 import { AkitaDaoApps } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
 import { AkitaUniverse, buildAkitaUniverse } from '../tests/fixtures/dao'
 import { setupSubscriptionServices } from './setup-subscription-services'
@@ -365,6 +366,7 @@ async function createFixtureForNetwork(
 function generateEnvFile(
   universe: AkitaUniverse,
   network: Network,
+  walletMbr: bigint,
   apps?: Partial<AkitaDaoApps>,
   localnetDaoCreatorMnemonic?: string,
   stickerRewardsCaller?: string,
@@ -381,6 +383,7 @@ function generateEnvFile(
     `DAO_APP_ID=${universe.dao.appId}`,
     `DAO_PROPOSAL_VALIDATOR_APP_ID=${universe.proposalValidator.appId}`,
     `WALLET_APP_ID=${universe.dao.wallet.client.appId}`,
+    `WALLET_MBR_APP_ID=${walletMbr}`,
     `ESCROW_FACTORY_APP_ID=${universe.escrowFactory.appId}`,
     `WALLET_FACTORY_APP_ID=${universe.walletFactory.appId}`,
     `SUBSCRIPTIONS_APP_ID=${universe.subscriptions.appId}`,
@@ -484,7 +487,12 @@ function generateEnvFile(
 }
 
 // Generate the NetworkAppIds content for a network
-function generateNetworkAppIds(universe: AkitaUniverse, network: Network, apps?: Partial<AkitaDaoApps>): string {
+function generateNetworkAppIds(
+  universe: AkitaUniverse,
+  network: Network,
+  walletMbr: bigint,
+  apps?: Partial<AkitaDaoApps>,
+): string {
   const timestamp = new Date().toISOString()
   const networkUpper = network.toUpperCase()
 
@@ -498,6 +506,7 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   dao: ${universe.dao.appId}n,
   daoProposalValidator: ${universe.proposalValidator.appId}n,
   wallet: ${universe.dao.wallet.client.appId}n,
+  walletMbr: ${walletMbr}n,
   escrowFactory: ${universe.escrowFactory.appId}n,
   walletFactory: ${universe.walletFactory.appId}n,
   subscriptions: ${universe.subscriptions.appId}n,
@@ -519,29 +528,29 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
   prizeBoxFactory: ${universe.prizeBoxFactory.appId}n,
   
   // Plugins
-  revenueManagerPlugin: ${universe.revenueManagerPlugin.appId}n,
-  updatePlugin: ${universe.updatePlugin.appId}n,
-  optinPlugin: ${universe.optInPlugin.appId}n,
-  selfOptinPlugin: ${universe.selfOptInPlugin.appId}n,
-  asaManagerPlugin: ${universe.asaManagerPlugin.appId}n,
-  payPlugin: ${universe.payPlugin.appId}n,
-  haystackRouterPlugin: ${universe.haystackRouterPlugin.appId}n,
-  hyperSwapPlugin: ${universe.hyperSwapPlugin.appId}n,
-  subscriptionsPlugin: ${universe.subscriptionsPlugin.appId}n,
-  auctionPlugin: ${universe.auctionPlugin.appId}n,
-  daoPlugin: ${universe.daoPlugin.appId}n,
-  dualStakePlugin: ${universe.dualStakePlugin.appId}n,
-  gatePlugin: ${universe.gatePlugin.appId}n,
-  marketplacePlugin: ${universe.marketplacePlugin.appId}n,
-  nfdPlugin: ${universe.nfdPlugin.appId}n,
-  paySiloPlugin: ${universe.paySiloPlugin.appId}n,
-  paySiloFactoryPlugin: ${universe.paySiloFactoryPlugin.appId}n,
-  pollPlugin: ${universe.pollPlugin.appId}n,
-  rafflePlugin: ${universe.rafflePlugin.appId}n,
-  rewardsPlugin: ${universe.rewardsPlugin.appId}n,
-  socialPlugin: ${universe.socialPlugin.appId}n,
-  stakingPlugin: ${universe.stakingPlugin.appId}n,
-  stakingPoolPlugin: ${universe.stakingPoolPlugin.appId}n,
+  revenueManagerPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'revenueManagerPlugin'),
+  updatePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'updatePlugin'),
+  optinPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'optinPlugin'),
+  selfOptinPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'selfOptinPlugin'),
+  asaManagerPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'asaManagerPlugin'),
+  payPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'payPlugin'),
+  haystackRouterPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'haystackRouterPlugin'),
+  hyperSwapPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'hyperSwapPlugin'),
+  subscriptionsPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'subscriptionsPlugin'),
+  auctionPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'auctionPlugin'),
+  daoPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'daoPlugin'),
+  dualStakePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'dualStakePlugin'),
+  gatePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'gatePlugin'),
+  marketplacePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'marketplacePlugin'),
+  nfdPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'nfdPlugin'),
+  paySiloPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'paySiloPlugin'),
+  paySiloFactoryPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'paySiloFactoryPlugin'),
+  pollPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'pollPlugin'),
+  rafflePlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'rafflePlugin'),
+  rewardsPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'rewardsPlugin'),
+  socialPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'socialPlugin'),
+  stakingPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'stakingPlugin'),
+  stakingPoolPlugin: latestPluginAppId(${networkUpper}_PLUGIN_DEPLOYMENTS, 'stakingPoolPlugin'),
   
   // Gate & Other
   gate: ${universe.gate.appId}n,
@@ -579,11 +588,97 @@ export const ${networkUpper}_APP_IDS: NetworkAppIds = {
 };`
 }
 
+async function appendUniversePluginDeployments(
+  content: string,
+  universe: AkitaUniverse,
+  network: Network,
+  deployedAt: string,
+): Promise<string> {
+  const ts = await import('typescript')
+  const source = ts.createSourceFile('networks.ts', content, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const declarationName = `${network.toUpperCase()}_PLUGIN_DEPLOYMENTS`
+  const appIds: Record<string, bigint> = {
+    revenueManagerPlugin: universe.revenueManagerPlugin.appId,
+    updatePlugin: universe.updatePlugin.appId,
+    optinPlugin: universe.optInPlugin.appId,
+    selfOptinPlugin: universe.selfOptInPlugin.appId,
+    asaManagerPlugin: universe.asaManagerPlugin.appId,
+    payPlugin: universe.payPlugin.appId,
+    haystackRouterPlugin: universe.haystackRouterPlugin.appId,
+    hyperSwapPlugin: universe.hyperSwapPlugin.appId,
+    subscriptionsPlugin: universe.subscriptionsPlugin.appId,
+    auctionPlugin: universe.auctionPlugin.appId,
+    daoPlugin: universe.daoPlugin.appId,
+    dualStakePlugin: universe.dualStakePlugin.appId,
+    gatePlugin: universe.gatePlugin.appId,
+    marketplacePlugin: universe.marketplacePlugin.appId,
+    nfdPlugin: universe.nfdPlugin.appId,
+    paySiloPlugin: universe.paySiloPlugin.appId,
+    paySiloFactoryPlugin: universe.paySiloFactoryPlugin.appId,
+    pollPlugin: universe.pollPlugin.appId,
+    rafflePlugin: universe.rafflePlugin.appId,
+    rewardsPlugin: universe.rewardsPlugin.appId,
+    socialPlugin: universe.socialPlugin.appId,
+    stakingPlugin: universe.stakingPlugin.appId,
+    stakingPoolPlugin: universe.stakingPoolPlugin.appId,
+  }
+  const edits: { position: number; text: string }[] = []
+  const foundKeys = new Set<string>()
+
+  source.forEachChild((node) => {
+    if (!ts.isVariableStatement(node)) return
+    for (const declaration of node.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== declarationName) continue
+      if (!declaration.initializer || !ts.isObjectLiteralExpression(declaration.initializer)) continue
+
+      for (const property of declaration.initializer.properties) {
+        if (!ts.isPropertyAssignment(property)) continue
+        const key = property.name.getText(source).replaceAll(/["']/g, '')
+        const appId = appIds[key]
+        if (appId === undefined || !ts.isArrayLiteralExpression(property.initializer)) continue
+        foundKeys.add(key)
+        const alreadyRecorded = property.initializer.elements.some((element) => {
+          if (!ts.isObjectLiteralExpression(element)) return false
+          return element.properties.some(
+            (field) =>
+              ts.isPropertyAssignment(field) &&
+              field.name.getText(source).replaceAll(/["']/g, '') === 'appId' &&
+              field.initializer.getText(source) === `${appId}n`,
+          )
+        })
+        if (alreadyRecorded) continue
+
+        const deployment = `{ appId: ${appId}n, deployedAt: '${deployedAt}' }`
+        const isMultiline = property.initializer.getText(source).includes('\n')
+        edits.push({
+          position: property.initializer.end - 1,
+          text: isMultiline
+            ? `  ${deployment},\n  `
+            : `${property.initializer.elements.hasTrailingComma ? ' ' : ', '}${deployment}`,
+        })
+      }
+    }
+  })
+
+  if (foundKeys.size !== Object.keys(appIds).length) {
+    throw new Error(
+      `Expected ${Object.keys(appIds).length} plugin lineages in ${declarationName}, found ${foundKeys.size}`,
+    )
+  }
+
+  edits.sort((left, right) => right.position - left.position)
+  for (const edit of edits) {
+    content = content.slice(0, edit.position) + edit.text + content.slice(edit.position)
+  }
+  return content
+}
+
 // Update the SDK's networks.ts file with deployed app IDs.
 // Localnet IDs are intentionally NOT baked into the SDK — they're provided via .env.localnet.
 async function updateNetworksFile(
   universe: AkitaUniverse,
   network: Network,
+  walletMbr: bigint,
   apps?: Partial<AkitaDaoApps>,
 ): Promise<void> {
   if (network === 'localnet') {
@@ -601,8 +696,9 @@ async function updateNetworksFile(
     // Read the current file
     let content = await fs.readFile(networksFilePath, 'utf-8')
 
-    // Generate the new app IDs block
-    const newAppIds = generateNetworkAppIds(universe, network, apps)
+    const deployedAt = new Date().toISOString()
+    content = await appendUniversePluginDeployments(content, universe, network, deployedAt)
+    const newAppIds = generateNetworkAppIds(universe, network, walletMbr, apps)
 
     // Create regex to match the existing network's app IDs block
     const networkUpper = network.toUpperCase()
@@ -633,6 +729,7 @@ async function updateNetworksFile(
 async function formatSummary(
   universe: AkitaUniverse,
   network: Network,
+  walletMbr: bigint,
   apps?: Partial<AkitaDaoApps>,
   stickerRewardsCaller?: string,
 ): Promise<string> {
@@ -675,6 +772,10 @@ async function formatSummary(
       wallet: {
         appId: universe.dao.wallet.client.appId.toString(),
         address: universe.dao.wallet.client.appAddress.toString(),
+      },
+      walletMbr: {
+        appId: walletMbr.toString(),
+        address: algosdk.getApplicationAddress(walletMbr).toString(),
       },
       escrowFactory: {
         appId: universe.escrowFactory.appId.toString(),
@@ -1075,6 +1176,16 @@ async function deploy() {
     console.log('🎁 Sticker Rewards Configuration:')
     console.log(`   Rewards Plugin Caller: ${options.stickerRewardsCaller ?? sender}\n`)
 
+    console.log('🧮 Deploying immutable wallet MBR calculator...')
+    const walletMbrFactory = algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+      defaultSender: sender,
+      defaultSigner: signer,
+    })
+    const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare()
+    const walletMbr = walletMbrClient.appId
+    process.env.WALLET_MBR_APP_ID = walletMbr.toString()
+    console.log(`   Wallet MBR App ID: ${walletMbr}\n`)
+
     const universe = await buildAkitaUniverse({
       fixture,
       sender,
@@ -1212,7 +1323,7 @@ async function deploy() {
     await registerSocialExtensions({ algorand, universe, sender, signer, network: options.network })
 
     // Update SDK networks.ts with deployed app IDs
-    await updateNetworksFile(universe, options.network, options.apps)
+    await updateNetworksFile(universe, options.network, walletMbr, options.apps)
 
     // Generate and display summary
     console.log('\n' + '='.repeat(80))
@@ -1220,7 +1331,7 @@ async function deploy() {
     console.log('='.repeat(80) + '\n')
 
     const summaryObj = JSON.parse(
-      await formatSummary(universe, options.network, options.apps, options.stickerRewardsCaller),
+      await formatSummary(universe, options.network, walletMbr, options.apps, options.stickerRewardsCaller),
     )
 
     // Add cost information to summary
@@ -1274,6 +1385,7 @@ async function deploy() {
     const envContent = generateEnvFile(
       universe,
       options.network,
+      walletMbr,
       options.apps,
       localnetDaoCreatorMnemonic,
       options.stickerRewardsCaller,

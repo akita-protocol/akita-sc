@@ -858,11 +858,10 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Verify expected cost before operation
-      // Account for: payment txn + subscribe app call (with 2 inner txns covered) + 2 opUp txns
-      // With coverAppCallInnerTransactionFees: fees = payment(1000) + subscribe(1000+2000) + 2*opUp(2000) = 6000
-      // Plus 1 additional fee for subscriptionslist MBR creation on first subscription
+      // Account for the payment, subscribe app call, its two inner transactions,
+      // and the opcode-budget carrier selected by simulation.
       const donationAmount = 100_000n
-      const expectedCost = createExpectedCost(subscriptionCost + donationAmount, 2, MIN_TXN_FEE * 4n) // 2 inner + payment + 2 opUp + subscriptionslist
+      const expectedCost = createExpectedCost(subscriptionCost + donationAmount, 2, MIN_TXN_FEE * 2n)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -951,9 +950,9 @@ describe('Subscriptions Contract Tests', () => {
 
       // Fund subscriber with minimum needed (subscription cost + first payment + buffer)
       const firstPayment = 500_000n
-      // Account for: payment txn + subscribe app call (with 2 inner txns covered) + 2 opUp txns
-      // Plus additional fee for any first-time subscriber costs
-      const subscriberExpectedCost = createExpectedCost(subscriptionCost + firstPayment, 2, MIN_TXN_FEE * 4n) // 2 inner + payment + 2 opUp + extra
+      // Account for the payment, subscribe app call, its two inner transactions,
+      // and the opcode-budget carrier selected by simulation.
+      const subscriberExpectedCost = createExpectedCost(subscriptionCost + firstPayment, 2, MIN_TXN_FEE * 2n)
       const subscriberBuffer = microAlgo(1_000_000) // 1 ALGO buffer for minimum balance
       const subscriberRequiredFunding = microAlgo(subscriberExpectedCost.total).microAlgo + subscriberBuffer.microAlgo
       await algorand.account.ensureFunded(sender, dispenser, microAlgo(subscriberRequiredFunding))
@@ -1073,8 +1072,8 @@ describe('Subscriptions Contract Tests', () => {
 
       // Verify expected cost before deposit (deposit amount + transaction fees)
       const depositAmount = 500_000n
-      // Account for: payment txn + deposit app call + opUp
-      const expectedCost = createExpectedCost(depositAmount, 0, MIN_TXN_FEE * 2n) // payment + opUp
+      // Account for the payment transaction and deposit app call.
+      const expectedCost = createExpectedCost(depositAmount, 0, MIN_TXN_FEE)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -1136,8 +1135,8 @@ describe('Subscriptions Contract Tests', () => {
 
       // Verify expected cost before withdraw (transaction fees, amount is refunded)
       const withdrawAmount = 300_000n
-      // Account for: withdraw app call (with 1 inner txn for refund payment) + opUp
-      const expectedCost = createExpectedCost(0n, 1, MIN_TXN_FEE) // 1 inner (refund payment) + opUp
+      // Account for the withdraw app call and its inner refund payment.
+      const expectedCost = createExpectedCost(0n, 1)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -1232,9 +1231,9 @@ describe('Subscriptions Contract Tests', () => {
         id: subscriptionId
       })
 
-      // Unsubscribe - has 1 inner transaction (refund payment) + opUp
+      // Unsubscribe has one inner transaction for the refund payment.
       // Note: The refund amount is not part of the cost, it's returned to the user
-      const expectedCost = createExpectedCost(0n, 1, 0n) // 1 opUp call, no base payment
+      const expectedCost = createExpectedCost(0n, 1, 0n)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -1601,11 +1600,13 @@ describe('Subscriptions Contract Tests', () => {
       // Now triggering should work
       const subBefore = await subscriptions.getSubscription({ sender, address: sender, id: subscriptionId })
 
-      // triggerPayment has 3 inner transactions (akitaFee, triggerFee, leftOver) + opUp
+      // triggerPayment has three inner transactions (akitaFee, triggerFee, leftOver)
+      // and an opcode-budget carrier selected by simulation.
       // Note: triggerFee is sent back to the sender, reducing the net cost
-      // Gross fees = (1000 + 3*1000 inner covered) + 1000 opUp = 5000
+      // Gross fees = app call (1000) + three covered inner transactions (3000)
+      // + the carrier (1000) = 5000
       // Net cost = Gross fees - triggerFee (returned to sender)
-      const expectedGrossFees = createExpectedCost(0n, 3, MIN_TXN_FEE) // 3 inner + 1 opUp
+      const expectedGrossFees = createExpectedCost(0n, 3, MIN_TXN_FEE)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -2276,8 +2277,8 @@ describe('Subscriptions Contract Tests', () => {
       const passHolder1 = algorand.account.random()
       const passHolder2 = algorand.account.random()
 
-      // Account for: app call fee + 1 opUp transaction fee
-      const expectedCost = createExpectedCost(0n, 0, MIN_TXN_FEE) // 1 opUp as separate transaction
+      // Account for the set-passes app call fee.
+      const expectedCost = createExpectedCost(0n)
       const verification = await verifyBalanceChange(
         algorand,
         sender,

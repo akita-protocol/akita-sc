@@ -20,17 +20,14 @@ export const PoolGlobalStateKeyRewardInterval = 'reward_interval'
 export const PoolGlobalStateKeyLastDisbursementTimestamp = 'last_disbursement_timestamp'
 export const PoolGlobalStateKeyMaxEntries = 'max_entries'
 export const PoolGlobalStateKeyEntryCount = 'entry_count'
-export const PoolGlobalStateKeyTotalStaked = 'total_staked'
 export const PoolGlobalStateKeyUniqueAssetsStaked = 'unique_assets_staked'
 export const PoolGlobalStateKeyStakeKey = 'stake_key'
 export const PoolGlobalStateKeyMinimumStakeAmount = 'minimum_stake_amount'
 export const PoolGlobalStateKeyGateID = 'gate_id'
-export const PoolGlobalStateKeyGateSize = 'gate_size'
 export const PoolGlobalStateKeyCreator = 'creator'
 export const PoolGlobalStateKeyMarketplace = 'marketplace'
 export const PoolGlobalStateKeyMarketplaceRoyalties = 'marketplace_royalties'
 export const PoolGlobalStateKeyAkitaRoyalty = 'akita_royalty'
-export const PoolGlobalStateKeyAkitaRoyaltyAmount = 'akita_royalty_amount'
 export const PoolGlobalStateKeySalt = 'salt'
 export const PoolGlobalStateKeyActiveDisbursementID = 'active_disbursement_id'
 export const PoolGlobalStateKeyActiveDisbursementWindow = 'active_disbursement_window'
@@ -95,7 +92,11 @@ export const MaxGlobalStateUint64Array: uint64 = 15
 export const PoolEntriesMBR: uint64 = 25_300
 export const PoolUniquesMBR: uint64 = 18_900
 export const PoolEntriesByAddressMBR: uint64 = 25_300
-export const MinPoolRewardsMBR: uint64 = 0
+// Reward box key: 1-byte prefix + 8-byte uint64 ID.
+// Reward value: 134 fixed bytes, including the per-disbursement royalty amount,
+// plus 8 bytes for every winning ticket in the dynamic uint64 array.
+export const MinPoolRewardsMBR: uint64 = 59_700
+export const PoolRewardWinningTicketBytes: uint64 = 8
 export const PoolDisbursementSMBR: uint64 = 6_100
 
 

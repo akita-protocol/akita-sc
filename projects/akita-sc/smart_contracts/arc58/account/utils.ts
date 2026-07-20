@@ -1,3 +1,4 @@
+import { Global } from "@algorandfoundation/algorand-typescript";
 import { uint8 } from "../../utils/types/base";
 import { AllowanceInfo, EscrowInfo, ExecutionInfo, PluginInfo } from "./types";
 
@@ -21,6 +22,7 @@ export function emptyPluginInfo(): PluginInfo {
 export function emptyEscrowInfo(): EscrowInfo {
   return {
     id: 0,
+    address: Global.zeroAddress,
     locked: false
   };
 }

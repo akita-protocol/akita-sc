@@ -16,7 +16,7 @@
 
 import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { getAppFundingNeeded, proposeAndExecute } from './utils'
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { ProposalActionEnum } from 'akita-sdk/dao'
 import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
@@ -116,6 +116,8 @@ runScript(async () => {
   ])
   console.log(`   New plugin installed (Proposal ${installId})\n`)
 
+  await recordPluginDeployment(options.network, 'updatePlugin', newUpdatePlugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('UPDATE PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -126,7 +128,6 @@ Summary:
   New Plugin App ID: ${newUpdatePlugin.appId}
   Proposals: PAL=${updatePalId}, Remove=${removeId}, Install=${installId}
 
-IMPORTANT: Update the SDK networks.ts file:
-  updatePlugin: ${newUpdatePlugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'updatePlugin', newUpdatePlugin.appId, options.version)}
 `)
 })

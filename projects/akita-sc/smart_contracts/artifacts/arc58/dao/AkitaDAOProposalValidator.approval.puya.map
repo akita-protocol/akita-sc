@@ -3,7 +3,7 @@
   "sources": [
     "../../../arc58/dao/validator.algo.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -47114,14 +47114,14 @@
       ]
     },
     "2718": {
-      "op": "pushbytes 0xa2403ddf // method \"arc58_getEscrows(string[])(uint64,bool)[]\"",
+      "op": "pushbytes 0x3ab2895b // method \"arc58_getEscrows(string[])(uint64,address,bool)[]\"",
       "defined_out": [
-        "Method(arc58_getEscrows(string[])(uint64,bool)[])",
+        "Method(arc58_getEscrows(string[])(uint64,address,bool)[])",
         "aggregate%concat%0#0"
       ],
       "stack_out": [
         "aggregate%concat%0#0",
-        "Method(arc58_getEscrows(string[])(uint64,bool)[])"
+        "Method(arc58_getEscrows(string[])(uint64,address,bool)[])"
       ]
     },
     "2724": {
@@ -47288,9 +47288,9 @@
       ]
     },
     "2753": {
-      "op": "pushint 9",
+      "op": "pushint 41",
       "defined_out": [
-        "9",
+        "41",
         "aggregate%array_length%0#0",
         "awst_tmp%0#0",
         "tmp%0#0"
@@ -47299,7 +47299,7 @@
         "awst_tmp%0#0",
         "tmp%0#0",
         "aggregate%array_length%0#0",
-        "9"
+        "41"
       ]
     },
     "2755": {
@@ -47383,7 +47383,7 @@
       ]
     },
     "2762": {
-      "op": "extract 6 9",
+      "op": "extract 6 41",
       "defined_out": [
         "aggregate%encoded_element%0#0"
       ],
@@ -47392,42 +47392,39 @@
       ]
     },
     "2765": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "0"
-      ]
-    },
-    "2766": {
-      "op": "extract_uint64",
+      "op": "extract 8 32",
       "defined_out": [
-        "tmp%3#0"
+        "aggregate%extract%0#0"
       ],
       "stack_out": [
-        "tmp%3#0"
-      ]
-    },
-    "2767": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "tmp%3#0",
-        "0"
+        "aggregate%extract%0#0"
       ]
     },
     "2768": {
-      "op": "!=",
+      "op": "global ZeroAddress",
       "defined_out": [
+        "aggregate%extract%0#0",
         "tmp%4#0"
       ],
       "stack_out": [
+        "aggregate%extract%0#0",
         "tmp%4#0"
       ]
     },
-    "2769": {
+    "2770": {
+      "op": "!=",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "2771": {
       "retsub": true,
       "op": "retsub"
     },
-    "2770": {
+    "2772": {
       "subroutine": "smart_contracts/arc58/dao/validator.algo.ts::AkitaDAOProposalValidator.allowanceCheck",
       "params": {
         "wallet#0": "uint64",
@@ -47438,20 +47435,20 @@
       "stack_in": [],
       "op": "proto 3 2"
     },
-    "2773": {
+    "2775": {
       "op": "intc_0 // 0",
       "stack_out": [
         "new_items_bytes#0"
       ]
     },
-    "2774": {
+    "2776": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
         "result#0"
       ]
     },
-    "2775": {
+    "2777": {
       "op": "bytec_2 // \"\"",
       "stack_out": [
         "new_items_bytes#0",
@@ -47459,7 +47456,7 @@
         "array_length#0"
       ]
     },
-    "2776": {
+    "2778": {
       "op": "dupn 6",
       "stack_out": [
         "new_items_bytes#0",
@@ -47473,10 +47470,10 @@
         "write_offset#0"
       ]
     },
-    "2778": {
+    "2780": {
       "op": "itxn_begin"
     },
-    "2779": {
+    "2781": {
       "op": "frame_dig -2",
       "defined_out": [
         "escrow#0 (copy)"
@@ -47494,7 +47491,7 @@
         "escrow#0 (copy)"
       ]
     },
-    "2781": {
+    "2783": {
       "op": "len",
       "defined_out": [
         "aggregate%length%0#0"
@@ -47512,7 +47509,7 @@
         "aggregate%length%0#0"
       ]
     },
-    "2782": {
+    "2784": {
       "op": "itob",
       "defined_out": [
         "aggregate%as_bytes%0#0"
@@ -47530,7 +47527,7 @@
         "aggregate%as_bytes%0#0"
       ]
     },
-    "2783": {
+    "2785": {
       "op": "extract 6 2",
       "defined_out": [
         "aggregate%length_uint16%0#0"
@@ -47548,7 +47545,7 @@
         "aggregate%length_uint16%0#0"
       ]
     },
-    "2786": {
+    "2788": {
       "op": "frame_dig -2",
       "stack_out": [
         "new_items_bytes#0",
@@ -47564,7 +47561,7 @@
         "escrow#0 (copy)"
       ]
     },
-    "2788": {
+    "2790": {
       "op": "concat",
       "defined_out": [
         "aggregate%encoded_value%0#0"
@@ -47582,7 +47579,7 @@
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2789": {
+    "2791": {
       "op": "frame_dig -3",
       "defined_out": [
         "aggregate%encoded_value%0#0",
@@ -47602,7 +47599,7 @@
         "wallet#0 (copy)"
       ]
     },
-    "2791": {
+    "2793": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
         "new_items_bytes#0",
@@ -47617,7 +47614,7 @@
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2793": {
+    "2795": {
       "op": "pushbytes 0x02fe4515 // method \"arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[]\"",
       "defined_out": [
         "Method(arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[])",
@@ -47637,7 +47634,7 @@
         "Method(arc58_getAllowances(string,uint64[])(uint8,uint64,uint64,uint64,uint64,uint64,uint64,bool)[])"
       ]
     },
-    "2799": {
+    "2801": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "new_items_bytes#0",
@@ -47652,7 +47649,7 @@
         "aggregate%encoded_value%0#0"
       ]
     },
-    "2801": {
+    "2803": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "new_items_bytes#0",
@@ -47666,7 +47663,7 @@
         "write_offset#0"
       ]
     },
-    "2803": {
+    "2805": {
       "op": "frame_dig -1",
       "defined_out": [
         "assets#0 (copy)"
@@ -47684,7 +47681,7 @@
         "assets#0 (copy)"
       ]
     },
-    "2805": {
+    "2807": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
         "new_items_bytes#0",
@@ -47698,7 +47695,7 @@
         "write_offset#0"
       ]
     },
-    "2807": {
+    "2809": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl"
@@ -47716,7 +47713,7 @@
         "appl"
       ]
     },
-    "2809": {
+    "2811": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
         "new_items_bytes#0",
@@ -47730,7 +47727,7 @@
         "write_offset#0"
       ]
     },
-    "2811": {
+    "2813": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
@@ -47748,7 +47745,7 @@
         "0"
       ]
     },
-    "2812": {
+    "2814": {
       "op": "itxn_field Fee",
       "stack_out": [
         "new_items_bytes#0",
@@ -47762,13 +47759,13 @@
         "write_offset#0"
       ]
     },
-    "2814": {
+    "2816": {
       "op": "itxn_submit"
     },
-    "2815": {
+    "2817": {
       "op": "itxn LastLog"
     },
-    "2817": {
+    "2819": {
       "op": "dupn 2",
       "defined_out": [
         "awst_tmp%0#0",
@@ -47789,7 +47786,7 @@
         "awst_tmp%0#0 (copy)"
       ]
     },
-    "2819": {
+    "2821": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%0#0",
@@ -47810,7 +47807,7 @@
         "info#0"
       ]
     },
-    "2822": {
+    "2824": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -47827,7 +47824,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2823": {
+    "2825": {
       "op": "extract 0 4",
       "defined_out": [
         "awst_tmp%0#0",
@@ -47849,7 +47846,7 @@
         "tmp%2#0"
       ]
     },
-    "2826": {
+    "2828": {
       "op": "bytec_0 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -47873,7 +47870,7 @@
         "0x151f7c75"
       ]
     },
-    "2827": {
+    "2829": {
       "op": "==",
       "defined_out": [
         "awst_tmp%0#0",
@@ -47895,7 +47892,7 @@
         "tmp%3#0"
       ]
     },
-    "2828": {
+    "2830": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
@@ -47912,7 +47909,7 @@
         "info#0"
       ]
     },
-    "2829": {
+    "2831": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%0#0",
@@ -47934,7 +47931,7 @@
         "info#0 (copy)"
       ]
     },
-    "2830": {
+    "2832": {
       "op": "intc_0 // 0",
       "stack_out": [
         "new_items_bytes#0",
@@ -47952,7 +47949,7 @@
         "0"
       ]
     },
-    "2831": {
+    "2833": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -47975,7 +47972,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2832": {
+    "2834": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -47993,7 +47990,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2833": {
+    "2835": {
       "op": "cover 2",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48016,7 +48013,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2835": {
+    "2837": {
       "op": "pushint 50",
       "defined_out": [
         "50",
@@ -48041,7 +48038,7 @@
         "50"
       ]
     },
-    "2837": {
+    "2839": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48065,7 +48062,7 @@
         "mul%0#0"
       ]
     },
-    "2838": {
+    "2840": {
       "op": "intc_2 // 2",
       "defined_out": [
         "2",
@@ -48091,7 +48088,7 @@
         "2"
       ]
     },
-    "2839": {
+    "2841": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -48115,7 +48112,7 @@
         "add%0#0"
       ]
     },
-    "2840": {
+    "2842": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -48133,7 +48130,7 @@
         "info#0"
       ]
     },
-    "2841": {
+    "2843": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -48157,7 +48154,7 @@
         "len%0#0"
       ]
     },
-    "2842": {
+    "2844": {
       "op": "==",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48179,7 +48176,7 @@
         "eq%0#0"
       ]
     },
-    "2843": {
+    "2845": {
       "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::AllowanceInfo>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::AllowanceInfo>",
       "stack_out": [
@@ -48196,16 +48193,16 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2844": {
+    "2846": {
       "op": "bytec 8 // 0x0000"
     },
-    "2846": {
+    "2848": {
       "op": "intc_0 // 0"
     },
-    "2847": {
+    "2849": {
       "op": "intc_1 // 1"
     },
-    "2848": {
+    "2850": {
       "op": "intc_0 // 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48233,7 +48230,7 @@
         "i#0"
       ]
     },
-    "2849": {
+    "2851": {
       "block": "allowanceCheck_while_top@2",
       "stack_in": [
         "new_items_bytes#0",
@@ -48275,7 +48272,7 @@
         "i#0"
       ]
     },
-    "2851": {
+    "2853": {
       "op": "frame_dig 10",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48301,7 +48298,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "2853": {
+    "2855": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48327,7 +48324,7 @@
         "tmp%5#0"
       ]
     },
-    "2854": {
+    "2856": {
       "op": "bz allowanceCheck_after_while@7",
       "stack_out": [
         "new_items_bytes#0",
@@ -48347,7 +48344,7 @@
         "i#0"
       ]
     },
-    "2857": {
+    "2859": {
       "op": "frame_dig 9",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48373,7 +48370,7 @@
         "awst_tmp%0#0"
       ]
     },
-    "2859": {
+    "2861": {
       "op": "extract 6 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48400,7 +48397,7 @@
         "aggregate%array_trimmed%0#0"
       ]
     },
-    "2862": {
+    "2864": {
       "op": "frame_dig 14",
       "stack_out": [
         "new_items_bytes#0",
@@ -48422,7 +48419,7 @@
         "i#0"
       ]
     },
-    "2864": {
+    "2866": {
       "op": "pushint 50",
       "defined_out": [
         "50",
@@ -48452,7 +48449,7 @@
         "50"
       ]
     },
-    "2866": {
+    "2868": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48481,7 +48478,7 @@
         "aggregate%bytes_offset%0#0"
       ]
     },
-    "2867": {
+    "2869": {
       "op": "pushint 50",
       "stack_out": [
         "new_items_bytes#0",
@@ -48504,7 +48501,7 @@
         "50"
       ]
     },
-    "2869": {
+    "2871": {
       "error": "index access is out of bounds",
       "op": "extract3 // on error: index access is out of bounds",
       "defined_out": [
@@ -48532,7 +48529,7 @@
         "aggregate%encoded_element%0#0"
       ]
     },
-    "2870": {
+    "2872": {
       "op": "pushint 41",
       "defined_out": [
         "41",
@@ -48561,7 +48558,7 @@
         "41"
       ]
     },
-    "2872": {
+    "2874": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48588,7 +48585,7 @@
         "tmp%6#0"
       ]
     },
-    "2873": {
+    "2875": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -48610,7 +48607,7 @@
         "tmp%6#0"
       ]
     },
-    "2874": {
+    "2876": {
       "op": "frame_bury 6",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48637,7 +48634,7 @@
         "tmp%6#0"
       ]
     },
-    "2876": {
+    "2878": {
       "op": "intc_0 // 0",
       "stack_out": [
         "new_items_bytes#0",
@@ -48659,7 +48656,7 @@
         "0"
       ]
     },
-    "2877": {
+    "2879": {
       "op": "!=",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48687,7 +48684,7 @@
         "exists#0"
       ]
     },
-    "2878": {
+    "2880": {
       "op": "pushbytes 0x00",
       "defined_out": [
         "0x00",
@@ -48717,7 +48714,7 @@
         "0x00"
       ]
     },
-    "2881": {
+    "2883": {
       "op": "intc_0 // 0",
       "stack_out": [
         "new_items_bytes#0",
@@ -48740,7 +48737,7 @@
         "0"
       ]
     },
-    "2882": {
+    "2884": {
       "op": "uncover 2",
       "stack_out": [
         "new_items_bytes#0",
@@ -48763,7 +48760,7 @@
         "exists#0"
       ]
     },
-    "2884": {
+    "2886": {
       "op": "setbit",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48791,7 +48788,7 @@
         "new_items_bytes#0"
       ]
     },
-    "2885": {
+    "2887": {
       "op": "frame_bury 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48818,7 +48815,7 @@
         "i#0"
       ]
     },
-    "2887": {
+    "2889": {
       "op": "frame_dig 11",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48847,7 +48844,7 @@
         "existences#0"
       ]
     },
-    "2889": {
+    "2891": {
       "op": "dup",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48878,7 +48875,7 @@
         "existences#0 (copy)"
       ]
     },
-    "2890": {
+    "2892": {
       "op": "intc_0 // 0",
       "stack_out": [
         "new_items_bytes#0",
@@ -48901,7 +48898,7 @@
         "0"
       ]
     },
-    "2891": {
+    "2893": {
       "op": "extract_uint16",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48932,7 +48929,7 @@
         "array_length#0"
       ]
     },
-    "2892": {
+    "2894": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -48955,7 +48952,7 @@
         "array_length#0"
       ]
     },
-    "2893": {
+    "2895": {
       "op": "frame_bury 2",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -48986,7 +48983,7 @@
         "array_length#0"
       ]
     },
-    "2895": {
+    "2897": {
       "op": "dup",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49019,7 +49016,7 @@
         "array_length#0 (copy)"
       ]
     },
-    "2896": {
+    "2898": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -49054,7 +49051,7 @@
         "1"
       ]
     },
-    "2897": {
+    "2899": {
       "op": "+",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49087,7 +49084,7 @@
         "new_array_length#0"
       ]
     },
-    "2898": {
+    "2900": {
       "op": "dup",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49122,7 +49119,7 @@
         "new_array_length#0 (copy)"
       ]
     },
-    "2899": {
+    "2901": {
       "op": "itob",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49157,7 +49154,7 @@
         "tmp%0#2"
       ]
     },
-    "2900": {
+    "2902": {
       "op": "extract 6 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49192,7 +49189,7 @@
         "new_array_length_b#0"
       ]
     },
-    "2903": {
+    "2905": {
       "op": "uncover 3",
       "stack_out": [
         "new_items_bytes#0",
@@ -49216,7 +49213,7 @@
         "existences#0"
       ]
     },
-    "2905": {
+    "2907": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -49240,7 +49237,7 @@
         "new_array_length_b#0"
       ]
     },
-    "2906": {
+    "2908": {
       "op": "replace2 0",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49274,7 +49271,7 @@
         "result#0"
       ]
     },
-    "2908": {
+    "2910": {
       "op": "frame_bury 1",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49307,7 +49304,7 @@
         "new_array_length#0"
       ]
     },
-    "2910": {
+    "2912": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -49329,7 +49326,7 @@
         "array_length#0"
       ]
     },
-    "2911": {
+    "2913": {
       "op": "pushint 7",
       "defined_out": [
         "7",
@@ -49364,7 +49361,7 @@
         "7"
       ]
     },
-    "2913": {
+    "2915": {
       "op": "+",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49398,7 +49395,7 @@
         "tmp%4#1"
       ]
     },
-    "2914": {
+    "2916": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -49434,7 +49431,7 @@
         "8"
       ]
     },
-    "2915": {
+    "2917": {
       "op": "/",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49468,7 +49465,7 @@
         "current_bytes#0"
       ]
     },
-    "2916": {
+    "2918": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -49491,7 +49488,7 @@
         "current_bytes#0"
       ]
     },
-    "2917": {
+    "2919": {
       "op": "frame_bury 3",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49525,7 +49522,7 @@
         "current_bytes#0"
       ]
     },
-    "2919": {
+    "2921": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -49547,7 +49544,7 @@
         "new_array_length#0"
       ]
     },
-    "2920": {
+    "2922": {
       "op": "pushint 7",
       "stack_out": [
         "new_items_bytes#0",
@@ -49570,7 +49567,7 @@
         "7"
       ]
     },
-    "2922": {
+    "2924": {
       "op": "+",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49604,7 +49601,7 @@
         "tmp%6#1"
       ]
     },
-    "2923": {
+    "2925": {
       "op": "intc_3 // 8",
       "stack_out": [
         "new_items_bytes#0",
@@ -49627,7 +49624,7 @@
         "8"
       ]
     },
-    "2924": {
+    "2926": {
       "op": "/",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49661,7 +49658,7 @@
         "required_bytes#0"
       ]
     },
-    "2925": {
+    "2927": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -49684,7 +49681,7 @@
         "required_bytes#0"
       ]
     },
-    "2926": {
+    "2928": {
       "op": "frame_bury 5",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49718,7 +49715,7 @@
         "required_bytes#0"
       ]
     },
-    "2928": {
+    "2930": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49752,7 +49749,7 @@
         "tmp%8#1"
       ]
     },
-    "2929": {
+    "2931": {
       "op": "bz allowanceCheck_after_if_else@10",
       "stack_out": [
         "new_items_bytes#0",
@@ -49772,7 +49769,7 @@
         "i#0"
       ]
     },
-    "2932": {
+    "2934": {
       "op": "frame_dig 5",
       "stack_out": [
         "new_items_bytes#0",
@@ -49793,7 +49790,7 @@
         "required_bytes#0"
       ]
     },
-    "2934": {
+    "2936": {
       "op": "frame_dig 3",
       "stack_out": [
         "new_items_bytes#0",
@@ -49815,7 +49812,7 @@
         "current_bytes#0"
       ]
     },
-    "2936": {
+    "2938": {
       "op": "-",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49849,7 +49846,7 @@
         "tmp%9#0"
       ]
     },
-    "2937": {
+    "2939": {
       "op": "bzero",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -49883,7 +49880,7 @@
         "tmp%10#0"
       ]
     },
-    "2938": {
+    "2940": {
       "op": "frame_dig 1",
       "stack_out": [
         "new_items_bytes#0",
@@ -49905,7 +49902,7 @@
         "result#0"
       ]
     },
-    "2940": {
+    "2942": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -49927,7 +49924,7 @@
         "tmp%10#0"
       ]
     },
-    "2941": {
+    "2943": {
       "op": "concat",
       "stack_out": [
         "new_items_bytes#0",
@@ -49948,7 +49945,7 @@
         "result#0"
       ]
     },
-    "2942": {
+    "2944": {
       "op": "frame_bury 1",
       "stack_out": [
         "new_items_bytes#0",
@@ -49968,7 +49965,7 @@
         "i#0"
       ]
     },
-    "2944": {
+    "2946": {
       "block": "allowanceCheck_after_if_else@10",
       "stack_in": [
         "new_items_bytes#0",
@@ -50010,7 +50007,7 @@
         "read_offset#0"
       ]
     },
-    "2945": {
+    "2947": {
       "op": "frame_bury 4",
       "defined_out": [
         "read_offset#0"
@@ -50033,7 +50030,7 @@
         "i#0"
       ]
     },
-    "2947": {
+    "2949": {
       "op": "frame_dig 2",
       "defined_out": [
         "array_length#0",
@@ -50058,7 +50055,7 @@
         "array_length#0"
       ]
     },
-    "2949": {
+    "2951": {
       "op": "pushint 16",
       "defined_out": [
         "16",
@@ -50085,7 +50082,7 @@
         "16"
       ]
     },
-    "2951": {
+    "2953": {
       "op": "+",
       "defined_out": [
         "array_length#0",
@@ -50111,7 +50108,7 @@
         "write_offset#0"
       ]
     },
-    "2952": {
+    "2954": {
       "op": "dup",
       "stack_out": [
         "new_items_bytes#0",
@@ -50133,7 +50130,7 @@
         "write_offset#0"
       ]
     },
-    "2953": {
+    "2955": {
       "op": "frame_bury 8",
       "defined_out": [
         "array_length#0",
@@ -50159,7 +50156,7 @@
         "write_offset#0"
       ]
     },
-    "2955": {
+    "2957": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -50187,7 +50184,7 @@
         "1"
       ]
     },
-    "2956": {
+    "2958": {
       "op": "+",
       "defined_out": [
         "array_length#0",
@@ -50214,7 +50211,7 @@
         "write_end#0"
       ]
     },
-    "2957": {
+    "2959": {
       "op": "frame_bury 7",
       "defined_out": [
         "array_length#0",
@@ -50240,7 +50237,7 @@
         "i#0"
       ]
     },
-    "2959": {
+    "2961": {
       "block": "allowanceCheck_while_top@11",
       "stack_in": [
         "new_items_bytes#0",
@@ -50282,7 +50279,7 @@
         "write_offset#0"
       ]
     },
-    "2961": {
+    "2963": {
       "op": "frame_dig 7",
       "defined_out": [
         "write_end#0",
@@ -50308,7 +50305,7 @@
         "write_end#0"
       ]
     },
-    "2963": {
+    "2965": {
       "op": "<",
       "defined_out": [
         "tmp%14#0",
@@ -50334,7 +50331,7 @@
         "tmp%14#0"
       ]
     },
-    "2964": {
+    "2966": {
       "op": "bz allowanceCheck_after_while@13",
       "stack_out": [
         "new_items_bytes#0",
@@ -50354,7 +50351,7 @@
         "i#0"
       ]
     },
-    "2967": {
+    "2969": {
       "op": "frame_dig 0",
       "defined_out": [
         "new_items_bytes#0",
@@ -50380,7 +50377,7 @@
         "new_items_bytes#0"
       ]
     },
-    "2969": {
+    "2971": {
       "op": "frame_dig 4",
       "defined_out": [
         "new_items_bytes#0",
@@ -50408,7 +50405,7 @@
         "read_offset#0"
       ]
     },
-    "2971": {
+    "2973": {
       "op": "dup",
       "defined_out": [
         "new_items_bytes#0",
@@ -50438,7 +50435,7 @@
         "read_offset#0 (copy)"
       ]
     },
-    "2972": {
+    "2974": {
       "op": "cover 2",
       "stack_out": [
         "new_items_bytes#0",
@@ -50461,7 +50458,7 @@
         "read_offset#0 (copy)"
       ]
     },
-    "2974": {
+    "2976": {
       "op": "getbit",
       "defined_out": [
         "new_items_bytes#0",
@@ -50490,7 +50487,7 @@
         "tmp%15#0"
       ]
     },
-    "2975": {
+    "2977": {
       "op": "frame_dig 1",
       "defined_out": [
         "new_items_bytes#0",
@@ -50521,7 +50518,7 @@
         "result#0"
       ]
     },
-    "2977": {
+    "2979": {
       "op": "frame_dig 8",
       "stack_out": [
         "new_items_bytes#0",
@@ -50545,7 +50542,7 @@
         "write_offset#0"
       ]
     },
-    "2979": {
+    "2981": {
       "op": "dup",
       "defined_out": [
         "new_items_bytes#0",
@@ -50579,7 +50576,7 @@
         "write_offset#0 (copy)"
       ]
     },
-    "2980": {
+    "2982": {
       "op": "cover 3",
       "stack_out": [
         "new_items_bytes#0",
@@ -50604,7 +50601,7 @@
         "write_offset#0 (copy)"
       ]
     },
-    "2982": {
+    "2984": {
       "op": "uncover 2",
       "stack_out": [
         "new_items_bytes#0",
@@ -50629,7 +50626,7 @@
         "tmp%15#0"
       ]
     },
-    "2984": {
+    "2986": {
       "op": "setbit",
       "stack_out": [
         "new_items_bytes#0",
@@ -50652,7 +50649,7 @@
         "result#0"
       ]
     },
-    "2985": {
+    "2987": {
       "op": "frame_bury 1",
       "defined_out": [
         "new_items_bytes#0",
@@ -50681,7 +50678,7 @@
         "write_offset#0"
       ]
     },
-    "2987": {
+    "2989": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -50712,7 +50709,7 @@
         "1"
       ]
     },
-    "2988": {
+    "2990": {
       "op": "+",
       "stack_out": [
         "new_items_bytes#0",
@@ -50734,7 +50731,7 @@
         "write_offset#0"
       ]
     },
-    "2989": {
+    "2991": {
       "op": "frame_bury 8",
       "defined_out": [
         "new_items_bytes#0",
@@ -50762,7 +50759,7 @@
         "read_offset#0"
       ]
     },
-    "2991": {
+    "2993": {
       "op": "intc_1 // 1",
       "stack_out": [
         "new_items_bytes#0",
@@ -50784,7 +50781,7 @@
         "1"
       ]
     },
-    "2992": {
+    "2994": {
       "op": "+",
       "stack_out": [
         "new_items_bytes#0",
@@ -50805,7 +50802,7 @@
         "read_offset#0"
       ]
     },
-    "2993": {
+    "2995": {
       "op": "frame_bury 4",
       "defined_out": [
         "new_items_bytes#0",
@@ -50832,10 +50829,10 @@
         "i#0"
       ]
     },
-    "2995": {
+    "2997": {
       "op": "b allowanceCheck_while_top@11"
     },
-    "2998": {
+    "3000": {
       "block": "allowanceCheck_after_while@13",
       "stack_in": [
         "new_items_bytes#0",
@@ -50877,7 +50874,7 @@
         "tmp%6#0"
       ]
     },
-    "3000": {
+    "3002": {
       "op": "bz allowanceCheck_else_body@5",
       "stack_out": [
         "new_items_bytes#0",
@@ -50897,7 +50894,7 @@
         "i#0"
       ]
     },
-    "3003": {
+    "3005": {
       "op": "intc_1 // 1",
       "defined_out": [
         "anyExist#0",
@@ -50922,7 +50919,7 @@
         "anyExist#0"
       ]
     },
-    "3004": {
+    "3006": {
       "op": "frame_bury 12",
       "defined_out": [
         "anyExist#0",
@@ -50946,7 +50943,7 @@
         "i#0"
       ]
     },
-    "3006": {
+    "3008": {
       "block": "allowanceCheck_after_if_else@6",
       "stack_in": [
         "new_items_bytes#0",
@@ -50988,7 +50985,7 @@
         "i#0"
       ]
     },
-    "3008": {
+    "3010": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -51014,7 +51011,7 @@
         "1"
       ]
     },
-    "3009": {
+    "3011": {
       "op": "+",
       "stack_out": [
         "new_items_bytes#0",
@@ -51035,7 +51032,7 @@
         "i#0"
       ]
     },
-    "3010": {
+    "3012": {
       "op": "frame_bury 14",
       "defined_out": [
         "i#0"
@@ -51058,7 +51055,7 @@
         "i#0"
       ]
     },
-    "3012": {
+    "3014": {
       "op": "frame_dig 1",
       "defined_out": [
         "existences#0",
@@ -51083,7 +51080,7 @@
         "existences#0"
       ]
     },
-    "3014": {
+    "3016": {
       "op": "frame_bury 11",
       "defined_out": [
         "existences#0",
@@ -51107,10 +51104,10 @@
         "i#0"
       ]
     },
-    "3016": {
+    "3018": {
       "op": "b allowanceCheck_while_top@2"
     },
-    "3019": {
+    "3021": {
       "block": "allowanceCheck_else_body@5",
       "stack_in": [
         "new_items_bytes#0",
@@ -51152,7 +51149,7 @@
         "allExist#0"
       ]
     },
-    "3020": {
+    "3022": {
       "op": "frame_bury 13",
       "defined_out": [
         "allExist#0"
@@ -51175,10 +51172,10 @@
         "i#0"
       ]
     },
-    "3022": {
+    "3024": {
       "op": "b allowanceCheck_after_if_else@6"
     },
-    "3025": {
+    "3027": {
       "block": "allowanceCheck_after_while@7",
       "stack_in": [
         "new_items_bytes#0",
@@ -51220,7 +51217,7 @@
         "0x00"
       ]
     },
-    "3028": {
+    "3030": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -51246,7 +51243,7 @@
         "0"
       ]
     },
-    "3029": {
+    "3031": {
       "op": "frame_dig 12",
       "defined_out": [
         "0",
@@ -51274,7 +51271,7 @@
         "anyExist#0"
       ]
     },
-    "3031": {
+    "3033": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%1#0",
@@ -51299,7 +51296,7 @@
         "aggregate%encoded_bool%1#0"
       ]
     },
-    "3032": {
+    "3034": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -51326,7 +51323,7 @@
         "1"
       ]
     },
-    "3033": {
+    "3035": {
       "op": "frame_dig 13",
       "defined_out": [
         "1",
@@ -51355,7 +51352,7 @@
         "allExist#0"
       ]
     },
-    "3035": {
+    "3037": {
       "op": "setbit",
       "defined_out": [
         "aggregate%set_bit%0#0",
@@ -51381,7 +51378,7 @@
         "aggregate%set_bit%0#0"
       ]
     },
-    "3036": {
+    "3038": {
       "op": "pushbytes 0x0003",
       "defined_out": [
         "0x0003",
@@ -51409,7 +51406,7 @@
         "0x0003"
       ]
     },
-    "3040": {
+    "3042": {
       "op": "swap",
       "stack_out": [
         "new_items_bytes#0",
@@ -51431,7 +51428,7 @@
         "aggregate%set_bit%0#0"
       ]
     },
-    "3041": {
+    "3043": {
       "op": "concat",
       "defined_out": [
         "aggregate%head%2#0",
@@ -51457,7 +51454,7 @@
         "aggregate%head%2#0"
       ]
     },
-    "3042": {
+    "3044": {
       "op": "frame_dig 11",
       "defined_out": [
         "aggregate%head%2#0",
@@ -51485,7 +51482,7 @@
         "existences#0"
       ]
     },
-    "3044": {
+    "3046": {
       "op": "concat",
       "defined_out": [
         "aggregate%concat%0#0",
@@ -51512,7 +51509,7 @@
         "aggregate%concat%0#0"
       ]
     },
-    "3045": {
+    "3047": {
       "op": "frame_dig -1",
       "defined_out": [
         "aggregate%concat%0#0",
@@ -51541,13 +51538,13 @@
         "assets#0 (copy)"
       ]
     },
-    "3047": {
+    "3049": {
       "op": "frame_bury 1"
     },
-    "3049": {
+    "3051": {
       "op": "frame_bury 0"
     },
-    "3051": {
+    "3053": {
       "retsub": true,
       "op": "retsub"
     }

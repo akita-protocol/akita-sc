@@ -1,7 +1,12 @@
 import { MaybeSigner } from '../types';
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/composer';
+import { AkitaSocialImpactArgs } from '../generated/AkitaSocialImpactClient';
 export { MetaValue, PostValue, VoteListValue, VotesValue, ViewPayWallValue, AkitaSocialMbrData, TipMbrInfo, } from '../generated/AkitaSocialClient';
-export { MetaValue as ImpactMetaValue, } from '../generated/AkitaSocialImpactClient';
+export { ImpactMetaValue, StakeCheck as ImpactStakeCheck, } from '../generated/AkitaSocialImpactClient';
+type ImpactContractArgs = AkitaSocialImpactArgs['obj'];
+export type CommitStakingImpactArgs = (MaybeSigner & Omit<ImpactContractArgs['commitStakingImpact(pay,uint64,bool)void'], 'payment' | 'inheritRoot'> & {
+    inheritRoot?: boolean;
+});
 export type { SocialFees, AkitaAssets } from '../generated/AkitaDAOClient';
 export type CID = Uint8Array;
 export type PostRef = Uint8Array;

@@ -114,7 +114,7 @@ describe('ASA Manager plugin contract', () => {
       await wallet.usePlugin({
         callerType: CallerType.Global,
         calls: [
-          asaManagerSdk.deleteAssets({ assets: [takta] }),
+          asaManagerSdk.delete({ assets: [takta] }),
         ]
       });
 

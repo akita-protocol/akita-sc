@@ -94,6 +94,25 @@ const network = getCurrentNetwork() // 'mainnet' | 'testnet' | 'localnet'
 const appIds = getNetworkAppIds()
 ```
 
+`getNetworkAppIds()` returns the newest deployment for backward compatibility.
+Plugin deployment history is retained separately so installed legacy plugins
+remain identifiable and upgradeable:
+
+```typescript
+import { resolvePluginDeployment, getPluginUpdate } from '@akta/sdk'
+
+const plugin = resolvePluginDeployment('mainnet', installedPluginAppId)
+const update = getPluginUpdate('mainnet', installedPluginAppId)
+
+console.log(plugin?.name, plugin?.revision, plugin?.isLatest)
+console.log(update?.latest.appId)
+```
+
+Akita's individual plugin deployment scripts append replacements to the
+corresponding `*_PLUGIN_DEPLOYMENTS` list and update the root README
+automatically. For manual deployments, append the entry and never remove the
+previous deployment.
+
 ### Environment Variables
 
 ```bash

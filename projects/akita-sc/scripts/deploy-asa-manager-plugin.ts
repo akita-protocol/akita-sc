@@ -10,7 +10,7 @@
  *   npm run deploy:asa-manager-plugin -- -n mainnet -m "your mnemonic"
  */
 
-import { parseBaseArgs, runScript, setupContext } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, runScript, setupContext } from './script-base'
 import { AsaManagerPluginSDK } from 'akita-sdk/wallet'
 import { AsaManagerPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/asa-manager/AsaManagerPluginClient'
 
@@ -47,6 +47,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'asaManagerPlugin', plugin.appId)
+
   console.log('='.repeat(80))
   console.log('ASA MANAGER PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -55,9 +57,9 @@ Summary:
   Network: ${options.network}
   New Plugin App ID: ${plugin.appId}
 
-IMPORTANT: Update SDK network config / env with the new plugin app ID:
-  asaManagerPlugin: ${plugin.appId}n,
-  asaMintPlugin: ${plugin.appId}n, // deprecated alias
+${pluginDeploymentInstructions(options.network, 'asaManagerPlugin', plugin.appId)}
+
+Update the deprecated environment alias when applicable:
   ASA_MINT_PLUGIN_APP_ID=${plugin.appId}
 `)
 })

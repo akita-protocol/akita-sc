@@ -35,5 +35,12 @@ export const deployPollPlugin = async ({ fixture, sender, signer, args: { versio
 
   console.log('PollPlugin deployed with appId:', client.appId);
 
-  return new PollPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new PollPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

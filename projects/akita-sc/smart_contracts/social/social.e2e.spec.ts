@@ -21,6 +21,7 @@ import {
   VOTELIST_MBR,
   VOTES_MBR
 } from 'akita-sdk/social'
+import { StakingType } from 'akita-sdk/staking'
 import algosdk from 'algosdk'
 import {
   completeBalanceVerification,
@@ -359,6 +360,13 @@ describe('SDK MBR Calculations', () => {
       const mbr = sdk.calculatePayWallMBR(10, 10)
       const expected = MIN_PAYWALL_MBR + (20n * BOX_COST_PER_BYTE * PAYWALL_PAY_OPTION_SIZE)
       expect(mbr).toBe(expected)
+    })
+  })
+
+  describe('fixed edit MBR constants', () => {
+    test('uses exact amendment and back-reference box costs', () => {
+      expect(AMENDMENT_MBR).toBe(13_200n)
+      expect(EDIT_BACK_REF_MBR).toBe(13_200n)
     })
   })
 })
@@ -876,6 +884,7 @@ describe('SDK Write Methods (without DAO)', () => {
       })
       expect(payWallId).toBeGreaterThan(0n)
     })
+
   })
 
   describe('Action Operations', () => {
@@ -1521,9 +1530,10 @@ describe('Full DAO Integration Tests', () => {
     test('post should create a new post', async () => {
       // Get expected cost (MBR payment in ALGO + transaction fees)
       // Note: postFee is paid in AKTA via asset transfer, not included in ALGO payment
-      // Account for: app call fee + payment transaction fee + asset transfer fee + 2 opUp transaction fees + inner txns
+      // Account for the composed payment, asset-transfer, and app-call group,
+      // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user1Sdk.calculatePostMBR(testCid.length, false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 11n) // payment + asset transfer + 2 opUp + inner txns
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 10n)
       const verification = await verifyBalanceChange(
         algorand,
         user1.addr.toString(),
@@ -1572,10 +1582,10 @@ describe('Full DAO Integration Tests', () => {
       const replyCid = new Uint8Array(36).fill(50)
       // Get expected cost (MBR for reply)
       // Note: reactFee is paid in AKTA via asset transfer, not included in ALGO payment
-      // Account for: app call fee + payment transaction fee + asset transfer fee + 2 opUp transaction fees + inner txns
-      // Note: opUp calls are separate transactions, not inner transactions
+      // Account for the composed payment, asset-transfer, and app-call group,
+      // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateReplyMBR(replyCid.length, false, false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 17n) // payment + asset transfer + 2 opUp + inner txns
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 16n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1601,16 +1611,17 @@ describe('Full DAO Integration Tests', () => {
 
       expect(result.replyKey).toHaveLength(32)
     })
+
   })
 
   describe('Vote Operations (Success)', () => {
     test('upvote a post', async () => {
       // Get expected cost (MBR for vote)
       // Note: reactFee is paid in AKTA via asset transfer, not included in ALGO payment
-      // Account for: app call fee + payment transaction fee + asset transfer fee + 3 opUp transaction fees + inner txns
-      // Note: opUp calls are separate transactions, not inner transactions
+      // Account for the composed payment, asset-transfer, and app-call group,
+      // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateVoteMBR(false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 16n) // payment + asset transfer + 3 opUp + inner txns
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 15n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1638,7 +1649,7 @@ describe('Full DAO Integration Tests', () => {
     test('invertVote to flip vote direction', async () => {
       // invertVote has no MBR payment (0), but requires reactFee in AKTA
       // Note: reactFee is paid in AKTA via asset transfer, not included in ALGO payment
-      const expectedCost = createExpectedCost(0n, 3, MIN_TXN_FEE * 8n) // 3 opUp calls + asset transfer + inner txns
+      const expectedCost = createExpectedCost(0n, 3, MIN_TXN_FEE * 6n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1706,10 +1717,10 @@ describe('Full DAO Integration Tests', () => {
 
       // Get expected cost (MBR for first reaction with NFT)
       // Note: reactFee is paid in AKTA via asset transfer, not included in ALGO payment
-      // Account for: app call fee + payment transaction fee + asset transfer fee + 3 opUp transaction fees + inner txns
-      // Note: opUp calls are separate transactions, not inner transactions
+      // Account for the composed payment, asset-transfer, and app-call group,
+      // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateReactMBR(true, false) // first reaction with NFT
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 13n) // payment + asset transfer + 3 opUp + inner txns
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 11n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1759,6 +1770,53 @@ describe('Full DAO Integration Tests', () => {
       // Note: actualCost will be negative or small because MBR refund increases balance
       // We just verify the operation completed successfully
       expect(completed.balanceAfter).toBeGreaterThanOrEqual(completed.balanceBefore - expectedCost.total)
+    })
+
+    test('a non-final reaction deletion preserves and decrements the aggregate', async () => {
+      const nftResult = await algorand.send.assetCreate({
+        sender: user2.addr,
+        signer: user2.signer,
+        total: 2n,
+        decimals: 0,
+        assetName: 'Shared React NFT',
+        unitName: 'SHREACT',
+        defaultFrozen: false,
+      })
+      const sharedNftId = BigInt(nftResult.confirmation.assetId!)
+
+      await algorand.send.assetOptIn({
+        sender: moderator.addr,
+        signer: moderator.signer,
+        assetId: sharedNftId,
+      })
+      await algorand.send.assetTransfer({
+        sender: user2.addr,
+        signer: user2.signer,
+        receiver: moderator.addr,
+        assetId: sharedNftId,
+        amount: 1n,
+      })
+
+      await user2Sdk.react({ ref: postRef1, refType: RefType.Post, nft: sharedNftId })
+      await moderatorSdk.react({ ref: postRef1, refType: RefType.Post, nft: sharedNftId })
+
+      await expect(daoSdk.socialClient.state.box.reactions.value({
+        ref: postRef1,
+        nft: sharedNftId,
+      })).resolves.toBe(2n)
+
+      await user2Sdk.deleteReaction({ ref: postRef1, nft: sharedNftId })
+
+      await expect(daoSdk.socialClient.state.box.reactions.value({
+        ref: postRef1,
+        nft: sharedNftId,
+      })).resolves.toBe(1n)
+
+      await moderatorSdk.deleteReaction({ ref: postRef1, nft: sharedNftId })
+      await expect(daoSdk.socialClient.state.box.reactions.value({
+        ref: postRef1,
+        nft: sharedNftId,
+      })).resolves.toBe(0n)
     })
   })
 
@@ -1838,6 +1896,37 @@ describe('Full DAO Integration Tests', () => {
   })
 
   describe('Impact Operations (Success)', () => {
+    test('should create a social-impact app soft-stake commitment', async () => {
+      const rootAmount = 20_000_000_000n
+      const impactAmount = 10_000_000_000n
+
+      await akitaUniverse.staking.optIn({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        asset: aktaAssetId,
+      })
+      await akitaUniverse.staking.stake({
+        sender: user1.addr,
+        signer: user1.signer,
+        type: StakingType.Soft,
+        asset: aktaAssetId,
+        amount: rootAmount,
+      })
+      await user1Sdk.commitStakingImpact({ amount: impactAmount })
+
+      const appStake = await akitaUniverse.staking.getAppWeightedStake({
+        app: impactAppId,
+        address: user1.addr.toString(),
+        asset: aktaAssetId,
+        acceptInherited: true,
+      })
+      expect(appStake.amount).toBe(impactAmount)
+
+      const checkpoint = await user2Sdk.checkpointStakingImpact({ address: user1.addr.toString() })
+      expect(checkpoint.valid).toBe(true)
+      expect(checkpoint.balance).toBeGreaterThanOrEqual(impactAmount)
+    })
+
     test('getUserImpact should return user impact score', async () => {
       const impact = await daoSdk.getUserImpact({ address: user1.addr.toString() })
       expect(impact).toBeGreaterThanOrEqual(0n)
@@ -1918,4 +2007,3 @@ describe('Full DAO Integration Tests', () => {
     })
   })
 })
-

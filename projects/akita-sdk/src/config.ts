@@ -3,10 +3,10 @@
  * Handles network detection and environment-based app ID resolution
  */
 
-import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
-import { getAppIdFromNetwork, NetworkAppIds, getNetworkAppIds } from "./networks";
+import { AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client';
+import { getAppIdFromNetwork, NetworkAppIds, getNetworkAppIds } from './networks';
 
-export { NetworkAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from "./networks";
+export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from './networks';
 
 // ============================================================================
 // Types
@@ -20,31 +20,32 @@ export type AkitaNetwork = 'localnet' | 'testnet' | 'mainnet';
 export const ENV_VAR_NAMES = {
   // Network
   NETWORK: 'ALGORAND_NETWORK',
-  
+
   // Core Contracts
   DAO_APP_ID: 'DAO_APP_ID',
   DAO_PROPOSAL_VALIDATOR_APP_ID: 'DAO_PROPOSAL_VALIDATOR_APP_ID',
   WALLET_APP_ID: 'WALLET_APP_ID',
+  WALLET_MBR_APP_ID: 'WALLET_MBR_APP_ID',
   ESCROW_FACTORY_APP_ID: 'ESCROW_FACTORY_APP_ID',
   WALLET_FACTORY_APP_ID: 'WALLET_FACTORY_APP_ID',
   SUBSCRIPTIONS_APP_ID: 'SUBSCRIPTIONS_APP_ID',
   STAKING_POOL_FACTORY_APP_ID: 'STAKING_POOL_FACTORY_APP_ID',
   STAKING_APP_ID: 'STAKING_APP_ID',
   REWARDS_APP_ID: 'REWARDS_APP_ID',
-  
+
   // Social System
   SOCIAL_APP_ID: 'SOCIAL_APP_ID',
   SOCIAL_GRAPH_APP_ID: 'SOCIAL_GRAPH_APP_ID',
   SOCIAL_IMPACT_APP_ID: 'SOCIAL_IMPACT_APP_ID',
   SOCIAL_MODERATION_APP_ID: 'SOCIAL_MODERATION_APP_ID',
-  
+
   // Factories
   AUCTION_FACTORY_APP_ID: 'AUCTION_FACTORY_APP_ID',
   MARKETPLACE_APP_ID: 'MARKETPLACE_APP_ID',
   RAFFLE_FACTORY_APP_ID: 'RAFFLE_FACTORY_APP_ID',
   POLL_FACTORY_APP_ID: 'POLL_FACTORY_APP_ID',
   PRIZE_BOX_FACTORY_APP_ID: 'PRIZE_BOX_FACTORY_APP_ID',
-  
+
   // Plugins
   REVENUE_MANAGER_PLUGIN_APP_ID: 'REVENUE_MANAGER_PLUGIN_APP_ID',
   UPDATE_PLUGIN_APP_ID: 'UPDATE_PLUGIN_APP_ID',
@@ -67,12 +68,12 @@ export const ENV_VAR_NAMES = {
   SOCIAL_PLUGIN_APP_ID: 'SOCIAL_PLUGIN_APP_ID',
   STAKING_PLUGIN_APP_ID: 'STAKING_PLUGIN_APP_ID',
   STAKING_POOL_PLUGIN_APP_ID: 'STAKING_POOL_PLUGIN_APP_ID',
-  
+
   // Gates & Other
   GATE_APP_ID: 'GATE_APP_ID',
   HYPER_SWAP_APP_ID: 'HYPER_SWAP_APP_ID',
   META_MERKLES_APP_ID: 'META_MERKLES_APP_ID',
-  
+
   // Subgates
   AKITA_REFERRER_GATE_APP_ID: 'AKITA_REFERRER_GATE_APP_ID',
   ASSET_GATE_APP_ID: 'ASSET_GATE_APP_ID',
@@ -94,7 +95,7 @@ export const ENV_VAR_NAMES = {
   // Assets
   AKTA_ASSET_ID: 'AKTA_ASSET_ID',
   BONES_ASSET_ID: 'BONES_ASSET_ID',
-  
+
   // External Apps
   VRF_BEACON_APP_ID: 'VRF_BEACON_APP_ID',
   NFD_REGISTRY_APP_ID: 'NFD_REGISTRY_APP_ID',
@@ -109,7 +110,7 @@ export type EnvVarName = keyof typeof ENV_VAR_NAMES;
  */
 export interface AkitaConfig {
   network: AkitaNetwork;
-  
+
   // Core Contracts
   daoAppId?: bigint;
   daoProposalValidatorAppId?: bigint;
@@ -120,25 +121,25 @@ export interface AkitaConfig {
   stakingPoolFactoryAppId?: bigint;
   stakingAppId?: bigint;
   rewardsAppId?: bigint;
-  
+
   // Social System
   socialAppId?: bigint;
   socialGraphAppId?: bigint;
   socialImpactAppId?: bigint;
   socialModerationAppId?: bigint;
-  
+
   // Factories
   auctionFactoryAppId?: bigint;
   marketplaceAppId?: bigint;
   raffleFactoryAppId?: bigint;
   pollFactoryAppId?: bigint;
   prizeBoxFactoryAppId?: bigint;
-  
+
   // Gates & Other
   gateAppId?: bigint;
   hyperSwapAppId?: bigint;
   metaMerklesAppId?: bigint;
-  
+
   // Assets
   aktaAssetId?: bigint;
   bonesAssetId?: bigint;
@@ -151,7 +152,7 @@ export interface AkitaConfig {
 /**
  * Gets the current network from environment variables
  * Throws an error if no valid network is configured
- * 
+ *
  * Checks multiple env var names for compatibility:
  * - ALGORAND_NETWORK (SDK standard)
  * - ALGOD_NETWORK (common alternative)
@@ -165,17 +166,15 @@ export function getNetworkFromEnv(): AkitaNetwork {
     'NEXT_PUBLIC_ALGORAND_NETWORK',
     'NEXT_PUBLIC_ALGOD_NETWORK',
   ];
-  
+
   for (const name of envVarNames) {
     const network = getEnvVar(name);
     if (network === 'testnet' || network === 'mainnet' || network === 'localnet') {
       return network;
     }
   }
-  
-  throw new Error(
-    `No valid network configured. Set one of these environment variables to 'localnet', 'testnet', or 'mainnet': ${envVarNames.join(', ')}`
-  );
+
+  throw new Error(`No valid network configured. Set one of these environment variables to 'localnet', 'testnet', or 'mainnet': ${envVarNames.join(', ')}`);
 }
 
 /**
@@ -202,7 +201,7 @@ export function getEnvVar(name: string): string | undefined {
 export function getAppIdFromEnv(envVarName: string): bigint | undefined {
   const value = getEnvVar(envVarName);
   if (!value) return undefined;
-  
+
   try {
     const parsed = BigInt(value);
     return parsed > 0n ? parsed : undefined;
@@ -217,7 +216,7 @@ export function getAppIdFromEnv(envVarName: string): bigint | undefined {
 export function getConfigFromEnv(): AkitaConfig {
   return {
     network: getNetworkFromEnv(),
-    
+
     // Core Contracts
     daoAppId: getAppIdFromEnv(ENV_VAR_NAMES.DAO_APP_ID),
     daoProposalValidatorAppId: getAppIdFromEnv(ENV_VAR_NAMES.DAO_PROPOSAL_VALIDATOR_APP_ID),
@@ -228,25 +227,25 @@ export function getConfigFromEnv(): AkitaConfig {
     stakingPoolFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.STAKING_POOL_FACTORY_APP_ID),
     stakingAppId: getAppIdFromEnv(ENV_VAR_NAMES.STAKING_APP_ID),
     rewardsAppId: getAppIdFromEnv(ENV_VAR_NAMES.REWARDS_APP_ID),
-    
+
     // Social System
     socialAppId: getAppIdFromEnv(ENV_VAR_NAMES.SOCIAL_APP_ID),
     socialGraphAppId: getAppIdFromEnv(ENV_VAR_NAMES.SOCIAL_GRAPH_APP_ID),
     socialImpactAppId: getAppIdFromEnv(ENV_VAR_NAMES.SOCIAL_IMPACT_APP_ID),
     socialModerationAppId: getAppIdFromEnv(ENV_VAR_NAMES.SOCIAL_MODERATION_APP_ID),
-    
+
     // Factories
     auctionFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.AUCTION_FACTORY_APP_ID),
     marketplaceAppId: getAppIdFromEnv(ENV_VAR_NAMES.MARKETPLACE_APP_ID),
     raffleFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.RAFFLE_FACTORY_APP_ID),
     pollFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.POLL_FACTORY_APP_ID),
     prizeBoxFactoryAppId: getAppIdFromEnv(ENV_VAR_NAMES.PRIZE_BOX_FACTORY_APP_ID),
-    
+
     // Gates & Other
     gateAppId: getAppIdFromEnv(ENV_VAR_NAMES.GATE_APP_ID),
     hyperSwapAppId: getAppIdFromEnv(ENV_VAR_NAMES.HYPER_SWAP_APP_ID),
     metaMerklesAppId: getAppIdFromEnv(ENV_VAR_NAMES.META_MERKLES_APP_ID),
-    
+
     // Assets
     aktaAssetId: getAppIdFromEnv(ENV_VAR_NAMES.AKTA_ASSET_ID),
     bonesAssetId: getAppIdFromEnv(ENV_VAR_NAMES.BONES_ASSET_ID),
@@ -260,16 +259,11 @@ export function getConfigFromEnv(): AkitaConfig {
 /**
  * Known algod URLs for network detection
  */
-const TESTNET_URL_PATTERNS = [
-  'testnet',
-  'testnet.algonode.cloud',
-  'testnet-api.algonode.cloud',
-  'testnet-algod.algonode.cloud',
-];
+const TESTNET_URL_PATTERNS = ['testnet', 'testnet.algonode.cloud', 'testnet-api.algonode.cloud', 'testnet-algod.algonode.cloud'];
 
 const MAINNET_URL_PATTERNS = [
   'mainnet',
-  'mainnet.algonode.cloud', 
+  'mainnet.algonode.cloud',
   'mainnet-api.algonode.cloud',
   'mainnet-algod.algonode.cloud',
   'algonode.io', // mainnet uses .io
@@ -294,43 +288,43 @@ export function detectNetworkFromClient(algorand: AlgorandClient): AkitaNetwork 
   if (explicitNetwork !== undefined) {
     return explicitNetwork;
   }
-  
+
   // Then check environment variable
   try {
     return getNetworkFromEnv();
   } catch {
     // No env var set, try URL detection
   }
-  
+
   // Try to detect from client URL
   try {
     // Try multiple ways to access the URL
     let url = '';
-    
+
     // accessing internal property
     const algodClient = algorand.client?.algod;
     if (algodClient) {
       // @ts-ignore - accessing internal properties
       url = algodClient.c?.baseURL || algodClient.bc?.baseURL || '';
     }
-    
+
     if (typeof url === 'string' && url.length > 0) {
       const lowerUrl = url.toLowerCase();
-      
+
       // Check for mainnet first (more specific)
       for (const pattern of MAINNET_URL_PATTERNS) {
         if (lowerUrl.includes(pattern)) {
           return 'mainnet';
         }
       }
-      
+
       // Check for testnet
       for (const pattern of TESTNET_URL_PATTERNS) {
         if (lowerUrl.includes(pattern)) {
           return 'testnet';
         }
       }
-      
+
       // Check for localnet
       for (const pattern of LOCALNET_URL_PATTERNS) {
         if (lowerUrl.includes(pattern)) {
@@ -341,12 +335,9 @@ export function detectNetworkFromClient(algorand: AlgorandClient): AkitaNetwork 
   } catch {
     // Ignore URL detection errors
   }
-  
+
   // Neither env var nor URL detection worked
-  throw new Error(
-    'Could not detect network. Set ALGORAND_NETWORK, ALGOD_NETWORK, or NEXT_PUBLIC_ALGOD_NETWORK ' +
-    'environment variable, or use an AlgorandClient configured with a recognizable network URL.'
-  );
+  throw new Error('Could not detect network. Set ALGORAND_NETWORK, ALGOD_NETWORK, or NEXT_PUBLIC_ALGOD_NETWORK ' + 'environment variable, or use an AlgorandClient configured with a recognizable network URL.');
 }
 
 // Store the current network context (set when SDK is initialized with an AlgorandClient)
@@ -385,14 +376,14 @@ export const SDK_TO_ENV_VAR: Record<string, string> = {
   StakingPoolFactorySDK: ENV_VAR_NAMES.STAKING_POOL_FACTORY_APP_ID,
   StakingSDK: ENV_VAR_NAMES.STAKING_APP_ID,
   RewardsSDK: ENV_VAR_NAMES.REWARDS_APP_ID,
-  
+
   // Factories
   AuctionFactorySDK: ENV_VAR_NAMES.AUCTION_FACTORY_APP_ID,
   MarketplaceSDK: ENV_VAR_NAMES.MARKETPLACE_APP_ID,
   RaffleFactorySDK: ENV_VAR_NAMES.RAFFLE_FACTORY_APP_ID,
   PollFactorySDK: ENV_VAR_NAMES.POLL_FACTORY_APP_ID,
   PrizeBoxFactorySDK: ENV_VAR_NAMES.PRIZE_BOX_FACTORY_APP_ID,
-  
+
   // Gates & Other
   GateSDK: ENV_VAR_NAMES.GATE_APP_ID,
   HyperSwapSDK: ENV_VAR_NAMES.HYPER_SWAP_APP_ID,
@@ -419,7 +410,7 @@ export function getAppIdForSDK(sdkName: string): bigint | undefined {
  * 1. Explicitly provided app ID
  * 2. Environment variable
  * 3. Baked-in network-specific app ID (for testnet/mainnet)
- * 
+ *
  * @param providedAppId - The app ID provided directly to the constructor
  * @param envVarName - The environment variable name to check
  * @param sdkName - Name of the SDK (for error messages)
@@ -427,23 +418,18 @@ export function getAppIdForSDK(sdkName: string): bigint | undefined {
  * @returns The resolved app ID
  * @throws Error if no app ID can be resolved
  */
-export function resolveAppId(
-  providedAppId: bigint | undefined,
-  envVarName: string,
-  sdkName: string = 'SDK',
-  network?: AkitaNetwork
-): bigint {
+export function resolveAppId(providedAppId: bigint | undefined, envVarName: string, sdkName: string = 'SDK', network?: AkitaNetwork): bigint {
   // 1. Use provided app ID if available
   if (providedAppId !== undefined && providedAppId > 0n) {
     return providedAppId;
   }
-  
+
   // 2. Try to get from environment variable
   const envAppId = getAppIdFromEnv(envVarName);
   if (envAppId !== undefined) {
     return envAppId;
   }
-  
+
   // 3. Try to get from baked-in network config
   const targetNetwork = network ?? getCurrentNetwork();
   if (targetNetwork !== undefined) {
@@ -452,7 +438,7 @@ export function resolveAppId(
       return networkAppId;
     }
   }
-  
+
   // No app ID found - provide helpful error
   let networkHint = '';
   if (targetNetwork === undefined) {
@@ -462,26 +448,16 @@ export function resolveAppId(
   } else {
     networkHint = ` The baked-in ${targetNetwork} app IDs may not be configured yet.`;
   }
-  
-  throw new Error(
-    `No app ID provided for ${sdkName}. ` +
-    `Either pass appId in constructor params, set ${envVarName} environment variable, ` +
-    `or ensure network-specific app IDs are configured.${networkHint}`
-  );
+
+  throw new Error(`No app ID provided for ${sdkName}. ` + `Either pass appId in constructor params, set ${envVarName} environment variable, ` + `or ensure network-specific app IDs are configured.${networkHint}`);
 }
 
 /**
  * Resolves app ID with network detection from AlgorandClient
  * This is the preferred method when you have an AlgorandClient instance
  */
-export function resolveAppIdWithClient(
-  algorand: AlgorandClient,
-  providedAppId: bigint | undefined,
-  envVarName: string,
-  sdkName: string = 'SDK'
-): bigint {
+export function resolveAppIdWithClient(algorand: AlgorandClient, providedAppId: bigint | undefined, envVarName: string, sdkName: string = 'SDK'): bigint {
   const network = detectNetworkFromClient(algorand);
   setCurrentNetwork(network);
   return resolveAppId(providedAppId, envVarName, sdkName, network);
 }
-

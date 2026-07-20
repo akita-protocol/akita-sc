@@ -125,7 +125,6 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
    * Places a bid in the auction.
    * Use `isAsa: true` and `bidAsset` for ASA bids, otherwise ALGO is used.
    * Provide `gateTxn` for gated auctions.
-   * Uses opUp for raffle auctions (bidFee > 0) to expand reference limits.
    */
   async bid({
     sender,
@@ -153,9 +152,6 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
       }
     }
 
-    // Raffle auctions need opUp for weight box references
-    const isRaffleAuction = auctionState.bidFee > 0n;
-
     if (isAsa) {
       const { bidAsset } = rest as Extract<BidParams, { isAsa: true }>;
 
@@ -173,33 +169,15 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
       });
 
       if (gateTxn) {
-        if (isRaffleAuction) {
-          const group = this.client.newGroup();
-          group.gatedBidAsa({ ...sendParams, args: { payment, assetXfer, gateTxn, marketplace } });
-          for (let i = 0; i < 3; i++) {
-            group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-          }
-          await group.send(sendParams);
-        } else {
-          await this.client.send.gatedBidAsa({
-            ...sendParams,
-            args: { payment, assetXfer, gateTxn, marketplace },
-          });
-        }
+        await this.client.send.gatedBidAsa({
+          ...sendParams,
+          args: { payment, assetXfer, gateTxn, marketplace },
+        });
       } else {
-        if (isRaffleAuction) {
-          const group = this.client.newGroup();
-          group.bidAsa({ ...sendParams, args: { payment, assetXfer, marketplace } });
-          for (let i = 0; i < 3; i++) {
-            group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-          }
-          await group.send(sendParams);
-        } else {
-          await this.client.send.bidAsa({
-            ...sendParams,
-            args: { payment, assetXfer, marketplace },
-          });
-        }
+        await this.client.send.bidAsa({
+          ...sendParams,
+          args: { payment, assetXfer, marketplace },
+        });
       }
     } else {
       const payment = await this.client.algorand.createTransaction.payment({
@@ -209,33 +187,15 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
       });
 
       if (gateTxn) {
-        if (isRaffleAuction) {
-          const group = this.client.newGroup();
-          group.gatedBid({ ...sendParams, args: { payment, gateTxn, marketplace } });
-          for (let i = 0; i < 3; i++) {
-            group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-          }
-          await group.send(sendParams);
-        } else {
-          await this.client.send.gatedBid({
-            ...sendParams,
-            args: { payment, gateTxn, marketplace },
-          });
-        }
+        await this.client.send.gatedBid({
+          ...sendParams,
+          args: { payment, gateTxn, marketplace },
+        });
       } else {
-        if (isRaffleAuction) {
-          const group = this.client.newGroup();
-          group.bid({ ...sendParams, args: { payment, marketplace } });
-          for (let i = 0; i < 3; i++) {
-            group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-          }
-          await group.send(sendParams);
-        } else {
-          await this.client.send.bid({
-            ...sendParams,
-            args: { payment, marketplace },
-          });
-        }
+        await this.client.send.bid({
+          ...sendParams,
+          args: { payment, marketplace },
+        });
       }
     }
   }
@@ -268,62 +228,27 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
   /**
    * Iterates to find the raffle winner based on the winning ticket.
    * May need to be called multiple times for large auctions.
-   * Uses opUp transactions to expand reference limits for iterating through weight boxes.
    */
   async findWinner({ sender, signer, iterationAmount }: FindWinnerParams): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
 
-    // Use transaction group with opUp to expand reference limits for weight box iteration
-    const group = this.client.newGroup();
-
-    // Add opUp calls to provide more foreign reference slots
-    // Scale opUp count with iterationAmount to support larger batches (15-19 range)
-    // Each iteration may access multiple weight/location boxes
-    // Max group size is 16, so we can have max 15 opUps + 1 findWinner call = 16 total
-    // Formula: base 3 opUps, plus 1 per 2 iterations, capped at 15
-    const opUpCount = Math.min(15, Math.max(3, 3 + Math.floor(Number(iterationAmount) / 2)));
-    for (let i = 0; i < opUpCount; i++) {
-      group.opUp({
-        ...sendParams,
-        args: {},
-        note: i > 0 ? `opUp-${i}` : undefined,
-      });
-    }
-
-    group.findWinner({
+    await this.client.send.findWinner({
       ...sendParams,
       args: { iterationAmount },
     });
-
-    await group.send(sendParams);
   }
 
   /**
    * Claims the auction prize for the highest bidder.
    * Also distributes royalties to marketplace, creator, and Akita.
-   * Uses opUp transactions to expand reference limits for royalty distribution.
    */
   async claimPrize(params?: MaybeSigner): Promise<void> {
     const sendParams = this.getSendParams(params);
 
-    // Use transaction group with opUp to expand reference limits
-    // claimPrize needs many references: prize, buyer, seller, 2x marketplace, akitaDAO, escrow, creator
-    const group = this.client.newGroup();
-
-    group.claimPrize({
+    await this.client.send.claimPrize({
       ...sendParams,
       args: {},
     });
-
-    for (let i = 0; i < 6; i++) {
-      group.opUp({
-        ...sendParams,
-        args: {},
-        note: i > 0 ? `${i}` : undefined,
-      });
-    }
-
-    await group.send(sendParams);
   }
 
   /**
@@ -370,4 +295,3 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
     return returnAmount;
   }
 }
-

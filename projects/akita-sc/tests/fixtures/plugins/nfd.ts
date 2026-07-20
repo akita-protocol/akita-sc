@@ -33,5 +33,12 @@ export const deployNFDPlugin = async ({ fixture, sender, signer, args }: DeployP
 
   console.log('NFDPlugin deployed with appId:', client.appId);
 
-  return new NFDPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new NFDPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

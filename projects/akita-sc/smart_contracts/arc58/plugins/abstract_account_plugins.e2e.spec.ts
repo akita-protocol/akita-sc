@@ -144,7 +144,8 @@ describe('Abstracted Account Plugins', () => {
     });
 
     test('add named plugin OK', async () => {
-      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: 'payments', groups: 0n });
+      const before = await localnet.algorand.account.getInformation(wallet.client.appAddress);
       await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.namedPlugins) });
 
       await wallet.addPlugin({
@@ -152,6 +153,9 @@ describe('Abstracted Account Plugins', () => {
         callerType: CallerType.Global,
         name: 'payments',
       });
+
+      const after = await localnet.algorand.account.getInformation(wallet.client.appAddress);
+      expect(after.minBalance.microAlgos - before.minBalance.microAlgos).toEqual(mbr.plugins + mbr.namedPlugins);
 
       const namedPlugins = await wallet.getNamedPlugins();
       expect(namedPlugins.has('payments')).toBe(true);
@@ -528,13 +532,15 @@ describe('Abstracted Account Plugins', () => {
     });
 
     test('named plugin requires additional MBR', async () => {
-      const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      const emptyMbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
+      const populatedMbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: 'payments', groups: 2n });
 
-      // Named plugin requires extra MBR for the name box
-      expect(mbr.namedPlugins).toBeGreaterThan(0n);
-
-      // Regular plugin MBR
-      expect(mbr.plugins).toBeGreaterThan(0n);
+      // Exact box costs: 2_500 + 400 * (box-name bytes + encoded-value bytes).
+      expect(emptyMbr.plugins).toEqual(38_900n);
+      expect(emptyMbr.namedPlugins).toEqual(20_500n);
+      expect(emptyMbr.executions).toEqual(23_700n);
+      expect(populatedMbr.namedPlugins).toEqual(23_700n);
+      expect(populatedMbr.executions).toEqual(49_300n);
     });
   });
 });

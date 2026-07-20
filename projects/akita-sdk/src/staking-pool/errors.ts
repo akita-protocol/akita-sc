@@ -59,6 +59,7 @@ export const STAKING_POOL_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Entry validation ---------------------------------------------------
   QBMS: 'Quantity is less than minimum stake amount',
+  EEXS: 'Address already has an entry for this asset',
   FSVF: 'Failed to verify stake requirements',
   UBLO: 'User does not have minimum balance',
   USLO: 'User does not have enough staked',

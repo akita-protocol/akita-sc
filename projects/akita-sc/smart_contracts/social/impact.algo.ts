@@ -1,8 +1,8 @@
-import { Account, Application, Asset, BoxMap, bytes, Bytes, clone, gtxn, loggedAssert, match, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Account, Application, Asset, BoxMap, bytes, Bytes, clone, gtxn, itxn, loggedAssert, match, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
 import { AssetHolding, btoi, Global, Txn } from "@algorandfoundation/algorand-typescript/op";
 import { Staking } from "../staking/contract.algo";
-import { Stake, STAKING_TYPE_SOFT } from "../staking/types";
+import { StakeCheck } from "../staking/types";
 import { Subscriptions } from "../subscriptions/contract.algo";
 import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/base";
 import { AkitaCollectionsPrefixAKC, AkitaCollectionsPrefixAOG, AkitaNFTCreatorAddress } from "../utils/constants";
@@ -183,22 +183,20 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     return socialImpact
   }
 
-  private calculateStakingImpactScore(info: Stake): uint64 {
-    const elapsed: uint64 = Global.latestTimestamp - info.lastUpdate
-
+  private calculateStakingImpactScore(amount: uint64, weightedAge: uint64): uint64 {
     // if the amount staked is too low or not much time has passed short circuit
-    if (info.amount < TEN_THOUSAND_AKITA || elapsed < THIRTY_DAYS) {
+    if (amount < TEN_THOUSAND_AKITA || weightedAge < THIRTY_DAYS) {
       return 0
     }
 
     // Calculate score based on time elapsed, capped by amount staked
-    const amtCapped = info.amount >= TWO_HUNDRED_THOUSAND_AKITA ? TWO_HUNDRED_THOUSAND_AKITA : info.amount
+    const amtCapped = amount >= TWO_HUNDRED_THOUSAND_AKITA ? TWO_HUNDRED_THOUSAND_AKITA : amount
 
     // Calculate the maximum possible score based on the staked amount
     const maxScore: uint64 = (amtCapped * 250) / TWO_HUNDRED_THOUSAND_AKITA
 
     // Calculate the actual score based on time elapsed, capped by maxScore
-    const timeCapped = elapsed >= ONE_YEAR ? ONE_YEAR : elapsed
+    const timeCapped = weightedAge >= ONE_YEAR ? ONE_YEAR : weightedAge
 
     return (timeCapped * maxScore) / ONE_YEAR
   }
@@ -214,27 +212,12 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
 
     const staking = getAkitaAppList(this.akitaDAO.value).staking
 
-    const stakingInfos = clone(abiCall<typeof Staking.prototype.getInfoAtLeast>({
+    const weightedStake = abiCall<typeof Staking.prototype.getAppWeightedStake>({
       appId: staking,
-      args: [
-        account,
-        {
-          asset: akta,
-          type: STAKING_TYPE_SOFT,
-        }
-      ]
-    }).returnValue)
+      args: [Global.currentApplicationId.id, account, akta, true]
+    }).returnValue
 
-    let totalScore: uint64 = 0
-    for (let i: uint64 = 0; i < stakingInfos.length; i += 1) {
-      totalScore += this.calculateStakingImpactScore(stakingInfos[i])
-    }
-
-    if (totalScore > 250) {
-      return 250
-    }
-
-    return totalScore
+    return this.calculateStakingImpactScore(weightedStake.amount, weightedStake.weightedAge)
   }
 
   private getHeldAktaImpactScore(account: Account): uint64 {
@@ -435,7 +418,52 @@ export class AkitaSocialImpact extends UpgradeableAkitaBaseContract {
     )
   }
 
+  /** Enrolls the caller in this application's AKTA soft-stake commitment. */
+  commitStakingImpact(payment: gtxn.PaymentTxn, amount: uint64, inheritRoot: boolean): void {
+    const staking = Application(getAkitaAppList(this.akitaDAO.value).staking)
+    const akta = getAkitaAssets(this.akitaDAO.value).akta
+    const cost = abiCall<typeof Staking.prototype.appStakeCost>({
+      appId: staking,
+      args: [Txn.sender, akta],
+    }).returnValue
+
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.amount === cost, ERR_INVALID_PAYMENT)
+
+    abiCall<typeof Staking.prototype.commitAppSoftStake>({
+      appId: staking,
+      args: [
+        itxn.payment({ receiver: staking.address, amount: cost }),
+        Txn.sender,
+        akta,
+        amount,
+        inheritRoot,
+      ],
+    })
+  }
+
+  /** Permissionlessly records a currently observed shortfall for social impact. */
+  checkpointStakingImpact(address: Account): StakeCheck {
+    const staking = getAkitaAppList(this.akitaDAO.value).staking
+    const akta = getAkitaAssets(this.akitaDAO.value).akta
+    return abiCall<typeof Staking.prototype.checkpointAppSoftStake>({
+      appId: staking,
+      args: [Global.currentApplicationId.id, address, akta],
+    }).returnValue
+  }
+
   // READ ONLY METHODS ----------------------------------------------------------------------------
+
+  /** Returns the MBR this application must fund to create an AKTA commitment for an account. */
+  @abimethod({ readonly: true })
+  stakingImpactCost(address: Account): uint64 {
+    const staking = getAkitaAppList(this.akitaDAO.value).staking
+    const akta = getAkitaAssets(this.akitaDAO.value).akta
+    return abiCall<typeof Staking.prototype.appStakeCost>({
+      appId: staking,
+      args: [address, akta],
+    }).returnValue
+  }
 
   // exists so the social protocol contract can call it without reentrancy issues
   @abimethod({ readonly: true })

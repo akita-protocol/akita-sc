@@ -110,7 +110,7 @@ export class StakingAmountGate extends AkitaBaseContract {
 
     const params = decodeArc4<StakingAmountGateRegistryInfo>(args)
     // dont include the list operators includes & not includes
-    loggedAssert(params.op.asUint64() <= 6, ERR_BAD_OPERATION)
+    loggedAssert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id

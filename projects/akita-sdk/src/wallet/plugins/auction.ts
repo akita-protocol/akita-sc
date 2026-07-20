@@ -215,4 +215,3 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
     });
   }
 }
-

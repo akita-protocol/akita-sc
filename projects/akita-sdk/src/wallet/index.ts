@@ -1,15 +1,15 @@
-import { AbstractAccountBoxMbrData, AbstractedAccountArgs, AbstractedAccountFactory, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer, PluginInfoFromTuple, EscrowInfoFromTuple } from '../generated/AbstractedAccountClient'
+import { AbstractedAccountArgs, AbstractedAccountFactory, AllowanceKey, EscrowInfo, PluginKey, type AbstractedAccountClient, ExecutionInfo, AbstractedAccountComposer, PluginInfoFromTuple, EscrowInfoFromTuple } from '../generated/AbstractedAccountClient'
+import { AbstractAccountBoxMbrData, AbstractedAccountMbrClient } from '../generated/AbstractedAccountMBRClient'
 import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CallerType, CanCallParams, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
 import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, hasSenderSigner, ExpandedSendParamsWithSigner, PluginTxn } from '../types';
 import { BaseSDK } from '../base';
-import { ENV_VAR_NAMES } from '../config';
+import { ENV_VAR_NAMES, resolveAppIdWithClient } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
 import { AllowanceInfoTranslate, AllowancesToTuple, domainBoxKey, executionBoxKey, ValueMap } from './utils';
 import { wrapUtils10Signer } from '../utils';
 import { NewEscrowFeeAmount } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
-import { ABIMethod } from '@algorandfoundation/algokit-utils/abi';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 import { BoxIdentifier, BoxReference } from '@algorandfoundation/algokit-utils/types/app-manager';
 import { prepareGroup, PreparedGroup, sendPrepared } from '../simulate/prepare';
@@ -34,18 +34,29 @@ type ContractArgs = AbstractedAccountArgs["obj"];
 export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
   private pluginMapKeyGenerator = ({ plugin, caller = ALGORAND_ZERO_ADDRESS_STRING, escrow = '' }: Partial<Omit<PluginKey, 'plugin'>> & { plugin: bigint }) => (`${plugin}${caller}${escrow}`)
+  private allowanceMapKeyGenerator = ({ asset, escrow }: AllowanceKey) => (`${asset}${escrow}`);
+
   public plugins: ValueMap<PluginKey, PluginInfo> = new ValueMap(this.pluginMapKeyGenerator);
   public namedPlugins: Map<string, PluginKey> = new Map();
-
   public escrows: Map<string, EscrowInfo> = new Map();
-
-  private allowanceMapKeyGenerator = ({ asset, escrow }: AllowanceKey) => (`${asset}${escrow}`);
   public allowances: ValueMap<AllowanceKey, AllowanceInfo> = new ValueMap(this.allowanceMapKeyGenerator);
-
   public executions: Map<Uint8Array, ExecutionInfo> = new Map();
+  public mbrClient: AbstractedAccountMbrClient;
 
   constructor(params: NewContractSDKParams) {
     super({ factory: AbstractedAccountFactory, ...params }, ENV_VAR_NAMES.WALLET_APP_ID);
+    const mbrAppId = resolveAppIdWithClient(
+      this.algorand,
+      undefined,
+      ENV_VAR_NAMES.WALLET_MBR_APP_ID,
+      'AbstractedAccountMBR',
+    )
+    this.mbrClient = new AbstractedAccountMbrClient({
+      algorand: this.algorand,
+      appId: mbrAppId,
+      defaultSender: params.factoryParams.defaultSender,
+      defaultSigner: params.factoryParams.defaultSigner,
+    });
   }
 
   group(): WalletGroupComposer {
@@ -112,32 +123,29 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     let spendingAddress = (await this.client.state.global.controlledAddress())!
     if (escrow !== '') {
-      let id = 0n
       if (this.escrows.has(escrow)) {
-        id = this.escrows.get(escrow)!.id
+        spendingAddress = this.escrows.get(escrow)!.address
       } else {
         try {
-          id = (await this.getEscrow(escrow)).id
+          spendingAddress = (await this.getEscrow(escrow)).address
         } catch (error) {
           throw new Error(`Escrow with name ${escrow} does not exist`);
         }
       }
-      spendingAddress = algosdk.getApplicationAddress(id).toString();
     }
 
     // Group calls into segments by consecutive appId
-    type PluginSegment = { appId: bigint; txns: PluginTxn[]; opUpCount: number };
+    type PluginSegment = { appId: bigint; txns: PluginTxn[] };
     const segments: PluginSegment[] = [];
 
     for (const call of calls) {
-      const { appId, getTxns, opUpCount = 0 } = call(spendingAddress);
+      const { appId, getTxns } = call(spendingAddress);
       const callTxns = await getTxns({ wallet: this.client.appId });
       const last = segments[segments.length - 1];
       if (last && last.appId === appId) {
         last.txns.push(...callTxns);
-        last.opUpCount += opUpCount;
       } else {
-        segments.push({ appId, txns: callTxns, opUpCount });
+        segments.push({ appId, txns: callTxns });
       }
     }
 
@@ -155,15 +163,11 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
 
     const group = this.client.newGroup()
-    let totalOpUpCount = 0;
     let lastUseRounds = false;
-    let lastPluginAppId = 0n;
 
     for (let segIdx = 0; segIdx < segments.length; segIdx++) {
       const segment = segments[segIdx];
       const isFirstSegment = segIdx === 0;
-      lastPluginAppId = segment.appId;
-      totalOpUpCount += segment.opUpCount;
 
       // Fetch plugin info and calculate method offsets for this segment
       const key: PluginKey = { plugin: segment.appId, caller, escrow }
@@ -222,7 +226,6 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         }
       }
 
-      // Add rekey for this segment
       if (name && segments.length === 1) {
         group.arc58RekeyToNamedPlugin({
           ...sendParams,
@@ -249,14 +252,38 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       const composer = await group.composer()
       for (const txn of segment.txns) {
         switch (txn.type) {
-          case 'pay': { composer.addPayment(txn); break; }
-          case 'assetCreate': { composer.addAssetCreate(txn); break; }
-          case 'assetConfig': { composer.addAssetConfig(txn); break; }
-          case 'assetFreeze': { composer.addAssetFreeze(txn); break; }
-          case 'assetDestroy': { composer.addAssetDestroy(txn); break; }
-          case 'assetTransfer': { composer.addAssetTransfer(txn); break; }
-          case 'assetOptIn': { composer.addAssetOptIn(txn); break; }
-          case 'assetOptOut': { composer.addAssetOptOut(txn); break; }
+          case 'pay': {
+            composer.addPayment(txn);
+            break;
+          }
+          case 'assetCreate': {
+            composer.addAssetCreate(txn);
+            break;
+          }
+          case 'assetConfig': {
+            composer.addAssetConfig(txn);
+            break;
+          }
+          case 'assetFreeze': {
+            composer.addAssetFreeze(txn);
+            break;
+          }
+          case 'assetDestroy': {
+            composer.addAssetDestroy(txn);
+            break;
+          }
+          case 'assetTransfer': {
+            composer.addAssetTransfer(txn);
+            break;
+          }
+          case 'assetOptIn': {
+            composer.addAssetOptIn(txn);
+            break;
+          }
+          case 'assetOptOut': {
+            composer.addAssetOptOut(txn);
+            break;
+          }
           case 'appCall': {
             const asAny = txn as any;
             if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n && 'approvalProgram' in asAny) {
@@ -276,7 +303,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
             }
             break;
           }
-          case 'txnWithSigner': { composer.addTransaction(txn.txn, txn.signer); break; }
+          case 'txnWithSigner': {
+            composer.addTransaction(txn.txn, txn.signer);
+            break;
+          }
           case 'methodCall': {
             const asAny = txn as any;
             if ('appId' in asAny && asAny.appId !== undefined && asAny.appId !== 0n && 'approvalProgram' in asAny) {
@@ -294,7 +324,6 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         }
       }
 
-      // Add verifyAuthAddress after this segment's transactions
       // Note differentiates each verifyAuth so they have unique txn IDs within the group
       group.arc58VerifyAuthAddress({
         ...sendParams,
@@ -302,42 +331,6 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         ...(segments.length > 1 ? { note: new TextEncoder().encode(`v${segIdx}`) } : {})
       })
 
-    }
-
-    // Calculate actual txn count manually, accounting for companion transactions
-    // (ABI method calls with transaction-type args like `pay` expand to multiple txns)
-    const ABI_TXN_TYPES = ['txn', 'pay', 'keyreg', 'acfg', 'axfer', 'afrz', 'appl'];
-    let actualTxnCount = 0;
-    for (const segment of segments) {
-      actualTxnCount += 2; // rekey + verifyAuth
-      for (const txn of segment.txns) {
-        actualTxnCount += 1;
-        if (txn.type === 'methodCall') {
-          for (const arg of txn.method.args) {
-            if (typeof arg.type === 'string' && ABI_TXN_TYPES.includes(arg.type)) {
-              actualTxnCount += 1;
-            }
-          }
-        }
-      }
-    }
-
-    // Add opUp transactions after all segments, using the last segment's appId
-    const hasSigner = hasSenderSigner(sendParams);
-    const opUpLimit = Math.min(totalOpUpCount, (16 - actualTxnCount));
-    if (totalOpUpCount > 0 && hasSigner && opUpLimit > 0) {
-      const opUpComposer = await group.composer();
-      for (let i = 0; i < opUpLimit; i++) {
-        opUpComposer.addAppCallMethodCall({
-          sender: sendParams.sender,
-          signer: sendParams.signer,
-          appId: lastPluginAppId,
-          method: ABIMethod.fromSignature('opUp()void'),
-          args: [],
-          maxFee: microAlgo(1_000),
-          note: new TextEncoder().encode(String(i))
-        });
-      }
     }
 
     const length = await (await group.composer()).count()
@@ -483,8 +476,8 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     let result: GroupReturn;
 
     if (consolidateFees || shouldInflate) {
-      // Utils10-native flow: single simulate via `prepareGroup` populates
-      // resources and distributes inner-txn fees; we then consolidate onto
+      // The shared planner discovers and strictly validates resources via
+      // `prepareGroup`, while distributing inner-txn fees; we then consolidate onto
       // txn[0] and, when coverFees is on, deflate the fundsRequest from the
       // simulate-only inflated value to the real fee. No extra simulate.
       const composer = await group.composer();
@@ -497,8 +490,8 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         }
       }
 
-      // Single simulate + post-build mutations. Sender/signer already match
-      // `preparedSendParams` on the composer calls, so no override needed.
+      // Sender/signer already match `preparedSendParams` on the composer
+      // calls, so no override is needed for the validated build.
       const prepared = await prepareGroup(composer);
 
       // Sum the fees utils10 just distributed — that's our totalFees cap.
@@ -723,7 +716,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     });
   }
 
-  async newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>> {
+  async newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
@@ -733,7 +726,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     });
   }
 
-  async toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>> {
+  async toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): Promise<TxnReturn<EscrowInfo>> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
@@ -1145,6 +1138,9 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   async getMbr(args: MbrParams): Promise<AbstractAccountBoxMbrData> {
-    return (await this.client.send.mbr({ args })).return as unknown as AbstractAccountBoxMbrData;
+    return await this.mbrClient.mbr({
+      args: { appId: this.client.appId, ...args },
+      staticFee: microAlgo(2_000),
+    })
   }
 }

@@ -1163,9 +1163,9 @@
       ]
     },
     "362": {
-      "op": "pushint 6",
+      "op": "pushint 60",
       "defined_out": [
-        "6",
+        "60",
         "tmp%1#0",
         "tmp%7#0"
       ],
@@ -1174,7 +1174,7 @@
         "tmp%1#0",
         "args#0",
         "tmp%7#0",
-        "6"
+        "60"
       ]
     },
     "364": {
@@ -4530,9 +4530,9 @@
       ]
     },
     "690": {
-      "op": "pushbytes 0xf5232bf3 // method \"mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)\"",
+      "op": "pushbytes 0xea7da955 // method \"mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)\"",
       "defined_out": [
-        "Method(mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64))",
+        "Method(mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64))",
         "aggregate%extract%1#0",
         "aggregate%head%1#0",
         "type#0"
@@ -4547,7 +4547,7 @@
         "tmp%0#0",
         "registryID#0",
         "aggregate%head%1#0",
-        "Method(mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64))"
+        "Method(mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64))"
       ]
     },
     "696": {
@@ -4874,9 +4874,9 @@
       ]
     },
     "727": {
-      "op": "pushint 24",
+      "op": "pushint 32",
       "defined_out": [
-        "24",
+        "32",
         "aggregate%extract%1#0",
         "awst_tmp%1#0",
         "len%1#0",
@@ -4894,7 +4894,7 @@
         "registryID#0",
         "awst_tmp%1#0",
         "len%1#0",
-        "24"
+        "32"
       ]
     },
     "729": {

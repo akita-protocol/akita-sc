@@ -15,7 +15,9 @@ import { wrapUtils10Signer } from "../utils";
 //
 // `prepareGroup` + `sendPrepared` replace the legacy
 // `composerToLegacyAtc → forceProperties → prepareGroupWithCost → sendLegacyAtc`
-// chain with a single utils10-native flow that runs exactly one simulate.
+// chain with a utils10-native flow. The shared Access planner runs a discovery
+// simulation, adds carriers when required, and performs a final strict
+// validation simulation before anything is signed.
 //
 // The old chain existed because `prepareGroupWithCost` was written for
 // `algosdk.AtomicTransactionComposer` and mutated transactions using algosdk
@@ -26,7 +28,7 @@ import { wrapUtils10Signer } from "../utils";
 // We still drop into algosdk shape *after* build() to apply field mutations
 // (sender swap, lease, fee consolidation) — utils10 transactions aren't
 // trivially mutable and have no exposed `assignGroupID` equivalent. This
-// conversion happens in-memory without a second simulate roundtrip.
+// conversion happens in-memory after strict validation.
 
 export interface ForceOptions {
   /** Swap the transaction sender. Used for arc58 execution handoff where
@@ -56,11 +58,11 @@ export interface PreparedGroup {
   groupId: string;
   methodCalls: Map<number, ABIMethod>;
   /**
-   * The simulate response captured from the single simulate round-trip that
-   * utils10 runs inside `composer.build()` to populate app-call resources and
-   * distribute inner-transaction fees. Exposed here so downstream consumers
+   * The final strict simulate response captured from `composer.build()` after
+   * app-call resources, carrier calls, and inner-transaction fees are complete.
+   * Exposed here so downstream consumers
    * (e.g. `computeExpectedCost`) can read account deltas and inner-txn
-   * information *without* paying for a second simulate. Undefined only if
+   * information without issuing their own simulate. Undefined only if
    * utils10's internal simulate path didn't run — which shouldn't happen when
    * `populateAppCallResources` and `coverAppCallInnerTransactionFees` are on.
    */
@@ -76,32 +78,31 @@ export interface SendGroupResult {
 }
 
 /**
- * Run a single simulate through utils10's `composer.build()` to populate
- * app-call resources and distribute fees for inner-transaction coverage,
- * then apply any post-build overrides (sender swap, lease, fee consolidation)
- * to the resulting transactions.
+ * Build through utils10, dynamically populate Access lists and carrier calls,
+ * distribute fees for inner-transaction coverage, strictly validate the final
+ * group, then apply post-build overrides (sender swap, lease, fee
+ * consolidation) to the resulting transactions.
  *
  * Returns an unsigned, regrouped group ready for either:
  *   - Immediate sending via `sendPrepared(prepared, algod)`
  *   - Handoff to a different submitter (arc58 execution flow) by returning
  *     `prepared.transactions` without signing
  *
- * Exactly one simulate runs per call (inside `composer.build()`). Post-build
- * mutations happen in-memory and don't trigger another simulate.
+ * Post-build mutations happen in-memory and don't trigger another simulate.
  */
 export async function prepareGroup(
   composer: TransactionComposer,
   overrides: ForceOptions = {}
 ): Promise<PreparedGroup> {
-  // Run simulate-populate-cover. This is the only simulate roundtrip.
+  // Run discover-populate-cover-validate through the shared composer patch.
   const configured = composer.clone({
     populateAppCallResources: true,
     coverAppCallInnerTransactionFees: true,
   });
 
   // When sender/signer overrides are requested, swap them on the cloned
-  // composer BEFORE `build()` fires — so the single simulate inside build
-  // runs as-if the overridden sender submitted the group. This matters for
+  // composer BEFORE `build()` fires — so discovery and final validation run
+  // as if the overridden sender submitted the group. This matters for
   // execution handoff (arc58), where simulate must run as admin to populate
   // resources correctly. Post-build mutation (further down) would leave the
   // simulate having been run with the wrong sender, producing contract-level
@@ -112,18 +113,31 @@ export async function prepareGroup(
         ? overrides.sender
         : overrides.sender.toString()
       : undefined;
-  if (senderOverride || overrides.signer) {
+  const leaseBytes =
+    overrides.lease !== undefined
+      ? typeof overrides.lease === "string"
+        ? encodeLease(overrides.lease)
+        : overrides.lease
+      : undefined;
+  if (senderOverride || overrides.signer || leaseBytes) {
     const internalTxns = (configured as unknown as {
-      txns: Array<{ type: string; data: { sender?: unknown; signer?: unknown } }>;
+      txns: Array<{
+        type: string;
+        data: { sender?: unknown; signer?: unknown; lease?: Uint8Array; txn?: { lease?: Uint8Array } };
+      }>;
     }).txns;
-    for (const ctxn of internalTxns) {
+    for (const [index, ctxn] of internalTxns.entries()) {
       if (senderOverride) ctxn.data.sender = senderOverride;
       if (overrides.signer) ctxn.data.signer = overrides.signer;
+      if (leaseBytes && index === 0) {
+        if (ctxn.type === "txn" && ctxn.data.txn) ctxn.data.txn.lease = leaseBytes;
+        else ctxn.data.lease = leaseBytes;
+      }
     }
   }
 
-  // Intercept the single simulate utils10 performs inside `composer.build()`
-  // (via `analyzeGroupRequirements` → `algod.simulateTransactions`). We wrap
+  // Intercept simulations performed inside `composer.build()` (discovery,
+  // optional carrier retries, and final validation). We wrap
   // the composer's algod client in a Proxy that transparently forwards every
   // method, then overloads `simulateTransactions` to cache the response.
   //
@@ -134,8 +148,9 @@ export async function prepareGroup(
   // build() returns.
   //
   // Why capture on the composer and not the outer algod: utils10 reads the
-  // algod off the composer instance when analyzing the group, so the wrapper
-  // must be installed on the composer's `algod` property specifically.
+  // algod off the composer instance, so the wrapper must be installed on the
+  // composer's `algod` property specifically. The last response captured is
+  // the strict final validation response.
   let capturedSimulateResponse: SimulateResponse | undefined;
   const composerInternal = configured as unknown as { algod: AlgodClient };
   const originalAlgod = composerInternal.algod;
@@ -190,13 +205,6 @@ export async function prepareGroup(
       ? typeof overrides.sender === "string"
         ? algosdk.decodeAddress(overrides.sender)
         : overrides.sender
-      : undefined;
-
-  const leaseBytes =
-    overrides.lease !== undefined
-      ? typeof overrides.lease === "string"
-        ? encodeLease(overrides.lease)
-        : overrides.lease
       : undefined;
 
   // Convert each utils10 Transaction to an algosdk Transaction via msgpack

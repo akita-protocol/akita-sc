@@ -33,7 +33,7 @@ export interface BinaryState {
 export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expand<A>) => Expand<R> : T extends infer O ? {
     [K in keyof O]: O[K];
 } : never;
-export type Arc4ImpactMetaValue = {
+export type ImpactMetaValue = {
     subscriptionIndex: bigint;
     nfd: bigint;
     nfdTimeChanged: bigint;
@@ -41,24 +41,28 @@ export type Arc4ImpactMetaValue = {
     akitaNft: bigint;
 };
 /**
- * Converts the ABI tuple representation of a arc4ImpactMetaValue to the struct representation
+ * Converts the ABI tuple representation of a ImpactMetaValue to the struct representation
  */
-export declare function Arc4ImpactMetaValueFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint]): Arc4ImpactMetaValue;
-export type MetaValue = {
-    walletId: bigint;
+export declare function ImpactMetaValueFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint]): ImpactMetaValue;
+export type SocialImpactInputs = {
+    hasMeta: boolean;
     streak: bigint;
     startDate: bigint;
-    lastActive: bigint;
-    followerIndex: bigint;
-    followerCount: bigint;
-    automated: boolean;
-    followGateId: bigint;
-    addressGateId: bigint;
+    voteCount: bigint;
+    isNegative: boolean;
 };
 /**
- * Converts the ABI tuple representation of a MetaValue to the struct representation
+ * Converts the ABI tuple representation of a SocialImpactInputs to the struct representation
  */
-export declare function MetaValueFromTuple(abiTuple: [bigint, bigint, bigint, bigint, bigint, bigint, boolean, bigint, bigint]): MetaValue;
+export declare function SocialImpactInputsFromTuple(abiTuple: [boolean, bigint, bigint, bigint, boolean]): SocialImpactInputs;
+export type StakeCheck = {
+    valid: boolean;
+    balance: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a StakeCheck to the struct representation
+ */
+export declare function StakeCheckFromTuple(abiTuple: [boolean, bigint]): StakeCheck;
 /**
  * The argument types for the AkitaSocialImpact contract
  */
@@ -71,7 +75,8 @@ export type AkitaSocialImpactArgs = {
             akitaDao: bigint | number;
             version: string;
         };
-        'cacheMeta(uint64,uint64,uint64)uint64': {
+        'cacheMeta(address,uint64,uint64,uint64)uint64': {
+            address: string;
             subscriptionIndex: bigint | number;
             nfdAppId: bigint | number;
             akitaAssetId: bigint | number;
@@ -81,34 +86,59 @@ export type AkitaSocialImpactArgs = {
             subscriptionIndex: bigint | number;
             newModifier: bigint | number;
         };
+        'commitStakingImpact(pay,uint64,bool)void': {
+            payment: AppMethodCallTransactionArgument;
+            amount: bigint | number;
+            inheritRoot: boolean;
+        };
+        'checkpointStakingImpact(address)(bool,uint64)': {
+            address: string;
+        };
+        'stakingImpactCost(address)uint64': {
+            address: string;
+        };
         'getUserImpactWithoutSocial(address)uint64': {
             address: string;
         };
         'getUserImpact(address)uint64': {
             address: string;
         };
-        'getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)': {
+        'getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64': {
+            address: string;
+            inputs: SocialImpactInputs;
+        };
+        'calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64': {
+            inputs: SocialImpactInputs;
+        };
+        'getMeta(address)(uint64,uint64,uint64,uint64,uint64)': {
             user: string;
         };
         'update(string)void': {
             newVersion: string;
         };
         'updateAkitaDAO(uint64)void': {
-            app: bigint | number;
+            akitaDao: bigint | number;
         };
+        'opUp()void': Record<string, never>;
     };
     /**
      * The tuple representation of the arguments for each method
      */
     tuple: {
         'create(uint64,string)void': [akitaDao: bigint | number, version: string];
-        'cacheMeta(uint64,uint64,uint64)uint64': [subscriptionIndex: bigint | number, nfdAppId: bigint | number, akitaAssetId: bigint | number];
+        'cacheMeta(address,uint64,uint64,uint64)uint64': [address: string, subscriptionIndex: bigint | number, nfdAppId: bigint | number, akitaAssetId: bigint | number];
         'updateSubscriptionStateModifier(pay,uint64,uint64)void': [payment: AppMethodCallTransactionArgument, subscriptionIndex: bigint | number, newModifier: bigint | number];
+        'commitStakingImpact(pay,uint64,bool)void': [payment: AppMethodCallTransactionArgument, amount: bigint | number, inheritRoot: boolean];
+        'checkpointStakingImpact(address)(bool,uint64)': [address: string];
+        'stakingImpactCost(address)uint64': [address: string];
         'getUserImpactWithoutSocial(address)uint64': [address: string];
         'getUserImpact(address)uint64': [address: string];
-        'getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)': [user: string];
+        'getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64': [address: string, inputs: SocialImpactInputs];
+        'calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64': [inputs: SocialImpactInputs];
+        'getMeta(address)(uint64,uint64,uint64,uint64,uint64)': [user: string];
         'update(string)void': [newVersion: string];
-        'updateAkitaDAO(uint64)void': [app: bigint | number];
+        'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
+        'opUp()void': [];
     };
 };
 /**
@@ -116,13 +146,19 @@ export type AkitaSocialImpactArgs = {
  */
 export type AkitaSocialImpactReturns = {
     'create(uint64,string)void': void;
-    'cacheMeta(uint64,uint64,uint64)uint64': bigint;
+    'cacheMeta(address,uint64,uint64,uint64)uint64': bigint;
     'updateSubscriptionStateModifier(pay,uint64,uint64)void': void;
+    'commitStakingImpact(pay,uint64,bool)void': void;
+    'checkpointStakingImpact(address)(bool,uint64)': StakeCheck;
+    'stakingImpactCost(address)uint64': bigint;
     'getUserImpactWithoutSocial(address)uint64': bigint;
     'getUserImpact(address)uint64': bigint;
-    'getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)': MetaValue;
+    'getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64': bigint;
+    'calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64': bigint;
+    'getMeta(address)(uint64,uint64,uint64,uint64,uint64)': ImpactMetaValue;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
+    'opUp()void': void;
 };
 /**
  * Defines the types of available calls and state of the AkitaSocialImpact smart contract.
@@ -135,14 +171,26 @@ export type AkitaSocialImpactTypes = {
         argsObj: AkitaSocialImpactArgs['obj']['create(uint64,string)void'];
         argsTuple: AkitaSocialImpactArgs['tuple']['create(uint64,string)void'];
         returns: AkitaSocialImpactReturns['create(uint64,string)void'];
-    }> & Record<'cacheMeta(uint64,uint64,uint64)uint64' | 'cacheMeta', {
-        argsObj: AkitaSocialImpactArgs['obj']['cacheMeta(uint64,uint64,uint64)uint64'];
-        argsTuple: AkitaSocialImpactArgs['tuple']['cacheMeta(uint64,uint64,uint64)uint64'];
-        returns: AkitaSocialImpactReturns['cacheMeta(uint64,uint64,uint64)uint64'];
+    }> & Record<'cacheMeta(address,uint64,uint64,uint64)uint64' | 'cacheMeta', {
+        argsObj: AkitaSocialImpactArgs['obj']['cacheMeta(address,uint64,uint64,uint64)uint64'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['cacheMeta(address,uint64,uint64,uint64)uint64'];
+        returns: AkitaSocialImpactReturns['cacheMeta(address,uint64,uint64,uint64)uint64'];
     }> & Record<'updateSubscriptionStateModifier(pay,uint64,uint64)void' | 'updateSubscriptionStateModifier', {
         argsObj: AkitaSocialImpactArgs['obj']['updateSubscriptionStateModifier(pay,uint64,uint64)void'];
         argsTuple: AkitaSocialImpactArgs['tuple']['updateSubscriptionStateModifier(pay,uint64,uint64)void'];
         returns: AkitaSocialImpactReturns['updateSubscriptionStateModifier(pay,uint64,uint64)void'];
+    }> & Record<'commitStakingImpact(pay,uint64,bool)void' | 'commitStakingImpact', {
+        argsObj: AkitaSocialImpactArgs['obj']['commitStakingImpact(pay,uint64,bool)void'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['commitStakingImpact(pay,uint64,bool)void'];
+        returns: AkitaSocialImpactReturns['commitStakingImpact(pay,uint64,bool)void'];
+    }> & Record<'checkpointStakingImpact(address)(bool,uint64)' | 'checkpointStakingImpact', {
+        argsObj: AkitaSocialImpactArgs['obj']['checkpointStakingImpact(address)(bool,uint64)'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['checkpointStakingImpact(address)(bool,uint64)'];
+        returns: AkitaSocialImpactReturns['checkpointStakingImpact(address)(bool,uint64)'];
+    }> & Record<'stakingImpactCost(address)uint64' | 'stakingImpactCost', {
+        argsObj: AkitaSocialImpactArgs['obj']['stakingImpactCost(address)uint64'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['stakingImpactCost(address)uint64'];
+        returns: AkitaSocialImpactReturns['stakingImpactCost(address)uint64'];
     }> & Record<'getUserImpactWithoutSocial(address)uint64' | 'getUserImpactWithoutSocial', {
         argsObj: AkitaSocialImpactArgs['obj']['getUserImpactWithoutSocial(address)uint64'];
         argsTuple: AkitaSocialImpactArgs['tuple']['getUserImpactWithoutSocial(address)uint64'];
@@ -151,10 +199,18 @@ export type AkitaSocialImpactTypes = {
         argsObj: AkitaSocialImpactArgs['obj']['getUserImpact(address)uint64'];
         argsTuple: AkitaSocialImpactArgs['tuple']['getUserImpact(address)uint64'];
         returns: AkitaSocialImpactReturns['getUserImpact(address)uint64'];
-    }> & Record<'getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)' | 'getMeta', {
-        argsObj: AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'];
-        argsTuple: AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'];
-        returns: AkitaSocialImpactReturns['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'];
+    }> & Record<'getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64' | 'getUserImpactWithInputs', {
+        argsObj: AkitaSocialImpactArgs['obj']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'];
+        returns: AkitaSocialImpactReturns['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'];
+    }> & Record<'calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64' | 'calculateSocialImpactScore', {
+        argsObj: AkitaSocialImpactArgs['obj']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'];
+        returns: AkitaSocialImpactReturns['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'];
+    }> & Record<'getMeta(address)(uint64,uint64,uint64,uint64,uint64)' | 'getMeta', {
+        argsObj: AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'];
+        returns: AkitaSocialImpactReturns['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'];
     }> & Record<'update(string)void' | 'update', {
         argsObj: AkitaSocialImpactArgs['obj']['update(string)void'];
         argsTuple: AkitaSocialImpactArgs['tuple']['update(string)void'];
@@ -163,6 +219,10 @@ export type AkitaSocialImpactTypes = {
         argsObj: AkitaSocialImpactArgs['obj']['updateAkitaDAO(uint64)void'];
         argsTuple: AkitaSocialImpactArgs['tuple']['updateAkitaDAO(uint64)void'];
         returns: AkitaSocialImpactReturns['updateAkitaDAO(uint64)void'];
+    }> & Record<'opUp()void' | 'opUp', {
+        argsObj: AkitaSocialImpactArgs['obj']['opUp()void'];
+        argsTuple: AkitaSocialImpactArgs['tuple']['opUp()void'];
+        returns: AkitaSocialImpactReturns['opUp()void'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -187,7 +247,7 @@ export type AkitaSocialImpactTypes = {
                 /**
                  * A map of the meta data for each user
                  */
-                meta: Map<string, Arc4ImpactMetaValue>;
+                meta: Map<string, ImpactMetaValue>;
                 /**
                  * A map of how each akita subscription affects impact calculation
                  */
@@ -343,12 +403,12 @@ export declare abstract class AkitaSocialImpactParamsFactory {
         update(params: CallParams<AkitaSocialImpactArgs["obj"]["update(string)void"] | AkitaSocialImpactArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
     };
     /**
-     * Constructs a no op call for the cacheMeta(uint64,uint64,uint64)uint64 ABI method
+     * Constructs a no op call for the cacheMeta(address,uint64,uint64,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static cacheMeta(params: CallParams<AkitaSocialImpactArgs['obj']['cacheMeta(uint64,uint64,uint64)uint64'] | AkitaSocialImpactArgs['tuple']['cacheMeta(uint64,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static cacheMeta(params: CallParams<AkitaSocialImpactArgs['obj']['cacheMeta(address,uint64,uint64,uint64)uint64'] | AkitaSocialImpactArgs['tuple']['cacheMeta(address,uint64,uint64,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateSubscriptionStateModifier(pay,uint64,uint64)void ABI method
      *
@@ -356,6 +416,33 @@ export declare abstract class AkitaSocialImpactParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static updateSubscriptionStateModifier(params: CallParams<AkitaSocialImpactArgs['obj']['updateSubscriptionStateModifier(pay,uint64,uint64)void'] | AkitaSocialImpactArgs['tuple']['updateSubscriptionStateModifier(pay,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the commitStakingImpact(pay,uint64,bool)void ABI method
+     *
+     * Enrolls the caller in this application's AKTA soft-stake commitment.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static commitStakingImpact(params: CallParams<AkitaSocialImpactArgs['obj']['commitStakingImpact(pay,uint64,bool)void'] | AkitaSocialImpactArgs['tuple']['commitStakingImpact(pay,uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the checkpointStakingImpact(address)(bool,uint64) ABI method
+     *
+     * Permissionlessly records a currently observed shortfall for social impact.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkpointStakingImpact(params: CallParams<AkitaSocialImpactArgs['obj']['checkpointStakingImpact(address)(bool,uint64)'] | AkitaSocialImpactArgs['tuple']['checkpointStakingImpact(address)(bool,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the stakingImpactCost(address)uint64 ABI method
+     *
+     * Returns the MBR this application must fund to create an AKTA commitment for an account.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static stakingImpactCost(params: CallParams<AkitaSocialImpactArgs['obj']['stakingImpactCost(address)uint64'] | AkitaSocialImpactArgs['tuple']['stakingImpactCost(address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getUserImpactWithoutSocial(address)uint64 ABI method
      *
@@ -371,12 +458,26 @@ export declare abstract class AkitaSocialImpactParamsFactory {
      */
     static getUserImpact(params: CallParams<AkitaSocialImpactArgs['obj']['getUserImpact(address)uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpact(address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64) ABI method
+     * Constructs a no op call for the getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getMeta(params: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getUserImpactWithInputs(params: CallParams<AkitaSocialImpactArgs['obj']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static calculateSocialImpactScore(params: CallParams<AkitaSocialImpactArgs['obj']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getMeta(address)(uint64,uint64,uint64,uint64,uint64) ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getMeta(params: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
      *
@@ -384,6 +485,13 @@ export declare abstract class AkitaSocialImpactParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static updateAkitaDao(params: CallParams<AkitaSocialImpactArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialImpactArgs['tuple']['updateAkitaDAO(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the opUp()void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static opUp(params: CallParams<AkitaSocialImpactArgs['obj']['opUp()void'] | AkitaSocialImpactArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the AkitaSocialImpact smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -940,12 +1048,12 @@ export declare class AkitaSocialImpactClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(address,uint64,uint64,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(uint64,uint64,uint64)uint64"]> & {
+        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(address,uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(address,uint64,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -977,6 +1085,107 @@ export declare class AkitaSocialImpactClient {
          * @returns The call params
          */
         updateSubscriptionStateModifier: (params: CallParams<AkitaSocialImpactArgs["obj"]["updateSubscriptionStateModifier(pay,uint64,uint64)void"] | AkitaSocialImpactArgs["tuple"]["updateSubscriptionStateModifier(pay,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `commitStakingImpact(pay,uint64,bool)void` ABI method.
+         *
+         * Enrolls the caller in this application's AKTA soft-stake commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["commitStakingImpact(pay,uint64,bool)void"] | AkitaSocialImpactArgs["tuple"]["commitStakingImpact(pay,uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `checkpointStakingImpact(address)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records a currently observed shortfall for social impact.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkpointStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["checkpointStakingImpact(address)(bool,uint64)"] | AkitaSocialImpactArgs["tuple"]["checkpointStakingImpact(address)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `stakingImpactCost(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Returns the MBR this application must fund to create an AKTA commitment for an account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        stakingImpactCost: (params: CallParams<AkitaSocialImpactArgs["obj"]["stakingImpactCost(address)uint64"] | AkitaSocialImpactArgs["tuple"]["stakingImpactCost(address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1068,14 +1277,80 @@ export declare class AkitaSocialImpactClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"]> & {
+        getUserImpactWithInputs: (params: CallParams<AkitaSocialImpactArgs["obj"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        calculateSocialImpactScore: (params: CallParams<AkitaSocialImpactArgs["obj"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1107,6 +1382,37 @@ export declare class AkitaSocialImpactClient {
          * @returns The call params
          */
         updateAkitaDao: (params: CallParams<AkitaSocialImpactArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialImpactArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        opUp: (params?: CallParams<AkitaSocialImpactArgs["obj"]["opUp()void"] | AkitaSocialImpactArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1162,12 +1468,12 @@ export declare class AkitaSocialImpactClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(address,uint64,uint64,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(uint64,uint64,uint64)uint64"]> & {
+        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(address,uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(address,uint64,uint64,uint64)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1181,6 +1487,53 @@ export declare class AkitaSocialImpactClient {
          * @returns The call transaction
          */
         updateSubscriptionStateModifier: (params: CallParams<AkitaSocialImpactArgs["obj"]["updateSubscriptionStateModifier(pay,uint64,uint64)void"] | AkitaSocialImpactArgs["tuple"]["updateSubscriptionStateModifier(pay,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `commitStakingImpact(pay,uint64,bool)void` ABI method.
+         *
+         * Enrolls the caller in this application's AKTA soft-stake commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["commitStakingImpact(pay,uint64,bool)void"] | AkitaSocialImpactArgs["tuple"]["commitStakingImpact(pay,uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `checkpointStakingImpact(address)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records a currently observed shortfall for social impact.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkpointStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["checkpointStakingImpact(address)(bool,uint64)"] | AkitaSocialImpactArgs["tuple"]["checkpointStakingImpact(address)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `stakingImpactCost(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Returns the MBR this application must fund to create an AKTA commitment for an account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        stakingImpactCost: (params: CallParams<AkitaSocialImpactArgs["obj"]["stakingImpactCost(address)uint64"] | AkitaSocialImpactArgs["tuple"]["stakingImpactCost(address)uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1218,14 +1571,44 @@ export declare class AkitaSocialImpactClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"]> & {
+        getUserImpactWithInputs: (params: CallParams<AkitaSocialImpactArgs["obj"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        calculateSocialImpactScore: (params: CallParams<AkitaSocialImpactArgs["obj"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1239,6 +1622,19 @@ export declare class AkitaSocialImpactClient {
          * @returns The call transaction
          */
         updateAkitaDao: (params: CallParams<AkitaSocialImpactArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialImpactArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        opUp: (params?: CallParams<AkitaSocialImpactArgs["obj"]["opUp()void"] | AkitaSocialImpactArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1283,15 +1679,15 @@ export declare class AkitaSocialImpactClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(uint64,uint64,uint64)uint64` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `cacheMeta(address,uint64,uint64,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(uint64,uint64,uint64)uint64"]> & SendParams & {
+        cacheMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["cacheMeta(address,uint64,uint64,uint64)uint64"] | AkitaSocialImpactArgs["tuple"]["cacheMeta(address,uint64,uint64,uint64)uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | AkitaSocialImpactReturns["cacheMeta(uint64,uint64,uint64)uint64"]);
+            return: (undefined | AkitaSocialImpactReturns["cacheMeta(address,uint64,uint64,uint64)uint64"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1310,6 +1706,68 @@ export declare class AkitaSocialImpactClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | AkitaSocialImpactReturns["updateSubscriptionStateModifier(pay,uint64,uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `commitStakingImpact(pay,uint64,bool)void` ABI method.
+         *
+         * Enrolls the caller in this application's AKTA soft-stake commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["commitStakingImpact(pay,uint64,bool)void"] | AkitaSocialImpactArgs["tuple"]["commitStakingImpact(pay,uint64,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["commitStakingImpact(pay,uint64,bool)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `checkpointStakingImpact(address)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records a currently observed shortfall for social impact.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkpointStakingImpact: (params: CallParams<AkitaSocialImpactArgs["obj"]["checkpointStakingImpact(address)(bool,uint64)"] | AkitaSocialImpactArgs["tuple"]["checkpointStakingImpact(address)(bool,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["checkpointStakingImpact(address)(bool,uint64)"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `stakingImpactCost(address)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * Returns the MBR this application must fund to create an AKTA commitment for an account.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        stakingImpactCost: (params: CallParams<AkitaSocialImpactArgs["obj"]["stakingImpactCost(address)uint64"] | AkitaSocialImpactArgs["tuple"]["stakingImpactCost(address)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["stakingImpactCost(address)uint64"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1359,17 +1817,57 @@ export declare class AkitaSocialImpactClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)` ABI method.
+         * Makes a call to the AkitaSocialImpact smart contract using the `getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"]> & SendParams & {
+        getUserImpactWithInputs: (params: CallParams<AkitaSocialImpactArgs["obj"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | AkitaSocialImpactReturns["getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)"]);
+            return: (undefined | AkitaSocialImpactReturns["getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        calculateSocialImpactScore: (params: CallParams<AkitaSocialImpactArgs["obj"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"] | AkitaSocialImpactArgs["tuple"]["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getMeta: (params: CallParams<AkitaSocialImpactArgs["obj"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"] | AkitaSocialImpactArgs["tuple"]["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["getMeta(address)(uint64,uint64,uint64,uint64,uint64)"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1396,6 +1894,24 @@ export declare class AkitaSocialImpactClient {
             confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the AkitaSocialImpact smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        opUp: (params?: CallParams<AkitaSocialImpactArgs["obj"]["opUp()void"] | AkitaSocialImpactArgs["tuple"]["opUp()void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialImpactReturns["opUp()void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -1404,6 +1920,17 @@ export declare class AkitaSocialImpactClient {
      * @returns A new app client with the altered params
      */
     clone(params: CloneAppClientParams): AkitaSocialImpactClient;
+    /**
+     * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `stakingImpactCost(address)uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * Returns the MBR this application must fund to create an AKTA commitment for an account.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    stakingImpactCost(params: CallParams<AkitaSocialImpactArgs['obj']['stakingImpactCost(address)uint64'] | AkitaSocialImpactArgs['tuple']['stakingImpactCost(address)uint64']>): Promise<bigint>;
     /**
      * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `getUserImpactWithoutSocial(address)uint64` ABI method.
      *
@@ -1423,14 +1950,32 @@ export declare class AkitaSocialImpactClient {
      */
     getUserImpact(params: CallParams<AkitaSocialImpactArgs['obj']['getUserImpact(address)uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpact(address)uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getMeta(params: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)']>): Promise<MetaValue>;
+    getUserImpactWithInputs(params: CallParams<AkitaSocialImpactArgs['obj']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64']>): Promise<bigint>;
+    /**
+     * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    calculateSocialImpactScore(params: CallParams<AkitaSocialImpactArgs['obj']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64']>): Promise<bigint>;
+    /**
+     * Makes a readonly (simulated) call to the AkitaSocialImpact smart contract using the `getMeta(address)(uint64,uint64,uint64,uint64,uint64)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getMeta(params: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)']>): Promise<ImpactMetaValue>;
     /**
      * Methods to access state for the current AkitaSocialImpact app
      */
@@ -1467,11 +2012,11 @@ export declare class AkitaSocialImpactClient {
                 /**
                  * Get all current values of the meta map in box state
                  */
-                getMap: () => Promise<Map<string, Arc4ImpactMetaValue>>;
+                getMap: () => Promise<Map<string, ImpactMetaValue>>;
                 /**
                  * Get a current value of the meta map by key from box state
                  */
-                value: (key: string) => Promise<Arc4ImpactMetaValue | undefined>;
+                value: (key: string) => Promise<ImpactMetaValue | undefined>;
             };
             /**
              * Get values from the subscriptionStateModifier map in box state
@@ -1492,12 +2037,12 @@ export declare class AkitaSocialImpactClient {
 }
 export type AkitaSocialImpactComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the cacheMeta(uint64,uint64,uint64)uint64 ABI method.
+     * Calls the cacheMeta(address,uint64,uint64,uint64)uint64 ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    cacheMeta(params?: CallParams<AkitaSocialImpactArgs['obj']['cacheMeta(uint64,uint64,uint64)uint64'] | AkitaSocialImpactArgs['tuple']['cacheMeta(uint64,uint64,uint64)uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['cacheMeta(uint64,uint64,uint64)uint64'] | undefined]>;
+    cacheMeta(params?: CallParams<AkitaSocialImpactArgs['obj']['cacheMeta(address,uint64,uint64,uint64)uint64'] | AkitaSocialImpactArgs['tuple']['cacheMeta(address,uint64,uint64,uint64)uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['cacheMeta(address,uint64,uint64,uint64)uint64'] | undefined]>;
     /**
      * Calls the updateSubscriptionStateModifier(pay,uint64,uint64)void ABI method.
      *
@@ -1505,6 +2050,33 @@ export type AkitaSocialImpactComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateSubscriptionStateModifier(params?: CallParams<AkitaSocialImpactArgs['obj']['updateSubscriptionStateModifier(pay,uint64,uint64)void'] | AkitaSocialImpactArgs['tuple']['updateSubscriptionStateModifier(pay,uint64,uint64)void']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['updateSubscriptionStateModifier(pay,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the commitStakingImpact(pay,uint64,bool)void ABI method.
+     *
+     * Enrolls the caller in this application's AKTA soft-stake commitment.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    commitStakingImpact(params?: CallParams<AkitaSocialImpactArgs['obj']['commitStakingImpact(pay,uint64,bool)void'] | AkitaSocialImpactArgs['tuple']['commitStakingImpact(pay,uint64,bool)void']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['commitStakingImpact(pay,uint64,bool)void'] | undefined]>;
+    /**
+     * Calls the checkpointStakingImpact(address)(bool,uint64) ABI method.
+     *
+     * Permissionlessly records a currently observed shortfall for social impact.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkpointStakingImpact(params?: CallParams<AkitaSocialImpactArgs['obj']['checkpointStakingImpact(address)(bool,uint64)'] | AkitaSocialImpactArgs['tuple']['checkpointStakingImpact(address)(bool,uint64)']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['checkpointStakingImpact(address)(bool,uint64)'] | undefined]>;
+    /**
+     * Calls the stakingImpactCost(address)uint64 ABI method.
+     *
+     * Returns the MBR this application must fund to create an AKTA commitment for an account.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    stakingImpactCost(params?: CallParams<AkitaSocialImpactArgs['obj']['stakingImpactCost(address)uint64'] | AkitaSocialImpactArgs['tuple']['stakingImpactCost(address)uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['stakingImpactCost(address)uint64'] | undefined]>;
     /**
      * Calls the getUserImpactWithoutSocial(address)uint64 ABI method.
      *
@@ -1520,12 +2092,26 @@ export type AkitaSocialImpactComposer<TReturns extends [...any[]] = []> = {
      */
     getUserImpact(params?: CallParams<AkitaSocialImpactArgs['obj']['getUserImpact(address)uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpact(address)uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['getUserImpact(address)uint64'] | undefined]>;
     /**
-     * Calls the getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64) ABI method.
+     * Calls the getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64 ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getMeta(params?: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['getMeta(address)(uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,uint64)'] | undefined]>;
+    getUserImpactWithInputs(params?: CallParams<AkitaSocialImpactArgs['obj']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['getUserImpactWithInputs(address,(bool,uint64,uint64,uint64,bool))uint64'] | undefined]>;
+    /**
+     * Calls the calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64 ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    calculateSocialImpactScore(params?: CallParams<AkitaSocialImpactArgs['obj']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'] | AkitaSocialImpactArgs['tuple']['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['calculateSocialImpactScore((bool,uint64,uint64,uint64,bool))uint64'] | undefined]>;
+    /**
+     * Calls the getMeta(address)(uint64,uint64,uint64,uint64,uint64) ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getMeta(params?: CallParams<AkitaSocialImpactArgs['obj']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'] | AkitaSocialImpactArgs['tuple']['getMeta(address)(uint64,uint64,uint64,uint64,uint64)']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['getMeta(address)(uint64,uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
      * Calls the updateAkitaDAO(uint64)void ABI method.
      *
@@ -1533,6 +2119,13 @@ export type AkitaSocialImpactComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateAkitaDao(params?: CallParams<AkitaSocialImpactArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialImpactArgs['tuple']['updateAkitaDAO(uint64)void']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['updateAkitaDAO(uint64)void'] | undefined]>;
+    /**
+     * Calls the opUp()void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    opUp(params?: CallParams<AkitaSocialImpactArgs['obj']['opUp()void'] | AkitaSocialImpactArgs['tuple']['opUp()void']>): AkitaSocialImpactComposer<[...TReturns, AkitaSocialImpactReturns['opUp()void'] | undefined]>;
     /**
      * Gets available update methods
      */

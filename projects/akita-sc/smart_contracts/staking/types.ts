@@ -35,15 +35,40 @@ export type StakeKey = {
   type: StakingType
 }
 
+export type AppStakeKey = {
+  app: uint64
+  address: Account
+  asset: uint64
+}
+
 export type Stake = {
   amount: uint64
   lastUpdate: uint64
   expiration: uint64
+  weightedAge: uint64
+}
+
+export type AppStake = {
+  amount: uint64
+  lastUpdate: uint64
+  weightedAge: uint64
+  inheritedAge: uint64
+}
+
+export type WeightedStake = {
+  amount: uint64
+  weightedAge: uint64
 }
 
 export type TotalsInfo = {
   locked: uint64
   escrowed: uint64
+  liveLockedStake: uint64
+}
+
+export type SettingsCheck = {
+  value: uint64
+  exists: boolean
 }
 
 export type Escrow = {
@@ -86,6 +111,7 @@ export type AssetCheck = {
 
 export type StakingMBRData = {
   stakes: uint64
+  appStakes: uint64
   heartbeats: uint64
   settings: uint64
 }

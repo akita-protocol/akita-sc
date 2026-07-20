@@ -8,6 +8,7 @@ import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
 export * from './constants';
 export * from "./errors";
 export * from "./types";
+export * from './legacy';
 type ContractArgs = AkitaDaoArgs["obj"];
 type SetupArgs = (Omit<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'> & Partial<Pick<ContractArgs['setup(string,byte[32])uint64'], 'nickname' | 'salt'>> & MaybeSigner);
 export declare class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {

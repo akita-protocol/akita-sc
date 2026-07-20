@@ -10,6 +10,7 @@ import {
   createUint64Tree,
 } from 'akita-sdk/meta-merkles'
 import algosdk from 'algosdk'
+import { installAccessListResourcePopulator } from '../../../akita-sdk/src/simulate/access-list'
 import { MetaMerklesFactory } from '../artifacts/meta-merkles/MetaMerklesClient'
 import {
   ERR_FAILED_TO_VERIFY_INCLUSION,
@@ -24,6 +25,7 @@ algokit.Config.configure({
   debug: true,
   populateAppCallResources: true,
 })
+installAccessListResourcePopulator()
 
 // Generate unique names for each test (max 31 bytes for root names)
 const randomSuffix = () => Math.random().toString(36).slice(2, 8)
@@ -234,6 +236,31 @@ describe('MetaMerkles SDK Tests', () => {
         name,
       })
       expect(hasRoot).toBe(true)
+    })
+
+    test('addRoot submits Access resources instead of legacy box references', async () => {
+      const tree = createUint64Tree([4n, 5n, 6n])
+      const name = uniqueName('root-access')
+      const cost = await sdk.rootCosts({ name })
+      const payment = await algorand.createTransaction.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: sdk.client.appAddress,
+        amount: algokit.microAlgo(cost),
+      })
+
+      const result = await sdk.client.send.addRoot({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { payment, name, root: tree.root, type: collectionTypeId },
+      })
+      const appCall = result.transactions.find((transaction) => transaction.appCall)?.appCall
+
+      expect(appCall?.accessReferences?.length).toBeGreaterThan(0)
+      expect(appCall?.accountReferences ?? []).toHaveLength(0)
+      expect(appCall?.appReferences ?? []).toHaveLength(0)
+      expect(appCall?.assetReferences ?? []).toHaveLength(0)
+      expect(appCall?.boxReferences ?? []).toHaveLength(0)
     })
 
     test('addRootFromTree convenience method works', async () => {

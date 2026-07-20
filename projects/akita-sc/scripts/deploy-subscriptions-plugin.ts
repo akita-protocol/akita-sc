@@ -9,7 +9,7 @@
  *   npm run deploy:subscriptions-plugin -- -n testnet -m "your mnemonic" -v "0.0.3"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { SubscriptionsPluginSDK } from 'akita-sdk/wallet'
 import { SubscriptionsPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/subscriptions/SubscriptionsPluginClient'
 
@@ -48,6 +48,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'subscriptionsPlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('SUBSCRIPTIONS PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -57,7 +59,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Version: ${options.version}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  subscriptionsPlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'subscriptionsPlugin', plugin.appId, options.version)}
 `)
 })

@@ -29,10 +29,13 @@ import { emptySigner, MAX_UINT64 } from "../constants";
 import { EMPTY_CID } from "./constants"
 import { AllowancesToTuple } from '../wallet/utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
+import { getDaoEscrowActionV2Cutover } from '../networks';
+import { decodeLegacyProposalNewEscrow, usesLegacyEscrowActionShape } from './legacy';
 
 export * from './constants';
 export * from "./errors";
 export * from "./types";
+export * from './legacy';
 
 type ContractArgs = AkitaDaoArgs["obj"]
 type SetupArgs = (
@@ -442,9 +445,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
               const {
                 createFee = currentFees?.createFee ?? 0n,
+                referrerPercentage = currentFees?.referrerPercentage ?? 0n,
               } = action.value;
 
-              data = getABIEncodedValue({ createFee }, 'WalletFees', this.client.appClient.appSpec.structs)
+              data = getABIEncodedValue({ createFee, referrerPercentage }, 'WalletFees', this.client.appClient.appSpec.structs)
               break;
             }
             case 'social_fees': {
@@ -637,9 +641,6 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       maxFee: microAlgo(6_000n)
     })
 
-    group.opUp({ args: {}, note: '1', maxFee: microAlgo(1_000n) })
-    group.opUp({ args: {}, note: '2', maxFee: microAlgo(1_000n) })
-
     const result = await group.send({ ...sendParams })
 
     if (result.returns === undefined) {
@@ -696,10 +697,6 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       },
       maxFee: microAlgo(257_000n)
     })
-
-    for (let i = 0; i < actions.length; i++) {
-      group.opUp({ args: {}, note: `${i}`, maxFee: microAlgo(257_000n) })
-    }
 
     // Single simulate via utils10's `prepareGroup` populates resources and
     // distributes inner-txn fees; optional fee consolidation onto txn[0] is
@@ -902,7 +899,7 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
   /**
    * Decodes the raw action bytes into their typed struct representation
    */
-  private decodeProposalAction(actionType: number, actionData: Uint8Array): DecodedProposalAction {
+  private decodeProposalAction(actionType: number, actionData: Uint8Array, useLegacyEscrowShape = false): DecodedProposalAction {
     const structType = this.getActionStructType(actionType);
     const structs = this.typeClient.appClient.appSpec.structs;
 
@@ -944,6 +941,15 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         return { type: ProposalActionEnum.RemoveAllowances, ...decoded };
       }
       case ProposalActionEnum.NewEscrow: {
+        if (useLegacyEscrowShape) {
+          try {
+            const decoded = decodeLegacyProposalNewEscrow(actionData);
+            return { type: ProposalActionEnum.NewEscrow, ...decoded };
+          } catch {
+            // Proposal edits retain the original creation timestamp. If an old
+            // proposal was edited after cutover, its replacement action is v2.
+          }
+        }
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalNewEscrow;
         return { type: ProposalActionEnum.NewEscrow, ...decoded };
       }
@@ -973,8 +979,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       throw new Error(`Proposal with id: ${proposalId} not found`);
     }
 
+    const escrowActionV2Cutover = getDaoEscrowActionV2Cutover(this.network);
+    const useLegacyEscrowShape = usesLegacyEscrowActionShape(proposal.created, escrowActionV2Cutover?.timestamp);
     const decodedActions: DecodedProposalAction[] = proposal.actions.map(([actionType, actionData]) => {
-      return this.decodeProposalAction(actionType, actionData);
+      return this.decodeProposalAction(actionType, actionData, useLegacyEscrowShape);
     });
 
     return {

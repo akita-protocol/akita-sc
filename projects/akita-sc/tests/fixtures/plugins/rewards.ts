@@ -33,5 +33,12 @@ export const deployRewardsPlugin = async ({ fixture, sender, signer, args: { aki
 
   console.log('RewardsPlugin deployed with appId:', client.appId);
 
-  return new RewardsPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new RewardsPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

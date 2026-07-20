@@ -2,8 +2,8 @@
  * Configuration module for Akita SDK
  * Handles network detection and environment-based app ID resolution
  */
-import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
-export { NetworkAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from "./networks";
+import { AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client';
+export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from './networks';
 export type AkitaNetwork = 'localnet' | 'testnet' | 'mainnet';
 /**
  * Environment variable names for each SDK/contract
@@ -13,6 +13,7 @@ export declare const ENV_VAR_NAMES: {
     readonly DAO_APP_ID: "DAO_APP_ID";
     readonly DAO_PROPOSAL_VALIDATOR_APP_ID: "DAO_PROPOSAL_VALIDATOR_APP_ID";
     readonly WALLET_APP_ID: "WALLET_APP_ID";
+    readonly WALLET_MBR_APP_ID: "WALLET_MBR_APP_ID";
     readonly ESCROW_FACTORY_APP_ID: "ESCROW_FACTORY_APP_ID";
     readonly WALLET_FACTORY_APP_ID: "WALLET_FACTORY_APP_ID";
     readonly SUBSCRIPTIONS_APP_ID: "SUBSCRIPTIONS_APP_ID";

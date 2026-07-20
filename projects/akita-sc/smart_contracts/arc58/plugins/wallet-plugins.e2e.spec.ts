@@ -124,6 +124,29 @@ describe('Plugin SDKs', () => {
         expect(typeof result.getTxns).toBe('function')
       })
     })
+
+    describe('optOut()', () => {
+      test('should return plugin hook when called without args', () => {
+        const hook = optInPluginSDK.optOut()
+        expect(typeof hook).toBe('function')
+
+        const result = hook()
+        expect(result.appId).toBe(optInPluginSDK.client.appId)
+        expect(result.selectors).toBeDefined()
+      })
+
+      test('should return plugin hook with transaction builder when called with args', () => {
+        const hook = optInPluginSDK.optOut({
+          sender: user.addr,
+          signer: user.signer,
+          assets: [0n],
+        })
+
+        const result = hook()
+        expect(result.appId).toBe(optInPluginSDK.client.appId)
+        expect(typeof result.getTxns).toBe('function')
+      })
+    })
   })
 
   describe('RevenueManagerPluginSDK', () => {
@@ -318,4 +341,3 @@ describe('Plugin SDK Integration with WalletSDK', () => {
     })
   })
 })
-

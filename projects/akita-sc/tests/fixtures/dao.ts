@@ -49,6 +49,7 @@ import {
   AkitaDaoProposalValidatorClient,
   AkitaDaoProposalValidatorFactory,
 } from '../../smart_contracts/artifacts/arc58/dao/AkitaDAOProposalValidatorClient'
+import { AbstractedAccountMbrFactory } from '../../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient'
 import { EscrowFactoryClient } from '../../smart_contracts/artifacts/escrow/EscrowFactoryClient'
 import { GateClient } from '../../smart_contracts/artifacts/gates/GateClient'
 import { HyperSwapClient } from '../../smart_contracts/artifacts/hyper-swap/HyperSwapClient'
@@ -432,7 +433,11 @@ async function setupStickerPackRewardsEscrow({
   const backendCaller = stickerRewardsCaller || process.env.AKITA_STICKER_REWARDS_CALLER || sender
 
   await proposeAndExecute(fixture.algorand, dao, [
-    { type: ProposalActionEnum.NewEscrow, escrow: STICKER_PACK_REWARDS_ESCROW },
+    {
+      type: ProposalActionEnum.NewEscrow,
+      escrow: STICKER_PACK_REWARDS_ESCROW,
+      address: ALGORAND_ZERO_ADDRESS_STRING,
+    },
   ])
   logger.escrow(STICKER_PACK_REWARDS_ESCROW, 'create')
 
@@ -889,6 +894,18 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   // Set the current network so SDKs can resolve app IDs correctly
   setCurrentNetwork(network)
+
+  // The wallet SDK delegates MBR calculations to this immutable helper app.
+  // The standalone universe deployer creates it before calling this fixture,
+  // but E2E tests call buildAkitaUniverse directly.
+  if (isLocalnet && !process.env.WALLET_MBR_APP_ID) {
+    const walletMbrFactory = fixture.context.algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+      defaultSender: params.sender,
+      defaultSigner: params.signer,
+    })
+    const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare()
+    process.env.WALLET_MBR_APP_ID = walletMbrClient.appId.toString()
+  }
 
   logger.startBuild()
 
@@ -1469,7 +1486,11 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   // Create rev_wallet escrow first so we can get its ID for wallet factory configuration
   await proposeAndExecute(fixture.algorand, dao, [
-    { type: ProposalActionEnum.NewEscrow, escrow: walletFactoryRevenueEscrow },
+    {
+      type: ProposalActionEnum.NewEscrow,
+      escrow: walletFactoryRevenueEscrow,
+      address: ALGORAND_ZERO_ADDRESS_STRING,
+    },
   ])
   logger.escrow(walletFactoryRevenueEscrow, 'create')
 
@@ -1567,7 +1588,11 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
   logger.plugin('deploy', 'PayPlugin', payPluginSDK.appId)
 
   await proposeAndExecute(fixture.algorand, dao, [
-    { type: ProposalActionEnum.NewEscrow, escrow: haystackRouterRevenueEscrow },
+    {
+      type: ProposalActionEnum.NewEscrow,
+      escrow: haystackRouterRevenueEscrow,
+      address: ALGORAND_ZERO_ADDRESS_STRING,
+    },
   ])
   logger.escrow(haystackRouterRevenueEscrow, 'create')
 
@@ -1761,7 +1786,9 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
   for (const escrow of recipientEscrows) {
     // Create escrow first
-    await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow }])
+    await proposeAndExecute(fixture.algorand, dao, [
+      { type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING },
+    ])
 
     // Add plugin and toggle lock in separate proposal (escrow must exist for validation)
     await proposeAndExecute(fixture.algorand, dao, [
@@ -1872,7 +1899,9 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
 
     // Only create escrow if it hasn't been created already
     if (!alreadyCreated) {
-      await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow }])
+      await proposeAndExecute(fixture.algorand, dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ])
     }
 
     await fundDaoWalletExecutionSender()
@@ -1924,6 +1953,7 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
           { name: revenueManagerPluginSdk.optIn(), cooldown: 0n },
           { name: revenueManagerPluginSdk.startEscrowDisbursement(), cooldown: 0n },
           { name: revenueManagerPluginSdk.processEscrowAllocation(), cooldown: 0n },
+          { name: revenueManagerPluginSdk.finalizeEscrowDisbursement(), cooldown: 0n },
         ],
       },
     ])
@@ -2155,7 +2185,9 @@ export const buildAkitaUniverse = async (params: BuildUniverseParams): Promise<A
     }
 
     // Create the escrow
-    await proposeAndExecute(fixture.algorand, dao, [{ type: ProposalActionEnum.NewEscrow, escrow }])
+    await proposeAndExecute(fixture.algorand, dao, [
+      { type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING },
+    ])
     logger.escrow(escrow, 'create')
 
     // Add optin plugin to the escrow

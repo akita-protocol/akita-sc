@@ -10,7 +10,7 @@
  *   ts-node scripts/deploy-staking-plugin.ts --network mainnet --mnemonic "your mnemonic"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { StakingPluginSDK } from 'akita-sdk/wallet'
 import { StakingPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/staking/StakingPluginClient'
 
@@ -49,6 +49,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'stakingPlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('STAKING PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -58,7 +60,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Version: ${options.version}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  stakingPlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'stakingPlugin', plugin.appId, options.version)}
 `)
 })

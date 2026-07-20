@@ -3,7 +3,8 @@
 /**
  * Update Social Contract Script
  *
- * Updates one or more social contracts to a new version via the
+ * Updates the main social contract, or an explicitly selected set of social
+ * contracts, to a new version via the
  * UpdateAkitaDAO plugin and DAO proposals.
  *
  * Available contracts: social, socialGraph, socialImpact, socialModeration
@@ -59,14 +60,12 @@ runScript(async () => {
     }
   }
 
-  if (contracts.length === 0) {
-    contracts = [...SOCIAL_CONTRACTS]
-  }
+  if (contracts.length === 0) contracts = ['social']
 
   const options = parseBaseArgs('update-social.ts', `
   --contracts <list>            Comma-separated list of contracts to update.
                                 Valid: ${SOCIAL_CONTRACTS.join(', ')}
-                                Default: all four`)
+                                Default: social`)
   console.log(`\nStarting social contract update on ${options.network}...`)
   console.log(`   Contracts: ${contracts.map(c => CONTRACT_CONFIG[c].name).join(', ')}\n`)
 

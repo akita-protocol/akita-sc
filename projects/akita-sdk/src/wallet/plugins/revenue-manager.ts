@@ -1,5 +1,5 @@
 import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
-import { RevenueManagerPluginArgs, RevenueManagerPluginClient, RevenueManagerPluginFactory } from "../../generated/RevenueManagerPluginClient"
+import { ReceiveEscrow, RevenueManagerPluginArgs, RevenueManagerPluginClient, RevenueManagerPluginFactory, SplitRef } from "../../generated/RevenueManagerPluginClient"
 import { BaseSDK } from "../../base";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
 import algosdk, { Address } from "algosdk";
@@ -27,6 +27,32 @@ type NewReceiveEscrowWithRefContractArgs = (
   & MaybeSigner
   & { rekeyBack?: boolean }
 )
+
+type MigrateReceiveEscrowContractArgs = MaybeSigner & {
+  rekeyBack?: boolean
+  escrow: string
+  receiveEscrow: ReceiveEscrow
+  /** Exact non-zero ASA identities represented by receiveEscrow.optinCount. */
+  assets: bigint[]
+  splits: [[bigint | number, string], bigint | number, bigint | number][]
+  splitRef: SplitRef
+  useSplitRef: boolean
+}
+
+type ExistingMethodCallParams = Parameters<RevenueManagerPluginClient['params']['newReceiveEscrow']>[0]
+type ExistingMethodParams = Awaited<ReturnType<RevenueManagerPluginClient['params']['newReceiveEscrow']>>
+type MigrateReceiveEscrowCallParams = Omit<ExistingMethodCallParams, 'args'> & {
+  args: {
+    wallet: bigint
+    rekeyBack: boolean
+    escrow: string
+    receiveEscrow: ReceiveEscrow
+    assets: bigint[]
+    splits: MigrateReceiveEscrowContractArgs['splits']
+    splitRef: SplitRef
+    useSplitRef: boolean
+  }
+}
 
 type StartEscrowDisbursementContractArgs = (
   Omit<ContractArgs['startEscrowDisbursement(uint64,bool)void'], 'wallet' | 'rekeyBack'>
@@ -173,6 +199,40 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
         }]
       }
     });
+  }
+
+  migrateReceiveEscrow(): PluginSDKReturn
+  migrateReceiveEscrow(args: MigrateReceiveEscrowContractArgs): PluginSDKReturn
+  migrateReceiveEscrow(args?: MigrateReceiveEscrowContractArgs): PluginSDKReturn {
+    const methodName = 'migrateReceiveEscrow'
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns,
+      })
+    }
+
+    const { sender, signer, escrow, receiveEscrow, assets, splits, splitRef, useSplitRef } = args
+    const sendParams = this.getRequiredSendParams({ sender, signer })
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true
+        const params = await (
+          this.client.params as unknown as {
+            migrateReceiveEscrow(params: MigrateReceiveEscrowCallParams): Promise<ExistingMethodParams>
+          }
+        ).migrateReceiveEscrow({
+          ...sendParams,
+          args: { wallet, rekeyBack, escrow, receiveEscrow, assets, splits, splitRef, useSplitRef },
+        })
+
+        return [{ type: 'methodCall', ...params }]
+      },
+    })
   }
 
 

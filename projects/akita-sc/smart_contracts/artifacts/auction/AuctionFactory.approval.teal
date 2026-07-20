@@ -80,20 +80,20 @@ main_update_route@4:
 
 // smart_contracts/utils/functions.ts::royalties(akitaDAO: uint64, asset: uint64, name: bytes, proof: bytes) -> uint64, bytes:
 royalties:
-    // smart_contracts/utils/functions.ts:417
+    // smart_contracts/utils/functions.ts:433
     // export function royalties(akitaDAO: Application, asset: Asset, name: string, proof: Proof): uint64 {
     proto 4 2
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:418
+    // smart_contracts/utils/functions.ts:434
     // let creatorRoyalty: uint64 = 0
     dup
-    // smart_contracts/utils/functions.ts:420
+    // smart_contracts/utils/functions.ts:436
     // if (!(proof.length > 0)) {
     frame_dig -1
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     bnz royalties_after_if_else@2
-    // smart_contracts/utils/functions.ts:421
+    // smart_contracts/utils/functions.ts:437
     // return CreatorRoyaltyDefault
     pushint 5000
     frame_dig -1
@@ -102,7 +102,7 @@ royalties:
     retsub
 
 royalties_after_if_else@2:
-    // smart_contracts/utils/functions.ts:425-435
+    // smart_contracts/utils/functions.ts:441-451
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -115,12 +115,12 @@ royalties_after_if_else@2:
     //   ]
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:428
+    // smart_contracts/utils/functions.ts:444
     // asset.creator,
     frame_dig -3
     asset_params_get AssetCreator
     assert // asset exists
-    // smart_contracts/utils/functions.ts:429
+    // smart_contracts/utils/functions.ts:445
     // name,
     frame_dig -2
     len
@@ -128,13 +128,13 @@ royalties_after_if_else@2:
     extract 6 2
     frame_dig -2
     concat
-    // smart_contracts/utils/functions.ts:430
+    // smart_contracts/utils/functions.ts:446
     // sha256(sha256(itob(asset.id))),
     frame_dig -3
     itob
     sha256
     sha256
-    // smart_contracts/utils/functions.ts:432
+    // smart_contracts/utils/functions.ts:448
     // 1,
     intc_1 // 1
     itob
@@ -144,12 +144,12 @@ royalties_after_if_else@2:
     bytec 8 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:426
+    // smart_contracts/utils/functions.ts:442
     // appId: getAkitaAppList(akitaDAO).metaMerkles,
     pushint 72
     extract_uint64
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:425-435
+    // smart_contracts/utils/functions.ts:441-451
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -172,11 +172,11 @@ royalties_after_if_else@2:
     frame_dig -1
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:433
+    // smart_contracts/utils/functions.ts:449
     // 'royalty',
     pushbytes 0x0007726f79616c7479
     itxn_field ApplicationArgs
-    // smart_contracts/utils/functions.ts:425-435
+    // smart_contracts/utils/functions.ts:441-451
     // const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
     //   appId: getAkitaAppList(akitaDAO).metaMerkles,
     //   args: [
@@ -213,24 +213,24 @@ royalties_after_if_else@2:
     extract 6 0
     dup
     frame_bury 0
-    // smart_contracts/utils/functions.ts:437
+    // smart_contracts/utils/functions.ts:453
     // if (Bytes(creatorRoyaltyString).length > 0) {
     len
     bz royalties_after_if_else@5
-    // smart_contracts/utils/functions.ts:438
+    // smart_contracts/utils/functions.ts:454
     // creatorRoyalty = btoi(Bytes(creatorRoyaltyString))
     frame_dig 0
     btoi
     frame_bury 1
 
 royalties_after_if_else@5:
-    // smart_contracts/utils/functions.ts:441
+    // smart_contracts/utils/functions.ts:457
     // if (creatorRoyalty > CreatorRoyaltyMaximumSingle) {
     frame_dig 1
     intc 8 // 50000
     >
     bz royalties_after_if_else@7
-    // smart_contracts/utils/functions.ts:442
+    // smart_contracts/utils/functions.ts:458
     // return CreatorRoyaltyMaximumSingle
     intc 8 // 50000
     frame_dig -1
@@ -239,7 +239,7 @@ royalties_after_if_else@5:
     retsub
 
 royalties_after_if_else@7:
-    // smart_contracts/utils/functions.ts:445
+    // smart_contracts/utils/functions.ts:461
     // return creatorRoyalty
     frame_dig 1
     frame_dig -1
@@ -250,10 +250,10 @@ royalties_after_if_else@7:
 
 // smart_contracts/utils/functions.ts::rewardsOptInCost(akitaDAO: uint64, asset: uint64) -> uint64:
 rewardsOptInCost:
-    // smart_contracts/utils/functions.ts:508
+    // smart_contracts/utils/functions.ts:524
     // export function rewardsOptInCost(akitaDAO: Application, asset: uint64): uint64 {
     proto 2 1
-    // smart_contracts/utils/functions.ts:509
+    // smart_contracts/utils/functions.ts:525
     // if (asset !== 0) {
     frame_dig -1
     bz rewardsOptInCost_after_if_else@4
@@ -263,11 +263,11 @@ rewardsOptInCost:
     bytec 8 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:510
+    // smart_contracts/utils/functions.ts:526
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
     intc_2 // 8
     extract_uint64
-    // smart_contracts/utils/functions.ts:511
+    // smart_contracts/utils/functions.ts:527
     // if (!Application(rewardsApp).address.isOptedIn(Asset(asset))) {
     app_params_get AppAddress
     assert // application exists
@@ -275,13 +275,13 @@ rewardsOptInCost:
     asset_holding_get AssetBalance
     bury 1
     bnz rewardsOptInCost_after_if_else@4
-    // smart_contracts/utils/functions.ts:512
+    // smart_contracts/utils/functions.ts:528
     // return Global.assetOptInMinBalance
     global AssetOptInMinBalance
     retsub
 
 rewardsOptInCost_after_if_else@4:
-    // smart_contracts/utils/functions.ts:515
+    // smart_contracts/utils/functions.ts:531
     // return 0
     intc_0 // 0
     retsub
@@ -289,13 +289,13 @@ rewardsOptInCost_after_if_else@4:
 
 // smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
 splitOptInCount:
-    // smart_contracts/utils/functions.ts:621
+    // smart_contracts/utils/functions.ts:637
     // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
     proto 3 1
-    // smart_contracts/utils/functions.ts:622
+    // smart_contracts/utils/functions.ts:638
     // let count: uint64 = 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:624
+    // smart_contracts/utils/functions.ts:640
     // if (!escrow.isOptedIn(asset)) {
     frame_dig -2
     frame_dig -1
@@ -308,20 +308,20 @@ splitOptInCount:
     pushbytes "revenue_splits"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:628
+    // smart_contracts/utils/functions.ts:644
     // count += splits.length
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:625
+    // smart_contracts/utils/functions.ts:641
     // count += 1
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:628
+    // smart_contracts/utils/functions.ts:644
     // count += splits.length
     +
     frame_bury 0
 
 splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:631
+    // smart_contracts/utils/functions.ts:647
     // return count
     frame_dig 0
     swap
@@ -630,7 +630,7 @@ newAuction_after_assert@13:
     dup
     bury 24
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     // smart_contracts/auction/factory.algo.ts:73
@@ -644,7 +644,7 @@ newAuction_after_assert@13:
     // smart_contracts/auction/factory.algo.ts:75
     // disbursementMBR += disbursementCost(1)
     dig 24
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     // smart_contracts/auction/factory.algo.ts:75
@@ -1318,7 +1318,7 @@ newAuction_else_body@15:
     assert // check GlobalState exists
     dig 13
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 9 // 335000
     // smart_contracts/auction/factory.algo.ts:77
@@ -1496,7 +1496,7 @@ newPrizeBoxAuction_after_assert@7:
     gtxns ApplicationID
     dup
     bury 22
-    // smart_contracts/utils/functions.ts:449
+    // smart_contracts/utils/functions.ts:465
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, ERR_NOT_A_PRIZE_BOX)
     dup
     app_params_get AppCreator
@@ -1507,7 +1507,7 @@ newPrizeBoxAuction_after_assert@7:
     bytec 8 // "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:449
+    // smart_contracts/utils/functions.ts:465
     // assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, ERR_NOT_A_PRIZE_BOX)
     pushint 24
     extract_uint64
@@ -1515,7 +1515,7 @@ newPrizeBoxAuction_after_assert@7:
     assert // application exists
     ==
     assert // NAPB
-    // smart_contracts/utils/functions.ts:450
+    // smart_contracts/utils/functions.ts:466
     // const [ownerBytes] = op.AppGlobal.getExBytes(prizeBox, Bytes(PrizeBoxGlobalStateKeyOwner))
     pushbytes "owner"
     app_global_get_ex
@@ -1577,7 +1577,7 @@ newPrizeBoxAuction_ternary_merge@18:
     // if (isAlgoBid) {
     dig 13
     bnz newPrizeBoxAuction_else_body@20
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     bury 22
@@ -2140,7 +2140,7 @@ newPrizeBoxAuction_else_body@20:
     assert // check GlobalState exists
     dig 14
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 10 // 268000
     // smart_contracts/auction/factory.algo.ts:230
@@ -2201,7 +2201,7 @@ deleteAuctionApp_after_assert@3:
     err // ERR:NPBO
 
 deleteAuctionApp_after_assert@5:
-    // smart_contracts/utils/functions.ts:455
+    // smart_contracts/utils/functions.ts:471
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     dupn 2
     bytec 25 // "funder"
@@ -2293,7 +2293,7 @@ cancelAuction_after_assert@3:
     err // ERR:NPBO
 
 cancelAuction_after_assert@5:
-    // smart_contracts/utils/functions.ts:455
+    // smart_contracts/utils/functions.ts:471
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     dupn 2
     bytec 25 // "funder"
@@ -2417,7 +2417,7 @@ newAuctionCost_ternary_merge@4:
     assert // check GlobalState exists
     dig 3
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     // smart_contracts/auction/factory.algo.ts:368
@@ -2427,7 +2427,7 @@ newAuctionCost_ternary_merge@4:
     // if (isAlgoBid) {
     dig 4
     bnz newAuctionCost_else_body@7
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     // smart_contracts/auction/factory.algo.ts:370
@@ -2479,7 +2479,7 @@ newAuctionCost_else_body@7:
     assert // check GlobalState exists
     dig 5
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 9 // 335000
     // smart_contracts/auction/factory.algo.ts:372
@@ -2493,7 +2493,7 @@ newAuctionCost_else_body@9:
     // } else if (isAlgoBid) {
     dig 3
     bnz newAuctionCost_else_body@11
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 4 // 67000
     b newAuctionCost_after_if_else@13
@@ -2511,7 +2511,7 @@ newAuctionCost_else_body@11:
     assert // check GlobalState exists
     dig 4
     callsub rewardsOptInCost
-    // smart_contracts/utils/functions.ts:501
+    // smart_contracts/utils/functions.ts:517
     // return (MinDisbursementsMBR + UserAllocationMBR) * count
     intc 10 // 268000
     // smart_contracts/auction/factory.algo.ts:377
@@ -3052,7 +3052,7 @@ optIn_after_assert@5:
     //   appId,
     //   args: [[name]],
     // }).returnValue[0]
-    pushbytes 0xa2403ddf // method "arc58_getEscrows(string[])(uint64,bool)[]"
+    pushbytes 0x3ab2895b // method "arc58_getEscrows(string[])(uint64,address,bool)[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_3 // appl
@@ -3071,7 +3071,7 @@ optIn_after_assert@5:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 9
+    pushint 41
     *
     pushint 2
     +
@@ -3081,7 +3081,7 @@ optIn_after_assert@5:
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
     // smart_contracts/utils/base-contracts/base.ts:100
     // loggedAssert(escrow.id !== 0, ERR_ESCROW_DOES_NOT_EXIST)
-    extract 6 9
+    extract 6 41
     intc_0 // 0
     extract_uint64
     dup

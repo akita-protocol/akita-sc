@@ -32,6 +32,10 @@ export const deployHyperSwapPlugin = async ({ fixture, sender, signer, args: { a
 
   return new HyperSwapPluginSDK({
     algorand,
-    factoryParams: { appId: client.appId },
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
   });
 };

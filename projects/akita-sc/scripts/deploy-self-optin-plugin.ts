@@ -12,7 +12,7 @@
  *   npm run deploy:self-optin-plugin -- -n testnet -m "your mnemonic"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { SelfOptInPluginSDK } from 'akita-sdk/wallet'
 import { SelfOptInPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/self-optin/SelfOptInPluginClient'
 
@@ -49,6 +49,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'selfOptinPlugin', plugin.appId)
+
   console.log('='.repeat(80))
   console.log('SELF OPT-IN PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -57,7 +59,6 @@ Summary:
   Network: ${options.network}
   New Plugin App ID: ${plugin.appId}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  selfOptinPlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'selfOptinPlugin', plugin.appId)}
 `)
 })

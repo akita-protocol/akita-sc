@@ -4,7 +4,7 @@ import { StakingPoolSDK } from './index';
 import { BaseSDK } from '../base';
 import { ENV_VAR_NAMES } from '../config';
 import { emptySigner } from '../constants';
-import { microAlgo, microAlgos } from '@algorandfoundation/algokit-utils';
+import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { NewPoolParams, DeletePoolParams, StakingPoolMbrParams } from './types';
 import { StakingPoolMbrData } from '../generated/StakingPoolClient';
 
@@ -39,7 +39,7 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    const poolCost = await this.cost();
+    const poolCost = await this.cost(sendParams);
 
     const payment = this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -62,19 +62,6 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
         gateId,
         maxEntries
       }
-    });
-
-    // Add opUp calls to get more reference slots for impact/social contract calls
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-      note: '1'
     });
 
     const result = await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });

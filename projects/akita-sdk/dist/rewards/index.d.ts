@@ -11,18 +11,6 @@ export * from "./errors";
 export declare class RewardsSDK extends BaseSDK<RewardsClient> {
     constructor(params: NewContractSDKParams);
     /**
-     * Calculates the number of opUp calls needed for a given reference count.
-     * @param referencesNeeded - Number of references needed for the operation
-     * @param baseReferences - Base references available (default 8)
-     * @returns Number of opUp calls needed (0 if none needed)
-     */
-    private calculateOpUpsNeeded;
-    /**
-     * Adds the required number of opUp calls to a transaction group.
-     * Each opUp call adds 8 more reference slots to the group.
-     */
-    private addOpUps;
-    /**
      * Gets the current global state of the rewards contract.
      */
     getState(): Promise<RewardsGlobalState>;
@@ -118,25 +106,21 @@ export declare class RewardsSDK extends BaseSDK<RewardsClient> {
     /**
      * Creates and finalizes an ALGO disbursement in a single call.
      * Returns the disbursement ID.
-     * Automatically adds opUp calls for large allocation batches.
      */
     createInstantDisbursement({ sender, signer, timeToUnlock, expiration, allocations, }: CreateInstantDisbursementParams): Promise<bigint>;
     /**
      * Creates and finalizes an ASA disbursement in a single call.
      * Returns the disbursement ID.
-     * Automatically adds opUp calls for large allocation batches.
      */
     createInstantAsaDisbursement({ sender, signer, timeToUnlock, expiration, asset, allocations, }: CreateInstantAsaDisbursementParams): Promise<bigint>;
     /**
      * Claims rewards from one or more disbursements.
      * The caller claims their allocated rewards.
-     * Automatically adds opUp calls for claiming from many disbursements.
      */
     claimRewards({ sender, signer, rewards }: ClaimRewardsParams): Promise<void>;
     /**
      * Reclaims unclaimed rewards after a disbursement has expired.
      * Only the disbursement creator can reclaim.
-     * Automatically adds opUp calls for reclaiming many allocations.
      */
     reclaimRewards({ sender, signer, id, reclaims }: ReclaimRewardsParams): Promise<void>;
     /**

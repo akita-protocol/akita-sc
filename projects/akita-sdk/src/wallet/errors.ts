@@ -93,6 +93,8 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = {
   EALW: 'Allowance already exists',
   NALW: 'Allowance does not exist',
   ALEX: 'Allowance exceeded',
+  IALT: 'Invalid allowance type',
+  IALI: 'Window and drip allowances require a non-zero interval',
 
   // --- Domain keys --------------------------------------------------------
   DML0: 'Domain must not be length 0',
@@ -100,6 +102,44 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Payments -----------------------------------------------------------
   IPAY: 'Invalid payment',
+
+  // --- Revenue manager ----------------------------------------------------
+  NRES: 'Receive escrow does not exist',
+  ERES: 'Receive escrow already exists',
+  NESO: 'Receive escrow is not allowed to opt in',
+  ENLG: 'Receive escrow name is too long',
+  IAST: 'Invalid asset',
+  AOPT: 'Account is already opted into the asset',
+  SPEM: 'Revenue splits cannot be empty',
+  SPGT: 'Revenue splits cannot contain more than 10 entries',
+  SPVR: 'Split value must be positive, except for a zero-valued remainder',
+  SPOR: 'Exactly one direct-splits or split-reference configuration is required',
+  NSRF: 'Referenced revenue splits were not found',
+  ISRF: 'Split reference is malformed',
+  RMLT: 'Remainder split must be last',
+  RMVZ: 'Remainder split value must be zero',
+  PCGT: 'Split percentages exceed 100%',
+  PCRM: 'A 100% percentage split cannot also have a remainder',
+  FPRM: 'Flat splits require a trailing remainder',
+  SPTR: 'Splits must total 100% or have a trailing remainder',
+  ISPT: 'Invalid split distribution type',
+  IWAL: 'App ID is not an ARC58 wallet for this DAO',
+  RNES: 'Split receiver escrow does not exist',
+  ENID: 'Receive escrow is not idle',
+  ENAL: 'Receive escrow is not allocatable',
+  ENRD: 'Receive escrow is not ready for another disbursement',
+  ENAP: 'Receive escrow is not in allocation phase',
+  ENFP: 'Receive escrow is not in finalization phase',
+  ANAL: 'Asset was not allocated in this disbursement',
+  AALA: 'Asset was already allocated in this disbursement',
+  ANRG: 'Asset was not registered by this receive escrow',
+  AARG: 'Asset is already registered by this receive escrow',
+  ALEM: 'Asset list cannot be empty',
+  TMAS: 'Asset batch exceeds the remaining disbursement count',
+  MACM: 'Migrated asset identities do not match opt-in count',
+  IMMD: 'Migrated receive-escrow metadata is invalid',
+  OVAL: 'Revenue split over-allocates the available balance',
+  CAME: 'Controlled address does not match the named receive escrow',
 }
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */

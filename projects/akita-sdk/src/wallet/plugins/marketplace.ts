@@ -141,8 +141,7 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
           type: 'methodCall',
           ...params
         }];
-      },
-      opUpCount: 2
+      }
     });
   }
 

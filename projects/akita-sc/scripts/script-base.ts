@@ -14,7 +14,7 @@
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { getNetworkAppIds, SDKClient, sendPrepared, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
+import { getNetworkAppIds, SDKClient, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
@@ -236,6 +236,8 @@ export interface UpdateTarget {
    * When provided, `updateFactoryChildContract` is called before `updateApp`.
    */
   childFactory?: (p: FactoryParams) => any
+  /** Only upload the child contract bytecode; do not update the factory app itself. */
+  skipAppUpdate?: boolean
 }
 
 type FactoryParams = {
@@ -312,14 +314,21 @@ function restampExecutionFromProposal(
  *   4. Submit the update transaction(s)
  *   5. Verify the new version
  */
-export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Promise<void> {
+export interface UpdateResult {
+  name: string
+  appId: bigint
+  proposalId?: bigint
+  confirmedRound?: bigint
+}
+
+export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Promise<UpdateResult[]> {
   if (ctx.options.proposalId !== undefined && targets.length !== 1) {
     throw new Error('--proposal-id resume mode supports exactly one update target')
   }
 
   await verifyUpdatePlugin(ctx)
 
-  const results: { name: string; appId: bigint; proposalId?: bigint }[] = []
+  const results: UpdateResult[] = []
 
   for (const target of targets) {
     const appId = (ctx.appIds as any)[target.appIdKey] as bigint
@@ -339,15 +348,22 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       console.log(`   Child approval: ${childCompiled!.approvalProgram.length} bytes`)
     }
 
-    // Compile the main contract
-    console.log(`Compiling ${target.name} contract...`)
     const factory = target.createFactory({
       algorand: ctx.algorand,
       defaultSender: ctx.sender,
       defaultSigner: ctx.signer,
     })
-    const compiled = await factory.appFactory.compile()
-    console.log(`   Approval: ${compiled.approvalProgram.length} bytes\n`)
+
+    let compiled: { approvalProgram: Uint8Array } | undefined
+    if (!target.skipAppUpdate) {
+      console.log(`Compiling ${target.name} contract...`)
+      compiled = await factory.appFactory.compile()
+      console.log(`   Approval: ${compiled.approvalProgram.length} bytes\n`)
+    } else if (!childCompiled) {
+      throw new Error(`${target.name} has skipAppUpdate=true but no childFactory`)
+    } else {
+      console.log(`Skipping ${target.name} app compile; uploading child bytecode only\n`)
+    }
 
     // Dry-run compile-only exit
     if (ctx.options.dryRun && !ctx.options.mnemonic && ctx.options.network !== 'localnet') {
@@ -360,8 +376,8 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     const calls: any[] = []
     if (childCompiled) {
       // Update child contract bytecode in the factory's box storage.
-      // rekeyBack: false keeps the spending addr rekeyed to the plugin for the
-      // updateApp call that follows.
+      // Combined child+factory updates keep the spending addr rekeyed for the
+      // updateApp call that follows; child-only updates rekey back immediately.
       calls.push(
         ctx.updatePlugin.updateFactoryChildContract({
           sender: ctx.sender,
@@ -369,20 +385,22 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
           factoryAppId: appId,
           version: ctx.options.version,
           data: childCompiled.approvalProgram,
-          rekeyBack: false,
+          rekeyBack: Boolean(target.skipAppUpdate),
         }),
       )
     }
 
-    calls.push(
-      ctx.updatePlugin.updateApp({
-        sender: ctx.sender,
-        signer: ctx.signer,
-        appId,
-        version: ctx.options.version,
-        data: compiled.approvalProgram,
-      }),
-    )
+    if (!target.skipAppUpdate) {
+      calls.push(
+        ctx.updatePlugin.updateApp({
+          sender: ctx.sender,
+          signer: ctx.signer,
+          appId,
+          version: ctx.options.version,
+          data: compiled!.approvalProgram,
+        }),
+      )
+    }
 
     const shortTimestamp = Date.now() % 1_000_000
     console.log(`Building ${target.name} update execution...`)
@@ -450,18 +468,22 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     }
 
     // Submit update transactions
-    console.log(`Submitting ${target.name} update transaction...`)
-    for (const window of execution.windows) {
-      await sendPrepared(window, ctx.algorand.client.algod)
-    }
-    console.log('   Update submitted\n')
+    console.log(`Submitting ${target.name} update transaction${target.skipAppUpdate ? 's' : ''}...`)
+    const submission = await execution.send()
+    const confirmedRound = BigInt(submission.confirmations[0]?.confirmedRound ?? 0)
+    if (confirmedRound === 0n) throw new Error(`${target.name} update did not return a confirmed round`)
+    console.log(`   Update confirmed in round ${confirmedRound}\n`)
 
-    // Verify the update
     const client = factory.getAppClientById({ appId })
-    const newVersion = await client.state.global.version()
-    console.log(`   New version: ${newVersion}\n`)
+    if (target.skipAppUpdate) {
+      const childVersion = await client.state.global.childContractVersion()
+      console.log(`   New child contract version: ${childVersion}\n`)
+    } else {
+      const newVersion = await client.state.global.version()
+      console.log(`   New version: ${newVersion}\n`)
+    }
 
-    results.push({ name: target.name, appId, proposalId })
+    results.push({ name: target.name, appId, proposalId, confirmedRound })
   }
 
   // Summary
@@ -473,6 +495,8 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     console.log(`  ${r.name}: App ID ${r.appId}${r.proposalId !== undefined ? `, Proposal ${r.proposalId}` : ''}`)
   }
   console.log()
+
+  return results
 }
 
 /** Wrap a script's main function with standard error handling. */
@@ -486,4 +510,226 @@ export function runScript(fn: () => Promise<void>): void {
       }
       process.exit(1)
     })
+}
+
+export function pluginDeploymentInstructions(
+  network: Network,
+  key: string,
+  appId: bigint,
+  version?: string,
+): string {
+  const catalog = `${network.toUpperCase()}_PLUGIN_DEPLOYMENTS.${key}`
+  const fields = [`appId: ${appId}n`]
+  if (version) fields.push(`version: '${version}'`)
+
+  return `Recorded in ${catalog}:
+  { ${fields.join(', ')} },
+
+Previous deployments were retained and the README latest-deployment table was updated.`
+}
+
+/** Record the round where the DAO began encoding NewEscrow as (string,address). */
+export async function recordDaoEscrowActionV2Round(network: Network, round: bigint, timestamp: bigint): Promise<void> {
+  if (network === 'localnet') {
+    console.log(`DAO escrow action v2 became active in localnet round ${round}; not recording ephemeral metadata`)
+    return
+  }
+  if (round <= 0n) throw new Error(`Invalid DAO escrow action v2 round: ${round}`)
+  if (timestamp <= 0n) throw new Error(`Invalid DAO escrow action v2 timestamp: ${timestamp}`)
+
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const ts = await import('typescript')
+  const networksPath = path.join(__dirname, '../../akita-sdk/src/networks.ts')
+  const sourceText = await fs.readFile(networksPath, 'utf8')
+  const source = ts.createSourceFile('networks.ts', sourceText, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  let initializer: import('typescript').Expression | undefined
+
+  source.forEachChild((node) => {
+    if (!ts.isVariableStatement(node)) return
+    for (const declaration of node.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== 'DAO_ESCROW_ACTION_V2_ROUNDS') continue
+      if (!declaration.initializer || !ts.isObjectLiteralExpression(declaration.initializer)) continue
+      for (const property of declaration.initializer.properties) {
+        if (!ts.isPropertyAssignment(property)) continue
+        if (property.name.getText(source).replaceAll(/["']/g, '') === network) initializer = property.initializer
+      }
+    }
+  })
+
+  if (!initializer) throw new Error(`Could not find DAO_ESCROW_ACTION_V2_ROUNDS.${network} in ${networksPath}`)
+  const current = initializer.getText(source)
+  const replacement = `{ round: ${round}n, timestamp: ${timestamp}n }`
+  if (current !== replacement) {
+    const next = sourceText.slice(0, initializer.getStart(source)) + replacement + sourceText.slice(initializer.end)
+    await fs.writeFile(networksPath, next, 'utf8')
+  }
+  console.log(`Recorded DAO escrow action v2 round ${round} for ${network}`)
+}
+
+const README_PLUGIN_KEYS: Record<string, string> = {
+  optinPlugin: 'optInPlugin',
+  selfOptinPlugin: 'selfOptInPlugin',
+}
+
+/** Record a replacement app ID in the SDK's canonical network map and README. */
+export async function recordNetworkAppDeployment(network: Network, key: string, appId: bigint): Promise<void> {
+  if (network === 'localnet') {
+    console.log('Skipping baked-in deployment metadata for ephemeral localnet app ID')
+    return
+  }
+
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const ts = await import('typescript')
+  const networksPath = path.join(__dirname, '../../akita-sdk/src/networks.ts')
+  const readmePath = path.join(__dirname, '../../../README.md')
+  const [networkSource, readmeSource] = await Promise.all([
+    fs.readFile(networksPath, 'utf8'),
+    fs.readFile(readmePath, 'utf8'),
+  ])
+  const source = ts.createSourceFile('networks.ts', networkSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const declarationName = `${network.toUpperCase()}_APP_IDS`
+  let initializer: import('typescript').Expression | undefined
+
+  source.forEachChild((node) => {
+    if (!ts.isVariableStatement(node)) return
+    for (const declaration of node.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== declarationName) continue
+      if (!declaration.initializer || !ts.isObjectLiteralExpression(declaration.initializer)) continue
+
+      for (const property of declaration.initializer.properties) {
+        if (!ts.isPropertyAssignment(property)) continue
+        if (property.name.getText(source).replaceAll(/["']/g, '') === key) initializer = property.initializer
+      }
+    }
+  })
+
+  if (!initializer) throw new Error(`Could not find ${declarationName}.${key} in ${networksPath}`)
+
+  const appIdLiteral = `${appId}n`
+  const current = initializer.getText(source)
+  const nextNetworkSource = current === appIdLiteral
+    ? networkSource
+    : networkSource.slice(0, initializer.getStart(source)) + appIdLiteral + networkSource.slice(initializer.end)
+
+  const readmeLines = readmeSource.split('\n')
+  const rowIndex = readmeLines.findIndex(
+    (line) => line.startsWith(`| \`${key}\` |`) && line.includes('lora.algokit.io/testnet/application'),
+  )
+  if (rowIndex === -1) throw new Error(`Could not find README deployment row for ${key}`)
+
+  const columns = readmeLines[rowIndex].split('|')
+  if (columns.length < 5) throw new Error(`Malformed README deployment row for ${key}`)
+  const networkColumn = network === 'testnet' ? 2 : 3
+  columns[networkColumn] = ` [\`${appId}\`](https://lora.algokit.io/${network}/application/${appId}) `
+  readmeLines[rowIndex] = columns.join('|')
+  const nextReadmeSource = readmeLines.join('\n')
+
+  await Promise.all([
+    nextNetworkSource === networkSource ? Promise.resolve() : fs.writeFile(networksPath, nextNetworkSource, 'utf8'),
+    nextReadmeSource === readmeSource ? Promise.resolve() : fs.writeFile(readmePath, nextReadmeSource, 'utf8'),
+  ])
+
+  console.log(
+    current === appIdLiteral
+      ? `${declarationName}.${key} already points to ${appId}; README.md verified`
+      : `Recorded ${declarationName}.${key}=${appId} and updated README.md`,
+  )
+}
+
+export async function recordPluginDeployment(
+  network: Network,
+  key: string,
+  appId: bigint,
+  version?: string,
+): Promise<void> {
+  if (network === 'localnet') {
+    console.log('Skipping baked-in plugin deployment metadata for ephemeral localnet app ID')
+    return
+  }
+
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const ts = await import('typescript')
+  const networksPath = path.join(__dirname, '../../akita-sdk/src/networks.ts')
+  const readmePath = path.join(__dirname, '../../../README.md')
+  const [networkSource, readmeSource] = await Promise.all([
+    fs.readFile(networksPath, 'utf8'),
+    fs.readFile(readmePath, 'utf8'),
+  ])
+  const source = ts.createSourceFile('networks.ts', networkSource, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+  const declarationName = `${network.toUpperCase()}_PLUGIN_DEPLOYMENTS`
+  let deploymentArray: import('typescript').ArrayLiteralExpression | undefined
+
+  source.forEachChild((node) => {
+    if (!ts.isVariableStatement(node)) return
+    for (const declaration of node.declarationList.declarations) {
+      if (!ts.isIdentifier(declaration.name) || declaration.name.text !== declarationName) continue
+      if (!declaration.initializer || !ts.isObjectLiteralExpression(declaration.initializer)) continue
+
+      for (const property of declaration.initializer.properties) {
+        if (!ts.isPropertyAssignment(property) || property.name.getText(source).replaceAll(/["']/g, '') !== key) continue
+        if (ts.isArrayLiteralExpression(property.initializer)) deploymentArray = property.initializer
+      }
+    }
+  })
+
+  if (!deploymentArray) {
+    throw new Error(`Could not find ${declarationName}.${key} in ${networksPath}`)
+  }
+
+  const appIdLiteral = `${appId}n`
+  const existingIndex = deploymentArray.elements.findIndex((element) => {
+    if (!ts.isObjectLiteralExpression(element)) return false
+    return element.properties.some(
+      (property) =>
+        ts.isPropertyAssignment(property) &&
+        property.name.getText(source).replaceAll(/["']/g, '') === 'appId' &&
+        property.initializer.getText(source) === appIdLiteral,
+    )
+  })
+  const latestIndex = deploymentArray.elements.length - 1
+  if (existingIndex !== -1 && existingIndex !== latestIndex) {
+    throw new Error(`${appId} is already a historical ${declarationName}.${key} deployment, not its latest entry`)
+  }
+
+  let nextNetworkSource = networkSource
+  if (existingIndex === -1) {
+    const fields = [`appId: ${appIdLiteral}`]
+    if (version) fields.push(`version: '${version.replaceAll("'", "\\'")}'`)
+    fields.push(`deployedAt: '${new Date().toISOString()}'`)
+    const deployment = `{ ${fields.join(', ')} }`
+    const isMultiline = deploymentArray.getText(source).includes('\n')
+    const insertion = isMultiline
+      ? `  ${deployment},\n  `
+      : `${deploymentArray.elements.hasTrailingComma ? ' ' : ', '}${deployment}`
+    const position = deploymentArray.end - 1
+    nextNetworkSource = networkSource.slice(0, position) + insertion + networkSource.slice(position)
+  }
+
+  const readmeKey = README_PLUGIN_KEYS[key] ?? key
+  const readmeLines = readmeSource.split('\n')
+  const rowIndex = readmeLines.findIndex(
+    (line) => line.startsWith(`| \`${readmeKey}\` |`) && line.includes('lora.algokit.io/testnet/application'),
+  )
+  if (rowIndex === -1) throw new Error(`Could not find README plugin row for ${readmeKey}`)
+
+  const columns = readmeLines[rowIndex].split('|')
+  if (columns.length < 5) throw new Error(`Malformed README plugin row for ${readmeKey}`)
+  const networkColumn = network === 'testnet' ? 2 : 3
+  columns[networkColumn] = ` [\`${appId}\`](https://lora.algokit.io/${network}/application/${appId}) `
+  readmeLines[rowIndex] = columns.join('|')
+  const nextReadmeSource = readmeLines.join('\n')
+
+  await Promise.all([
+    nextNetworkSource === networkSource ? Promise.resolve() : fs.writeFile(networksPath, nextNetworkSource, 'utf8'),
+    nextReadmeSource === readmeSource ? Promise.resolve() : fs.writeFile(readmePath, nextReadmeSource, 'utf8'),
+  ])
+
+  console.log(
+    existingIndex === -1
+      ? `Recorded ${key} ${appId} in ${declarationName} and updated README.md`
+      : `${key} ${appId} is already the latest catalog entry; README.md verified`,
+  )
 }

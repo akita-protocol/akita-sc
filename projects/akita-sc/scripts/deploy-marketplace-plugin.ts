@@ -10,7 +10,7 @@
  *   ts-node scripts/deploy-marketplace-plugin.ts --network testnet --mnemonic "your mnemonic"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { MarketplacePluginSDK } from 'akita-sdk/wallet'
 import { MarketplacePluginFactory } from '../smart_contracts/artifacts/arc58/plugins/marketplace/MarketplacePluginClient'
 
@@ -50,6 +50,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'marketplacePlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('MARKETPLACE PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -59,7 +61,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Version: ${options.version}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  marketplacePlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'marketplacePlugin', plugin.appId, options.version)}
 `)
 })

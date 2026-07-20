@@ -112,6 +112,7 @@ export type ProposalRemoveAllowances = {
 
 export type ProposalNewEscrow = {
   escrow: string
+  address: Account
 }
 
 export type ProposalToggleEscrowLock = {

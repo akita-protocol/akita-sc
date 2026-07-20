@@ -12,7 +12,6 @@ export declare class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     constructor(params: NewContractSDKParams);
     /**
      * Creates a new auction with an ASA prize and returns an AuctionSDK instance.
-     * Uses opUp for raffle auctions (weightsListCount > 0) to expand reference limits.
      * @returns AuctionSDK for the newly created auction
      */
     newAuction({ sender, signer, isPrizeBox, name, proof, bidAssetId, bidFee, startingBid, bidMinimumIncrease, startTimestamp, endTimestamp, gateId, marketplace, weightsListCount, ...rest }: NewAuctionParams): Promise<AuctionSDK>;

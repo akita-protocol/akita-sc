@@ -19,6 +19,8 @@
 export const ERR_ADMIN_ONLY = 'ADMN'
 export const ERR_FORBIDDEN = 'FORB'
 export const ERR_ADMIN_CANNOT_BE_CONTROLLED = 'ACBC'
+export const ERR_ESCROW_CANNOT_BE_REGULAR_ACCOUNT = 'ECRA'
+export const ERR_CANNOT_DEFAULT_TO_ESCROW_WITH_REGULAR_ACCOUNT = 'CDES'
 export const ERR_SENDER_MUST_BE_ADMIN_OR_CONTROLLED_ADDRESS = 'SADM'
 export const ERR_SENDER_MUST_BE_ADMIN_PLUGIN = 'SMAP'
 export const ERR_ONLY_CREATOR_CAN_REKEY = 'OCCR'
@@ -103,6 +105,8 @@ export const ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT = 'ERSD'
 export const ERR_ALLOWANCE_ALREADY_EXISTS = 'EALW'
 export const ERR_ALLOWANCE_DOES_NOT_EXIST = 'NALW'
 export const ERR_ALLOWANCE_EXCEEDED = 'ALEX'
+export const ERR_INVALID_ALLOWANCE_TYPE = 'IALT'
+export const ERR_INVALID_ALLOWANCE_INTERVAL = 'IALI'
 
 // --- Domain keys ------------------------------------------------------------
 

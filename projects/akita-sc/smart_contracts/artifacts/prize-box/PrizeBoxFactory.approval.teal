@@ -72,13 +72,13 @@ main_update_route@2:
 
 // smart_contracts/utils/functions.ts::splitOptInCount(akitaDAO: uint64, escrow: bytes, asset: uint64) -> uint64:
 splitOptInCount:
-    // smart_contracts/utils/functions.ts:621
+    // smart_contracts/utils/functions.ts:637
     // export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: Asset): uint64 {
     proto 3 1
-    // smart_contracts/utils/functions.ts:622
+    // smart_contracts/utils/functions.ts:638
     // let count: uint64 = 0
     intc_0 // 0
-    // smart_contracts/utils/functions.ts:624
+    // smart_contracts/utils/functions.ts:640
     // if (!escrow.isOptedIn(asset)) {
     frame_dig -2
     frame_dig -1
@@ -91,20 +91,20 @@ splitOptInCount:
     pushbytes "revenue_splits"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:628
+    // smart_contracts/utils/functions.ts:644
     // count += splits.length
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    // smart_contracts/utils/functions.ts:625
+    // smart_contracts/utils/functions.ts:641
     // count += 1
     intc_1 // 1
-    // smart_contracts/utils/functions.ts:628
+    // smart_contracts/utils/functions.ts:644
     // count += splits.length
     +
     frame_bury 0
 
 splitOptInCount_after_if_else@2:
-    // smart_contracts/utils/functions.ts:631
+    // smart_contracts/utils/functions.ts:647
     // return count
     frame_dig 0
     swap
@@ -832,7 +832,7 @@ optIn_after_assert@5:
     //   appId,
     //   args: [[name]],
     // }).returnValue[0]
-    pushbytes 0xa2403ddf // method "arc58_getEscrows(string[])(uint64,bool)[]"
+    pushbytes 0x3ab2895b // method "arc58_getEscrows(string[])(uint64,address,bool)[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -851,7 +851,7 @@ optIn_after_assert@5:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 9
+    pushint 41
     *
     intc_2 // 2
     +
@@ -861,7 +861,7 @@ optIn_after_assert@5:
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
     // smart_contracts/utils/base-contracts/base.ts:100
     // loggedAssert(escrow.id !== 0, ERR_ESCROW_DOES_NOT_EXIST)
-    extract 6 9
+    extract 6 41
     intc_0 // 0
     extract_uint64
     dup

@@ -11,7 +11,6 @@ import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
 import { bytesToHexColor, hexColorToBytes, validateHexColor } from "./utils";
 import { convertToUnixTimestamp } from "../utils";
 import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "./constants";
-import { SIMULATE_PARAMS } from "../constants";
 
 // Re-export key types from generated client
 export { ServicesKey } from '../generated/SubscriptionsClient';
@@ -75,23 +74,14 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
    * — because `Subscriptions.optIn` rekeys to the revenue-manager plugin
    * internally and plugin rekeys cannot be nested.
    *
-   * The contract's `optIn` fans out a lot of inner app calls (contract's own
-   * asset opt-in, rekey to revenue-manager, `RevenueManager.optIn`, MBR
-   * payment, rekey-back, plus nested opt-ins per split recipient), which
-   * blows through the reference-slot budget of a single app call. We pad the
-   * group with opUp calls so `populateAppCallResources` has enough slots.
-   *
-   * @param asset     The asset ID to opt into
-   * @param opUpCount Number of opUp calls to add for reference slots (default 3)
+   * @param asset The asset ID to opt into
    */
   async optIn({
     sender,
     signer,
     asset,
-    opUpCount = 3,
   }: MaybeSigner & {
     asset: bigint | number;
-    opUpCount?: number;
   }): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -120,18 +110,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       // block, which is cheap insurance against flow additions.
       extraFee: microAlgos(15_000n),
     });
-
-    // Add opUp calls to get more reference slots. Each app call adds an
-    // independent 8-slot reference budget that `populateAppCallResources`
-    // can borrow from.
-    for (let i = 0; i < opUpCount; i++) {
-      group.opUp({
-        ...sendParams,
-        args: {},
-        maxFee: microAlgos(1_000),
-        ...(i > 0 ? { note: String(i) } : {}),
-      });
-    }
 
     await group.send({
       populateAppCallResources: true,
@@ -423,12 +401,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       args: { id }
     });
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -492,12 +464,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       args: { id }
     });
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -523,12 +489,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       }
     });
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -541,12 +501,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     group.unblock({
       ...sendParams,
       args: { blocked }
-    });
-
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
     });
 
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
@@ -673,19 +627,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       }
     }
 
-    // Add opUp calls to get more reference slots
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-      note: '1'
-    });
-
     const result = await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
     // If we added an opt-in call, the subscription ID will be at index 1, otherwise index 0
     const returnIndex = needsOptIn ? 1 : 0;
@@ -706,12 +647,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     group.unsubscribe({
       ...sendParams,
       args: { id: BigInt(id) }
-    });
-
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
     });
 
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
@@ -753,12 +688,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       });
     }
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -786,12 +715,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       }
     });
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -815,12 +738,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       });
     }
 
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -835,12 +752,6 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
         id: BigInt(id),
         addresses: passes
       }
-    });
-
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: microAlgos(1_000),
     });
 
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });

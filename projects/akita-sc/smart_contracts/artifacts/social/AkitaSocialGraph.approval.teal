@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 32 2
-    bytecblock "akita_dao" 0x151f7c75 "" "ERR:BAND" "b" "f" "ERR:IPAY" "sal" "version" "pal" "wallet" "ERR:NDAO"
+    bytecblock "akita_dao" 0x151f7c75 "" "ERR:BAND" "b" "f" "ERR:IPAY" "sal" "version" "wallet" "ERR:NDAO" "pal"
     // smart_contracts/social/graph.algo.ts:13
     // export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseContract) {
     pushbytes 0xea9180dd // method "update(string)void"
@@ -19,12 +19,12 @@ main_switch_case_next@5:
     assert
     txn ApplicationID
     bz main_create_NoOp@21
-    pushbytess 0xb59c8a54 0xaeebb378 0x86675494 0x4b6f907f 0x161b3a7a 0x4303668e 0xeb62f508 0x098380a4 0x14324fb7 0xa134a278 0x344175f0 0x33e92c94 0x854dede0 // method "block(pay,address)void", method "unblock(address)void", method "gatedFollow(pay,appl,address)void", method "follow(pay,address)void", method "unfollow(address)void", method "isBlocked(address,address)bool", method "isFollowing(address,address)bool", method "getFollowIndex(address,address)uint64", method "mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64", method "checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    pushbytess 0xb59c8a54 0xaeebb378 0x86675494 0x4b6f907f 0x161b3a7a 0x4303668e 0xeb62f508 0x098380a4 0x33e92c94 0x854dede0 0x14324fb7 0xa134a278 0x344175f0 // method "block(pay,address)void", method "unblock(address)void", method "gatedFollow(pay,appl,address)void", method "follow(pay,address)void", method "unfollow(address)void", method "isBlocked(address,address)bool", method "isFollowing(address,address)bool", method "getFollowIndex(address,address)uint64", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64", method "checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"
     txna ApplicationArgs 0
-    match block unblock gatedFollow follow unfollow isBlocked isFollowing getFollowIndex mbr payWallMbr checkTipMbrRequirements updateAkitaDAO main_opUp_route@19
+    match block unblock gatedFollow follow unfollow isBlocked isFollowing getFollowIndex updateAkitaDAO main_opUp_route@16 mbr payWallMbr checkTipMbrRequirements
     err
 
-main_opUp_route@19:
+main_opUp_route@16:
     // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
@@ -352,7 +352,7 @@ gatedFollow:
     assert // check GlobalState exists
     txn Sender
     cover 2
-    // smart_contracts/utils/functions.ts:233
+    // smart_contracts/utils/functions.ts:249
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     swap
     gtxns ApplicationID
@@ -362,69 +362,69 @@ gatedFollow:
     pushbytes "aal"
     app_global_get_ex
     pop
-    // smart_contracts/utils/functions.ts:233
+    // smart_contracts/utils/functions.ts:249
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     pushint 40
     extract_uint64
     ==
-    // smart_contracts/utils/functions.ts:233-234
+    // smart_contracts/utils/functions.ts:249-250
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bz gatedFollow_bool_false@13
-    // smart_contracts/utils/functions.ts:234
+    // smart_contracts/utils/functions.ts:250
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     dig 3
     gtxns OnCompletion
-    // smart_contracts/utils/functions.ts:233-234
+    // smart_contracts/utils/functions.ts:249-250
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     bnz gatedFollow_bool_false@13
-    // smart_contracts/utils/functions.ts:235
+    // smart_contracts/utils/functions.ts:251
     // gateTxn.numAppArgs === 4 &&
     dig 3
     gtxns NumAppArgs
     pushint 4
     ==
-    // smart_contracts/utils/functions.ts:233-235
+    // smart_contracts/utils/functions.ts:249-251
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     bz gatedFollow_bool_false@13
-    // smart_contracts/utils/functions.ts:236
+    // smart_contracts/utils/functions.ts:252
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     dig 3
     intc_0 // 0
     gtxnsas ApplicationArgs
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
-    // smart_contracts/utils/functions.ts:233-236
+    // smart_contracts/utils/functions.ts:249-252
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     bz gatedFollow_bool_false@13
-    // smart_contracts/utils/functions.ts:237
+    // smart_contracts/utils/functions.ts:253
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     dig 3
     intc_1 // 1
     gtxnsas ApplicationArgs
     dig 1
     ==
-    // smart_contracts/utils/functions.ts:233-237
+    // smart_contracts/utils/functions.ts:249-253
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     bz gatedFollow_bool_false@13
-    // smart_contracts/utils/functions.ts:238
+    // smart_contracts/utils/functions.ts:254
     // gateTxn.appArgs(2) === itob(id)
     dig 3
     intc_3 // 2
     gtxnsas ApplicationArgs
     dig 2
     ==
-    // smart_contracts/utils/functions.ts:233-238
+    // smart_contracts/utils/functions.ts:249-254
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
     // gateTxn.numAppArgs === 4 &&
@@ -842,6 +842,141 @@ getFollowIndex:
     return
 
 
+// smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]() -> void:
+update:
+    // smart_contracts/utils/base-contracts/base.ts:46
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    txn Sender
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 9 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/base.ts:48
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz update_after_assert@3
+    bytec 10 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+update_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:54
+    // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
+    bytec 11 // "pal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/base.ts:49
+    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
+    pushint 16
+    extract_uint64
+    // smart_contracts/utils/base-contracts/base.ts:50
+    // loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
+    global CallerApplicationID
+    ==
+    bnz update_after_assert@5
+    pushbytes "ERR:IUPG"
+    log
+    err // ERR:IUPG
+
+update_after_assert@5:
+    // smart_contracts/utils/base-contracts/base.ts:25
+    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
+    bytec 8 // "version"
+    // smart_contracts/utils/base-contracts/base.ts:51
+    // this.version.value = newVersion
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:46
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
+updateAkitaDAO:
+    // smart_contracts/utils/base-contracts/base.ts:36
+    // updateAkitaDAO(akitaDAO: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    txn Sender
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:30
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 9 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/base.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz updateAkitaDAO_after_assert@3
+    bytec 10 // "ERR:NDAO"
+    log
+    err // ERR:NDAO
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/utils/base-contracts/base.ts:38
+    // this.akitaDAO.value = akitaDAO
+    dig 1
+    app_global_put
+    // smart_contracts/utils/base-contracts/base.ts:36
+    // updateAkitaDAO(akitaDAO: Application): void {
+    intc_1 // 1
+    return
+
+
 // smart_contracts/social/base.ts::BaseSocial.mbr[routing]() -> void:
 mbr:
     // smart_contracts/social/base.ts:15
@@ -1027,7 +1162,7 @@ checkTipMbrRequirements:
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     dig 1
-    bytec 9 // "pal"
+    bytec 11 // "pal"
     app_global_get_ex
     pop
     // smart_contracts/social/base.ts:46
@@ -1142,141 +1277,6 @@ checkTipMbrRequirements_after_if_else@6:
     // smart_contracts/social/base.ts:55
     // checkTipMbrRequirements(akitaDAO: Application, creator: Account, wallet: Application): tipMBRInfo {
     b checkTipMbrRequirements_after_inlined_smart_contracts/social/base.ts::BaseSocial.checkTipMbrRequirements@7
-
-
-// smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]() -> void:
-update:
-    // smart_contracts/utils/base-contracts/base.ts:46
-    // @abimethod({ allowActions: ['UpdateApplication'] })
-    txna ApplicationArgs 1
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    extract 2 0
-    // smart_contracts/utils/base-contracts/base.ts:48
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:30
-    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:27
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:30
-    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
-    app_global_get_ex
-    assert // check GlobalState exists
-    bytec 10 // "wallet"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/base-contracts/base.ts:48
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    app_params_get AppAddress
-    assert // application exists
-    ==
-    bnz update_after_assert@3
-    bytec 11 // "ERR:NDAO"
-    log
-    err // ERR:NDAO
-
-update_after_assert@3:
-    // smart_contracts/utils/base-contracts/base.ts:49
-    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:27
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:49
-    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    app_global_get_ex
-    assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:54
-    // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
-    bytec 9 // "pal"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/base-contracts/base.ts:49
-    // const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    pushint 16
-    extract_uint64
-    // smart_contracts/utils/base-contracts/base.ts:50
-    // loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
-    global CallerApplicationID
-    ==
-    bnz update_after_assert@5
-    pushbytes "ERR:IUPG"
-    log
-    err // ERR:IUPG
-
-update_after_assert@5:
-    // smart_contracts/utils/base-contracts/base.ts:25
-    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 8 // "version"
-    // smart_contracts/utils/base-contracts/base.ts:51
-    // this.version.value = newVersion
-    dig 1
-    app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:46
-    // @abimethod({ allowActions: ['UpdateApplication'] })
-    intc_1 // 1
-    return
-
-
-// smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
-updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:36
-    // updateAkitaDAO(akitaDAO: Application): void {
-    txna ApplicationArgs 1
-    dup
-    len
-    pushint 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    // smart_contracts/utils/base-contracts/base.ts:37
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:30
-    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
-    intc_0 // 0
-    // smart_contracts/utils/base-contracts/base.ts:27
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:30
-    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
-    app_global_get_ex
-    assert // check GlobalState exists
-    bytec 10 // "wallet"
-    app_global_get_ex
-    pop
-    // smart_contracts/utils/base-contracts/base.ts:37
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    app_params_get AppAddress
-    assert // application exists
-    ==
-    bnz updateAkitaDAO_after_assert@3
-    bytec 11 // "ERR:NDAO"
-    log
-    err // ERR:NDAO
-
-updateAkitaDAO_after_assert@3:
-    // smart_contracts/utils/base-contracts/base.ts:27
-    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-    bytec_0 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:38
-    // this.akitaDAO.value = akitaDAO
-    dig 1
-    app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:36
-    // updateAkitaDAO(akitaDAO: Application): void {
-    intc_1 // 1
-    return
 
 
 // smart_contracts/social/graph.algo.ts::AkitaSocialGraph.isBanned(account: bytes) -> uint64:

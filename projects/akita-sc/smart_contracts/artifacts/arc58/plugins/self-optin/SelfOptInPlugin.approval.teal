@@ -72,10 +72,10 @@ optIn:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    // smart_contracts/utils/functions.ts:272
+    // smart_contracts/utils/functions.ts:288
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     pushbytes "spending_address"
-    // smart_contracts/utils/functions.ts:270-273
+    // smart_contracts/utils/functions.ts:286-289
     // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -179,11 +179,11 @@ optIn_ternary_merge@8:
     b optIn_while_top@2
 
 optIn_ternary_false@7:
-    // smart_contracts/utils/functions.ts:326
+    // smart_contracts/utils/functions.ts:342
     // if (!rekeyBack) {
     dig 4
     bnz optIn_after_if_else@13
-    // smart_contracts/utils/functions.ts:327
+    // smart_contracts/utils/functions.ts:343
     // return Global.zeroAddress
     global ZeroAddress
     // smart_contracts/arc58/plugins/self-optin/contract.algo.ts:19
@@ -191,7 +191,7 @@ optIn_ternary_false@7:
     b optIn_ternary_merge@8
 
 optIn_after_if_else@13:
-    // smart_contracts/utils/functions.ts:330
+    // smart_contracts/utils/functions.ts:346
     // return wallet.address
     dig 5
     app_params_get AppAddress

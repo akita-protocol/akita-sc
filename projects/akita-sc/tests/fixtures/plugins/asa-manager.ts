@@ -22,5 +22,12 @@ export const deployAsaManagerPlugin = async ({ fixture, sender, signer }: Deploy
 
   console.log('AsaManagerPlugin deployed with appId:', client.appId);
 
-  return new AsaManagerPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new AsaManagerPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

@@ -2,8 +2,9 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { setCurrentNetwork } from 'akita-sdk';
 import { WalletSDK, WalletFactorySDK, PayPluginSDK, OptInPluginSDK, CallerType } from 'akita-sdk/wallet';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
-import { describe, beforeAll, beforeEach, test, expect } from 'vitest';
+import { describe, beforeAll, afterAll, beforeEach, test, expect } from 'vitest';
 import algosdk from 'algosdk';
+import { AbstractedAccountMbrFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient';
 import { deployAbstractedAccountFactory } from './fixtures/abstracted-account';
 import { deployPayPlugin } from './fixtures/plugins/pay';
 import { deployOptInPlugin } from './fixtures/plugins/optin';
@@ -65,6 +66,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
   let receiverAddress: string;
   let receiverSigner: algosdk.TransactionSigner;
   let testAssetId: bigint;
+  let previousWalletMbrAppId: string | undefined;
 
   beforeAll(async () => {
     await fixture.newScope();
@@ -81,6 +83,16 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
     
     // Fund test account generously
     await algorand.account.ensureFunded(testAccount, dispenser, (500).algos());
+
+    // WalletSDK delegates box-MBR calculations to this immutable helper. Keep
+    // this standalone fixture self-contained just like buildAkitaUniverse.
+    previousWalletMbrAppId = process.env.WALLET_MBR_APP_ID;
+    const walletMbrFactory = algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+      defaultSender: sender,
+      defaultSigner: signer,
+    });
+    const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare();
+    process.env.WALLET_MBR_APP_ID = walletMbrClient.appId.toString();
     
     // Create a separate receiver account for payment tests
     const receiverAccount = algorand.account.random();
@@ -231,6 +243,11 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
       signer: receiverSigner,
       assetId: testAssetId,
     });
+  });
+
+  afterAll(() => {
+    if (previousWalletMbrAppId === undefined) delete process.env.WALLET_MBR_APP_ID;
+    else process.env.WALLET_MBR_APP_ID = previousWalletMbrAppId;
   });
 
   beforeEach(fixture.newScope);

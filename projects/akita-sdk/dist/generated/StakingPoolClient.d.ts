@@ -97,6 +97,7 @@ export type Reward = {
     interval: bigint;
     qualifiedStakers: bigint;
     qualifiedStake: bigint;
+    royaltyAmount: bigint;
     winnerCount: bigint;
     winningTickets: bigint[];
     raffleCursor: RaffleCursor;
@@ -110,7 +111,7 @@ export type Reward = {
 /**
  * Converts the ABI tuple representation of a Reward to the struct representation
  */
-export declare function RewardFromTuple(abiTuple: [bigint, number, bigint, bigint, bigint, bigint, bigint, bigint, bigint[], RaffleCursor, bigint, number, bigint, bigint, bigint, bigint]): Reward;
+export declare function RewardFromTuple(abiTuple: [bigint, number, bigint, bigint, bigint, bigint, bigint, bigint, bigint, bigint[], RaffleCursor, bigint, number, bigint, bigint, bigint, bigint]): Reward;
 export type StakingPoolMbrData = {
     entries: bigint;
     uniques: bigint;
@@ -133,7 +134,6 @@ export type StakingPoolState = {
     maxEntries: bigint;
     entryCount: bigint;
     rewardCount: bigint;
-    totalStaked: bigint;
     stakeKey: RootKey;
     minimumStakeAmount: bigint;
     gateId: bigint;
@@ -142,7 +142,7 @@ export type StakingPoolState = {
 /**
  * Converts the ABI tuple representation of a StakingPoolState to the struct representation
  */
-export declare function StakingPoolStateFromTuple(abiTuple: [number, string, number, bigint, bigint, boolean, bigint, bigint, bigint, bigint, bigint, RootKey, bigint, bigint, string]): StakingPoolState;
+export declare function StakingPoolStateFromTuple(abiTuple: [number, string, number, bigint, bigint, boolean, bigint, bigint, bigint, bigint, RootKey, bigint, bigint, string]): StakingPoolState;
 export type EscrowConfig = {
     name: string;
     app: bigint;
@@ -181,7 +181,9 @@ export type StakingPoolArgs = {
             akitaDao: bigint | number;
             akitaDaoEscrow: EscrowConfig;
         };
-        'init()void': Record<string, never>;
+        'init(uint64)void': {
+            akitaRoyalty: bigint | number;
+        };
         'delete(address)void': {
             caller: string;
         };
@@ -240,15 +242,15 @@ export type StakingPoolArgs = {
             address: string;
             asset: bigint | number;
         };
-        'enterCost(address,uint64)uint64': {
+        'enterCost(address,(uint64,uint64,byte[32][])[])uint64': {
             /**
              * The address that will be entering
              */
             address: string;
             /**
-             * The number of entries being added
+             * The entries being added
              */
-            entryCount: bigint | number;
+            entries: [bigint | number, bigint | number, Uint8Array[]][];
         };
         'optInCost(uint64)uint64': {
             asset: bigint | number;
@@ -258,7 +260,7 @@ export type StakingPoolArgs = {
         'isEntered(address)bool': {
             address: string;
         };
-        'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': Record<string, never>;
+        'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': Record<string, never>;
         'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)': {
             winningTickets: bigint | number;
         };
@@ -278,7 +280,7 @@ export type StakingPoolArgs = {
      */
     tuple: {
         'create(string,uint8,address,(address,uint64),address,(address,string),uint64,bool,uint64,uint64,uint64,(string,uint64))void': [title: string, type: bigint | number, creator: string, funder: FunderInfo, marketplace: string, stakeKey: RootKey, minimumStakeAmount: bigint | number, allowLateSignups: boolean, gateId: bigint | number, maxEntries: bigint | number, akitaDao: bigint | number, akitaDaoEscrow: EscrowConfig];
-        'init()void': [];
+        'init(uint64)void': [akitaRoyalty: bigint | number];
         'delete(address)void': [caller: string];
         'optIn(pay,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number];
         'addReward(pay,(uint64,uint8,uint64,uint64,uint64,uint64))void': [payment: AppMethodCallTransactionArgument, reward: AddRewardParams];
@@ -292,12 +294,12 @@ export type StakingPoolArgs = {
         'finalizeDistribution(uint64)void': [rewardId: bigint | number];
         'check(address,uint64)(bool,uint64)': [address: string, asset: bigint | number];
         'gateCheck(appl,address,uint64)void': [gateTxn: AppMethodCallTransactionArgument, address: string, asset: bigint | number];
-        'enterCost(address,uint64)uint64': [address: string, entryCount: bigint | number];
+        'enterCost(address,(uint64,uint64,byte[32][])[])uint64': [address: string, entries: [bigint | number, bigint | number, Uint8Array[]][]];
         'optInCost(uint64)uint64': [asset: bigint | number];
         'signUpsOpen()bool': [];
         'isLive()bool': [];
         'isEntered(address)bool': [address: string];
-        'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': [];
+        'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': [];
         'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)': [winningTickets: bigint | number];
         'updateAkitaDAOEscrow((string,uint64))void': [config: EscrowConfig];
         'update(string)void': [newVersion: string];
@@ -310,7 +312,7 @@ export type StakingPoolArgs = {
  */
 export type StakingPoolReturns = {
     'create(string,uint8,address,(address,uint64),address,(address,string),uint64,bool,uint64,uint64,uint64,(string,uint64))void': void;
-    'init()void': void;
+    'init(uint64)void': void;
     'delete(address)void': void;
     'optIn(pay,uint64)void': void;
     'addReward(pay,(uint64,uint8,uint64,uint64,uint64,uint64))void': void;
@@ -324,12 +326,12 @@ export type StakingPoolReturns = {
     'finalizeDistribution(uint64)void': void;
     'check(address,uint64)(bool,uint64)': ObjectC3416591;
     'gateCheck(appl,address,uint64)void': void;
-    'enterCost(address,uint64)uint64': bigint;
+    'enterCost(address,(uint64,uint64,byte[32][])[])uint64': bigint;
     'optInCost(uint64)uint64': bigint;
     'signUpsOpen()bool': boolean;
     'isLive()bool': boolean;
     'isEntered(address)bool': boolean;
-    'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': StakingPoolState;
+    'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)': StakingPoolState;
     'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)': StakingPoolMbrData;
     'updateAkitaDAOEscrow((string,uint64))void': void;
     'update(string)void': void;
@@ -347,10 +349,10 @@ export type StakingPoolTypes = {
         argsObj: StakingPoolArgs['obj']['create(string,uint8,address,(address,uint64),address,(address,string),uint64,bool,uint64,uint64,uint64,(string,uint64))void'];
         argsTuple: StakingPoolArgs['tuple']['create(string,uint8,address,(address,uint64),address,(address,string),uint64,bool,uint64,uint64,uint64,(string,uint64))void'];
         returns: StakingPoolReturns['create(string,uint8,address,(address,uint64),address,(address,string),uint64,bool,uint64,uint64,uint64,(string,uint64))void'];
-    }> & Record<'init()void' | 'init', {
-        argsObj: StakingPoolArgs['obj']['init()void'];
-        argsTuple: StakingPoolArgs['tuple']['init()void'];
-        returns: StakingPoolReturns['init()void'];
+    }> & Record<'init(uint64)void' | 'init', {
+        argsObj: StakingPoolArgs['obj']['init(uint64)void'];
+        argsTuple: StakingPoolArgs['tuple']['init(uint64)void'];
+        returns: StakingPoolReturns['init(uint64)void'];
     }> & Record<'delete(address)void' | 'delete', {
         argsObj: StakingPoolArgs['obj']['delete(address)void'];
         argsTuple: StakingPoolArgs['tuple']['delete(address)void'];
@@ -403,13 +405,13 @@ export type StakingPoolTypes = {
         argsObj: StakingPoolArgs['obj']['gateCheck(appl,address,uint64)void'];
         argsTuple: StakingPoolArgs['tuple']['gateCheck(appl,address,uint64)void'];
         returns: StakingPoolReturns['gateCheck(appl,address,uint64)void'];
-    }> & Record<'enterCost(address,uint64)uint64' | 'enterCost', {
-        argsObj: StakingPoolArgs['obj']['enterCost(address,uint64)uint64'];
-        argsTuple: StakingPoolArgs['tuple']['enterCost(address,uint64)uint64'];
+    }> & Record<'enterCost(address,(uint64,uint64,byte[32][])[])uint64' | 'enterCost', {
+        argsObj: StakingPoolArgs['obj']['enterCost(address,(uint64,uint64,byte[32][])[])uint64'];
+        argsTuple: StakingPoolArgs['tuple']['enterCost(address,(uint64,uint64,byte[32][])[])uint64'];
         /**
-         * The total payment amount needed (includes box MBR + any shortfall to meet min balance)
+         * The entry box MBR plus any app-scoped SOFT stake MBR
          */
-        returns: StakingPoolReturns['enterCost(address,uint64)uint64'];
+        returns: StakingPoolReturns['enterCost(address,(uint64,uint64,byte[32][])[])uint64'];
     }> & Record<'optInCost(uint64)uint64' | 'optInCost', {
         argsObj: StakingPoolArgs['obj']['optInCost(uint64)uint64'];
         argsTuple: StakingPoolArgs['tuple']['optInCost(uint64)uint64'];
@@ -435,10 +437,10 @@ export type StakingPoolTypes = {
          * a boolean indicating if the address has entered the staking pool
          */
         returns: StakingPoolReturns['isEntered(address)bool'];
-    }> & Record<'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)' | 'getState', {
-        argsObj: StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
-        argsTuple: StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
-        returns: StakingPoolReturns['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
+    }> & Record<'getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)' | 'getState', {
+        argsObj: StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
+        argsTuple: StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
+        returns: StakingPoolReturns['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'];
     }> & Record<'mbr(uint64)(uint64,uint64,uint64,uint64,uint64)' | 'mbr', {
         argsObj: StakingPoolArgs['obj']['mbr(uint64)(uint64,uint64,uint64,uint64,uint64)'];
         argsTuple: StakingPoolArgs['tuple']['mbr(uint64)(uint64,uint64,uint64,uint64,uint64)'];
@@ -510,10 +512,6 @@ export type StakingPoolTypes = {
                  */
                 rewardId: bigint;
                 /**
-                 * the total amount staked in the pool
-                 */
-                totalStaked: bigint;
-                /**
                 * the name for the meta merkle asset group to validate staking
                 stake key can be empty if distribution !== DistributionTypePercentage
         
@@ -527,10 +525,6 @@ export type StakingPoolTypes = {
                  * the gate id of the pool
                  */
                 gateId: bigint;
-                /**
-                 * the size of the gate were using
-                 */
-                gateSize: bigint;
                 /**
                  * the address of the creator of the staking pool
                  */
@@ -547,10 +541,6 @@ export type StakingPoolTypes = {
                  * the akita royalty for the pool
                  */
                 akitaRoyalty: bigint;
-                /**
-                 * the amount of royalties that were paid in a disbursement
-                 */
-                akitaRoyaltyAmount: bigint;
                 /**
                  * salt for randomness
                  */
@@ -793,12 +783,14 @@ export declare abstract class StakingPoolParamsFactory {
         delete(params: CallParams<StakingPoolArgs["obj"]["delete(address)void"] | StakingPoolArgs["tuple"]["delete(address)void"]>): AppClientMethodCallParams;
     };
     /**
-     * Constructs a no op call for the init()void ABI method
+     * Constructs a no op call for the init(uint64)void ABI method
+     *
+     * Completes factory-only initialization with the creator-specific royalty.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static init(params: CallParams<StakingPoolArgs['obj']['init()void'] | StakingPoolArgs['tuple']['init()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static init(params: CallParams<StakingPoolArgs['obj']['init(uint64)void'] | StakingPoolArgs['tuple']['init(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the optIn(pay,uint64)void ABI method
      *
@@ -886,14 +878,14 @@ export declare abstract class StakingPoolParamsFactory {
      */
     static gateCheck(params: CallParams<StakingPoolArgs['obj']['gateCheck(appl,address,uint64)void'] | StakingPoolArgs['tuple']['gateCheck(appl,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the enterCost(address,uint64)uint64 ABI method
+     * Constructs a no op call for the enterCost(address,(uint64,uint64,byte[32][])[])uint64 ABI method
      *
      * Calculates the total cost required to enter the pool
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static enterCost(params: CallParams<StakingPoolArgs['obj']['enterCost(address,uint64)uint64'] | StakingPoolArgs['tuple']['enterCost(address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static enterCost(params: CallParams<StakingPoolArgs['obj']['enterCost(address,(uint64,uint64,byte[32][])[])uint64'] | StakingPoolArgs['tuple']['enterCost(address,(uint64,uint64,byte[32][])[])uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the optInCost(uint64)uint64 ABI method
      *
@@ -923,12 +915,12 @@ export declare abstract class StakingPoolParamsFactory {
      */
     static isEntered(params: CallParams<StakingPoolArgs['obj']['isEntered(address)bool'] | StakingPoolArgs['tuple']['isEntered(address)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address) ABI method
+     * Constructs a no op call for the getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getState(params: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getState(params: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the mbr(uint64)(uint64,uint64,uint64,uint64,uint64) ABI method
      *
@@ -1641,12 +1633,14 @@ export declare class StakingPoolClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the StakingPool smart contract using the `init()void` ABI method.
+         * Makes a call to the StakingPool smart contract using the `init(uint64)void` ABI method.
+         *
+         * Completes factory-only initialization with the creator-specific royalty.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        init: (params?: CallParams<StakingPoolArgs["obj"]["init()void"] | StakingPoolArgs["tuple"]["init()void"]> & {
+        init: (params: CallParams<StakingPoolArgs["obj"]["init(uint64)void"] | StakingPoolArgs["tuple"]["init(uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -2046,16 +2040,16 @@ export declare class StakingPoolClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `enterCost(address,uint64)uint64` ABI method.
+         * Makes a call to the StakingPool smart contract using the `enterCost(address,(uint64,uint64,byte[32][])[])uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * Calculates the total cost required to enter the pool
          *
          * @param params The params for the smart contract call
-         * @returns The call params: The total payment amount needed (includes box MBR + any shortfall to meet min balance)
+         * @returns The call params: The entry box MBR plus any app-scoped SOFT stake MBR
          */
-        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,uint64)uint64"] | StakingPoolArgs["tuple"]["enterCost(address,uint64)uint64"]> & {
+        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"] | StakingPoolArgs["tuple"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -2213,14 +2207,14 @@ export declare class StakingPoolClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
+         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & {
+        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -2420,12 +2414,14 @@ export declare class StakingPoolClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams>) => any;
         /**
-         * Makes a call to the StakingPool smart contract using the `init()void` ABI method.
+         * Makes a call to the StakingPool smart contract using the `init(uint64)void` ABI method.
+         *
+         * Completes factory-only initialization with the creator-specific royalty.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        init: (params?: CallParams<StakingPoolArgs["obj"]["init()void"] | StakingPoolArgs["tuple"]["init()void"]> & {
+        init: (params: CallParams<StakingPoolArgs["obj"]["init(uint64)void"] | StakingPoolArgs["tuple"]["init(uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2591,16 +2587,16 @@ export declare class StakingPoolClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `enterCost(address,uint64)uint64` ABI method.
+         * Makes a call to the StakingPool smart contract using the `enterCost(address,(uint64,uint64,byte[32][])[])uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * Calculates the total cost required to enter the pool
          *
          * @param params The params for the smart contract call
-         * @returns The call transaction: The total payment amount needed (includes box MBR + any shortfall to meet min balance)
+         * @returns The call transaction: The entry box MBR plus any app-scoped SOFT stake MBR
          */
-        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,uint64)uint64"] | StakingPoolArgs["tuple"]["enterCost(address,uint64)uint64"]> & {
+        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"] | StakingPoolArgs["tuple"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2668,14 +2664,14 @@ export declare class StakingPoolClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
+         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & {
+        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2797,15 +2793,17 @@ export declare class StakingPoolClient {
          */
         clearState: (params?: Expand<AppClientBareCallParams & SendParams>) => any;
         /**
-         * Makes a call to the StakingPool smart contract using the `init()void` ABI method.
+         * Makes a call to the StakingPool smart contract using the `init(uint64)void` ABI method.
+         *
+         * Completes factory-only initialization with the creator-specific royalty.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        init: (params?: CallParams<StakingPoolArgs["obj"]["init()void"] | StakingPoolArgs["tuple"]["init()void"]> & SendParams & {
+        init: (params: CallParams<StakingPoolArgs["obj"]["init(uint64)void"] | StakingPoolArgs["tuple"]["init(uint64)void"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingPoolReturns["init()void"]);
+            return: (undefined | StakingPoolReturns["init(uint64)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3033,19 +3031,19 @@ export declare class StakingPoolClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `enterCost(address,uint64)uint64` ABI method.
+         * Makes a call to the StakingPool smart contract using the `enterCost(address,(uint64,uint64,byte[32][])[])uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * Calculates the total cost required to enter the pool
          *
          * @param params The params for the smart contract call
-         * @returns The call result: The total payment amount needed (includes box MBR + any shortfall to meet min balance)
+         * @returns The call result: The entry box MBR plus any app-scoped SOFT stake MBR
          */
-        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,uint64)uint64"] | StakingPoolArgs["tuple"]["enterCost(address,uint64)uint64"]> & SendParams & {
+        enterCost: (params: CallParams<StakingPoolArgs["obj"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"] | StakingPoolArgs["tuple"]["enterCost(address,(uint64,uint64,byte[32][])[])uint64"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingPoolReturns["enterCost(address,uint64)uint64"]);
+            return: (undefined | StakingPoolReturns["enterCost(address,(uint64,uint64,byte[32][])[])uint64"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3135,17 +3133,17 @@ export declare class StakingPoolClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
+         * Makes a call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & SendParams & {
+        getState: (params?: CallParams<StakingPoolArgs["obj"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"] | StakingPoolArgs["tuple"]["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingPoolReturns["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]);
+            return: (undefined | StakingPoolReturns["getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -3237,16 +3235,16 @@ export declare class StakingPoolClient {
      */
     clone(params: CloneAppClientParams): StakingPoolClient;
     /**
-     * Makes a readonly (simulated) call to the StakingPool smart contract using the `enterCost(address,uint64)uint64` ABI method.
+     * Makes a readonly (simulated) call to the StakingPool smart contract using the `enterCost(address,(uint64,uint64,byte[32][])[])uint64` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * Calculates the total cost required to enter the pool
      *
      * @param params The params for the smart contract call
-     * @returns The call result: The total payment amount needed (includes box MBR + any shortfall to meet min balance)
+     * @returns The call result: The entry box MBR plus any app-scoped SOFT stake MBR
      */
-    enterCost(params: CallParams<StakingPoolArgs['obj']['enterCost(address,uint64)uint64'] | StakingPoolArgs['tuple']['enterCost(address,uint64)uint64']>): Promise<bigint>;
+    enterCost(params: CallParams<StakingPoolArgs['obj']['enterCost(address,(uint64,uint64,byte[32][])[])uint64'] | StakingPoolArgs['tuple']['enterCost(address,(uint64,uint64,byte[32][])[])uint64']>): Promise<bigint>;
     /**
      * Makes a readonly (simulated) call to the StakingPool smart contract using the `optInCost(uint64)uint64` ABI method.
      *
@@ -3284,14 +3282,14 @@ export declare class StakingPoolClient {
      */
     isEntered(params: CallParams<StakingPoolArgs['obj']['isEntered(address)bool'] | StakingPoolArgs['tuple']['isEntered(address)bool']>): Promise<boolean>;
     /**
-     * Makes a readonly (simulated) call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
+     * Makes a readonly (simulated) call to the StakingPool smart contract using the `getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getState(params?: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']>): Promise<StakingPoolState>;
+    getState(params?: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']>): Promise<StakingPoolState>;
     /**
      * Makes a readonly (simulated) call to the StakingPool smart contract using the `mbr(uint64)(uint64,uint64,uint64,uint64,uint64)` ABI method.
      *
@@ -3354,10 +3352,6 @@ export declare class StakingPoolClient {
              */
             rewardId: () => Promise<bigint | undefined>;
             /**
-             * Get the current value of the totalStaked key in global state
-             */
-            totalStaked: () => Promise<bigint | undefined>;
-            /**
              * Get the current value of the stakeKey key in global state
              */
             stakeKey: () => Promise<RootKey | undefined>;
@@ -3369,10 +3363,6 @@ export declare class StakingPoolClient {
              * Get the current value of the gateID key in global state
              */
             gateId: () => Promise<bigint | undefined>;
-            /**
-             * Get the current value of the gateSize key in global state
-             */
-            gateSize: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the creator key in global state
              */
@@ -3389,10 +3379,6 @@ export declare class StakingPoolClient {
              * Get the current value of the akitaRoyalty key in global state
              */
             akitaRoyalty: () => Promise<bigint | undefined>;
-            /**
-             * Get the current value of the akitaRoyaltyAmount key in global state
-             */
-            akitaRoyaltyAmount: () => Promise<bigint | undefined>;
             /**
              * Get the current value of the salt key in global state
              */
@@ -3493,12 +3479,14 @@ export declare class StakingPoolClient {
 }
 export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
     /**
-     * Calls the init()void ABI method.
+     * Calls the init(uint64)void ABI method.
+     *
+     * Completes factory-only initialization with the creator-specific royalty.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    init(params?: CallParams<StakingPoolArgs['obj']['init()void'] | StakingPoolArgs['tuple']['init()void']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['init()void'] | undefined]>;
+    init(params?: CallParams<StakingPoolArgs['obj']['init(uint64)void'] | StakingPoolArgs['tuple']['init(uint64)void']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['init(uint64)void'] | undefined]>;
     /**
      * Calls the optIn(pay,uint64)void ABI method.
      *
@@ -3586,14 +3574,14 @@ export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
      */
     gateCheck(params?: CallParams<StakingPoolArgs['obj']['gateCheck(appl,address,uint64)void'] | StakingPoolArgs['tuple']['gateCheck(appl,address,uint64)void']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['gateCheck(appl,address,uint64)void'] | undefined]>;
     /**
-     * Calls the enterCost(address,uint64)uint64 ABI method.
+     * Calls the enterCost(address,(uint64,uint64,byte[32][])[])uint64 ABI method.
      *
      * Calculates the total cost required to enter the pool
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    enterCost(params?: CallParams<StakingPoolArgs['obj']['enterCost(address,uint64)uint64'] | StakingPoolArgs['tuple']['enterCost(address,uint64)uint64']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['enterCost(address,uint64)uint64'] | undefined]>;
+    enterCost(params?: CallParams<StakingPoolArgs['obj']['enterCost(address,(uint64,uint64,byte[32][])[])uint64'] | StakingPoolArgs['tuple']['enterCost(address,(uint64,uint64,byte[32][])[])uint64']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['enterCost(address,(uint64,uint64,byte[32][])[])uint64'] | undefined]>;
     /**
      * Calls the optInCost(uint64)uint64 ABI method.
      *
@@ -3623,12 +3611,12 @@ export type StakingPoolComposer<TReturns extends [...any[]] = []> = {
      */
     isEntered(params?: CallParams<StakingPoolArgs['obj']['isEntered(address)bool'] | StakingPoolArgs['tuple']['isEntered(address)bool']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['isEntered(address)bool'] | undefined]>;
     /**
-     * Calls the getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address) ABI method.
+     * Calls the getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address) ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getState(params?: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | undefined]>;
+    getState(params?: CallParams<StakingPoolArgs['obj']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | StakingPoolArgs['tuple']['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)']>): StakingPoolComposer<[...TReturns, StakingPoolReturns['getState()(uint8,string,uint8,uint64,uint64,bool,uint64,uint64,uint64,uint64,(address,string),uint64,uint64,address)'] | undefined]>;
     /**
      * Calls the mbr(uint64)(uint64,uint64,uint64,uint64,uint64) ABI method.
      *

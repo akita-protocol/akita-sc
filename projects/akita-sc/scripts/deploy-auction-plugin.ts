@@ -10,7 +10,7 @@
  *   ts-node scripts/deploy-auction-plugin.ts --network testnet --mnemonic "your mnemonic"
  */
 
-import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, setupContext, runScript } from './script-base'
 import { AuctionPluginSDK } from 'akita-sdk/wallet'
 import { AuctionPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/auction/AuctionPluginClient'
 
@@ -50,6 +50,8 @@ runScript(async () => {
 
   console.log(`   New plugin deployed: ${plugin.appId}\n`)
 
+  await recordPluginDeployment(options.network, 'auctionPlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('AUCTION PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -59,7 +61,6 @@ Summary:
   New Plugin App ID: ${plugin.appId}
   Version: ${options.version}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  auctionPlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'auctionPlugin', plugin.appId, options.version)}
 `)
 })

@@ -3,7 +3,7 @@ import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typ
 import { btoi, Global, Txn } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyVersion } from "../../constants";
 import { BoxCostPerByte, ONE_HUNDRED_PERCENT } from "../../utils/constants";
-import { calcPercent, getOrigin, getStakingPower, percentageOf } from "../../utils/functions";
+import { calcPercent, getStakingPower, percentageOf } from "../../utils/functions";
 import { CID } from "../../utils/types/base";
 import { AbstractAccountBoxPrefixExecutions, AbstractAccountBoxPrefixPlugins } from "../account/constants";
 import { AddAllowanceInfo, EscrowInfo } from "../account/types";
@@ -125,11 +125,10 @@ export class AkitaDAO extends Contract {
   private validEditOrSubmit(proposalID: uint64): boolean {
     loggedAssert(this.proposals(proposalID).exists, ERR_PROPOSAL_DOES_NOT_EXIST)
     const { status, creator } = this.proposals(proposalID).value
-    const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
 
     return (
       status === ProposalStatusDraft &&
-      origin === creator
+      Txn.sender === creator
     )
   }
 
@@ -160,7 +159,6 @@ export class AkitaDAO extends Contract {
     id: uint64,
     cid: CID,
     actions: ProposalAction[],
-    origin: Account,
     feesPaid: uint64,
     powerRequired: uint64
   ): uint64 {
@@ -191,7 +189,7 @@ export class AkitaDAO extends Contract {
       return id
     }
 
-    const userPower = this.getGovernancePower(origin)
+    const userPower = this.getGovernancePower(Txn.sender)
 
     loggedAssert(userPower >= powerRequired, ERR_INSUFFICIENT_PROPOSAL_THRESHOLD)
 
@@ -211,7 +209,7 @@ export class AkitaDAO extends Contract {
         rejections: 0,
         abstains: 0,
       },
-      creator: origin,
+      creator: Txn.sender,
       votingTs: 0,
       created,
       feesPaid,
@@ -377,10 +375,10 @@ export class AkitaDAO extends Contract {
     })
   }
 
-  private newEscrow(escrow: string): uint64 {
+  private newEscrow(escrow: string, address: Account): uint64 {
     return abiCall<typeof AbstractedAccount.prototype.arc58_newEscrow>({
       appId: this.wallet.value,
-      args: [escrow]
+      args: [escrow, address]
     }).returnValue
   }
 
@@ -732,6 +730,7 @@ export class AkitaDAO extends Contract {
 
   partiallyInitialize(): void {
     loggedAssert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
+    loggedAssert(this.state.value === DaoStateDraft, ERR_ALREADY_INITIALIZED)
     this.state.value = DaoStatePartiallyInitialized
   }
 
@@ -743,7 +742,6 @@ export class AkitaDAO extends Contract {
   // AKITA DAO METHODS ----------------------------------------------------------------------------
 
   newProposal(payment: gtxn.PaymentTxn, cid: CID, actions: ProposalAction[]): uint64 {
-    const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const { total, power } = this.proposalCost(actions)
 
     let fee: uint64 = 0
@@ -767,27 +765,25 @@ export class AkitaDAO extends Contract {
 
     this.validateActions(actions)
 
-    return this.createOrUpdateProposal(0, cid, actions, origin, fee, power)
+    return this.createOrUpdateProposal(0, cid, actions, fee, power)
   }
 
   editProposal(id: uint64, cid: CID, actions: ProposalAction[]): void {
     loggedAssert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
 
     const { feesPaid } = this.proposals(id).value
-    const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const { total, power } = this.proposalCost(actions)
 
     loggedAssert(total <= feesPaid, ERR_PAYMENT_REQUIRED)
 
     this.validateActions(actions)
-    this.createOrUpdateProposal(id, cid, actions, origin, total, power)
+    this.createOrUpdateProposal(id, cid, actions, total, power)
   }
 
   editProposalWithPayment(payment: gtxn.PaymentTxn, id: uint64, cid: CID, actions: ProposalAction[]): void {
     loggedAssert(this.validEditOrSubmit(id), ERR_INVALID_PROPOSAL_STATE)
 
     const { feesPaid } = this.proposals(id).value
-    const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const { total, power } = this.proposalCost(actions)
 
     loggedAssert(total > feesPaid, ERR_PAYMENT_NOT_REQUIRED)
@@ -804,7 +800,7 @@ export class AkitaDAO extends Contract {
     )
 
     this.validateActions(actions)
-    this.createOrUpdateProposal(id, cid, actions, origin, total, power)
+    this.createOrUpdateProposal(id, cid, actions, total, power)
   }
 
   deleteProposal(proposalID: uint64): void {
@@ -817,8 +813,7 @@ export class AkitaDAO extends Contract {
       ERR_INVALID_PROPOSAL_STATE
     )
 
-    const origin = getOrigin(this.otherAppList.value.escrow, Txn.sender)
-    loggedAssert(origin === creator, ERR_INCORRECT_SENDER)
+    loggedAssert(Txn.sender === creator, ERR_INCORRECT_SENDER)
 
     this.proposals(proposalID).delete()
   }
@@ -848,11 +843,13 @@ export class AkitaDAO extends Contract {
     const { status } = this.proposals(proposalID).value
     loggedAssert(status === ProposalStatusVoting, ERR_INVALID_PROPOSAL_STATE)
 
-    const voter = getOrigin(this.otherAppList.value.escrow, Txn.sender)
     const proposal = clone(this.proposals(proposalID).value)
+    const { duration } = this.proposalCost(proposal.actions)
 
-    if (this.proposalVotes({ proposalID, voter }).exists) {
-      const { type, power: previousPower } = this.proposalVotes({ proposalID, voter }).value
+    loggedAssert(Global.latestTimestamp <= (proposal.votingTs + duration), ERR_VOTING_DURATION_NOT_MET)
+
+    if (this.proposalVotes({ proposalID, voter: Txn.sender }).exists) {
+      const { type, power: previousPower } = this.proposalVotes({ proposalID, voter: Txn.sender }).value
 
       switch (type) {
         case ProposalVoteTypeApprove: {
@@ -873,7 +870,7 @@ export class AkitaDAO extends Contract {
       }
     }
 
-    const power = this.getGovernancePower(voter)
+    const power = this.getGovernancePower(Txn.sender)
 
     // getStakingPower will return 0 if the unlock is within 1 week
     loggedAssert(power > 0, ERR_FORBIDDEN)
@@ -898,7 +895,7 @@ export class AkitaDAO extends Contract {
 
     // Save the updated proposal with vote counts
     this.proposals(proposalID).value = clone(proposal)
-    this.proposalVotes({ proposalID, voter }).value = { type: vote, power }
+    this.proposalVotes({ proposalID, voter: Txn.sender }).value = { type: vote, power }
   }
 
   finalizeProposal(proposalID: uint64): void {
@@ -919,16 +916,18 @@ export class AkitaDAO extends Contract {
         ]
       }).returnValue
 
-      const lockedAkta = totals[0].locked
-      const lockedBones = totals[1].locked
+      const lockedAkta: uint64 = totals[0].liveLockedStake / 1_000_000
+      const lockedBones: uint64 = totals[1].liveLockedStake / 1_000_000
       locked = lockedAkta < lockedBones ? lockedAkta : lockedBones
     }
 
     const totalVotes: uint64 = approvals + rejections + abstains
 
     let approvalPercentage: uint64 = 0
-    // percentageOf will error if theres no rejections
-    if (rejections > 0) {
+    // An abstain-only result must not be treated as unanimous approval.
+    if (approvals === 0) {
+      approvalPercentage = 0
+    } else if (rejections > 0) {
       approvalPercentage = percentageOf(approvals, (approvals + rejections))
     } else {
       approvalPercentage = ONE_HUNDRED_PERCENT
@@ -1002,8 +1001,8 @@ export class AkitaDAO extends Contract {
           break
         }
         case ProposalActionTypeNewEscrow: {
-          const { escrow } = decodeArc4<ProposalNewEscrow>(data)
-          this.newEscrow(escrow)
+          const { escrow, address } = decodeArc4<ProposalNewEscrow>(data)
+          this.newEscrow(escrow, address)
           break
         }
         case ProposalActionTypeToggleEscrowLock: {

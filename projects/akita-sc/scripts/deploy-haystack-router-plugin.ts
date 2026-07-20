@@ -16,7 +16,7 @@ import { ABIMethod } from '@algorandfoundation/algokit-utils/abi'
 import { HaystackRouterPluginSDK } from 'akita-sdk/wallet'
 import algosdk from 'algosdk'
 import { HaystackRouterPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/haystack-router/HaystackRouterPluginClient'
-import { parseBaseArgs, runScript, setupContext, type Network } from './script-base'
+import { parseBaseArgs, pluginDeploymentInstructions, recordPluginDeployment, runScript, setupContext, type Network } from './script-base'
 
 type HaystackRouterOptions = {
   routerAppId?: bigint
@@ -180,6 +180,8 @@ runScript(async () => {
   console.log(`   New plugin deployed: ${plugin.appId}`)
   console.log(`   Plugin address: ${client.appAddress}\n`)
 
+  await recordPluginDeployment(options.network, 'haystackRouterPlugin', plugin.appId, options.version)
+
   console.log('='.repeat(80))
   console.log('HAYSTACK ROUTER PLUGIN DEPLOYMENT COMPLETE!')
   console.log('='.repeat(80))
@@ -192,7 +194,6 @@ Summary:
   Referrer: ${referrerAddress}
   Referrer Treasury: ${haystackOptions.referrerTreasuryAppId}
 
-IMPORTANT: Update the SDK networks.ts file with the new plugin app ID:
-  haystackRouterPlugin: ${plugin.appId}n,
+${pluginDeploymentInstructions(options.network, 'haystackRouterPlugin', plugin.appId, options.version)}
 `)
 })

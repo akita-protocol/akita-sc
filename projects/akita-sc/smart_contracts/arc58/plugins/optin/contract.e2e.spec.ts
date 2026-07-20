@@ -128,6 +128,14 @@ describe('Optin plugin contract', () => {
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
       expect(walletInfo?.assets?.length).toBe(1);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [optinSdk.optOut({ assets: [takta] })]
+      });
+
+      walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
+      expect(walletInfo.assets?.some(({ assetId }) => assetId === takta)).toBe(false);
     });
   });
 });

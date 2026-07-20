@@ -1,14 +1,15 @@
 import { Account, Application, Asset, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
-import { totalsMBR } from "../../../staking/constants"
-import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, StakingType } from "../../../staking/types"
+import { SettingsMBR, totalsMBR } from "../../../staking/constants"
+import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, StakingType, StakeCheck } from "../../../staking/types"
 import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
 
 // CONTRACT IMPORTS
 import { BaseStaking } from "../../../staking/base"
 import type { Staking } from "../../../staking/contract.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
+import { AppSoftStakeKey, SoftStakeKey } from "./types"
 
 export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
@@ -141,18 +142,73 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     })
   }
 
-  softCheck(
+  checkpointSoftStake(
     wallet: Application,
     rekeyBack: boolean,
-    address: Account,
-    asset: uint64
+    stakeKeys: SoftStakeKey[]
+  ): StakeCheck[] {
+    const sender = getSpendingAccount(wallet)
+    let results: StakeCheck[] = []
+    for (let i: uint64 = 0; i < stakeKeys.length; i++) {
+      results.push(
+        abiCall<typeof Staking.prototype.checkpointSoftStake>({
+          sender,
+          appId: getAkitaAppList(this.akitaDAO.value).staking,
+          args: [stakeKeys[i].address, stakeKeys[i].asset],
+          rekeyTo: i === stakeKeys.length - 1 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+        }).returnValue
+      )
+    }
+    return results
+  }
+
+  checkpointAppSoftStake(
+    wallet: Application,
+    rekeyBack: boolean,
+    appStakeKeys: AppSoftStakeKey[]
+  ): StakeCheck[] {
+    const sender = getSpendingAccount(wallet)
+    let results: StakeCheck[] = []
+    for (let i: uint64 = 0; i < appStakeKeys.length; i++) {
+      results.push(
+        abiCall<typeof Staking.prototype.checkpointAppSoftStake>({
+          sender,
+          appId: getAkitaAppList(this.akitaDAO.value).staking,
+          args: [appStakeKeys[i].app, appStakeKeys[i].address, appStakeKeys[i].asset],
+          rekeyTo: i === appStakeKeys.length - 1 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+        }).returnValue
+      )
+    }
+    return results
+  }
+
+  updateSettings(
+    wallet: Application,
+    rekeyBack: boolean,
+    asset: uint64,
+    value: uint64
   ): void {
     const sender = getSpendingAccount(wallet)
+    const appId = getAkitaAppList(this.akitaDAO.value).staking
 
-    abiCall<typeof Staking.prototype.softCheck>({
+    const settings = abiCall<typeof Staking.prototype.getSettings>({
       sender,
-      appId: getAkitaAppList(this.akitaDAO.value).staking,
-      args: [address, asset],
+      appId,
+      args: [[asset]],
+    }).returnValue
+
+    abiCall<typeof Staking.prototype.updateSettings>({
+      sender,
+      appId,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: Application(appId).address,
+          amount: settings[0].exists ? 0 : SettingsMBR,
+        }),
+        asset,
+        value
+      ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
   }

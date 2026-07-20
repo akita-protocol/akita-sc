@@ -216,6 +216,22 @@ export function gateCall(akitaDAO: Application, caller: Account, id: uint64, arg
   }).returnValue
 }
 
+export function softGateCheck(gateTxn: gtxn.ApplicationCallTxn, akitaDAO: Application, caller: Account, id: uint64): boolean {
+  // A successful ARC-4 call to Gate.check already guarantees the allowed
+  // completion action and argument count; authenticate the values the pool
+  // relies on before consuming the return log.
+  assert(
+    gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    gateTxn.numAppArgs === 4 &&
+    gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.check>() &&
+    gateTxn.appArgs(1) === new Address(caller).bytes &&
+    gateTxn.appArgs(2) === itob(id)
+  )
+
+  return decodeArc4<boolean>(op.extract(gateTxn.lastLog, 4))
+}
+
 export function getCheckByIndex(index: uint64, akitaDAO: Application, caller: Account, id: uint64): boolean {
   const gateTxn = gtxn.ApplicationCallTxn(index)
   return (
@@ -296,7 +312,7 @@ export function getEscrowInfo(wallet: Application): EscrowInfo {
 
 export function mustGetEscrowInfo(wallet: Application): EscrowInfo {
   const info = getEscrowInfo(wallet)
-  assert(info.id > 0, ERR_ESCROW_DOES_NOT_EXIST)
+  assert(info.address !== Global.zeroAddress, ERR_ESCROW_DOES_NOT_EXIST)
   return info
 }
 

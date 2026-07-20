@@ -175,4 +175,3 @@ describe('Escrow SDK', () => {
     })
   })
 })
-

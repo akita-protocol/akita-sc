@@ -73,7 +73,16 @@ describe('PaySilo plugin contract', () => {
     });
 
     test('pay sends ALGO to the configured silo recipient', async () => {
-      const paySiloPluginSdk = akitaUniverse.paySiloPlugin;
+      // Use a sender distinct from the configured recipient so the recipient's
+      // balance delta is not reduced by the outer plugin transaction fees.
+      const paySiloPluginSdk = new PaySiloPluginSDK({
+        algorand,
+        factoryParams: {
+          appId: akitaUniverse.paySiloPlugin.appId,
+          defaultSender: user.addr,
+          defaultSigner: user.signer,
+        },
+      });
       const paymentAmount = 250_000n;
 
       const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });

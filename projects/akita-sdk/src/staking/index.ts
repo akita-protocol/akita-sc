@@ -7,7 +7,8 @@ import {
   Stake,
   Escrow,
   StakeCheck,
-  TotalsInfo
+  TotalsInfo,
+  WeightedStake,
 } from '../generated/StakingClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import {
@@ -16,8 +17,12 @@ import {
   CreateHeartbeatArgs,
   UpdateSettingsArgs,
   SoftCheckArgs,
+  CheckpointSoftStakeArgs,
+  CheckpointExpiredLockArgs,
   GetTimeLeftArgs,
   GetInfoArgs,
+  GetWeightedStakeArgs,
+  GetAppWeightedStakeArgs,
   GetEscrowInfoArgs,
   GetHeartbeatArgs,
   GetHeartbeatAverageArgs,
@@ -57,6 +62,24 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     return result
   }
 
+  async checkpointSoftStake({ sender, signer, address, asset }: CheckpointSoftStakeArgs): Promise<StakeCheck> {
+    const result = await this.client.send.checkpointSoftStake({
+      ...this.getRequiredSendParams({ sender, signer }),
+      args: { address, asset },
+    });
+    if (result.return === undefined) throw new Error('Failed to checkpoint soft stake');
+    return result.return;
+  }
+
+  async checkpointExpiredLock({ sender, signer, address, asset }: CheckpointExpiredLockArgs): Promise<boolean> {
+    const result = await this.client.send.checkpointExpiredLock({
+      ...this.getRequiredSendParams({ sender, signer }),
+      args: { address, asset },
+    });
+    if (result.return === undefined) throw new Error('Failed to checkpoint expired lock');
+    return result.return;
+  }
+
   async getTimeLeft({ address, asset }: GetTimeLeftArgs): Promise<bigint> {
     const { return: timeLeft } = await this.client.send.getTimeLeft({ 
       args: { address, asset } 
@@ -84,6 +107,20 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     return await this.client.getInfo({ 
       args: { address, stake } 
     });
+  }
+
+  /** Gets the valid cumulative stake amount and its weighted average age. */
+  async getWeightedStake({ address, asset }: GetWeightedStakeArgs): Promise<WeightedStake> {
+    return await this.client.getWeightedStake({ args: { address, asset } });
+  }
+
+  async getAppWeightedStake({
+    app,
+    address,
+    asset,
+    acceptInherited,
+  }: GetAppWeightedStakeArgs): Promise<WeightedStake> {
+    return await this.client.getAppWeightedStake({ args: { app, address, asset, acceptInherited } });
   }
 
   /**
@@ -192,10 +229,11 @@ export class StakingSDK extends BaseSDK<StakingClient> {
       return [];
     }
 
-    return infoList.map(([amount, lastUpdate, expiration]) => ({
+    return infoList.map(([amount, lastUpdate, expiration, weightedAge]) => ({
       amount,
       lastUpdate,
-      expiration
+      expiration,
+      weightedAge
     }));
   }
 
@@ -212,10 +250,11 @@ export class StakingSDK extends BaseSDK<StakingClient> {
       throw new Error('Failed to get info list');
     }
 
-    return infoList.map(([amount, lastUpdate, expiration]) => ({
+    return infoList.map(([amount, lastUpdate, expiration, weightedAge]) => ({
       amount,
       lastUpdate,
-      expiration
+      expiration,
+      weightedAge
     }));
   }
 
@@ -266,7 +305,8 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     let expiration: bigint;
     if (isEscrowed) {
       // ensure args.expiration is in the future
-      if (args.expiration < BigInt(Date.now() / 1000)) { // AVM uses unix timestamp in seconds
+      const latestTimestamp = await this.client.algorand.network.getLatestTimestamp();
+      if (args.expiration < latestTimestamp) {
         throw new Error('Expiration must be in the future');
       }
       expiration = args.expiration;

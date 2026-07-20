@@ -1,6 +1,6 @@
 export * from './types';
 export * from './errors';
-export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, } from './config';
+export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, } from './config';
 export { AuctionSDK, AuctionFactorySDK } from './auction';
 export { AkitaDaoSDK } from './dao';
 export { EscrowSDK, EscrowFactorySDK } from './escrow';
@@ -15,7 +15,7 @@ export { RewardsSDK } from './rewards';
 export { SocialSDK } from './social';
 export { StakingSDK } from './staking';
 export { StakingPoolSDK, StakingPoolFactorySDK } from './staking-pool';
-export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type Service, type NewServiceArgs, type SubscribeArgs, type SubscriptionInfoWithDetails, ServiceStatus, HighlightMessage, } from './subscriptions';
+export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type Service, type NewServiceArgs, type SubscribeArgs, type SubscriptionInfoWithDetails, ServiceStatus, HighlightMessage } from './subscriptions';
 export { WalletSDK, WalletFactorySDK } from './wallet';
 export * from './connect';
 export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';

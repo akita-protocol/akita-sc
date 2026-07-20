@@ -33,5 +33,12 @@ export const deployStakingPlugin = async ({ fixture, sender, signer, args: { aki
 
   console.log('StakingPlugin deployed with appId:', client.appId);
 
-  return new StakingPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new StakingPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

@@ -30,7 +30,6 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
 
   /**
    * Creates a new auction with an ASA prize and returns an AuctionSDK instance.
-   * Uses opUp for raffle auctions (weightsListCount > 0) to expand reference limits.
    * @returns AuctionSDK for the newly created auction
    */
   async newAuction({
@@ -66,9 +65,6 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
 
     let appId: bigint | undefined;
     
-    // Raffle auctions with weights need opUp for additional references
-    const needsOpUp = BigInt(weightsListCount) > 0n;
-
     if (isPrizeBox) {
       const { prizeBoxId } = rest as Exclude<NewAuctionParams, { isPrizeBox: false }>;
 
@@ -81,49 +77,22 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
         }
       })).transactions[0];
 
-      if (needsOpUp) {
-        const group = this.client.newGroup();
-        group.newPrizeBoxAuction({
-          ...sendParams,
-          args: {
-            prizeBoxTransferTxn,
-            payment,
-            bidAssetId,
-            bidFee,
-            startingBid,
-            bidMinimumIncrease,
-            startTimestamp,
-            endTimestamp,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        });
-        // Raffle auction creation needs multiple opUps for weight box initialization
-        // Each opUp adds 8 more reference slots. Max group size is 16.
-        for (let i = 0; i < 10; i++) {
-          group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-        }
-        const result = await group.send(sendParams);
-        appId = result.returns[0] as bigint | undefined;
-      } else {
-        ({ return: appId } = await this.client.send.newPrizeBoxAuction({
-          ...sendParams,
-          args: {
-            prizeBoxTransferTxn,
-            payment,
-            bidAssetId,
-            bidFee,
-            startingBid,
-            bidMinimumIncrease,
-            startTimestamp,
-            endTimestamp,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        }));
-      }
+      ({ return: appId } = await this.client.send.newPrizeBoxAuction({
+        ...sendParams,
+        args: {
+          prizeBoxTransferTxn,
+          payment,
+          bidAssetId,
+          bidFee,
+          startingBid,
+          bidMinimumIncrease,
+          startTimestamp,
+          endTimestamp,
+          gateId,
+          marketplace,
+          weightsListCount,
+        },
+      }));
     } else {
       const { prizeAsset, prizeAmount } = rest as Exclude<NewAuctionParams, { isPrizeBox: true }>;
 
@@ -134,54 +103,24 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
         receiver: this.client.appAddress,
       });
 
-      if (needsOpUp) {
-        const group = this.client.newGroup();
-        group.newAuction({
-          ...sendParams,
-          args: {
-            payment,
-            assetXfer,
-            name,
-            proof,
-            bidAssetId,
-            bidFee,
-            startingBid,
-            bidMinimumIncrease,
-            startTimestamp,
-            endTimestamp,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        });
-        // Raffle auction creation needs multiple opUps for weight box initialization
-        // Each opUp adds 8 more reference slots. Max group size is 16.
-        // newAuction + pay + assetXfer = 3, so we can add up to 13 opUps
-        for (let i = 0; i < 10; i++) {
-          group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-        }
-        const result = await group.send(sendParams);
-        appId = result.returns[0] as bigint | undefined;
-      } else {
-        ({ return: appId } = await this.client.send.newAuction({
-          ...sendParams,
-          args: {
-            payment,
-            assetXfer,
-            name,
-            proof,
-            bidAssetId,
-            bidFee,
-            startingBid,
-            bidMinimumIncrease,
-            startTimestamp,
-            endTimestamp,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        }));
-      }
+      ({ return: appId } = await this.client.send.newAuction({
+        ...sendParams,
+        args: {
+          payment,
+          assetXfer,
+          name,
+          proof,
+          bidAssetId,
+          bidFee,
+          startingBid,
+          bidMinimumIncrease,
+          startTimestamp,
+          endTimestamp,
+          gateId,
+          marketplace,
+          weightsListCount,
+        },
+      }));
     }
 
     if (appId === undefined) {
@@ -232,31 +171,13 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
       receiver: this.client.appAddress,
     });
 
-    // optIn can eagerly opt the DAO escrow + revenue-split escrows into the
-    // asset when a named escrow is configured. That path rekeys the DAO
-    // wallet, calls the revenue-manager plugin, and opts the main escrow + N
-    // split escrows — worst case ~10 foreign refs (DAO, wallet, plugin, main
-    // escrow, N splits, the asset). A single app call only holds 8 foreign-
-    // ref slots, so we add one opUp to give the resource populator a second
-    // slot (16 total), which covers every realistic split count. maxFee is
-    // required on each app call because coverAppCallInnerTransactionFees is
-    // enabled.
-    await this.client.newGroup()
-      .optIn({
-        ...sendParams,
-        args: { payment, asset },
-        maxFee: microAlgo(257_000),
-      })
-      .opUp({
-        ...sendParams,
-        args: {},
-        maxFee: microAlgo(2_000),
-      })
-      .send({
-        ...sendParams,
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true,
-      });
+    await this.client.send.optIn({
+      ...sendParams,
+      args: { payment, asset },
+      maxFee: microAlgo(257_000),
+      coverAppCallInnerTransactionFees: true,
+      populateAppCallResources: true,
+    });
   }
 
   /**
@@ -324,4 +245,3 @@ export async function newAuction({
   const factory = new AuctionFactorySDK({ factoryParams, algorand, readerAccount, sendParams });
   return await factory.newAuction(auctionParams);
 }
-

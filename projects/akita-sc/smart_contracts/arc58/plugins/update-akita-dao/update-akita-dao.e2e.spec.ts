@@ -127,6 +127,11 @@ describe('UpdateAkitaDAO plugin contract', () => {
         amount: microAlgo(preFundMbr.plugins + preFundMbr.executions + 5_000_000n),
       });
 
+      // The update plugin stages child program bytes in DAO-owned storage
+      // while building the execution, so the DAO app—not only its wallet—must
+      // have enough liquid balance for that temporary MBR increase.
+      await deployerDao.client.appClient.fundAppAccount({ amount: microAlgo(1_000_000n) });
+
       // Get the current child contract version from the factory
       const factoryStateBefore = await walletFactory.client.state.global.getAll();
       const versionBefore = factoryStateBefore.childContractVersion;

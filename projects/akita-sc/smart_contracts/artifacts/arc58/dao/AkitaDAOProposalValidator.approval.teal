@@ -2066,7 +2066,7 @@ escrowExists:
     //   appId: wallet,
     //   args: [[escrow]]
     // }).returnValue[0]
-    pushbytes 0xa2403ddf // method "arc58_getEscrows(string[])(uint64,bool)[]"
+    pushbytes 0x3ab2895b // method "arc58_getEscrows(string[])(uint64,address,bool)[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -2085,7 +2085,7 @@ escrowExists:
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 9
+    pushint 41
     *
     intc_2 // 2
     +
@@ -2094,11 +2094,10 @@ escrowExists:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowInfo>
     // smart_contracts/arc58/dao/validator.algo.ts:269
-    // return info.id !== 0
-    extract 6 9
-    intc_0 // 0
-    extract_uint64
-    intc_0 // 0
+    // return info.address !== Global.zeroAddress
+    extract 6 41
+    extract 8 32
+    global ZeroAddress
     !=
     retsub
 

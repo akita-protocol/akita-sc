@@ -353,6 +353,25 @@ export const deployAllSubgates = async (params: DeploySubgateParams): Promise<Su
         deploySubscriptionStreakGate(params),
     ]);
 
+    await Promise.all([
+        akitaReferrerGate,
+        assetGate,
+        merkleAddressGate,
+        merkleAssetGate,
+        nfdGate,
+        nfdRootGate,
+        pollGate,
+        socialActivityGate,
+        socialFollowerCountGate,
+        socialFollowerIndexGate,
+        socialImpactGate,
+        socialModeratorGate,
+        stakingAmountGate,
+        stakingPowerGate,
+        subscriptionGate,
+        subscriptionStreakGate,
+    ].map(({ client }) => client.appClient.fundAppAccount({ amount: (100_000).microAlgos() })));
+
     return {
         akitaReferrerGate,
         assetGate,

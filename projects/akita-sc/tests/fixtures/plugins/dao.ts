@@ -29,5 +29,12 @@ export const deployDAOPlugin = async ({ fixture, sender, signer, args: { daoAppI
 
   console.log('DAOPlugin deployed with appId:', client.appId);
 
-  return new DAOPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new DAOPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

@@ -30,11 +30,11 @@ export interface PreparedGroup {
     groupId: string;
     methodCalls: Map<number, ABIMethod>;
     /**
-     * The simulate response captured from the single simulate round-trip that
-     * utils10 runs inside `composer.build()` to populate app-call resources and
-     * distribute inner-transaction fees. Exposed here so downstream consumers
+     * The final strict simulate response captured from `composer.build()` after
+     * app-call resources, carrier calls, and inner-transaction fees are complete.
+     * Exposed here so downstream consumers
      * (e.g. `computeExpectedCost`) can read account deltas and inner-txn
-     * information *without* paying for a second simulate. Undefined only if
+     * information without issuing their own simulate. Undefined only if
      * utils10's internal simulate path didn't run — which shouldn't happen when
      * `populateAppCallResources` and `coverAppCallInnerTransactionFees` are on.
      */
@@ -48,18 +48,17 @@ export interface SendGroupResult {
     returns: ABIReturn[];
 }
 /**
- * Run a single simulate through utils10's `composer.build()` to populate
- * app-call resources and distribute fees for inner-transaction coverage,
- * then apply any post-build overrides (sender swap, lease, fee consolidation)
- * to the resulting transactions.
+ * Build through utils10, dynamically populate Access lists and carrier calls,
+ * distribute fees for inner-transaction coverage, strictly validate the final
+ * group, then apply post-build overrides (sender swap, lease, fee
+ * consolidation) to the resulting transactions.
  *
  * Returns an unsigned, regrouped group ready for either:
  *   - Immediate sending via `sendPrepared(prepared, algod)`
  *   - Handoff to a different submitter (arc58 execution flow) by returning
  *     `prepared.transactions` without signing
  *
- * Exactly one simulate runs per call (inside `composer.build()`). Post-build
- * mutations happen in-memory and don't trigger another simulate.
+ * Post-build mutations happen in-memory and don't trigger another simulate.
  */
 export declare function prepareGroup(composer: TransactionComposer, overrides?: ForceOptions): Promise<PreparedGroup>;
 /**

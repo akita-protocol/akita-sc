@@ -39,5 +39,12 @@ export const deployUpdateAkitaDaoPlugin = async ({ fixture, sender, signer, args
     amount: (boxMbr + 100_000).microAlgos(), // Extra for min balance
   });
 
-  return new UpdateAkitaDAOPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new UpdateAkitaDAOPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

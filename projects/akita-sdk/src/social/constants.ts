@@ -145,4 +145,3 @@ export const TIP_ACTION_REACT = 20;
 export const TIP_SEND_TYPE_DIRECT = 10;
 export const TIP_SEND_TYPE_ARC59 = 20;
 export const TIP_SEND_TYPE_ARC58 = 30;
-

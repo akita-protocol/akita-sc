@@ -13,7 +13,7 @@ import { APP_SPEC as AssetAppSpec, AssetGateRegistryInfo } from '../generated/As
 import { APP_SPEC as MerkleAddressAppSpec, MerkleAddressGateRegistryInfo } from '../generated/MerkleAddressGateClient'
 import { APP_SPEC as MerkleAssetAppSpec, MerkleAssetGateRegistryInfo } from '../generated/MerkleAssetGateClient'
 import { APP_SPEC as NFDAppSpec } from '../generated/NFDGateClient'
-import { APP_SPEC as NFDRootAppSpec } from '../generated/NFDGateClient'
+import { APP_SPEC as NFDRootAppSpec } from '../generated/NFDRootGateClient'
 import { APP_SPEC as PollAppSpec } from '../generated/PollGateClient'
 import { OperatorAndValue, APP_SPEC as SocialActivityAppSpec } from '../generated/SocialActivityGateClient'
 import { APP_SPEC as SocialFollowerCountAppSpec } from '../generated/SocialFollowerCountGateClient'
@@ -112,7 +112,7 @@ export class GateSDK extends BaseSDK<GateClient> {
       structs: SubscriptionGateAppSpec.structs
     },
     subscription_streak: {
-      registerShape: 'SubscriptionGateRegistryInfo',
+      registerShape: 'SubscriptionStreakGateRegistryInfo',
       checkShape: 'None',
       structs: SubscriptionStreakGateAppSpec.structs
     }
@@ -232,7 +232,7 @@ export class GateSDK extends BaseSDK<GateClient> {
         case 'staking_amount': {
           const { op, asset, stakingType, amount, includeEscrowed } = arg;
           data = getABIEncodedValue(
-            { op, asset, stakingType, amount, includeEscrowed },
+            { op, asset, type: stakingType, amount, includeEscrowed },
             name,
             this.gateEncodings[type].structs
           );

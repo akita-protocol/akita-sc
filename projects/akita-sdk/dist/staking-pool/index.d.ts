@@ -56,12 +56,13 @@ export declare class StakingPoolSDK extends BaseSDK<StakingPoolClient> {
      */
     finalize({ sender, signer, signupTimestamp, startTimestamp, endTimestamp }: FinalizePoolParams): Promise<void>;
     /**
-     * Gets the cost to enter the pool for a given address and entry count.
-     * This calls the contract's enterCost method which accounts for box MBR and any pool funding shortfall.
+     * Gets the cost to enter the pool for a given address and set of assets.
+     * This calls the contract's enterCost method, which accounts for entry box MBR
+     * and any app-scoped SOFT stake MBR.
      */
-    enterCost({ address, entryCount }: {
+    enterCost({ address, assets }: {
         address: string;
-        entryCount: number;
+        assets: (bigint | number)[];
     }): Promise<bigint>;
     /**
      * Enters the pool with specified entries.

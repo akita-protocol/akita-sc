@@ -2,6 +2,7 @@ import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { ProposalActionEnum } from 'akita-sdk/dao';
+import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { logger } from '../../../../../tests/utils/logger';
 import {
   bootstrapDaoTestContext,
@@ -264,13 +265,56 @@ describe('ARC58 DAO Proposals', () => {
       });
 
       const proposalId = await proposeAndExecute(dao, [
-        { type: ProposalActionEnum.NewEscrow, escrow: escrowName },
+        {
+          type: ProposalActionEnum.NewEscrow,
+          escrow: escrowName,
+          address: ALGORAND_ZERO_ADDRESS_STRING,
+        },
       ]);
 
       expect(proposalId).toBeGreaterThan(0n);
 
       const escrowInfo = await dao.wallet.getEscrow(escrowName);
       expect(escrowInfo.id).toBeGreaterThan(0n);
+    });
+
+    test('should create a regular-account escrow and reject a duplicate', async () => {
+      const { dao } = context;
+      const escrowName = `acct_${Date.now() % 100000}`;
+      const regularAccount = await fixture.context.generateAccount({
+        initialFunds: microAlgo(1_000_000n),
+      });
+      const regularAddress = regularAccount.toString();
+
+      await fixture.algorand.send.payment({
+        sender: regularAddress,
+        signer: regularAccount.signer,
+        receiver: regularAddress,
+        amount: microAlgo(0n),
+        rekeyTo: dao.wallet.client.appAddress,
+      });
+
+      const mbr = await dao.wallet.getMbr({
+        escrow: escrowName,
+        methodCount: 0n,
+        plugin: '',
+        groups: 0n,
+      });
+      await dao.wallet.client.appClient.fundAppAccount({
+        amount: microAlgo(mbr.escrows),
+      });
+
+      const action = {
+        type: ProposalActionEnum.NewEscrow,
+        escrow: escrowName,
+        address: regularAddress,
+      } as const;
+      await proposeAndExecute(dao, [action]);
+
+      const escrowInfo = await dao.wallet.getEscrow(escrowName);
+      expect(escrowInfo.id).toBe(0n);
+      expect(escrowInfo.address).toBe(regularAddress);
+      await expect(proposeAndExecute(dao, [action])).rejects.toThrow();
     });
 
     test('should toggle escrow lock', async () => {
@@ -288,7 +332,9 @@ describe('ARC58 DAO Proposals', () => {
         amount: microAlgo(mbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       // Verify unlocked
       const escrowBefore = await dao.wallet.getEscrow(escrowName);

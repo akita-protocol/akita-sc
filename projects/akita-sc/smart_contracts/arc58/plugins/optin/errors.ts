@@ -20,4 +20,6 @@
 // constants are redeclared here with identical values to the top-level
 // `smart_contracts/errors.ts`.
 export const ERR_ALREADY_OPTED_IN = 'AOPT'
+export const ERR_INVALID_ASSET_AMOUNT = 'IAAM'
 export const ERR_INVALID_PAYMENT = 'IPAY'
+export const ERR_NOT_OPTED_IN = 'NOPT'

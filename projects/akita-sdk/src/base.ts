@@ -1,15 +1,21 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
-import { DEFAULT_READER, DEFAULT_SEND_PARAMS, SIMULATE_PARAMS } from "./constants";
+import { DEFAULT_READER, DEFAULT_SEND_PARAMS } from "./constants";
 import { resolveAppIdWithClient, ENV_VAR_NAMES, detectNetworkFromClient, getCurrentNetwork, AkitaNetwork } from "./config";
 import { ExpandedSendParams, ExpandedSendParamsWithSigner, hasSenderSigner, MaybeSigner, NewBaseContractSDKParams, normalizeSigner } from "./types";
 import { makeEmptyTransactionSigner } from "@algorandfoundation/algokit-utils/transact";
+import { installAccessListResourcePopulator, registerAccessListResourceCarrier } from './simulate/access-list';
+
+// AlgoKit Utils currently discovers resources with simulate but still writes
+// them to the legacy 8-entry foreign arrays. Install the SDK-wide Access
+// populator before any generated client composes a transaction.
+installAccessListResourcePopulator();
 
 export abstract class BaseSDK<T> {
   public appId: bigint;
   public client: T;
   public algorand: AlgorandClient;
   public readerAccount: string = DEFAULT_READER;
-  public sendParams: ExpandedSendParams = DEFAULT_SEND_PARAMS;
+  public sendParams: ExpandedSendParams;
   
   /** The detected network for this SDK instance */
   public network: AkitaNetwork;
@@ -34,7 +40,7 @@ export abstract class BaseSDK<T> {
     this.appId = resolvedAppId;
     this.algorand = algorand;
     if (readerAccount) { this.readerAccount = readerAccount; }
-    if (sendParams) { this.sendParams = sendParams; }
+    this.sendParams = { ...(sendParams ?? DEFAULT_SEND_PARAMS) };
 
     if (!!factoryParams.defaultSender) {
       this.sendParams.sender = factoryParams.defaultSender;
@@ -48,6 +54,26 @@ export abstract class BaseSDK<T> {
       ...factoryParams,
       appId: resolvedAppId,
     });
+
+    // Generated clients expose their full ARC-56 spec. Register only contracts
+    // with a known zero-resource carrier route so the central composer can add
+    // Access/opcode capacity when simulation proves the branch needs it.
+    registerAccessListResourceCarrier(
+      resolvedAppId,
+      (
+        this.client as {
+          appSpec?: {
+            methods?: Array<{
+              name?: string;
+              args?: unknown[];
+              returns?: { type?: string };
+              readonly?: boolean;
+            }>;
+          };
+        }
+      ).appSpec,
+      (this.algorand as { client?: { algod?: object } }).client?.algod,
+    );
   }
 
   setReaderAccount(readerAccount: string): void {
@@ -55,7 +81,7 @@ export abstract class BaseSDK<T> {
   }
 
   setSendParams(sendParams: ExpandedSendParams): void {
-    this.sendParams = sendParams;
+    this.sendParams = { ...sendParams };
   }
 
   protected getSendParams({ sender, signer }: MaybeSigner = {}): ExpandedSendParams {

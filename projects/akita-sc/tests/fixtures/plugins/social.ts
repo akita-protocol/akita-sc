@@ -35,5 +35,12 @@ export const deploySocialPlugin = async ({ fixture, sender, signer, args: { vers
 
   console.log('SocialPlugin deployed with appId:', client.appId);
 
-  return new SocialPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new SocialPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

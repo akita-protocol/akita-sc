@@ -7,14 +7,6 @@ export const DEFAULT_READER: string = "Y76M3MSY6DKBRHBL7C3NNDXGS5IIMQVQVUAB6MP4X
 
 export const emptySigner = makeEmptyTransactionSigner();
 
-export const SIMULATE_PARAMS = {
-  allowMoreLogging: true,
-  allowUnnamedResources: true,
-  extraOpcodeBudget: 130013,
-  fixSigners: true,
-  allowEmptySignatures: true,
-};
-
 export const DEFAULT_SEND_PARAMS: SendParams & { maxFee: AlgoAmount } = {
   /** Whether to use simulate to automatically populate app call resources in the txn objects. Defaults to `Config.populateAppCallResources`. */
   populateAppCallResources: true,

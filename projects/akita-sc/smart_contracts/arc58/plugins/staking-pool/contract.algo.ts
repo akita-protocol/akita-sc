@@ -1,14 +1,13 @@
 import { abimethod, Account, Application, Asset, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
-import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
+import { abiCall, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { btoi } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersion } from "../../../constants";
 import { GateArgs } from "../../../gates/types";
 import { RootKey } from "../../../meta-merkles/types";
-import { PoolEntriesByAddressMBR, PoolEntriesMBR, PoolUniquesMBR, WinnerCountCap } from "../../../staking-pool/constants";
+import { WinnerCountCap } from "../../../staking-pool/constants";
 import { AddRewardParams, StakeEntry } from "../../../staking-pool/types";
 import { StakingType } from "../../../staking/types";
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../../../utils/constants";
-import { getAccounts, getAkitaAppList, getSpendingAccount, getStakingFees, getStakingPoolGateID, rekeyAddress } from "../../../utils/functions";
+import { getAccounts, getAkitaAppList, getSpendingAccount, getStakingPoolGateID, rekeyAddress } from "../../../utils/functions";
 import { PoolPluginGlobalStateKeyFactory } from "./constants";
 import { ERR_NOT_A_VALID_POOL } from "./errors";
 
@@ -54,22 +53,17 @@ export class StakingPoolPlugin extends BaseStakingPool {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    const fees = getStakingFees(this.akitaDAO.value)
-
-    const pool = compileArc4(StakingPool)
-
-    const childContractMBR: uint64 = (
-      fees.creationFee +
-      MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * pool.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * pool.globalBytes) +
-      Global.minBalance
-    )
+    // Ask the factory for the sender-specific cost so DAO-owned wallets are
+    // exempt and referral MBR is included for referred user wallets.
+    const poolCost = abiCall<typeof StakingPoolFactory.prototype.newPoolCost>({
+      sender,
+      appId: this.factory.value,
+    }).returnValue
 
     const mbrTxn = itxn.payment({
       sender,
       receiver: this.factory.value.address,
-      amount: childContractMBR
+      amount: poolCost
     })
 
     abiCall<typeof StakingPoolFactory.prototype.newPool>({
@@ -102,6 +96,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     abiCall<typeof StakingPool.prototype.init>({
       sender,
       appId: poolID,
+      args: [0],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }
@@ -155,7 +150,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
         // get the akita dao escrow for the pool factory
         const escrowBytes = op.AppGlobal.getExBytes(this.factory.value, Bytes(GlobalStateKeyAkitaEscrow))[0]
         const escrow = Application(btoi(escrowBytes));
-        let optinMBR: uint64 = Global.assetOptInMinBalance * (
+        const optinMBR: uint64 = Global.assetOptInMinBalance * (
           !escrow.address.isOptedIn(Asset(reward.asset)) ? 4 : 1
         )
 
@@ -231,20 +226,13 @@ export class StakingPoolPlugin extends BaseStakingPool {
     loggedAssert(appId.creator === this.factory.value.address, ERR_NOT_A_VALID_POOL)
     const { origin, sender } = getAccounts(wallet)
 
-    const entryMBR: uint64 = PoolEntriesMBR + PoolEntriesByAddressMBR
-    let total: uint64 = entryMBR * entries.length
-
-    const gateID = getStakingPoolGateID(appId)
-
-    const isEntered = abiCall<typeof StakingPool.prototype.isEntered>({
+    const total = abiCall<typeof StakingPool.prototype.enterCost>({
       sender,
       appId,
-      args: [sender]
+      args: [sender, entries]
     }).returnValue
 
-    if (!isEntered) {
-      total += PoolUniquesMBR
-    }
+    const gateID = getStakingPoolGateID(appId)
 
     const mbrPayment = itxn.payment({
       sender,

@@ -22,5 +22,12 @@ export const deploySelfOptInPlugin = async ({ fixture, sender, signer }: DeployP
 
   console.log('SelfOptInPlugin deployed with appId:', client.appId);
 
-  return new SelfOptInPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new SelfOptInPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

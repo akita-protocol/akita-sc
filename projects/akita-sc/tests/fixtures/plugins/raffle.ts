@@ -33,5 +33,12 @@ export const deployRafflePlugin = async ({ fixture, sender, signer, args: { vers
 
   console.log('RafflePlugin deployed with appId:', client.appId);
 
-  return new RafflePluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new RafflePluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

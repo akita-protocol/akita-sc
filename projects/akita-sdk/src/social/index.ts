@@ -29,13 +29,15 @@ import {
 import {
   AkitaSocialImpactClient,
   AkitaSocialImpactFactory,
-  MetaValue as ImpactMetaValue,
+  ImpactMetaValue,
+  StakeCheck as ImpactStakeCheck,
 } from '../generated/AkitaSocialImpactClient';
 
 import {AkitaSocialModerationClient, AkitaSocialModerationFactory} from '../generated/AkitaSocialModerationClient'
 import { ExpandedSendParams, ExpandedSendParamsWithSigner, GroupReturn, hasSenderSigner, MaybeSigner, normalizeSigner } from "../types";
 import {
   BlockArgs,
+  CommitStakingImpactArgs,
   CreatePayWallArgs,
   DeleteVoteArgs,
   EditPostArgs,
@@ -51,7 +53,7 @@ import {
   UpdateMetaArgs,
   VoteArgs,
 } from "./types";
-import { sha256 } from '@noble/hashes/sha2';
+import { sha256 } from '@noble/hashes/sha2.js';
 
 // Re-export DAO types for external use
 export type { SocialFees, AkitaAssets };
@@ -300,6 +302,31 @@ export class SocialSDK {
   static computeExternalRefKey(platform: string, externalId: string): Uint8Array {
     const combined = new TextEncoder().encode(`${platform}:${externalId}`);
     return sha256(combined);
+  }
+
+  /** Mirror AkitaSocial.toBytes32() so aggregate reaction state can be queried. */
+  private reactionStorageRef(ref: Uint8Array, refType: RefType): Uint8Array | undefined {
+    if (refType === RefType.Post || refType === RefType.Address) {
+      return ref.length === 32 ? ref : undefined;
+    }
+
+    if (refType === RefType.Asset || refType === RefType.App) {
+      if (ref.length !== 8) return undefined;
+      const padded = new Uint8Array(32);
+      padded.set(ref);
+      return padded;
+    }
+
+    const typeBytes = new Uint8Array(8);
+    let type = BigInt(refType);
+    for (let index = typeBytes.length - 1; index >= 0; index -= 1) {
+      typeBytes[index] = Number(type & 0xffn);
+      type >>= 8n;
+    }
+    const encoded = new Uint8Array(typeBytes.length + ref.length);
+    encoded.set(typeBytes);
+    encoded.set(ref, typeBytes.length);
+    return sha256(encoded);
   }
 
   /**
@@ -711,6 +738,55 @@ export class SocialSDK {
     return await this.impactClient.getMeta({ ...sendParams, args: { user } });
   }
 
+  /** Get the MBR required for social impact to create the sender's commitment. */
+  async getStakingImpactCost({ sender, signer, address }: MaybeSigner & { address: string }): Promise<bigint> {
+    const sendParams = this.getSendParams({ sender, signer });
+    return await this.impactClient.stakingImpactCost({ ...sendParams, args: { address } });
+  }
+
+  /** Create or add to the sender's app-specific AKTA commitment. */
+  async commitStakingImpact({
+    sender,
+    signer,
+    amount,
+    inheritRoot = true,
+  }: CommitStakingImpactArgs): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    const address = sendParams.sender.toString();
+    const cost = await this.getStakingImpactCost({
+      sender: sendParams.sender,
+      signer: sendParams.signer,
+      address,
+    });
+    const payment = this.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(cost),
+      receiver: this.impactClient.appAddress,
+    });
+    const group = this.impactClient.newGroup();
+    group.commitStakingImpact({
+      ...sendParams,
+      args: { payment, amount, inheritRoot },
+      maxFee: microAlgo(4_000),
+    });
+    await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
+  }
+
+  /** Permanently record a currently observed shortfall in social impact's commitment. */
+  async checkpointStakingImpact({
+    sender,
+    signer,
+    address,
+  }: MaybeSigner & { address: string }): Promise<ImpactStakeCheck> {
+    const result = await this.impactClient.send.checkpointStakingImpact({
+      ...this.getRequiredSendParams({ sender, signer }),
+      args: { address },
+      maxFee: microAlgo(2_000),
+    });
+    if (result.return === undefined) throw new Error('Failed to checkpoint social impact stake');
+    return result.return;
+  }
+
   async init({
     sender,
     signer,
@@ -724,12 +800,6 @@ export class SocialSDK {
       args: [],
       maxFee: (10_000).microAlgos(),
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos()
-    });
-
     return await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -881,18 +951,6 @@ export class SocialSDK {
         creatorFlags,
       },
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
 
     return { postKey, timestamp, nonce };
@@ -1057,24 +1115,6 @@ export class SocialSDK {
         },
       });
     }
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
 
     return { replyKey, timestamp, nonce };
@@ -1135,24 +1175,6 @@ export class SocialSDK {
         isUp,
       },
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1210,24 +1232,6 @@ export class SocialSDK {
         flip: true,
       },
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1274,24 +1278,6 @@ export class SocialSDK {
         flip: false,
       },
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1326,8 +1312,18 @@ export class SocialSDK {
       this.getAkitaAssets(),
     ]);
 
-    // Assume first reaction with NFT for safety - caller can use calculateReactMBR() for precise amount
-    const mbrAmount = this.calculateReactMBR(true, false);
+    // The contract requires an exact MBR payment: the aggregate reactions box
+    // is funded only by the first reaction for a given (post, NFT), while every
+    // user funds their own reaction-list box. Query the aggregate before
+    // composing so subsequent reactions don't overpay and fail ERR:IPAY.
+    const reactionRef = this.reactionStorageRef(ref, refType);
+    const reactionExists = reactionRef
+      ? await this.socialClient.getReactionExists({
+          ...sendParams,
+          args: { ref: reactionRef, nft },
+        })
+      : false;
+    const mbrAmount = this.calculateReactMBR(!reactionExists, false);
 
     const mbrPayment = this.algorand.createTransaction.payment({
       ...sendParams,
@@ -1368,24 +1364,6 @@ export class SocialSDK {
         },
       });
     }
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1406,24 +1384,6 @@ export class SocialSDK {
       ...sendParams,
       args: { ref, nft },
     });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '1'
-    });
-    group.opUp({
-      ...sendParams,
-      args: {},
-      maxFee: (1_000).microAlgos(),
-      note: '2'
-    });
-
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 

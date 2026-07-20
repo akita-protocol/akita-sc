@@ -40,5 +40,12 @@ export const deployMarketplacePlugin = async ({ fixture, sender, signer, args }:
 
   console.log('MarketplacePlugin deployed with appId:', client.appId);
 
-  return new MarketplacePluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new MarketplacePluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

@@ -350,7 +350,7 @@ check_after_assert@3:
     // getAkitaAppList(this.akitaDAO.value).staking,
     intc_0 // 0
     extract_uint64
-    // smart_contracts/utils/functions.ts:460-469
+    // smart_contracts/utils/functions.ts:476-485
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -362,16 +362,16 @@ check_after_assert@3:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/utils/functions.ts:464-467
+    // smart_contracts/utils/functions.ts:480-483
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
     // },
     swap
-    // smart_contracts/utils/functions.ts:466
+    // smart_contracts/utils/functions.ts:482
     // type: STAKING_TYPE_LOCK,
     pushbytes 0x28
-    // smart_contracts/utils/functions.ts:464-467
+    // smart_contracts/utils/functions.ts:480-483
     // {
     //   asset,
     //   type: STAKING_TYPE_LOCK,
@@ -379,7 +379,7 @@ check_after_assert@3:
     concat
     swap
     itxn_field ApplicationID
-    // smart_contracts/utils/functions.ts:460-469
+    // smart_contracts/utils/functions.ts:476-485
     // const info = abiCall<typeof Staking.prototype.getInfo>({
     //   appId: stakingApp,
     //   args: [
@@ -390,7 +390,7 @@ check_after_assert@3:
     //     },
     //   ],
     // }).returnValue
-    pushbytes 0xc9068809 // method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"
+    pushbytes 0xd40162af // method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
     dig 2
     itxn_field ApplicationArgs
@@ -411,11 +411,11 @@ check_after_assert@3:
     ==
     assert // Bytes has valid prefix
     len
-    pushint 24
+    pushint 32
     ==
     assert // invalid number of bytes for smart_contracts/staking/types.ts::Stake
     pushint 20
-    // smart_contracts/utils/functions.ts:471
+    // smart_contracts/utils/functions.ts:487
     // if (info.expiration <= Global.latestTimestamp) {
     extract_uint64
     dup
@@ -423,7 +423,7 @@ check_after_assert@3:
     global LatestTimestamp
     <=
     bz check_after_if_else@6
-    // smart_contracts/utils/functions.ts:472
+    // smart_contracts/utils/functions.ts:488
     // return 0
     intc_0 // 0
     bury 3
@@ -532,19 +532,19 @@ check_after_if_else@21:
     b check_after_inlined_smart_contracts/gates/sub-gates/staking-power/contract.algo.ts::StakingPowerGate.stakingPowerGate@22
 
 check_after_if_else@6:
-    // smart_contracts/utils/functions.ts:475
+    // smart_contracts/utils/functions.ts:491
     // const remainingTime: uint64 = info.expiration - Global.latestTimestamp
     dig 3
     global LatestTimestamp
     -
     dup
     bury 6
-    // smart_contracts/utils/functions.ts:477
+    // smart_contracts/utils/functions.ts:493
     // if (remainingTime < ONE_WEEK) {
     pushint 604800
     <
     bz check_after_if_else@8
-    // smart_contracts/utils/functions.ts:478
+    // smart_contracts/utils/functions.ts:494
     // return 0
     intc_0 // 0
     bury 3
@@ -557,12 +557,12 @@ check_after_if_else@6:
     b check_after_inlined_smart_contracts/utils/functions.ts::getStakingPower@9
 
 check_after_if_else@8:
-    // smart_contracts/utils/functions.ts:481
+    // smart_contracts/utils/functions.ts:497
     // const remainingDays: uint64 = remainingTime / ONE_DAY
     dig 4
     pushint 86400
     /
-    // smart_contracts/utils/functions.ts:482
+    // smart_contracts/utils/functions.ts:498
     // return op.divw(...op.mulw(wideRatio([info.amount, 1_000_000], [ONE_YEAR_IN_DAYS, 1_000_000]), remainingDays), 1_000_000)
     dig 8
     extract 4 8

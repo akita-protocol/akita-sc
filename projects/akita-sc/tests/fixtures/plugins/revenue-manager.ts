@@ -33,5 +33,12 @@ export const deployRevenueManagerPlugin = async ({ fixture, sender, signer, args
 
   console.log('RevenueManagerPlugin deployed with appId:', client.appId);
 
-  return new RevenueManagerPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new RevenueManagerPluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

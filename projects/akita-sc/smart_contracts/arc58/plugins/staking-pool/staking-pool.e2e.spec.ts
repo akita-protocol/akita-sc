@@ -1,11 +1,13 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, StakingPoolPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
+import { StakingType } from 'akita-sdk/staking';
 import { StakingPoolSDK } from 'akita-sdk/staking-pool';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { buildAddPluginAction, proposeAndExecute } from '../../dao/tests/utils';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -14,6 +16,8 @@ const fixture = algorandFixture();
 const POOL_STATUS_DRAFT = 0;
 const POOL_STATUS_FINAL = 10;
 const POOL_STAKING_TYPE_NONE = 0;
+const POOL_STAKING_TYPE_SOFT = 20;
+const APP_STAKES_MBR = 34_900n;
 const DISTRIBUTION_TYPE_FLAT = 20;
 const ONE_DAY = 86_400;
 const ONE_HOUR = 3_600;
@@ -71,7 +75,7 @@ const findLastCreatedAppId = (nodes: unknown[]): bigint | undefined => {
 
 const getCreatedAppIds = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
-  address: Address,
+  address: algokit.Address,
 ): Promise<bigint[]> => {
   const accountInfo = await algorand.client.algod.accountInformation(address) as Record<string, unknown>;
   const createdApps = accountInfo.createdApps ?? accountInfo['created-apps'];
@@ -87,10 +91,10 @@ const getCreatedAppIds = async (
 };
 
 describe('StakingPool plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: AddressWithTransactionSigner;
+  let user: AddressWithTransactionSigner;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: AddressWithTransactionSigner;
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let stakingPoolPluginSdk: StakingPoolPluginSDK;
@@ -104,8 +108,8 @@ describe('StakingPool plugin contract', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (2_000).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (2_000).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -139,7 +143,7 @@ describe('StakingPool plugin contract', () => {
 
   const createPluginPool = async (
     title = 'Plugin Staking Pool',
-    overrides: { allowLateSignups?: boolean } = {},
+    overrides: { allowLateSignups?: boolean; type?: number } = {},
   ): Promise<StakingPoolSDK> => {
     const factoryAddress = akitaUniverse.stakingPoolFactory.client.appAddress;
     const createdBefore = new Set(await getCreatedAppIds(algorand, factoryAddress));
@@ -149,7 +153,7 @@ describe('StakingPool plugin contract', () => {
       calls: [
         stakingPoolPluginSdk.newPool({
           title,
-          type: POOL_STAKING_TYPE_NONE,
+          type: overrides.type ?? POOL_STAKING_TYPE_NONE,
           marketplace: user.addr.toString(),
           stakeKey: {
             address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
@@ -210,6 +214,60 @@ describe('StakingPool plugin contract', () => {
       expect(state.creator).toBe(wallet.client.appAddress.toString());
     });
 
+    test('DAO-created pools skip creation fees and reward royalties', async () => {
+      await proposeAndExecute(akitaUniverse.dao, [
+        buildAddPluginAction({
+          client: stakingPoolPluginSdk,
+          callerType: CallerType.Global,
+          useExecutionKey: false,
+        }),
+      ]);
+
+      const daoWallet = akitaUniverse.dao.wallet;
+      const factory = akitaUniverse.stakingPoolFactory;
+      const factoryAddress = factory.client.appAddress;
+      const createdBefore = new Set(await getCreatedAppIds(algorand, factoryAddress));
+      const escrow = await factory.client.state.global.akitaDaoEscrow();
+      if (!escrow?.app) throw new Error('Staking pool DAO escrow is not configured');
+
+      const escrowAddress = algosdk.getApplicationAddress(escrow.app).toString();
+      const escrowBalanceBefore = BigInt((await algorand.client.algod.accountInformation(escrowAddress)).amount);
+
+      const result = await daoWallet.usePlugin({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        callerType: CallerType.Global,
+        calls: [
+          stakingPoolPluginSdk.newPool({
+            title: 'DAO Fee Exempt Pool',
+            type: POOL_STAKING_TYPE_NONE,
+            marketplace: daoWallet.client.appAddress.toString(),
+            stakeKey: {
+              address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
+              name: '',
+            },
+            minimumStakeAmount: 0n,
+            allowLateSignups: true,
+            gateId: 0n,
+            maxEntries: 0n,
+          }),
+        ],
+      });
+
+      const poolAppId = findLastCreatedAppId(result.confirmations)
+        ?? (await getCreatedAppIds(algorand, factoryAddress)).find((appId) => !createdBefore.has(appId));
+      expect(poolAppId).toBeGreaterThan(0n);
+
+      const pool = factory.get({ appId: poolAppId! });
+      const state = await pool.getState();
+      const royalty = await pool.client.state.global.akitaRoyalty();
+      const escrowBalanceAfter = BigInt((await algorand.client.algod.accountInformation(escrowAddress)).amount);
+
+      expect(state.creator).toBe(daoWallet.client.appAddress.toString());
+      expect(royalty).toBe(0n);
+      expect(escrowBalanceAfter).toBe(escrowBalanceBefore);
+    });
+
     test('initPool is rejected by an already factory-initialized pool', async () => {
       const pool = await createPluginPool('Plugin Init Pool');
 
@@ -220,7 +278,7 @@ describe('StakingPool plugin contract', () => {
             poolId: pool.appId,
           }),
         ],
-      })).rejects.toThrow(/FOIN|Runtime error/);
+      })).rejects.toThrow(/assert failed|FOIN|Runtime error/);
 
       const state = await pool.getState();
       expect(state.title).toBe('Plugin Init Pool');
@@ -245,7 +303,7 @@ describe('StakingPool plugin contract', () => {
       const after = await pool.getState();
       expect(after.rewardCount).toBe(before.rewardCount + 1n);
 
-      const reward = await pool.getReward(Number(before.rewardCount - 1n));
+      const reward = await pool.getReward(Number(after.rewardCount));
       expect(reward.asset).toBe(0n);
       expect(reward.rate).toBe(1_000_000n);
     });
@@ -286,13 +344,6 @@ describe('StakingPool plugin contract', () => {
         receiver: wallet.client.appAddress,
         amount: algokit.microAlgo(10_000_000n),
       });
-      await algorand.send.payment({
-        sender: dispenser.addr,
-        signer: dispenser.signer,
-        receiver: pool.client.appAddress,
-        amount: algokit.microAlgo(200_000n),
-      });
-
       await wallet.usePlugin({
         callerType: CallerType.Global,
         calls: [
@@ -305,8 +356,69 @@ describe('StakingPool plugin contract', () => {
       });
 
       const state = await pool.getState();
-      expect(state.entryCount).toBeGreaterThan(1n);
+      expect(state.entryCount).toBe(1n);
       expect(await pool.isEntered({ address: wallet.client.appAddress.toString() })).toBe(true);
+    });
+
+    test('enter funds and records an app-scoped SOFT stake commitment', async () => {
+      const stakingPlugin = akitaUniverse.stakingPlugin;
+      await wallet.addPlugin({ client: stakingPlugin, callerType: CallerType.Global });
+
+      const rootCommitment = 1_000_000n;
+      const poolCommitment = 500_000n;
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          stakingPlugin.stake({
+            assetId: 0n,
+            type: StakingType.Soft,
+            amount: rootCommitment,
+            expiration: 0n,
+            isUpdate: false,
+          }),
+        ],
+      });
+
+      const pool = await createPluginPool('Plugin SOFT Entry Pool', {
+        allowLateSignups: true,
+        type: POOL_STAKING_TYPE_SOFT,
+      });
+      const now = await getBlockTimestamp(algorand);
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          stakingPoolPluginSdk.finalizePool({
+            poolId: pool.appId,
+            signupTimestamp: 0n,
+            startTimestamp: 0n,
+            endTimestamp: now + BigInt(ONE_DAY),
+          }),
+        ],
+      });
+
+      const stakingBefore = await algorand.account.getInformation(akitaUniverse.staking.client.appAddress);
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          stakingPoolPluginSdk.enter({
+            appId: pool.appId,
+            entries: [[0n, poolCommitment, []]],
+            args: [],
+          }),
+        ],
+      });
+      const stakingAfter = await algorand.account.getInformation(akitaUniverse.staking.client.appAddress);
+
+      expect(stakingAfter.minBalance.microAlgos - stakingBefore.minBalance.microAlgos).toBe(APP_STAKES_MBR);
+      expect(await pool.isEntered({ address: wallet.client.appAddress.toString() })).toBe(true);
+
+      const appStake = await akitaUniverse.staking.getAppWeightedStake({
+        app: pool.appId,
+        address: wallet.client.appAddress.toString(),
+        asset: 0n,
+        acceptInherited: true,
+      });
+      expect(appStake.amount).toBe(poolCommitment);
     });
 
     test('deletePool deletes a plugin-created draft pool', async () => {

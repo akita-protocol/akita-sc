@@ -13,7 +13,6 @@
 
 import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
 import { PollFactoryFactory } from '../smart_contracts/artifacts/poll/PollFactoryClient'
-import { PollFactory } from '../smart_contracts/artifacts/poll/PollClient'
 
 runScript(async () => {
   const options = parseBaseArgs('update-poll.ts')
@@ -27,7 +26,6 @@ runScript(async () => {
       leasePrefix: 'poll_upg',
       appIdKey: 'pollFactory',
       createFactory: (p) => new PollFactoryFactory(p),
-      childFactory: (p) => new PollFactory(p),
     },
   ])
 })

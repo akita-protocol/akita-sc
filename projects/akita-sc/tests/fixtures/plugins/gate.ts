@@ -33,5 +33,12 @@ export const deployGatePlugin = async ({ fixture, sender, signer, args }: Deploy
 
   console.log('GatePlugin deployed with appId:', client.appId);
 
-  return new GatePluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new GatePluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

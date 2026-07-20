@@ -66,11 +66,21 @@ export type StakingPluginArgs = {
             address: string;
             asset: bigint | number;
         };
-        'softCheck(uint64,bool,address,uint64)void': {
+        'checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]': {
             wallet: bigint | number;
             rekeyBack: boolean;
-            address: string;
+            stakeKeys: [string, bigint | number][];
+        };
+        'checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            appStakeKeys: [bigint | number, string, bigint | number][];
+        };
+        'updateSettings(uint64,bool,uint64,uint64)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
             asset: bigint | number;
+            value: bigint | number;
         };
         'updateAkitaDAO(uint64)void': {
             akitaDao: bigint | number;
@@ -85,7 +95,9 @@ export type StakingPluginArgs = {
         'stake(uint64,bool,uint64,uint8,uint64,uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean, assetId: bigint | number, type: bigint | number, amount: bigint | number, expiration: bigint | number, isUpdate: boolean];
         'withdraw(uint64,bool,uint64,uint8)void': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, type: bigint | number];
         'createHeartbeat(uint64,bool,address,uint64)void': [wallet: bigint | number, rekeyBack: boolean, address: string, asset: bigint | number];
-        'softCheck(uint64,bool,address,uint64)void': [wallet: bigint | number, rekeyBack: boolean, address: string, asset: bigint | number];
+        'checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]': [wallet: bigint | number, rekeyBack: boolean, stakeKeys: [string, bigint | number][]];
+        'checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]': [wallet: bigint | number, rekeyBack: boolean, appStakeKeys: [bigint | number, string, bigint | number][]];
+        'updateSettings(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, asset: bigint | number, value: bigint | number];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
     };
@@ -98,7 +110,9 @@ export type StakingPluginReturns = {
     'stake(uint64,bool,uint64,uint8,uint64,uint64,bool)void': void;
     'withdraw(uint64,bool,uint64,uint8)void': void;
     'createHeartbeat(uint64,bool,address,uint64)void': void;
-    'softCheck(uint64,bool,address,uint64)void': void;
+    'checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]': [boolean, bigint][];
+    'checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]': [boolean, bigint][];
+    'updateSettings(uint64,bool,uint64,uint64)void': void;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
 };
@@ -125,10 +139,18 @@ export type StakingPluginTypes = {
         argsObj: StakingPluginArgs['obj']['createHeartbeat(uint64,bool,address,uint64)void'];
         argsTuple: StakingPluginArgs['tuple']['createHeartbeat(uint64,bool,address,uint64)void'];
         returns: StakingPluginReturns['createHeartbeat(uint64,bool,address,uint64)void'];
-    }> & Record<'softCheck(uint64,bool,address,uint64)void' | 'softCheck', {
-        argsObj: StakingPluginArgs['obj']['softCheck(uint64,bool,address,uint64)void'];
-        argsTuple: StakingPluginArgs['tuple']['softCheck(uint64,bool,address,uint64)void'];
-        returns: StakingPluginReturns['softCheck(uint64,bool,address,uint64)void'];
+    }> & Record<'checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]' | 'checkpointSoftStake', {
+        argsObj: StakingPluginArgs['obj']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'];
+        argsTuple: StakingPluginArgs['tuple']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'];
+        returns: StakingPluginReturns['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'];
+    }> & Record<'checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]' | 'checkpointAppSoftStake', {
+        argsObj: StakingPluginArgs['obj']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'];
+        argsTuple: StakingPluginArgs['tuple']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'];
+        returns: StakingPluginReturns['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'];
+    }> & Record<'updateSettings(uint64,bool,uint64,uint64)void' | 'updateSettings', {
+        argsObj: StakingPluginArgs['obj']['updateSettings(uint64,bool,uint64,uint64)void'];
+        argsTuple: StakingPluginArgs['tuple']['updateSettings(uint64,bool,uint64,uint64)void'];
+        returns: StakingPluginReturns['updateSettings(uint64,bool,uint64,uint64)void'];
     }> & Record<'updateAkitaDAO(uint64)void' | 'updateAkitaDAO', {
         argsObj: StakingPluginArgs['obj']['updateAkitaDAO(uint64)void'];
         argsTuple: StakingPluginArgs['tuple']['updateAkitaDAO(uint64)void'];
@@ -161,6 +183,10 @@ export type StakingPluginTypes = {
  * Defines the possible abi call signatures.
  */
 export type StakingPluginSignatures = keyof StakingPluginTypes['methods'];
+/**
+ * Defines the possible abi call signatures for methods that return a non-void value.
+ */
+export type StakingPluginNonVoidMethodSignatures = keyof StakingPluginTypes['methods'] extends infer T ? T extends keyof StakingPluginTypes['methods'] ? MethodReturn<T> extends void ? never : T : never : never;
 /**
  * Defines an object containing all relevant parameters for a single call to the contract.
  */
@@ -269,12 +295,26 @@ export declare abstract class StakingPluginParamsFactory {
      */
     static createHeartbeat(params: CallParams<StakingPluginArgs['obj']['createHeartbeat(uint64,bool,address,uint64)void'] | StakingPluginArgs['tuple']['createHeartbeat(uint64,bool,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the softCheck(uint64,bool,address,uint64)void ABI method
+     * Constructs a no op call for the checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[] ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static softCheck(params: CallParams<StakingPluginArgs['obj']['softCheck(uint64,bool,address,uint64)void'] | StakingPluginArgs['tuple']['softCheck(uint64,bool,address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static checkpointSoftStake(params: CallParams<StakingPluginArgs['obj']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'] | StakingPluginArgs['tuple']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[] ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkpointAppSoftStake(params: CallParams<StakingPluginArgs['obj']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'] | StakingPluginArgs['tuple']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the updateSettings(uint64,bool,uint64,uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateSettings(params: CallParams<StakingPluginArgs['obj']['updateSettings(uint64,bool,uint64,uint64)void'] | StakingPluginArgs['tuple']['updateSettings(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
      *
@@ -744,12 +784,74 @@ export declare class StakingPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the StakingPlugin smart contract using the `softCheck(uint64,bool,address,uint64)void` ABI method.
+         * Makes a call to the StakingPlugin smart contract using the `checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        softCheck: (params: CallParams<StakingPluginArgs["obj"]["softCheck(uint64,bool,address,uint64)void"] | StakingPluginArgs["tuple"]["softCheck(uint64,bool,address,uint64)void"]> & {
+        checkpointSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `updateSettings(uint64,bool,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateSettings: (params: CallParams<StakingPluginArgs["obj"]["updateSettings(uint64,bool,uint64,uint64)void"] | StakingPluginArgs["tuple"]["updateSettings(uint64,bool,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -888,12 +990,38 @@ export declare class StakingPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the StakingPlugin smart contract using the `softCheck(uint64,bool,address,uint64)void` ABI method.
+         * Makes a call to the StakingPlugin smart contract using the `checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        softCheck: (params: CallParams<StakingPluginArgs["obj"]["softCheck(uint64,bool,address,uint64)void"] | StakingPluginArgs["tuple"]["softCheck(uint64,bool,address,uint64)void"]> & {
+        checkpointSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `updateSettings(uint64,bool,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateSettings: (params: CallParams<StakingPluginArgs["obj"]["updateSettings(uint64,bool,uint64,uint64)void"] | StakingPluginArgs["tuple"]["updateSettings(uint64,bool,uint64,uint64)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -993,15 +1121,51 @@ export declare class StakingPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the StakingPlugin smart contract using the `softCheck(uint64,bool,address,uint64)void` ABI method.
+         * Makes a call to the StakingPlugin smart contract using the `checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        softCheck: (params: CallParams<StakingPluginArgs["obj"]["softCheck(uint64,bool,address,uint64)void"] | StakingPluginArgs["tuple"]["softCheck(uint64,bool,address,uint64)void"]> & SendParams & {
+        checkpointSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingPluginReturns["softCheck(uint64,bool,address,uint64)void"]);
+            return: (undefined | StakingPluginReturns["checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingPluginArgs["obj"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"] | StakingPluginArgs["tuple"]["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingPluginReturns["checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the StakingPlugin smart contract using the `updateSettings(uint64,bool,uint64,uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateSettings: (params: CallParams<StakingPluginArgs["obj"]["updateSettings(uint64,bool,uint64,uint64)void"] | StakingPluginArgs["tuple"]["updateSettings(uint64,bool,uint64,uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingPluginReturns["updateSettings(uint64,bool,uint64,uint64)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1101,12 +1265,26 @@ export type StakingPluginComposer<TReturns extends [...any[]] = []> = {
      */
     createHeartbeat(params?: CallParams<StakingPluginArgs['obj']['createHeartbeat(uint64,bool,address,uint64)void'] | StakingPluginArgs['tuple']['createHeartbeat(uint64,bool,address,uint64)void']>): StakingPluginComposer<[...TReturns, StakingPluginReturns['createHeartbeat(uint64,bool,address,uint64)void'] | undefined]>;
     /**
-     * Calls the softCheck(uint64,bool,address,uint64)void ABI method.
+     * Calls the checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[] ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    softCheck(params?: CallParams<StakingPluginArgs['obj']['softCheck(uint64,bool,address,uint64)void'] | StakingPluginArgs['tuple']['softCheck(uint64,bool,address,uint64)void']>): StakingPluginComposer<[...TReturns, StakingPluginReturns['softCheck(uint64,bool,address,uint64)void'] | undefined]>;
+    checkpointSoftStake(params?: CallParams<StakingPluginArgs['obj']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'] | StakingPluginArgs['tuple']['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]']>): StakingPluginComposer<[...TReturns, StakingPluginReturns['checkpointSoftStake(uint64,bool,(address,uint64)[])(bool,uint64)[]'] | undefined]>;
+    /**
+     * Calls the checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[] ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkpointAppSoftStake(params?: CallParams<StakingPluginArgs['obj']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'] | StakingPluginArgs['tuple']['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]']>): StakingPluginComposer<[...TReturns, StakingPluginReturns['checkpointAppSoftStake(uint64,bool,(uint64,address,uint64)[])(bool,uint64)[]'] | undefined]>;
+    /**
+     * Calls the updateSettings(uint64,bool,uint64,uint64)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateSettings(params?: CallParams<StakingPluginArgs['obj']['updateSettings(uint64,bool,uint64,uint64)void'] | StakingPluginArgs['tuple']['updateSettings(uint64,bool,uint64,uint64)void']>): StakingPluginComposer<[...TReturns, StakingPluginReturns['updateSettings(uint64,bool,uint64,uint64)void'] | undefined]>;
     /**
      * Calls the updateAkitaDAO(uint64)void ABI method.
      *

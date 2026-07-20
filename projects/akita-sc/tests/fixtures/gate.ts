@@ -33,10 +33,15 @@ export const deployGate = async ({
     });
 
     const client = results.appClient;
+    await client.appClient.fundAppAccount({ amount: (100_000).microAlgos() });
 
     return new GateSDK({
         algorand,
-        factoryParams: { appId: client.appId },
+        factoryParams: {
+            appId: client.appId,
+            defaultSender: sender,
+            defaultSigner: signer,
+        },
         gateRegistry: {},
     });
 };

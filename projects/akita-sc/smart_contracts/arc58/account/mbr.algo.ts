@@ -68,7 +68,7 @@ export class AbstractedAccountMBR extends Contract {
       allowances: this.allowancesMbr(escrow),
       domainKeys: this.domainKeysMbr(plugin),
       executions: this.executionsMbr(groups),
-      escrowExists: escrowInfo[0].id !== 0,
+      escrowExists: escrowInfo[0].address !== Global.zeroAddress,
       newEscrowMintCost: (
         NewCostForARC58 +
         Global.minBalance +

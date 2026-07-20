@@ -33,5 +33,12 @@ export const deployDualStakePlugin = async ({ fixture, sender, signer, args }: D
 
   console.log('DualStakePlugin deployed with appId:', client.appId);
 
-  return new DualStakePluginSDK({ algorand, factoryParams: { appId: client.appId } });
+  return new DualStakePluginSDK({
+    algorand,
+    factoryParams: {
+      appId: client.appId,
+      defaultSender: sender,
+      defaultSigner: signer,
+    },
+  });
 };

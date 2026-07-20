@@ -48,13 +48,7 @@ export type AbstractedAccountBalanceReaderArgs = {
             akitaDao: bigint | number;
         };
         'balance(address,uint64[])uint64[]': {
-            /**
-             * The address to look up balances for
-             */
             address: string;
-            /**
-             * The asset IDs to check balances for (0 for ALGO)
-             */
             assets: bigint[] | number[];
         };
     };
@@ -87,9 +81,6 @@ export type AbstractedAccountBalanceReaderTypes = {
     }> & Record<'balance(address,uint64[])uint64[]' | 'balance', {
         argsObj: AbstractedAccountBalanceReaderArgs['obj']['balance(address,uint64[])uint64[]'];
         argsTuple: AbstractedAccountBalanceReaderArgs['tuple']['balance(address,uint64[])uint64[]'];
-        /**
-         * The total balance for each asset (wallet + staked hard + staked lock)
-         */
         returns: AbstractedAccountBalanceReaderReturns['balance(address,uint64[])uint64[]'];
     }>;
     /**
@@ -204,8 +195,8 @@ export declare abstract class AbstractedAccountBalanceReaderParamsFactory {
     /**
      * Constructs a no op call for the balance(address,uint64[])uint64[] ABI method
      *
-    * Get the balance of a set of assets at the given address, including any
-    amounts that address has staked in the Akita staking contract.
+    * Get balances for the supplied assets, including hard and locked stake.
+    Asset ID zero represents ALGO.
   
      *
      * @param params Parameters for the call
@@ -578,12 +569,12 @@ export declare class AbstractedAccountBalanceReaderClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-        * Get the balance of a set of assets at the given address, including any
-        amounts that address has staked in the Akita staking contract.
+        * Get balances for the supplied assets, including hard and locked stake.
+        Asset ID zero represents ALGO.
     
          *
          * @param params The params for the smart contract call
-         * @returns The call params: The total balance for each asset (wallet + staked hard + staked lock)
+         * @returns The call params
          */
         balance: (params: CallParams<AbstractedAccountBalanceReaderArgs["obj"]["balance(address,uint64[])uint64[]"] | AbstractedAccountBalanceReaderArgs["tuple"]["balance(address,uint64[])uint64[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
@@ -627,12 +618,12 @@ export declare class AbstractedAccountBalanceReaderClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-        * Get the balance of a set of assets at the given address, including any
-        amounts that address has staked in the Akita staking contract.
+        * Get balances for the supplied assets, including hard and locked stake.
+        Asset ID zero represents ALGO.
     
          *
          * @param params The params for the smart contract call
-         * @returns The call transaction: The total balance for each asset (wallet + staked hard + staked lock)
+         * @returns The call transaction
          */
         balance: (params: CallParams<AbstractedAccountBalanceReaderArgs["obj"]["balance(address,uint64[])uint64[]"] | AbstractedAccountBalanceReaderArgs["tuple"]["balance(address,uint64[])uint64[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
@@ -658,12 +649,12 @@ export declare class AbstractedAccountBalanceReaderClient {
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
-        * Get the balance of a set of assets at the given address, including any
-        amounts that address has staked in the Akita staking contract.
+        * Get balances for the supplied assets, including hard and locked stake.
+        Asset ID zero represents ALGO.
     
          *
          * @param params The params for the smart contract call
-         * @returns The call result: The total balance for each asset (wallet + staked hard + staked lock)
+         * @returns The call result
          */
         balance: (params: CallParams<AbstractedAccountBalanceReaderArgs["obj"]["balance(address,uint64[])uint64[]"] | AbstractedAccountBalanceReaderArgs["tuple"]["balance(address,uint64[])uint64[]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
@@ -690,12 +681,12 @@ export declare class AbstractedAccountBalanceReaderClient {
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
-    * Get the balance of a set of assets at the given address, including any
-    amounts that address has staked in the Akita staking contract.
+    * Get balances for the supplied assets, including hard and locked stake.
+    Asset ID zero represents ALGO.
   
      *
      * @param params The params for the smart contract call
-     * @returns The call result: The total balance for each asset (wallet + staked hard + staked lock)
+     * @returns The call result
      */
     balance(params: CallParams<AbstractedAccountBalanceReaderArgs['obj']['balance(address,uint64[])uint64[]'] | AbstractedAccountBalanceReaderArgs['tuple']['balance(address,uint64[])uint64[]']>): Promise<bigint[]>;
     /**
@@ -722,8 +713,8 @@ export type AbstractedAccountBalanceReaderComposer<TReturns extends [...any[]] =
     /**
      * Calls the balance(address,uint64[])uint64[] ABI method.
      *
-    * Get the balance of a set of assets at the given address, including any
-    amounts that address has staked in the Akita staking contract.
+    * Get balances for the supplied assets, including hard and locked stake.
+    Asset ID zero represents ALGO.
   
      *
      * @param params Any additional parameters for the call

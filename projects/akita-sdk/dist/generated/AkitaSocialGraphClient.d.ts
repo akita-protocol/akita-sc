@@ -132,6 +132,13 @@ export type AkitaSocialGraphArgs = {
             follower: string;
             user: string;
         };
+        'update(string)void': {
+            newVersion: string;
+        };
+        'updateAkitaDAO(uint64)void': {
+            akitaDao: bigint | number;
+        };
+        'opUp()void': Record<string, never>;
         'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': {
             ref: Uint8Array;
             refTypeName: string;
@@ -145,13 +152,6 @@ export type AkitaSocialGraphArgs = {
             creator: string;
             wallet: bigint | number;
         };
-        'update(string)void': {
-            newVersion: string;
-        };
-        'updateAkitaDAO(uint64)void': {
-            akitaDao: bigint | number;
-        };
-        'opUp()void': Record<string, never>;
     };
     /**
      * The tuple representation of the arguments for each method
@@ -166,12 +166,12 @@ export type AkitaSocialGraphArgs = {
         'isBlocked(address,address)bool': [user: string, blocked: string];
         'isFollowing(address,address)bool': [follower: string, user: string];
         'getFollowIndex(address,address)uint64': [follower: string, user: string];
-        'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ref: Uint8Array, refTypeName: string, refTypeSchema: Uint8Array];
-        'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64': [paywall: ViewPayWallValue];
-        'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)': [akitaDao: bigint | number, creator: string, wallet: bigint | number];
         'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
+        'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': [ref: Uint8Array, refTypeName: string, refTypeSchema: Uint8Array];
+        'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64': [paywall: ViewPayWallValue];
+        'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)': [akitaDao: bigint | number, creator: string, wallet: bigint | number];
     };
 };
 /**
@@ -187,12 +187,12 @@ export type AkitaSocialGraphReturns = {
     'isBlocked(address,address)bool': boolean;
     'isFollowing(address,address)bool': boolean;
     'getFollowIndex(address,address)uint64': bigint;
-    'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': AkitaSocialMbrData;
-    'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64': bigint;
-    'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)': TipMbrInfo;
     'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
+    'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)': AkitaSocialMbrData;
+    'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64': bigint;
+    'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)': TipMbrInfo;
 };
 /**
  * Defines the types of available calls and state of the AkitaSocialGraph smart contract.
@@ -237,18 +237,6 @@ export type AkitaSocialGraphTypes = {
         argsObj: AkitaSocialGraphArgs['obj']['getFollowIndex(address,address)uint64'];
         argsTuple: AkitaSocialGraphArgs['tuple']['getFollowIndex(address,address)uint64'];
         returns: AkitaSocialGraphReturns['getFollowIndex(address,address)uint64'];
-    }> & Record<'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'mbr', {
-        argsObj: AkitaSocialGraphArgs['obj']['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        argsTuple: AkitaSocialGraphArgs['tuple']['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-        returns: AkitaSocialGraphReturns['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
-    }> & Record<'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64' | 'payWallMbr', {
-        argsObj: AkitaSocialGraphArgs['obj']['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
-        argsTuple: AkitaSocialGraphArgs['tuple']['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
-        returns: AkitaSocialGraphReturns['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
-    }> & Record<'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)' | 'checkTipMbrRequirements', {
-        argsObj: AkitaSocialGraphArgs['obj']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
-        argsTuple: AkitaSocialGraphArgs['tuple']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
-        returns: AkitaSocialGraphReturns['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
     }> & Record<'update(string)void' | 'update', {
         argsObj: AkitaSocialGraphArgs['obj']['update(string)void'];
         argsTuple: AkitaSocialGraphArgs['tuple']['update(string)void'];
@@ -261,6 +249,18 @@ export type AkitaSocialGraphTypes = {
         argsObj: AkitaSocialGraphArgs['obj']['opUp()void'];
         argsTuple: AkitaSocialGraphArgs['tuple']['opUp()void'];
         returns: AkitaSocialGraphReturns['opUp()void'];
+    }> & Record<'mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)' | 'mbr', {
+        argsObj: AkitaSocialGraphArgs['obj']['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        argsTuple: AkitaSocialGraphArgs['tuple']['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+        returns: AkitaSocialGraphReturns['mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)'];
+    }> & Record<'payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64' | 'payWallMbr', {
+        argsObj: AkitaSocialGraphArgs['obj']['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
+        argsTuple: AkitaSocialGraphArgs['tuple']['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
+        returns: AkitaSocialGraphReturns['payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64'];
+    }> & Record<'checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)' | 'checkTipMbrRequirements', {
+        argsObj: AkitaSocialGraphArgs['obj']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
+        argsTuple: AkitaSocialGraphArgs['tuple']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
+        returns: AkitaSocialGraphReturns['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'];
     }>;
     /**
      * Defines the shape of the state of the application.
@@ -497,6 +497,20 @@ export declare abstract class AkitaSocialGraphParamsFactory {
      */
     static getFollowIndex(params: CallParams<AkitaSocialGraphArgs['obj']['getFollowIndex(address,address)uint64'] | AkitaSocialGraphArgs['tuple']['getFollowIndex(address,address)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static updateAkitaDao(params: CallParams<AkitaSocialGraphArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialGraphArgs['tuple']['updateAkitaDAO(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the opUp()void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static opUp(params: CallParams<AkitaSocialGraphArgs['obj']['opUp()void'] | AkitaSocialGraphArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
@@ -517,20 +531,6 @@ export declare abstract class AkitaSocialGraphParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static checkTipMbrRequirements(params: CallParams<AkitaSocialGraphArgs['obj']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'] | AkitaSocialGraphArgs['tuple']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static updateAkitaDao(params: CallParams<AkitaSocialGraphArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialGraphArgs['tuple']['updateAkitaDAO(uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
-    /**
-     * Constructs a no op call for the opUp()void ABI method
-     *
-     * @param params Parameters for the call
-     * @returns An `AppClientMethodCallParams` object for the call
-     */
-    static opUp(params: CallParams<AkitaSocialGraphArgs['obj']['opUp()void'] | AkitaSocialGraphArgs['tuple']['opUp()void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the AkitaSocialGraph smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -1347,6 +1347,68 @@ export declare class AkitaSocialGraphClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the AkitaSocialGraph smart contract using the `mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1415,68 +1477,6 @@ export declare class AkitaSocialGraphClient {
          * @returns The call params
          */
         checkTipMbrRequirements: (params: CallParams<AkitaSocialGraphArgs["obj"]["checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"] | AkitaSocialGraphArgs["tuple"]["checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
-            appId: bigint;
-            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
-            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
-            note?: (Uint8Array | string) | undefined;
-            lease?: (Uint8Array | string) | undefined;
-            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            validityWindow?: number | bigint | undefined;
-            firstValidRound?: bigint | undefined;
-            lastValidRound?: bigint | undefined;
-            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
-            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
-            appReferences?: bigint[] | undefined;
-            assetReferences?: bigint[] | undefined;
-            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
-            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
-            rejectVersion?: number | undefined;
-            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
-            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
-            appId: bigint;
-            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
-            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
-            note?: (Uint8Array | string) | undefined;
-            lease?: (Uint8Array | string) | undefined;
-            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
-            validityWindow?: number | bigint | undefined;
-            firstValidRound?: bigint | undefined;
-            lastValidRound?: bigint | undefined;
-            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
-            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
-            appReferences?: bigint[] | undefined;
-            assetReferences?: bigint[] | undefined;
-            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
-            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
-            rejectVersion?: number | undefined;
-            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
-            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call params
-         */
-        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1642,6 +1642,32 @@ export declare class AkitaSocialGraphClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the AkitaSocialGraph smart contract using the `mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1674,32 +1700,6 @@ export declare class AkitaSocialGraphClient {
          * @returns The call transaction
          */
         checkTipMbrRequirements: (params: CallParams<AkitaSocialGraphArgs["obj"]["checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"] | AkitaSocialGraphArgs["tuple"]["checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            transactions: Transaction[];
-            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
-            signers: Map<number, TransactionSigner>;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call transaction
-         */
-        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -1894,6 +1894,42 @@ export declare class AkitaSocialGraphClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialGraphReturns["updateAkitaDAO(uint64)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialGraphReturns["opUp()void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the AkitaSocialGraph smart contract using the `mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1939,42 +1975,6 @@ export declare class AkitaSocialGraphClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | AkitaSocialGraphReturns["checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"]);
-            groupId: string | undefined;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `updateAkitaDAO(uint64)void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        updateAkitaDao: (params: CallParams<AkitaSocialGraphArgs["obj"]["updateAkitaDAO(uint64)void"] | AkitaSocialGraphArgs["tuple"]["updateAkitaDAO(uint64)void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            return: (undefined | AkitaSocialGraphReturns["updateAkitaDAO(uint64)void"]);
-            groupId: string | undefined;
-            txIds: string[];
-            returns?: ABIReturn[] | undefined | undefined;
-            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
-            transactions: Transaction[];
-            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
-            transaction: Transaction;
-        }>;
-        /**
-         * Makes a call to the AkitaSocialGraph smart contract using the `opUp()void` ABI method.
-         *
-         * @param params The params for the smart contract call
-         * @returns The call result
-         */
-        opUp: (params?: CallParams<AkitaSocialGraphArgs["obj"]["opUp()void"] | AkitaSocialGraphArgs["tuple"]["opUp()void"]> & SendParams & {
-            onComplete?: OnApplicationComplete.NoOp;
-        }) => Promise<{
-            return: (undefined | AkitaSocialGraphReturns["opUp()void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2135,6 +2135,20 @@ export type AkitaSocialGraphComposer<TReturns extends [...any[]] = []> = {
      */
     getFollowIndex(params?: CallParams<AkitaSocialGraphArgs['obj']['getFollowIndex(address,address)uint64'] | AkitaSocialGraphArgs['tuple']['getFollowIndex(address,address)uint64']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['getFollowIndex(address,address)uint64'] | undefined]>;
     /**
+     * Calls the updateAkitaDAO(uint64)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    updateAkitaDao(params?: CallParams<AkitaSocialGraphArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialGraphArgs['tuple']['updateAkitaDAO(uint64)void']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['updateAkitaDAO(uint64)void'] | undefined]>;
+    /**
+     * Calls the opUp()void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    opUp(params?: CallParams<AkitaSocialGraphArgs['obj']['opUp()void'] | AkitaSocialGraphArgs['tuple']['opUp()void']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['opUp()void'] | undefined]>;
+    /**
      * Calls the mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64) ABI method.
      *
      * @param params Any additional parameters for the call
@@ -2155,20 +2169,6 @@ export type AkitaSocialGraphComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     checkTipMbrRequirements(params?: CallParams<AkitaSocialGraphArgs['obj']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'] | AkitaSocialGraphArgs['tuple']['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)'] | undefined]>;
-    /**
-     * Calls the updateAkitaDAO(uint64)void ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    updateAkitaDao(params?: CallParams<AkitaSocialGraphArgs['obj']['updateAkitaDAO(uint64)void'] | AkitaSocialGraphArgs['tuple']['updateAkitaDAO(uint64)void']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['updateAkitaDAO(uint64)void'] | undefined]>;
-    /**
-     * Calls the opUp()void ABI method.
-     *
-     * @param params Any additional parameters for the call
-     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
-     */
-    opUp(params?: CallParams<AkitaSocialGraphArgs['obj']['opUp()void'] | AkitaSocialGraphArgs['tuple']['opUp()void']>): AkitaSocialGraphComposer<[...TReturns, AkitaSocialGraphReturns['opUp()void'] | undefined]>;
     /**
      * Gets available update methods
      */

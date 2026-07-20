@@ -2,6 +2,7 @@ import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { ProposalActionEnum } from 'akita-sdk/dao';
+import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployOptInPlugin } from '../../../../../tests/fixtures/plugins/optin';
 import { logger } from '../../../../../tests/utils/logger';
 import { CallerType } from 'akita-sdk/wallet';
@@ -151,7 +152,11 @@ describe('ARC58 DAO Plugins', () => {
       });
 
       const proposalId = await proposeAndExecute(dao, [
-        { type: ProposalActionEnum.NewEscrow, escrow: escrowName },
+        {
+          type: ProposalActionEnum.NewEscrow,
+          escrow: escrowName,
+          address: ALGORAND_ZERO_ADDRESS_STRING,
+        },
       ]);
 
       expect(proposalId).toBeGreaterThan(0n);
@@ -174,7 +179,9 @@ describe('ARC58 DAO Plugins', () => {
         amount: microAlgo(mbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       const escrowBefore = await dao.wallet.getEscrow(escrowName);
       expect(escrowBefore.locked).toBe(false);
@@ -203,7 +210,9 @@ describe('ARC58 DAO Plugins', () => {
         amount: microAlgo(escrowMbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       // Deploy and install plugin
       const optinPlugin = await deployOptInPlugin({
@@ -262,7 +271,9 @@ describe('ARC58 DAO Plugins', () => {
         amount: microAlgo(escrowMbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       // Fund for allowance
       const mbr = await dao.wallet.getMbr({
@@ -314,7 +325,9 @@ describe('ARC58 DAO Plugins', () => {
         amount: microAlgo(escrowMbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       // Add allowance first
       const mbr = await dao.wallet.getMbr({
@@ -384,7 +397,9 @@ describe('ARC58 DAO Plugins', () => {
         amount: microAlgo(escrowMbr.newEscrowMintCost),
       });
 
-      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow: escrowName }]);
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
 
       // Deploy plugin
       const optinPlugin = await deployOptInPlugin({

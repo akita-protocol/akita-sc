@@ -5,11 +5,10 @@ import { ENV_VAR_NAMES } from "../config";
 import {
   RewardsClient,
   RewardsFactory,
-  RewardsComposer,
   DisbursementDetails,
   RewardsMbrData,
 } from '../generated/RewardsClient';
-import { ExpandedSendParams, MaybeSigner, NewContractSDKParams } from "../types";
+import { MaybeSigner, NewContractSDKParams } from "../types";
 import {
   GetMbrParams,
   GetAllocationMbrCreditShortfallParams,
@@ -36,10 +35,6 @@ import {
 export * from "./types";
 export * from "./errors";
 
-/** Base references available per transaction */
-const BASE_REFERENCES = 8;
-/** References added by each opUp call */
-const REFERENCES_PER_OPUP = 8;
 const MAX_ALGORAND_GROUP_SIZE = 16;
 const CREATE_ASA_DISBURSEMENT_FROM_GROUP = ABIMethod.fromSignature(
   "createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64",
@@ -53,40 +48,6 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   constructor(params: NewContractSDKParams) {
     super({ factory: RewardsFactory, ...params }, ENV_VAR_NAMES.REWARDS_APP_ID);
-  }
-
-  // ========== OpUp Helpers ==========
-
-  /**
-   * Calculates the number of opUp calls needed for a given reference count.
-   * @param referencesNeeded - Number of references needed for the operation
-   * @param baseReferences - Base references available (default 8)
-   * @returns Number of opUp calls needed (0 if none needed)
-   */
-  private calculateOpUpsNeeded(referencesNeeded: number, baseReferences = BASE_REFERENCES): number {
-    if (referencesNeeded <= baseReferences) {
-      return 0;
-    }
-    return Math.ceil((referencesNeeded - baseReferences) / REFERENCES_PER_OPUP);
-  }
-
-  /**
-   * Adds the required number of opUp calls to a transaction group.
-   * Each opUp call adds 8 more reference slots to the group.
-   */
-  private addOpUps<T extends unknown[]>(
-    group: RewardsComposer<T>,
-    count: number,
-    sendParams: ExpandedSendParams,
-  ): void {
-    for (let i = 0; i < count; i++) {
-      group.opUp({
-        ...sendParams,
-        args: {},
-        // Add unique note to avoid duplicate transaction issues
-        note: i > 0 ? `opUp-${i}` : undefined,
-      });
-    }
   }
 
   // ========== Read Methods ==========
@@ -346,33 +307,14 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    const referencesNeeded = allocations.length + 2;
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    if (opUpsNeeded === 0) {
-      await (this.client.send as any).createUserAllocations({
-        ...sendParams,
-        args: {
-          payment,
-          id,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-    } else {
-      const group = this.client.newGroup();
-
-      (group as any).createUserAllocations({
-        ...sendParams,
-        args: {
-          payment,
-          id,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-
-      this.addOpUps(group as any, opUpsNeeded, sendParams);
-      await group.send(sendParams);
-    }
+    await (this.client.send as any).createUserAllocations({
+      ...sendParams,
+      args: {
+        payment,
+        id,
+        allocations: this.formatAllocations(allocations),
+      },
+    });
   }
 
   /**
@@ -397,33 +339,14 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    const referencesNeeded = allocations.length + 3;
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    if (opUpsNeeded === 0) {
-      await (this.client.send as any).createAsaUserAllocations({
-        ...sendParams,
-        args: {
-          assetXfer,
-          id,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-    } else {
-      const group = this.client.newGroup();
-
-      (group as any).createAsaUserAllocations({
-        ...sendParams,
-        args: {
-          assetXfer,
-          id,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-
-      this.addOpUps(group as any, opUpsNeeded, sendParams);
-      await group.send(sendParams);
-    }
+    await (this.client.send as any).createAsaUserAllocations({
+      ...sendParams,
+      args: {
+        assetXfer,
+        id,
+        allocations: this.formatAllocations(allocations),
+      },
+    });
   }
 
   /**
@@ -511,7 +434,6 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   /**
    * Creates and finalizes an ALGO disbursement in a single call.
    * Returns the disbursement ID.
-   * Automatically adds opUp calls for large allocation batches.
    */
   async createInstantDisbursement({
     sender,
@@ -535,41 +457,16 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    // Each allocation needs ~1 box reference, plus 1 for disbursement box
-    const referencesNeeded = allocations.length + 1;
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    let disbursementId: bigint | undefined;
-
-    if (opUpsNeeded === 0) {
-      const result = await this.client.send.createInstantDisbursement({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          timeToUnlock,
-          expiration,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-      disbursementId = result.return;
-    } else {
-      const group = this.client.newGroup();
-
-      group.createInstantDisbursement({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          timeToUnlock,
-          expiration,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
-      const result = await group.send(sendParams);
-      disbursementId = result.returns?.[0];
-    }
+    const result = await this.client.send.createInstantDisbursement({
+      ...sendParams,
+      args: {
+        mbrPayment,
+        timeToUnlock,
+        expiration,
+        allocations: this.formatAllocations(allocations),
+      },
+    });
+    const disbursementId = result.return;
 
     if (disbursementId === undefined) {
       throw new Error('Failed to create instant disbursement');
@@ -581,7 +478,6 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   /**
    * Creates and finalizes an ASA disbursement in a single call.
    * Returns the disbursement ID.
-   * Automatically adds opUp calls for large allocation batches.
    */
   async createInstantAsaDisbursement({
     sender,
@@ -613,43 +509,17 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    // Each allocation needs ~1 box reference, plus 1 for disbursement box, plus 1 for asset
-    const referencesNeeded = allocations.length + 2;
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    let disbursementId: bigint | undefined;
-
-    if (opUpsNeeded === 0) {
-      const result = await this.client.send.createInstantAsaDisbursement({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          assetXfer,
-          timeToUnlock,
-          expiration,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-      disbursementId = result.return;
-    } else {
-      const group = this.client.newGroup();
-
-      group.createInstantAsaDisbursement({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          assetXfer,
-          timeToUnlock,
-          expiration,
-          allocations: this.formatAllocations(allocations),
-        },
-      });
-
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
-      const result = await group.send(sendParams);
-      disbursementId = result.returns?.[0];
-    }
+    const result = await this.client.send.createInstantAsaDisbursement({
+      ...sendParams,
+      args: {
+        mbrPayment,
+        assetXfer,
+        timeToUnlock,
+        expiration,
+        allocations: this.formatAllocations(allocations),
+      },
+    });
+    const disbursementId = result.return;
 
     if (disbursementId === undefined) {
       throw new Error('Failed to create instant ASA disbursement');
@@ -661,7 +531,6 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   /**
    * Claims rewards from one or more disbursements.
    * The caller claims their allocated rewards.
-   * Automatically adds opUp calls for claiming from many disbursements.
    */
   async claimRewards({ sender, signer, rewards }: ClaimRewardsParams): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
@@ -669,41 +538,19 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     // Format rewards as [id, asset] tuples
     const formattedRewards: [bigint | number, bigint | number][] = rewards.map(r => [r.id, r.asset]);
 
-    // Each claim needs references for: disbursement box, allocation box, possibly asset
-    // Plus inner transactions use references
-    const referencesNeeded = rewards.length * 3;
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    if (opUpsNeeded === 0) {
-      await this.client.send.claimRewards({
-        ...sendParams,
-        // Extra fee for inner transactions (1 reward transfer per claim; MBR refund is credited)
-        extraFee: microAlgo(1000 * rewards.length),
-        args: {
-          rewards: formattedRewards,
-        },
-      });
-    } else {
-      const group = this.client.newGroup();
-
-      group.claimRewards({
-        ...sendParams,
-        extraFee: microAlgo(1000 * rewards.length),
-        args: {
-          rewards: formattedRewards,
-        },
-      });
-
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
-      await group.send(sendParams);
-    }
+    await this.client.send.claimRewards({
+      ...sendParams,
+      // Extra fee for inner transactions (1 reward transfer per claim; MBR refund is credited)
+      extraFee: microAlgo(1000 * rewards.length),
+      args: {
+        rewards: formattedRewards,
+      },
+    });
   }
 
   /**
    * Reclaims unclaimed rewards after a disbursement has expired.
    * Only the disbursement creator can reclaim.
-   * Automatically adds opUp calls for reclaiming many allocations.
    */
   async reclaimRewards({ sender, signer, id, reclaims }: ReclaimRewardsParams): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
@@ -711,36 +558,15 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     // Format reclaims as [address, asset] tuples
     const formattedReclaims: [string, bigint | number][] = reclaims.map(r => [r.address, r.asset]);
 
-    // Each reclaim needs references for: allocation box, possibly asset, receiver account
-    const referencesNeeded = reclaims.length * 2 + 1; // +1 for disbursement box
-    const opUpsNeeded = this.calculateOpUpsNeeded(referencesNeeded);
-
-    if (opUpsNeeded === 0) {
-      await this.client.send.reclaimRewards({
-        ...sendParams,
-        // Extra fee for inner transactions (1 reward transfer per reclaim; MBR refund is credited)
-        extraFee: microAlgo(1000 * reclaims.length),
-        args: {
-          id,
-          reclaims: formattedReclaims,
-        },
-      });
-    } else {
-      const group = this.client.newGroup();
-
-      group.reclaimRewards({
-        ...sendParams,
-        extraFee: microAlgo(1000 * reclaims.length),
-        args: {
-          id,
-          reclaims: formattedReclaims,
-        },
-      });
-
-      this.addOpUps(group, opUpsNeeded, sendParams);
-
-      await group.send(sendParams);
-    }
+    await this.client.send.reclaimRewards({
+      ...sendParams,
+      // Extra fee for inner transactions (1 reward transfer per reclaim; MBR refund is credited)
+      extraFee: microAlgo(1000 * reclaims.length),
+      args: {
+        id,
+        reclaims: formattedReclaims,
+      },
+    });
   }
 
   /**

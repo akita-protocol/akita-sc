@@ -32,7 +32,18 @@ export type ReceiveEscrow = {
 }
 
 export type EscrowAssetKey = {
-  escrow: uint64
+  escrow: Account
+  asset: uint64
+}
+
+/**
+ * Permanently binds an ASA identity to the receive-escrow configuration that
+ * opted into it. Unlike EscrowAssetKey, this includes the ARC58 wallet and
+ * escrow name so aliases cannot borrow another configuration's asset count.
+ */
+export type ManagedAssetKey = {
+  wallet: Application
+  escrow: string
   asset: uint64
 }
 

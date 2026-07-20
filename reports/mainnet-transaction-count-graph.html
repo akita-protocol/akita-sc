@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Akita Mainnet Contract Transaction Count</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --ink: #17202a;
+        --muted: #65717e;
+        --line: #d7dde5;
+        --panel: #f8fafc;
+        --app: #2563eb;
+        --pay: #d97706;
+        --axfer: #059669;
+        --acfg: #7c3aed;
+        --outer: #0f766e;
+        --inner: #be123c;
+        --bg: #ffffff;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      }
+
+      main {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 28px 0 42px;
+      }
+
+      header {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 20px;
+        align-items: end;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 18px;
+      }
+
+      h1,
+      h2,
+      p {
+        margin: 0;
+      }
+
+      h1 {
+        font-size: clamp(28px, 4vw, 48px);
+        line-height: 1.04;
+        letter-spacing: 0;
+      }
+
+      h2 {
+        font-size: 18px;
+        line-height: 1.2;
+      }
+
+      h3 {
+        font-size: 15px;
+        line-height: 1.2;
+        margin: 0;
+      }
+
+      .meta {
+        color: var(--muted);
+        font-size: 14px;
+        margin-top: 8px;
+      }
+
+      .total {
+        text-align: right;
+      }
+
+      .total strong {
+        display: block;
+        font-size: clamp(34px, 5vw, 58px);
+        line-height: 1;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 18px;
+        margin-top: 22px;
+      }
+
+      section,
+      aside {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 18px;
+      }
+
+      .chart {
+        margin-top: 18px;
+      }
+
+      .bar-row {
+        display: grid;
+        grid-template-columns: minmax(92px, 130px) 1fr minmax(92px, auto);
+        align-items: center;
+        gap: 12px;
+        min-height: 42px;
+        margin: 10px 0;
+      }
+
+      .label {
+        color: var(--ink);
+        font-size: 14px;
+        font-weight: 650;
+      }
+
+      .track {
+        position: relative;
+        height: 22px;
+        overflow: hidden;
+        border-radius: 4px;
+        background: #e8edf3;
+      }
+
+      .fill {
+        height: 100%;
+        min-width: 2px;
+        border-radius: inherit;
+      }
+
+      .value {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .stats {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-top: 18px;
+      }
+
+      .stat {
+        border-top: 3px solid var(--line);
+        padding-top: 10px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 25px;
+        line-height: 1.1;
+      }
+
+      .stat span {
+        color: var(--muted);
+        display: block;
+        font-size: 13px;
+        margin-top: 4px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: 36.7fr 63.3fr;
+        height: 34px;
+        border-radius: 5px;
+        overflow: hidden;
+        margin-top: 18px;
+      }
+
+      .split > div {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 13px;
+        font-weight: 700;
+        min-width: 0;
+      }
+
+      .legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px 16px;
+        margin-top: 14px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .legend span {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+      }
+
+      .dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .growth {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .growth .stat {
+        border-color: var(--app);
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      .dense-row {
+        min-height: 32px;
+        margin: 6px 0;
+      }
+
+      .dense-row .track {
+        height: 18px;
+      }
+
+      .contract-summary {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 12px;
+        margin-top: 14px;
+      }
+
+      .table-wrap {
+        margin-top: 18px;
+        overflow-x: auto;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+      }
+
+      .time-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 18px;
+        margin-top: 18px;
+      }
+
+      .time-panel {
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 14px;
+      }
+
+      .line-chart {
+        width: 100%;
+        height: auto;
+        display: block;
+        margin-top: 14px;
+        overflow: visible;
+      }
+
+      .axis-line,
+      .grid-line {
+        stroke: var(--line);
+        stroke-width: 1;
+      }
+
+      .grid-line {
+        opacity: 0.75;
+      }
+
+      .series-line {
+        fill: none;
+        stroke-width: 2.5;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+
+      .series-point {
+        stroke: #fff;
+        stroke-width: 1.5;
+      }
+
+      .axis-label {
+        fill: var(--muted);
+        font-size: 11px;
+        font-variant-numeric: tabular-nums;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        min-width: 720px;
+      }
+
+      th,
+      td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--line);
+        text-align: left;
+        white-space: nowrap;
+      }
+
+      th {
+        color: var(--muted);
+        font-weight: 700;
+        background: #f1f5f9;
+      }
+
+      tr:last-child td {
+        border-bottom: 0;
+      }
+
+      td.num {
+        text-align: right;
+        font-variant-numeric: tabular-nums;
+      }
+
+      footer {
+        color: var(--muted);
+        font-size: 13px;
+        margin-top: 18px;
+      }
+
+      @media (max-width: 820px) {
+        header,
+        .grid,
+        .stats,
+        .growth,
+        .time-grid,
+        .contract-summary {
+          grid-template-columns: 1fr;
+        }
+
+        .total {
+          text-align: left;
+        }
+
+        .bar-row {
+          grid-template-columns: 1fr;
+          gap: 6px;
+        }
+
+        .value {
+          text-align: left;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <div>
+          <h1>Akita Mainnet Contract Transaction Count</h1>
+          <p class="meta">Corrected count, including inner transactions and non-app transfers involving contract addresses. Indexer round 62,429,308.</p>
+        </div>
+        <div class="total">
+          <strong>27,355</strong>
+          <p class="meta">related transaction nodes</p>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section>
+          <h2>Transaction Type Breakdown</h2>
+          <div class="chart" aria-label="Transaction type bar chart">
+            <div class="bar-row">
+              <div class="label">App calls</div>
+              <div class="track"><div class="fill" style="width: 72.6%; background: var(--app)"></div></div>
+              <div class="value">19,851 · 72.6%</div>
+            </div>
+            <div class="bar-row">
+              <div class="label">Asset transfers</div>
+              <div class="track"><div class="fill" style="width: 14.0%; background: var(--axfer)"></div></div>
+              <div class="value">3,822 · 14.0%</div>
+            </div>
+            <div class="bar-row">
+              <div class="label">Payments</div>
+              <div class="track"><div class="fill" style="width: 13.4%; background: var(--pay)"></div></div>
+              <div class="value">3,662 · 13.4%</div>
+            </div>
+            <div class="bar-row">
+              <div class="label">Asset config</div>
+              <div class="track"><div class="fill" style="width: 0.1%; background: var(--acfg)"></div></div>
+              <div class="value">20 · 0.1%</div>
+            </div>
+          </div>
+        </section>
+
+        <aside>
+          <h2>Current Scope</h2>
+          <p class="meta">The app-call contract breakdown counts calls whose target application is one of the tracked contracts.</p>
+          <div class="stats">
+            <div class="stat">
+              <strong>148</strong>
+              <span>contract apps counted</span>
+            </div>
+            <div class="stat">
+              <strong>60</strong>
+              <span>root apps from networks.ts</span>
+            </div>
+            <div class="stat">
+              <strong>88</strong>
+              <span>child apps discovered</span>
+            </div>
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <strong>19,851</strong>
+              <span>related app-call nodes</span>
+            </div>
+            <div class="stat">
+              <strong>19,426</strong>
+              <span>tracked-target app calls</span>
+            </div>
+            <div class="stat">
+              <strong>34</strong>
+              <span>root or grouped child call buckets</span>
+            </div>
+          </div>
+        </aside>
+
+        <section class="wide">
+          <h2>Transaction Activity Over Time</h2>
+          <p class="meta">Daily buckets use the outer transaction round time. Inner transactions inherit that outer timestamp.</p>
+          <div class="time-grid">
+            <div class="time-panel">
+              <h3>All Related Transactions By Type</h3>
+              <div class="legend">
+                <span><i class="dot" style="background: var(--app)"></i>app calls</span>
+                <span><i class="dot" style="background: var(--pay)"></i>payments</span>
+                <span><i class="dot" style="background: var(--axfer)"></i>asset transfers</span>
+                <span><i class="dot" style="background: var(--acfg)"></i>asset config</span>
+              </div>
+              <div id="type-time-chart" class="chart" aria-label="Daily transaction type line chart"></div>
+            </div>
+            <div class="time-panel">
+              <h3>Wallet Creations</h3>
+              <div class="legend">
+                <span><i class="dot" style="background: var(--app)"></i>new wallets</span>
+                <span><i class="dot" style="background: #0891b2"></i>cumulative wallets</span>
+              </div>
+              <div id="wallet-time-chart" class="chart" aria-label="Daily wallet creation line chart"></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="wide">
+          <h2>App Calls By Contract</h2>
+          <p class="meta">Ranked by called app target, with child contracts collapsed by the factory that created them. Child groups are pluralized, so wallet-factory children appear as wallets.</p>
+          <div class="chart" aria-label="App calls by contract bar chart">
+            <div class="bar-row dense-row">
+              <div class="label">wallets</div>
+              <div class="track"><div class="fill" style="width: 100.0%; background: #0891b2"></div></div>
+              <div class="value">3,047 · 15.69%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">social</div>
+              <div class="track"><div class="fill" style="width: 88.5%; background: var(--app)"></div></div>
+              <div class="value">2,698 · 13.89%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">wallet</div>
+              <div class="track"><div class="fill" style="width: 75.7%; background: var(--app)"></div></div>
+              <div class="value">2,306 · 11.87%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">socialPlugin</div>
+              <div class="track"><div class="fill" style="width: 72.1%; background: var(--app)"></div></div>
+              <div class="value">2,196 · 11.3%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">rewardsPlugin</div>
+              <div class="track"><div class="fill" style="width: 53.9%; background: var(--app)"></div></div>
+              <div class="value">1,642 · 8.45%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">rewards</div>
+              <div class="track"><div class="fill" style="width: 34.3%; background: var(--app)"></div></div>
+              <div class="value">1,046 · 5.38%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">socialImpact</div>
+              <div class="track"><div class="fill" style="width: 31.3%; background: var(--app)"></div></div>
+              <div class="value">955 · 4.92%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">subscriptions</div>
+              <div class="track"><div class="fill" style="width: 29.6%; background: var(--app)"></div></div>
+              <div class="value">903 · 4.65%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">staking</div>
+              <div class="track"><div class="fill" style="width: 29.1%; background: var(--app)"></div></div>
+              <div class="value">888 · 4.57%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">escrowFactory</div>
+              <div class="track"><div class="fill" style="width: 28.0%; background: var(--app)"></div></div>
+              <div class="value">852 · 4.39%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">socialModeration</div>
+              <div class="track"><div class="fill" style="width: 22.3%; background: var(--app)"></div></div>
+              <div class="value">679 · 3.5%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">walletFactory</div>
+              <div class="track"><div class="fill" style="width: 22.1%; background: var(--app)"></div></div>
+              <div class="value">673 · 3.46%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">socialGraph</div>
+              <div class="track"><div class="fill" style="width: 20.0%; background: var(--app)"></div></div>
+              <div class="value">610 · 3.14%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">dao</div>
+              <div class="track"><div class="fill" style="width: 12.3%; background: var(--app)"></div></div>
+              <div class="value">375 · 1.93%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">daoProposalValidator</div>
+              <div class="track"><div class="fill" style="width: 3.9%; background: var(--app)"></div></div>
+              <div class="value">118 · 0.61%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">selfOptinPlugin</div>
+              <div class="track"><div class="fill" style="width: 3.0%; background: var(--app)"></div></div>
+              <div class="value">92 · 0.47%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">nfdPlugin</div>
+              <div class="track"><div class="fill" style="width: 2.6%; background: var(--app)"></div></div>
+              <div class="value">80 · 0.41%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">pollPlugin</div>
+              <div class="track"><div class="fill" style="width: 1.3%; background: var(--app)"></div></div>
+              <div class="value">40 · 0.21%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">polls</div>
+              <div class="track"><div class="fill" style="width: 1.1%; background: #0891b2"></div></div>
+              <div class="value">34 · 0.18%</div>
+            </div>
+            <div class="bar-row dense-row">
+              <div class="label">escrows</div>
+              <div class="track"><div class="fill" style="width: 1.0%; background: #0891b2"></div></div>
+              <div class="value">31 · 0.16%</div>
+            </div>
+          </div>
+          <div class="legend">
+            <span><i class="dot" style="background: var(--app)"></i>root contract</span>
+            <span><i class="dot" style="background: #0891b2"></i>grouped child contracts</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+	                <tr>
+	                  <th>Rank</th>
+	                  <th>Bucket</th>
+	                  <th>Source</th>
+	                  <th>Kind</th>
+	                  <th>Children</th>
+	                  <th>Calls</th>
+	                  <th>Share</th>
+	                </tr>
+              </thead>
+              <tbody>
+	                <tr><td>1</td><td>wallets</td><td>children created by 3569556257</td><td>child group</td><td class="num">51</td><td class="num">3,047</td><td class="num">15.69%</td></tr>
+	                <tr><td>2</td><td>social</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">2,698</td><td class="num">13.89%</td></tr>
+	                <tr><td>3</td><td>wallet</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">2,306</td><td class="num">11.87%</td></tr>
+	                <tr><td>4</td><td>socialPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">2,196</td><td class="num">11.30%</td></tr>
+	                <tr><td>5</td><td>rewardsPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">1,642</td><td class="num">8.45%</td></tr>
+	                <tr><td>6</td><td>rewards</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">1,046</td><td class="num">5.38%</td></tr>
+	                <tr><td>7</td><td>socialImpact</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">955</td><td class="num">4.92%</td></tr>
+	                <tr><td>8</td><td>subscriptions</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">903</td><td class="num">4.65%</td></tr>
+	                <tr><td>9</td><td>staking</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">888</td><td class="num">4.57%</td></tr>
+	                <tr><td>10</td><td>escrowFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">852</td><td class="num">4.39%</td></tr>
+	                <tr><td>11</td><td>socialModeration</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">679</td><td class="num">3.50%</td></tr>
+	                <tr><td>12</td><td>walletFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">673</td><td class="num">3.46%</td></tr>
+	                <tr><td>13</td><td>socialGraph</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">610</td><td class="num">3.14%</td></tr>
+	                <tr><td>14</td><td>dao</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">375</td><td class="num">1.93%</td></tr>
+	                <tr><td>15</td><td>daoProposalValidator</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">118</td><td class="num">0.61%</td></tr>
+	                <tr><td>16</td><td>selfOptinPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">92</td><td class="num">0.47%</td></tr>
+	                <tr><td>17</td><td>nfdPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">80</td><td class="num">0.41%</td></tr>
+	                <tr><td>18</td><td>pollPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">40</td><td class="num">0.21%</td></tr>
+	                <tr><td>19</td><td>polls</td><td>children created by 3569557932</td><td>child group</td><td class="num">5</td><td class="num">34</td><td class="num">0.18%</td></tr>
+	                <tr><td>20</td><td>escrows</td><td>children created by 3569555755</td><td>child group</td><td class="num">31</td><td class="num">31</td><td class="num">0.16%</td></tr>
+	                <tr><td>21</td><td>optinPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">31</td><td class="num">0.16%</td></tr>
+	                <tr><td>22</td><td>payPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">27</td><td class="num">0.14%</td></tr>
+	                <tr><td>23</td><td>updatePlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">16</td><td class="num">0.08%</td></tr>
+	                <tr><td>24</td><td>asaManagerPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">11</td><td class="num">0.06%</td></tr>
+	                <tr><td>25</td><td>revenueManagerPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">11</td><td class="num">0.06%</td></tr>
+	                <tr><td>26</td><td>stakingPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">11</td><td class="num">0.06%</td></tr>
+	                <tr><td>27</td><td>subscriptionsPlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">10</td><td class="num">0.05%</td></tr>
+	                <tr><td>28</td><td>marketplace</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">8</td><td class="num">0.04%</td></tr>
+	                <tr><td>29</td><td>metaMerkles</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">7</td><td class="num">0.04%</td></tr>
+	                <tr><td>30</td><td>pollFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">7</td><td class="num">0.04%</td></tr>
+	                <tr><td>31</td><td>auctionFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">6</td><td class="num">0.03%</td></tr>
+	                <tr><td>32</td><td>raffleFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">6</td><td class="num">0.03%</td></tr>
+	                <tr><td>33</td><td>stakingPoolFactory</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">6</td><td class="num">0.03%</td></tr>
+	                <tr><td>34</td><td>marketplacePlugin</td><td>network.ts</td><td>root</td><td class="num"></td><td class="num">4</td><td class="num">0.02%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <section>
+          <h2>Child Contracts By Creator</h2>
+          <div class="chart" aria-label="Child contract creator bar chart">
+            <div class="bar-row">
+              <div class="label">Wallet factory</div>
+              <div class="track"><div class="fill" style="width: 100%; background: #0891b2"></div></div>
+              <div class="value">51</div>
+            </div>
+            <div class="bar-row">
+              <div class="label">Escrow factory</div>
+              <div class="track"><div class="fill" style="width: 60.8%; background: #dc2626"></div></div>
+              <div class="value">31</div>
+            </div>
+            <div class="bar-row">
+              <div class="label">Poll factory</div>
+              <div class="track"><div class="fill" style="width: 11.8%; background: #9333ea"></div></div>
+              <div class="value">6</div>
+            </div>
+          </div>
+        </section>
+
+        <aside>
+          <h2>Change Since Previous Run</h2>
+          <div class="growth">
+            <div class="stat">
+              <strong>+19,582</strong>
+              <span>transaction nodes, from 7,773 to 27,355</span>
+            </div>
+            <div class="stat">
+              <strong>+51</strong>
+              <span>contract apps, from 97 to 148</span>
+            </div>
+          </div>
+          <p class="meta" style="margin-top: 16px">The count grew because recursive child discovery found more created contracts, especially wallet-factory children.</p>
+        </aside>
+      </div>
+
+      <footer>
+        Excluded keys: akta, bones, usdc, vrfBeacon, nfdRegistry, assetInbox, akitaNfd. Related nodes are counted when they reference a tracked app ID or touch a tracked app address as sender, receiver, close, rekey, or config party.
+      </footer>
+    </main>
+    <script>
+      const transactionDays = [
+        { date: '2026-05-23', appl: 1166, pay: 316, axfer: 70, acfg: 14, total: 1566 },
+        { date: '2026-05-24', appl: 1925, pay: 357, axfer: 367, acfg: 0, total: 2649 },
+        { date: '2026-05-25', appl: 1234, pay: 193, axfer: 275, acfg: 0, total: 1702 },
+        { date: '2026-05-26', appl: 1525, pay: 262, axfer: 247, acfg: 0, total: 2034 },
+        { date: '2026-05-27', appl: 584, pay: 99, axfer: 100, acfg: 0, total: 783 },
+        { date: '2026-05-28', appl: 633, pay: 104, axfer: 139, acfg: 0, total: 876 },
+        { date: '2026-05-29', appl: 421, pay: 56, axfer: 62, acfg: 0, total: 539 },
+        { date: '2026-05-30', appl: 170, pay: 22, axfer: 28, acfg: 0, total: 220 },
+        { date: '2026-05-31', appl: 71, pay: 34, axfer: 7, acfg: 0, total: 112 },
+        { date: '2026-06-01', appl: 158, pay: 29, axfer: 18, acfg: 0, total: 205 },
+        { date: '2026-06-02', appl: 401, pay: 54, axfer: 59, acfg: 0, total: 514 },
+        { date: '2026-06-03', appl: 92, pay: 16, axfer: 13, acfg: 0, total: 121 },
+        { date: '2026-06-04', appl: 361, pay: 56, axfer: 81, acfg: 0, total: 498 },
+        { date: '2026-06-05', appl: 337, pay: 54, axfer: 66, acfg: 0, total: 457 },
+        { date: '2026-06-06', appl: 508, pay: 89, axfer: 95, acfg: 0, total: 692 },
+        { date: '2026-06-07', appl: 320, pay: 59, axfer: 67, acfg: 0, total: 446 },
+        { date: '2026-06-08', appl: 693, pay: 116, axfer: 173, acfg: 0, total: 982 },
+        { date: '2026-06-09', appl: 859, pay: 123, axfer: 142, acfg: 0, total: 1124 },
+        { date: '2026-06-10', appl: 510, pay: 60, axfer: 77, acfg: 0, total: 647 },
+        { date: '2026-06-11', appl: 51, pay: 6, axfer: 8, acfg: 0, total: 65 },
+        { date: '2026-06-12', appl: 86, pay: 10, axfer: 12, acfg: 0, total: 108 },
+        { date: '2026-06-14', appl: 12, pay: 2, axfer: 2, acfg: 0, total: 16 },
+        { date: '2026-06-15', appl: 79, pay: 10, axfer: 9, acfg: 0, total: 98 },
+        { date: '2026-06-16', appl: 68, pay: 11, axfer: 8, acfg: 0, total: 87 },
+        { date: '2026-06-17', appl: 220, pay: 56, axfer: 47, acfg: 1, total: 324 },
+        { date: '2026-06-18', appl: 2710, pay: 568, axfer: 607, acfg: 3, total: 3888 },
+        { date: '2026-06-19', appl: 1312, pay: 270, axfer: 350, acfg: 2, total: 1934 },
+        { date: '2026-06-20', appl: 594, pay: 123, axfer: 94, acfg: 0, total: 811 },
+        { date: '2026-06-21', appl: 565, pay: 99, axfer: 128, acfg: 0, total: 792 },
+        { date: '2026-06-22', appl: 1478, pay: 273, axfer: 323, acfg: 0, total: 2074 },
+        { date: '2026-06-23', appl: 708, pay: 135, axfer: 148, acfg: 0, total: 991 },
+      ];
+
+      const walletCreationDays = [
+        { date: '2026-05-23', newWallets: 1, cumulativeWallets: 1 },
+        { date: '2026-05-24', newWallets: 6, cumulativeWallets: 7 },
+        { date: '2026-05-25', newWallets: 1, cumulativeWallets: 8 },
+        { date: '2026-05-26', newWallets: 2, cumulativeWallets: 10 },
+        { date: '2026-05-27', newWallets: 2, cumulativeWallets: 12 },
+        { date: '2026-05-28', newWallets: 1, cumulativeWallets: 13 },
+        { date: '2026-05-29', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-05-30', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-05-31', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-06-01', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-06-02', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-06-03', newWallets: 0, cumulativeWallets: 13 },
+        { date: '2026-06-04', newWallets: 1, cumulativeWallets: 14 },
+        { date: '2026-06-05', newWallets: 1, cumulativeWallets: 15 },
+        { date: '2026-06-06', newWallets: 2, cumulativeWallets: 17 },
+        { date: '2026-06-07', newWallets: 1, cumulativeWallets: 18 },
+        { date: '2026-06-08', newWallets: 2, cumulativeWallets: 20 },
+        { date: '2026-06-09', newWallets: 1, cumulativeWallets: 21 },
+        { date: '2026-06-10', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-11', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-12', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-13', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-14', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-15', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-16', newWallets: 0, cumulativeWallets: 21 },
+        { date: '2026-06-17', newWallets: 1, cumulativeWallets: 22 },
+        { date: '2026-06-18', newWallets: 13, cumulativeWallets: 35 },
+        { date: '2026-06-19', newWallets: 6, cumulativeWallets: 41 },
+        { date: '2026-06-20', newWallets: 1, cumulativeWallets: 42 },
+        { date: '2026-06-21', newWallets: 2, cumulativeWallets: 44 },
+        { date: '2026-06-22', newWallets: 5, cumulativeWallets: 49 },
+        { date: '2026-06-23', newWallets: 2, cumulativeWallets: 51 },
+      ];
+
+      function renderLineChart(targetId, rows, series) {
+        const target = document.getElementById(targetId);
+        const width = 760;
+        const height = 330;
+        const pad = { top: 22, right: 22, bottom: 38, left: 54 };
+        const plotWidth = width - pad.left - pad.right;
+        const plotHeight = height - pad.top - pad.bottom;
+        const max = Math.max(...rows.flatMap((row) => series.map((item) => row[item.key])));
+        const niceMax = max <= 100 ? Math.ceil(max / 10) * 10 : Math.ceil(max / 250) * 250;
+        const x = (index) => pad.left + (rows.length === 1 ? 0 : (index / (rows.length - 1)) * plotWidth);
+        const y = (value) => pad.top + plotHeight - (value / niceMax) * plotHeight;
+        const tickIndexes = [0, Math.floor((rows.length - 1) / 3), Math.floor(((rows.length - 1) * 2) / 3), rows.length - 1];
+
+        const grid = [0, 0.25, 0.5, 0.75, 1]
+          .map((step) => {
+            const value = Math.round(niceMax * step);
+            const yy = y(value);
+            return `<line class="grid-line" x1="${pad.left}" y1="${yy}" x2="${width - pad.right}" y2="${yy}"></line>
+              <text class="axis-label" x="${pad.left - 10}" y="${yy + 4}" text-anchor="end">${value.toLocaleString()}</text>`;
+          })
+          .join('');
+
+        const lines = series
+          .map((item) => {
+            const points = rows.map((row, index) => `${x(index).toFixed(1)},${y(row[item.key]).toFixed(1)}`).join(' ');
+            const circles = rows
+              .map((row, index) => `<circle class="series-point" cx="${x(index).toFixed(1)}" cy="${y(row[item.key]).toFixed(1)}" r="3" fill="${item.color}"><title>${row.date}: ${item.label} ${row[item.key].toLocaleString()}</title></circle>`)
+              .join('');
+            return `<polyline class="series-line" points="${points}" stroke="${item.color}"></polyline>${circles}`;
+          })
+          .join('');
+
+        const xLabels = tickIndexes
+          .map((index) => `<text class="axis-label" x="${x(index).toFixed(1)}" y="${height - 12}" text-anchor="middle">${rows[index].date.slice(5)}</text>`)
+          .join('');
+
+        target.innerHTML = `<svg class="line-chart" viewBox="0 0 ${width} ${height}" role="img">
+          <line class="axis-line" x1="${pad.left}" y1="${pad.top}" x2="${pad.left}" y2="${pad.top + plotHeight}"></line>
+          <line class="axis-line" x1="${pad.left}" y1="${pad.top + plotHeight}" x2="${width - pad.right}" y2="${pad.top + plotHeight}"></line>
+          ${grid}
+          ${lines}
+          ${xLabels}
+        </svg>`;
+      }
+
+      renderLineChart('type-time-chart', transactionDays, [
+        { key: 'appl', label: 'app calls', color: 'var(--app)' },
+        { key: 'pay', label: 'payments', color: 'var(--pay)' },
+        { key: 'axfer', label: 'asset transfers', color: 'var(--axfer)' },
+        { key: 'acfg', label: 'asset config', color: 'var(--acfg)' },
+      ]);
+
+      renderLineChart('wallet-time-chart', walletCreationDays, [
+        { key: 'newWallets', label: 'new wallets', color: 'var(--app)' },
+        { key: 'cumulativeWallets', label: 'cumulative wallets', color: '#0891b2' },
+      ]);
+    </script>
+  </body>
+</html>

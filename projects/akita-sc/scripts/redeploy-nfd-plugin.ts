@@ -2,6 +2,7 @@
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { NfdPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/nfd/NFDPluginClient'
+import { recordPluginDeployment } from './script-base'
 
 type Network = 'testnet' | 'mainnet'
 
@@ -101,6 +102,8 @@ async function main() {
   if (deployedRegistry !== options.registry) {
     throw new Error(`Registry mismatch: expected ${options.registry}, got ${deployedRegistry}`)
   }
+
+  await recordPluginDeployment(options.network, 'nfdPlugin', appClient.appId)
 }
 
 main().catch((error) => {

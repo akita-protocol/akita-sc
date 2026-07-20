@@ -66,7 +66,6 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
       receiver: this.client.appAddress,
     });
 
-    const needsOpUp = BigInt(weightsListCount) > 0n;
     let appId: bigint | undefined;
 
     if (isPrizeBox) {
@@ -81,45 +80,21 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
         }
       })).transactions[0];
 
-      if (needsOpUp) {
-        const group = this.client.newGroup();
-        group.newPrizeBoxRaffle({
-          ...sendParams,
-          args: {
-            prizeBoxTransferTxn,
-            payment,
-            ticketAsset,
-            startTimestamp,
-            endTimestamp,
-            minTickets,
-            maxTickets,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        });
-        for (let i = 0; i < 10; i++) {
-          group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-        }
-        const result = await group.send(sendParams);
-        appId = result.returns[0] as bigint | undefined;
-      } else {
-        ({ return: appId } = await this.client.send.newPrizeBoxRaffle({
-          ...sendParams,
-          args: {
-            prizeBoxTransferTxn,
-            payment,
-            ticketAsset,
-            startTimestamp,
-            endTimestamp,
-            minTickets,
-            maxTickets,
-            gateId,
-            marketplace,
-            weightsListCount,
-          },
-        }));
-      }
+      ({ return: appId } = await this.client.send.newPrizeBoxRaffle({
+        ...sendParams,
+        args: {
+          prizeBoxTransferTxn,
+          payment,
+          ticketAsset,
+          startTimestamp,
+          endTimestamp,
+          minTickets,
+          maxTickets,
+          gateId,
+          marketplace,
+          weightsListCount,
+        },
+      }));
     } else {
       const { prizeAsset, prizeAmount, name, proof } = rest as Exclude<NewRaffleParams, { isPrizeBox: true }>;
 
@@ -130,49 +105,23 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
         receiver: this.client.appAddress,
       });
 
-      if (needsOpUp) {
-        const group = this.client.newGroup();
-        group.newRaffle({
-          ...sendParams,
-          args: {
-            payment,
-            assetXfer,
-            ticketAsset,
-            startTimestamp,
-            endTimestamp,
-            minTickets,
-            maxTickets,
-            gateId,
-            marketplace,
-            name,
-            proof,
-            weightsListCount,
-          },
-        });
-        for (let i = 0; i < 10; i++) {
-          group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-        }
-        const result = await group.send(sendParams);
-        appId = result.returns[0] as bigint | undefined;
-      } else {
-        ({ return: appId } = await this.client.send.newRaffle({
-          ...sendParams,
-          args: {
-            payment,
-            assetXfer,
-            ticketAsset,
-            startTimestamp,
-            endTimestamp,
-            minTickets,
-            maxTickets,
-            gateId,
-            marketplace,
-            name,
-            proof,
-            weightsListCount,
-          },
-        }));
-      }
+      ({ return: appId } = await this.client.send.newRaffle({
+        ...sendParams,
+        args: {
+          payment,
+          assetXfer,
+          ticketAsset,
+          startTimestamp,
+          endTimestamp,
+          minTickets,
+          maxTickets,
+          gateId,
+          marketplace,
+          name,
+          proof,
+          weightsListCount,
+        },
+      }));
     }
 
     if (appId === undefined) {
@@ -305,12 +254,6 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
    * escrow configured, this also eagerly opts the escrow + every revenue-
    * split escrow in via the revenue-manager plugin, so downstream raffle
    * creations/entries don't have to do the rekey dance mid-group.
-   *
-   * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
-   * N split escrows, the asset). Since a single app call only holds 8
-   * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
-   * one opUp) so the resource populator has 16 slots to distribute refs
-   * across.
    */
   async optIn({ sender, signer, asset }: OptInParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -323,22 +266,13 @@ export class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
       receiver: this.client.appAddress,
     });
 
-    await this.client.newGroup()
-      .optIn({
-        ...sendParams,
-        args: { payment, asset },
-        maxFee: microAlgo(257_000),
-      })
-      .opUp({
-        ...sendParams,
-        args: {},
-        maxFee: microAlgo(2_000),
-      })
-      .send({
-        ...sendParams,
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true,
-      });
+    await this.client.send.optIn({
+      ...sendParams,
+      args: { payment, asset },
+      maxFee: microAlgo(257_000),
+      coverAppCallInnerTransactionFees: true,
+      populateAppCallResources: true,
+    });
   }
 
   /**

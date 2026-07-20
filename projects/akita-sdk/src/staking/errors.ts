@@ -24,10 +24,12 @@ export const STAKING_ERROR_MESSAGES: Record<string, string> = {
   BEXU: 'Expiration must be greater than or equal to the current unlock time or hardlock disabled',
 
   // --- Stake lifecycle ----------------------------------------------------
+  INIT: 'Staking is already initialized',
   SNFD: 'Stake not found',
   SNEX: 'Stake does not exist',
   BAMH: 'Insufficient amount held',
   IBAL: 'Insufficient balance',
+  ACRQ: 'App commitment must be created by an app call',
   WHOL: 'Withdraw is only for hard or lock',
 
   // --- Heartbeat ----------------------------------------------------------

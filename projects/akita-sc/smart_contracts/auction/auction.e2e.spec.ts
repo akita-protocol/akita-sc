@@ -7,7 +7,7 @@ import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'al
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
-import { MockRandomnessBeaconFactory } from '../artifacts/mock-beacon/MockRandomnessBeaconClient'
+import { MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 
 algokit.Config.configure({ populateAppCallResources: true })
 

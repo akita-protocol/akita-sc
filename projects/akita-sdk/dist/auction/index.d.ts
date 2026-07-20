@@ -40,7 +40,6 @@ export declare class AuctionSDK extends BaseSDK<AuctionClient> {
      * Places a bid in the auction.
      * Use `isAsa: true` and `bidAsset` for ASA bids, otherwise ALGO is used.
      * Provide `gateTxn` for gated auctions.
-     * Uses opUp for raffle auctions (bidFee > 0) to expand reference limits.
      */
     bid({ sender, signer, amount, marketplace, isAsa, gateTxn, ...rest }: BidParams): Promise<void>;
     /**
@@ -55,13 +54,11 @@ export declare class AuctionSDK extends BaseSDK<AuctionClient> {
     /**
      * Iterates to find the raffle winner based on the winning ticket.
      * May need to be called multiple times for large auctions.
-     * Uses opUp transactions to expand reference limits for iterating through weight boxes.
      */
     findWinner({ sender, signer, iterationAmount }: FindWinnerParams): Promise<void>;
     /**
      * Claims the auction prize for the highest bidder.
      * Also distributes royalties to marketplace, creator, and Akita.
-     * Uses opUp transactions to expand reference limits for royalty distribution.
      */
     claimPrize(params?: MaybeSigner): Promise<void>;
     /**

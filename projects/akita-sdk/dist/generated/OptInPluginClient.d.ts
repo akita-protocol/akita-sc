@@ -48,6 +48,11 @@ export type OptInPluginArgs = {
             assets: bigint[] | number[];
             mbrPayment: AppMethodCallTransactionArgument;
         };
+        'optOut(uint64,bool,uint64[])void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            assets: bigint[] | number[];
+        };
     };
     /**
      * The tuple representation of the arguments for each method
@@ -55,6 +60,7 @@ export type OptInPluginArgs = {
     tuple: {
         'opUp()void': [];
         'optIn(uint64,bool,uint64[],pay)void': [wallet: bigint | number, rekeyBack: boolean, assets: bigint[] | number[], mbrPayment: AppMethodCallTransactionArgument];
+        'optOut(uint64,bool,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, assets: bigint[] | number[]];
     };
 };
 /**
@@ -63,6 +69,7 @@ export type OptInPluginArgs = {
 export type OptInPluginReturns = {
     'opUp()void': void;
     'optIn(uint64,bool,uint64[],pay)void': void;
+    'optOut(uint64,bool,uint64[])void': void;
 };
 /**
  * Defines the types of available calls and state of the OptInPlugin smart contract.
@@ -79,6 +86,10 @@ export type OptInPluginTypes = {
         argsObj: OptInPluginArgs['obj']['optIn(uint64,bool,uint64[],pay)void'];
         argsTuple: OptInPluginArgs['tuple']['optIn(uint64,bool,uint64[],pay)void'];
         returns: OptInPluginReturns['optIn(uint64,bool,uint64[],pay)void'];
+    }> & Record<'optOut(uint64,bool,uint64[])void' | 'optOut', {
+        argsObj: OptInPluginArgs['obj']['optOut(uint64,bool,uint64[])void'];
+        argsTuple: OptInPluginArgs['tuple']['optOut(uint64,bool,uint64[])void'];
+        returns: OptInPluginReturns['optOut(uint64,bool,uint64[])void'];
     }>;
 };
 /**
@@ -135,6 +146,13 @@ export declare abstract class OptInPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static optIn(params: CallParams<OptInPluginArgs['obj']['optIn(uint64,bool,uint64[],pay)void'] | OptInPluginArgs['tuple']['optIn(uint64,bool,uint64[],pay)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the optOut(uint64,bool,uint64[])void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static optOut(params: CallParams<OptInPluginArgs['obj']['optOut(uint64,bool,uint64[])void'] | OptInPluginArgs['tuple']['optOut(uint64,bool,uint64[])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
 }
 /**
  * A factory to create and deploy one or more instance of the OptInPlugin smart contract and to create one or more app clients to interact with those (or other) app instances
@@ -500,6 +518,37 @@ export declare class OptInPluginClient {
             method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
+        /**
+         * Makes a call to the OptInPlugin smart contract using the `optOut(uint64,bool,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        optOut: (params: CallParams<OptInPluginArgs["obj"]["optOut(uint64,bool,uint64[])void"] | OptInPluginArgs["tuple"]["optOut(uint64,bool,uint64[])void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
     };
     /**
      * Create transactions for the current app
@@ -532,6 +581,19 @@ export declare class OptInPluginClient {
          * @returns The call transaction
          */
         optIn: (params: CallParams<OptInPluginArgs["obj"]["optIn(uint64,bool,uint64[],pay)void"] | OptInPluginArgs["tuple"]["optIn(uint64,bool,uint64[],pay)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the OptInPlugin smart contract using the `optOut(uint64,bool,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        optOut: (params: CallParams<OptInPluginArgs["obj"]["optOut(uint64,bool,uint64[])void"] | OptInPluginArgs["tuple"]["optOut(uint64,bool,uint64[])void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -586,6 +648,24 @@ export declare class OptInPluginClient {
             confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
             transaction: Transaction;
         }>;
+        /**
+         * Makes a call to the OptInPlugin smart contract using the `optOut(uint64,bool,uint64[])void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        optOut: (params: CallParams<OptInPluginArgs["obj"]["optOut(uint64,bool,uint64[])void"] | OptInPluginArgs["tuple"]["optOut(uint64,bool,uint64[])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | OptInPluginReturns["optOut(uint64,bool,uint64[])void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
     };
     /**
      * Clone this app client with different params
@@ -615,6 +695,13 @@ export type OptInPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     optIn(params?: CallParams<OptInPluginArgs['obj']['optIn(uint64,bool,uint64[],pay)void'] | OptInPluginArgs['tuple']['optIn(uint64,bool,uint64[],pay)void']>): OptInPluginComposer<[...TReturns, OptInPluginReturns['optIn(uint64,bool,uint64[],pay)void'] | undefined]>;
+    /**
+     * Calls the optOut(uint64,bool,uint64[])void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    optOut(params?: CallParams<OptInPluginArgs['obj']['optOut(uint64,bool,uint64[])void'] | OptInPluginArgs['tuple']['optOut(uint64,bool,uint64[])void']>): OptInPluginComposer<[...TReturns, OptInPluginReturns['optOut(uint64,bool,uint64[])void'] | undefined]>;
     /**
      * Makes a clear_state call to an existing instance of the OptInPlugin smart contract.
      *

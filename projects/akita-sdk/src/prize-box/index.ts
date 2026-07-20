@@ -209,4 +209,3 @@ export async function newPrizeBox({
   const factory = new PrizeBoxFactorySDK({ factoryParams, algorand, readerAccount, sendParams });
   return await factory.mint(mintParams);
 }
-

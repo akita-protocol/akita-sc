@@ -12,6 +12,9 @@ import { afterAll } from 'vitest';
 
 // Set network for SDKs that need to detect it
 process.env.ALGORAND_NETWORK = 'localnet';
+// E2E tests must remain deterministic when a local IPFS daemon is not running.
+// Production deployments still require IPFS-backed sticker metadata.
+process.env.AKITA_STICKER_ALLOW_FILE_URLS ??= '1';
 
 const originalConsoleLog = console.log;
 const originalConsoleInfo = console.info;
@@ -74,4 +77,3 @@ afterAll(() => {
   console.info = originalConsoleInfo;
   console.debug = originalConsoleDebug;
 });
-

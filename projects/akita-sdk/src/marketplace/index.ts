@@ -23,6 +23,30 @@ export * from "./types";
 
 export type MarketplaceContractArgs = MarketplaceArgs["obj"];
 
+type MarketplaceOptInPlan = {
+  asset: bigint;
+  cost: bigint;
+};
+
+const ASSET_OPT_IN_MIN_BALANCE = 100_000n;
+
+function getHttpStatus(error: unknown): number | undefined {
+  if (typeof error !== 'object' || error === null) return undefined;
+
+  if ('status' in error && typeof error.status === 'number') {
+    return error.status;
+  }
+
+  if ('response' in error) {
+    const { response } = error;
+    if (typeof response === 'object' && response !== null && 'status' in response && typeof response.status === 'number') {
+      return response.status;
+    }
+  }
+
+  return undefined;
+}
+
 /**
  * SDK for interacting with the Marketplace contract.
  * Use this to create listings, purchase items, and delist items.
@@ -57,12 +81,20 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
 
     // Get the cost for creating a new listing, dynamically querying rewards opt-in state
     const isAlgoPayment = BigInt(paymentAsset) === 0n;
+    const paymentAssetId = BigInt(paymentAsset);
     const prizeId = isPrizeBox ? 0n : BigInt((rest as { asset: bigint | number }).asset);
-    const [prizeRewardsOptInCost, paymentRewardsOptInCost] = await Promise.all([
+    const [prizeRewardsOptInCost, paymentRewardsOptInCost, listingOptIns] = await Promise.all([
       this.getRewardsOptInCost(prizeId),
-      this.getRewardsOptInCost(BigInt(paymentAsset)),
+      this.getRewardsOptInCost(paymentAssetId),
+      this.getListingOptInPlan({ prizeAsset: prizeId, paymentAsset: paymentAssetId }),
     ]);
-    const cost = this.listCost({ isPrizeBox, isAlgoPayment, prizeRewardsOptInCost, paymentRewardsOptInCost });
+    const cost = this.listCost({
+      isPrizeBox,
+      isAlgoPayment,
+      prizeRewardsOptInCost,
+      paymentRewardsOptInCost,
+      escrowOptInCost: listingOptIns.paymentEscrowOptInCost,
+    });
 
     const payment = await this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -71,6 +103,24 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     });
 
     let appId: bigint | undefined;
+    const needsComposer = listingOptIns.assetsToOptIn.length > 0 || listingOptIns.paymentEscrowOptInCost > 0n;
+    const group = needsComposer ? this.client.newGroup() : undefined;
+
+    if (group) {
+      for (const { asset, cost: optInCost } of listingOptIns.assetsToOptIn) {
+        const optInPayment = await this.client.algorand.createTransaction.payment({
+          ...sendParams,
+          amount: microAlgo(optInCost),
+          receiver: this.client.appAddress,
+        });
+
+        group.optIn({
+          ...sendParams,
+          args: { payment: optInPayment, asset },
+          maxFee: microAlgo(257_000),
+        });
+      }
+    }
 
     if (isPrizeBox) {
       const { prizeBoxId } = rest as Extract<ListParams, { isPrizeBox: true }>;
@@ -84,19 +134,29 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         }
       })).transactions[0];
 
-      ({ return: appId } = await this.client.send.listPrizeBox({
-        ...sendParams,
-        args: {
-          prizeBoxTransferTxn,
-          payment,
-          price,
-          paymentAsset,
-          expiration,
-          reservedFor,
-          gateId,
-          marketplace,
-        },
-      }));
+      const args = {
+        prizeBoxTransferTxn,
+        payment,
+        price,
+        paymentAsset,
+        expiration,
+        reservedFor,
+        gateId,
+        marketplace,
+      };
+
+      if (group) {
+        group.listPrizeBox({
+          ...sendParams,
+          args,
+          maxFee: microAlgo(2_000_000),
+        });
+      } else {
+        ({ return: appId } = await this.client.send.listPrizeBox({
+          ...sendParams,
+          args,
+        }));
+      }
     } else {
       const { asset, amount, name, proof } = rest as Exclude<ListParams, { isPrizeBox: true }>;
 
@@ -107,21 +167,40 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         receiver: this.client.appAddress,
       });
 
-      ({ return: appId } = await this.client.send.list({
+      const args = {
+        payment,
+        assetXfer,
+        price,
+        paymentAsset,
+        expiration,
+        reservedFor,
+        gateId,
+        marketplace,
+        name,
+        proof,
+      };
+
+      if (group) {
+        group.list({
+          ...sendParams,
+          args,
+          maxFee: microAlgo(2_000_000),
+        });
+      } else {
+        ({ return: appId } = await this.client.send.list({
+          ...sendParams,
+          args,
+        }));
+      }
+    }
+
+    if (group) {
+      const result = await group.send({
         ...sendParams,
-        args: {
-          payment,
-          assetXfer,
-          price,
-          paymentAsset,
-          expiration,
-          reservedFor,
-          gateId,
-          marketplace,
-          name,
-          proof,
-        },
-      }));
+        coverAppCallInnerTransactionFees: true,
+        populateAppCallResources: true,
+      });
+      appId = result.returns[result.returns.length - 1] as bigint | undefined;
     }
 
     if (appId === undefined) {
@@ -197,6 +276,53 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
   }
 
   /**
+   * Builds the atomic opt-in plan needed before a listing can be created.
+   *
+   * The listed ASA must be receivable by the marketplace before the `assetXfer`
+   * transaction runs. For ASA-denominated listings, the payment asset also needs
+   * marketplace/escrow preparation so a future purchase can settle cleanly.
+   */
+  private async getListingOptInPlan({ prizeAsset, paymentAsset }: { prizeAsset: bigint, paymentAsset: bigint }): Promise<{ assetsToOptIn: MarketplaceOptInPlan[], paymentEscrowOptInCost: bigint }> {
+    const assets = new Set<bigint>();
+    if (prizeAsset !== 0n) assets.add(prizeAsset);
+    if (paymentAsset !== 0n) assets.add(paymentAsset);
+
+    const assetsToOptIn: MarketplaceOptInPlan[] = [];
+    let paymentEscrowOptInCost = 0n;
+
+    for (const asset of assets) {
+      const [isMarketplaceOptedIn, optInCost] = await Promise.all([
+        this.isMarketplaceOptedInToAsset(asset),
+        this.client.optInCost({ args: { asset } }),
+      ]);
+
+      if (!isMarketplaceOptedIn) {
+        assetsToOptIn.push({ asset, cost: optInCost });
+        continue;
+      }
+
+      if (asset === paymentAsset && optInCost > ASSET_OPT_IN_MIN_BALANCE) {
+        paymentEscrowOptInCost = optInCost - ASSET_OPT_IN_MIN_BALANCE;
+      }
+    }
+
+    return { assetsToOptIn, paymentEscrowOptInCost };
+  }
+
+  private async isMarketplaceOptedInToAsset(assetId: bigint | number): Promise<boolean> {
+    const asset = BigInt(assetId);
+    if (asset === 0n) return true;
+
+    try {
+      const response = await this.algorand.client.algod.accountAssetInformation(this.client.appAddress.toString(), asset);
+      return !!response.assetHolding;
+    } catch (error) {
+      if (getHttpStatus(error) === 404) return false;
+      throw error;
+    }
+  }
+
+  /**
    * Gets the cost to create a new listing.
    * @param isPrizeBox - Whether the prize is a PrizeBox
    * @param isAlgoPayment - Whether the listing will accept ALGO as payment
@@ -265,7 +391,6 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
   }: PurchaseParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // Use opUps to handle app reference limits (royalty distribution, DAO access, etc.)
     const group = this.client.newGroup();
 
     if (isAsa) {
@@ -331,12 +456,6 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       }
     }
 
-    // Add opUps to increase app reference limit
-    // purchase + payment (and possibly assetXfer) = 2-3 transactions, so we can add up to 13-14 opUps
-    for (let i = 0; i < 10; i++) {
-      group.opUp({ ...sendParams, args: {}, note: i > 0 ? `opUp-${i}` : undefined });
-    }
-
     await group.send(sendParams);
   }
 
@@ -348,12 +467,6 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
    * configured, this also eagerly opts the escrow + every revenue-split
    * escrow in via the revenue-manager plugin, so downstream list/purchase
    * calls don't have to do the rekey dance mid-group.
-   *
-   * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
-   * N split escrows, the asset). Since a single app call only holds 8
-   * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
-   * one opUp) so the resource populator has 16 slots to distribute refs
-   * across.
    */
   async optIn({ sender, signer, asset }: OptInParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -366,22 +479,13 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       receiver: this.client.appAddress,
     });
 
-    await this.client.newGroup()
-      .optIn({
-        ...sendParams,
-        args: { payment, asset },
-        maxFee: microAlgo(257_000),
-      })
-      .opUp({
-        ...sendParams,
-        args: {},
-        maxFee: microAlgo(2_000),
-      })
-      .send({
-        ...sendParams,
-        coverAppCallInnerTransactionFees: true,
-        populateAppCallResources: true,
-      });
+    await this.client.send.optIn({
+      ...sendParams,
+      args: { payment, asset },
+      maxFee: microAlgo(257_000),
+      coverAppCallInnerTransactionFees: true,
+      populateAppCallResources: true,
+    });
   }
 
   // ========== Delist Methods ==========

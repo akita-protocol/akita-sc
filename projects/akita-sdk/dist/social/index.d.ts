@@ -4,10 +4,10 @@ import { OptionalAppIdFactoryParams } from "../types";
 import { SocialFees, AkitaAssets } from '../generated/AkitaDAOClient';
 import { AkitaSocialClient, AkitaSocialMbrData, MetaValue, PostValue, SocialImpactInputs, TipMbrInfo, VoteListValue } from '../generated/AkitaSocialClient';
 import { AkitaSocialGraphClient } from '../generated/AkitaSocialGraphClient';
-import { AkitaSocialImpactClient, MetaValue as ImpactMetaValue } from '../generated/AkitaSocialImpactClient';
+import { AkitaSocialImpactClient, ImpactMetaValue, StakeCheck as ImpactStakeCheck } from '../generated/AkitaSocialImpactClient';
 import { AkitaSocialModerationClient } from '../generated/AkitaSocialModerationClient';
 import { ExpandedSendParams, GroupReturn, MaybeSigner } from "../types";
-import { BlockArgs, CreatePayWallArgs, DeleteVoteArgs, EditPostArgs, FollowArgs, InvertVoteArgs, InitMetaArgs, PostArgs, PostRef, ReactArgs, RefType, ReplyArgs, UnfollowArgs, UpdateMetaArgs, VoteArgs } from "./types";
+import { BlockArgs, CommitStakingImpactArgs, CreatePayWallArgs, DeleteVoteArgs, EditPostArgs, FollowArgs, InvertVoteArgs, InitMetaArgs, PostArgs, PostRef, ReactArgs, RefType, ReplyArgs, UnfollowArgs, UpdateMetaArgs, VoteArgs } from "./types";
 export type { SocialFees, AkitaAssets };
 export * from './types';
 export * from './constants';
@@ -88,6 +88,8 @@ export declare class SocialSDK {
      * @returns The 32-byte external ref key
      */
     static computeExternalRefKey(platform: string, externalId: string): Uint8Array;
+    /** Mirror AkitaSocial.toBytes32() so aggregate reaction state can be queried. */
+    private reactionStorageRef;
     /**
      * Compute the deterministic key for an edit
      * The key is sha256(creatorAddressBytes + originalPostKey + newCID)
@@ -330,6 +332,16 @@ export declare class SocialSDK {
     getImpactMeta({ sender, signer, user }: MaybeSigner & {
         user: string;
     }): Promise<ImpactMetaValue>;
+    /** Get the MBR required for social impact to create the sender's commitment. */
+    getStakingImpactCost({ sender, signer, address }: MaybeSigner & {
+        address: string;
+    }): Promise<bigint>;
+    /** Create or add to the sender's app-specific AKTA commitment. */
+    commitStakingImpact({ sender, signer, amount, inheritRoot, }: CommitStakingImpactArgs): Promise<void>;
+    /** Permanently record a currently observed shortfall in social impact's commitment. */
+    checkpointStakingImpact({ sender, signer, address, }: MaybeSigner & {
+        address: string;
+    }): Promise<ImpactStakeCheck>;
     init({ sender, signer, }?: MaybeSigner): Promise<GroupReturn>;
     /**
      * Initialize meta for a user (required before using social features)

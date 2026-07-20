@@ -1,5 +1,5 @@
-export * from './types'
-export * from './errors'
+export * from './types';
+export * from './errors';
 
 // Configuration utilities for environment and network-based app ID resolution
 export {
@@ -7,6 +7,12 @@ export {
   type AkitaConfig,
   type EnvVarName,
   type NetworkAppIds,
+  type PluginAppIdKey,
+  type PluginDefinition,
+  type PluginDeployment,
+  type NetworkPluginDeployments,
+  type ResolvedPluginDeployment,
+  type DaoEscrowActionV2Cutover,
   ENV_VAR_NAMES,
   getNetworkFromEnv,
   getEnvVar,
@@ -22,45 +28,46 @@ export {
   TESTNET_APP_IDS,
   MAINNET_APP_IDS,
   NETWORK_APP_IDS,
+  PLUGIN_APP_ID_KEYS,
+  PLUGIN_DEFINITIONS,
+  TESTNET_PLUGIN_DEPLOYMENTS,
+  MAINNET_PLUGIN_DEPLOYMENTS,
+  NETWORK_PLUGIN_DEPLOYMENTS,
+  DAO_ESCROW_ACTION_V2_ROUNDS,
+  getDaoEscrowActionV2Cutover,
+  getPluginDeployments,
+  getLatestPluginDeployment,
+  resolvePluginDeployment,
+  getPluginUpdate,
+  getKnownPluginAppIds,
   getNetworkAppIds,
   // Build app IDs from environment variables (for localnet / custom networks)
   ENV_TO_NETWORK_KEY,
   buildAppIdsFromEnv,
   createEmptyAppIds,
-} from './config'
+} from './config';
 
-export { AuctionSDK, AuctionFactorySDK } from './auction'
-export { AkitaDaoSDK } from './dao'
-export { EscrowSDK, EscrowFactorySDK } from './escrow'
-export { GateSDK } from './gates'
-export { HyperSwapSDK } from './hyper-swap'
-export { MarketplaceSDK, ListingSDK } from './marketplace'
-export { MetaMerklesSDK } from './meta-merkles'
-export { PollSDK, PollFactorySDK } from './poll'
-export { PrizeBoxSDK, PrizeBoxFactorySDK } from './prize-box'
-export { RaffleSDK, RaffleFactorySDK } from './raffle'
-export { RewardsSDK } from './rewards'
-export { SocialSDK } from './social'
-export { StakingSDK } from './staking'
-export { StakingPoolSDK, StakingPoolFactorySDK } from './staking-pool'
-export {
-  SubscriptionsSDK,
-  bytesToHexColor,
-  hexColorToBytes,
-  ServicesKey,
-  type Service,
-  type NewServiceArgs,
-  type SubscribeArgs,
-  type SubscriptionInfoWithDetails,
-  ServiceStatus,
-  HighlightMessage,
-} from './subscriptions'
-export { WalletSDK, WalletFactorySDK } from './wallet'
+export { AuctionSDK, AuctionFactorySDK } from './auction';
+export { AkitaDaoSDK } from './dao';
+export { EscrowSDK, EscrowFactorySDK } from './escrow';
+export { GateSDK } from './gates';
+export { HyperSwapSDK } from './hyper-swap';
+export { MarketplaceSDK, ListingSDK } from './marketplace';
+export { MetaMerklesSDK } from './meta-merkles';
+export { PollSDK, PollFactorySDK } from './poll';
+export { PrizeBoxSDK, PrizeBoxFactorySDK } from './prize-box';
+export { RaffleSDK, RaffleFactorySDK } from './raffle';
+export { RewardsSDK } from './rewards';
+export { SocialSDK } from './social';
+export { StakingSDK } from './staking';
+export { StakingPoolSDK, StakingPoolFactorySDK } from './staking-pool';
+export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type Service, type NewServiceArgs, type SubscribeArgs, type SubscriptionInfoWithDetails, ServiceStatus, HighlightMessage } from './subscriptions';
+export { WalletSDK, WalletFactorySDK } from './wallet';
 
 // Connect protocol types and URI helpers
-export * from './connect'
+export * from './connect';
 
 // Helpers for the arc58 execution-handoff path, where `wallet.build.usePlugin`
 // returns `{ windows }` — pre-populated, pre-grouped `PreparedGroup`s that
 // can be submitted later by a different actor via `sendPrepared(window, algod)`.
-export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare'
+export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';

@@ -33,6 +33,15 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      */
     private getRewardsOptInCost;
     /**
+     * Builds the atomic opt-in plan needed before a listing can be created.
+     *
+     * The listed ASA must be receivable by the marketplace before the `assetXfer`
+     * transaction runs. For ASA-denominated listings, the payment asset also needs
+     * marketplace/escrow preparation so a future purchase can settle cleanly.
+     */
+    private getListingOptInPlan;
+    private isMarketplaceOptedInToAsset;
+    /**
      * Gets the cost to create a new listing.
      * @param isPrizeBox - Whether the prize is a PrizeBox
      * @param isAlgoPayment - Whether the listing will accept ALGO as payment
@@ -58,12 +67,6 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      * configured, this also eagerly opts the escrow + every revenue-split
      * escrow in via the revenue-manager plugin, so downstream list/purchase
      * calls don't have to do the rekey dance mid-group.
-     *
-     * Worst case touches ~10 foreign refs (DAO, wallet, plugin, main escrow,
-     * N split escrows, the asset). Since a single app call only holds 8
-     * foreign-ref slots, we wrap the optIn in a 2-app-call group (optIn +
-     * one opUp) so the resource populator has 16 slots to distribute refs
-     * across.
      */
     optIn({ sender, signer, asset }: OptInParams): Promise<void>;
     /**

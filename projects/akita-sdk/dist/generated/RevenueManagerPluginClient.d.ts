@@ -34,13 +34,22 @@ export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expa
     [K in keyof O]: O[K];
 } : never;
 export type EscrowAssetKey = {
-    escrow: bigint;
+    escrow: string;
     asset: bigint;
 };
 /**
  * Converts the ABI tuple representation of a EscrowAssetKey to the struct representation
  */
-export declare function EscrowAssetKeyFromTuple(abiTuple: [bigint, bigint]): EscrowAssetKey;
+export declare function EscrowAssetKeyFromTuple(abiTuple: [string, bigint]): EscrowAssetKey;
+export type ManagedAssetKey = {
+    wallet: bigint;
+    escrow: string;
+    asset: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a ManagedAssetKey to the struct representation
+ */
+export declare function ManagedAssetKeyFromTuple(abiTuple: [bigint, string, bigint]): ManagedAssetKey;
 export type ReceiveEscrow = {
     source: string;
     allocatable: boolean;
@@ -107,6 +116,16 @@ export type RevenueManagerPluginArgs = {
             optinAllowed: boolean;
             splitRef: SplitRef;
         };
+        'migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            escrow: string;
+            receiveEscrow: ReceiveEscrow;
+            assets: bigint[] | number[];
+            splits: [[bigint | number, string], bigint | number, bigint | number][];
+            splitRef: SplitRef;
+            useSplitRef: boolean;
+        };
         'startEscrowDisbursement(uint64,bool)void': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -134,6 +153,7 @@ export type RevenueManagerPluginArgs = {
         'optIn(uint64,bool,uint64[],pay)void': [wallet: bigint | number, rekeyBack: boolean, assets: bigint[] | number[], mbrPayment: AppMethodCallTransactionArgument];
         'newReceiveEscrow(uint64,bool,string,address,bool,bool,((uint64,string),uint8,uint64)[])void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, source: string, allocatable: boolean, optinAllowed: boolean, splits: [[bigint | number, string], bigint | number, bigint | number][]];
         'newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, source: string, allocatable: boolean, optinAllowed: boolean, splitRef: SplitRef];
+        'migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void': [wallet: bigint | number, rekeyBack: boolean, escrow: string, receiveEscrow: ReceiveEscrow, assets: bigint[] | number[], splits: [[bigint | number, string], bigint | number, bigint | number][], splitRef: SplitRef, useSplitRef: boolean];
         'startEscrowDisbursement(uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean];
         'processEscrowAllocation(uint64,bool,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, ids: bigint[] | number[]];
         'finalizeEscrowDisbursement(uint64,bool,uint64[])void': [wallet: bigint | number, rekeyBack: boolean, ids: bigint[] | number[]];
@@ -149,6 +169,7 @@ export type RevenueManagerPluginReturns = {
     'optIn(uint64,bool,uint64[],pay)void': void;
     'newReceiveEscrow(uint64,bool,string,address,bool,bool,((uint64,string),uint8,uint64)[])void': void;
     'newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void': void;
+    'migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void': void;
     'startEscrowDisbursement(uint64,bool)void': void;
     'processEscrowAllocation(uint64,bool,uint64[])void': void;
     'finalizeEscrowDisbursement(uint64,bool,uint64[])void': void;
@@ -178,6 +199,10 @@ export type RevenueManagerPluginTypes = {
         argsObj: RevenueManagerPluginArgs['obj']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'];
         argsTuple: RevenueManagerPluginArgs['tuple']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'];
         returns: RevenueManagerPluginReturns['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'];
+    }> & Record<'migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void' | 'migrateReceiveEscrow', {
+        argsObj: RevenueManagerPluginArgs['obj']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'];
+        argsTuple: RevenueManagerPluginArgs['tuple']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'];
+        returns: RevenueManagerPluginReturns['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'];
     }> & Record<'startEscrowDisbursement(uint64,bool)void' | 'startEscrowDisbursement', {
         argsObj: RevenueManagerPluginArgs['obj']['startEscrowDisbursement(uint64,bool)void'];
         argsTuple: RevenueManagerPluginArgs['tuple']['startEscrowDisbursement(uint64,bool)void'];
@@ -227,6 +252,10 @@ export type RevenueManagerPluginTypes = {
                  * box map of escrow assets that have already been processed during this allocation
                  */
                 receiveAssets: Map<EscrowAssetKey, Uint8Array>;
+                /**
+                 * permanent identity set for ASAs opted in through this receive escrow
+                 */
+                managedAssets: Map<ManagedAssetKey, Uint8Array>;
                 /**
                  * how to split revenue & where to send it
                  */
@@ -366,6 +395,17 @@ export declare abstract class RevenueManagerPluginParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static newReceiveEscrowWithRef(params: CallParams<RevenueManagerPluginArgs['obj']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'] | RevenueManagerPluginArgs['tuple']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void ABI method
+     *
+    * Imports an idle receive escrow without resetting its historical metadata.
+    Exactly one configuration form must be selected by useSplitRef.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static migrateReceiveEscrow(params: CallParams<RevenueManagerPluginArgs['obj']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'] | RevenueManagerPluginArgs['tuple']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the startEscrowDisbursement(uint64,bool)void ABI method
      *
@@ -873,6 +913,41 @@ export declare class RevenueManagerPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void` ABI method.
+         *
+        * Imports an idle receive escrow without resetting its historical metadata.
+        Exactly one configuration form must be selected by useSplitRef.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        migrateReceiveEscrow: (params: CallParams<RevenueManagerPluginArgs["obj"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"] | RevenueManagerPluginArgs["tuple"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the RevenueManagerPlugin smart contract using the `startEscrowDisbursement(uint64,bool)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1096,6 +1171,23 @@ export declare class RevenueManagerPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void` ABI method.
+         *
+        * Imports an idle receive escrow without resetting its historical metadata.
+        Exactly one configuration form must be selected by useSplitRef.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        migrateReceiveEscrow: (params: CallParams<RevenueManagerPluginArgs["obj"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"] | RevenueManagerPluginArgs["tuple"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the RevenueManagerPlugin smart contract using the `startEscrowDisbursement(uint64,bool)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1235,6 +1327,28 @@ export declare class RevenueManagerPluginClient {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             return: (undefined | RevenueManagerPluginReturns["newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the RevenueManagerPlugin smart contract using the `migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void` ABI method.
+         *
+        * Imports an idle receive escrow without resetting its historical metadata.
+        Exactly one configuration form must be selected by useSplitRef.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        migrateReceiveEscrow: (params: CallParams<RevenueManagerPluginArgs["obj"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"] | RevenueManagerPluginArgs["tuple"]["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | RevenueManagerPluginReturns["migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -1402,6 +1516,19 @@ export declare class RevenueManagerPluginClient {
                 value: (key: EscrowAssetKey) => Promise<Uint8Array | undefined>;
             };
             /**
+             * Get values from the managedAssets map in box state
+             */
+            managedAssets: {
+                /**
+                 * Get all current values of the managedAssets map in box state
+                 */
+                getMap: () => Promise<Map<ManagedAssetKey, Uint8Array>>;
+                /**
+                 * Get a current value of the managedAssets map by key from box state
+                 */
+                value: (key: ManagedAssetKey) => Promise<Uint8Array | undefined>;
+            };
+            /**
              * Get values from the splits map in box state
              */
             splits: {
@@ -1465,6 +1592,17 @@ export type RevenueManagerPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     newReceiveEscrowWithRef(params?: CallParams<RevenueManagerPluginArgs['obj']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'] | RevenueManagerPluginArgs['tuple']['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void']>): RevenueManagerPluginComposer<[...TReturns, RevenueManagerPluginReturns['newReceiveEscrowWithRef(uint64,bool,string,address,bool,bool,(uint64,byte[]))void'] | undefined]>;
+    /**
+     * Calls the migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void ABI method.
+     *
+    * Imports an idle receive escrow without resetting its historical metadata.
+    Exactly one configuration form must be selected by useSplitRef.
+  
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    migrateReceiveEscrow(params?: CallParams<RevenueManagerPluginArgs['obj']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'] | RevenueManagerPluginArgs['tuple']['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void']>): RevenueManagerPluginComposer<[...TReturns, RevenueManagerPluginReturns['migrateReceiveEscrow(uint64,bool,string,(address,bool,bool,uint64,uint8,uint64,uint64,uint64),uint64[],((uint64,string),uint8,uint64)[],(uint64,byte[]),bool)void'] | undefined]>;
     /**
      * Calls the startEscrowDisbursement(uint64,bool)void ABI method.
      *

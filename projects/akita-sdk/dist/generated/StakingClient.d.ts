@@ -33,6 +33,25 @@ export interface BinaryState {
 export type Expand<T> = T extends (...args: infer A) => infer R ? (...args: Expand<A>) => Expand<R> : T extends infer O ? {
     [K in keyof O]: O[K];
 } : never;
+export type AppStake = {
+    amount: bigint;
+    lastUpdate: bigint;
+    weightedAge: bigint;
+    inheritedAge: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a AppStake to the struct representation
+ */
+export declare function AppStakeFromTuple(abiTuple: [bigint, bigint, bigint, bigint]): AppStake;
+export type AppStakeKey = {
+    app: bigint;
+    address: string;
+    asset: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a AppStakeKey to the struct representation
+ */
+export declare function AppStakeKeyFromTuple(abiTuple: [bigint, string, bigint]): AppStakeKey;
 export type Escrow = {
     hard: bigint;
     lock: bigint;
@@ -53,11 +72,12 @@ export type Stake = {
     amount: bigint;
     lastUpdate: bigint;
     expiration: bigint;
+    weightedAge: bigint;
 };
 /**
  * Converts the ABI tuple representation of a Stake to the struct representation
  */
-export declare function StakeFromTuple(abiTuple: [bigint, bigint, bigint]): Stake;
+export declare function StakeFromTuple(abiTuple: [bigint, bigint, bigint, bigint]): Stake;
 export type StakeCheck = {
     valid: boolean;
     balance: bigint;
@@ -86,11 +106,20 @@ export declare function StakeKeyFromTuple(abiTuple: [string, bigint, number]): S
 export type TotalsInfo = {
     locked: bigint;
     escrowed: bigint;
+    liveLockedStake: bigint;
 };
 /**
  * Converts the ABI tuple representation of a TotalsInfo to the struct representation
  */
-export declare function TotalsInfoFromTuple(abiTuple: [bigint, bigint]): TotalsInfo;
+export declare function TotalsInfoFromTuple(abiTuple: [bigint, bigint, bigint]): TotalsInfo;
+export type WeightedStake = {
+    amount: bigint;
+    weightedAge: bigint;
+};
+/**
+ * Converts the ABI tuple representation of a WeightedStake to the struct representation
+ */
+export declare function WeightedStakeFromTuple(abiTuple: [bigint, bigint]): WeightedStake;
 /**
  * The argument types for the Staking contract
  */
@@ -131,11 +160,27 @@ export type StakingArgs = {
             asset: bigint | number;
             type: bigint | number;
         };
+        'checkpointExpiredLock(address,uint64)bool': {
+            address: string;
+            asset: bigint | number;
+        };
         'createHeartbeat(address,uint64)void': {
             address: string;
             asset: bigint | number;
         };
-        'softCheck(address,uint64)(bool,uint64)': {
+        'checkpointSoftStake(address,uint64)(bool,uint64)': {
+            address: string;
+            asset: bigint | number;
+        };
+        'commitAppSoftStake(pay,address,uint64,uint64,bool)void': {
+            payment: AppMethodCallTransactionArgument;
+            address: string;
+            asset: bigint | number;
+            amount: bigint | number;
+            inheritRoot: boolean;
+        };
+        'checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)': {
+            app: bigint | number;
             address: string;
             asset: bigint | number;
         };
@@ -149,6 +194,10 @@ export type StakingArgs = {
             asset: bigint | number;
             type: bigint | number;
         };
+        'appStakeCost(address,uint64)uint64': {
+            address: string;
+            asset: bigint | number;
+        };
         'getTimeLeft(address,uint64)uint64': {
             address: string;
             asset: bigint | number;
@@ -157,15 +206,29 @@ export type StakingArgs = {
             address: string;
             asset: bigint | number;
         };
-        'getInfo(address,(uint64,uint8))(uint64,uint64,uint64)': {
+        'getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': {
             address: string;
             stake: StakeInfo;
         };
-        'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)': {
+        'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': {
             address: string;
             stake: StakeInfo;
         };
-        'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]': {
+        'getWeightedStake(address,uint64)(uint64,uint64)': {
+            address: string;
+            asset: bigint | number;
+        };
+        'softCheck(address,uint64)(bool,uint64)': {
+            address: string;
+            asset: bigint | number;
+        };
+        'getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)': {
+            app: bigint | number;
+            address: string;
+            asset: bigint | number;
+            acceptInherited: boolean;
+        };
+        'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]': {
             address: string;
             stake: StakeInfo;
         };
@@ -191,12 +254,12 @@ export type StakingArgs = {
             asset: bigint | number;
             includeEscrowed: boolean;
         };
-        'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': {
+        'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': {
             address: string;
             type: bigint | number;
             assets: bigint[] | number[];
         };
-        'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': {
+        'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': {
             address: string;
             type: bigint | number;
             assets: bigint[] | number[];
@@ -207,8 +270,14 @@ export type StakingArgs = {
             type: bigint | number;
             includeEscrowed: boolean;
         };
-        'getTotals(uint64[])(uint64,uint64)[]': {
+        'getTotals(uint64[])(uint64,uint64,uint64)[]': {
             assets: bigint[] | number[];
+        };
+        'getSettings(uint64[])(uint64,bool)[]': {
+            assets: bigint[] | number[];
+        };
+        'update(string)void': {
+            newVersion: string;
         };
         'updateAkitaDAO(uint64)void': {
             akitaDao: bigint | number;
@@ -225,25 +294,34 @@ export type StakingArgs = {
         'stake(pay,uint8,uint64,uint64)void': [payment: AppMethodCallTransactionArgument, type: bigint | number, amount: bigint | number, expiration: bigint | number];
         'stakeAsa(pay,axfer,uint8,uint64,uint64)void': [payment: AppMethodCallTransactionArgument, assetXfer: AppMethodCallTransactionArgument, type: bigint | number, amount: bigint | number, expiration: bigint | number];
         'withdraw(uint64,uint8)void': [asset: bigint | number, type: bigint | number];
+        'checkpointExpiredLock(address,uint64)bool': [address: string, asset: bigint | number];
         'createHeartbeat(address,uint64)void': [address: string, asset: bigint | number];
-        'softCheck(address,uint64)(bool,uint64)': [address: string, asset: bigint | number];
+        'checkpointSoftStake(address,uint64)(bool,uint64)': [address: string, asset: bigint | number];
+        'commitAppSoftStake(pay,address,uint64,uint64,bool)void': [payment: AppMethodCallTransactionArgument, address: string, asset: bigint | number, amount: bigint | number, inheritRoot: boolean];
+        'checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)': [app: bigint | number, address: string, asset: bigint | number];
         'updateSettings(pay,uint64,uint64)void': [payment: AppMethodCallTransactionArgument, asset: bigint | number, value: bigint | number];
         'optInCost()uint64': [];
         'stakeCost(uint64,uint8)uint64': [asset: bigint | number, type: bigint | number];
+        'appStakeCost(address,uint64)uint64': [address: string, asset: bigint | number];
         'getTimeLeft(address,uint64)uint64': [address: string, asset: bigint | number];
         'mustGetTimeLeft(address,uint64)uint64': [address: string, asset: bigint | number];
-        'getInfo(address,(uint64,uint8))(uint64,uint64,uint64)': [address: string, stake: StakeInfo];
-        'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)': [address: string, stake: StakeInfo];
-        'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]': [address: string, stake: StakeInfo];
+        'getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': [address: string, stake: StakeInfo];
+        'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': [address: string, stake: StakeInfo];
+        'getWeightedStake(address,uint64)(uint64,uint64)': [address: string, asset: bigint | number];
+        'softCheck(address,uint64)(bool,uint64)': [address: string, asset: bigint | number];
+        'getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)': [app: bigint | number, address: string, asset: bigint | number, acceptInherited: boolean];
+        'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]': [address: string, stake: StakeInfo];
         'getEscrowInfo(address,uint64)(uint64,uint64)': [address: string, asset: bigint | number];
         'getHeartbeat(address,uint64)(uint64,uint64,uint64,uint64)[4]': [address: string, asset: bigint | number];
         'mustGetHeartbeat(address,uint64)(uint64,uint64,uint64,uint64)[4]': [address: string, asset: bigint | number];
         'getHeartbeatAverage(address,uint64,bool)uint64': [address: string, asset: bigint | number, includeEscrowed: boolean];
         'mustGetHeartbeatAverage(address,uint64,bool)uint64': [address: string, asset: bigint | number, includeEscrowed: boolean];
-        'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': [address: string, type: bigint | number, assets: bigint[] | number[]];
-        'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': [address: string, type: bigint | number, assets: bigint[] | number[]];
+        'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': [address: string, type: bigint | number, assets: bigint[] | number[]];
+        'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': [address: string, type: bigint | number, assets: bigint[] | number[]];
         'stakeCheck(address,(uint64,uint64)[],uint8,bool)bool': [address: string, checks: [bigint | number, bigint | number][], type: bigint | number, includeEscrowed: boolean];
-        'getTotals(uint64[])(uint64,uint64)[]': [assets: bigint[] | number[]];
+        'getTotals(uint64[])(uint64,uint64,uint64)[]': [assets: bigint[] | number[]];
+        'getSettings(uint64[])(uint64,bool)[]': [assets: bigint[] | number[]];
+        'update(string)void': [newVersion: string];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
     };
@@ -258,25 +336,34 @@ export type StakingReturns = {
     'stake(pay,uint8,uint64,uint64)void': void;
     'stakeAsa(pay,axfer,uint8,uint64,uint64)void': void;
     'withdraw(uint64,uint8)void': void;
+    'checkpointExpiredLock(address,uint64)bool': boolean;
     'createHeartbeat(address,uint64)void': void;
-    'softCheck(address,uint64)(bool,uint64)': StakeCheck;
+    'checkpointSoftStake(address,uint64)(bool,uint64)': StakeCheck;
+    'commitAppSoftStake(pay,address,uint64,uint64,bool)void': void;
+    'checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)': StakeCheck;
     'updateSettings(pay,uint64,uint64)void': void;
     'optInCost()uint64': bigint;
     'stakeCost(uint64,uint8)uint64': bigint;
+    'appStakeCost(address,uint64)uint64': bigint;
     'getTimeLeft(address,uint64)uint64': bigint;
     'mustGetTimeLeft(address,uint64)uint64': bigint;
-    'getInfo(address,(uint64,uint8))(uint64,uint64,uint64)': Stake;
-    'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)': Stake;
-    'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]': [bigint, bigint, bigint][];
+    'getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': Stake;
+    'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)': Stake;
+    'getWeightedStake(address,uint64)(uint64,uint64)': WeightedStake;
+    'softCheck(address,uint64)(bool,uint64)': StakeCheck;
+    'getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)': WeightedStake;
+    'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]': [bigint, bigint, bigint, bigint][];
     'getEscrowInfo(address,uint64)(uint64,uint64)': Escrow;
     'getHeartbeat(address,uint64)(uint64,uint64,uint64,uint64)[4]': [[bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint]];
     'mustGetHeartbeat(address,uint64)(uint64,uint64,uint64,uint64)[4]': [[bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint]];
     'getHeartbeatAverage(address,uint64,bool)uint64': bigint;
     'mustGetHeartbeatAverage(address,uint64,bool)uint64': bigint;
-    'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': [bigint, bigint, bigint][];
-    'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]': [bigint, bigint, bigint][];
+    'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': [bigint, bigint, bigint, bigint][];
+    'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]': [bigint, bigint, bigint, bigint][];
     'stakeCheck(address,(uint64,uint64)[],uint8,bool)bool': boolean;
-    'getTotals(uint64[])(uint64,uint64)[]': [bigint, bigint][];
+    'getTotals(uint64[])(uint64,uint64,uint64)[]': [bigint, bigint, bigint][];
+    'getSettings(uint64[])(uint64,bool)[]': [bigint, boolean][];
+    'update(string)void': void;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
 };
@@ -311,14 +398,26 @@ export type StakingTypes = {
         argsObj: StakingArgs['obj']['withdraw(uint64,uint8)void'];
         argsTuple: StakingArgs['tuple']['withdraw(uint64,uint8)void'];
         returns: StakingReturns['withdraw(uint64,uint8)void'];
+    }> & Record<'checkpointExpiredLock(address,uint64)bool' | 'checkpointExpiredLock', {
+        argsObj: StakingArgs['obj']['checkpointExpiredLock(address,uint64)bool'];
+        argsTuple: StakingArgs['tuple']['checkpointExpiredLock(address,uint64)bool'];
+        returns: StakingReturns['checkpointExpiredLock(address,uint64)bool'];
     }> & Record<'createHeartbeat(address,uint64)void' | 'createHeartbeat', {
         argsObj: StakingArgs['obj']['createHeartbeat(address,uint64)void'];
         argsTuple: StakingArgs['tuple']['createHeartbeat(address,uint64)void'];
         returns: StakingReturns['createHeartbeat(address,uint64)void'];
-    }> & Record<'softCheck(address,uint64)(bool,uint64)' | 'softCheck', {
-        argsObj: StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'];
-        argsTuple: StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)'];
-        returns: StakingReturns['softCheck(address,uint64)(bool,uint64)'];
+    }> & Record<'checkpointSoftStake(address,uint64)(bool,uint64)' | 'checkpointSoftStake', {
+        argsObj: StakingArgs['obj']['checkpointSoftStake(address,uint64)(bool,uint64)'];
+        argsTuple: StakingArgs['tuple']['checkpointSoftStake(address,uint64)(bool,uint64)'];
+        returns: StakingReturns['checkpointSoftStake(address,uint64)(bool,uint64)'];
+    }> & Record<'commitAppSoftStake(pay,address,uint64,uint64,bool)void' | 'commitAppSoftStake', {
+        argsObj: StakingArgs['obj']['commitAppSoftStake(pay,address,uint64,uint64,bool)void'];
+        argsTuple: StakingArgs['tuple']['commitAppSoftStake(pay,address,uint64,uint64,bool)void'];
+        returns: StakingReturns['commitAppSoftStake(pay,address,uint64,uint64,bool)void'];
+    }> & Record<'checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)' | 'checkpointAppSoftStake', {
+        argsObj: StakingArgs['obj']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'];
+        argsTuple: StakingArgs['tuple']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'];
+        returns: StakingReturns['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'];
     }> & Record<'updateSettings(pay,uint64,uint64)void' | 'updateSettings', {
         argsObj: StakingArgs['obj']['updateSettings(pay,uint64,uint64)void'];
         argsTuple: StakingArgs['tuple']['updateSettings(pay,uint64,uint64)void'];
@@ -331,6 +430,10 @@ export type StakingTypes = {
         argsObj: StakingArgs['obj']['stakeCost(uint64,uint8)uint64'];
         argsTuple: StakingArgs['tuple']['stakeCost(uint64,uint8)uint64'];
         returns: StakingReturns['stakeCost(uint64,uint8)uint64'];
+    }> & Record<'appStakeCost(address,uint64)uint64' | 'appStakeCost', {
+        argsObj: StakingArgs['obj']['appStakeCost(address,uint64)uint64'];
+        argsTuple: StakingArgs['tuple']['appStakeCost(address,uint64)uint64'];
+        returns: StakingReturns['appStakeCost(address,uint64)uint64'];
     }> & Record<'getTimeLeft(address,uint64)uint64' | 'getTimeLeft', {
         argsObj: StakingArgs['obj']['getTimeLeft(address,uint64)uint64'];
         argsTuple: StakingArgs['tuple']['getTimeLeft(address,uint64)uint64'];
@@ -339,18 +442,30 @@ export type StakingTypes = {
         argsObj: StakingArgs['obj']['mustGetTimeLeft(address,uint64)uint64'];
         argsTuple: StakingArgs['tuple']['mustGetTimeLeft(address,uint64)uint64'];
         returns: StakingReturns['mustGetTimeLeft(address,uint64)uint64'];
-    }> & Record<'getInfo(address,(uint64,uint8))(uint64,uint64,uint64)' | 'getInfo', {
-        argsObj: StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-        argsTuple: StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-        returns: StakingReturns['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-    }> & Record<'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)' | 'mustGetInfo', {
-        argsObj: StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-        argsTuple: StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-        returns: StakingReturns['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'];
-    }> & Record<'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]' | 'getInfoAtLeast', {
-        argsObj: StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'];
-        argsTuple: StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'];
-        returns: StakingReturns['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'];
+    }> & Record<'getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)' | 'getInfo', {
+        argsObj: StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+        argsTuple: StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+        returns: StakingReturns['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+    }> & Record<'mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)' | 'mustGetInfo', {
+        argsObj: StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+        argsTuple: StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+        returns: StakingReturns['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'];
+    }> & Record<'getWeightedStake(address,uint64)(uint64,uint64)' | 'getWeightedStake', {
+        argsObj: StakingArgs['obj']['getWeightedStake(address,uint64)(uint64,uint64)'];
+        argsTuple: StakingArgs['tuple']['getWeightedStake(address,uint64)(uint64,uint64)'];
+        returns: StakingReturns['getWeightedStake(address,uint64)(uint64,uint64)'];
+    }> & Record<'softCheck(address,uint64)(bool,uint64)' | 'softCheck', {
+        argsObj: StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'];
+        argsTuple: StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)'];
+        returns: StakingReturns['softCheck(address,uint64)(bool,uint64)'];
+    }> & Record<'getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)' | 'getAppWeightedStake', {
+        argsObj: StakingArgs['obj']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'];
+        argsTuple: StakingArgs['tuple']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'];
+        returns: StakingReturns['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'];
+    }> & Record<'getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]' | 'getInfoAtLeast', {
+        argsObj: StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'];
+        argsTuple: StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'];
+        returns: StakingReturns['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'];
     }> & Record<'getEscrowInfo(address,uint64)(uint64,uint64)' | 'getEscrowInfo', {
         argsObj: StakingArgs['obj']['getEscrowInfo(address,uint64)(uint64,uint64)'];
         argsTuple: StakingArgs['tuple']['getEscrowInfo(address,uint64)(uint64,uint64)'];
@@ -371,22 +486,30 @@ export type StakingTypes = {
         argsObj: StakingArgs['obj']['mustGetHeartbeatAverage(address,uint64,bool)uint64'];
         argsTuple: StakingArgs['tuple']['mustGetHeartbeatAverage(address,uint64,bool)uint64'];
         returns: StakingReturns['mustGetHeartbeatAverage(address,uint64,bool)uint64'];
-    }> & Record<'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]' | 'getInfoList', {
-        argsObj: StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
-        argsTuple: StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
-        returns: StakingReturns['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
-    }> & Record<'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]' | 'mustGetInfoList', {
-        argsObj: StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
-        argsTuple: StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
-        returns: StakingReturns['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'];
+    }> & Record<'getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]' | 'getInfoList', {
+        argsObj: StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
+        argsTuple: StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
+        returns: StakingReturns['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
+    }> & Record<'mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]' | 'mustGetInfoList', {
+        argsObj: StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
+        argsTuple: StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
+        returns: StakingReturns['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'];
     }> & Record<'stakeCheck(address,(uint64,uint64)[],uint8,bool)bool' | 'stakeCheck', {
         argsObj: StakingArgs['obj']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'];
         argsTuple: StakingArgs['tuple']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'];
         returns: StakingReturns['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'];
-    }> & Record<'getTotals(uint64[])(uint64,uint64)[]' | 'getTotals', {
-        argsObj: StakingArgs['obj']['getTotals(uint64[])(uint64,uint64)[]'];
-        argsTuple: StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64)[]'];
-        returns: StakingReturns['getTotals(uint64[])(uint64,uint64)[]'];
+    }> & Record<'getTotals(uint64[])(uint64,uint64,uint64)[]' | 'getTotals', {
+        argsObj: StakingArgs['obj']['getTotals(uint64[])(uint64,uint64,uint64)[]'];
+        argsTuple: StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64,uint64)[]'];
+        returns: StakingReturns['getTotals(uint64[])(uint64,uint64,uint64)[]'];
+    }> & Record<'getSettings(uint64[])(uint64,bool)[]' | 'getSettings', {
+        argsObj: StakingArgs['obj']['getSettings(uint64[])(uint64,bool)[]'];
+        argsTuple: StakingArgs['tuple']['getSettings(uint64[])(uint64,bool)[]'];
+        returns: StakingReturns['getSettings(uint64[])(uint64,bool)[]'];
+    }> & Record<'update(string)void' | 'update', {
+        argsObj: StakingArgs['obj']['update(string)void'];
+        argsTuple: StakingArgs['tuple']['update(string)void'];
+        returns: StakingReturns['update(string)void'];
     }> & Record<'updateAkitaDAO(uint64)void' | 'updateAkitaDAO', {
         argsObj: StakingArgs['obj']['updateAkitaDAO(uint64)void'];
         argsTuple: StakingArgs['tuple']['updateAkitaDAO(uint64)void'];
@@ -421,6 +544,7 @@ export type StakingTypes = {
             keys: {};
             maps: {
                 stakes: Map<StakeKey, Stake>;
+                appStakes: Map<AppStakeKey, AppStake>;
                 heartbeats: Map<HeartbeatKey, [[bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint], [bigint, bigint, bigint, bigint]]>;
                 totals: Map<bigint | number, TotalsInfo>;
                 settings: Map<bigint | number, bigint>;
@@ -472,6 +596,14 @@ export type StakingCreateCallParams = Expand<CallParams<StakingArgs['obj']['crea
     onComplete?: OnApplicationComplete.NoOp;
 } & CreateSchema>;
 /**
+ * Defines supported update method params for this smart contract
+ */
+export type StakingUpdateCallParams = Expand<CallParams<StakingArgs['obj']['update(string)void'] | StakingArgs['tuple']['update(string)void']> & {
+    method: 'update';
+}> | Expand<CallParams<StakingArgs['obj']['update(string)void'] | StakingArgs['tuple']['update(string)void']> & {
+    method: 'update(string)void';
+}>;
+/**
  * Defines arguments required for the deploy method.
  */
 export type StakingDeployParams = Expand<Omit<AppFactoryDeployParams, 'createParams' | 'updateParams' | 'deleteParams'> & {
@@ -479,6 +611,10 @@ export type StakingDeployParams = Expand<Omit<AppFactoryDeployParams, 'createPar
      * Create transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
      */
     createParams?: StakingCreateCallParams;
+    /**
+     * Update transaction parameters to use if a create needs to be issued as part of deployment; use `method` to define ABI call (if available) or leave out for a bare call (if available)
+     */
+    updateParams?: StakingUpdateCallParams;
 }>;
 /**
  * Exposes methods for constructing `AppClient` params objects for ABI calls to the Staking smart contract
@@ -527,6 +663,42 @@ export declare abstract class StakingParamsFactory {
         };
     };
     /**
+     * Gets available update ABI call param factories
+     */
+    static get update(): {
+        _resolveByMethod<TParams extends StakingUpdateCallParams & {
+            method: string;
+        }>(params: TParams): {
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            sender?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            method: string;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | AppMethodCallTransactionArgument | undefined)[] | undefined;
+        } & AppClientCompilationParams;
+        /**
+         * Constructs update ABI call params for the Staking smart contract using the update(string)void ABI method
+         *
+         * @param params Parameters for the call
+         * @returns An `AppClientMethodCallParams` object for the call
+         */
+        update(params: CallParams<StakingArgs["obj"]["update(string)void"] | StakingArgs["tuple"]["update(string)void"]> & AppClientCompilationParams): AppClientMethodCallParams & AppClientCompilationParams;
+    };
+    /**
      * Constructs a no op call for the init()void ABI method
      *
      * @param params Parameters for the call
@@ -564,6 +736,15 @@ export declare abstract class StakingParamsFactory {
      */
     static withdraw(params: CallParams<StakingArgs['obj']['withdraw(uint64,uint8)void'] | StakingArgs['tuple']['withdraw(uint64,uint8)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the checkpointExpiredLock(address,uint64)bool ABI method
+     *
+     * Permissionlessly removes an expired lock from the live governance total.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkpointExpiredLock(params: CallParams<StakingArgs['obj']['checkpointExpiredLock(address,uint64)bool'] | StakingArgs['tuple']['checkpointExpiredLock(address,uint64)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the createHeartbeat(address,uint64)void ABI method
      *
      * @param params Parameters for the call
@@ -571,12 +752,34 @@ export declare abstract class StakingParamsFactory {
      */
     static createHeartbeat(params: CallParams<StakingArgs['obj']['createHeartbeat(address,uint64)void'] | StakingArgs['tuple']['createHeartbeat(address,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the softCheck(address,uint64)(bool,uint64) ABI method
+     * Constructs a no op call for the checkpointSoftStake(address,uint64)(bool,uint64) ABI method
+     *
+     * Permissionlessly records an observed shortfall against the portable root commitment.
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static softCheck(params: CallParams<StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static checkpointSoftStake(params: CallParams<StakingArgs['obj']['checkpointSoftStake(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['checkpointSoftStake(address,uint64)(bool,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the commitAppSoftStake(pay,address,uint64,uint64,bool)void ABI method
+     *
+    * Creates or adds to a soft commitment scoped to one consuming app.
+    New commitments may inherit the portable root's current weighted age.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static commitAppSoftStake(params: CallParams<StakingArgs['obj']['commitAppSoftStake(pay,address,uint64,uint64,bool)void'] | StakingArgs['tuple']['commitAppSoftStake(pay,address,uint64,uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the checkpointAppSoftStake(uint64,address,uint64)(bool,uint64) ABI method
+     *
+     * Records a shortfall for the calling app's commitment.
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static checkpointAppSoftStake(params: CallParams<StakingArgs['obj']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'] | StakingArgs['tuple']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateSettings(pay,uint64,uint64)void ABI method
      *
@@ -599,6 +802,13 @@ export declare abstract class StakingParamsFactory {
      */
     static stakeCost(params: CallParams<StakingArgs['obj']['stakeCost(uint64,uint8)uint64'] | StakingArgs['tuple']['stakeCost(uint64,uint8)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the appStakeCost(address,uint64)uint64 ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static appStakeCost(params: CallParams<StakingArgs['obj']['appStakeCost(address,uint64)uint64'] | StakingArgs['tuple']['appStakeCost(address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the getTimeLeft(address,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
@@ -613,26 +823,47 @@ export declare abstract class StakingParamsFactory {
      */
     static mustGetTimeLeft(params: CallParams<StakingArgs['obj']['mustGetTimeLeft(address,uint64)uint64'] | StakingArgs['tuple']['mustGetTimeLeft(address,uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getInfo(address,(uint64,uint8))(uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getInfo(params: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getInfo(params: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64) ABI method
+     * Constructs a no op call for the mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static mustGetInfo(params: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static mustGetInfo(params: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[] ABI method
+     * Constructs a no op call for the getWeightedStake(address,uint64)(uint64,uint64) ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getInfoAtLeast(params: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getWeightedStake(params: CallParams<StakingArgs['obj']['getWeightedStake(address,uint64)(uint64,uint64)'] | StakingArgs['tuple']['getWeightedStake(address,uint64)(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the softCheck(address,uint64)(bool,uint64) ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static softCheck(params: CallParams<StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64) ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getAppWeightedStake(params: CallParams<StakingArgs['obj']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'] | StakingArgs['tuple']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[] ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getInfoAtLeast(params: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the getEscrowInfo(address,uint64)(uint64,uint64) ABI method
      *
@@ -669,19 +900,19 @@ export declare abstract class StakingParamsFactory {
      */
     static mustGetHeartbeatAverage(params: CallParams<StakingArgs['obj']['mustGetHeartbeatAverage(address,uint64,bool)uint64'] | StakingArgs['tuple']['mustGetHeartbeatAverage(address,uint64,bool)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[] ABI method
+     * Constructs a no op call for the getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[] ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getInfoList(params: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getInfoList(params: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[] ABI method
+     * Constructs a no op call for the mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[] ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static mustGetInfoList(params: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static mustGetInfoList(params: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the stakeCheck(address,(uint64,uint64)[],uint8,bool)bool ABI method
      *
@@ -690,12 +921,19 @@ export declare abstract class StakingParamsFactory {
      */
     static stakeCheck(params: CallParams<StakingArgs['obj']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'] | StakingArgs['tuple']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the getTotals(uint64[])(uint64,uint64)[] ABI method
+     * Constructs a no op call for the getTotals(uint64[])(uint64,uint64,uint64)[] ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
      */
-    static getTotals(params: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    static getTotals(params: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64,uint64)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the getSettings(uint64[])(uint64,bool)[] ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static getSettings(params: CallParams<StakingArgs['obj']['getSettings(uint64[])(uint64,bool)[]'] | StakingArgs['tuple']['getSettings(uint64[])(uint64,bool)[]']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the updateAkitaDAO(uint64)void ABI method
      *
@@ -956,6 +1194,98 @@ export declare class StakingFactory {
                 onComplete: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.UpdateApplication | OnApplicationComplete.DeleteApplication;
             }>;
         };
+        /**
+         * Gets available deployUpdate methods
+         */
+        deployUpdate: {
+            /**
+             * Updates an existing instance of the Staking smart contract using the update(string)void ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The deployUpdate params
+             */
+            update: (params: CallParams<StakingArgs["obj"]["update(string)void"] | StakingArgs["tuple"]["update(string)void"]> & AppClientCompilationParams) => {
+                signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                note?: (Uint8Array | string) | undefined;
+                lease?: (Uint8Array | string) | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                onComplete?: OnApplicationComplete | undefined;
+                accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                rejectVersion?: number | undefined;
+                sender?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                method: string;
+                args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | AppMethodCallTransactionArgument | undefined)[] | undefined;
+            } & {
+                sender: Address;
+                signer: import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner | TransactionSigner | undefined;
+                method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+                args: (Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.UpdateApplication | OnApplicationComplete.DeleteApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    appId?: 0 | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+                onComplete: OnApplicationComplete.UpdateApplication;
+            };
+        };
     };
     /**
      * Create transactions for the current app
@@ -1065,6 +1395,108 @@ export declare class StakingClient {
      */
     readonly params: {
         /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the Staking smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update params
+             */
+            update: (params: CallParams<StakingArgs["obj"]["update(string)void"] | StakingArgs["tuple"]["update(string)void"]> & AppClientCompilationParams & {
+                onComplete?: OnApplicationComplete.UpdateApplication;
+            }) => Promise<{
+                approvalProgram: Uint8Array;
+                clearStateProgram: Uint8Array;
+                compiledApproval?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
+                compiledClear?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
+                signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                note?: (Uint8Array | string) | undefined;
+                lease?: (Uint8Array | string) | undefined;
+                staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                validityWindow?: number | bigint | undefined;
+                firstValidRound?: bigint | undefined;
+                lastValidRound?: bigint | undefined;
+                onComplete?: OnApplicationComplete | undefined;
+                accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                appReferences?: bigint[] | undefined;
+                assetReferences?: bigint[] | undefined;
+                boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[];
+                accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                rejectVersion?: number | undefined;
+                sender?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                method: string;
+                args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | AppMethodCallTransactionArgument | undefined)[];
+                deployTimeParams?: import("@algorandfoundation/algokit-utils").TealTemplateParams;
+                updatable?: boolean;
+                deletable?: boolean;
+            } & {
+                appId: bigint;
+                sender: Address;
+                signer: import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner | TransactionSigner | undefined;
+                method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+                onComplete: OnApplicationComplete.UpdateApplication;
+                args: (Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.UpdateApplication | OnApplicationComplete.DeleteApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    appId?: 0 | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                    schema?: {
+                        globalInts: number;
+                        globalByteSlices: number;
+                        localInts: number;
+                        localByteSlices: number;
+                    } | undefined;
+                    extraProgramPages?: number | undefined;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<{
+                    sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+                    signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+                    rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+                    note?: (Uint8Array | string) | undefined;
+                    lease?: (Uint8Array | string) | undefined;
+                    staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+                    validityWindow?: number | bigint | undefined;
+                    firstValidRound?: bigint | undefined;
+                    lastValidRound?: bigint | undefined;
+                    appId: bigint;
+                    onComplete?: OnApplicationComplete.UpdateApplication | undefined;
+                    args?: Uint8Array[] | undefined;
+                    accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+                    appReferences?: bigint[] | undefined;
+                    assetReferences?: bigint[] | undefined;
+                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+                    rejectVersion?: number | undefined;
+                    approvalProgram: string | Uint8Array;
+                    clearStateProgram: string | Uint8Array;
+                }> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+            }>;
+        };
+        /**
          * Makes a clear_state call to an existing instance of the Staking smart contract.
          *
          * @param params The params for the bare (raw) call
@@ -1229,6 +1661,39 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `checkpointExpiredLock(address,uint64)bool` ABI method.
+         *
+         * Permissionlessly removes an expired lock from the live governance total.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkpointExpiredLock: (params: CallParams<StakingArgs["obj"]["checkpointExpiredLock(address,uint64)bool"] | StakingArgs["tuple"]["checkpointExpiredLock(address,uint64)bool"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `createHeartbeat(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -1260,12 +1725,82 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `checkpointSoftStake(address,uint64)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records an observed shortfall against the portable root commitment.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & {
+        checkpointSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointSoftStake(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointSoftStake(address,uint64)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `commitAppSoftStake(pay,address,uint64,uint64,bool)void` ABI method.
+         *
+        * Creates or adds to a soft commitment scoped to one consuming app.
+        New commitments may inherit the portable root's current weighted age.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        commitAppSoftStake: (params: CallParams<StakingArgs["obj"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"] | StakingArgs["tuple"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)` ABI method.
+         *
+         * Records a shortfall for the calling app's commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1388,6 +1923,39 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `appStakeCost(address,uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        appStakeCost: (params: CallParams<StakingArgs["obj"]["appStakeCost(address,uint64)uint64"] | StakingArgs["tuple"]["appStakeCost(address,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `getTimeLeft(address,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1454,14 +2022,14 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & {
+        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1487,14 +2055,14 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & {
+        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1520,14 +2088,113 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getWeightedStake(address,uint64)(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"]> & {
+        getWeightedStake: (params: CallParams<StakingArgs["obj"]["getWeightedStake(address,uint64)(uint64,uint64)"] | StakingArgs["tuple"]["getWeightedStake(address,uint64)(uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getAppWeightedStake: (params: CallParams<StakingArgs["obj"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"] | StakingArgs["tuple"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1718,14 +2385,14 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & {
+        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1751,14 +2418,14 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & {
+        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1817,14 +2484,47 @@ export declare class StakingClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call params
          */
-        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64)[]"]> & {
+        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getSettings(uint64[])(uint64,bool)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        getSettings: (params: CallParams<StakingArgs["obj"]["getSettings(uint64[])(uint64,bool)[]"] | StakingArgs["tuple"]["getSettings(uint64[])(uint64,bool)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
@@ -1917,6 +2617,24 @@ export declare class StakingClient {
      */
     readonly createTransaction: {
         /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the Staking smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update transaction
+             */
+            update: (params: CallParams<StakingArgs["obj"]["update(string)void"] | StakingArgs["tuple"]["update(string)void"]> & AppClientCompilationParams & {
+                onComplete?: OnApplicationComplete.UpdateApplication;
+            }) => Promise<{
+                transactions: Transaction[];
+                methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+                signers: Map<number, TransactionSigner>;
+            }>;
+        };
+        /**
          * Makes a clear_state call to an existing instance of the Staking smart contract.
          *
          * @param params The params for the bare (raw) call
@@ -1991,6 +2709,21 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `checkpointExpiredLock(address,uint64)bool` ABI method.
+         *
+         * Permissionlessly removes an expired lock from the live governance total.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkpointExpiredLock: (params: CallParams<StakingArgs["obj"]["checkpointExpiredLock(address,uint64)bool"] | StakingArgs["tuple"]["checkpointExpiredLock(address,uint64)bool"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `createHeartbeat(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -2004,12 +2737,46 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `checkpointSoftStake(address,uint64)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records an observed shortfall against the portable root commitment.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & {
+        checkpointSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointSoftStake(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointSoftStake(address,uint64)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `commitAppSoftStake(pay,address,uint64,uint64,bool)void` ABI method.
+         *
+        * Creates or adds to a soft commitment scoped to one consuming app.
+        New commitments may inherit the portable root's current weighted age.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        commitAppSoftStake: (params: CallParams<StakingArgs["obj"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"] | StakingArgs["tuple"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)` ABI method.
+         *
+         * Records a shortfall for the calling app's commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2060,6 +2827,21 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `appStakeCost(address,uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        appStakeCost: (params: CallParams<StakingArgs["obj"]["appStakeCost(address,uint64)uint64"] | StakingArgs["tuple"]["appStakeCost(address,uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `getTimeLeft(address,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2090,14 +2872,14 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & {
+        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2105,14 +2887,14 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & {
+        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2120,14 +2902,59 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getWeightedStake(address,uint64)(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"]> & {
+        getWeightedStake: (params: CallParams<StakingArgs["obj"]["getWeightedStake(address,uint64)(uint64,uint64)"] | StakingArgs["tuple"]["getWeightedStake(address,uint64)(uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getAppWeightedStake: (params: CallParams<StakingArgs["obj"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"] | StakingArgs["tuple"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2210,14 +3037,14 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & {
+        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2225,14 +3052,14 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & {
+        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2255,14 +3082,29 @@ export declare class StakingClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
          */
-        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64)[]"]> & {
+        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64,uint64)[]"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getSettings(uint64[])(uint64,bool)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        getSettings: (params: CallParams<StakingArgs["obj"]["getSettings(uint64[])(uint64,bool)[]"] | StakingArgs["tuple"]["getSettings(uint64[])(uint64,bool)[]"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -2300,6 +3142,31 @@ export declare class StakingClient {
      * Send calls to the current app
      */
     readonly send: {
+        /**
+         * Gets available update methods
+         */
+        update: {
+            /**
+             * Updates an existing instance of the Staking smart contract using the `update(string)void` ABI method.
+             *
+             * @param params The params for the smart contract call
+             * @returns The update result
+             */
+            update: (params: CallParams<StakingArgs["obj"]["update(string)void"] | StakingArgs["tuple"]["update(string)void"]> & AppClientCompilationParams & SendParams & {
+                onComplete?: OnApplicationComplete.UpdateApplication;
+            }) => Promise<{
+                return: (undefined | StakingReturns["update(string)void"]);
+                compiledApproval?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
+                compiledClear?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
+                confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+                transactions: Transaction[];
+                groupId: string | undefined;
+                txIds: string[];
+                returns?: ABIReturn[] | undefined;
+                confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+                transaction: Transaction;
+            }>;
+        };
         /**
          * Makes a clear_state call to an existing instance of the Staking smart contract.
          *
@@ -2400,6 +3267,26 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `checkpointExpiredLock(address,uint64)bool` ABI method.
+         *
+         * Permissionlessly removes an expired lock from the live governance total.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkpointExpiredLock: (params: CallParams<StakingArgs["obj"]["checkpointExpiredLock(address,uint64)bool"] | StakingArgs["tuple"]["checkpointExpiredLock(address,uint64)bool"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["checkpointExpiredLock(address,uint64)bool"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `createHeartbeat(address,uint64)void` ABI method.
          *
          * @param params The params for the smart contract call
@@ -2418,15 +3305,59 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `checkpointSoftStake(address,uint64)(bool,uint64)` ABI method.
+         *
+         * Permissionlessly records an observed shortfall against the portable root commitment.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & SendParams & {
+        checkpointSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointSoftStake(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointSoftStake(address,uint64)(bool,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["softCheck(address,uint64)(bool,uint64)"]);
+            return: (undefined | StakingReturns["checkpointSoftStake(address,uint64)(bool,uint64)"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `commitAppSoftStake(pay,address,uint64,uint64,bool)void` ABI method.
+         *
+        * Creates or adds to a soft commitment scoped to one consuming app.
+        New commitments may inherit the portable root's current weighted age.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        commitAppSoftStake: (params: CallParams<StakingArgs["obj"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"] | StakingArgs["tuple"]["commitAppSoftStake(pay,address,uint64,uint64,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["commitAppSoftStake(pay,address,uint64,uint64,bool)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)` ABI method.
+         *
+         * Records a shortfall for the calling app's commitment.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        checkpointAppSoftStake: (params: CallParams<StakingArgs["obj"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2494,6 +3425,26 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the Staking smart contract using the `appStakeCost(address,uint64)uint64` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        appStakeCost: (params: CallParams<StakingArgs["obj"]["appStakeCost(address,uint64)uint64"] | StakingArgs["tuple"]["appStakeCost(address,uint64)uint64"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["appStakeCost(address,uint64)uint64"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the Staking smart contract using the `getTimeLeft(address,uint64)uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2534,17 +3485,17 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & SendParams & {
+        getInfo: (params: CallParams<StakingArgs["obj"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["getInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]);
+            return: (undefined | StakingReturns["getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2554,17 +3505,17 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]> & SendParams & {
+        mustGetInfo: (params: CallParams<StakingArgs["obj"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"] | StakingArgs["tuple"]["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)"]);
+            return: (undefined | StakingReturns["mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2574,17 +3525,77 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getWeightedStake(address,uint64)(uint64,uint64)` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"]> & SendParams & {
+        getWeightedStake: (params: CallParams<StakingArgs["obj"]["getWeightedStake(address,uint64)(uint64,uint64)"] | StakingArgs["tuple"]["getWeightedStake(address,uint64)(uint64,uint64)"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]"]);
+            return: (undefined | StakingReturns["getWeightedStake(address,uint64)(uint64,uint64)"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        softCheck: (params: CallParams<StakingArgs["obj"]["softCheck(address,uint64)(bool,uint64)"] | StakingArgs["tuple"]["softCheck(address,uint64)(bool,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["softCheck(address,uint64)(bool,uint64)"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getAppWeightedStake: (params: CallParams<StakingArgs["obj"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"] | StakingArgs["tuple"]["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getInfoAtLeast: (params: CallParams<StakingArgs["obj"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2694,17 +3705,17 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & SendParams & {
+        getInfoList: (params: CallParams<StakingArgs["obj"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]);
+            return: (undefined | StakingReturns["getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2714,17 +3725,17 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]> & SendParams & {
+        mustGetInfoList: (params: CallParams<StakingArgs["obj"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]"]);
+            return: (undefined | StakingReturns["mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2754,17 +3765,37 @@ export declare class StakingClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64)[]` ABI method.
+         * Makes a call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64,uint64)[]` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
          *
          * @param params The params for the smart contract call
          * @returns The call result
          */
-        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64)[]"]> & SendParams & {
+        getTotals: (params: CallParams<StakingArgs["obj"]["getTotals(uint64[])(uint64,uint64,uint64)[]"] | StakingArgs["tuple"]["getTotals(uint64[])(uint64,uint64,uint64)[]"]> & SendParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
-            return: (undefined | StakingReturns["getTotals(uint64[])(uint64,uint64)[]"]);
+            return: (undefined | StakingReturns["getTotals(uint64[])(uint64,uint64,uint64)[]"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the Staking smart contract using the `getSettings(uint64[])(uint64,bool)[]` ABI method.
+         *
+         * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        getSettings: (params: CallParams<StakingArgs["obj"]["getSettings(uint64[])(uint64,bool)[]"] | StakingArgs["tuple"]["getSettings(uint64[])(uint64,bool)[]"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | StakingReturns["getSettings(uint64[])(uint64,bool)[]"]);
             groupId: string | undefined;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2836,6 +3867,15 @@ export declare class StakingClient {
      */
     stakeCost(params: CallParams<StakingArgs['obj']['stakeCost(uint64,uint8)uint64'] | StakingArgs['tuple']['stakeCost(uint64,uint8)uint64']>): Promise<bigint>;
     /**
+     * Makes a readonly (simulated) call to the Staking smart contract using the `appStakeCost(address,uint64)uint64` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    appStakeCost(params: CallParams<StakingArgs['obj']['appStakeCost(address,uint64)uint64'] | StakingArgs['tuple']['appStakeCost(address,uint64)uint64']>): Promise<bigint>;
+    /**
      * Makes a readonly (simulated) call to the Staking smart contract using the `getTimeLeft(address,uint64)uint64` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -2854,32 +3894,59 @@ export declare class StakingClient {
      */
     mustGetTimeLeft(params: CallParams<StakingArgs['obj']['mustGetTimeLeft(address,uint64)uint64'] | StakingArgs['tuple']['mustGetTimeLeft(address,uint64)uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getInfo(params: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)']>): Promise<Stake>;
+    getInfo(params: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']>): Promise<Stake>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    mustGetInfo(params: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)']>): Promise<Stake>;
+    mustGetInfo(params: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']>): Promise<Stake>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getWeightedStake(address,uint64)(uint64,uint64)` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getInfoAtLeast(params: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint][]>;
+    getWeightedStake(params: CallParams<StakingArgs['obj']['getWeightedStake(address,uint64)(uint64,uint64)'] | StakingArgs['tuple']['getWeightedStake(address,uint64)(uint64,uint64)']>): Promise<WeightedStake>;
+    /**
+     * Makes a readonly (simulated) call to the Staking smart contract using the `softCheck(address,uint64)(bool,uint64)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    softCheck(params: CallParams<StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)']>): Promise<StakeCheck>;
+    /**
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getAppWeightedStake(params: CallParams<StakingArgs['obj']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'] | StakingArgs['tuple']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)']>): Promise<WeightedStake>;
+    /**
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getInfoAtLeast(params: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint, bigint][]>;
     /**
      * Makes a readonly (simulated) call to the Staking smart contract using the `getEscrowInfo(address,uint64)(uint64,uint64)` ABI method.
      *
@@ -2926,23 +3993,23 @@ export declare class StakingClient {
      */
     mustGetHeartbeatAverage(params: CallParams<StakingArgs['obj']['mustGetHeartbeatAverage(address,uint64,bool)uint64'] | StakingArgs['tuple']['mustGetHeartbeatAverage(address,uint64,bool)uint64']>): Promise<bigint>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getInfoList(params: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint][]>;
+    getInfoList(params: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint, bigint][]>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    mustGetInfoList(params: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint][]>;
+    mustGetInfoList(params: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint, bigint][]>;
     /**
      * Makes a readonly (simulated) call to the Staking smart contract using the `stakeCheck(address,(uint64,uint64)[],uint8,bool)bool` ABI method.
      *
@@ -2953,14 +4020,23 @@ export declare class StakingClient {
      */
     stakeCheck(params: CallParams<StakingArgs['obj']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'] | StakingArgs['tuple']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool']>): Promise<boolean>;
     /**
-     * Makes a readonly (simulated) call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64)[]` ABI method.
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getTotals(uint64[])(uint64,uint64,uint64)[]` ABI method.
      *
      * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
      *
      * @param params The params for the smart contract call
      * @returns The call result
      */
-    getTotals(params: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64)[]']>): Promise<[bigint, bigint][]>;
+    getTotals(params: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64,uint64)[]']>): Promise<[bigint, bigint, bigint][]>;
+    /**
+     * Makes a readonly (simulated) call to the Staking smart contract using the `getSettings(uint64[])(uint64,bool)[]` ABI method.
+     *
+     * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
+     *
+     * @param params The params for the smart contract call
+     * @returns The call result
+     */
+    getSettings(params: CallParams<StakingArgs['obj']['getSettings(uint64[])(uint64,bool)[]'] | StakingArgs['tuple']['getSettings(uint64[])(uint64,bool)[]']>): Promise<[bigint, boolean][]>;
     /**
      * Methods to access state for the current Staking app
      */
@@ -3006,6 +4082,19 @@ export declare class StakingClient {
                  * Get a current value of the stakes map by key from box state
                  */
                 value: (key: StakeKey) => Promise<Stake | undefined>;
+            };
+            /**
+             * Get values from the appStakes map in box state
+             */
+            appStakes: {
+                /**
+                 * Get all current values of the appStakes map in box state
+                 */
+                getMap: () => Promise<Map<AppStakeKey, AppStake>>;
+                /**
+                 * Get a current value of the appStakes map by key from box state
+                 */
+                value: (key: AppStakeKey) => Promise<AppStake | undefined>;
             };
             /**
              * Get values from the heartbeats map in box state
@@ -3089,6 +4178,15 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     withdraw(params?: CallParams<StakingArgs['obj']['withdraw(uint64,uint8)void'] | StakingArgs['tuple']['withdraw(uint64,uint8)void']>): StakingComposer<[...TReturns, StakingReturns['withdraw(uint64,uint8)void'] | undefined]>;
     /**
+     * Calls the checkpointExpiredLock(address,uint64)bool ABI method.
+     *
+     * Permissionlessly removes an expired lock from the live governance total.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkpointExpiredLock(params?: CallParams<StakingArgs['obj']['checkpointExpiredLock(address,uint64)bool'] | StakingArgs['tuple']['checkpointExpiredLock(address,uint64)bool']>): StakingComposer<[...TReturns, StakingReturns['checkpointExpiredLock(address,uint64)bool'] | undefined]>;
+    /**
      * Calls the createHeartbeat(address,uint64)void ABI method.
      *
      * @param params Any additional parameters for the call
@@ -3096,12 +4194,34 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     createHeartbeat(params?: CallParams<StakingArgs['obj']['createHeartbeat(address,uint64)void'] | StakingArgs['tuple']['createHeartbeat(address,uint64)void']>): StakingComposer<[...TReturns, StakingReturns['createHeartbeat(address,uint64)void'] | undefined]>;
     /**
-     * Calls the softCheck(address,uint64)(bool,uint64) ABI method.
+     * Calls the checkpointSoftStake(address,uint64)(bool,uint64) ABI method.
+     *
+     * Permissionlessly records an observed shortfall against the portable root commitment.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    softCheck(params?: CallParams<StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)']>): StakingComposer<[...TReturns, StakingReturns['softCheck(address,uint64)(bool,uint64)'] | undefined]>;
+    checkpointSoftStake(params?: CallParams<StakingArgs['obj']['checkpointSoftStake(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['checkpointSoftStake(address,uint64)(bool,uint64)']>): StakingComposer<[...TReturns, StakingReturns['checkpointSoftStake(address,uint64)(bool,uint64)'] | undefined]>;
+    /**
+     * Calls the commitAppSoftStake(pay,address,uint64,uint64,bool)void ABI method.
+     *
+    * Creates or adds to a soft commitment scoped to one consuming app.
+    New commitments may inherit the portable root's current weighted age.
+  
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    commitAppSoftStake(params?: CallParams<StakingArgs['obj']['commitAppSoftStake(pay,address,uint64,uint64,bool)void'] | StakingArgs['tuple']['commitAppSoftStake(pay,address,uint64,uint64,bool)void']>): StakingComposer<[...TReturns, StakingReturns['commitAppSoftStake(pay,address,uint64,uint64,bool)void'] | undefined]>;
+    /**
+     * Calls the checkpointAppSoftStake(uint64,address,uint64)(bool,uint64) ABI method.
+     *
+     * Records a shortfall for the calling app's commitment.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    checkpointAppSoftStake(params?: CallParams<StakingArgs['obj']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'] | StakingArgs['tuple']['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)']>): StakingComposer<[...TReturns, StakingReturns['checkpointAppSoftStake(uint64,address,uint64)(bool,uint64)'] | undefined]>;
     /**
      * Calls the updateSettings(pay,uint64,uint64)void ABI method.
      *
@@ -3124,6 +4244,13 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     stakeCost(params?: CallParams<StakingArgs['obj']['stakeCost(uint64,uint8)uint64'] | StakingArgs['tuple']['stakeCost(uint64,uint8)uint64']>): StakingComposer<[...TReturns, StakingReturns['stakeCost(uint64,uint8)uint64'] | undefined]>;
     /**
+     * Calls the appStakeCost(address,uint64)uint64 ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    appStakeCost(params?: CallParams<StakingArgs['obj']['appStakeCost(address,uint64)uint64'] | StakingArgs['tuple']['appStakeCost(address,uint64)uint64']>): StakingComposer<[...TReturns, StakingReturns['appStakeCost(address,uint64)uint64'] | undefined]>;
+    /**
      * Calls the getTimeLeft(address,uint64)uint64 ABI method.
      *
      * @param params Any additional parameters for the call
@@ -3138,26 +4265,47 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     mustGetTimeLeft(params?: CallParams<StakingArgs['obj']['mustGetTimeLeft(address,uint64)uint64'] | StakingArgs['tuple']['mustGetTimeLeft(address,uint64)uint64']>): StakingComposer<[...TReturns, StakingReturns['mustGetTimeLeft(address,uint64)uint64'] | undefined]>;
     /**
-     * Calls the getInfo(address,(uint64,uint8))(uint64,uint64,uint64) ABI method.
+     * Calls the getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64) ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getInfo(params?: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['getInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | undefined]>;
+    getInfo(params?: CallParams<StakingArgs['obj']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64) ABI method.
+     * Calls the mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64) ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    mustGetInfo(params?: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64)'] | undefined]>;
+    mustGetInfo(params?: CallParams<StakingArgs['obj']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | StakingArgs['tuple']['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['mustGetInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)'] | undefined]>;
     /**
-     * Calls the getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[] ABI method.
+     * Calls the getWeightedStake(address,uint64)(uint64,uint64) ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getInfoAtLeast(params?: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64)[]'] | undefined]>;
+    getWeightedStake(params?: CallParams<StakingArgs['obj']['getWeightedStake(address,uint64)(uint64,uint64)'] | StakingArgs['tuple']['getWeightedStake(address,uint64)(uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['getWeightedStake(address,uint64)(uint64,uint64)'] | undefined]>;
+    /**
+     * Calls the softCheck(address,uint64)(bool,uint64) ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    softCheck(params?: CallParams<StakingArgs['obj']['softCheck(address,uint64)(bool,uint64)'] | StakingArgs['tuple']['softCheck(address,uint64)(bool,uint64)']>): StakingComposer<[...TReturns, StakingReturns['softCheck(address,uint64)(bool,uint64)'] | undefined]>;
+    /**
+     * Calls the getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64) ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getAppWeightedStake(params?: CallParams<StakingArgs['obj']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'] | StakingArgs['tuple']['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)']>): StakingComposer<[...TReturns, StakingReturns['getAppWeightedStake(uint64,address,uint64,bool)(uint64,uint64)'] | undefined]>;
+    /**
+     * Calls the getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[] ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getInfoAtLeast(params?: CallParams<StakingArgs['obj']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getInfoAtLeast(address,(uint64,uint8))(uint64,uint64,uint64,uint64)[]'] | undefined]>;
     /**
      * Calls the getEscrowInfo(address,uint64)(uint64,uint64) ABI method.
      *
@@ -3194,19 +4342,19 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     mustGetHeartbeatAverage(params?: CallParams<StakingArgs['obj']['mustGetHeartbeatAverage(address,uint64,bool)uint64'] | StakingArgs['tuple']['mustGetHeartbeatAverage(address,uint64,bool)uint64']>): StakingComposer<[...TReturns, StakingReturns['mustGetHeartbeatAverage(address,uint64,bool)uint64'] | undefined]>;
     /**
-     * Calls the getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[] ABI method.
+     * Calls the getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[] ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getInfoList(params?: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | undefined]>;
+    getInfoList(params?: CallParams<StakingArgs['obj']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | undefined]>;
     /**
-     * Calls the mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[] ABI method.
+     * Calls the mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[] ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    mustGetInfoList(params?: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64)[]'] | undefined]>;
+    mustGetInfoList(params?: CallParams<StakingArgs['obj']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | StakingArgs['tuple']['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['mustGetInfoList(address,uint8,uint64[])(uint64,uint64,uint64,uint64)[]'] | undefined]>;
     /**
      * Calls the stakeCheck(address,(uint64,uint64)[],uint8,bool)bool ABI method.
      *
@@ -3215,12 +4363,19 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      */
     stakeCheck(params?: CallParams<StakingArgs['obj']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'] | StakingArgs['tuple']['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool']>): StakingComposer<[...TReturns, StakingReturns['stakeCheck(address,(uint64,uint64)[],uint8,bool)bool'] | undefined]>;
     /**
-     * Calls the getTotals(uint64[])(uint64,uint64)[] ABI method.
+     * Calls the getTotals(uint64[])(uint64,uint64,uint64)[] ABI method.
      *
      * @param params Any additional parameters for the call
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
-    getTotals(params?: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getTotals(uint64[])(uint64,uint64)[]'] | undefined]>;
+    getTotals(params?: CallParams<StakingArgs['obj']['getTotals(uint64[])(uint64,uint64,uint64)[]'] | StakingArgs['tuple']['getTotals(uint64[])(uint64,uint64,uint64)[]']>): StakingComposer<[...TReturns, StakingReturns['getTotals(uint64[])(uint64,uint64,uint64)[]'] | undefined]>;
+    /**
+     * Calls the getSettings(uint64[])(uint64,bool)[] ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    getSettings(params?: CallParams<StakingArgs['obj']['getSettings(uint64[])(uint64,bool)[]'] | StakingArgs['tuple']['getSettings(uint64[])(uint64,bool)[]']>): StakingComposer<[...TReturns, StakingReturns['getSettings(uint64[])(uint64,bool)[]'] | undefined]>;
     /**
      * Calls the updateAkitaDAO(uint64)void ABI method.
      *
@@ -3235,6 +4390,18 @@ export type StakingComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     opUp(params?: CallParams<StakingArgs['obj']['opUp()void'] | StakingArgs['tuple']['opUp()void']>): StakingComposer<[...TReturns, StakingReturns['opUp()void'] | undefined]>;
+    /**
+     * Gets available update methods
+     */
+    readonly update: {
+        /**
+         * Updates an existing instance of the Staking smart contract using the update(string)void ABI method.
+         *
+         * @param params Any additional parameters for the call
+         * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+         */
+        update(params?: CallParams<StakingArgs['obj']['update(string)void'] | StakingArgs['tuple']['update(string)void']>): StakingComposer<[...TReturns, StakingReturns['update(string)void'] | undefined]>;
+    };
     /**
      * Makes a clear_state call to an existing instance of the Staking smart contract.
      *

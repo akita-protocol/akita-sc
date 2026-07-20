@@ -2,11 +2,11 @@ import { algo, microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { sendPrepared } from 'akita-sdk';
-import { AkitaDaoSDK, ProposalActionEnum } from 'akita-sdk/dao';
+import { AkitaDaoSDK, ProposalActionEnum, SplitDistributionType } from 'akita-sdk/dao';
 import { StakingPoolFactorySDK } from 'akita-sdk/staking-pool';
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 import { RevenueManagerPluginSDK, UpdateAkitaDAOPluginSDK, WalletFactorySDK, CallerType } from 'akita-sdk/wallet';
-import type { TransactionSigner } from 'algosdk';
+import { ALGORAND_ZERO_ADDRESS_STRING, type TransactionSigner } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../../../tests/fixtures/abstracted-account';
 import { AkitaDAOGlobalStateKeysRevenueSplits, deployAkitaDAO, deployAkitaDAOProposalValidator } from '../../../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../../../tests/fixtures/escrow';
@@ -15,6 +15,7 @@ import { deployUpdateAkitaDaoPlugin } from '../../../../../tests/fixtures/plugin
 import { deployStakingPoolFactory } from '../../../../../tests/fixtures/staking-pool';
 import { deploySubscriptions } from '../../../../../tests/fixtures/subscriptions';
 import { logger } from '../../../../../tests/utils/logger';
+import { AbstractedAccountMbrFactory } from '../../../../artifacts/arc58/account/AbstractedAccountMBRClient';
 import { EscrowFactoryClient } from '../../../../artifacts/escrow/EscrowFactoryClient';
 import {
   DEFAULT_CREATION,
@@ -48,6 +49,7 @@ describe('ARC58 DAO Setup', () => {
   // Phase 3: Plugins
   let revenueManagerPlugin: RevenueManagerPluginSDK;
   let updatePlugin: UpdateAkitaDAOPluginSDK;
+  let previousWalletMbrAppId: string | undefined;
 
   beforeAll(async () => {
     // Silence fixture logs for this test - we verify via assertions, not build logs
@@ -55,9 +57,24 @@ describe('ARC58 DAO Setup', () => {
     const context = await bootstrapDaoTestContext({ fixture, configure: true, fundAmount: 500 });
     sender = context.sender;
     signer = context.signer;
+
+    const dispenser = await fixture.algorand.account.dispenserFromEnvironment();
+    await fixture.algorand.account.ensureFunded(sender, dispenser.addr, algo(2_000));
+
+    // This suite must not depend on another test having populated a LocalNet
+    // helper app ID in process.env.
+    previousWalletMbrAppId = process.env.WALLET_MBR_APP_ID;
+    const walletMbrFactory = fixture.algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+      defaultSender: sender,
+      defaultSigner: signer,
+    });
+    const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare();
+    process.env.WALLET_MBR_APP_ID = walletMbrClient.appId.toString();
   });
 
   afterAll(() => {
+    if (previousWalletMbrAppId === undefined) delete process.env.WALLET_MBR_APP_ID;
+    else process.env.WALLET_MBR_APP_ID = previousWalletMbrAppId;
     logger.setMode('full');
   });
 
@@ -182,6 +199,24 @@ describe('ARC58 DAO Setup', () => {
       expect(dao.wallet.client.appId).toBeGreaterThan(0n);
       expect(dao.wallet.client.appAddress).toBeDefined();
     });
+
+    test('should configure the referenced DAO revenue splits', async () => {
+      const proposalId = await proposeAndExecute(dao, [
+        {
+          type: ProposalActionEnum.UpdateFields,
+          field: 'revenue_splits',
+          value: [
+            {
+              receiver: { wallet: dao.wallet.appId, escrow: '' },
+              type: SplitDistributionType.Percentage,
+              value: 100_000n,
+            },
+          ],
+        },
+      ]);
+
+      expect(proposalId).toBeGreaterThan(0n);
+    });
   });
 
   describe('Phase 3: Deploy & Install Plugins', () => {
@@ -281,7 +316,11 @@ describe('ARC58 DAO Setup', () => {
 
       // Create the escrow first
       await proposeAndExecute(dao, [
-        { type: ProposalActionEnum.NewEscrow, escrow: walletFactoryRevenueEscrow },
+        {
+          type: ProposalActionEnum.NewEscrow,
+          escrow: walletFactoryRevenueEscrow,
+          address: ALGORAND_ZERO_ADDRESS_STRING,
+        },
       ]);
 
       // Get the escrow info
@@ -345,7 +384,11 @@ describe('ARC58 DAO Setup', () => {
     test.each(escrowNames)('should create and configure revenue escrow: %s', async (escrowName) => {
       // Create the escrow
       await proposeAndExecute(dao, [
-        { type: ProposalActionEnum.NewEscrow, escrow: escrowName },
+        {
+          type: ProposalActionEnum.NewEscrow,
+          escrow: escrowName,
+          address: ALGORAND_ZERO_ADDRESS_STRING,
+        },
       ]);
 
       // Configure the escrow with revenue manager plugin

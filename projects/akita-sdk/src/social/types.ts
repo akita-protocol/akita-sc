@@ -1,5 +1,6 @@
 import { MaybeSigner } from '../types';
 import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/composer';
+import { AkitaSocialImpactArgs } from '../generated/AkitaSocialImpactClient';
 
 // Re-export important types from generated clients
 export {
@@ -13,8 +14,17 @@ export {
 } from '../generated/AkitaSocialClient';
 
 export {
-  MetaValue as ImpactMetaValue,
+  ImpactMetaValue,
+  StakeCheck as ImpactStakeCheck,
 } from '../generated/AkitaSocialImpactClient';
+
+type ImpactContractArgs = AkitaSocialImpactArgs['obj'];
+
+export type CommitStakingImpactArgs = (
+  MaybeSigner
+  & Omit<ImpactContractArgs['commitStakingImpact(pay,uint64,bool)void'], 'payment' | 'inheritRoot'>
+  & { inheritRoot?: boolean }
+);
 
 // Re-export DAO types from generated client
 export type { SocialFees, AkitaAssets } from '../generated/AkitaDAOClient';

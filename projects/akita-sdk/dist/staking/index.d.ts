@@ -1,7 +1,7 @@
 import { BaseSDK } from "../base";
-import { StakingClient, Stake, Escrow, StakeCheck, TotalsInfo } from '../generated/StakingClient';
+import { StakingClient, Stake, Escrow, StakeCheck, TotalsInfo, WeightedStake } from '../generated/StakingClient';
 import { NewContractSDKParams } from "../types";
-import { StakeArgs, WithdrawArgs, CreateHeartbeatArgs, UpdateSettingsArgs, SoftCheckArgs, GetTimeLeftArgs, GetInfoArgs, GetEscrowInfoArgs, GetHeartbeatArgs, GetHeartbeatAverageArgs, GetInfoListArgs, HeartbeatEntry, StakingType, AssetCheck, OptInArgs } from "./types";
+import { StakeArgs, WithdrawArgs, CreateHeartbeatArgs, UpdateSettingsArgs, SoftCheckArgs, CheckpointSoftStakeArgs, CheckpointExpiredLockArgs, GetTimeLeftArgs, GetInfoArgs, GetWeightedStakeArgs, GetAppWeightedStakeArgs, GetEscrowInfoArgs, GetHeartbeatArgs, GetHeartbeatAverageArgs, GetInfoListArgs, HeartbeatEntry, StakingType, AssetCheck, OptInArgs } from "./types";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
 export * from './errors';
 export * from './types';
@@ -12,6 +12,8 @@ export * from './types';
 export declare class StakingSDK extends BaseSDK<StakingClient> {
     constructor(params: NewContractSDKParams);
     softCheck({ address, asset }: SoftCheckArgs): Promise<StakeCheck>;
+    checkpointSoftStake({ sender, signer, address, asset }: CheckpointSoftStakeArgs): Promise<StakeCheck>;
+    checkpointExpiredLock({ sender, signer, address, asset }: CheckpointExpiredLockArgs): Promise<boolean>;
     getTimeLeft({ address, asset }: GetTimeLeftArgs): Promise<bigint>;
     mustGetTimeLeft({ address, asset }: GetTimeLeftArgs): Promise<bigint>;
     /**
@@ -19,6 +21,9 @@ export declare class StakingSDK extends BaseSDK<StakingClient> {
      * Returns undefined if no stake exists.
      */
     getInfo({ address, stake }: GetInfoArgs): Promise<Stake>;
+    /** Gets the valid cumulative stake amount and its weighted average age. */
+    getWeightedStake({ address, asset }: GetWeightedStakeArgs): Promise<WeightedStake>;
+    getAppWeightedStake({ app, address, asset, acceptInherited, }: GetAppWeightedStakeArgs): Promise<WeightedStake>;
     /**
      * Gets stake info for an address and stake type.
      * Throws if no stake exists.
