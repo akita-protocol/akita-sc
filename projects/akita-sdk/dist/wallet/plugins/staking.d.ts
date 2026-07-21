@@ -9,6 +9,9 @@ type StakeArgs = (Omit<ContractArgs['stake(uint64,bool,uint64,uint8,uint64,uint6
 type WithdrawArgs = (Omit<ContractArgs['withdraw(uint64,bool,uint64,uint8)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+type CreateHeartbeatArgs = (Omit<ContractArgs['createHeartbeat(uint64,bool,address,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
 export type SoftStakeKey = {
     address: string;
     asset: bigint | number;
@@ -33,6 +36,8 @@ export declare class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
     stake(args: StakeArgs): PluginSDKReturn;
     withdraw(): PluginSDKReturn;
     withdraw(args: WithdrawArgs): PluginSDKReturn;
+    createHeartbeat(): PluginSDKReturn;
+    createHeartbeat(args: CreateHeartbeatArgs): PluginSDKReturn;
     checkpointSoftStake(): PluginSDKReturn;
     checkpointSoftStake(args: CheckpointSoftStakeArgs): PluginSDKReturn;
     checkpointAppSoftStake(): PluginSDKReturn;

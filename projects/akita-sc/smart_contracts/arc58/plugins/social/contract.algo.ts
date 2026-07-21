@@ -25,7 +25,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(version: string, akitaDAO: uint64, escrow: uint64): void {
+  create(version: string, akitaDAO: uint64): void {
     this.version.value = version
     this.akitaDAO.value = Application(akitaDAO)
   }
@@ -1113,6 +1113,38 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
         }),
         subscriptionIndex,
         newModifier
+      ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet)
+    })
+  }
+
+  commitStakingImpact(
+    wallet: Application,
+    rekeyBack: boolean,
+    amount: uint64,
+    inheritRoot: boolean
+  ): void {
+    const sender = getSpendingAccount(wallet)
+    const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
+    const impactApp = Application(impact)
+
+    const cost = abiCall<typeof AkitaSocialImpact.prototype.stakingImpactCost>({
+      sender,
+      appId: impactApp,
+      args: [sender]
+    }).returnValue
+
+    abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
+      sender,
+      appId: impactApp,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: impactApp.address,
+          amount: cost
+        }),
+        amount,
+        inheritRoot
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })

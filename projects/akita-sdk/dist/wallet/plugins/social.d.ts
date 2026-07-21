@@ -84,6 +84,10 @@ type UpdateMetaArgs = (Omit<ContractArgs['updateMeta(uint64,bool,uint64,uint64,u
 type UpdateSubscriptionStateModifierArgs = (Omit<ContractArgs['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+type CommitStakingImpactArgs = (Omit<ContractArgs['commitStakingImpact(uint64,bool,uint64,bool)void'], 'wallet' | 'rekeyBack' | 'inheritRoot'> & MaybeSigner & {
+    rekeyBack?: boolean;
+    inheritRoot?: boolean;
+});
 type RegisterRefTypeArgs = (Omit<ContractArgs['registerRefType(uint64,bool,string,byte[])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -143,6 +147,8 @@ export declare class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     updateMeta(args: UpdateMetaArgs): PluginSDKReturn;
     updateSubscriptionStateModifier(): PluginSDKReturn;
     updateSubscriptionStateModifier(args: UpdateSubscriptionStateModifierArgs): PluginSDKReturn;
+    commitStakingImpact(): PluginSDKReturn;
+    commitStakingImpact(args: CommitStakingImpactArgs): PluginSDKReturn;
     registerRefType(): PluginSDKReturn;
     registerRefType(args: RegisterRefTypeArgs): PluginSDKReturn;
 }

@@ -104,14 +104,18 @@ export class StakingSDK extends BaseSDK<StakingClient> {
    * Returns undefined if no stake exists.
    */
   async getInfo({ address, stake }: GetInfoArgs): Promise<Stake> {
-    return await this.client.getInfo({ 
-      args: { address, stake } 
+    return await this.client.getInfo({
+      ...this.getReaderSendParams(),
+      args: { address, stake },
     });
   }
 
   /** Gets the valid cumulative stake amount and its weighted average age. */
   async getWeightedStake({ address, asset }: GetWeightedStakeArgs): Promise<WeightedStake> {
-    return await this.client.getWeightedStake({ args: { address, asset } });
+    return await this.client.getWeightedStake({
+      ...this.getReaderSendParams(),
+      args: { address, asset },
+    });
   }
 
   async getAppWeightedStake({
@@ -120,7 +124,10 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     asset,
     acceptInherited,
   }: GetAppWeightedStakeArgs): Promise<WeightedStake> {
-    return await this.client.getAppWeightedStake({ args: { app, address, asset, acceptInherited } });
+    return await this.client.getAppWeightedStake({
+      ...this.getReaderSendParams(),
+      args: { app, address, asset, acceptInherited },
+    });
   }
 
   /**

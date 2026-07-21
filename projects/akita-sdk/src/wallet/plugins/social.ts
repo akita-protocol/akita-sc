@@ -180,6 +180,12 @@ type UpdateSubscriptionStateModifierArgs = (
   & { rekeyBack?: boolean }
 );
 
+type CommitStakingImpactArgs = (
+  Omit<ContractArgs['commitStakingImpact(uint64,bool,uint64,bool)void'], 'wallet' | 'rekeyBack' | 'inheritRoot'>
+  & MaybeSigner
+  & { rekeyBack?: boolean; inheritRoot?: boolean }
+);
+
 // ---- Ref Type Registry ----
 type RegisterRefTypeArgs = (
   Omit<ContractArgs['registerRefType(uint64,bool,string,byte[])uint64'], 'wallet' | 'rekeyBack'>
@@ -1121,6 +1127,41 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
         const params = await this.client.params.updateSubscriptionStateModifier({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  commitStakingImpact(): PluginSDKReturn;
+  commitStakingImpact(args: CommitStakingImpactArgs): PluginSDKReturn;
+  commitStakingImpact(args?: CommitStakingImpactArgs): PluginSDKReturn {
+    const methodName = 'commitStakingImpact';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const inheritRoot = args.inheritRoot ?? true;
+
+        const params = await this.client.params.commitStakingImpact({
+          ...sendParams,
+          args: { wallet, ...args, rekeyBack, inheritRoot },
         });
 
         return [{

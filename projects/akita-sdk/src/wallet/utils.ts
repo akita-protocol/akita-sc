@@ -4,6 +4,33 @@ import { AddAllowanceArgs, AllowanceInfo } from "./types";
 import { encodeLease } from "@algorandfoundation/algokit-utils";
 import { PluginHookParams, PluginTxn } from "../types";
 
+type ComposerTransactionWithMaxFee<TFee> = {
+  type: string;
+  data: { maxFee?: TFee };
+};
+
+/**
+ * Applies a default max fee to composer inputs that resolve to app calls.
+ *
+ * algokit-utils represents raw app calls as `appCall` and ABI app calls as
+ * `methodCall` until the composer builds them. Both become application-call
+ * transactions and require a max fee when inner-transaction fee coverage is
+ * enabled.
+ */
+export function applyDefaultAppCallMaxFees<TFee>(
+  transactions: ComposerTransactionWithMaxFee<TFee>[],
+  maxFee: TFee,
+): void {
+  for (const transaction of transactions) {
+    if (
+      (transaction.type === 'appCall' || transaction.type === 'methodCall')
+      && transaction.data.maxFee === undefined
+    ) {
+      transaction.data.maxFee = maxFee;
+    }
+  }
+}
+
 
 // AppCallParams | AppCreateParams | AppUpdateParams
 

@@ -174,9 +174,8 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
   optinPlugin: [
     { appId: 751968346n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128795n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
-    { appId: 766098058n, deployedAt: '2026-07-11T03:26:39.980Z' },
   ],
-  selfOptinPlugin: [{ appId: 763128796n, deployedAt: TESTNET_MAY_DEPLOYED_AT }],
+  selfOptinPlugin: [{ appId: 763128796n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 767318626n, deployedAt: '2026-07-20T15:37:41.090Z' }],
   asaManagerPlugin: [{ appId: 751968373n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT }, { appId: 763128820n, deployedAt: TESTNET_MAY_DEPLOYED_AT }, { appId: 764705920n }],
   payPlugin: [
     { appId: 751968379n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
@@ -239,6 +238,8 @@ export const TESTNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 751972357n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
     { appId: 763128930n, deployedAt: TESTNET_MAY_DEPLOYED_AT },
     { appId: 766098156n, version: '0.0.2', deployedAt: '2026-07-11T03:28:28.988Z' },
+    { appId: 767297986n, version: '0.0.3', deployedAt: '2026-07-20T05:13:21.978Z' },
+    { appId: 767298319n, version: '0.0.3', deployedAt: '2026-07-20T05:24:01.357Z' },
   ],
   stakingPlugin: [
     { appId: 751972363n, deployedAt: TESTNET_DECEMBER_DEPLOYED_AT },
@@ -267,9 +268,8 @@ export const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
   optinPlugin: [
     { appId: 3368398585n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569560490n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
-    { appId: 3633293884n, deployedAt: '2026-07-11T03:27:12.151Z' },
   ],
-  selfOptinPlugin: [{ appId: 3569560545n, deployedAt: MAINNET_MAY_DEPLOYED_AT }],
+  selfOptinPlugin: [{ appId: 3569560545n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3644027143n, deployedAt: '2026-07-20T15:38:03.447Z' }],
   asaManagerPlugin: [{ appId: 3368398964n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569560791n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3605315701n }],
   payPlugin: [
     { appId: 3368399056n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
@@ -329,6 +329,7 @@ export const MAINNET_PLUGIN_DEPLOYMENTS: NetworkPluginDeployments = {
     { appId: 3368400007n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT },
     { appId: 3569562087n, deployedAt: MAINNET_MAY_DEPLOYED_AT },
     { appId: 3633295088n, version: '0.0.2', deployedAt: '2026-07-11T03:29:13.775Z' },
+    { appId: 3643581007n, version: '0.0.3', deployedAt: '2026-07-20T05:28:54.584Z' },
   ],
   stakingPlugin: [{ appId: 3368400044n, deployedAt: MAINNET_DECEMBER_DEPLOYED_AT }, { appId: 3569562153n, deployedAt: MAINNET_MAY_DEPLOYED_AT }, { appId: 3572944799n }, { appId: 3642392585n, version: '0.0.3', deployedAt: '2026-07-19T02:57:54.499Z' }],
   stakingPoolPlugin: [

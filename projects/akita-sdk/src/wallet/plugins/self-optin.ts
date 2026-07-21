@@ -14,6 +14,12 @@ type SelfOptInArgs = (
   & { rekeyBack?: boolean }
 );
 
+type OptOutArgs = (
+  Omit<ContractArgs['optOut(uint64,bool,uint64[])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
 export class SelfOptInPluginSDK extends BaseSDK<SelfOptInPluginClient> {
 
   constructor(params: NewContractSDKParams) {
@@ -47,6 +53,43 @@ export class SelfOptInPluginSDK extends BaseSDK<SelfOptInPluginClient> {
         // No MBR payment needed - the wallet covers its own MBR from its existing balance
         const params = (
           await this.client.params.optIn({
+            ...sendParams,
+            args: { wallet, ...args, rekeyBack },
+          })
+        )
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }]
+      }
+    });
+  }
+
+  optOut(): PluginSDKReturn;
+  optOut(args: OptOutArgs): PluginSDKReturn;
+  optOut(args?: OptOutArgs): PluginSDKReturn {
+    const methodName = 'optOut';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = (
+          await this.client.params.optOut({
             ...sendParams,
             args: { wallet, ...args, rekeyBack },
           })

@@ -6,7 +6,7 @@ import { BaseSDK } from '../base';
 import { ENV_VAR_NAMES, resolveAppIdWithClient } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
-import { AllowanceInfoTranslate, AllowancesToTuple, domainBoxKey, executionBoxKey, ValueMap } from './utils';
+import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, domainBoxKey, executionBoxKey, ValueMap } from './utils';
 import { wrapUtils10Signer } from '../utils';
 import { NewEscrowFeeAmount } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
@@ -484,11 +484,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       const internalTxns = (composer as unknown as {
         txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
       }).txns;
-      for (const ctxn of internalTxns) {
-        if (ctxn.type === 'appCall' && ctxn.data.maxFee === undefined) {
-          ctxn.data.maxFee = microAlgo(MAX_SIM_FEE);
-        }
-      }
+      applyDefaultAppCallMaxFees(internalTxns, microAlgo(MAX_SIM_FEE));
 
       // Sender/signer already match `preparedSendParams` on the composer
       // calls, so no override is needed for the validated build.
@@ -834,11 +830,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       const internalTxns = (composer as unknown as {
         txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
       }).txns;
-      for (const ctxn of internalTxns) {
-        if ((ctxn.type === 'appCall' || ctxn.type === 'methodCall') && ctxn.data.maxFee === undefined) {
-          ctxn.data.maxFee = microAlgo(MAX_SIM_FEE);
-        }
-      }
+      applyDefaultAppCallMaxFees(internalTxns, microAlgo(MAX_SIM_FEE));
 
       // Execution handoff: simulate with admin as sender + empty signer so
       // resources populate as-if admin submitted the group. The real sender

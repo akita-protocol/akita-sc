@@ -235,9 +235,21 @@ export async function prepareGroup(
 
   algosdk.assignGroupID(txns);
 
-  const signers: algosdk.TransactionSigner[] = built.map(
-    (tws) => overrides.signer ?? wrapUtils10Signer(tws.signer)
-  );
+  // Preserve signer identity across the utils10 -> algosdk adapter boundary.
+  // `sendPrepared` batches indexes by signer function identity, so creating a
+  // fresh wrapper for every transaction would make one shared signer look like
+  // several distinct signers and invoke it once per transaction.
+  const wrappedSigners = new Map<unknown, algosdk.TransactionSigner>();
+  const signers: algosdk.TransactionSigner[] = built.map((tws) => {
+    if (overrides.signer) return overrides.signer;
+
+    const existing = wrappedSigners.get(tws.signer);
+    if (existing) return existing;
+
+    const wrapped = wrapUtils10Signer(tws.signer);
+    wrappedSigners.set(tws.signer, wrapped);
+    return wrapped;
+  });
 
   return {
     transactions: txns,

@@ -2,6 +2,21 @@ import { Address } from "algosdk";
 import { AllowanceInfo as SubAllowanceInfo } from "../generated/AbstractedAccountClient";
 import { AddAllowanceArgs, AllowanceInfo } from "./types";
 import { PluginHookParams, PluginTxn } from "../types";
+type ComposerTransactionWithMaxFee<TFee> = {
+    type: string;
+    data: {
+        maxFee?: TFee;
+    };
+};
+/**
+ * Applies a default max fee to composer inputs that resolve to app calls.
+ *
+ * algokit-utils represents raw app calls as `appCall` and ABI app calls as
+ * `methodCall` until the composer builds them. Both become application-call
+ * transactions and require a max fee when inner-transaction fee coverage is
+ * enabled.
+ */
+export declare function applyDefaultAppCallMaxFees<TFee>(transactions: ComposerTransactionWithMaxFee<TFee>[], maxFee: TFee): void;
 export declare function SpendAllowanceTypeFromString(type: string): bigint;
 export declare function AllowancesToTuple(allowances: AddAllowanceArgs[]): [number | bigint, number | bigint, number | bigint, number | bigint, number | bigint, boolean][];
 export declare function AllowanceInfoTranslate(info: SubAllowanceInfo): AllowanceInfo;
@@ -25,3 +40,4 @@ export declare class ValueMap<K extends object, V> {
     [Symbol.iterator](): IterableIterator<[string, V]>;
 }
 export declare const getTxns: ({}: PluginHookParams) => Promise<PluginTxn[]>;
+export {};

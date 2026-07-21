@@ -19,6 +19,12 @@ type WithdrawArgs = (
   & { rekeyBack?: boolean }
 );
 
+type CreateHeartbeatArgs = (
+  Omit<ContractArgs['createHeartbeat(uint64,bool,address,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
 export type SoftStakeKey = {
   address: string;
   asset: bigint | number;
@@ -116,6 +122,40 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
         const params = await this.client.params.withdraw({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  createHeartbeat(): PluginSDKReturn;
+  createHeartbeat(args: CreateHeartbeatArgs): PluginSDKReturn;
+  createHeartbeat(args?: CreateHeartbeatArgs): PluginSDKReturn {
+    const methodName = 'createHeartbeat';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, address, asset } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.createHeartbeat({
+          ...sendParams,
+          args: { wallet, rekeyBack, address, asset },
         });
 
         return [{

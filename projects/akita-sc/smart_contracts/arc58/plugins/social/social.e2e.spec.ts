@@ -52,19 +52,26 @@ describe('Social plugin contract', () => {
       nickname: 'Test Wallet',
     });
 
-    // Get the plugin SDK and add it to the wallet once
+    // Get the plugin SDK and add it to the wallet once. The self-opt-in plugin
+    // lets the wallet hold AKTA for staking-impact commitment coverage.
     socialPluginSdk = akitaUniverse.socialPlugin;
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     // Over-fund the wallet so it can cover:
+    //   - both plugin records
     //   - initMeta: MetaMBR (45_300) + ImpactMetaMBR (31_700) = 77_000
     //   - follow: FollowsMBR (31_700)
+    //   - AKTA opt-in and staking-impact commitment MBR
     //   - inner-txn fees
     // 5 ALGO headroom is comfortable slack on all of these combined.
     await wallet.client.appClient.fundAppAccount({
-      amount: algokit.microAlgo(mbr.plugins + 5_000_000n),
+      amount: algokit.microAlgo(mbr.plugins * 2n + 5_000_000n),
     });
     await wallet.addPlugin({
       client: socialPluginSdk,
+      callerType: CallerType.Global,
+    });
+    await wallet.addPlugin({
+      client: akitaUniverse.selfOptInPlugin,
       callerType: CallerType.Global,
     });
   });
@@ -75,8 +82,56 @@ describe('Social plugin contract', () => {
     test('plugin can be added to wallet', async () => {
       // Verify the plugin was successfully added
       const plugins = await wallet.getPlugins();
-      expect(plugins.size).toBe(1);
+      expect(plugins.size).toBe(2);
       expect(socialPluginSdk.appId).toBeGreaterThan(0n);
+    });
+
+    test('creates and updates the wallet social-impact staking commitment', async () => {
+      const asset = akitaUniverse.aktaAssetId;
+      const initialAmount = 1_000_000n;
+      const additionalAmount = 500_000n;
+      const walletAddress = wallet.client.appAddress.toString();
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [akitaUniverse.selfOptInPlugin.optIn({ assets: [asset] })],
+      });
+
+      await algorand.send.assetTransfer({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: walletAddress,
+        assetId: asset,
+        amount: initialAmount + additionalAmount,
+      });
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          socialPluginSdk.commitStakingImpact({
+            amount: initialAmount,
+            inheritRoot: false,
+          }),
+        ],
+      });
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          socialPluginSdk.commitStakingImpact({
+            amount: additionalAmount,
+            inheritRoot: false,
+          }),
+        ],
+      });
+
+      const appStake = await akitaUniverse.staking.getAppWeightedStake({
+        app: akitaUniverse.social.impactAppId,
+        address: walletAddress,
+        asset,
+        acceptInherited: false,
+      });
+      expect(appStake.amount).toBe(initialAmount + additionalAmount);
     });
 
     test('follows another user via plugin and records the edge on the social graph', async () => {

@@ -11,22 +11,22 @@ main:
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@39
-    pushbytess 0x2095d63d 0x32ff16b6 0xb8dc4178 0x5b532e5a 0x8ed2e9ad 0xc44d46c0 0x563cf0df 0xec5bceb1 0x6794c95e 0x14704b86 0x7fd4cab7 0x3fd85f4d 0xb46549fa 0x9c30aced 0xbec86c34 0x9f59a970 0xaa765601 0x9091dca5 0x493e908f 0x0d8b6771 0x1b2d08e2 0x68e8db78 0x25498229 0x5cf7e0a5 0xaa29048b 0x7623ef33 0xff6cf6ab 0xfeb461af 0x33e92c94 0x854dede0 0x14324fb7 0xa134a278 0x344175f0 // method "post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void", method "editPost(uint64,bool,byte[36],byte[32],uint64)void", method "gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void", method "reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,bool,uint64,uint64)void", method "gatedEditReply(uint64,bool,byte[36],byte[32],byte[][],uint64)void", method "editReply(uint64,bool,byte[36],byte[32],uint64)void", method "vote(uint64,bool,byte[],uint64,bool)void", method "editVote(uint64,bool,byte[32],bool)void", method "gatedReact(uint64,bool,byte[],uint64,uint64,byte[][])void", method "react(uint64,bool,byte[],uint64,uint64)void", method "deleteReaction(uint64,bool,byte[32],uint64)void", method "gatedFollow(uint64,bool,address,byte[][])void", method "follow(uint64,bool,address)void", method "unfollow(uint64,bool,address)void", method "block(uint64,bool,address)void", method "unblock(uint64,bool,address)void", method "addModerator(uint64,bool,address)void", method "removeModerator(uint64,bool,address)void", method "ban(uint64,bool,address,uint64)void", method "flagPost(uint64,bool,byte[32])void", method "unflagPost(uint64,bool,byte[32])void", method "unban(uint64,bool,address)void", method "addAction(uint64,bool,uint64,byte[36])void", method "removeAction(uint64,bool,uint64)void", method "initMeta(uint64,bool,address,bool,uint64,uint64,uint64)uint64", method "updateMeta(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64)void", method "updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void", method "registerRefType(uint64,bool,string,byte[])uint64", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64", method "checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"
+    bz main_create_NoOp@40
+    pushbytess 0x2095d63d 0x32ff16b6 0xb8dc4178 0x5b532e5a 0x8ed2e9ad 0xc44d46c0 0x563cf0df 0xec5bceb1 0x6794c95e 0x14704b86 0x7fd4cab7 0x3fd85f4d 0xb46549fa 0x9c30aced 0xbec86c34 0x9f59a970 0xaa765601 0x9091dca5 0x493e908f 0x0d8b6771 0x1b2d08e2 0x68e8db78 0x25498229 0x5cf7e0a5 0xaa29048b 0x7623ef33 0xff6cf6ab 0xbd19e324 0xfeb461af 0x33e92c94 0x854dede0 0x14324fb7 0xa134a278 0x344175f0 // method "post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void", method "editPost(uint64,bool,byte[36],byte[32],uint64)void", method "gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void", method "reply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,bool,uint64,uint64)void", method "gatedEditReply(uint64,bool,byte[36],byte[32],byte[][],uint64)void", method "editReply(uint64,bool,byte[36],byte[32],uint64)void", method "vote(uint64,bool,byte[],uint64,bool)void", method "editVote(uint64,bool,byte[32],bool)void", method "gatedReact(uint64,bool,byte[],uint64,uint64,byte[][])void", method "react(uint64,bool,byte[],uint64,uint64)void", method "deleteReaction(uint64,bool,byte[32],uint64)void", method "gatedFollow(uint64,bool,address,byte[][])void", method "follow(uint64,bool,address)void", method "unfollow(uint64,bool,address)void", method "block(uint64,bool,address)void", method "unblock(uint64,bool,address)void", method "addModerator(uint64,bool,address)void", method "removeModerator(uint64,bool,address)void", method "ban(uint64,bool,address,uint64)void", method "flagPost(uint64,bool,byte[32])void", method "unflagPost(uint64,bool,byte[32])void", method "unban(uint64,bool,address)void", method "addAction(uint64,bool,uint64,byte[36])void", method "removeAction(uint64,bool,uint64)void", method "initMeta(uint64,bool,address,bool,uint64,uint64,uint64)uint64", method "updateMeta(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64)void", method "updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void", method "commitStakingImpact(uint64,bool,uint64,bool)void", method "registerRefType(uint64,bool,string,byte[])uint64", method "updateAkitaDAO(uint64)void", method "opUp()void", method "mbr(byte[],string,byte[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "payWallMbr(((uint8,uint64,uint64)[],(uint8,uint64,uint64)[]))uint64", method "checkTipMbrRequirements(uint64,address,uint64)(uint8,uint64)"
     txna ApplicationArgs 0
-    match post editPost gatedReply reply gatedEditReply editReply vote editVote gatedReact react deleteReaction gatedFollow follow unfollow block unblock addModerator removeModerator ban flagPost unflagPost unban addAction removeAction initMeta updateMeta updateSubscriptionStateModifier registerRefType updateAkitaDAO main_opUp_route@34 mbr payWallMbr checkTipMbrRequirements
+    match post editPost gatedReply reply gatedEditReply editReply vote editVote gatedReact react deleteReaction gatedFollow follow unfollow block unblock addModerator removeModerator ban flagPost unflagPost unban addAction removeAction initMeta updateMeta updateSubscriptionStateModifier commitStakingImpact registerRefType updateAkitaDAO main_opUp_route@35 mbr payWallMbr checkTipMbrRequirements
     err
 
-main_opUp_route@34:
+main_opUp_route@35:
     // smart_contracts/utils/base-contracts/base.ts:41
     // opUp(): void { }
     intc_1 // 1
     return
 
-main_create_NoOp@39:
+main_create_NoOp@40:
     // smart_contracts/arc58/plugins/social/contract.algo.ts:23
     // export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
-    pushbytes 0x88c940f8 // method "create(string,uint64,uint64)void"
+    pushbytes 0xcd9ad67e // method "create(string,uint64)void"
     txna ApplicationArgs 0
     match create
     err
@@ -151,11 +151,6 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    txna ApplicationArgs 3
-    len
-    intc_2 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
     // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
@@ -6682,9 +6677,209 @@ updateSubscriptionStateModifier:
     return
 
 
+// smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.commitStakingImpact[routing]() -> void:
+commitStakingImpact:
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1121-1126
+    // commitStakingImpact(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   amount: uint64,
+    //   inheritRoot: boolean
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/utils/functions.ts:286-289
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 3
+    // smart_contracts/utils/functions.ts:288
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_2 // "spending_address"
+    // smart_contracts/utils/functions.ts:286-289
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/base.ts:27
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_0 // "akita_dao"
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:49
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
+    bytec_1 // "sal"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // const { impact } = getAkitaSocialAppList(this.akitaDAO.value)
+    pushint 16
+    extract_uint64
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1131-1135
+    // const cost = abiCall<typeof AkitaSocialImpact.prototype.stakingImpactCost>({
+    //   sender,
+    //   appId: impactApp,
+    //   args: [sender]
+    // }).returnValue
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    dig 1
+    itxn_field Sender
+    pushbytes 0xf0450ec5 // method "stakingImpactCost(address)uint64"
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec 4 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1137-1150
+    // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
+    //   sender,
+    //   appId: impactApp,
+    //   args: [
+    //     itxn.payment({
+    //       sender,
+    //       receiver: impactApp.address,
+    //       amount: cost
+    //     }),
+    //     amount,
+    //     inheritRoot
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1143
+    // receiver: impactApp.address,
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    dig 1
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1141-1145
+    // itxn.payment({
+    //   sender,
+    //   receiver: impactApp.address,
+    //   amount: cost
+    // }),
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1137-1150
+    // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
+    //   sender,
+    //   appId: impactApp,
+    //   args: [
+    //     itxn.payment({
+    //       sender,
+    //       receiver: impactApp.address,
+    //       amount: cost
+    //     }),
+    //     amount,
+    //     inheritRoot
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
+    // })
+    itxn_next
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1149
+    // rekeyTo: rekeyAddress(rekeyBack, wallet)
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1137-1150
+    // abiCall<typeof AkitaSocialImpact.prototype.commitStakingImpact>({
+    //   sender,
+    //   appId: impactApp,
+    //   args: [
+    //     itxn.payment({
+    //       sender,
+    //       receiver: impactApp.address,
+    //       amount: cost
+    //     }),
+    //     amount,
+    //     inheritRoot
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet)
+    // })
+    pushbytes 0x84509e45 // method "commitStakingImpact(pay,uint64,bool)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1121-1126
+    // commitStakingImpact(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   amount: uint64,
+    //   inheritRoot: boolean
+    // ): void {
+    intc_1 // 1
+    return
+
+
 // smart_contracts/arc58/plugins/social/contract.algo.ts::AkitaSocialPlugin.registerRefType[routing]() -> void:
 registerRefType:
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1121-1126
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1153-1158
     // registerRefType(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -6747,13 +6942,13 @@ registerRefType:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:27
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_0 // "akita_dao"
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -6762,11 +6957,11 @@ registerRefType:
     bytec_1 // "sal"
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1128
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1160
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
     extract_uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1130-1143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1162-1175
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6782,12 +6977,12 @@ registerRefType:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1136
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1168
     // receiver: Application(social).address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1137
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1169
     // amount: this.mbr(Bytes(''), name, schema).refTypes
     bytec_3 // ""
     uncover 6
@@ -6799,7 +6994,7 @@ registerRefType:
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1134-1138
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1166-1170
     // itxn.payment({
     //   sender,
     //   receiver: Application(social).address,
@@ -6809,7 +7004,7 @@ registerRefType:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1130-1143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1162-1175
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6825,7 +7020,7 @@ registerRefType:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1142
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1174
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -6833,7 +7028,7 @@ registerRefType:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1130-1143
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1162-1175
     // return abiCall<typeof AkitaSocial.prototype.registerRefType>({
     //   sender,
     //   appId: social,
@@ -6871,7 +7066,7 @@ registerRefType:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/social/contract.algo.ts:1121-1126
+    // smart_contracts/arc58/plugins/social/contract.algo.ts:1153-1158
     // registerRefType(
     //   wallet: Application,
     //   rekeyBack: boolean,

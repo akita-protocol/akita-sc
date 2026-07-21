@@ -7,9 +7,30 @@ import {
   executionBoxKey,
   domainBoxKey,
   ValueMap,
+  applyDefaultAppCallMaxFees,
 } from './utils'
 import type { AddAllowanceArgs } from './types'
 import type { AllowanceInfo as SubAllowanceInfo } from '../generated/AbstractedAccountClient'
+
+describe('applyDefaultAppCallMaxFees', () => {
+  test('sets missing caps on raw and ABI app calls without overwriting explicit caps', () => {
+    const transactions = [
+      { type: 'appCall', data: {} as { maxFee?: bigint } },
+      { type: 'methodCall', data: {} as { maxFee?: bigint } },
+      { type: 'methodCall', data: { maxFee: 2_000n } },
+      { type: 'payment', data: {} as { maxFee?: bigint } },
+    ]
+
+    applyDefaultAppCallMaxFees(transactions, 272_000n)
+
+    expect(transactions.map(({ data }) => data.maxFee)).toEqual([
+      272_000n,
+      272_000n,
+      2_000n,
+      undefined,
+    ])
+  })
+})
 
 describe('SpendAllowanceTypeFromString', () => {
   test('maps "flat" → 1n', () => {

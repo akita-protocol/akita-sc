@@ -75,10 +75,9 @@ export type AkitaSocialPluginArgs = {
      * The object representation of the arguments for each method
      */
     obj: {
-        'create(string,uint64,uint64)void': {
+        'create(string,uint64)void': {
             version: string;
             akitaDao: bigint | number;
-            escrow: bigint | number;
         };
         'post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void': {
             wallet: bigint | number;
@@ -267,6 +266,12 @@ export type AkitaSocialPluginArgs = {
             subscriptionIndex: bigint | number;
             newModifier: bigint | number;
         };
+        'commitStakingImpact(uint64,bool,uint64,bool)void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            amount: bigint | number;
+            inheritRoot: boolean;
+        };
         'registerRefType(uint64,bool,string,byte[])uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -295,7 +300,7 @@ export type AkitaSocialPluginArgs = {
      * The tuple representation of the arguments for each method
      */
     tuple: {
-        'create(string,uint64,uint64)void': [version: string, akitaDao: bigint | number, escrow: bigint | number];
+        'create(string,uint64)void': [version: string, akitaDao: bigint | number];
         'post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, timestamp: bigint | number, nonce: Uint8Array, cid: Uint8Array, gateId: bigint | number, usePayWall: boolean, payWallId: bigint | number, creatorFlags: bigint | number];
         'editPost(uint64,bool,byte[36],byte[32],uint64)void': [wallet: bigint | number, rekeyBack: boolean, cid: Uint8Array, amendment: Uint8Array, creatorFlags: bigint | number];
         'gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, timestamp: bigint | number, nonce: Uint8Array, cid: Uint8Array, ref: Uint8Array, type: bigint | number, gateId: bigint | number, args: Uint8Array[], usePayWall: boolean, payWallId: bigint | number, creatorFlags: bigint | number];
@@ -323,6 +328,7 @@ export type AkitaSocialPluginArgs = {
         'initMeta(uint64,bool,address,bool,uint64,uint64,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, user: string, automated: boolean, subscriptionIndex: bigint | number, nfd: bigint | number, akitaNft: bigint | number];
         'updateMeta(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, followGateId: bigint | number, addressGateId: bigint | number, subscriptionIndex: bigint | number, nfd: bigint | number, akitaNft: bigint | number, defaultPayWallId: bigint | number];
         'updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, subscriptionIndex: bigint | number, newModifier: bigint | number];
+        'commitStakingImpact(uint64,bool,uint64,bool)void': [wallet: bigint | number, rekeyBack: boolean, amount: bigint | number, inheritRoot: boolean];
         'registerRefType(uint64,bool,string,byte[])uint64': [wallet: bigint | number, rekeyBack: boolean, name: string, schema: Uint8Array];
         'updateAkitaDAO(uint64)void': [akitaDao: bigint | number];
         'opUp()void': [];
@@ -335,7 +341,7 @@ export type AkitaSocialPluginArgs = {
  * The return type for each method
  */
 export type AkitaSocialPluginReturns = {
-    'create(string,uint64,uint64)void': void;
+    'create(string,uint64)void': void;
     'post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void': void;
     'editPost(uint64,bool,byte[36],byte[32],uint64)void': void;
     'gatedReply(uint64,bool,uint64,byte[24],byte[36],byte[],uint64,uint64,byte[][],bool,uint64,uint64)void': void;
@@ -363,6 +369,7 @@ export type AkitaSocialPluginReturns = {
     'initMeta(uint64,bool,address,bool,uint64,uint64,uint64)uint64': bigint;
     'updateMeta(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64)void': void;
     'updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void': void;
+    'commitStakingImpact(uint64,bool,uint64,bool)void': void;
     'registerRefType(uint64,bool,string,byte[])uint64': bigint;
     'updateAkitaDAO(uint64)void': void;
     'opUp()void': void;
@@ -377,10 +384,10 @@ export type AkitaSocialPluginTypes = {
     /**
      * Maps method signatures / names to their argument and return types.
      */
-    methods: Record<'create(string,uint64,uint64)void' | 'create', {
-        argsObj: AkitaSocialPluginArgs['obj']['create(string,uint64,uint64)void'];
-        argsTuple: AkitaSocialPluginArgs['tuple']['create(string,uint64,uint64)void'];
-        returns: AkitaSocialPluginReturns['create(string,uint64,uint64)void'];
+    methods: Record<'create(string,uint64)void' | 'create', {
+        argsObj: AkitaSocialPluginArgs['obj']['create(string,uint64)void'];
+        argsTuple: AkitaSocialPluginArgs['tuple']['create(string,uint64)void'];
+        returns: AkitaSocialPluginReturns['create(string,uint64)void'];
     }> & Record<'post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void' | 'post', {
         argsObj: AkitaSocialPluginArgs['obj']['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'];
         argsTuple: AkitaSocialPluginArgs['tuple']['post(uint64,bool,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'];
@@ -489,6 +496,10 @@ export type AkitaSocialPluginTypes = {
         argsObj: AkitaSocialPluginArgs['obj']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'];
         argsTuple: AkitaSocialPluginArgs['tuple']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'];
         returns: AkitaSocialPluginReturns['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'];
+    }> & Record<'commitStakingImpact(uint64,bool,uint64,bool)void' | 'commitStakingImpact', {
+        argsObj: AkitaSocialPluginArgs['obj']['commitStakingImpact(uint64,bool,uint64,bool)void'];
+        argsTuple: AkitaSocialPluginArgs['tuple']['commitStakingImpact(uint64,bool,uint64,bool)void'];
+        returns: AkitaSocialPluginReturns['commitStakingImpact(uint64,bool,uint64,bool)void'];
     }> & Record<'registerRefType(uint64,bool,string,byte[])uint64' | 'registerRefType', {
         argsObj: AkitaSocialPluginArgs['obj']['registerRefType(uint64,bool,string,byte[])uint64'];
         argsTuple: AkitaSocialPluginArgs['tuple']['registerRefType(uint64,bool,string,byte[])uint64'];
@@ -563,12 +574,12 @@ export type GlobalKeysState = AkitaSocialPluginTypes['state']['global']['keys'];
 /**
  * Defines supported create method params for this smart contract
  */
-export type AkitaSocialPluginCreateCallParams = Expand<CallParams<AkitaSocialPluginArgs['obj']['create(string,uint64,uint64)void'] | AkitaSocialPluginArgs['tuple']['create(string,uint64,uint64)void']> & {
+export type AkitaSocialPluginCreateCallParams = Expand<CallParams<AkitaSocialPluginArgs['obj']['create(string,uint64)void'] | AkitaSocialPluginArgs['tuple']['create(string,uint64)void']> & {
     method: 'create';
 } & {
     onComplete?: OnApplicationComplete.NoOp;
-} & CreateSchema> | Expand<CallParams<AkitaSocialPluginArgs['obj']['create(string,uint64,uint64)void'] | AkitaSocialPluginArgs['tuple']['create(string,uint64,uint64)void']> & {
-    method: 'create(string,uint64,uint64)void';
+} & CreateSchema> | Expand<CallParams<AkitaSocialPluginArgs['obj']['create(string,uint64)void'] | AkitaSocialPluginArgs['tuple']['create(string,uint64)void']> & {
+    method: 'create(string,uint64)void';
 } & {
     onComplete?: OnApplicationComplete.NoOp;
 } & CreateSchema>;
@@ -616,12 +627,12 @@ export declare abstract class AkitaSocialPluginParamsFactory {
             onComplete?: OnApplicationComplete.NoOp;
         };
         /**
-         * Constructs create ABI call params for the AkitaSocialPlugin smart contract using the create(string,uint64,uint64)void ABI method
+         * Constructs create ABI call params for the AkitaSocialPlugin smart contract using the create(string,uint64)void ABI method
          *
          * @param params Parameters for the call
          * @returns An `AppClientMethodCallParams` object for the call
          */
-        create(params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64,uint64)void"]> & AppClientCompilationParams & {
+        create(params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64)void"]> & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOp;
         }): AppClientMethodCallParams & AppClientCompilationParams & {
             onComplete?: OnApplicationComplete.NoOp;
@@ -817,6 +828,13 @@ export declare abstract class AkitaSocialPluginParamsFactory {
      */
     static updateSubscriptionStateModifier(params: CallParams<AkitaSocialPluginArgs['obj']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'] | AkitaSocialPluginArgs['tuple']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
+     * Constructs a no op call for the commitStakingImpact(uint64,bool,uint64,bool)void ABI method
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static commitStakingImpact(params: CallParams<AkitaSocialPluginArgs['obj']['commitStakingImpact(uint64,bool,uint64,bool)void'] | AkitaSocialPluginArgs['tuple']['commitStakingImpact(uint64,bool,uint64,bool)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
      * Constructs a no op call for the registerRefType(uint64,bool,string,byte[])uint64 ABI method
      *
      * @param params Parameters for the call
@@ -1003,12 +1021,12 @@ export declare class AkitaSocialPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the AkitaSocialPlugin smart contract using the create(string,uint64,uint64)void ABI method.
+             * Creates a new instance of the AkitaSocialPlugin smart contract using the create(string,uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create params
              */
-            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 deployTimeParams: import("@algorandfoundation/algokit-utils").TealTemplateParams | undefined;
@@ -1114,12 +1132,12 @@ export declare class AkitaSocialPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the AkitaSocialPlugin smart contract using the create(string,uint64,uint64)void ABI method.
+             * Creates a new instance of the AkitaSocialPlugin smart contract using the create(string,uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create transaction
              */
-            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
+            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64)void"]> & AppClientCompilationParams & CreateSchema & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 transactions: Transaction[];
@@ -1137,16 +1155,16 @@ export declare class AkitaSocialPluginFactory {
          */
         create: {
             /**
-             * Creates a new instance of the AkitaSocialPlugin smart contract using an ABI method call using the create(string,uint64,uint64)void ABI method.
+             * Creates a new instance of the AkitaSocialPlugin smart contract using an ABI method call using the create(string,uint64)void ABI method.
              *
              * @param params The params for the smart contract call
              * @returns The create result
              */
-            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64,uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
+            create: (params: CallParams<AkitaSocialPluginArgs["obj"]["create(string,uint64)void"] | AkitaSocialPluginArgs["tuple"]["create(string,uint64)void"]> & AppClientCompilationParams & CreateSchema & SendParams & {
                 onComplete?: OnApplicationComplete.NoOp;
             }) => Promise<{
                 result: {
-                    return: (undefined | AkitaSocialPluginReturns["create(string,uint64,uint64)void"]);
+                    return: (undefined | AkitaSocialPluginReturns["create(string,uint64)void"]);
                     compiledApproval?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
                     compiledClear?: import("@algorandfoundation/algokit-utils").CompiledTeal | undefined;
                     groupId: string | undefined;
@@ -2057,6 +2075,37 @@ export declare class AkitaSocialPluginClient {
             args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
         }>;
         /**
+         * Makes a call to the AkitaSocialPlugin smart contract using the `commitStakingImpact(uint64,bool,uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialPluginArgs["obj"]["commitStakingImpact(uint64,bool,uint64,bool)void"] | AkitaSocialPluginArgs["tuple"]["commitStakingImpact(uint64,bool,uint64,bool)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            signer?: (TransactionSigner | import("@algorandfoundation/algokit-utils/transact").AddressWithTransactionSigner) | undefined;
+            appId: bigint;
+            sender: import("@algorandfoundation/algokit-utils/transact").SendingAddress;
+            rekeyTo?: import("@algorandfoundation/algokit-utils").ReadableAddress | undefined;
+            note?: (Uint8Array | string) | undefined;
+            lease?: (Uint8Array | string) | undefined;
+            staticFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            extraFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            maxFee?: import("@algorandfoundation/algokit-utils").AlgoAmount | undefined;
+            validityWindow?: number | bigint | undefined;
+            firstValidRound?: bigint | undefined;
+            lastValidRound?: bigint | undefined;
+            onComplete?: OnApplicationComplete.NoOp | OnApplicationComplete.OptIn | OnApplicationComplete.CloseOut | OnApplicationComplete.DeleteApplication | undefined;
+            accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
+            appReferences?: bigint[] | undefined;
+            assetReferences?: bigint[] | undefined;
+            boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+            accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
+            rejectVersion?: number | undefined;
+            method: import("@algorandfoundation/algokit-utils/abi").ABIMethod;
+            args?: (import("@algorandfoundation/algokit-utils/abi").ABIValue | import("@algorandfoundation/algokit-utils").TransactionWithSigner | Transaction | Promise<Transaction> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppCreateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils").AppUpdateParams> | import("@algorandfoundation/algokit-utils/composer").AppMethodCall<import("@algorandfoundation/algokit-utils/composer").AppMethodCallParams> | undefined)[] | undefined;
+        }>;
+        /**
          * Makes a call to the AkitaSocialPlugin smart contract using the `registerRefType(uint64,bool,string,byte[])uint64` ABI method.
          *
          * @param params The params for the smart contract call
@@ -2599,6 +2648,19 @@ export declare class AkitaSocialPluginClient {
          * @returns The call transaction
          */
         updateSubscriptionStateModifier: (params: CallParams<AkitaSocialPluginArgs["obj"]["updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void"] | AkitaSocialPluginArgs["tuple"]["updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void"]> & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("@algorandfoundation/algokit-utils/abi").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the AkitaSocialPlugin smart contract using the `commitStakingImpact(uint64,bool,uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialPluginArgs["obj"]["commitStakingImpact(uint64,bool,uint64,bool)void"] | AkitaSocialPluginArgs["tuple"]["commitStakingImpact(uint64,bool,uint64,bool)void"]> & {
             onComplete?: OnApplicationComplete.NoOp;
         }) => Promise<{
             transactions: Transaction[];
@@ -3182,6 +3244,24 @@ export declare class AkitaSocialPluginClient {
             transaction: Transaction;
         }>;
         /**
+         * Makes a call to the AkitaSocialPlugin smart contract using the `commitStakingImpact(uint64,bool,uint64,bool)void` ABI method.
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        commitStakingImpact: (params: CallParams<AkitaSocialPluginArgs["obj"]["commitStakingImpact(uint64,bool,uint64,bool)void"] | AkitaSocialPluginArgs["tuple"]["commitStakingImpact(uint64,bool,uint64,bool)void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOp;
+        }) => Promise<{
+            return: (undefined | AkitaSocialPluginReturns["commitStakingImpact(uint64,bool,uint64,bool)void"]);
+            groupId: string | undefined;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: import("@algorandfoundation/algokit-utils/algod-client").PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
          * Makes a call to the AkitaSocialPlugin smart contract using the `registerRefType(uint64,bool,string,byte[])uint64` ABI method.
          *
          * @param params The params for the smart contract call
@@ -3511,6 +3591,13 @@ export type AkitaSocialPluginComposer<TReturns extends [...any[]] = []> = {
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     updateSubscriptionStateModifier(params?: CallParams<AkitaSocialPluginArgs['obj']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'] | AkitaSocialPluginArgs['tuple']['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void']>): AkitaSocialPluginComposer<[...TReturns, AkitaSocialPluginReturns['updateSubscriptionStateModifier(uint64,bool,uint64,uint64)void'] | undefined]>;
+    /**
+     * Calls the commitStakingImpact(uint64,bool,uint64,bool)void ABI method.
+     *
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    commitStakingImpact(params?: CallParams<AkitaSocialPluginArgs['obj']['commitStakingImpact(uint64,bool,uint64,bool)void'] | AkitaSocialPluginArgs['tuple']['commitStakingImpact(uint64,bool,uint64,bool)void']>): AkitaSocialPluginComposer<[...TReturns, AkitaSocialPluginReturns['commitStakingImpact(uint64,bool,uint64,bool)void'] | undefined]>;
     /**
      * Calls the registerRefType(uint64,bool,string,byte[])uint64 ABI method.
      *

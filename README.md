@@ -221,8 +221,8 @@ new ID automatically and update this table; older entries are never replaced.
 
 | Plugin | Testnet | Mainnet |
 |--------|---------|---------|
-| `optInPlugin` | [`766098058`](https://lora.algokit.io/testnet/application/766098058) | [`3633293884`](https://lora.algokit.io/mainnet/application/3633293884) |
-| `selfOptInPlugin` | [`763128796`](https://lora.algokit.io/testnet/application/763128796) | [`3569560545`](https://lora.algokit.io/mainnet/application/3569560545) |
+| `optInPlugin` | [`763128795`](https://lora.algokit.io/testnet/application/763128795) | [`3569560490`](https://lora.algokit.io/mainnet/application/3569560490) |
+| `selfOptInPlugin` | [`767318626`](https://lora.algokit.io/testnet/application/767318626) | [`3644027143`](https://lora.algokit.io/mainnet/application/3644027143) |
 | `payPlugin` | [`763128821`](https://lora.algokit.io/testnet/application/763128821) | [`3569560828`](https://lora.algokit.io/mainnet/application/3569560828) |
 | `asaManagerPlugin` | [`764705920`](https://lora.algokit.io/testnet/application/764705920) | [`3605315701`](https://lora.algokit.io/mainnet/application/3605315701) |
 | `auctionPlugin` | [`763128866`](https://lora.algokit.io/testnet/application/763128866) | [`3569561141`](https://lora.algokit.io/mainnet/application/3569561141) |
@@ -239,7 +239,7 @@ new ID automatically and update this table; older entries are never replaced.
 | `rafflePlugin` | [`763128922`](https://lora.algokit.io/testnet/application/763128922) | [`3569561863`](https://lora.algokit.io/mainnet/application/3569561863) |
 | `revenueManagerPlugin` | [`767111831`](https://lora.algokit.io/testnet/application/767111831) | [`3642325118`](https://lora.algokit.io/mainnet/application/3642325118) |
 | `rewardsPlugin` | [`763128923`](https://lora.algokit.io/testnet/application/763128923) | [`3569561963`](https://lora.algokit.io/mainnet/application/3569561963) |
-| `socialPlugin` | [`766098156`](https://lora.algokit.io/testnet/application/766098156) | [`3633295088`](https://lora.algokit.io/mainnet/application/3633295088) |
+| `socialPlugin` | [`767298319`](https://lora.algokit.io/testnet/application/767298319) | [`3643581007`](https://lora.algokit.io/mainnet/application/3643581007) |
 | `stakingPlugin` | [`767116005`](https://lora.algokit.io/testnet/application/767116005) | [`3642392585`](https://lora.algokit.io/mainnet/application/3642392585) |
 | `stakingPoolPlugin` | [`767118261`](https://lora.algokit.io/testnet/application/767118261) | [`3642438287`](https://lora.algokit.io/mainnet/application/3642438287) |
 | `subscriptionsPlugin` | [`763128859`](https://lora.algokit.io/testnet/application/763128859) | [`3569561107`](https://lora.algokit.io/mainnet/application/3569561107) |

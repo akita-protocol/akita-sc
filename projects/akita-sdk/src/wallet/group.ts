@@ -1,7 +1,7 @@
 import type { WalletSDK } from './index'
 import { AbstractedAccountArgs, AbstractedAccountComposer, PluginKey } from '../generated/AbstractedAccountClient'
 import { AddAllowanceArgs, AddPluginArgs, CallerType, WalletAddPluginParams, WalletUsePluginParams } from './types'
-import { AllowancesToTuple } from './utils'
+import { AllowancesToTuple, applyDefaultAppCallMaxFees } from './utils'
 import { NewEscrowFeeAmount } from './constants'
 import { isPluginSDKReturn, MaybeSigner, SDKClient, GroupReturn, ExpandedSendParams, normalizeSigner } from '../types'
 import { MAX_UINT64 } from '../constants'
@@ -346,11 +346,7 @@ export class WalletGroupComposer {
     const internalTxns = (composer as unknown as {
       txns: Array<{ type: string; data: { maxFee?: typeof MAX_SIM_FEE } }>
     }).txns
-    for (const ctxn of internalTxns) {
-      if (ctxn.type === 'appCall' && ctxn.data.maxFee === undefined) {
-        ctxn.data.maxFee = MAX_SIM_FEE
-      }
-    }
+    applyDefaultAppCallMaxFees(internalTxns, MAX_SIM_FEE)
 
     // Single simulate + send via utils10 native path. Flags default to true
     // (populate resources, cover inner fees) unless the caller explicitly
