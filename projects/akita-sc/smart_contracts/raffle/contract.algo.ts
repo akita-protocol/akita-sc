@@ -21,7 +21,7 @@ import { abiCall, methodSelector, Uint64 } from '@algorandfoundation/algorand-ty
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
 import { calcPercent, createInstantDisbursement, gateCall, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
-import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
+import { pcg64Init, pcg64Random } from 'lib-pcg-algots/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
 import { RandomnessBeacon } from '../utils/types/randomness-beacon'
 import { RoyaltyAmounts } from '../utils/types/royalties'

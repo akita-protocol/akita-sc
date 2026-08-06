@@ -24,7 +24,7 @@ import { UserAllocation } from '../rewards/types'
 import { StakingType } from '../staking/types'
 import { BoxCostPerByte, MAX_UINT64 } from '../utils/constants'
 import { calcPercent, gateCheck, getAkitaAppList, getGateArgs, getOtherAppList, getWalletIDUsingAkitaDAO, originOr, originOrTxnSender, percentageOf, softGateCheck, splitOptInCount } from '../utils/functions'
-import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
+import { pcg64Init, pcg64Random } from 'lib-pcg-algots/lib_pcg/pcg64.algo'
 
 import {
   DisbursementPhaseAllocation,
