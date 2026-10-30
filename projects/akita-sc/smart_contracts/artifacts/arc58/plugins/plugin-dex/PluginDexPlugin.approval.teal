@@ -5,28 +5,28 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 8 1 2
-    bytecblock 0x151f7c75 "dex" 0xa3ca7f76 0x5d420eec 0xbc6e1996 0x5724e9a7 0x95fdde56
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:37-38
+    bytecblock 0x151f7c75 "dex" 0xbc6e1996 0x5724e9a7 0x95fdde56
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:36-37
     // @contract({ avmVersion: 13 })
     // export class PluginDexPlugin extends Contract {
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@12
-    pushbytess 0x854dede0 0x7f42b9f3 0xecd21405 0x7b325971 0x31cd1b36 0x88d13776 0x257ccd6c 0xea672f6b // method "opUp()void", method "swap(uint64,bool,uint64,uint64,uint64,uint64,byte[])uint64", method "swapRoute(uint64,bool,uint64[],uint64,uint64,uint64,uint64,byte[])uint64", method "createPool(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,byte[]),(uint64,uint64,uint64,uint64,uint64,byte[])[],(uint64,uint64,uint64,uint64,uint64,uint64,uint64)[],uint64)uint64", method "addLiquidity(uint64,bool,uint64,uint64,uint64,uint64,byte[])uint64", method "removeLiquidity(uint64,bool,uint64,uint64,uint64,uint64,byte[])(uint64,uint64)", method "addLiquidityCurve(uint64,bool,uint64,uint64,uint64,uint64,uint64,byte[],uint64,byte[])(uint64,uint64,uint64,uint64)", method "removeLiquidityCurve(uint64,bool,uint64,uint64,uint64,uint64,byte[],byte[],bool)(uint64,uint64)"
+    bz main_create_NoOp@10
+    pushbytess 0x854dede0 0x7b325971 0x31cd1b36 0x88d13776 0x257ccd6c 0xea672f6b // method "opUp()void", method "createPool(uint64,bool,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,bool,uint64,byte[]),(uint64,uint64,uint64,uint64,uint64,byte[])[],(uint64,uint64,uint64,uint64,uint64,uint64,uint64)[],uint64)uint64", method "addLiquidity(uint64,bool,uint64,uint64,uint64,uint64,byte[])uint64", method "removeLiquidity(uint64,bool,uint64,uint64,uint64,uint64,byte[])(uint64,uint64)", method "addLiquidityCurve(uint64,bool,uint64,uint64,uint64,uint64,uint64,byte[],uint64,byte[])(uint64,uint64,uint64,uint64)", method "removeLiquidityCurve(uint64,bool,uint64,uint64,uint64,uint64,byte[],byte[],bool)(uint64,uint64)"
     txna ApplicationArgs 0
-    match main_opUp_route@3 swap swapRoute createPool addLiquidity removeLiquidity addLiquidityCurve removeLiquidityCurve
+    match main_opUp_route@3 createPool addLiquidity removeLiquidity addLiquidityCurve removeLiquidityCurve
     err
 
 main_opUp_route@3:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:50
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:49
     // opUp(): void {}
     intc_2 // 1
     return
 
-main_create_NoOp@12:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:37-38
+main_create_NoOp@10:
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:36-37
     // @contract({ avmVersion: 13 })
     // export class PluginDexPlugin extends Contract {
     pushbytes 0xcd9ad67e // method "create(string,uint64)void"
@@ -99,7 +99,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:43
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:42
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -119,715 +119,29 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:39
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:38
     // version = GlobalState<string>({ key: 'version' })
     pushbytes "version"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:45
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:44
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:46
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:45
     // this.dex.value = dex
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:43
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:42
     // @abimethod({ onCreate: 'require' })
     intc_2 // 1
     return
 
 
-// smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swap[routing]() -> void:
-swap:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:55-63
-    // swap(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   poolId: uint64,
-    //   assetIn: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    txna ApplicationArgs 1
-    dupn 2
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    dup
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_2 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
-    intc_0 // 0
-    getbit
-    swap
-    txna ApplicationArgs 3
-    dup
-    cover 2
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 4
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    dup
-    cover 3
-    txna ApplicationArgs 5
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    cover 3
-    txna ApplicationArgs 6
-    dup
-    cover 6
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 7
-    dup
-    cover 7
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:64
-    // const sender = getControlledSpendingAccount(wallet)
-    uncover 2
-    callsub getControlledSpendingAccount
-    cover 3
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:65
-    // const pool = this.pool(poolId)
-    swap
-    callsub pool
-    dup
-    cover 2
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:66
-    // this.ensureOptIn(sender, assetIn === pool.assetA ? pool.assetB : pool.assetA)
-    intc_0 // 0
-    extract_uint64
-    dup
-    cover 2
-    ==
-    bz swap_ternary_false@3
-    pop
-    dup
-    intc_1 // 8
-    extract_uint64
-
-swap_ternary_merge@4:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:66
-    // this.ensureOptIn(sender, assetIn === pool.assetA ? pool.assetB : pool.assetA)
-    dig 3
-    swap
-    callsub ensureOptIn
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:67
-    // const escrow = Application(pool.escrow).address
-    pushint 16
-    extract_uint64
-    app_params_get AppAddress
-    assert // application exists
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:68
-    // const rekeyTo = rekeyAddress(rekeyBack, wallet)
-    uncover 7
-    uncover 8
-    callsub rekeyAddress
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:70
-    // if (assetIn === 0) {
-    dig 4
-    bnz swap_after_if_else@8
-    uncover 4
-    pop
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:71-76
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_begin
-    uncover 2
-    itxn_field Amount
-    swap
-    itxn_field Receiver
-    swap
-    dup
-    itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:74
-    // args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    intc_2 // 1
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:71-76
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:74
-    // args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    global ZeroAddress
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:72
-    // appId: this.dex.value,
-    intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
-    // dex = GlobalState<Application>({ key: 'dex' })
-    bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:72
-    // appId: this.dex.value,
-    app_global_get_ex
-    assert // check GlobalState exists
-    uncover 3
-    itxn_field RekeyTo
-    uncover 2
-    itxn_field Sender
-    itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:71-76
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    bytec_2 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
-    itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // Bytes has valid prefix
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for uint64
-    btoi
-
-swap_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swap@11:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:55-63
-    // swap(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   poolId: uint64,
-    //   assetIn: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    itob
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_2 // 1
-    return
-
-swap_after_if_else@8:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:78-90
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     poolId,
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_begin
-    uncover 2
-    itxn_field AssetAmount
-    uncover 3
-    itxn_field XferAsset
-    swap
-    itxn_field AssetReceiver
-    swap
-    dup
-    itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:82
-    // itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    pushint 4
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:78-90
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     poolId,
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:85
-    // Global.zeroAddress,
-    global ZeroAddress
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:79
-    // appId: this.dex.value,
-    intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
-    // dex = GlobalState<Application>({ key: 'dex' })
-    bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:79
-    // appId: this.dex.value,
-    app_global_get_ex
-    assert // check GlobalState exists
-    uncover 3
-    itxn_field RekeyTo
-    uncover 2
-    itxn_field Sender
-    itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:78-90
-    // return abiCall<typeof PluginDex.prototype.swap>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     poolId,
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    bytec_2 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
-    itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // Bytes has valid prefix
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for uint64
-    btoi
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:55-63
-    // swap(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   poolId: uint64,
-    //   assetIn: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    b swap_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swap@11
-
-swap_ternary_false@3:
-    b swap_ternary_merge@4
-
-
-// smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swapRoute[routing]() -> void:
-swapRoute:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:94-103
-    // swapRoute(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   route: uint64[],
-    //   assetIn: uint64,
-    //   assetOut: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    txna ApplicationArgs 1
-    dupn 2
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 2
-    dup
-    len
-    intc_2 // 1
-    ==
-    assert // invalid number of bytes for arc4.bool
-    intc_0 // 0
-    getbit
-    txna ApplicationArgs 3
-    dup
-    cover 3
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_1 // 8
-    *
-    intc_3 // 2
-    +
-    dig 1
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<uint64>
-    txna ApplicationArgs 4
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    dup
-    cover 4
-    txna ApplicationArgs 5
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    txna ApplicationArgs 6
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    btoi
-    cover 5
-    txna ApplicationArgs 7
-    dup
-    cover 8
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for arc4.uint64
-    txna ApplicationArgs 8
-    dup
-    cover 9
-    dup
-    intc_0 // 0
-    extract_uint16 // on error: invalid array length header
-    intc_3 // 2
-    +
-    swap
-    len
-    ==
-    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:104
-    // const sender = getControlledSpendingAccount(wallet)
-    dig 4
-    callsub getControlledSpendingAccount
-    dup
-    cover 7
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:105
-    // this.ensureOptIn(sender, assetOut)
-    swap
-    callsub ensureOptIn
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:106
-    // const escrow = Application(this.pool(route[0]).escrow).address
-    swap
-    intc_3 // 2
-    extract_uint64
-    callsub pool
-    pushint 16
-    extract_uint64
-    app_params_get AppAddress
-    swap
-    cover 4
-    assert // application exists
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:107
-    // const rekeyTo = rekeyAddress(rekeyBack, wallet)
-    swap
-    uncover 2
-    callsub rekeyAddress
-    swap
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:109
-    // if (assetIn === 0) {
-    bnz swapRoute_after_if_else@5
-    uncover 4
-    pop
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-115
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_begin
-    uncover 2
-    itxn_field Amount
-    swap
-    itxn_field Receiver
-    swap
-    dup
-    itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:113
-    // args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    intc_2 // 1
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-115
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:113
-    // args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    global ZeroAddress
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:111
-    // appId: this.dex.value,
-    intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
-    // dex = GlobalState<Application>({ key: 'dex' })
-    bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:111
-    // appId: this.dex.value,
-    app_global_get_ex
-    assert // check GlobalState exists
-    uncover 3
-    itxn_field RekeyTo
-    uncover 2
-    itxn_field Sender
-    itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-115
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
-    //   rekeyTo,
-    // }).returnValue
-    bytec_3 // method "swapRoute(txn,uint64[],uint64,address,byte[],uint64)uint64"
-    itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // Bytes has valid prefix
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for uint64
-    btoi
-
-swapRoute_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swapRoute@8:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:94-103
-    // swapRoute(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   route: uint64[],
-    //   assetIn: uint64,
-    //   assetOut: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    itob
-    bytec_0 // 0x151f7c75
-    swap
-    concat
-    log
-    intc_2 // 1
-    return
-
-swapRoute_after_if_else@5:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:117-129
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     clone(route),
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_begin
-    uncover 2
-    itxn_field AssetAmount
-    uncover 3
-    itxn_field XferAsset
-    swap
-    itxn_field AssetReceiver
-    swap
-    dup
-    itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:121
-    // itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    pushint 4
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:117-129
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     clone(route),
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:124
-    // Global.zeroAddress,
-    global ZeroAddress
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:118
-    // appId: this.dex.value,
-    intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
-    // dex = GlobalState<Application>({ key: 'dex' })
-    bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:118
-    // appId: this.dex.value,
-    app_global_get_ex
-    assert // check GlobalState exists
-    uncover 3
-    itxn_field RekeyTo
-    uncover 2
-    itxn_field Sender
-    itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:117-129
-    // return abiCall<typeof PluginDex.prototype.swapRoute>({
-    //   appId: this.dex.value,
-    //   sender,
-    //   args: [
-    //     itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
-    //     clone(route),
-    //     minAmountOut,
-    //     Global.zeroAddress,
-    //     data,
-    //     windowHint(wallet),
-    //   ],
-    //   rekeyTo,
-    // }).returnValue
-    bytec_3 // method "swapRoute(txn,uint64[],uint64,address,byte[],uint64)uint64"
-    itxn_field ApplicationArgs
-    uncover 3
-    itxn_field ApplicationArgs
-    swap
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    itxn_field ApplicationArgs
-    pushint 6 // appl
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-    itxn LastLog
-    dup
-    extract 4 0
-    swap
-    extract 0 4
-    bytec_0 // 0x151f7c75
-    ==
-    assert // Bytes has valid prefix
-    dup
-    len
-    intc_1 // 8
-    ==
-    assert // invalid number of bytes for uint64
-    btoi
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:94-103
-    // swapRoute(
-    //   wallet: Application,
-    //   rekeyBack: boolean,
-    //   route: uint64[],
-    //   assetIn: uint64,
-    //   assetOut: uint64,
-    //   amountIn: uint64,
-    //   minAmountOut: uint64,
-    //   data: bytes,
-    // ): uint64 {
-    b swapRoute_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.swapRoute@8
-
-
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.createPool[routing]() -> void:
 createPool:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:138-147
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:57-66
     // createPool(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -901,7 +215,7 @@ createPool:
     intc_0 // 0
 
 createPool_for_header@1:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:138-147
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:57-66
     // createPool(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -957,7 +271,7 @@ createPool_after_for@4:
     popn 2
     uncover 2
     pop
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:138-147
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:57-66
     // createPool(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -991,13 +305,13 @@ createPool_after_for@4:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:148
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:67
     // const sender = getControlledSpendingAccount(wallet)
     uncover 7
     dup
     cover 2
     callsub getControlledSpendingAccount
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:149-161
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:68-80
     // return abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: this.dex.value,
     //   sender,
@@ -1012,13 +326,13 @@ createPool_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:153
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:72
     // itxn.payment({ sender, receiver: this.dex.value.address, amount: payment }),
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:153
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:72
     // itxn.payment({ sender, receiver: this.dex.value.address, amount: payment }),
     app_global_get_ex
     assert // check GlobalState exists
@@ -1034,7 +348,7 @@ createPool_after_for@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:149-161
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:68-80
     // return abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: this.dex.value,
     //   sender,
@@ -1049,7 +363,7 @@ createPool_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:160
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:79
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 8
     uncover 3
@@ -1057,7 +371,7 @@ createPool_after_for@4:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:149-161
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:68-80
     // return abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: this.dex.value,
     //   sender,
@@ -1100,7 +414,7 @@ createPool_after_for@4:
     intc_1 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:138-147
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:57-66
     // createPool(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1121,7 +435,7 @@ createPool_after_for@4:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.addLiquidity[routing]() -> void:
 addLiquidity:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:167-175
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:86-94
     // addLiquidity(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1138,6 +452,7 @@ addLiquidity:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    dup
     txna ApplicationArgs 2
     dup
     len
@@ -1146,9 +461,10 @@ addLiquidity:
     assert // invalid number of bytes for arc4.bool
     intc_0 // 0
     getbit
+    swap
     txna ApplicationArgs 3
     dup
-    cover 3
+    cover 4
     dup
     len
     intc_1 // 8
@@ -1162,7 +478,7 @@ addLiquidity:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 3
+    cover 2
     txna ApplicationArgs 5
     dup
     len
@@ -1170,17 +486,17 @@ addLiquidity:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 4
+    cover 3
     txna ApplicationArgs 6
     dup
-    cover 6
+    cover 7
     len
     intc_1 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 7
     dup
-    cover 7
+    cover 8
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -1190,53 +506,76 @@ addLiquidity:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:95
     // const sender = getControlledSpendingAccount(wallet)
-    dig 2
-    callsub getControlledSpendingAccount
-    dup
-    cover 5
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:177
-    // const pool = this.pool(poolId)
     swap
+    callsub getControlledSpendingAccount
+    swap
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:96
+    // const pool = this.pool(poolId)
     callsub pool
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:178
-    // this.ensureOptIn(sender, pool.lpAsset)
     dup
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:97
+    // this.ensureOptIn(sender, pool.lpAsset)
     pushint 24
     extract_uint64
-    uncover 2
-    swap
-    callsub ensureOptIn
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:179
+    dup
+    cover 10
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:249
+    // if (asset !== 0 && !sender.isOptedIn(Asset(asset))) {
+    bz addLiquidity_after_if_else@14
+    dig 1
+    dig 10
+    asset_holding_get AssetBalance
+    bury 1
+    bnz addLiquidity_after_if_else@14
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:250
+    // itxn.assetTransfer({ sender, assetReceiver: sender, xferAsset: asset, assetAmount: 0 }).submit()
+    itxn_begin
+    intc_0 // 0
+    itxn_field AssetAmount
+    dig 9
+    itxn_field XferAsset
+    dig 1
+    dup
+    itxn_field AssetReceiver
+    itxn_field Sender
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+addLiquidity_after_if_else@14:
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:98
     // const escrow = Application(pool.escrow).address
     dup
     pushint 16
     extract_uint64
     app_params_get AppAddress
     swap
-    cover 4
+    cover 3
     assert // application exists
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:180
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:99
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     dup
     intc_1 // 8
     extract_uint64
-    cover 6
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:181
+    cover 4
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:100
     // const rekeyTo = rekeyAddress(rekeyBack, wallet)
-    swap
-    uncover 2
+    uncover 6
+    uncover 7
     callsub rekeyAddress
     cover 5
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:183
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:102
     // if (pool.assetA === 0) {
     intc_0 // 0
     extract_uint64
     dup
     bnz addLiquidity_after_if_else@6
     pop
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:184-189
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:103-108
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1244,13 +583,14 @@ addLiquidity:
     //   rekeyTo,
     // }).returnValue
     itxn_begin
-    swap
+    uncover 2
     itxn_field Amount
+    swap
     dup
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:187
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:106
     // args: [itxn.payment({ sender, receiver: escrow, amount: amountA }), depositB, poolId, minLpOut, data],
     intc_2 // 1
     itxn_field TypeEnum
@@ -1264,13 +604,13 @@ addLiquidity:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:180
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:99
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:184-189
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:103-108
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1278,13 +618,13 @@ addLiquidity:
     //   rekeyTo,
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:185
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:104
     // appId: this.dex.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:185
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:104
     // appId: this.dex.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1292,14 +632,14 @@ addLiquidity:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:184-189
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:103-108
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
     //   args: [itxn.payment({ sender, receiver: escrow, amount: amountA }), depositB, poolId, minLpOut, data],
     //   rekeyTo,
     // }).returnValue
-    bytec 4 // method "addLiquidity(txn,txn,uint64,uint64,byte[])uint64"
+    bytec_2 // method "addLiquidity(txn,txn,uint64,uint64,byte[])uint64"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
@@ -1326,7 +666,7 @@ addLiquidity:
     btoi
 
 addLiquidity_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.addLiquidity@10:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:167-175
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:86-94
     // addLiquidity(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1345,7 +685,7 @@ addLiquidity_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.alg
     return
 
 addLiquidity_after_if_else@6:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:191-202
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-121
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1359,20 +699,21 @@ addLiquidity_after_if_else@6:
     //   rekeyTo,
     // }).returnValue
     itxn_begin
-    uncover 2
+    uncover 3
     itxn_field AssetAmount
     itxn_field XferAsset
+    swap
     dup
     itxn_field AssetReceiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:195
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:114
     // itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetA, assetAmount: amountA }),
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:196
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:115
     // depositB,
     itxn_next
     uncover 4
@@ -1382,13 +723,13 @@ addLiquidity_after_if_else@6:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:180
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:99
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:191-202
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-121
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1402,13 +743,13 @@ addLiquidity_after_if_else@6:
     //   rekeyTo,
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:192
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:111
     // appId: this.dex.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:192
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:111
     // appId: this.dex.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1416,7 +757,7 @@ addLiquidity_after_if_else@6:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:191-202
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:110-121
     // return abiCall<typeof PluginDex.prototype.addLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1429,7 +770,7 @@ addLiquidity_after_if_else@6:
     //   ],
     //   rekeyTo,
     // }).returnValue
-    bytec 4 // method "addLiquidity(txn,txn,uint64,uint64,byte[])uint64"
+    bytec_2 // method "addLiquidity(txn,txn,uint64,uint64,byte[])uint64"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
@@ -1454,7 +795,7 @@ addLiquidity_after_if_else@6:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:167-175
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:86-94
     // addLiquidity(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1469,7 +810,7 @@ addLiquidity_after_if_else@6:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.removeLiquidity[routing]() -> void:
 removeLiquidity:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:206-214
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:125-133
     // removeLiquidity(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1539,35 +880,35 @@ removeLiquidity:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:215
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:134
     // const sender = getControlledSpendingAccount(wallet)
     swap
     callsub getControlledSpendingAccount
     swap
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:216
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:135
     // const pool = this.pool(poolId)
     callsub pool
     dup
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:217
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:136
     // if (pool.curve !== 0) {
     pushint 32
     extract_uint64
     bz removeLiquidity_after_if_else@4
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:218
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:137
     // abiCall<typeof PluginDex.prototype.sync>({ appId: this.dex.value, sender, args: [poolId] })
     itxn_begin
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:218
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:137
     // abiCall<typeof PluginDex.prototype.sync>({ appId: this.dex.value, sender, args: [poolId] })
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     itxn_field Sender
     itxn_field ApplicationID
-    bytec 5 // method "sync(uint64)void"
+    bytec_3 // method "sync(uint64)void"
     itxn_field ApplicationArgs
     dig 3
     itxn_field ApplicationArgs
@@ -1578,7 +919,7 @@ removeLiquidity:
     itxn_submit
 
 removeLiquidity_after_if_else@4:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:220-231
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:139-150
     // return abiCall<typeof PluginDex.prototype.removeLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1592,13 +933,13 @@ removeLiquidity_after_if_else@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:224
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:143
     // itxn.assetTransfer({ sender, assetReceiver: this.dex.value.address, xferAsset: pool.lpAsset, assetAmount: lpAmount }),
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:224
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:143
     // itxn.assetTransfer({ sender, assetReceiver: this.dex.value.address, xferAsset: pool.lpAsset, assetAmount: lpAmount }),
     app_global_get_ex
     assert // check GlobalState exists
@@ -1619,7 +960,7 @@ removeLiquidity_after_if_else@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:220-231
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:139-150
     // return abiCall<typeof PluginDex.prototype.removeLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1633,7 +974,7 @@ removeLiquidity_after_if_else@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet),
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:230
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:149
     // rekeyTo: rekeyAddress(rekeyBack, wallet),
     uncover 6
     uncover 7
@@ -1641,7 +982,7 @@ removeLiquidity_after_if_else@4:
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:220-231
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:139-150
     // return abiCall<typeof PluginDex.prototype.removeLiquidity>({
     //   appId: this.dex.value,
     //   sender,
@@ -1680,7 +1021,7 @@ removeLiquidity_after_if_else@4:
     pushint 16
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::RemoveResult
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:206-214
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:125-133
     // removeLiquidity(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1700,7 +1041,7 @@ removeLiquidity_after_if_else@4:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.addLiquidityCurve[routing]() -> void:
 addLiquidityCurve:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:240-251
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:159-170
     // addLiquidityCurve(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1799,15 +1140,15 @@ addLiquidityCurve:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:252
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:171
     // const sender = getControlledSpendingAccount(wallet)
     dig 2
     callsub getControlledSpendingAccount
     cover 4
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:253
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:172
     // const pool = this.pool(poolId)
     callsub pool
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:254
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:173
     // const escrow = Application(pool.escrow).address
     dup
     pushint 16
@@ -1816,13 +1157,13 @@ addLiquidityCurve:
     swap
     cover 6
     assert // application exists
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:255
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:174
     // const mbrPayment = itxn.payment({ sender, receiver: this.dex.value.address, amount: mbr })
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:255
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:174
     // const mbrPayment = itxn.payment({ sender, receiver: this.dex.value.address, amount: mbr })
     app_global_get_ex
     assert // check GlobalState exists
@@ -1830,26 +1171,26 @@ addLiquidityCurve:
     swap
     cover 4
     assert // application exists
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:256
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:175
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     dup
     intc_1 // 8
     extract_uint64
     cover 7
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:257
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:176
     // const rekeyTo = rekeyAddress(rekeyBack, wallet)
     swap
     uncover 2
     callsub rekeyAddress
     cover 6
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:259
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:178
     // if (pool.assetA === 0) {
     intc_0 // 0
     extract_uint64
     dup
     bnz addLiquidityCurve_after_if_else@7
     pop
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:260-265
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:179-184
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -1861,13 +1202,13 @@ addLiquidityCurve:
     itxn_field Amount
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:255
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:174
     // const mbrPayment = itxn.payment({ sender, receiver: this.dex.value.address, amount: mbr })
     intc_2 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:263
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:182
     // args: [mbrPayment, itxn.payment({ sender, receiver: escrow, amount: amountA }), depositB, poolId, positionId, minShares, curveArgs, data],
     itxn_next
     uncover 4
@@ -1889,13 +1230,13 @@ addLiquidityCurve:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:256
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:175
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:260-265
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:179-184
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -1903,13 +1244,13 @@ addLiquidityCurve:
     //   rekeyTo,
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:261
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:180
     // appId: this.dex.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:261
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:180
     // appId: this.dex.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1917,14 +1258,14 @@ addLiquidityCurve:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:260-265
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:179-184
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
     //   args: [mbrPayment, itxn.payment({ sender, receiver: escrow, amount: amountA }), depositB, poolId, positionId, minShares, curveArgs, data],
     //   rekeyTo,
     // }).returnValue
-    bytec 6 // method "addLiquidityCurve(pay,txn,txn,uint64,uint64,uint64,byte[],byte[])(uint64,uint64,uint64,uint64)"
+    bytec 4 // method "addLiquidityCurve(pay,txn,txn,uint64,uint64,uint64,byte[],byte[])(uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
@@ -1954,7 +1295,7 @@ addLiquidityCurve:
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::CurveLiquidityResult
 
 addLiquidityCurve_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.addLiquidityCurve@12:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:240-251
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:159-170
     // addLiquidityCurve(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -1975,7 +1316,7 @@ addLiquidityCurve_after_inlined_smart_contracts/arc58/plugins/plugin-dex/contrac
     return
 
 addLiquidityCurve_after_if_else@7:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:267-281
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:186-200
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -1999,13 +1340,13 @@ addLiquidityCurve_after_if_else@7:
     swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:255
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:174
     // const mbrPayment = itxn.payment({ sender, receiver: this.dex.value.address, amount: mbr })
     intc_2 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:272
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:191
     // itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetA, assetAmount: amountA }),
     itxn_next
     uncover 5
@@ -2020,7 +1361,7 @@ addLiquidityCurve_after_if_else@7:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:273
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:192
     // depositB,
     itxn_next
     uncover 4
@@ -2031,13 +1372,13 @@ addLiquidityCurve_after_if_else@7:
     itxn_field AssetReceiver
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:256
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:175
     // const depositB = itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: pool.assetB, assetAmount: amountB })
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:267-281
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:186-200
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -2054,13 +1395,13 @@ addLiquidityCurve_after_if_else@7:
     //   rekeyTo,
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:268
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:187
     // appId: this.dex.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:268
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:187
     // appId: this.dex.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -2068,7 +1409,7 @@ addLiquidityCurve_after_if_else@7:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:267-281
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:186-200
     // return abiCall<typeof PluginDex.prototype.addLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -2084,7 +1425,7 @@ addLiquidityCurve_after_if_else@7:
     //   ],
     //   rekeyTo,
     // }).returnValue
-    bytec 6 // method "addLiquidityCurve(pay,txn,txn,uint64,uint64,uint64,byte[],byte[])(uint64,uint64,uint64,uint64)"
+    bytec 4 // method "addLiquidityCurve(pay,txn,txn,uint64,uint64,uint64,byte[],byte[])(uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
@@ -2112,7 +1453,7 @@ addLiquidityCurve_after_if_else@7:
     pushint 32
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::CurveLiquidityResult
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:240-251
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:159-170
     // addLiquidityCurve(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2130,7 +1471,7 @@ addLiquidityCurve_after_if_else@7:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.removeLiquidityCurve[routing]() -> void:
 removeLiquidityCurve:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:288-298
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:207-217
     // removeLiquidityCurve(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2222,34 +1563,34 @@ removeLiquidityCurve:
     getbit
     dup
     cover 5
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:299
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:218
     // const sender = getControlledSpendingAccount(wallet)
     dig 4
     callsub getControlledSpendingAccount
     dup
     cover 2
     cover 12
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:300
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:219
     // const rekeyTo = rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
     callsub rekeyAddress
     cover 10
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:301
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:220
     // const curve = this.pool(poolId).curve
     uncover 2
     callsub pool
     pushint 32
     extract_uint64
     cover 9
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:302
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:221
     // abiCall<typeof PluginDex.prototype.sync>({ appId: this.dex.value, sender, args: [poolId] })
     itxn_begin
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:302
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:221
     // abiCall<typeof PluginDex.prototype.sync>({ appId: this.dex.value, sender, args: [poolId] })
     app_global_get_ex
     swap
@@ -2260,7 +1601,7 @@ removeLiquidityCurve:
     uncover 2
     itxn_field Sender
     itxn_field ApplicationID
-    bytec 5 // method "sync(uint64)void"
+    bytec_3 // method "sync(uint64)void"
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
@@ -2269,7 +1610,7 @@ removeLiquidityCurve:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:304-309
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:223-228
     // const removed = abiCall<typeof PluginDex.prototype.removeLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -2277,7 +1618,7 @@ removeLiquidityCurve:
     //   rekeyTo: closePosition ? Global.zeroAddress : rekeyTo,
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:308
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:227
     // rekeyTo: closePosition ? Global.zeroAddress : rekeyTo,
     bz removeLiquidityCurve_ternary_false@4
     global ZeroAddress
@@ -2287,7 +1628,7 @@ removeLiquidityCurve_ternary_merge@5:
     dig 9
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:304-309
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:223-228
     // const removed = abiCall<typeof PluginDex.prototype.removeLiquidityCurve>({
     //   appId: this.dex.value,
     //   sender,
@@ -2326,11 +1667,11 @@ removeLiquidityCurve_ternary_merge@5:
     pushint 16
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::RemoveResult
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:311
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:230
     // if (closePosition) {
     swap
     bz removeLiquidityCurve_after_if_else@9
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:312-317
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:231-236
     // abiCall<typeof BinEngine.prototype.closePosition>({
     //   appId: curve,
     //   sender,
@@ -2355,7 +1696,7 @@ removeLiquidityCurve_ternary_merge@5:
     itxn_submit
 
 removeLiquidityCurve_after_if_else@9:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:288-298
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:207-217
     // removeLiquidityCurve(
     //   wallet: Application,
     //   rekeyBack: boolean,
@@ -2381,19 +1722,19 @@ removeLiquidityCurve_ternary_false@4:
 
 // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.pool(poolId: uint64) -> bytes:
 pool:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:324
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:243
     // private pool(poolId: uint64): PoolInfo {
     proto 1 1
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:325
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:244
     // return abiCall<typeof PluginDex.prototype.getPool>({ appId: this.dex.value, args: [poolId] }).returnValue
     itxn_begin
     frame_dig -1
     itob
     intc_0 // 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:41
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:40
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec_1 // "dex"
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:325
+    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:244
     // return abiCall<typeof PluginDex.prototype.getPool>({ appId: this.dex.value, args: [poolId] }).returnValue
     app_global_get_ex
     assert // check GlobalState exists
@@ -2419,39 +1760,4 @@ pool:
     pushint 281
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::PoolInfo
-    retsub
-
-
-// smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts::PluginDexPlugin.ensureOptIn(sender: bytes, asset: uint64) -> void:
-ensureOptIn:
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:329
-    // private ensureOptIn(sender: Account, asset: uint64): void {
-    proto 2 0
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:330
-    // if (asset !== 0 && !sender.isOptedIn(Asset(asset))) {
-    frame_dig -1
-    bz ensureOptIn_after_if_else@4
-    frame_dig -2
-    frame_dig -1
-    asset_holding_get AssetBalance
-    bury 1
-    bnz ensureOptIn_after_if_else@4
-    // smart_contracts/arc58/plugins/plugin-dex/contract.algo.ts:331
-    // itxn.assetTransfer({ sender, assetReceiver: sender, xferAsset: asset, assetAmount: 0 }).submit()
-    itxn_begin
-    intc_0 // 0
-    itxn_field AssetAmount
-    frame_dig -1
-    itxn_field XferAsset
-    frame_dig -2
-    itxn_field AssetReceiver
-    frame_dig -2
-    itxn_field Sender
-    pushint 4
-    itxn_field TypeEnum
-    intc_0 // 0
-    itxn_field Fee
-    itxn_submit
-
-ensureOptIn_after_if_else@4:
     retsub

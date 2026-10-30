@@ -1,5 +1,5 @@
 /**
- * PluginDexPlugin end to end: an Akita wallet creates pools, swaps and provides liquidity on the PluginDex
+ * PluginDexPlugin end to end: an Akita wallet creates pools and provides liquidity on the PluginDex
  * Vault through `wallet.usePlugin`, with no admin flash rekey. Every outer transaction is sent by the
  * caller, so any signer that can sign its own transactions (passkey, KMD, Pera) can drive it.
  */
@@ -22,7 +22,6 @@ import {
   LpMode,
   PluginDexSDK,
   spotDistribution,
-  withSlippage,
 } from '../../../../../akita-sdk/src/plugin-dex'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
@@ -46,7 +45,7 @@ describe('PluginDexPlugin', () => {
   let token: bigint
   let quoteToken: bigint
 
-  const use = (...calls: ReturnType<PluginDexPluginSDK['swap']>[]) => wallet.usePlugin({ callerType: CallerType.Global, calls })
+  const use = (...calls: ReturnType<PluginDexPluginSDK['addLiquidity']>[]) => wallet.usePlugin({ callerType: CallerType.Global, calls })
   const holding = async (asset: bigint) =>
     asset === 0n
       ? (await algorand.account.getInformation(walletAddress)).balance.microAlgo
@@ -99,7 +98,7 @@ describe('PluginDexPlugin', () => {
     }
   })
 
-  test('creates a pool, adds liquidity, swaps both ways and removes, all from the wallet', async () => {
+  test('creates a pool, adds and removes liquidity, all from the wallet', async () => {
     const before = (await reader.listPools()).size
     await use(plugin.createPool({ assetA: token, assetB: 0n, config: defaultPoolConfig(30n), payment: 2_000_000n }))
     const poolId = BigInt(before)
@@ -107,24 +106,10 @@ describe('PluginDexPlugin', () => {
     expect([pool.assetA, pool.assetB]).toEqual([0n, token])
     expect(pool.creator).toBe(walletAddress)
 
-    await use(plugin.addLiquidity({ poolId, amountA: 10_000_000n, amountB: 1_000_000_000n }))
+    const added = await use(plugin.addLiquidity({ poolId, amountA: 10_000_000n, amountB: 1_000_000_000n }))
     const lp = await holding(pool.lpAsset)
     expect(lp).toBeGreaterThan(0n)
-
-    const tokenBefore = await holding(token)
-    const quoted = await reader.quote({ poolId, assetIn: 0n, amountIn: 1_000_000n, swapper: walletAddress })
-    const swapped = await use(plugin.swap({ poolId, assetIn: 0n, amountIn: 1_000_000n, minAmountOut: withSlippage(quoted, 50n) }))
-    const out = plugin.decodeReturn<bigint>(swapped, 'swap')
-    expect(out).toBeGreaterThanOrEqual(withSlippage(quoted, 50n))
-    expect((await holding(token)) - tokenBefore).toBe(out)
-
-    const algoBefore = await holding(0n)
-    await use(plugin.swap({ poolId, assetIn: token, amountIn: 10_000_000n, minAmountOut: 1n }))
-    expect(await holding(0n)).toBeGreaterThan(algoBefore - 50_000n)
-
-    const routedBefore = await holding(token)
-    await use(plugin.swapRoute({ route: [poolId], assetIn: 0n, assetOut: token, amountIn: 500_000n, minAmountOut: 1n }))
-    expect(await holding(token)).toBeGreaterThan(routedBefore)
+    expect(plugin.decodeReturn<bigint>(added, 'addLiquidity')).toBe(lp)
 
     const tokenBeforeRemove = await holding(token)
     const removed = await use(plugin.removeLiquidity({ poolId, lpAmount: lp }))
