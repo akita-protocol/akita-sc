@@ -1354,22 +1354,8 @@ async function deploy() {
 
     if (options.importLoraAppLab) {
       try {
-        const pathModule = await import('path')
-        const osModule = await import('os')
-        const { importLoraAppLab } = await import('./import-lora-app-lab')
-        await importLoraAppLab({
-          network: options.network,
-          summaryPath,
-          loraUrl: process.env.LORA_URL ?? 'https://lora.algokit.io',
-          cdpUrl: process.env.LORA_CDP_URL,
-          chromePath: process.env.LORA_CHROME_PATH ?? '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
-          chromeUserDataDir:
-            process.env.LORA_CHROME_USER_DATA_DIR ??
-            pathModule.join(osModule.homedir(), 'Library/Application Support/BraveSoftware/Brave-Browser'),
-          chromeProfileDirectory: process.env.LORA_CHROME_PROFILE_DIRECTORY ?? 'Profile 1',
-          relaunchBrowser: process.env.LORA_RELAUNCH_BROWSER === '1',
-          keepBrowserOpen: process.env.LORA_CLOSE_BROWSER !== '1',
-        })
+        const { importLoraAppLab, loraOptionsFromEnv }: typeof import('./import-lora-app-lab') = require('./import-lora-app-lab')
+        await importLoraAppLab(loraOptionsFromEnv({ network: options.network, summaryPath }))
       } catch (error) {
         console.warn(
           `⚠️  Could not import contracts into Lora App Lab: ${error instanceof Error ? error.message : error}`,

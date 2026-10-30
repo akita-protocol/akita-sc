@@ -1,11 +1,15 @@
 #!/usr/bin/env node
 
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { ChildProcess, execFile, spawn } from 'child_process'
+// Imports the ARC-56 specs of a deployed universe into the App Lab of the Akita
+// Lora fork (explorer.akita.community). The specs are served from a one-shot
+// loopback server and the browser is pointed at the fork's
+// /<network>/app-lab/import?source=... page, which stores them in its own
+// IndexedDB and POSTs the result back here.
+
+import { execFile, spawn } from 'child_process'
 import { existsSync } from 'fs'
 import fs from 'fs/promises'
-import net from 'net'
-import os from 'os'
+import http from 'http'
 import path from 'path'
 
 type Network = 'localnet' | 'testnet' | 'mainnet'
@@ -23,27 +27,27 @@ type DeploymentSummary = {
 type LoraAppInterface = {
   applicationId: string
   name: string
-  appSpecVersions: Array<{
-    standard: 'ARC-56'
-    appSpec: unknown
-  }>
-  lastModified: number
+  appSpec: unknown
 }
 
-type ImportOptions = {
+type LoraImportResult = {
+  imported: Array<{ applicationId: string; name: string }>
+  failed: Array<{ applicationId: string; name: string; error: string }>
+  error?: string
+}
+
+export type ImportOptions = {
   network?: Network
   summaryPath?: string
   loraUrl: string
-  cdpUrl?: string
-  chromePath?: string
-  chromeUserDataDir: string
-  chromeProfileDirectory?: string
-  relaunchBrowser: boolean
-  keepBrowserOpen: boolean
+  browserPath?: string
+  browserProfileDirectory?: string
+  openBrowser: boolean
+  timeoutMs: number
 }
 
+export const DEFAULT_LORA_URL = 'https://explorer.akita.community'
 const DEFAULT_BRAVE_PATH = '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser'
-const DEFAULT_BRAVE_USER_DATA_DIR = path.join(os.homedir(), 'Library/Application Support/BraveSoftware/Brave-Browser')
 const DEFAULT_BRAVE_AKITA_PROFILE_DIRECTORY = 'Profile 1'
 
 const CONTRACT_SPEC_BY_SUMMARY_KEY: Record<string, string> = {
@@ -109,17 +113,20 @@ const CONTRACT_SPEC_BY_SUMMARY_KEY: Record<string, string> = {
   subscriptionStreakGate: 'SubscriptionStreakGate',
 }
 
+export function loraOptionsFromEnv(overrides: Partial<ImportOptions> = {}): ImportOptions {
+  return {
+    loraUrl: process.env.LORA_URL ?? DEFAULT_LORA_URL,
+    browserPath: process.env.LORA_CHROME_PATH ?? DEFAULT_BRAVE_PATH,
+    browserProfileDirectory: process.env.LORA_CHROME_PROFILE_DIRECTORY ?? DEFAULT_BRAVE_AKITA_PROFILE_DIRECTORY,
+    openBrowser: process.env.LORA_NO_OPEN !== '1',
+    timeoutMs: Number(process.env.LORA_IMPORT_TIMEOUT_MS ?? 120_000),
+    ...overrides,
+  }
+}
+
 function parseArgs(): ImportOptions {
   const args = process.argv.slice(2)
-  const options: ImportOptions = {
-    loraUrl: process.env.LORA_URL ?? 'https://lora.algokit.io',
-    cdpUrl: process.env.LORA_CDP_URL,
-    chromePath: process.env.LORA_CHROME_PATH ?? DEFAULT_BRAVE_PATH,
-    chromeUserDataDir: process.env.LORA_CHROME_USER_DATA_DIR ?? DEFAULT_BRAVE_USER_DATA_DIR,
-    chromeProfileDirectory: process.env.LORA_CHROME_PROFILE_DIRECTORY ?? DEFAULT_BRAVE_AKITA_PROFILE_DIRECTORY,
-    relaunchBrowser: process.env.LORA_RELAUNCH_BROWSER === '1',
-    keepBrowserOpen: process.env.LORA_CLOSE_BROWSER !== '1',
-  }
+  const options = loraOptionsFromEnv()
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i]
@@ -129,18 +136,14 @@ function parseArgs(): ImportOptions {
       options.summaryPath = args[++i]
     } else if (arg === '--lora-url') {
       options.loraUrl = args[++i]
-    } else if (arg === '--cdp-url') {
-      options.cdpUrl = args[++i]
     } else if (arg === '--chrome-path') {
-      options.chromePath = args[++i]
-    } else if (arg === '--chrome-user-data-dir') {
-      options.chromeUserDataDir = args[++i]
+      options.browserPath = args[++i]
     } else if (arg === '--chrome-profile-directory') {
-      options.chromeProfileDirectory = args[++i]
-    } else if (arg === '--relaunch-browser') {
-      options.relaunchBrowser = true
-    } else if (arg === '--close-browser') {
-      options.keepBrowserOpen = false
+      options.browserProfileDirectory = args[++i]
+    } else if (arg === '--no-open') {
+      options.openBrowser = false
+    } else if (arg === '--timeout') {
+      options.timeoutMs = Number(args[++i]) * 1000
     } else if (arg === '--help' || arg === '-h') {
       console.log(`
 Usage: ts-node --transpile-only scripts/import-lora-app-lab.ts [options]
@@ -148,13 +151,13 @@ Usage: ts-node --transpile-only scripts/import-lora-app-lab.ts [options]
 Options:
   --network, -n <network>          Network to import for (localnet, testnet, mainnet)
   --summary <path>                 Deployment summary JSON path. Defaults to latest for network
-  --lora-url <url>                 Lora URL. Default: https://lora.algokit.io
-  --cdp-url <url>                  Existing Chrome DevTools URL, e.g. http://127.0.0.1:9222
-  --chrome-path <path>             Chrome/Chromium executable path. Default: Brave
-  --chrome-user-data-dir <path>    Browser user data dir. Default: Brave Browser data dir
-  --chrome-profile-directory <dir> Browser profile directory. Default: "Profile 1" (Akita)
-  --relaunch-browser               Quit Brave first if the profile is already running
-  --close-browser                  Close the browser after import
+  --lora-url <url>                 Lora URL. Default: ${DEFAULT_LORA_URL} (LORA_URL)
+  --chrome-path <path>             Chromium-based browser to open the import in. Default: Brave,
+                                   falling back to the system default browser (LORA_CHROME_PATH)
+  --chrome-profile-directory <dir> Browser profile to open it in. Default: "Profile 1" (Akita)
+                                   (LORA_CHROME_PROFILE_DIRECTORY)
+  --no-open                        Only print the import URL (LORA_NO_OPEN=1)
+  --timeout <seconds>              How long to wait for Lora to confirm. Default: 120
 `)
       process.exit(0)
     }
@@ -233,7 +236,6 @@ async function findArc56Specs(): Promise<Map<string, string>> {
 
 async function buildLoraEntries(summary: DeploymentSummary): Promise<{ entries: LoraAppInterface[]; missing: string[] }> {
   const specsByName = await findArc56Specs()
-  const now = Date.now()
   const missing: string[] = []
   const entries: LoraAppInterface[] = []
 
@@ -247,267 +249,111 @@ async function buildLoraEntries(summary: DeploymentSummary): Promise<{ entries: 
       continue
     }
     const appSpec = JSON.parse(await fs.readFile(specPath, 'utf-8'))
-    entries.push({
-      applicationId: contract.appId,
-      name: specName,
-      appSpecVersions: [{ standard: 'ARC-56', appSpec }],
-      lastModified: now,
-    })
+    entries.push({ applicationId: contract.appId, name: specName, appSpec })
   }
 
   return { entries, missing }
 }
 
-async function getGenesisHash(network: Network): Promise<string> {
-  const algorand = network === 'testnet'
-    ? AlgorandClient.testNet()
-    : network === 'mainnet'
-      ? AlgorandClient.mainNet()
-      : AlgorandClient.fromEnvironment()
-  const version = await algorand.client.algod.version()
-  return Buffer.from(version.genesisHashB64).toString('base64')
-}
-
-async function getFreePort(): Promise<number> {
-  return await new Promise((resolve, reject) => {
-    const server = net.createServer()
-    server.listen(0, '127.0.0.1')
-    server.on('listening', () => {
-      const address = server.address()
-      server.close(() => resolve(typeof address === 'object' && address ? address.port : 9222))
-    })
-    server.on('error', reject)
-  })
-}
-
-function findChromePath(chromePath?: string): string {
-  const candidates = [
-    chromePath,
-    '/Applications/Brave Browser.app/Contents/MacOS/Brave Browser',
-    '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-    '/Applications/Chromium.app/Contents/MacOS/Chromium',
-    '/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge',
-    '/usr/bin/google-chrome',
-    '/usr/bin/chromium',
-    '/usr/bin/chromium-browser',
-  ].filter(Boolean) as string[]
-  const found = candidates.find((candidate) => existsSync(candidate))
-  if (!found) {
-    throw new Error('Could not find Chrome/Chromium. Set LORA_CHROME_PATH or pass --chrome-path.')
+function openUrl(options: ImportOptions, url: string) {
+  // A Chromium binary hands the URL to the running instance when there is one, in the given profile
+  if (options.browserPath && existsSync(options.browserPath)) {
+    const args = [
+      ...(options.browserProfileDirectory ? [`--profile-directory=${options.browserProfileDirectory}`] : []),
+      url,
+    ]
+    spawn(options.browserPath, args, { detached: true, stdio: 'ignore' }).unref()
+    return
   }
-  return found
+  const [command, args] = process.platform === 'darwin'
+    ? ['open', [url]]
+    : process.platform === 'win32'
+      ? ['cmd', ['/c', 'start', '', url]]
+      : ['xdg-open', [url]]
+  execFile(command, args, () => {})
 }
 
-function isBrowserProfileLocked(userDataDir: string): boolean {
-  return existsSync(path.join(userDataDir, 'SingletonLock'))
-    || existsSync(path.join(userDataDir, 'SingletonSocket'))
-    || existsSync(path.join(userDataDir, 'SingletonCookie'))
-}
-
-async function runCommand(command: string, args: string[]): Promise<void> {
-  await new Promise<void>((resolve, reject) => {
-    execFile(command, args, (error) => {
-      if (error) reject(error)
-      else resolve()
-    })
-  })
-}
-
-async function quitBrave(): Promise<void> {
-  if (process.platform === 'darwin') {
-    await runCommand('osascript', ['-e', 'tell application "Brave Browser" to quit'])
-  } else {
-    await runCommand('pkill', ['-f', 'Brave Browser'])
-  }
-}
-
-async function waitForBrowserProfileUnlock(userDataDir: string): Promise<void> {
-  const deadline = Date.now() + 15_000
-  while (Date.now() < deadline) {
-    if (!isBrowserProfileLocked(userDataDir)) return
-    await new Promise((resolve) => setTimeout(resolve, 500))
-  }
-  throw new Error('Brave profile is still locked after requesting Brave to quit.')
-}
-
-async function fetchJson<T>(url: string, init?: RequestInit): Promise<T> {
-  const response = await fetch(url, init)
-  if (!response.ok) {
-    throw new Error(`HTTP ${response.status} from ${url}`)
-  }
-  return await response.json() as T
-}
-
-async function waitForCdp(cdpUrl: string): Promise<string> {
-  const deadline = Date.now() + 15_000
-  while (Date.now() < deadline) {
-    try {
-      const version = await fetchJson<{ webSocketDebuggerUrl: string }>(`${cdpUrl}/json/version`)
-      return version.webSocketDebuggerUrl
-    } catch {
-      await new Promise((resolve) => setTimeout(resolve, 250))
-    }
-  }
-  throw new Error(`Chrome DevTools did not become available at ${cdpUrl}`)
-}
-
-async function openBrowser(options: ImportOptions, url: string): Promise<{ cdpUrl: string; browser?: ChildProcess }> {
-  if (options.cdpUrl) {
-    return { cdpUrl: options.cdpUrl }
+async function serveManifestUntilImported(
+  options: ImportOptions,
+  network: Network,
+  entries: LoraAppInterface[],
+): Promise<LoraImportResult> {
+  const loraUrl = options.loraUrl.replace(/\/$/, '')
+  const loraOrigin = new URL(loraUrl).origin
+  const manifest = JSON.stringify({ appInterfaces: entries })
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': loraOrigin,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+    // Chrome's Private Network Access preflight for a public origin calling loopback
+    'Access-Control-Allow-Private-Network': 'true',
   }
 
-  if (options.relaunchBrowser && isBrowserProfileLocked(options.chromeUserDataDir)) {
-    console.log('🧪 Brave profile is already running; quitting Brave before Lora import...')
-    await quitBrave()
-    await waitForBrowserProfileUnlock(options.chromeUserDataDir)
-  }
-
-  const port = await getFreePort()
-  const cdpUrl = `http://127.0.0.1:${port}`
-  const args = [
-    `--remote-debugging-port=${port}`,
-    `--user-data-dir=${options.chromeUserDataDir}`,
-    ...(options.chromeProfileDirectory ? [`--profile-directory=${options.chromeProfileDirectory}`] : []),
-    '--no-first-run',
-    '--no-default-browser-check',
-    url,
-  ]
-  const browser = spawn(findChromePath(options.chromePath), args, {
-    detached: true,
-    stdio: 'ignore',
-  })
-  browser.unref()
-  try {
-    await waitForCdp(cdpUrl)
-  } catch (error) {
-    const profileLocked = isBrowserProfileLocked(options.chromeUserDataDir)
-    if (profileLocked) {
-      throw new Error(
-        `Brave did not open a DevTools port because the profile is already running. ` +
-        `Quit Brave completely, then rerun this command. ` +
-        `Alternatively start Brave yourself with --remote-debugging-port and pass LORA_CDP_URL.`
-      )
-    }
-    throw error
-  }
-  return { cdpUrl, browser }
-}
-
-type CdpClient = {
-  send: <T>(method: string, params?: Record<string, unknown>) => Promise<T>
-  close: () => void
-}
-
-async function createCdpClient(webSocketUrl: string): Promise<CdpClient> {
-  const ws = new WebSocket(webSocketUrl)
-  await new Promise<void>((resolve, reject) => {
-    ws.addEventListener('open', () => resolve(), { once: true })
-    ws.addEventListener('error', () => reject(new Error('Could not connect to Chrome DevTools')), { once: true })
+  let settle: (result: LoraImportResult) => void = () => {}
+  const imported = new Promise<LoraImportResult>((resolve) => {
+    settle = resolve
   })
 
-  let id = 0
-  const pending = new Map<number, { resolve: (value: unknown) => void; reject: (error: Error) => void }>()
-  ws.addEventListener('message', (event) => {
-    const message = JSON.parse(String(event.data))
-    if (!message.id) return
-    const request = pending.get(message.id)
-    if (!request) return
-    pending.delete(message.id)
-    if (message.error) {
-      request.reject(new Error(message.error.message))
-    } else {
-      request.resolve(message.result)
-    }
-  })
-
-  return {
-    send: async <T>(method: string, params: Record<string, unknown> = {}) => {
-      const requestId = ++id
-      ws.send(JSON.stringify({ id: requestId, method, params }))
-      return await new Promise<T>((resolve, reject) => {
-        pending.set(requestId, { resolve: resolve as (value: unknown) => void, reject })
+  const server = http.createServer((req, res) => {
+    if (req.url !== '/app-interfaces.json') {
+      res.writeHead(404, corsHeaders).end()
+    } else if (req.method === 'OPTIONS') {
+      res.writeHead(204, corsHeaders).end()
+    } else if (req.method === 'GET') {
+      res.writeHead(200, { ...corsHeaders, 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }).end(manifest)
+    } else if (req.method === 'POST') {
+      let body = ''
+      req.on('data', (chunk) => {
+        body += chunk
       })
-    },
-    close: () => ws.close(),
-  }
-}
+      req.on('end', () => {
+        res.writeHead(204, corsHeaders).end()
+        try {
+          settle(JSON.parse(body) as LoraImportResult)
+        } catch {
+          settle({ imported: [], failed: [], error: 'Lora sent an unreadable import result' })
+        }
+      })
+    } else {
+      res.writeHead(405, corsHeaders).end()
+    }
+  })
 
-async function importIntoLora(options: ImportOptions, network: Network, dbName: string, entries: LoraAppInterface[]) {
-  const loraStorageUrl = `${options.loraUrl.replace(/\/$/, '')}/robots.txt`
-  const appLabUrl = `${options.loraUrl.replace(/\/$/, '')}/${network}/app-lab`
-  const { cdpUrl, browser } = await openBrowser(options, loraStorageUrl)
-  const target = await fetchJson<{ webSocketDebuggerUrl: string }>(
-    `${cdpUrl}/json/new?${encodeURIComponent(loraStorageUrl)}`,
-    { method: 'PUT' },
-  )
-    const client = await createCdpClient(target.webSocketDebuggerUrl)
+  await new Promise<void>((resolve, reject) => {
+    server.once('error', reject)
+    server.listen(0, '127.0.0.1', () => resolve())
+  })
 
   try {
-    await client.send('Page.enable')
-    await client.send('Page.navigate', { url: loraStorageUrl })
-    await new Promise((resolve) => setTimeout(resolve, 2_000))
+    const address = server.address()
+    const port = typeof address === 'object' && address ? address.port : 0
+    const source = `http://127.0.0.1:${port}/app-interfaces.json`
+    const importUrl = `${loraUrl}/${network}/app-lab/import?source=${encodeURIComponent(source)}`
 
-    const payload = { dbName, entries }
-    const expression = `
-      (async (payload) => {
-        const openDb = () => new Promise((resolve, reject) => {
-          const request = indexedDB.open(payload.dbName, 3)
-          request.onupgradeneeded = () => {
-            const db = request.result
-            if (!db.objectStoreNames.contains('app-interfaces')) {
-              db.createObjectStore('app-interfaces', { keyPath: 'applicationId' })
-            }
-          }
-          request.onsuccess = () => resolve(request.result)
-          request.onerror = () => reject(request.error)
-        })
-        const requestToPromise = (request) => new Promise((resolve, reject) => {
-          request.onsuccess = () => resolve(request.result)
-          request.onerror = () => reject(request.error)
-        })
-        const db = await openDb()
-        const tx = db.transaction('app-interfaces', 'readwrite')
-        const store = tx.objectStore('app-interfaces')
-        for (const entry of payload.entries) {
-          await requestToPromise(store.put(entry))
-        }
-        await new Promise((resolve, reject) => {
-          tx.oncomplete = () => resolve()
-          tx.onerror = () => reject(tx.error)
-          tx.onabort = () => reject(tx.error)
-        })
-        return { count: payload.entries.length, dbName: payload.dbName }
-      })(${JSON.stringify(payload)})
-    `
-    const result = await client.send<{
-      result?: { value?: { count: number; dbName: string } }
-      exceptionDetails?: { text?: string }
-    }>('Runtime.evaluate', {
-      expression,
-      awaitPromise: true,
-      returnByValue: true,
+    console.log(`🧪 Lora App Lab import: ${importUrl}`)
+    if (options.openBrowser) openUrl(options, importUrl)
+
+    let timer: NodeJS.Timeout | undefined
+    const timeout = new Promise<never>((_, reject) => {
+      timer = setTimeout(
+        () => reject(new Error(`Lora did not confirm the import within ${Math.round(options.timeoutMs / 1000)}s. Is ${loraUrl} open in the browser?`)),
+        options.timeoutMs,
+      )
     })
-
-    if (result.exceptionDetails) {
-      throw new Error(result.exceptionDetails.text ?? 'Lora import failed')
+    try {
+      return await Promise.race([imported, timeout])
+    } finally {
+      clearTimeout(timer)
     }
-    console.log(`🧪 Lora App Lab imported ${result.result?.value?.count ?? entries.length} app interface(s) into ${dbName}`)
-    console.log(`🔗 Lora App Lab: ${appLabUrl}`)
   } finally {
-    client.close()
-    if (!options.keepBrowserOpen && browser) {
-      browser.kill()
-    }
+    server.close()
   }
 }
 
 export async function importLoraAppLab(options: ImportOptions) {
   const { summary, summaryPath } = await readSummary(options)
   const network = options.network ?? summary.network
-  const [{ entries, missing }, genesisHash] = await Promise.all([
-    buildLoraEntries(summary),
-    getGenesisHash(network),
-  ])
+  const { entries, missing } = await buildLoraEntries(summary)
 
   if (entries.length === 0) {
     throw new Error(`No Lora App Lab entries could be built from ${summaryPath}`)
@@ -517,7 +363,15 @@ export async function importLoraAppLab(options: ImportOptions) {
     console.warn(`⚠️  Missing ARC-56 artifacts for: ${missing.join(', ')}`)
   }
 
-  await importIntoLora(options, network, `${network}-${genesisHash}`, entries)
+  const result = await serveManifestUntilImported(options, network, entries)
+  if (result.error) {
+    throw new Error(result.error)
+  }
+  for (const failure of result.failed) {
+    console.warn(`⚠️  Lora rejected ${failure.name || failure.applicationId}: ${failure.error}`)
+  }
+  console.log(`🧪 Lora App Lab imported ${result.imported.length}/${entries.length} app interface(s)`)
+  console.log(`🔗 Lora App Lab: ${options.loraUrl.replace(/\/$/, '')}/${network}/app-lab`)
 }
 
 if (require.main === module) {
