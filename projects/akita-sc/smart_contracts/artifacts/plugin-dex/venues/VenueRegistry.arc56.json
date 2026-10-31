@@ -1,0 +1,245 @@
+{
+    "name": "VenueRegistry",
+    "structs": {
+        "AdapterInfo": [
+            {
+                "name": "version",
+                "type": "uint64"
+            },
+            {
+                "name": "flags",
+                "type": "uint64"
+            },
+            {
+                "name": "innerTxns",
+                "type": "uint64"
+            },
+            {
+                "name": "opBudget",
+                "type": "uint64"
+            }
+        ]
+    },
+    "methods": [
+        {
+            "name": "create",
+            "args": [
+                {
+                    "type": "address",
+                    "name": "admin"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [
+                    "NoOp"
+                ],
+                "call": []
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "setAdmin",
+            "args": [
+                {
+                    "type": "address",
+                    "name": "admin"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "setAdapter",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "adapter"
+                },
+                {
+                    "type": "(uint64,uint64,uint64,uint64)",
+                    "struct": "AdapterInfo",
+                    "name": "info"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "approve (or re-approve) an adapter; `info.version` is the pinned Application.version",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "removeAdapter",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "adapter"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "getAdapter",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "adapter"
+                }
+            ],
+            "returns": {
+                "type": "(uint64,uint64,uint64,uint64)",
+                "struct": "AdapterInfo"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": true,
+            "desc": "the registry entry as stored (no enabled/version checks); fails if absent",
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "Approved venue adapters (router.md \u00a74.4, FINAL-SPEC \u00a72.1). Immutable code, admin = DAO wallet.\n\nEntries live in global state under the key itob(adapterAppId) with the ARC-4 encoded AdapterInfo\n(32 B) as the value, so the router and any hook can read them with `AppGlobal.getExBytes` and no\ninner call (`readAdapter`). Capacity: 63 adapters (64 byte-slice slots minus `admin`).\n\nEach entry pins the adapter's Application.version; an adapter updated after approval is unusable\nuntil the admin approves the new version (callers also set rejectVersion = version + 1).",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 64
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {
+                "admin": {
+                    "keyType": "AVMString",
+                    "valueType": "address",
+                    "key": "YWRtaW4="
+                }
+            },
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        139,
+                        179
+                    ],
+                    "errorMessage": "ERR:errRtad"
+                },
+                {
+                    "pc": [
+                        215
+                    ],
+                    "errorMessage": "ERR:errRtam"
+                },
+                {
+                    "pc": [
+                        197
+                    ],
+                    "errorMessage": "check GlobalState exists"
+                },
+                {
+                    "pc": [
+                        91,
+                        104
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>"
+                },
+                {
+                    "pc": [
+                        120,
+                        153,
+                        168
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                },
+                {
+                    "pc": [
+                        132
+                    ],
+                    "errorMessage": "invalid number of bytes for smart_contracts/arc58/plugins/akita-router/types.ts::AdapterInfo"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9hcmM0L2luZGV4LmQudHM6OkNvbnRyYWN0LmFwcHJvdmFsUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIGludGNibG9jayAxIDMyIDgKICAgIGJ5dGVjYmxvY2sgImFkbWluIiAiRVJSOmVyclJ0YWQiCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czoxNy0xOAogICAgLy8gQGNvbnRyYWN0KHsgYXZtVmVyc2lvbjogMTMsIHN0YXRlVG90YWxzOiB7IGdsb2JhbEJ5dGVzOiA2NCwgZ2xvYmFsVWludHM6IDAgfSB9KQogICAgLy8gZXhwb3J0IGNsYXNzIFZlbnVlUmVnaXN0cnkgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBieiBtYWluX2NyZWF0ZV9Ob09wQDgKICAgIHB1c2hieXRlc3MgMHgxNzg2NjkxMiAweDZiYjRlZTZmIDB4N2JkMWFjNTggMHg5ZTA2ZTMyYSAvLyBtZXRob2QgInNldEFkbWluKGFkZHJlc3Mpdm9pZCIsIG1ldGhvZCAic2V0QWRhcHRlcih1aW50NjQsKHVpbnQ2NCx1aW50NjQsdWludDY0LHVpbnQ2NCkpdm9pZCIsIG1ldGhvZCAicmVtb3ZlQWRhcHRlcih1aW50NjQpdm9pZCIsIG1ldGhvZCAiZ2V0QWRhcHRlcih1aW50NjQpKHVpbnQ2NCx1aW50NjQsdWludDY0LHVpbnQ2NCkiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBzZXRBZG1pbiBzZXRBZGFwdGVyIHJlbW92ZUFkYXB0ZXIgZ2V0QWRhcHRlcgogICAgZXJyCgptYWluX2NyZWF0ZV9Ob09wQDg6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czoxNy0xOAogICAgLy8gQGNvbnRyYWN0KHsgYXZtVmVyc2lvbjogMTMsIHN0YXRlVG90YWxzOiB7IGdsb2JhbEJ5dGVzOiA2NCwgZ2xvYmFsVWludHM6IDAgfSB9KQogICAgLy8gZXhwb3J0IGNsYXNzIFZlbnVlUmVnaXN0cnkgZXh0ZW5kcyBDb250cmFjdCB7CiAgICBwdXNoYnl0ZXMgMHhjYzY5NGVhYSAvLyBtZXRob2QgImNyZWF0ZShhZGRyZXNzKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBjcmVhdGUKICAgIGVycgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjpWZW51ZVJlZ2lzdHJ5LmNyZWF0ZVtyb3V0aW5nXSgpIC0+IHZvaWQ6CmNyZWF0ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjIxCiAgICAvLyBAYWJpbWV0aG9kKHsgb25DcmVhdGU6ICdyZXF1aXJlJyB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMSAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czoxOQogICAgLy8gYWRtaW4gPSBHbG9iYWxTdGF0ZTxBY2NvdW50Pih7IGtleTogJ2FkbWluJyB9KQogICAgYnl0ZWNfMCAvLyAiYWRtaW4iCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czoyMwogICAgLy8gdGhpcy5hZG1pbi52YWx1ZSA9IGFkbWluCiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6MjEKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6OlZlbnVlUmVnaXN0cnkuc2V0QWRtaW5bcm91dGluZ10oKSAtPiB2b2lkOgpzZXRBZG1pbjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjMwCiAgICAvLyBzZXRBZG1pbihhZG1pbjogQWNjb3VudCk6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMSAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5zdGF0aWNfYXJyYXk8YXJjNC51aW50OCwgMzI+CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czozMQogICAgLy8gdGhpcy5yZXF1aXJlQWRtaW4oKQogICAgY2FsbHN1YiByZXF1aXJlQWRtaW4KICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjE5CiAgICAvLyBhZG1pbiA9IEdsb2JhbFN0YXRlPEFjY291bnQ+KHsga2V5OiAnYWRtaW4nIH0pCiAgICBieXRlY18wIC8vICJhZG1pbiIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjMyCiAgICAvLyB0aGlzLmFkbWluLnZhbHVlID0gYWRtaW4KICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czozMAogICAgLy8gc2V0QWRtaW4oYWRtaW46IEFjY291bnQpOiB2b2lkIHsKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czo6VmVudWVSZWdpc3RyeS5zZXRBZGFwdGVyW3JvdXRpbmddKCkgLT4gdm9pZDoKc2V0QWRhcHRlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjM2CiAgICAvLyBzZXRBZGFwdGVyKGFkYXB0ZXI6IHVpbnQ2NCwgaW5mbzogQWRhcHRlckluZm8pOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIGR1cAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZHVwCiAgICBjb3ZlciAyCiAgICBsZW4KICAgIGludGNfMSAvLyAzMgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3Igc21hcnRfY29udHJhY3RzL2FyYzU4L3BsdWdpbnMvYWtpdGEtcm91dGVyL3R5cGVzLnRzOjpBZGFwdGVySW5mbwogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6MzcKICAgIC8vIHRoaXMucmVxdWlyZUFkbWluKCkKICAgIGNhbGxzdWIgcmVxdWlyZUFkbWluCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czozOAogICAgLy8gbG9nZ2VkQXNzZXJ0KGFkYXB0ZXIgIT09IDAsIGVyclJ0QWRhcHRlcikKICAgIGJueiBzZXRBZGFwdGVyX2FmdGVyX2Fzc2VydEAzCiAgICBieXRlY18xIC8vICJFUlI6ZXJyUnRhZCIKICAgIGxvZwogICAgZXJyIC8vIEVSUjplcnJSdGFkCgpzZXRBZGFwdGVyX2FmdGVyX2Fzc2VydEAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6MzkKICAgIC8vIG9wLkFwcEdsb2JhbC5wdXQob3AuaXRvYihhZGFwdGVyKSwgZW5jb2RlQXJjNChpbmZvKSkKICAgIHN3YXAKICAgIGl0b2IKICAgIHN3YXAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czozNgogICAgLy8gc2V0QWRhcHRlcihhZGFwdGVyOiB1aW50NjQsIGluZm86IEFkYXB0ZXJJbmZvKTogdm9pZCB7CiAgICBpbnRjXzAgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6OlZlbnVlUmVnaXN0cnkucmVtb3ZlQWRhcHRlcltyb3V0aW5nXSgpIC0+IHZvaWQ6CnJlbW92ZUFkYXB0ZXI6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czo0MgogICAgLy8gcmVtb3ZlQWRhcHRlcihhZGFwdGVyOiB1aW50NjQpOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjQzCiAgICAvLyB0aGlzLnJlcXVpcmVBZG1pbigpCiAgICBjYWxsc3ViIHJlcXVpcmVBZG1pbgogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6NDQKICAgIC8vIG9wLkFwcEdsb2JhbC5kZWxldGUob3AuaXRvYihhZGFwdGVyKSkKICAgIGl0b2IKICAgIGFwcF9nbG9iYWxfZGVsCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czo0MgogICAgLy8gcmVtb3ZlQWRhcHRlcihhZGFwdGVyOiB1aW50NjQpOiB2b2lkIHsKICAgIGludGNfMCAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC92ZW51ZXMvcmVnaXN0cnkuYWxnby50czo6VmVudWVSZWdpc3RyeS5nZXRBZGFwdGVyW3JvdXRpbmddKCkgLT4gdm9pZDoKZ2V0QWRhcHRlcjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjQ4CiAgICAvLyBAYWJpbWV0aG9kKHsgcmVhZG9ubHk6IHRydWUgfSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzIgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjUwCiAgICAvLyBjb25zdCBbcmF3LCBleGlzdHNdID0gb3AuQXBwR2xvYmFsLmdldEV4Qnl0ZXMoVHhuLmFwcGxpY2F0aW9uSWQsIG9wLml0b2IoYWRhcHRlcikpCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgc3dhcAogICAgaXRvYgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjUxCiAgICAvLyBsb2dnZWRBc3NlcnQoZXhpc3RzLCBlcnJSdEFkYXB0ZXIpCiAgICBibnogZ2V0QWRhcHRlcl9hZnRlcl9hc3NlcnRAMwogICAgYnl0ZWNfMSAvLyAiRVJSOmVyclJ0YWQiCiAgICBsb2cKICAgIGVyciAvLyBFUlI6ZXJyUnRhZAoKZ2V0QWRhcHRlcl9hZnRlcl9hc3NlcnRAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjQ4CiAgICAvLyBAYWJpbWV0aG9kKHsgcmVhZG9ubHk6IHRydWUgfSkKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18wIC8vIDEKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjpWZW51ZVJlZ2lzdHJ5LnJlcXVpcmVBZG1pbigpIC0+IHZvaWQ6CnJlcXVpcmVBZG1pbjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3ZlbnVlcy9yZWdpc3RyeS5hbGdvLnRzOjI3CiAgICAvLyBsb2dnZWRBc3NlcnQoVHhuLnNlbmRlciA9PT0gdGhpcy5hZG1pbi52YWx1ZSwgZXJyUnRBZG1pbikKICAgIHR4biBTZW5kZXIKICAgIHB1c2hpbnQgMAogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6MTkKICAgIC8vIGFkbWluID0gR2xvYmFsU3RhdGU8QWNjb3VudD4oeyBrZXk6ICdhZG1pbicgfSkKICAgIGJ5dGVjXzAgLy8gImFkbWluIgogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdmVudWVzL3JlZ2lzdHJ5LmFsZ28udHM6MjcKICAgIC8vIGxvZ2dlZEFzc2VydChUeG4uc2VuZGVyID09PSB0aGlzLmFkbWluLnZhbHVlLCBlcnJSdEFkbWluKQogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIGFzc2VydCAvLyBjaGVjayBHbG9iYWxTdGF0ZSBleGlzdHMKICAgID09CiAgICBibnogcmVxdWlyZUFkbWluX2FmdGVyX2Fzc2VydEAyCiAgICBwdXNoYnl0ZXMgIkVSUjplcnJSdGFtIgogICAgbG9nCiAgICBlcnIgLy8gRVJSOmVyclJ0YW0KCnJlcXVpcmVBZG1pbl9hZnRlcl9hc3NlcnRAMjoKICAgIHJldHN1Ygo=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDEzCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCiNwcmFnbWEgYXV0b3NhbHQgZmFsc2UKCi8vIEBhbGdvcmFuZGZvdW5kYXRpb24vYWxnb3JhbmQtdHlwZXNjcmlwdC9iYXNlLWNvbnRyYWN0LmQudHM6OkJhc2VDb250cmFjdC5jbGVhclN0YXRlUHJvZ3JhbSgpIC0+IHVpbnQ2NDoKbWFpbjoKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg=="
+    },
+    "byteCode": {
+        "approval": "DSADASAIJgIFYWRtaW4LRVJSOmVyclJ0YWQxGRREMRhBSIIEBBeGaRIEa7TubwR70axYBJ4G4yo2GgCOBAAcACwATQBcAIAEzGlOqjYaAI4BAAEANhoBSRUjEkQoTGciQzYaAUkVIxJEiKYBKExnIkM2GgFJFSQSRBdJNhoCSU4CFSMSRIhwQAYpsABMFkxnIkM2GgFJFSQSRBeIRBZpIkM2GgFJFSQSRBcxGEwWZUAGKbAAgAQVH3x1TFCwIkMxAIEAKGVEEkAegAtFUlI6ZXJyUnRhbbAAiQ==",
+        "clear": "DYEBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

@@ -1,0 +1,3080 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../plugin-dex/hook-interface.ts",
+    "../../../plugin-dex/hooks/impact-fee.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACoBA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAMG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALK;AAOJ;;AAAA;AANU;AAOV;;AAAA;AANU;AAOV;;AAAA;AANS;AAOT;AAAA;AALD;AAAA;;;;AAQD;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AACmB;AAdb;AAca;AAAA;ADQN;;AAAA;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;AAAA;AAAA;ACNO;AAAA;AAAA;AAAA;AAAA;;AAAc;;AAAd;AAAA;;;AAAqC;;AAAc;;;AAAd;AAArC;;;AAAsE;AAAA;;;AAAA;AAAA;AAAA;;AAAvE;;;;ADCC;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;ACJP;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAMuB;AAAA;;;AAAA;AAAA;AAMT;AAvBF;AAuBE;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACA;AAzBF;AAyBE;AAAA;AAAA;AAAA;;AAAA;;AAAA;AACR;AAAJ;;;;;;;;;AAPgD;;;AAAA;AAAA;AAAN;;AAAA;AAAA;;;;AAA1B;AAAT;AAAA;AAAA;AAAA;AAAiF;AAAjF;AAAA;AAAA;;AAAA;AAAA;AAAA;AAPT;;;;;;;;AAkBkC;;AAAkB;AAAlB;AAAA;;AAAA;AAC5B;;AAAA;AAAJ;;;;;;;;;;AAbY;;;AAgBM;;AAAA;;AAAA;AAE+B;AAlCxC;AAkCwC;AAAA;AAAnB;AAAA;;AAAA;AACb;AAAb;AAAJ;;;;;;;;;;AAnBY;;;AAsBE;;AAA6B;AAA7B;AAAA;AACE;;AAAA;;AAAA;AAAT;AAAA;;;;;;;;;AAvBK;;;;;;AAuBsB;;AAAA;",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 8 1 10000"
+    },
+    "8": {
+      "op": "bytecblock \"dex\" \"min_fee\" \"max_fee\" \"slope\""
+    },
+    "36": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "38": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "39": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "40": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "42": {
+      "op": "bz main_create_NoOp@5",
+      "stack_out": []
+    },
+    "45": {
+      "op": "pushbytes 0x74322cba // method \"akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)\"",
+      "defined_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))"
+      ],
+      "stack_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))"
+      ]
+    },
+    "51": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "tmp%4#0"
+      ]
+    },
+    "54": {
+      "op": "match akitaDexHook",
+      "stack_out": []
+    },
+    "58": {
+      "op": "err"
+    },
+    "59": {
+      "block": "main_create_NoOp@5",
+      "stack_in": [],
+      "op": "pushbytes 0x2ff574e9 // method \"create(uint64,uint64,uint64,uint64)void\"",
+      "defined_out": [
+        "Method(create(uint64,uint64,uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(uint64,uint64,uint64,uint64)void)"
+      ]
+    },
+    "65": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(uint64,uint64,uint64,uint64)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(uint64,uint64,uint64,uint64)void)",
+        "tmp%5#0"
+      ]
+    },
+    "68": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "72": {
+      "op": "err"
+    },
+    "73": {
+      "subroutine": "smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "76": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "77": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "78": {
+      "op": "intc_1 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "79": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "80": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "81": {
+      "op": "btoi",
+      "defined_out": [
+        "dex#0"
+      ],
+      "stack_out": [
+        "dex#0"
+      ]
+    },
+    "82": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "dex#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0"
+      ]
+    },
+    "85": {
+      "op": "dup",
+      "defined_out": [
+        "dex#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "86": {
+      "op": "len",
+      "defined_out": [
+        "dex#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "87": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "88": {
+      "op": "==",
+      "defined_out": [
+        "dex#0",
+        "eq%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "89": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "dex#0",
+        "tmp%2#0"
+      ]
+    },
+    "90": {
+      "op": "btoi",
+      "defined_out": [
+        "dex#0",
+        "minFeeBps#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0"
+      ]
+    },
+    "91": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0"
+      ]
+    },
+    "94": {
+      "op": "dup",
+      "defined_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "95": {
+      "op": "len",
+      "defined_out": [
+        "dex#0",
+        "len%2#0",
+        "minFeeBps#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "96": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "97": {
+      "op": "==",
+      "defined_out": [
+        "dex#0",
+        "eq%2#0",
+        "minFeeBps#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "98": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "tmp%4#0"
+      ]
+    },
+    "99": {
+      "op": "btoi",
+      "defined_out": [
+        "dex#0",
+        "maxFeeBps#0",
+        "minFeeBps#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0"
+      ]
+    },
+    "100": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "dex#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0"
+      ]
+    },
+    "103": {
+      "op": "dup",
+      "defined_out": [
+        "dex#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ]
+    },
+    "104": {
+      "op": "len",
+      "defined_out": [
+        "dex#0",
+        "len%3#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0",
+        "len%3#0"
+      ]
+    },
+    "105": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0",
+        "len%3#0",
+        "8"
+      ]
+    },
+    "106": {
+      "op": "==",
+      "defined_out": [
+        "dex#0",
+        "eq%3#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0",
+        "eq%3#0"
+      ]
+    },
+    "107": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "tmp%6#0"
+      ]
+    },
+    "108": {
+      "op": "btoi",
+      "defined_out": [
+        "dex#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "slopeBps#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "slopeBps#0"
+      ]
+    },
+    "109": {
+      "op": "bytec_0 // \"dex\"",
+      "defined_out": [
+        "\"dex\"",
+        "dex#0",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "slopeBps#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "slopeBps#0",
+        "\"dex\""
+      ]
+    },
+    "110": {
+      "op": "uncover 4",
+      "stack_out": [
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "slopeBps#0",
+        "\"dex\"",
+        "dex#0"
+      ]
+    },
+    "112": {
+      "op": "app_global_put",
+      "stack_out": [
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "slopeBps#0"
+      ]
+    },
+    "113": {
+      "op": "bytec_1 // \"min_fee\"",
+      "defined_out": [
+        "\"min_fee\"",
+        "maxFeeBps#0",
+        "minFeeBps#0",
+        "slopeBps#0"
+      ],
+      "stack_out": [
+        "minFeeBps#0",
+        "maxFeeBps#0",
+        "slopeBps#0",
+        "\"min_fee\""
+      ]
+    },
+    "114": {
+      "op": "uncover 3",
+      "stack_out": [
+        "maxFeeBps#0",
+        "slopeBps#0",
+        "\"min_fee\"",
+        "minFeeBps#0"
+      ]
+    },
+    "116": {
+      "op": "app_global_put",
+      "stack_out": [
+        "maxFeeBps#0",
+        "slopeBps#0"
+      ]
+    },
+    "117": {
+      "op": "bytec_2 // \"max_fee\"",
+      "defined_out": [
+        "\"max_fee\"",
+        "maxFeeBps#0",
+        "slopeBps#0"
+      ],
+      "stack_out": [
+        "maxFeeBps#0",
+        "slopeBps#0",
+        "\"max_fee\""
+      ]
+    },
+    "118": {
+      "op": "uncover 2",
+      "stack_out": [
+        "slopeBps#0",
+        "\"max_fee\"",
+        "maxFeeBps#0"
+      ]
+    },
+    "120": {
+      "op": "app_global_put",
+      "stack_out": [
+        "slopeBps#0"
+      ]
+    },
+    "121": {
+      "op": "bytec_3 // \"slope\"",
+      "defined_out": [
+        "\"slope\"",
+        "slopeBps#0"
+      ],
+      "stack_out": [
+        "slopeBps#0",
+        "\"slope\""
+      ]
+    },
+    "122": {
+      "op": "swap",
+      "stack_out": [
+        "\"slope\"",
+        "slopeBps#0"
+      ]
+    },
+    "123": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "124": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "125": {
+      "op": "return",
+      "stack_out": []
+    },
+    "126": {
+      "subroutine": "smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook[routing]",
+      "params": {},
+      "block": "akitaDexHook",
+      "stack_in": [],
+      "op": "pushbytes \"\"",
+      "stack_out": [
+        "reserveIn#0"
+      ]
+    },
+    "128": {
+      "op": "dup",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "129": {
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%0#0"
+      ]
+    },
+    "132": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "len%0#0"
+      ]
+    },
+    "133": {
+      "op": "intc_1 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "134": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "eq%0#0"
+      ]
+    },
+    "135": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "136": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%2#0"
+      ]
+    },
+    "139": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "len%1#0"
+      ]
+    },
+    "140": {
+      "op": "intc_1 // 8",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "141": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "eq%1#0"
+      ]
+    },
+    "142": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "143": {
+      "op": "txna ApplicationArgs 3"
+    },
+    "146": {
+      "op": "dupn 2",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "148": {
+      "op": "len",
+      "defined_out": [
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "149": {
+      "op": "dig 1",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "151": {
+      "op": "pushint 305",
+      "defined_out": [
+        "305",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "305"
+      ]
+    },
+    "154": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "155": {
+      "op": "dup",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "156": {
+      "op": "pushint 309",
+      "defined_out": [
+        "309",
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "309"
+      ]
+    },
+    "159": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%2#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%2#0"
+      ]
+    },
+    "160": {
+      "error": "invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "161": {
+      "op": "dig 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "163": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "164": {
+      "op": "dig 2",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "166": {
+      "op": "substring3",
+      "defined_out": [
+        "ctx#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "167": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "168": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "169": {
+      "op": "pushint 311",
+      "defined_out": [
+        "311",
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "311"
+      ]
+    },
+    "172": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "173": {
+      "op": "dig 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "175": {
+      "op": "pushint 307",
+      "defined_out": [
+        "307",
+        "add%1#0",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)",
+        "307"
+      ]
+    },
+    "178": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "179": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "180": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "182": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "eq%3#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%3#0"
+      ]
+    },
+    "183": {
+      "error": "invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "184": {
+      "op": "uncover 3",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "ctx#0"
+      ]
+    },
+    "186": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "187": {
+      "op": "dig 3",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "189": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "190": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "191": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "192": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "194": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "195": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "196": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%4#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "eq%4#0"
+      ]
+    },
+    "197": {
+      "error": "invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "op": "assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "198": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "0"
+      ]
+    },
+    "199": {
+      "op": "bytec_0 // \"dex\"",
+      "defined_out": [
+        "\"dex\"",
+        "0",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "0",
+        "\"dex\""
+      ]
+    },
+    "200": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "ctx#0",
+        "dex#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "dex#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "201": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "dex#0"
+      ]
+    },
+    "202": {
+      "op": "global CallerApplicationID",
+      "defined_out": [
+        "ctx#0",
+        "dex#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "dex#0",
+        "tmp%0#1"
+      ]
+    },
+    "204": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%1#1"
+      ]
+    },
+    "205": {
+      "op": "bnz akitaDexHook_after_assert@25",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "208": {
+      "op": "pushbytes \"ERR:errHookCaller\"",
+      "defined_out": [
+        "\"ERR:errHookCaller\"",
+        "ctx#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "\"ERR:errHookCaller\""
+      ]
+    },
+    "227": {
+      "op": "log",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "228": {
+      "error": "ERR:errHookCaller",
+      "op": "err // ERR:errHookCaller"
+    },
+    "229": {
+      "block": "akitaDexHook_after_assert@25",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "230": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "0"
+      ]
+    },
+    "231": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1"
+      ]
+    },
+    "232": {
+      "op": "dup",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1",
+        "tmp%0#1"
+      ]
+    },
+    "233": {
+      "op": "bury 3",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1"
+      ]
+    },
+    "235": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1",
+        "32"
+      ]
+    },
+    "237": {
+      "op": "!=",
+      "defined_out": [
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%1#1"
+      ]
+    },
+    "238": {
+      "op": "bz akitaDexHook_or_contd@3",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "241": {
+      "op": "dig 1",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1"
+      ]
+    },
+    "243": {
+      "op": "pushint 128",
+      "defined_out": [
+        "128",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%0#1",
+        "128"
+      ]
+    },
+    "246": {
+      "op": "!=",
+      "defined_out": [
+        "tmp%0#1",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "tmp%3#1"
+      ]
+    },
+    "247": {
+      "op": "bnz akitaDexHook_if_body@4",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "250": {
+      "block": "akitaDexHook_or_contd@3",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "251": {
+      "op": "pushint 169",
+      "defined_out": [
+        "169",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "169"
+      ]
+    },
+    "254": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "reserveIn#0"
+      ]
+    },
+    "255": {
+      "op": "dup",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "reserveIn#0",
+        "reserveIn#0"
+      ]
+    },
+    "256": {
+      "op": "bury 4",
+      "defined_out": [
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "reserveIn#0"
+      ]
+    },
+    "258": {
+      "op": "bnz akitaDexHook_after_if_else@5",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ]
+    },
+    "261": {
+      "block": "akitaDexHook_if_body@4",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ],
+      "op": "pop",
+      "defined_out": [],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "262": {
+      "op": "pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "296": {
+      "block": "akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook@9",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%5#0"
+      ],
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%5#0",
+        "0x151f7c75"
+      ]
+    },
+    "302": {
+      "op": "swap",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "0x151f7c75",
+        "tmp%5#0"
+      ]
+    },
+    "303": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%6#0"
+      ]
+    },
+    "304": {
+      "op": "log",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "305": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "1"
+      ]
+    },
+    "306": {
+      "op": "return",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1"
+      ]
+    },
+    "307": {
+      "block": "akitaDexHook_after_if_else@5",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "308": {
+      "op": "pushint 153",
+      "defined_out": [
+        "153",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "153"
+      ]
+    },
+    "311": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "amountIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "amountIn#0"
+      ]
+    },
+    "312": {
+      "op": "swap",
+      "defined_out": [
+        "amountIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0"
+      ]
+    },
+    "313": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "0"
+      ]
+    },
+    "314": {
+      "op": "bytec_2 // \"max_fee\"",
+      "defined_out": [
+        "\"max_fee\"",
+        "0",
+        "amountIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "0",
+        "\"max_fee\""
+      ]
+    },
+    "315": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amountIn#0",
+        "max#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "max#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "316": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "maybe_exists%0#0",
+        "max#0"
+      ]
+    },
+    "317": {
+      "op": "dup",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "maybe_exists%0#0",
+        "max#0",
+        "max#0 (copy)"
+      ]
+    },
+    "318": {
+      "op": "cover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "ctx#0",
+        "max#0",
+        "maybe_exists%0#0",
+        "max#0"
+      ]
+    },
+    "320": {
+      "op": "cover 3",
+      "defined_out": [
+        "amountIn#0",
+        "max#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "322": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0"
+      ]
+    },
+    "323": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "0"
+      ]
+    },
+    "324": {
+      "op": "bytec_1 // \"min_fee\"",
+      "defined_out": [
+        "\"min_fee\"",
+        "0",
+        "amountIn#0",
+        "max#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "0",
+        "\"min_fee\""
+      ]
+    },
+    "325": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amountIn#0",
+        "max#0",
+        "maybe_exists%1#0",
+        "min#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "min#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "326": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "maybe_exists%1#0",
+        "min#0"
+      ]
+    },
+    "327": {
+      "op": "dup",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "maybe_exists%1#0",
+        "min#0",
+        "min#0 (copy)"
+      ]
+    },
+    "328": {
+      "op": "cover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "min#0",
+        "maybe_exists%1#0",
+        "min#0"
+      ]
+    },
+    "330": {
+      "op": "cover 5",
+      "defined_out": [
+        "amountIn#0",
+        "max#0",
+        "maybe_exists%1#0",
+        "min#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "min#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "332": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "max#0",
+        "min#0"
+      ]
+    },
+    "333": {
+      "op": "<=",
+      "defined_out": [
+        "amountIn#0",
+        "max#0",
+        "min#0",
+        "tmp%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "tmp%0#2"
+      ]
+    },
+    "334": {
+      "op": "bz akitaDexHook_after_if_else@12",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "min#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "337": {
+      "op": "uncover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0",
+        "min#0"
+      ]
+    },
+    "339": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "340": {
+      "op": "uncover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "max#0",
+        "ctx#0",
+        "amountIn#0"
+      ]
+    },
+    "342": {
+      "op": "pop",
+      "defined_out": [
+        "fee#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0"
+      ]
+    },
+    "343": {
+      "block": "akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0"
+      ],
+      "op": "pushint 209",
+      "defined_out": [
+        "209",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0",
+        "209"
+      ]
+    },
+    "346": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0"
+      ]
+    },
+    "347": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0",
+        "tmp%10#0"
+      ]
+    },
+    "348": {
+      "op": "dig 2",
+      "defined_out": [
+        "fee#0 (copy)",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0",
+        "tmp%10#0",
+        "fee#0 (copy)"
+      ]
+    },
+    "350": {
+      "op": "<",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0",
+        "tmp%11#0"
+      ]
+    },
+    "351": {
+      "op": "bz akitaDexHook_ternary_false@7",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0"
+      ]
+    },
+    "354": {
+      "op": "pop",
+      "defined_out": [
+        "ternary_result%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ternary_result%0#2"
+      ]
+    },
+    "355": {
+      "block": "akitaDexHook_ternary_merge@8",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ternary_result%0#2"
+      ],
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ternary_result%0#2",
+        "1"
+      ]
+    },
+    "356": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%4#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ternary_result%0#2",
+        "aggregate%val_as_bytes%4#0"
+      ]
+    },
+    "357": {
+      "op": "swap",
+      "defined_out": [
+        "aggregate%val_as_bytes%4#0",
+        "ternary_result%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%val_as_bytes%4#0",
+        "ternary_result%0#2"
+      ]
+    },
+    "358": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%4#0",
+        "aggregate%val_as_bytes%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%val_as_bytes%4#0",
+        "aggregate%val_as_bytes%5#0"
+      ]
+    },
+    "359": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%head%5#0"
+      ]
+    },
+    "360": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "aggregate%head%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%head%5#0",
+        "0"
+      ]
+    },
+    "361": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%6#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%6#0"
+      ]
+    },
+    "362": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%val_as_bytes%6#0",
+        "aggregate%head%5#0"
+      ]
+    },
+    "363": {
+      "op": "dig 1",
+      "defined_out": [
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%6#0",
+        "aggregate%val_as_bytes%6#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%val_as_bytes%6#0",
+        "aggregate%head%5#0",
+        "aggregate%val_as_bytes%6#0 (copy)"
+      ]
+    },
+    "365": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%6#0",
+        "aggregate%val_as_bytes%6#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%val_as_bytes%6#0",
+        "aggregate%head%6#0"
+      ]
+    },
+    "366": {
+      "op": "swap",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "aggregate%head%6#0",
+        "aggregate%val_as_bytes%6#0"
+      ]
+    },
+    "367": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "368": {
+      "op": "b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook@9"
+    },
+    "371": {
+      "block": "akitaDexHook_ternary_false@7",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "tmp%10#0"
+      ],
+      "op": "bury 1",
+      "defined_out": [
+        "ternary_result%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ternary_result%0#2"
+      ]
+    },
+    "373": {
+      "op": "b akitaDexHook_ternary_merge@8"
+    },
+    "376": {
+      "block": "akitaDexHook_after_if_else@12",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "amountIn#0",
+        "min#0",
+        "max#0",
+        "ctx#0"
+      ],
+      "op": "uncover 3",
+      "defined_out": [
+        "amountIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "amountIn#0"
+      ]
+    },
+    "378": {
+      "op": "intc_3 // 10000",
+      "defined_out": [
+        "10000",
+        "amountIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "amountIn#0",
+        "10000"
+      ]
+    },
+    "379": {
+      "op": "mulw",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "impactLow#0"
+      ]
+    },
+    "380": {
+      "op": "cover 3",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0"
+      ]
+    },
+    "382": {
+      "op": "dup",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "impactHigh#0"
+      ]
+    },
+    "383": {
+      "op": "dig 7",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "impactHigh#0",
+        "reserveIn#0"
+      ]
+    },
+    "385": {
+      "op": ">=",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0",
+        "reserveIn#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "tmp%1#1"
+      ]
+    },
+    "386": {
+      "op": "bz akitaDexHook_after_if_else@14",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0"
+      ]
+    },
+    "389": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "390": {
+      "op": "uncover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactLow#0"
+      ]
+    },
+    "392": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "393": {
+      "op": "uncover 2",
+      "defined_out": [
+        "min#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "max#0",
+        "ctx#0",
+        "min#0"
+      ]
+    },
+    "395": {
+      "op": "pop",
+      "defined_out": [
+        "fee#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0"
+      ]
+    },
+    "396": {
+      "op": "b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20"
+    },
+    "399": {
+      "block": "akitaDexHook_after_if_else@14",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "impactLow#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0"
+      ],
+      "op": "uncover 3",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "impactLow#0"
+      ]
+    },
+    "401": {
+      "op": "dig 6",
+      "defined_out": [
+        "impactHigh#0",
+        "impactLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactHigh#0",
+        "impactLow#0",
+        "reserveIn#0"
+      ]
+    },
+    "403": {
+      "op": "divw",
+      "defined_out": [
+        "impactBps#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactBps#0"
+      ]
+    },
+    "404": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "impactBps#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactBps#0",
+        "0"
+      ]
+    },
+    "405": {
+      "op": "bytec_3 // \"slope\"",
+      "defined_out": [
+        "\"slope\"",
+        "0",
+        "impactBps#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactBps#0",
+        "0",
+        "\"slope\""
+      ]
+    },
+    "406": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "impactBps#0",
+        "maybe_exists%2#0",
+        "maybe_value%2#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactBps#0",
+        "maybe_value%2#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "407": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "impactBps#0",
+        "maybe_value%2#0"
+      ]
+    },
+    "408": {
+      "op": "mulw",
+      "defined_out": [
+        "extraHigh#0",
+        "extraLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "extraLow#0"
+      ]
+    },
+    "409": {
+      "op": "cover 3",
+      "defined_out": [
+        "extraHigh#0",
+        "extraLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0"
+      ]
+    },
+    "411": {
+      "op": "dup",
+      "defined_out": [
+        "extraHigh#0",
+        "extraLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "extraHigh#0"
+      ]
+    },
+    "412": {
+      "op": "intc_3 // 10000",
+      "defined_out": [
+        "10000",
+        "extraHigh#0",
+        "extraLow#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "extraHigh#0",
+        "10000"
+      ]
+    },
+    "413": {
+      "op": ">=",
+      "defined_out": [
+        "extraHigh#0",
+        "extraLow#0",
+        "reserveIn#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "tmp%3#1"
+      ]
+    },
+    "414": {
+      "op": "bz akitaDexHook_after_if_else@16",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0"
+      ]
+    },
+    "417": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "418": {
+      "op": "uncover 2",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extraLow#0"
+      ]
+    },
+    "420": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "421": {
+      "op": "uncover 2",
+      "defined_out": [
+        "min#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "max#0",
+        "ctx#0",
+        "min#0"
+      ]
+    },
+    "423": {
+      "op": "pop",
+      "defined_out": [
+        "fee#0",
+        "reserveIn#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0"
+      ]
+    },
+    "424": {
+      "op": "b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20"
+    },
+    "427": {
+      "block": "akitaDexHook_after_if_else@16",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "extraLow#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0"
+      ],
+      "op": "uncover 3",
+      "defined_out": [
+        "extraHigh#0",
+        "extraLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "extraLow#0"
+      ]
+    },
+    "429": {
+      "op": "intc_3 // 10000",
+      "defined_out": [
+        "10000",
+        "extraHigh#0",
+        "extraLow#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extraHigh#0",
+        "extraLow#0",
+        "10000"
+      ]
+    },
+    "430": {
+      "op": "divw",
+      "defined_out": [
+        "extra#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0"
+      ]
+    },
+    "431": {
+      "op": "dup",
+      "defined_out": [
+        "extra#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0",
+        "extra#0"
+      ]
+    },
+    "432": {
+      "op": "dig 3",
+      "defined_out": [
+        "extra#0",
+        "max#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0",
+        "extra#0",
+        "max#0 (copy)"
+      ]
+    },
+    "434": {
+      "op": "dig 5",
+      "defined_out": [
+        "extra#0",
+        "max#0 (copy)",
+        "min#0 (copy)"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0",
+        "extra#0",
+        "max#0 (copy)",
+        "min#0 (copy)"
+      ]
+    },
+    "436": {
+      "op": "-",
+      "defined_out": [
+        "extra#0",
+        "tmp%5#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0",
+        "extra#0",
+        "tmp%5#2"
+      ]
+    },
+    "437": {
+      "op": ">=",
+      "defined_out": [
+        "extra#0",
+        "tmp%6#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0",
+        "tmp%6#2"
+      ]
+    },
+    "438": {
+      "op": "bz akitaDexHook_ternary_false@18",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0"
+      ]
+    },
+    "441": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "442": {
+      "op": "uncover 2",
+      "defined_out": [
+        "min#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "max#0",
+        "ctx#0",
+        "min#0"
+      ]
+    },
+    "444": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "max#0",
+        "ctx#0"
+      ]
+    },
+    "445": {
+      "op": "swap",
+      "defined_out": [
+        "ternary_result%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ternary_result%0#2"
+      ]
+    },
+    "446": {
+      "block": "akitaDexHook_ternary_merge@19",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ternary_result%0#2"
+      ],
+      "op": "swap",
+      "defined_out": [
+        "fee#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "fee#0",
+        "ctx#0"
+      ]
+    },
+    "447": {
+      "op": "b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20"
+    },
+    "450": {
+      "block": "akitaDexHook_ternary_false@18",
+      "stack_in": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "max#0",
+        "ctx#0",
+        "extra#0"
+      ],
+      "op": "uncover 2",
+      "defined_out": [
+        "max#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "ctx#0",
+        "extra#0",
+        "max#0"
+      ]
+    },
+    "452": {
+      "op": "pop",
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "min#0",
+        "ctx#0",
+        "extra#0"
+      ]
+    },
+    "453": {
+      "op": "uncover 2",
+      "defined_out": [
+        "min#0"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "extra#0",
+        "min#0"
+      ]
+    },
+    "455": {
+      "op": "+",
+      "defined_out": [
+        "ternary_result%0#2"
+      ],
+      "stack_out": [
+        "reserveIn#0",
+        "tmp%0#1",
+        "ctx#0",
+        "ternary_result%0#2"
+      ]
+    },
+    "456": {
+      "op": "b akitaDexHook_ternary_merge@19"
+    }
+  }
+}

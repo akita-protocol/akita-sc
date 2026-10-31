@@ -1,0 +1,1990 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../plugin-dex/hook-interface.ts",
+    "../../../plugin-dex/tests/mock-updatable-hook.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AC0DA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;AAAA;AACG;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AADH;;;;;;AAAA;;;AAAA;;;;AAAA;AAlCG;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AARA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALK;AAOJ;AAAA;AANM;AAOa;AAAnB;AANU;AAOa;AAAvB;AAJD;AAAA;AAUc;;AAAe;;AAAf;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAFD;AAAA;AAKD;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AACmB;AAnBb;AAmBa;AAAA;ADaN;;AAAA;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;AAAA;AAAA;ACZE;AAnBM;AAmBN;AAAA;AAAoB;AAApB;AAnBM;AAmBN;AAAA;AACuB;AAAA;AAAA;AAnBb;AAmBV;AAAA;AAlBQ;AAmBJ;AAAA;;AAAJ;;;AAnBQ;AAoBN;;AApBM;AAsBR;;AAtBQ;AAsBR;AAAA;AAPF;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAAA;AAfU;AA6BuB;AAAA;AAFhC;;AAAA;AAAA;AAAA;AAAA;AAAA;AAMA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 8 305"
+    },
+    "8": {
+      "op": "bytecblock \"ctx\" \"calls\" \"dex\" \"last_point\" 0x151f7c75"
+    },
+    "40": {
+      "op": "pushbytes 0xa0e81872 // method \"update()void\"",
+      "defined_out": [
+        "Method(update()void)"
+      ],
+      "stack_out": [
+        "Method(update()void)"
+      ]
+    },
+    "46": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(update()void)",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "Method(update()void)",
+        "tmp%0#1"
+      ]
+    },
+    "49": {
+      "op": "match main_update_route@2",
+      "stack_out": []
+    },
+    "53": {
+      "block": "main_switch_case_next@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "55": {
+      "op": "!",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "56": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "57": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "59": {
+      "op": "bz main_create_NoOp@10",
+      "stack_out": []
+    },
+    "62": {
+      "op": "pushbytess 0x8e40b8aa 0x74322cba 0x7b7715a3 0x7240ea14 // method \"codeVersion()uint64\", method \"akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)\", method \"lastContext()(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[])\", method \"echo((uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[])\"",
+      "defined_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "Method(codeVersion()uint64)",
+        "Method(echo((uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "Method(lastContext()(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))"
+      ],
+      "stack_out": [
+        "Method(codeVersion()uint64)",
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "Method(lastContext()(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "Method(echo((uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))"
+      ]
+    },
+    "84": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "Method(codeVersion()uint64)",
+        "Method(echo((uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "Method(lastContext()(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "Method(codeVersion()uint64)",
+        "Method(akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64))",
+        "Method(lastContext()(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "Method(echo((uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))",
+        "tmp%10#0"
+      ]
+    },
+    "87": {
+      "op": "match main_codeVersion_route@5 akitaDexHook lastContext echo",
+      "stack_out": []
+    },
+    "97": {
+      "op": "err"
+    },
+    "98": {
+      "block": "main_codeVersion_route@5",
+      "stack_in": [],
+      "op": "pushbytes 0x151f7c750000000000000002",
+      "defined_out": [
+        "0x151f7c750000000000000002"
+      ],
+      "stack_out": [
+        "0x151f7c750000000000000002"
+      ]
+    },
+    "112": {
+      "op": "log",
+      "stack_out": []
+    },
+    "113": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "114": {
+      "op": "return",
+      "stack_out": []
+    },
+    "115": {
+      "block": "main_create_NoOp@10",
+      "stack_in": [],
+      "op": "pushbytes 0x240d2f67 // method \"create(uint64)void\"",
+      "defined_out": [
+        "Method(create(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)"
+      ]
+    },
+    "121": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(uint64)void)",
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)",
+        "tmp%11#0"
+      ]
+    },
+    "124": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "128": {
+      "op": "err"
+    },
+    "129": {
+      "block": "main_update_route@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "131": {
+      "op": "pushint 4 // UpdateApplication",
+      "defined_out": [
+        "UpdateApplication",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "UpdateApplication"
+      ]
+    },
+    "133": {
+      "op": "==",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "134": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "136": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "137": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "138": {
+      "op": "b update"
+    },
+    "141": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-updatable-hook.algo.ts::MockUpdatableHook.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "144": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "145": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "146": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "147": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "148": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "149": {
+      "op": "btoi",
+      "defined_out": [
+        "dex#0"
+      ],
+      "stack_out": [
+        "dex#0"
+      ]
+    },
+    "150": {
+      "op": "bytec_2 // \"dex\"",
+      "defined_out": [
+        "\"dex\"",
+        "dex#0"
+      ],
+      "stack_out": [
+        "dex#0",
+        "\"dex\""
+      ]
+    },
+    "151": {
+      "op": "swap",
+      "stack_out": [
+        "\"dex\"",
+        "dex#0"
+      ]
+    },
+    "152": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "153": {
+      "op": "bytec_1 // \"calls\"",
+      "defined_out": [
+        "\"calls\""
+      ],
+      "stack_out": [
+        "\"calls\""
+      ]
+    },
+    "154": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"calls\"",
+        "0"
+      ],
+      "stack_out": [
+        "\"calls\"",
+        "0"
+      ]
+    },
+    "155": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "156": {
+      "op": "bytec_3 // \"last_point\"",
+      "defined_out": [
+        "\"last_point\""
+      ],
+      "stack_out": [
+        "\"last_point\""
+      ]
+    },
+    "157": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"last_point\"",
+        "0"
+      ]
+    },
+    "158": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "159": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "160": {
+      "op": "return",
+      "stack_out": []
+    },
+    "161": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-updatable-hook.algo.ts::MockUpdatableHook.update[routing]",
+      "params": {},
+      "block": "update",
+      "stack_in": [],
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "163": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "165": {
+      "op": "==",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "166": {
+      "op": "bnz update_after_assert@3",
+      "stack_out": []
+    },
+    "169": {
+      "op": "pushbytes \"ERR:errNotCreator\"",
+      "defined_out": [
+        "\"ERR:errNotCreator\""
+      ],
+      "stack_out": [
+        "\"ERR:errNotCreator\""
+      ]
+    },
+    "188": {
+      "op": "log",
+      "stack_out": []
+    },
+    "189": {
+      "error": "ERR:errNotCreator",
+      "op": "err // ERR:errNotCreator"
+    },
+    "190": {
+      "block": "update_after_assert@3",
+      "stack_in": [],
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "191": {
+      "op": "return",
+      "stack_out": []
+    },
+    "192": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-updatable-hook.algo.ts::MockUpdatableHook.akitaDexHook[routing]",
+      "params": {},
+      "block": "akitaDexHook",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "195": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0"
+      ],
+      "stack_out": [
+        "len%0#0"
+      ]
+    },
+    "196": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "len%0#0",
+        "8"
+      ]
+    },
+    "197": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "eq%0#0"
+      ]
+    },
+    "198": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": []
+    },
+    "199": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "202": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0"
+      ],
+      "stack_out": [
+        "len%1#0"
+      ]
+    },
+    "203": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "len%1#0",
+        "8"
+      ]
+    },
+    "204": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0"
+      ],
+      "stack_out": [
+        "eq%1#0"
+      ]
+    },
+    "205": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": []
+    },
+    "206": {
+      "op": "txna ApplicationArgs 3"
+    },
+    "209": {
+      "op": "dupn 2",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "211": {
+      "op": "len",
+      "defined_out": [
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "212": {
+      "op": "dig 1",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "214": {
+      "op": "intc_3 // 305",
+      "defined_out": [
+        "305",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "305"
+      ]
+    },
+    "215": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "216": {
+      "op": "dup",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "217": {
+      "op": "pushint 309",
+      "defined_out": [
+        "309",
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "309"
+      ]
+    },
+    "220": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%2#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%2#0"
+      ]
+    },
+    "221": {
+      "error": "invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "222": {
+      "op": "dig 2",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "224": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "225": {
+      "op": "dig 2",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "227": {
+      "op": "substring3",
+      "defined_out": [
+        "ctx#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "228": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "229": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "230": {
+      "op": "pushint 311",
+      "defined_out": [
+        "311",
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "311"
+      ]
+    },
+    "233": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "234": {
+      "op": "dig 2",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "236": {
+      "op": "pushint 307",
+      "defined_out": [
+        "307",
+        "add%1#0",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)",
+        "307"
+      ]
+    },
+    "239": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "240": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "241": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "243": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "eq%3#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%3#0"
+      ]
+    },
+    "244": {
+      "error": "invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "245": {
+      "op": "uncover 3",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "ctx#0"
+      ]
+    },
+    "247": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "248": {
+      "op": "dig 3",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "250": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "251": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "252": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "253": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "255": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "256": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "257": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%4#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "eq%4#0"
+      ]
+    },
+    "258": {
+      "error": "invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "op": "assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "259": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "ctx#0",
+        "0"
+      ]
+    },
+    "260": {
+      "op": "bytec_2 // \"dex\"",
+      "defined_out": [
+        "\"dex\"",
+        "0",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "0",
+        "\"dex\""
+      ]
+    },
+    "261": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "ctx#0",
+        "dex#0",
+        "maybe_exists%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "dex#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "262": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "ctx#0",
+        "dex#0"
+      ]
+    },
+    "263": {
+      "op": "global CallerApplicationID",
+      "defined_out": [
+        "ctx#0",
+        "dex#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "dex#0",
+        "tmp%0#1"
+      ]
+    },
+    "265": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "tmp%1#2"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tmp%1#2"
+      ]
+    },
+    "266": {
+      "op": "bnz akitaDexHook_after_assert@8",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "269": {
+      "op": "pushbytes \"ERR:errHookCaller\"",
+      "defined_out": [
+        "\"ERR:errHookCaller\"",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "\"ERR:errHookCaller\""
+      ]
+    },
+    "288": {
+      "op": "log",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "289": {
+      "error": "ERR:errHookCaller",
+      "op": "err // ERR:errHookCaller"
+    },
+    "290": {
+      "block": "akitaDexHook_after_assert@8",
+      "stack_in": [
+        "ctx#0"
+      ],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "0"
+      ]
+    },
+    "291": {
+      "op": "bytec_1 // \"calls\"",
+      "defined_out": [
+        "\"calls\"",
+        "0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "0",
+        "\"calls\""
+      ]
+    },
+    "292": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "293": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "ctx#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "294": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "maybe_value%1#0",
+        "1"
+      ]
+    },
+    "295": {
+      "op": "+",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tmp%0#1"
+      ]
+    },
+    "296": {
+      "op": "bytec_1 // \"calls\"",
+      "stack_out": [
+        "ctx#0",
+        "tmp%0#1",
+        "\"calls\""
+      ]
+    },
+    "297": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "\"calls\"",
+        "tmp%0#1"
+      ]
+    },
+    "298": {
+      "op": "app_global_put",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "299": {
+      "op": "dup",
+      "defined_out": [
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "300": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "ctx#0",
+        "ctx#0 (copy)",
+        "0"
+      ]
+    },
+    "301": {
+      "op": "extract_uint64",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tmp%1#1"
+      ]
+    },
+    "302": {
+      "op": "bytec_3 // \"last_point\"",
+      "defined_out": [
+        "\"last_point\"",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tmp%1#1",
+        "\"last_point\""
+      ]
+    },
+    "303": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "\"last_point\"",
+        "tmp%1#1"
+      ]
+    },
+    "304": {
+      "op": "app_global_put",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "305": {
+      "op": "bytec_0 // \"ctx\"",
+      "defined_out": [
+        "\"ctx\""
+      ],
+      "stack_out": [
+        "ctx#0",
+        "\"ctx\""
+      ]
+    },
+    "306": {
+      "op": "box_len",
+      "defined_out": [
+        "_%0#0",
+        "maybe_exists%2#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "_%0#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "307": {
+      "op": "bury 1",
+      "stack_out": [
+        "ctx#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "309": {
+      "op": "bz akitaDexHook_after_if_else@3",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "312": {
+      "op": "bytec_0 // \"ctx\"",
+      "stack_out": [
+        "ctx#0",
+        "\"ctx\""
+      ]
+    },
+    "313": {
+      "op": "box_del",
+      "defined_out": [
+        "{box_del}"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "{box_del}"
+      ]
+    },
+    "314": {
+      "op": "pop",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "315": {
+      "block": "akitaDexHook_after_if_else@3",
+      "stack_in": [
+        "ctx#0"
+      ],
+      "op": "bytec_0 // \"ctx\"",
+      "defined_out": [
+        "\"ctx\""
+      ],
+      "stack_out": [
+        "ctx#0",
+        "\"ctx\""
+      ]
+    },
+    "316": {
+      "op": "box_del",
+      "defined_out": [
+        "{box_del}"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "{box_del}"
+      ]
+    },
+    "317": {
+      "op": "pop",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "318": {
+      "op": "bytec_0 // \"ctx\"",
+      "stack_out": [
+        "ctx#0",
+        "\"ctx\""
+      ]
+    },
+    "319": {
+      "op": "swap",
+      "defined_out": [
+        "\"ctx\"",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "\"ctx\"",
+        "ctx#0"
+      ]
+    },
+    "320": {
+      "op": "box_put",
+      "stack_out": []
+    },
+    "321": {
+      "op": "pushbytes 0x151f7c750000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "0x151f7c750000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "stack_out": [
+        "0x151f7c750000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "359": {
+      "op": "log",
+      "stack_out": []
+    },
+    "360": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "361": {
+      "op": "return",
+      "stack_out": []
+    },
+    "362": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-updatable-hook.algo.ts::MockUpdatableHook.lastContext[routing]",
+      "params": {},
+      "block": "lastContext",
+      "stack_in": [],
+      "op": "bytec_0 // \"ctx\"",
+      "defined_out": [
+        "\"ctx\""
+      ],
+      "stack_out": [
+        "\"ctx\""
+      ]
+    },
+    "363": {
+      "op": "box_get",
+      "defined_out": [
+        "aggregate%box_get%0#0",
+        "aggregate%box_get%1#0"
+      ],
+      "stack_out": [
+        "aggregate%box_get%0#0",
+        "aggregate%box_get%1#0"
+      ]
+    },
+    "364": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "aggregate%box_get%0#0"
+      ]
+    },
+    "365": {
+      "op": "bytec 4 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%box_get%0#0"
+      ],
+      "stack_out": [
+        "aggregate%box_get%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "367": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%box_get%0#0"
+      ]
+    },
+    "368": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "369": {
+      "op": "log",
+      "stack_out": []
+    },
+    "370": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "371": {
+      "op": "return",
+      "stack_out": []
+    },
+    "372": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-updatable-hook.algo.ts::MockUpdatableHook.echo[routing]",
+      "params": {},
+      "block": "echo",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "ctx#0"
+      ],
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "375": {
+      "op": "dup",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "376": {
+      "op": "len",
+      "defined_out": [
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0"
+      ]
+    },
+    "377": {
+      "op": "dig 1",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "379": {
+      "op": "intc_3 // 305",
+      "defined_out": [
+        "305",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "305"
+      ]
+    },
+    "380": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "381": {
+      "op": "dup",
+      "defined_out": [
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)"
+      ]
+    },
+    "382": {
+      "op": "pushint 309",
+      "defined_out": [
+        "309",
+        "ctx#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "extract_uint16%0#0 (copy)",
+        "309"
+      ]
+    },
+    "385": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%0#0",
+        "extract_uint16%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "eq%0#0"
+      ]
+    },
+    "386": {
+      "error": "invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0"
+      ]
+    },
+    "387": {
+      "op": "dig 2",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "extract_uint16%0#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "389": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0"
+      ]
+    },
+    "390": {
+      "op": "dig 2",
+      "defined_out": [
+        "ctx#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0",
+        "tuple_len%0#0 (copy)"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "ctx#0 (copy)",
+        "extract_uint16%0#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "392": {
+      "op": "substring3",
+      "defined_out": [
+        "ctx#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0"
+      ]
+    },
+    "393": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "ctx#0",
+        "substring3%0#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "substring3%0#0",
+        "0"
+      ]
+    },
+    "394": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "395": {
+      "op": "pushint 311",
+      "defined_out": [
+        "311",
+        "aggregate%array_length%0#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "aggregate%array_length%0#0",
+        "311"
+      ]
+    },
+    "398": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0"
+      ]
+    },
+    "399": {
+      "op": "dig 2",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "401": {
+      "op": "pushint 307",
+      "defined_out": [
+        "307",
+        "add%1#0",
+        "ctx#0",
+        "ctx#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)",
+        "307"
+      ]
+    },
+    "404": {
+      "error": "invalid tuple encoding",
+      "op": "extract_uint16 // on error: invalid tuple encoding",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "405": {
+      "op": "dup",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)"
+      ]
+    },
+    "406": {
+      "op": "dig 2",
+      "defined_out": [
+        "add%1#0",
+        "add%1#0 (copy)",
+        "ctx#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "extract_uint16%1#0 (copy)",
+        "add%1#0 (copy)"
+      ]
+    },
+    "408": {
+      "op": "==",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "eq%1#0",
+        "extract_uint16%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "eq%1#0"
+      ]
+    },
+    "409": {
+      "error": "invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "op": "assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0"
+      ]
+    },
+    "410": {
+      "op": "dig 3",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "extract_uint16%1#0",
+        "ctx#0 (copy)"
+      ]
+    },
+    "412": {
+      "op": "swap",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)",
+        "extract_uint16%1#0"
+      ]
+    },
+    "413": {
+      "op": "dig 3",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "ctx#0 (copy)",
+        "extract_uint16%1#0",
+        "tuple_len%0#0 (copy)"
+      ]
+    },
+    "415": {
+      "op": "substring3",
+      "defined_out": [
+        "add%1#0",
+        "ctx#0",
+        "substring3%1#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0"
+      ]
+    },
+    "416": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "substring3%1#0",
+        "0"
+      ]
+    },
+    "417": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "418": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "420": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "add%2#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%1#0",
+        "add%2#0"
+      ]
+    },
+    "421": {
+      "op": "+",
+      "defined_out": [
+        "add%3#0",
+        "ctx#0",
+        "tuple_len%0#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "tuple_len%0#0",
+        "add%3#0"
+      ]
+    },
+    "422": {
+      "op": "==",
+      "defined_out": [
+        "ctx#0",
+        "eq%2#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "eq%2#0"
+      ]
+    },
+    "423": {
+      "error": "invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "op": "assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext",
+      "stack_out": [
+        "ctx#0"
+      ]
+    },
+    "424": {
+      "op": "bytec 4 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "ctx#0"
+      ],
+      "stack_out": [
+        "ctx#0",
+        "0x151f7c75"
+      ]
+    },
+    "426": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "ctx#0"
+      ]
+    },
+    "427": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "428": {
+      "op": "log",
+      "stack_out": []
+    },
+    "429": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "430": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

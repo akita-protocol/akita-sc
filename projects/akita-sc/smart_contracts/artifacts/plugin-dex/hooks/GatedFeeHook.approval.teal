@@ -1,0 +1,3495 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 32 86400 604800 1000 47700 1000000
+    bytecblock 0x151f7c75 "p" "" "akita_dao" "g" "aal" "ERR:errGfsc" "d" "ERR:errGfnp" "pass_ttl" "max_day_swaps" "s" 0x0000000000000000000000000000000000000000000000000000000000000000 "ERR:errGfau" "appID" "controlled_address" "ERR:errGftl" "dex" 0x068101 0x000000000000016d00000000000f4240
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:239
+    // export class GatedFeeHook extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@20
+    pushbytess 0x74322cba 0x0eb9c717 0x6e57ffb8 0xcb0cad86 0xc8b530b7 0x67b7704d 0x123fd613 0x7a4833ff 0x1e421103 0xf33132c1 0x5a1521a7 0x303a4db5 0x2c0f4473 0x5eb4ea50 0xc7bfda59 0x32afa287 // method "akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)", method "openPass(pay,address,uint64,byte[][][],uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "refresh(address,uint64,byte[][][],uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "refreshFromGate(appl,address,uint64,uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "closePass(address,uint64)void", method "setGateSlots(uint64[])void", method "setPassTtl(uint64)void", method "setMaxDiscountedSwapsPerDay(uint64)void", method "setDefaultSchedule((uint64,uint64,uint64,(uint64,uint64,uint64,uint64)[]))void", method "getPass(address)(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "getSchedule(uint64)(uint64,uint64,uint64,(uint64,uint64,uint64,uint64)[])", method "getGateSlots()uint64[]", method "previewFee(uint64,address,uint64)uint64", method "getDiscountedSwapsToday(address)uint64", method "passCost()uint64", method "scheduleCost(uint64)uint64"
+    txna ApplicationArgs 0
+    match akitaDexHook openPass refresh refreshFromGate closePass setGateSlots setPassTtl setMaxDiscountedSwapsPerDay setDefaultSchedule getPass getSchedule getGateSlots previewFee getDiscountedSwapsToday main_passCost_route@17 scheduleCost
+    err
+
+main_passCost_route@17:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:424
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c75000000000000ba54
+    log
+    intc_1 // 1
+    return
+
+main_create_NoOp@20:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:239
+    // export class GatedFeeHook extends Contract {
+    pushbytes 0x7efda4d2 // method "create(uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/utils/principal.ts::plainPrincipal(sender: bytes) -> bytes:
+plainPrincipal:
+    // smart_contracts/utils/principal.ts:89
+    // function plainPrincipal(sender: Account): Principal {
+    proto 1 1
+    // smart_contracts/utils/principal.ts:93
+    // origin: Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/utils/principal.ts:95
+    // referrer: Global.zeroAddress,
+    dup
+    // smart_contracts/utils/principal.ts:91
+    // wallet: 0,
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:90-97
+    // return {
+    //   wallet: 0,
+    //   principal: sender,
+    //   origin: Global.zeroAddress,
+    //   spender: sender,
+    //   referrer: Global.zeroAddress,
+    //   viaPlugin: false,
+    // }
+    itob
+    frame_dig -1
+    concat
+    uncover 2
+    concat
+    frame_dig -1
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    concat
+    retsub
+
+
+// smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
+isGenuineWallet:
+    // smart_contracts/utils/principal.ts:101
+    // export function isGenuineWallet(wallet: uint64, walletFactory: uint64): boolean {
+    proto 2 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:102
+    // if (wallet === 0 || walletFactory === 0) {
+    frame_dig -2
+    bz isGenuineWallet_if_body@2
+    frame_dig -1
+    bnz isGenuineWallet_after_if_else@3
+
+isGenuineWallet_if_body@2:
+    // smart_contracts/utils/principal.ts:103
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+isGenuineWallet_after_if_else@3:
+    // smart_contracts/utils/principal.ts:105
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    frame_dig -2
+    app_params_get AppCreator
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    bz isGenuineWallet_bool_false@6
+    // smart_contracts/utils/principal.ts:74
+    // return Account(op.sha512_256(Bytes('appID').concat(op.itob(appId))))
+    frame_dig -1
+    itob
+    bytec 14 // "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    frame_dig 0
+    ==
+    bz isGenuineWallet_bool_false@6
+    intc_1 // 1
+
+isGenuineWallet_bool_merge@7:
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    swap
+    retsub
+
+isGenuineWallet_bool_false@6:
+    intc_0 // 0
+    b isGenuineWallet_bool_merge@7
+
+
+// smart_contracts/utils/principal.ts::walletControlsLive(wallet: uint64, controlled: bytes, spender: bytes) -> uint64:
+walletControlsLive:
+    // smart_contracts/utils/principal.ts:118
+    // function walletControlsLive(wallet: uint64, controlled: Account, spender: Account): boolean {
+    proto 3 1
+    // smart_contracts/utils/principal.ts:119
+    // if (controlled === spender) {
+    frame_dig -2
+    frame_dig -1
+    ==
+    bz walletControlsLive_after_if_else@2
+    // smart_contracts/utils/principal.ts:120
+    // return true
+    intc_1 // 1
+    retsub
+
+walletControlsLive_after_if_else@2:
+    // smart_contracts/utils/principal.ts:122
+    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
+    frame_dig -3
+    app_params_get AppAddress
+    // smart_contracts/utils/principal.ts:123
+    // if (!walletExists) {
+    bnz walletControlsLive_after_if_else@4
+    // smart_contracts/utils/principal.ts:124
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+walletControlsLive_after_if_else@4:
+    // smart_contracts/utils/principal.ts:126
+    // if (controlled === walletAddress) {
+    frame_dig -2
+    dig 1
+    ==
+    bz walletControlsLive_after_if_else@6
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:127
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    retsub
+
+walletControlsLive_after_if_else@6:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    frame_dig -2
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:129
+    // return authAddrOf(controlled) === walletAddress
+    ==
+    retsub
+
+
+// smart_contracts/utils/principal.ts::resolvePrincipalCtx(walletFactory: uint64, hint: uint64, sender: bytes, callerApp: uint64, callerAddr: bytes, strict: uint64) -> bytes:
+resolvePrincipalCtx:
+    // smart_contracts/utils/principal.ts:140-147
+    // function resolvePrincipalCtx(
+    //   walletFactory: uint64,
+    //   hint: uint64,
+    //   sender: Account,
+    //   callerApp: uint64,
+    //   callerAddr: Account,
+    //   strict: boolean
+    // ): Principal {
+    proto 6 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:148
+    // if (hint === 0) {
+    frame_dig -5
+    bnz resolvePrincipalCtx_after_if_else@2
+    // smart_contracts/utils/principal.ts:149
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@2:
+    // smart_contracts/utils/principal.ts:152
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    frame_dig -5
+    frame_dig -6
+    callsub isGenuineWallet
+    bnz resolvePrincipalCtx_after_if_else@6
+    // smart_contracts/utils/principal.ts:153
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@5
+    // smart_contracts/utils/principal.ts:154
+    // loggedErr(errHintNotWallet)
+    pushbytes "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+resolvePrincipalCtx_after_if_else@5:
+    // smart_contracts/utils/principal.ts:156
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@6:
+    // smart_contracts/utils/principal.ts:159
+    // if (callerApp === 0) {
+    frame_dig -3
+    bnz resolvePrincipalCtx_after_if_else@10
+    // smart_contracts/utils/principal.ts:160
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@9
+    // smart_contracts/utils/principal.ts:161
+    // loggedErr(errHintTopLevel)
+    pushbytes "ERR:errHtop"
+    log
+    err // ERR:errHtop
+
+resolvePrincipalCtx_after_if_else@9:
+    // smart_contracts/utils/principal.ts:163
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@10:
+    // smart_contracts/utils/principal.ts:166
+    // let viaPlugin = false
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:167
+    // if (callerApp !== hint) {
+    frame_dig -3
+    frame_dig -5
+    !=
+    bz resolvePrincipalCtx_after_if_else@19
+    pop
+    // smart_contracts/utils/principal.ts:171
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -5
+    pushbytes "spending_address"
+    app_global_get_ex
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:172
+    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig 0
+    len
+    intc_3 // 32
+    ==
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig 0
+    frame_dig -4
+    ==
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig -4
+    frame_dig -2
+    !=
+    bnz resolvePrincipalCtx_after_if_else@18
+
+resolvePrincipalCtx_if_body@15:
+    // smart_contracts/utils/principal.ts:173
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@17
+    // smart_contracts/utils/principal.ts:174
+    // loggedErr(errHintNotBound)
+    pushbytes "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+resolvePrincipalCtx_after_if_else@17:
+    // smart_contracts/utils/principal.ts:176
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@18:
+    // smart_contracts/utils/principal.ts:178
+    // viaPlugin = true
+    intc_1 // 1
+
+resolvePrincipalCtx_after_if_else@19:
+    // smart_contracts/utils/principal.ts:181
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    frame_dig -5
+    bytec 15 // "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:182
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz resolvePrincipalCtx_if_body@21
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz resolvePrincipalCtx_after_if_else@24
+
+resolvePrincipalCtx_if_body@21:
+    popn 2
+    // smart_contracts/utils/principal.ts:183
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@23
+    // smart_contracts/utils/principal.ts:184
+    // loggedErr(errHintBadWallet)
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+resolvePrincipalCtx_after_if_else@23:
+    // smart_contracts/utils/principal.ts:186
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@24:
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    frame_dig -5
+    dig 1
+    frame_dig -4
+    callsub walletControlsLive
+    swap
+    // smart_contracts/utils/principal.ts:191
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    frame_dig -5
+    pushbytes "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz resolvePrincipalCtx_ternary_false@27
+    dup
+    len
+    intc_3 // 32
+    ==
+    bz resolvePrincipalCtx_ternary_false@27
+    swap
+
+resolvePrincipalCtx_ternary_merge@28:
+    // smart_contracts/utils/principal.ts:196
+    // principal: live ? controlled : sender,
+    frame_dig -4
+    dig 1
+    uncover 4
+    dup
+    cover 3
+    select
+    swap
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    bz resolvePrincipalCtx_ternary_false@30
+    swap
+
+resolvePrincipalCtx_ternary_merge@31:
+    // smart_contracts/utils/principal.ts:194-201
+    // return {
+    //   wallet: hint,
+    //   principal: live ? controlled : sender,
+    //   origin: live ? controlled : Global.zeroAddress,
+    //   spender: sender,
+    //   referrer,
+    //   viaPlugin,
+    // }
+    frame_dig -5
+    itob
+    uncover 2
+    concat
+    swap
+    concat
+    frame_dig -4
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    swap
+    retsub
+
+resolvePrincipalCtx_ternary_false@30:
+    bury 1
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    global ZeroAddress
+    b resolvePrincipalCtx_ternary_merge@31
+
+resolvePrincipalCtx_ternary_false@27:
+    pop
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    swap
+    b resolvePrincipalCtx_ternary_merge@28
+
+
+// smart_contracts/utils/principal.ts::gateCtx(p: bytes) -> bytes, bytes:
+gateCtx:
+    // smart_contracts/utils/principal.ts:303
+    // export function gateCtx(p: Principal): GateCtx {
+    proto 1 2
+    // smart_contracts/utils/principal.ts:304
+    // return { principal: p.principal, wallet: p.wallet, spender: p.spender }
+    frame_dig -1
+    extract 8 32
+    frame_dig -1
+    extract 0 8
+    frame_dig -1
+    extract 72 32
+    cover 2
+    concat
+    swap
+    concat
+    frame_dig -1
+    retsub
+
+
+// smart_contracts/utils/functions.ts::wideRatio(numerators: bytes, denominators: bytes) -> uint64:
+wideRatio:
+    // smart_contracts/utils/functions.ts:185
+    // export function wideRatio(numerators: [uint64, uint64], denominators: [uint64, uint64]): uint64 {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:186
+    // assert(denominators[0] > 0 && denominators[1] > 0, errInvalidPercentage)
+    frame_dig -1
+    intc_0 // 0
+    extract_uint64
+    dup
+    bz wideRatio_bool_false@3
+    frame_dig -1
+    intc_2 // 8
+    extract_uint64
+    bz wideRatio_bool_false@3
+    intc_1 // 1
+
+wideRatio_bool_merge@4:
+    // smart_contracts/utils/functions.ts:186
+    // assert(denominators[0] > 0 && denominators[1] > 0, errInvalidPercentage)
+    assert // errIpct
+    // smart_contracts/utils/functions.ts:187
+    // const [overflow, result] = op.divmodw(...op.mulw(...numerators), ...op.mulw(...denominators))
+    frame_dig -2
+    intc_0 // 0
+    extract_uint64
+    frame_dig -2
+    intc_2 // 8
+    extract_uint64
+    mulw
+    frame_dig -1
+    intc_2 // 8
+    extract_uint64
+    uncover 3
+    mulw
+    divmodw
+    popn 2
+    swap
+    // smart_contracts/utils/functions.ts:188
+    // assert(overflow === 0, errInvalidPercentage)
+    !
+    assert // errIpct
+    // smart_contracts/utils/functions.ts:189
+    // return result
+    retsub
+
+wideRatio_bool_false@3:
+    intc_0 // 0
+    b wideRatio_bool_merge@4
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::checkSchedule(schedule: bytes) -> bytes:
+checkSchedule:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:144
+    // export function checkSchedule(schedule: FeeSchedule): void {
+    proto 1 1
+    intc_0 // 0
+    bytec_2 // ""
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:146
+    // schedule.tiers.length <= MaxTiers &&
+    frame_dig -1
+    pushint 24
+    extract_uint16
+    frame_dig -1
+    len
+    frame_dig -1
+    cover 2
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    pushint 4
+    <=
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:146-147
+    // schedule.tiers.length <= MaxTiers &&
+    //   schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    bz checkSchedule_bool_false@5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:147
+    // schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    frame_dig -1
+    intc_2 // 8
+    extract_uint64
+    dup
+    frame_bury 2
+    pushint 9000
+    <=
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:146-147
+    // schedule.tiers.length <= MaxTiers &&
+    //   schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    bz checkSchedule_bool_false@5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:148
+    // schedule.impactMaxDiscountBps <= schedule.maxDiscountBps &&
+    frame_dig -1
+    pushint 16
+    extract_uint64
+    frame_dig 2
+    <=
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:146-148
+    // schedule.tiers.length <= MaxTiers &&
+    //   schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    //   schedule.impactMaxDiscountBps <= schedule.maxDiscountBps &&
+    bz checkSchedule_bool_false@5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:149
+    // schedule.floorFeeBps <= MaxPoolFeeCapBps,
+    frame_dig -1
+    intc_0 // 0
+    extract_uint64
+    pushint 9000
+    <=
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:146-149
+    // schedule.tiers.length <= MaxTiers &&
+    //   schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    //   schedule.impactMaxDiscountBps <= schedule.maxDiscountBps &&
+    //   schedule.floorFeeBps <= MaxPoolFeeCapBps,
+    bz checkSchedule_bool_false@5
+    intc_1 // 1
+
+checkSchedule_bool_merge@6:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:145-151
+    // loggedAssert(
+    //   schedule.tiers.length <= MaxTiers &&
+    //     schedule.maxDiscountBps <= MaxDiscountCapBps &&
+    //     schedule.impactMaxDiscountBps <= schedule.maxDiscountBps &&
+    //     schedule.floorFeeBps <= MaxPoolFeeCapBps,
+    //   errGfSchedule,
+    // )
+    bnz checkSchedule_after_assert@8
+    bytec 6 // "ERR:errGfsc"
+    log
+    err // ERR:errGfsc
+
+checkSchedule_after_assert@8:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:152
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    intc_0 // 0
+
+checkSchedule_while_top@9:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:152
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    dup
+    frame_dig 4
+    <
+    bz checkSchedule_after_while@18
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:155
+    // tier.discountBps > 0 && tier.discountBps <= schedule.maxDiscountBps && (tier.gateMask | GateMaskAll) === GateMaskAll,
+    frame_dig 3
+    extract 2 0
+    dig 1
+    intc_3 // 32
+    *
+    intc_3 // 32
+    extract3 // on error: index access is out of bounds
+    dup
+    frame_bury 0
+    pushint 24
+    extract_uint64
+    dup
+    frame_bury 1
+    bz checkSchedule_bool_false@14
+    frame_dig -1
+    intc_2 // 8
+    extract_uint64
+    frame_dig 1
+    >=
+    bz checkSchedule_bool_false@14
+    frame_dig 0
+    pushint 16
+    extract_uint64
+    pushint 255
+    |
+    pushint 255
+    ==
+    bz checkSchedule_bool_false@14
+    intc_1 // 1
+
+checkSchedule_bool_merge@15:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:154-157
+    // loggedAssert(
+    //   tier.discountBps > 0 && tier.discountBps <= schedule.maxDiscountBps && (tier.gateMask | GateMaskAll) === GateMaskAll,
+    //   errGfSchedule,
+    // )
+    bnz checkSchedule_after_assert@17
+    bytec 6 // "ERR:errGfsc"
+    log
+    err // ERR:errGfsc
+
+checkSchedule_after_assert@17:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:152
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    intc_1 // 1
+    +
+    b checkSchedule_while_top@9
+
+checkSchedule_bool_false@14:
+    intc_0 // 0
+    b checkSchedule_bool_merge@15
+
+checkSchedule_after_while@18:
+    frame_dig -1
+    frame_bury 0
+    retsub
+
+checkSchedule_bool_false@5:
+    intc_0 // 0
+    b checkSchedule_bool_merge@6
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:255
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:257
+    // const ttl: uint64 = passTtl === 0 ? DefaultPassTtl : passTtl
+    dup
+    !
+    intc 4 // 86400
+    swap
+    select
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:258
+    // loggedAssert(ttl >= MinPassTtl && ttl <= MaxPassTtl, errGfTtl)
+    pushint 3600
+    >=
+    bz create_bool_false@4
+    dup
+    intc 5 // 604800
+    <=
+    bz create_bool_false@4
+    intc_1 // 1
+
+create_bool_merge@5:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:258
+    // loggedAssert(ttl >= MinPassTtl && ttl <= MaxPassTtl, errGfTtl)
+    bnz create_after_assert@7
+    bytec 16 // "ERR:errGftl"
+    log
+    err // ERR:errGftl
+
+create_after_assert@7:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:240
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec 17 // "dex"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:259
+    // this.dex.value = dex
+    uncover 3
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:260
+    // this.akitaDAO.value = akitaDAO
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:242
+    // passTtl = GlobalState<uint64>({ key: 'pass_ttl' })
+    bytec 9 // "pass_ttl"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:261
+    // this.passTtl.value = ttl
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:244
+    // maxDiscountedSwapsPerDay = GlobalState<uint64>({ key: 'max_day_swaps' })
+    bytec 10 // "max_day_swaps"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:262
+    // this.maxDiscountedSwapsPerDay.value = DefaultMaxDiscountedSwapsPerDay
+    pushint 500
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:255
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+create_bool_false@4:
+    intc_0 // 0
+    b create_bool_merge@5
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.akitaDexHook[routing]() -> void:
+akitaDexHook:
+    intc_0 // 0
+    dup
+    bytec_2 // ""
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:267
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    txna ApplicationArgs 1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dupn 2
+    len
+    dig 1
+    pushint 305
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 309
+    ==
+    assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 311
+    +
+    dig 2
+    pushint 307
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    uncover 3
+    swap
+    dig 3
+    substring3
+    dup
+    cover 4
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:268
+    // requireDexCaller(this.dex.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:240
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec 17 // "dex"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:268
+    // requireDexCaller(this.dex.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hook-interface.ts:44
+    // loggedAssert(Global.callerApplicationId === dex.id, 'errHookCaller')
+    global CallerApplicationID
+    ==
+    bnz akitaDexHook_after_assert@51
+    pushbytes "ERR:errHookCaller"
+    log
+    err // ERR:errHookCaller
+
+akitaDexHook_after_assert@51:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:270
+    // if (ctx.point === HookPointAfterInitialize) {
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    intc_1 // 1
+    ==
+    bz akitaDexHook_after_if_else@3
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:271
+    // this.initSchedule(ctx.poolId, ctx.data)
+    extract 8 8
+    swap
+    extract 2 0
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:249
+    // schedules = BoxMap<uint64, FeeSchedule>({ keyPrefix: 's' })
+    bytec 11 // "s"
+    swap
+    concat
+    dup
+    bury 4
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:495
+    // loggedAssert(!this.schedules(poolId).exists, errGfScheduleSet)
+    box_len
+    bury 1
+    bz akitaDexHook_after_assert@35
+    pushbytes "ERR:errGfss"
+    log
+    err // ERR:errGfss
+
+akitaDexHook_after_assert@35:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:496
+    // if (data.length === 0) {
+    dup
+    len
+    dup
+    bury 3
+    bnz akitaDexHook_after_if_else@39
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:253
+    // defaultSchedule = Box<FeeSchedule>({ key: 'd' })
+    bytec 7 // "d"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:497
+    // const [fallback, hasDefault] = clone(this.defaultSchedule.maybe())
+    box_get
+    swap
+    bury 4
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:498
+    // if (hasDefault) {
+    bz akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.initSchedule@48
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:499
+    // this.schedules(poolId).value = clone(fallback)
+    dig 1
+    dup
+    box_del
+    pop
+    dig 3
+    box_put
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.initSchedule@48:
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 12 // 0x0000000000000000000000000000000000000000000000000000000000000000
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.akitaDexHook@9:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:267
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+akitaDexHook_after_if_else@39:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:504
+    // loggedAssert(data.length >= ScheduleHeadBytes, errGfSchedule)
+    dig 1
+    pushint 28
+    >=
+    bnz akitaDexHook_after_assert@41
+    bytec 6 // "ERR:errGfsc"
+    log
+    err // ERR:errGfsc
+
+akitaDexHook_after_assert@41:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:506
+    // op.extractUint16(data, 24) === ScheduleHeadBytes - 2 && data.length === ScheduleHeadBytes + ScheduleTierBytes * op.extractUint16(data, 26),
+    dup
+    pushint 24
+    extract_uint16
+    pushint 26
+    ==
+    bz akitaDexHook_bool_false@44
+    dup
+    pushint 26
+    extract_uint16
+    intc_3 // 32
+    *
+    pushint 28
+    +
+    dig 2
+    ==
+    bz akitaDexHook_bool_false@44
+    intc_1 // 1
+
+akitaDexHook_bool_merge@45:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:505-508
+    // loggedAssert(
+    //   op.extractUint16(data, 24) === ScheduleHeadBytes - 2 && data.length === ScheduleHeadBytes + ScheduleTierBytes * op.extractUint16(data, 26),
+    //   errGfSchedule,
+    // )
+    bnz akitaDexHook_after_assert@47
+    bytec 6 // "ERR:errGfsc"
+    log
+    err // ERR:errGfsc
+
+akitaDexHook_after_assert@47:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:510
+    // checkSchedule(schedule)
+    callsub checkSchedule
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:511
+    // this.schedules(poolId).value = clone(schedule)
+    dig 2
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:271
+    // this.initSchedule(ctx.poolId, ctx.data)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.initSchedule@48
+
+akitaDexHook_bool_false@44:
+    intc_0 // 0
+    b akitaDexHook_bool_merge@45
+
+akitaDexHook_after_if_else@3:
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:274
+    // if (ctx.point !== HookPointBeforeSwap && ctx.point !== HookPointQuote) {
+    dup
+    intc_3 // 32
+    !=
+    bz akitaDexHook_after_if_else@6
+    dup
+    pushint 128
+    !=
+    bz akitaDexHook_after_if_else@6
+    popn 2
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 12 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:267
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.akitaDexHook@9
+
+akitaDexHook_after_if_else@6:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:279
+    // const swap = ctx.point === HookPointBeforeSwap
+    intc_3 // 32
+    ==
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    dupn 2
+    intc_2 // 8
+    extract_uint64
+    cover 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:480
+    // if (ctx.wallet === 0) {
+    pushint 96
+    extract_uint64
+    dup
+    cover 2
+    bnz akitaDexHook_after_if_else@12
+    bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:481
+    // return ctx.caller
+    dup
+    extract 56 32
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    swap
+    pushint 209
+    extract_uint64
+    cover 2
+    dig 2
+    uncover 4
+    callsub price
+    dup
+    uncover 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:281
+    // if (fee === ctx.feeBps) {
+    ==
+    bz akitaDexHook_after_if_else@8
+    pop
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 12 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:267
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.akitaDexHook@9
+
+akitaDexHook_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:284
+    // return { flags: HookResultSetFee, feeBps: fee, hookFee: 0, hookFeeOutBps: 0 }
+    intc_1 // 1
+    itob
+    swap
+    itob
+    concat
+    intc_0 // 0
+    itob
+    swap
+    dig 1
+    concat
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:267
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.akitaDexHook@9
+
+akitaDexHook_after_if_else@12:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:483
+    // const walletFactory = getAkitaAppList(this.akitaDAO.value).wallet
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:483
+    // const walletFactory = getAkitaAppList(this.akitaDAO.value).wallet
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:483
+    // const walletFactory = getAkitaAppList(this.akitaDAO.value).wallet
+    pushint 88
+    extract_uint64
+    cover 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:484
+    // if (swap) {
+    dig 4
+    bz akitaDexHook_after_if_else@20
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:485
+    // if (ctx.callerApp !== 0 && !isGenuineWallet(ctx.wallet, walletFactory)) {
+    dup
+    pushint 88
+    extract_uint64
+    dup
+    cover 4
+    bz akitaDexHook_after_if_else@16
+    dig 1
+    dig 3
+    callsub isGenuineWallet
+    bnz akitaDexHook_after_if_else@16
+    bury 1
+    bury 1
+    bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:486
+    // return ctx.caller
+    dup
+    extract 56 32
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32
+
+akitaDexHook_after_if_else@16:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:488
+    // return resolvePrincipalFromDexCtx(walletFactory, ctx.wallet, ctx.caller, ctx.callerApp).principal
+    dup
+    extract 56 32
+    cover 3
+    // smart_contracts/utils/principal.ts:360
+    // const callerAddr = callerApp === 0 ? Global.zeroAddress : appAddressOf(callerApp)
+    dig 4
+    bnz akitaDexHook_ternary_false@18
+    global ZeroAddress
+
+akitaDexHook_ternary_merge@19:
+    // smart_contracts/utils/principal.ts:361
+    // return resolvePrincipalCtx(walletFactory, hint, sender, callerApp, callerAddr, true)
+    uncover 3
+    uncover 3
+    uncover 4
+    uncover 5
+    uncover 4
+    intc_1 // 1
+    callsub resolvePrincipalCtx
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:488
+    // return resolvePrincipalFromDexCtx(walletFactory, ctx.wallet, ctx.caller, ctx.callerApp).principal
+    extract 8 32
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32
+
+akitaDexHook_ternary_false@18:
+    // smart_contracts/utils/principal.ts:74
+    // return Account(op.sha512_256(Bytes('appID').concat(op.itob(appId))))
+    dig 4
+    itob
+    bytec 14 // "appID"
+    swap
+    concat
+    sha512_256
+    b akitaDexHook_ternary_merge@19
+
+akitaDexHook_after_if_else@20:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:490
+    // return thirdPartyPrincipal(walletFactory, ctx.caller, ctx.wallet)
+    dup
+    extract 56 32
+    cover 2
+    // smart_contracts/utils/principal.ts:253
+    // if (!isGenuineWallet(wallet, walletFactory)) {
+    dig 1
+    uncover 4
+    callsub isGenuineWallet
+    bnz akitaDexHook_after_if_else@22
+    // smart_contracts/utils/principal.ts:254
+    // return false
+    intc_0 // 0
+
+akitaDexHook_after_inlined_smart_contracts/utils/principal.ts::ownsAtRest@25:
+    // smart_contracts/utils/principal.ts:291
+    // if (!ownsAtRest(walletFactory, wallet, account)) {
+    bnz akitaDexHook_after_if_else@27
+    bury 1
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32
+
+akitaDexHook_after_if_else@27:
+    // smart_contracts/utils/principal.ts:294
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(wallet, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    dig 1
+    bytec 15 // "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:295
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz akitaDexHook_if_body@29
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz akitaDexHook_after_if_else@30
+
+akitaDexHook_if_body@29:
+    pop
+    bury 1
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32
+
+akitaDexHook_after_if_else@30:
+    // smart_contracts/utils/principal.ts:299
+    // return walletControlsLive(wallet, controlled, account) ? controlled : account
+    uncover 2
+    dig 1
+    uncover 4
+    dup
+    cover 3
+    callsub walletControlsLive
+    swap
+    cover 2
+    select
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:280
+    // const fee = this.price(ctx.poolId, this.passKey(ctx, swap), ctx.feeBps, swap)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.passKey@32
+
+akitaDexHook_after_if_else@22:
+    // smart_contracts/utils/principal.ts:79
+    // const [address] = op.AppParams.appAddress(wallet)
+    dig 1
+    app_params_get AppAddress
+    pop
+    dup
+    // smart_contracts/utils/principal.ts:257
+    // if (account === walletAddress) {
+    dig 4
+    ==
+    bz akitaDexHook_after_if_else@24
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:258
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    // smart_contracts/utils/principal.ts:291
+    // if (!ownsAtRest(walletFactory, wallet, account)) {
+    b akitaDexHook_after_inlined_smart_contracts/utils/principal.ts::ownsAtRest@25
+
+akitaDexHook_after_if_else@24:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dig 3
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:260
+    // return authAddrOf(account) === walletAddress
+    ==
+    // smart_contracts/utils/principal.ts:291
+    // if (!ownsAtRest(walletFactory, wallet, account)) {
+    b akitaDexHook_after_inlined_smart_contracts/utils/principal.ts::ownsAtRest@25
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.openPass[routing]() -> void:
+openPass:
+    bytec_2 // ""
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    txna ApplicationArgs 3
+    dup
+    cover 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 4
+    pushint 2
+    *
+    swap
+    dup
+    len
+    cover 4
+    extract 2 0
+    cover 3
+    intc_0 // 0
+
+openPass_for_header@1:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    dup
+    dig 7
+    <
+    bz openPass_after_for@8
+    dup
+    pushint 2
+    *
+    dig 5
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    ==
+    assert // invalid tail pointer for (len+(len+(len+uint8[])[])[])
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 12
+    pushint 2
+    *
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+openPass_for_header@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    dup
+    dig 13
+    <
+    bz openPass_after_for@6
+    dup
+    pushint 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    cover 3
+    intc_1 // 1
+    +
+    b openPass_for_header@3
+
+openPass_after_for@6:
+    pop
+    bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    swap
+    pushint 2
+    +
+    uncover 2
+    +
+    swap
+    intc_1 // 1
+    +
+    b openPass_for_header@1
+
+openPass_after_for@8:
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    pushint 2
+    +
+    dig 4
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:295
+    // const p = this.callerPrincipal(wallet)
+    callsub callerPrincipal
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:296
+    // loggedAssert(p.principal === key, errGfAuth)
+    extract 8 32
+    dig 3
+    ==
+    bnz openPass_after_assert@11
+    bytec 13 // "ERR:errGfau"
+    log
+    err // ERR:errGfau
+
+openPass_after_assert@11:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    dig 3
+    concat
+    dup
+    cover 3
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:297
+    // loggedAssert(!this.passes(key).exists, errGfExists)
+    box_len
+    bury 1
+    bz openPass_after_assert@13
+    pushbytes "ERR:errGfex"
+    log
+    err // ERR:errGfex
+
+openPass_after_assert@13:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:298
+    // loggedAssert(mbr.receiver === Global.currentApplicationAddress && mbr.amount === PassMbr, errGfMbr)
+    dig 1
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    bz openPass_bool_false@16
+    dig 1
+    gtxns Amount
+    intc 7 // 47700
+    ==
+    bz openPass_bool_false@16
+    intc_1 // 1
+
+openPass_bool_merge@17:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:298
+    // loggedAssert(mbr.receiver === Global.currentApplicationAddress && mbr.amount === PassMbr, errGfMbr)
+    bnz openPass_after_assert@19
+    pushbytes "ERR:errGfmb"
+    log
+    err // ERR:errGfmb
+
+openPass_after_assert@19:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:299
+    // const pass = this.measure(key, gateCtx(p), measure, gateArgs, mbr.sender, 0, 0)
+    callsub gateCtx
+    pop
+    swap
+    gtxns Sender
+    uncover 3
+    uncover 2
+    dig 8
+    dig 8
+    uncover 4
+    intc_0 // 0
+    dup
+    callsub measure
+    popn 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:300
+    // this.passes(key).value = clone(pass)
+    swap
+    dig 1
+    box_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:294
+    // openPass(mbr: gtxn.PaymentTxn, key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+openPass_bool_false@16:
+    intc_0 // 0
+    b openPass_bool_merge@17
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.refresh[routing]() -> void:
+refresh:
+    bytec_2 // ""
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    pushint 2
+    *
+    swap
+    dup
+    len
+    cover 3
+    extract 2 0
+    cover 2
+    intc_0 // 0
+
+refresh_for_header@1:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    dup
+    dig 6
+    <
+    bz refresh_after_for@8
+    dup
+    pushint 2
+    *
+    dig 4
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    ==
+    assert // invalid tail pointer for (len+(len+(len+uint8[])[])[])
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 11
+    pushint 2
+    *
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+refresh_for_header@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    dup
+    dig 12
+    <
+    bz refresh_after_for@6
+    dup
+    pushint 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    cover 3
+    intc_1 // 1
+    +
+    b refresh_for_header@3
+
+refresh_after_for@6:
+    pop
+    bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    swap
+    pushint 2
+    +
+    uncover 2
+    +
+    swap
+    intc_1 // 1
+    +
+    b refresh_for_header@1
+
+refresh_after_for@8:
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    pushint 2
+    +
+    dig 3
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    dig 2
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:309
+    // loggedAssert(this.passes(key).exists, errGfNoPass)
+    box_len
+    bury 1
+    bnz refresh_after_assert@11
+    bytec 8 // "ERR:errGfnp"
+    log
+    err // ERR:errGfnp
+
+refresh_after_assert@11:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:310
+    // const old = clone(this.passes(key).value)
+    dup
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:311
+    // const ctx = this.authorize(key, old, wallet)
+    uncover 3
+    dup
+    uncover 2
+    uncover 4
+    callsub authorize
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:313
+    // const pass = this.measure(key, ctx, measure, gateArgs, old.funder, old.swapDay, old.daySwaps)
+    dup
+    extract 32 32
+    dig 1
+    pushint 64
+    extract_uint64
+    uncover 2
+    pushint 72
+    extract_uint64
+    uncover 4
+    uncover 4
+    dig 10
+    dig 10
+    uncover 6
+    uncover 6
+    uncover 6
+    callsub measure
+    popn 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:314
+    // this.passes(key).value = clone(pass)
+    swap
+    dig 1
+    box_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:308
+    // refresh(key: Account, measure: uint64, gateArgs: bytes[][], wallet: uint64): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.refreshFromGate[routing]() -> void:
+refreshFromGate:
+    intc_0 // 0
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:323
+    // refreshFromGate(gateTxn: gtxn.ApplicationCallTxn, key: Account, slot: uint64, wallet: uint64): FeePass {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:324
+    // loggedAssert(this.passes(key).exists, errGfNoPass)
+    box_len
+    bury 1
+    bnz refreshFromGate_after_assert@3
+    bytec 8 // "ERR:errGfnp"
+    log
+    err // ERR:errGfnp
+
+refreshFromGate_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:325
+    // const pass = clone(this.passes(key).value)
+    dig 1
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:326
+    // loggedAssert(pass.validUntil >= Global.latestTimestamp, errGfNoPass)
+    pushint 24
+    extract_uint64
+    global LatestTimestamp
+    >=
+    bnz refreshFromGate_after_assert@5
+    bytec 8 // "ERR:errGfnp"
+    log
+    err // ERR:errGfnp
+
+refreshFromGate_after_assert@5:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:328
+    // const [slots, hasSlots] = clone(this.gateSlots.maybe())
+    box_get
+    swap
+    cover 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:329
+    // loggedAssert(hasSlots && slot < slots.length && slots[slot] !== 0, errGfSlot)
+    bz refreshFromGate_bool_false@9
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dig 5
+    >
+    bz refreshFromGate_bool_false@9
+    dig 1
+    extract 2 0
+    dig 5
+    intc_2 // 8
+    *
+    extract_uint64
+    bz refreshFromGate_bool_false@9
+    intc_1 // 1
+
+refreshFromGate_bool_merge@10:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:329
+    // loggedAssert(hasSlots && slot < slots.length && slots[slot] !== 0, errGfSlot)
+    bnz refreshFromGate_after_assert@12
+    pushbytes "ERR:errGfsl"
+    log
+    err // ERR:errGfsl
+
+refreshFromGate_after_assert@12:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:331
+    // const p = this.callerPrincipal(wallet)
+    uncover 2
+    callsub callerPrincipal
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:332
+    // loggedAssert(p.principal === key, errGfAuth)
+    extract 8 32
+    uncover 6
+    ==
+    bnz refreshFromGate_after_assert@14
+    bytec 13 // "ERR:errGfau"
+    log
+    err // ERR:errGfau
+
+refreshFromGate_after_assert@14:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:333
+    // loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), slots[slot]), errGfGateTxn)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:333
+    // loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), slots[slot]), errGfGateTxn)
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    callsub gateCtx
+    pop
+    bury 7
+    uncover 2
+    extract 2 0
+    dig 4
+    intc_2 // 8
+    *
+    intc_2 // 8
+    extract3 // on error: index access is out of bounds
+    bury 7
+    // smart_contracts/utils/functions.ts:874
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    dig 4
+    gtxns ApplicationID
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    swap
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:874
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    pushint 40
+    extract_uint64
+    ==
+    // smart_contracts/utils/functions.ts:874-875
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    bz refreshFromGate_bool_false@24
+    // smart_contracts/utils/functions.ts:875
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    dig 3
+    gtxns OnCompletion
+    // smart_contracts/utils/functions.ts:874-875
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    bnz refreshFromGate_bool_false@24
+    // smart_contracts/utils/functions.ts:876
+    // gateTxn.numAppArgs === 4 &&
+    dig 3
+    gtxns NumAppArgs
+    pushint 4
+    ==
+    // smart_contracts/utils/functions.ts:874-876
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    bz refreshFromGate_bool_false@24
+    // smart_contracts/utils/functions.ts:877
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    dig 3
+    gtxnsa ApplicationArgs 0
+    pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
+    ==
+    // smart_contracts/utils/functions.ts:874-877
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    bz refreshFromGate_bool_false@24
+    // smart_contracts/utils/functions.ts:878
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    dig 3
+    gtxnsa ApplicationArgs 1
+    dig 5
+    ==
+    // smart_contracts/utils/functions.ts:874-878
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    bz refreshFromGate_bool_false@24
+    // smart_contracts/utils/functions.ts:879
+    // gateTxn.appArgs(2) === itob(id)
+    dig 3
+    gtxnsa ApplicationArgs 2
+    dig 6
+    ==
+    // smart_contracts/utils/functions.ts:874-879
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    // gateTxn.appArgs(2) === itob(id)
+    bz refreshFromGate_bool_false@24
+    intc_1 // 1
+
+refreshFromGate_bool_merge@25:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:333
+    // loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), slots[slot]), errGfGateTxn)
+    bnz refreshFromGate_after_assert@16
+    pushbytes "ERR:errGfgt"
+    log
+    err // ERR:errGfgt
+
+refreshFromGate_after_assert@16:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:335
+    // pass.gates = pass.gates | op.shl(1, slot)
+    dup
+    pushint 16
+    extract_uint64
+    intc_1 // 1
+    uncover 4
+    shl
+    |
+    itob
+    swap
+    dig 1
+    replace2 16
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:335-336
+    // pass.gates = pass.gates | op.shl(1, slot)
+    // this.passes(key).value = clone(pass)
+    uncover 2
+    pushint 16
+    uncover 3
+    box_replace // on error: index out of bounds
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:323
+    // refreshFromGate(gateTxn: gtxn.ApplicationCallTxn, key: Account, slot: uint64, wallet: uint64): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+refreshFromGate_bool_false@24:
+    intc_0 // 0
+    b refreshFromGate_bool_merge@25
+
+refreshFromGate_bool_false@9:
+    intc_0 // 0
+    b refreshFromGate_bool_merge@10
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.closePass[routing]() -> void:
+closePass:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:345
+    // closePass(key: Account, wallet: uint64): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:346
+    // loggedAssert(this.passes(key).exists, errGfNoPass)
+    box_len
+    bury 1
+    bnz closePass_after_assert@3
+    bytec 8 // "ERR:errGfnp"
+    log
+    err // ERR:errGfnp
+
+closePass_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:347
+    // const pass = clone(this.passes(key).value)
+    dup
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:348
+    // this.authorize(key, pass, wallet)
+    uncover 3
+    swap
+    uncover 3
+    callsub authorize
+    bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:349
+    // loggedAssert(this.discountedSwapsToday(pass) === 0, errGfDay)
+    callsub discountedSwapsToday
+    swap
+    bz closePass_after_assert@5
+    pushbytes "ERR:errGfdy"
+    log
+    err // ERR:errGfdy
+
+closePass_after_assert@5:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:350
+    // this.passes(key).delete()
+    swap
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:351
+    // itxn.payment({ receiver: pass.funder, amount: PassMbr }).submit()
+    itxn_begin
+    extract 32 32
+    intc 7 // 47700
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:345
+    // closePass(key: Account, wallet: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.setGateSlots[routing]() -> void:
+setGateSlots:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:357
+    // setGateSlots(slots: uint64[]): void {
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    intc_2 // 8
+    *
+    pushint 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:358
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:359
+    // loggedAssert(slots.length <= MaxGateSlots, errGfSlots)
+    intc_2 // 8
+    <=
+    bnz setGateSlots_after_assert@3
+    pushbytes "ERR:errGfgs"
+    log
+    err // ERR:errGfgs
+
+setGateSlots_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:360
+    // this.gateSlots.delete()
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:361
+    // this.gateSlots.value = clone(slots)
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:361
+    // this.gateSlots.value = clone(slots)
+    swap
+    box_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:357
+    // setGateSlots(slots: uint64[]): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.setPassTtl[routing]() -> void:
+setPassTtl:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:364
+    // setPassTtl(ttl: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:365
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:366
+    // loggedAssert(ttl >= MinPassTtl && ttl <= MaxPassTtl, errGfTtl)
+    pushint 3600
+    >=
+    bz setPassTtl_bool_false@4
+    dup
+    intc 5 // 604800
+    <=
+    bz setPassTtl_bool_false@4
+    intc_1 // 1
+
+setPassTtl_bool_merge@5:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:366
+    // loggedAssert(ttl >= MinPassTtl && ttl <= MaxPassTtl, errGfTtl)
+    bnz setPassTtl_after_assert@7
+    bytec 16 // "ERR:errGftl"
+    log
+    err // ERR:errGftl
+
+setPassTtl_after_assert@7:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:242
+    // passTtl = GlobalState<uint64>({ key: 'pass_ttl' })
+    bytec 9 // "pass_ttl"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:367
+    // this.passTtl.value = ttl
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:364
+    // setPassTtl(ttl: uint64): void {
+    intc_1 // 1
+    return
+
+setPassTtl_bool_false@4:
+    intc_0 // 0
+    b setPassTtl_bool_merge@5
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.setMaxDiscountedSwapsPerDay[routing]() -> void:
+setMaxDiscountedSwapsPerDay:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:371
+    // setMaxDiscountedSwapsPerDay(cap: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:372
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:244
+    // maxDiscountedSwapsPerDay = GlobalState<uint64>({ key: 'max_day_swaps' })
+    bytec 10 // "max_day_swaps"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:373
+    // this.maxDiscountedSwapsPerDay.value = cap
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:371
+    // setMaxDiscountedSwapsPerDay(cap: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.setDefaultSchedule[routing]() -> void:
+setDefaultSchedule:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:377
+    // setDefaultSchedule(schedule: FeeSchedule): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    dig 1
+    pushint 24
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 26
+    ==
+    assert // invalid tail pointer at index 3 of (uint64,uint64,uint64,(len+(uint64,uint64,uint64,uint64)[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 32
+    *
+    pushint 28
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::FeeSchedule
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:378
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:379
+    // checkSchedule(schedule)
+    callsub checkSchedule
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:253
+    // defaultSchedule = Box<FeeSchedule>({ key: 'd' })
+    bytec 7 // "d"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:380
+    // this.defaultSchedule.delete()
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:253
+    // defaultSchedule = Box<FeeSchedule>({ key: 'd' })
+    bytec 7 // "d"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:381
+    // this.defaultSchedule.value = clone(schedule)
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:253
+    // defaultSchedule = Box<FeeSchedule>({ key: 'd' })
+    bytec 7 // "d"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:381
+    // this.defaultSchedule.value = clone(schedule)
+    swap
+    box_put
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:377
+    // setDefaultSchedule(schedule: FeeSchedule): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getPass[routing]() -> void:
+getPass:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:386
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:388
+    // if (!this.passes(key).exists) {
+    box_len
+    bury 1
+    bnz getPass_after_if_else@3
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:389
+    // return { power: 0, impact: 0, gates: 0, validUntil: 0, funder: Global.zeroAddress, swapDay: 0, daySwaps: 0 }
+    pushbytes base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+
+getPass_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getPass@4:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:386
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getPass_after_if_else@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:391
+    // return clone(this.passes(key).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:386
+    // @abimethod({ readonly: true })
+    b getPass_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getPass@4
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getSchedule[routing]() -> void:
+getSchedule:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:394
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:396
+    // if (!this.schedules(poolId).exists) {
+    itob
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:249
+    // schedules = BoxMap<uint64, FeeSchedule>({ keyPrefix: 's' })
+    bytec 11 // "s"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:396
+    // if (!this.schedules(poolId).exists) {
+    box_len
+    bury 1
+    bnz getSchedule_after_if_else@3
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:397
+    // return { floorFeeBps: 0, maxDiscountBps: 0, impactMaxDiscountBps: 0, tiers: [] }
+    pushbytes 0x000000000000000000000000000000000000000000000000001a0000
+
+getSchedule_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getSchedule@4:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:394
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getSchedule_after_if_else@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:399
+    // return clone(this.schedules(poolId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:394
+    // @abimethod({ readonly: true })
+    b getSchedule_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getSchedule@4
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getGateSlots[routing]() -> void:
+getGateSlots:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:404
+    // const [slots, hasSlots] = clone(this.gateSlots.maybe())
+    box_get
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:405
+    // if (!hasSlots) {
+    bnz getGateSlots_after_if_else@3
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:406
+    // return []
+    pushbytes 0x0000
+
+getGateSlots_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getGateSlots@4:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:402
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getGateSlots_after_if_else@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:402
+    // @abimethod({ readonly: true })
+    b getGateSlots_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getGateSlots@4
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.previewFee[routing]() -> void:
+previewFee:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:412
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:414
+    // return this.price(poolId, key, feeBps, false)
+    intc_0 // 0
+    callsub price
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:412
+    // @abimethod({ readonly: true })
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.getDiscountedSwapsToday[routing]() -> void:
+getDiscountedSwapsToday:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:418
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:420
+    // const [pass, hasPass] = clone(this.passes(key).maybe())
+    box_get
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:421
+    // return hasPass ? this.discountedSwapsToday(pass) : 0
+    bz getDiscountedSwapsToday_ternary_false@3
+    callsub discountedSwapsToday
+    pop
+
+getDiscountedSwapsToday_ternary_merge@4:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:418
+    // @abimethod({ readonly: true })
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getDiscountedSwapsToday_ternary_false@3:
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:421
+    // return hasPass ? this.discountedSwapsToday(pass) : 0
+    intc_0 // 0
+    b getDiscountedSwapsToday_ternary_merge@4
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.scheduleCost[routing]() -> void:
+scheduleCost:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:430
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:432
+    // return ScheduleMbrBase + ScheduleMbrPerTier * tiers
+    pushint 12800
+    *
+    pushint 17300
+    +
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:430
+    // @abimethod({ readonly: true })
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.requireAdmin() -> void:
+requireAdmin:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:438
+    // loggedAssert(Txn.sender === getDAOARC58Wallet(this.akitaDAO.value).address, errGfAdmin)
+    txn Sender
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:438
+    // loggedAssert(Txn.sender === getDAOARC58Wallet(this.akitaDAO.value).address, errGfAdmin)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:107
+    // const [walletID] = op.AppGlobal.getExUint64(akitaDAO, Bytes(AkitaDAOGlobalStateKeysWallet))
+    pushbytes "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:438
+    // loggedAssert(Txn.sender === getDAOARC58Wallet(this.akitaDAO.value).address, errGfAdmin)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz requireAdmin_after_assert@2
+    pushbytes "ERR:errGfad"
+    log
+    err // ERR:errGfad
+
+requireAdmin_after_assert@2:
+    retsub
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.authorize(key: bytes, pass: bytes, wallet: uint64) -> bytes, bytes:
+authorize:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:447
+    // private authorize(key: Account, pass: FeePass, wallet: uint64): GateCtx {
+    proto 3 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:448
+    // const p = this.callerPrincipal(wallet)
+    frame_dig -1
+    callsub callerPrincipal
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:449
+    // if (p.principal === key) {
+    extract 8 32
+    frame_dig -3
+    ==
+    bz authorize_after_if_else@2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:450
+    // return gateCtx(p)
+    callsub gateCtx
+    pop
+    frame_dig -2
+    retsub
+
+authorize_after_if_else@2:
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:452
+    // if (pass.validUntil >= Global.latestTimestamp) {
+    frame_dig -2
+    pushint 24
+    extract_uint64
+    global LatestTimestamp
+    >=
+    bz authorize_after_if_else@10
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:453
+    // loggedAssert(Txn.sender === key || Txn.sender === pass.funder, errGfAuth)
+    txn Sender
+    frame_dig -3
+    ==
+    bnz authorize_bool_true@5
+    txn Sender
+    frame_dig -2
+    extract 32 32
+    ==
+    bz authorize_bool_false@6
+
+authorize_bool_true@5:
+    intc_1 // 1
+
+authorize_bool_merge@7:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:453
+    // loggedAssert(Txn.sender === key || Txn.sender === pass.funder, errGfAuth)
+    bnz authorize_after_if_else@10
+    bytec 13 // "ERR:errGfau"
+    log
+    err // ERR:errGfau
+
+authorize_after_if_else@10:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:455
+    // return { principal: key, wallet: 0, spender: key }
+    intc_0 // 0
+    itob
+    frame_dig -3
+    swap
+    concat
+    frame_dig -3
+    concat
+    frame_dig -2
+    retsub
+
+authorize_bool_false@6:
+    intc_0 // 0
+    b authorize_bool_merge@7
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.callerPrincipal(wallet: uint64) -> bytes:
+callerPrincipal:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:462
+    // private callerPrincipal(wallet: uint64): Principal {
+    proto 1 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:463
+    // return resolvePrincipal(wallet === 0 ? 0 : getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    frame_dig -1
+    bnz callerPrincipal_ternary_false@2
+    intc_0 // 0
+
+callerPrincipal_ternary_merge@3:
+    // smart_contracts/utils/principal.ts:212
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/utils/principal.ts:213
+    // Global.callerApplicationId,
+    global CallerApplicationID
+    // smart_contracts/utils/principal.ts:214
+    // Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    uncover 3
+    frame_dig -1
+    cover 4
+    cover 4
+    // smart_contracts/utils/principal.ts:215
+    // true
+    intc_1 // 1
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    callsub resolvePrincipalCtx
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:463
+    // return resolvePrincipal(wallet === 0 ? 0 : getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    retsub
+
+callerPrincipal_ternary_false@2:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:463
+    // return resolvePrincipal(wallet === 0 ? 0 : getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:463
+    // return resolvePrincipal(wallet === 0 ? 0 : getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:463
+    // return resolvePrincipal(wallet === 0 ? 0 : getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    pushint 88
+    extract_uint64
+    b callerPrincipal_ternary_merge@3
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.discountedSwapsToday(pass: bytes) -> uint64, bytes:
+discountedSwapsToday:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:515
+    // private discountedSwapsToday(pass: FeePass): uint64 {
+    proto 1 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:516
+    // return pass.swapDay === Global.latestTimestamp / SecondsPerDay ? pass.daySwaps : 0
+    frame_dig -1
+    pushint 64
+    extract_uint64
+    global LatestTimestamp
+    intc 4 // 86400
+    /
+    ==
+    bz discountedSwapsToday_ternary_false@2
+    frame_dig -1
+    pushint 72
+    extract_uint64
+
+discountedSwapsToday_ternary_merge@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:516
+    // return pass.swapDay === Global.latestTimestamp / SecondsPerDay ? pass.daySwaps : 0
+    frame_dig -1
+    retsub
+
+discountedSwapsToday_ternary_false@2:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:516
+    // return pass.swapDay === Global.latestTimestamp / SecondsPerDay ? pass.daySwaps : 0
+    intc_0 // 0
+    b discountedSwapsToday_ternary_merge@3
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.price(poolId: uint64, key: bytes, feeBps: uint64, count: uint64) -> uint64:
+price:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:523
+    // private price(poolId: uint64, key: Account, feeBps: uint64, count: boolean): uint64 {
+    proto 4 1
+    intc_0 // 0
+    bytec_2 // ""
+    dupn 8
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:247
+    // passes = BoxMap<Account, FeePass>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    frame_dig -3
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:524
+    // const [pass, hasPass] = clone(this.passes(key).maybe())
+    box_get
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:525
+    // if (!hasPass || pass.validUntil < Global.latestTimestamp) {
+    bz price_if_body@2
+    frame_dig 11
+    pushint 24
+    extract_uint64
+    global LatestTimestamp
+    <
+    bz price_after_if_else@3
+
+price_if_body@2:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:526
+    // return feeBps
+    frame_dig -2
+    frame_bury 0
+    retsub
+
+price_after_if_else@3:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:528
+    // const [schedule, hasSchedule] = clone(this.schedules(poolId).maybe())
+    frame_dig -4
+    itob
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:249
+    // schedules = BoxMap<uint64, FeeSchedule>({ keyPrefix: 's' })
+    bytec 11 // "s"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:528
+    // const [schedule, hasSchedule] = clone(this.schedules(poolId).maybe())
+    box_get
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:529
+    // if (!hasSchedule) {
+    bnz price_after_if_else@5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:530
+    // return feeBps
+    frame_dig -2
+    frame_bury 0
+    retsub
+
+price_after_if_else@5:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:532
+    // const used = this.discountedSwapsToday(pass)
+    frame_dig 11
+    callsub discountedSwapsToday
+    frame_bury 11
+    frame_bury 9
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:533
+    // const cap = this.maxDiscountedSwapsPerDay.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:244
+    // maxDiscountedSwapsPerDay = GlobalState<uint64>({ key: 'max_day_swaps' })
+    bytec 10 // "max_day_swaps"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:533
+    // const cap = this.maxDiscountedSwapsPerDay.value
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    frame_bury 1
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:534
+    // if (cap !== 0 && used >= cap) {
+    bz price_after_if_else@8
+    frame_dig 9
+    frame_dig 1
+    >=
+    bz price_after_if_else@8
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:535
+    // return feeBps
+    frame_dig -2
+    frame_bury 0
+    retsub
+
+price_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:163
+    // let discount: uint64 = 0
+    intc_0 // 0
+    frame_bury 3
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    intc_0 // 0
+    frame_bury 7
+
+price_while_top@13:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    dupn 2
+    pushint 24
+    extract_uint16
+    dig 1
+    len
+    substring3
+    dup
+    frame_bury 0
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    frame_dig 7
+    >
+    bz price_block@20
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:166
+    // if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    frame_dig 11
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164-166
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    //   const tier = clone(schedule.tiers[i])
+    //   if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    frame_dig 0
+    extract 2 0
+    frame_dig 7
+    intc_3 // 32
+    *
+    intc_3 // 32
+    extract3 // on error: index access is out of bounds
+    dup
+    cover 2
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:166
+    // if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    extract_uint64
+    >=
+    bz price_after_if_else@18
+    frame_dig 11
+    intc_2 // 8
+    extract_uint64
+    dig 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164-166
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    //   const tier = clone(schedule.tiers[i])
+    //   if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    intc_2 // 8
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:166
+    // if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    extract_uint64
+    >=
+    bz price_after_if_else@18
+    frame_dig 11
+    pushint 16
+    extract_uint64
+    dig 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164-166
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    //   const tier = clone(schedule.tiers[i])
+    //   if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    pushint 16
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:166
+    // if (pass.power >= tier.minPower && pass.impact >= tier.minImpact && (pass.gates & tier.gateMask) === tier.gateMask) {
+    extract_uint64
+    swap
+    dig 1
+    &
+    ==
+    bz price_after_if_else@18
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:167
+    // discount = tier.discountBps
+    pushint 24
+    extract_uint64
+    frame_bury 3
+
+price_block@20:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:171
+    // if (schedule.impactMaxDiscountBps > 0) {
+    dup
+    pushint 16
+    extract_uint64
+    dup
+    frame_bury 8
+    bz price_after_if_else@27
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:172
+    // const impact: uint64 = pass.impact > ImpactScale ? ImpactScale : pass.impact
+    frame_dig 11
+    intc_2 // 8
+    extract_uint64
+    dup
+    intc 6 // 1000
+    >
+    bz price_ternary_false@23
+    pop
+    intc 6 // 1000
+
+price_ternary_merge@24:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:173
+    // const continuous: uint64 = op.divw(...op.mulw(impact, schedule.impactMaxDiscountBps), ImpactScale)
+    frame_dig 8
+    mulw
+    intc 6 // 1000
+    divw
+    dup
+    frame_bury 2
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:174
+    // if (continuous > discount) {
+    frame_dig 3
+    >
+    bz price_after_if_else@27
+    frame_dig 2
+    frame_bury 3
+
+price_after_if_else@27:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:178
+    // if (discount > schedule.maxDiscountBps) {
+    dup
+    intc_2 // 8
+    extract_uint64
+    dup
+    frame_bury 4
+    frame_dig 3
+    <
+    bz price_after_if_else@29
+    frame_dig 4
+    frame_bury 3
+
+price_after_if_else@29:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:181
+    // if (discount === 0) {
+    frame_dig 3
+    bnz price_after_if_else@31
+    pop
+    frame_dig -2
+    frame_bury 5
+
+price_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::discountedFee@37:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:538
+    // if (count && fee < feeBps) {
+    frame_dig -1
+    bz price_after_if_else@11
+    frame_dig 5
+    frame_dig -2
+    <
+    bz price_after_if_else@11
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:540
+    // counted.swapDay = Global.latestTimestamp / SecondsPerDay
+    global LatestTimestamp
+    intc 4 // 86400
+    /
+    itob
+    frame_dig 11
+    swap
+    replace2 64
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:541
+    // counted.daySwaps = used + 1
+    frame_dig 9
+    intc_1 // 1
+    +
+    itob
+    replace2 72
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:542
+    // this.passes(key).value = clone(counted)
+    frame_dig 10
+    swap
+    box_put
+
+price_after_if_else@11:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:544
+    // return fee
+    frame_dig 5
+    frame_bury 0
+    retsub
+
+price_after_if_else@31:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:186
+    // let fee: uint64 = feeBps - op.divw(...op.mulw(feeBps, discount), BpsDivisor)
+    frame_dig -2
+    frame_dig 3
+    mulw
+    pushint 10000
+    divw
+    frame_dig -2
+    swap
+    -
+    frame_bury 5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:187
+    // const floor: uint64 = schedule.floorFeeBps < feeBps ? schedule.floorFeeBps : feeBps
+    intc_0 // 0
+    extract_uint64
+    dup
+    frame_dig -2
+    <
+    bz price_ternary_false@33
+    frame_bury 6
+
+price_ternary_merge@34:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:188
+    // if (fee < floor) {
+    frame_dig 5
+    frame_dig 6
+    <
+    bz price_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::discountedFee@37
+    frame_dig 6
+    frame_bury 5
+    b price_after_inlined_smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::discountedFee@37
+
+price_ternary_false@33:
+    pop
+    frame_dig -2
+    frame_bury 6
+    b price_ternary_merge@34
+
+price_ternary_false@23:
+    b price_ternary_merge@24
+
+price_after_if_else@18:
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:164
+    // for (let i: uint64 = 0; i < schedule.tiers.length; i += 1) {
+    frame_dig 7
+    intc_1 // 1
+    +
+    frame_bury 7
+    b price_while_top@13
+
+
+// smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::GatedFeeHook.measure(key: bytes, ctx: bytes, measure: uint64, gateArgs: bytes, funder: bytes, swapDay: uint64, daySwaps: uint64) -> bytes, bytes, bytes:
+measure:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:552-560
+    // private measure(
+    //   key: Account,
+    //   ctx: GateCtx,
+    //   measure: uint64,
+    //   gateArgs: bytes[][],
+    //   funder: Account,
+    //   swapDay: uint64,
+    //   daySwaps: uint64,
+    // ): FeePass {
+    proto 7 3
+    intc_0 // 0
+    dup
+    bytec_2 // ""
+    dupn 5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:561
+    // loggedAssert((measure | MeasureAll) === MeasureAll, errGfMeasure)
+    frame_dig -5
+    pushint 7
+    |
+    pushint 7
+    ==
+    bnz measure_after_assert@2
+    pushbytes "ERR:errGfms"
+    log
+    err // ERR:errGfms
+
+measure_after_assert@2:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:562
+    // const validUntil: uint64 = Global.latestTimestamp + this.passTtl.value
+    global LatestTimestamp
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:242
+    // passTtl = GlobalState<uint64>({ key: 'pass_ttl' })
+    bytec 9 // "pass_ttl"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:562
+    // const validUntil: uint64 = Global.latestTimestamp + this.passTtl.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    +
+    dup
+    frame_bury 7
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:563
+    // const pass: FeePass = { power: 0, impact: 0, gates: 0, validUntil, funder, swapDay, daySwaps }
+    itob
+    pushbytes 0x000000000000000000000000000000000000000000000000
+    swap
+    concat
+    frame_dig -3
+    concat
+    frame_dig -2
+    itob
+    concat
+    frame_dig -1
+    itob
+    concat
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:564
+    // if (measure === 0) {
+    frame_dig -5
+    bnz measure_after_if_else@4
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:565
+    // return pass
+    frame_dig -6
+    frame_dig -4
+    frame_bury 2
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+measure_after_if_else@4:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:568
+    // const dao = this.akitaDAO.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:241
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_3 // "akita_dao"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:568
+    // const dao = this.akitaDAO.value
+    app_global_get_ex
+    swap
+    frame_bury 4
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:570
+    // if ((measure & MeasurePower) !== 0) {
+    frame_dig -5
+    intc_1 // 1
+    &
+    bz measure_after_if_else@6
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    frame_dig 4
+    dup
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:572
+    // pass.power = getStakingPowerThrough(getAkitaAppList(dao).staking, key, getAkitaAssets(dao).akta, validUntil)
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/utils/functions.ts:166
+    // const akitaAssetsBytes = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAssets))[0]
+    swap
+    pushbytes "akita_assets"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:572
+    // pass.power = getStakingPowerThrough(getAkitaAppList(dao).staking, key, getAkitaAssets(dao).akta, validUntil)
+    extract 0 8
+    // smart_contracts/utils/functions.ts:593-602
+    // const info = abiCall<typeof Staking.prototype.getInfo>({
+    //   appId: stakingApp,
+    //   args: [
+    //     user,
+    //     {
+    //       asset,
+    //       type: STAKING_TYPE_LOCK,
+    //     },
+    //   ],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/utils/functions.ts:599
+    // type: STAKING_TYPE_LOCK,
+    pushbytes 0x28
+    // smart_contracts/utils/functions.ts:597-600
+    // {
+    //   asset,
+    //   type: STAKING_TYPE_LOCK,
+    // },
+    concat
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/utils/functions.ts:593-602
+    // const info = abiCall<typeof Staking.prototype.getInfo>({
+    //   appId: stakingApp,
+    //   args: [
+    //     user,
+    //     {
+    //       asset,
+    //       type: STAKING_TYPE_LOCK,
+    //     },
+    //   ],
+    // }).returnValue
+    pushbytes 0xd40162af // method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"
+    itxn_field ApplicationArgs
+    frame_dig -7
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    cover 2
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for smart_contracts/staking/types.ts::Stake
+    pushint 20
+    // smart_contracts/utils/functions.ts:604
+    // if (info.expiration <= requiredThrough) {
+    extract_uint64
+    dup
+    frame_dig 7
+    <=
+    bz measure_after_if_else@37
+    pop
+    bury 1
+    // smart_contracts/utils/functions.ts:605
+    // return 0
+    intc_0 // 0
+
+measure_after_inlined_smart_contracts/utils/functions.ts::getStakingPowerThrough@40:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:572
+    // pass.power = getStakingPowerThrough(getAkitaAppList(dao).staking, key, getAkitaAssets(dao).akta, validUntil)
+    itob
+    replace2 0
+
+measure_after_if_else@6:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:575
+    // if ((measure & MeasureImpact) !== 0) {
+    frame_dig -5
+    pushint 2
+    &
+    bz measure_after_if_else@8
+    // smart_contracts/utils/functions.ts:204-207
+    // return abiCall<typeof AkitaSocialImpact.prototype.getUserImpact>({
+    //   appId: getAkitaSocialAppList(akitaDAO).impact,
+    //   args: [account]
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/utils/functions.ts:117
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaSocialAppList))
+    frame_dig 4
+    pushbytes "sal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:205
+    // appId: getAkitaSocialAppList(akitaDAO).impact,
+    pushint 16
+    extract_uint64
+    itxn_field ApplicationID
+    // smart_contracts/utils/functions.ts:204-207
+    // return abiCall<typeof AkitaSocialImpact.prototype.getUserImpact>({
+    //   appId: getAkitaSocialAppList(akitaDAO).impact,
+    //   args: [account]
+    // }).returnValue
+    pushbytes 0xd574bb10 // method "getUserImpact(address)uint64"
+    itxn_field ApplicationArgs
+    frame_dig -7
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:576
+    // pass.impact = getUserImpact(dao, key)
+    replace2 8
+
+measure_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:579
+    // if ((measure & MeasureGates) !== 0) {
+    frame_dig -5
+    pushint 4
+    &
+    bz measure_after_if_else@22
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:251
+    // gateSlots = Box<uint64[]>({ key: 'g' })
+    bytec 4 // "g"
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:580
+    // const [slots, hasSlots] = clone(this.gateSlots.maybe())
+    box_get
+    swap
+    frame_bury 1
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:581
+    // const count: uint64 = hasSlots ? slots.length : 0
+    bz measure_ternary_false@11
+    frame_dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    frame_bury 3
+
+measure_ternary_merge@12:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:582
+    // loggedAssert(gateArgs.length === count, errGfArgs)
+    frame_dig -4
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    frame_bury 2
+    frame_dig 3
+    ==
+    bnz measure_while_top@24
+    pushbytes "ERR:errGfar"
+    log
+    err // ERR:errGfar
+
+measure_while_top@24:
+    pushint 2110
+    global OpcodeBudget
+    >
+    bz measure_after_while@29
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec 18 // 0x068101
+    itxn_field ApprovalProgram
+    bytec 18 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b measure_while_top@24
+
+measure_after_while@29:
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    frame_dig 4
+    bytec 5 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:584
+    // const gate = getAkitaAppList(dao).gate
+    pushint 40
+    extract_uint64
+    frame_bury 5
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:585
+    // for (let i: uint64 = 0; i < count; i += 1) {
+    intc_0 // 0
+    frame_bury 6
+
+measure_while_top@15:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:585
+    // for (let i: uint64 = 0; i < count; i += 1) {
+    frame_dig 6
+    frame_dig 3
+    <
+    bz measure_after_if_else@22
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:587
+    // slots[i] !== 0 &&
+    frame_dig 1
+    extract 2 0
+    frame_dig 6
+    intc_2 // 8
+    *
+    dup2
+    intc_2 // 8
+    extract3 // on error: index access is out of bounds
+    frame_bury 0
+    extract_uint64
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:587-588
+    // slots[i] !== 0 &&
+    // abiCall<typeof Gate.prototype.checkFor>({ appId: gate, args: [clone(ctx), slots[i], clone(gateArgs[i])] }).returnValue
+    bz measure_after_if_else@20
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:588
+    // abiCall<typeof Gate.prototype.checkFor>({ appId: gate, args: [clone(ctx), slots[i], clone(gateArgs[i])] }).returnValue
+    itxn_begin
+    frame_dig -4
+    extract 2 0
+    frame_dig 6
+    dup
+    cover 2
+    pushint 2
+    *
+    dig 1
+    swap
+    extract_uint16
+    dig 1
+    len
+    uncover 3
+    intc_1 // 1
+    +
+    dup
+    pushint 2
+    *
+    dig 4
+    swap
+    extract_uint16
+    frame_dig 2
+    uncover 2
+    -
+    select
+    substring3
+    frame_dig 5
+    itxn_field ApplicationID
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:588
+    // abiCall<typeof Gate.prototype.checkFor>({ appId: gate, args: [clone(ctx), slots[i], clone(gateArgs[i])] }).returnValue
+    pushbytes 0x27646222 // method "checkFor((address,uint64,address),uint64,byte[][])bool"
+    itxn_field ApplicationArgs
+    frame_dig -6
+    itxn_field ApplicationArgs
+    frame_dig 0
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:587-588
+    // slots[i] !== 0 &&
+    // abiCall<typeof Gate.prototype.checkFor>({ appId: gate, args: [clone(ctx), slots[i], clone(gateArgs[i])] }).returnValue
+    bz measure_after_if_else@20
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:590
+    // pass.gates = pass.gates | op.shl(1, i)
+    dup
+    pushint 16
+    extract_uint64
+    intc_1 // 1
+    frame_dig 6
+    shl
+    |
+    itob
+    replace2 16
+
+measure_after_if_else@20:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:585
+    // for (let i: uint64 = 0; i < count; i += 1) {
+    frame_dig 6
+    intc_1 // 1
+    +
+    frame_bury 6
+    b measure_while_top@15
+
+measure_after_if_else@22:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:595
+    // return pass
+    frame_dig -6
+    frame_dig -4
+    frame_bury 2
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+measure_ternary_false@11:
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:581
+    // const count: uint64 = hasSlots ? slots.length : 0
+    intc_0 // 0
+    frame_bury 3
+    b measure_ternary_merge@12
+
+measure_after_if_else@37:
+    // smart_contracts/utils/functions.ts:608
+    // const remainingTime: uint64 = info.expiration - Global.latestTimestamp
+    global LatestTimestamp
+    -
+    dup
+    // smart_contracts/utils/functions.ts:610
+    // if (remainingTime < ONE_WEEK) {
+    intc 5 // 604800
+    <
+    bz measure_after_if_else@39
+    pop
+    bury 1
+    // smart_contracts/utils/functions.ts:611
+    // return 0
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:572
+    // pass.power = getStakingPowerThrough(getAkitaAppList(dao).staking, key, getAkitaAssets(dao).akta, validUntil)
+    b measure_after_inlined_smart_contracts/utils/functions.ts::getStakingPowerThrough@40
+
+measure_after_if_else@39:
+    // smart_contracts/utils/functions.ts:614
+    // const remainingDays: uint64 = remainingTime / ONE_DAY
+    intc 4 // 86400
+    /
+    // smart_contracts/utils/functions.ts:615
+    // return op.divw(...op.mulw(wideRatio([info.amount, 1_000_000], [ONE_YEAR_IN_DAYS, 1_000_000]), remainingDays), 1_000_000)
+    uncover 2
+    extract 4 8
+    intc 8 // 1000000
+    itob
+    concat
+    dup
+    bytec 19 // 0x000000000000016d00000000000f4240
+    callsub wideRatio
+    dig 2
+    mulw
+    pop
+    cover 2
+    bytec 19 // 0x000000000000016d00000000000f4240
+    callsub wideRatio
+    mulw
+    bury 1
+    intc 8 // 1000000
+    divw
+    // smart_contracts/plugin-dex/hooks/gated-fee.algo.ts:572
+    // pass.power = getStakingPowerThrough(getAkitaAppList(dao).staking, key, getAkitaAssets(dao).akta, validUntil)
+    b measure_after_inlined_smart_contracts/utils/functions.ts::getStakingPowerThrough@40

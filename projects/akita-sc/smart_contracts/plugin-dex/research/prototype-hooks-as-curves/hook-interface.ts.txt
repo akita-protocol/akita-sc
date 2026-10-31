@@ -1,0 +1,14 @@
+import { Application, Contract, uint64 } from '@algorandfoundation/algorand-typescript'
+import { CurveRequest, CurveResult, HookContext, HookResult } from './types'
+
+export class PluginDexHook extends Contract {
+  akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    return { flags: 0, feeBps: 0, hookFee: 0, extOutA: 0, extOutB: 0, extInA: 0, extInB: 0 }
+  }
+}
+
+export class PluginDexCurve extends Contract {
+  akitaDexCurve(dex: Application, req: CurveRequest): CurveResult {
+    return { amountA: 0, amountB: 0, lpFee: 0, shares: 0, priceX64: req.args.toFixed({ length: 16, strategy: 'unsafe-cast' }), activeId: 0, reserveA: 0, reserveB: 0, flags: 0 }
+  }
+}

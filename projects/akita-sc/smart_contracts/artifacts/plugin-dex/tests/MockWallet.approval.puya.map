@@ -1,0 +1,776 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../plugin-dex/tests/mock-wallet.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;AAiBA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAKG;;;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAEsD;;AAAtB;AAAA;;;;;;AAA2C;;AANxD;;;;;;;;;;;;;;;;;;;;AAMlB;AAAA;AALM;;;;;;;AAMN;;AAAA;AALS;AAMT;AAAA;AAJD;AAAA;;;;;;AAQD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;AAXnB;AAWmB;AAAA;AAAf;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AACA;AAAyB;;;;;AAA0C;;;;;AAAnE;;;AAAA;;;AAAA;AAFF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 32 1 0"
+    },
+    "6": {
+      "op": "bytecblock \"operator\""
+    },
+    "17": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "19": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "20": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "21": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "23": {
+      "op": "bz main_create_NoOp@5",
+      "stack_out": []
+    },
+    "26": {
+      "op": "pushbytes 0x652651c7 // method \"rekeyTo(address)void\"",
+      "defined_out": [
+        "Method(rekeyTo(address)void)"
+      ],
+      "stack_out": [
+        "Method(rekeyTo(address)void)"
+      ]
+    },
+    "32": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(rekeyTo(address)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(rekeyTo(address)void)",
+        "tmp%4#0"
+      ]
+    },
+    "35": {
+      "op": "match rekeyTo",
+      "stack_out": []
+    },
+    "39": {
+      "op": "err"
+    },
+    "40": {
+      "block": "main_create_NoOp@5",
+      "stack_in": [],
+      "op": "pushbytes 0x55399314 // method \"create(address,address,address)void\"",
+      "defined_out": [
+        "Method(create(address,address,address)void)"
+      ],
+      "stack_out": [
+        "Method(create(address,address,address)void)"
+      ]
+    },
+    "46": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(address,address,address)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(address,address,address)void)",
+        "tmp%5#0"
+      ]
+    },
+    "49": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "53": {
+      "op": "err"
+    },
+    "54": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-wallet.algo.ts::MockWallet.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1"
+    },
+    "57": {
+      "op": "dupn 2",
+      "defined_out": [
+        "controlledAddress#0",
+        "controlledAddress#0 (copy)"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0",
+        "controlledAddress#0 (copy)"
+      ]
+    },
+    "59": {
+      "op": "len",
+      "defined_out": [
+        "controlledAddress#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0",
+        "len%0#0"
+      ]
+    },
+    "60": {
+      "op": "intc_0 // 32",
+      "defined_out": [
+        "32",
+        "controlledAddress#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "61": {
+      "op": "==",
+      "defined_out": [
+        "controlledAddress#0",
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0",
+        "eq%0#0"
+      ]
+    },
+    "62": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0"
+      ]
+    },
+    "63": {
+      "op": "txna ApplicationArgs 2"
+    },
+    "66": {
+      "op": "dup",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "controlledAddress#0",
+        "admin#0",
+        "admin#0"
+      ]
+    },
+    "67": {
+      "op": "cover 2",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0",
+        "admin#0"
+      ]
+    },
+    "69": {
+      "op": "len",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "len%1#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0",
+        "len%1#0"
+      ]
+    },
+    "70": {
+      "op": "intc_0 // 32",
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0",
+        "len%1#0",
+        "32"
+      ]
+    },
+    "71": {
+      "op": "==",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "eq%1#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0",
+        "eq%1#0"
+      ]
+    },
+    "72": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0"
+      ]
+    },
+    "73": {
+      "op": "txna ApplicationArgs 3"
+    },
+    "76": {
+      "op": "dup",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "operator#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "controlledAddress#0",
+        "operator#0",
+        "operator#0"
+      ]
+    },
+    "77": {
+      "op": "cover 2",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "operator#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0",
+        "operator#0"
+      ]
+    },
+    "79": {
+      "op": "len",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "len%2#0",
+        "operator#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0",
+        "len%2#0"
+      ]
+    },
+    "80": {
+      "op": "intc_0 // 32",
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0",
+        "len%2#0",
+        "32"
+      ]
+    },
+    "81": {
+      "op": "==",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "eq%2#0",
+        "operator#0"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0",
+        "eq%2#0"
+      ]
+    },
+    "82": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0"
+      ]
+    },
+    "83": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "operator#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0",
+        "tmp%0#1"
+      ]
+    },
+    "85": {
+      "op": "==",
+      "defined_out": [
+        "admin#0",
+        "controlledAddress#0",
+        "operator#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0",
+        "tmp%1#1"
+      ]
+    },
+    "86": {
+      "op": "bz create_ternary_false@3",
+      "stack_out": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0"
+      ]
+    },
+    "89": {
+      "op": "uncover 2",
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "controlledAddress#0"
+      ]
+    },
+    "91": {
+      "op": "pop",
+      "stack_out": [
+        "admin#0",
+        "operator#0"
+      ]
+    },
+    "92": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "admin#0",
+        "operator#0",
+        "ternary_result%0#0"
+      ],
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "ternary_result%0#0"
+      ]
+    },
+    "94": {
+      "block": "create_ternary_merge@4",
+      "stack_in": [
+        "admin#0",
+        "operator#0",
+        "ternary_result%0#0"
+      ],
+      "op": "pushbytes \"controlled_address\"",
+      "defined_out": [
+        "\"controlled_address\""
+      ],
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "ternary_result%0#0",
+        "\"controlled_address\""
+      ]
+    },
+    "114": {
+      "op": "swap",
+      "defined_out": [
+        "\"controlled_address\"",
+        "ternary_result%0#0"
+      ],
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "\"controlled_address\"",
+        "ternary_result%0#0"
+      ]
+    },
+    "115": {
+      "op": "app_global_put",
+      "stack_out": [
+        "admin#0",
+        "operator#0"
+      ]
+    },
+    "116": {
+      "op": "pushbytes \"admin\"",
+      "defined_out": [
+        "\"admin\""
+      ],
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "\"admin\""
+      ]
+    },
+    "123": {
+      "op": "uncover 2",
+      "defined_out": [
+        "\"admin\"",
+        "admin#0"
+      ],
+      "stack_out": [
+        "operator#0",
+        "\"admin\"",
+        "admin#0"
+      ]
+    },
+    "125": {
+      "op": "app_global_put",
+      "stack_out": [
+        "operator#0"
+      ]
+    },
+    "126": {
+      "op": "bytec_0 // \"operator\"",
+      "defined_out": [
+        "\"operator\""
+      ],
+      "stack_out": [
+        "operator#0",
+        "\"operator\""
+      ]
+    },
+    "127": {
+      "op": "swap",
+      "defined_out": [
+        "\"operator\"",
+        "operator#0"
+      ],
+      "stack_out": [
+        "\"operator\"",
+        "operator#0"
+      ]
+    },
+    "128": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "129": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "130": {
+      "op": "return",
+      "stack_out": []
+    },
+    "131": {
+      "block": "create_ternary_false@3",
+      "stack_in": [
+        "controlledAddress#0",
+        "admin#0",
+        "operator#0"
+      ],
+      "op": "uncover 2",
+      "defined_out": [
+        "ternary_result%0#0"
+      ],
+      "stack_out": [
+        "admin#0",
+        "operator#0",
+        "ternary_result%0#0"
+      ]
+    },
+    "133": {
+      "op": "b create_ternary_merge@4"
+    },
+    "136": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-wallet.algo.ts::MockWallet.rekeyTo[routing]",
+      "params": {},
+      "block": "rekeyTo",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1"
+    },
+    "139": {
+      "op": "dup",
+      "defined_out": [
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "to#0"
+      ]
+    },
+    "140": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "len%0#0"
+      ]
+    },
+    "141": {
+      "op": "intc_0 // 32",
+      "defined_out": [
+        "32",
+        "len%0#0",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "142": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "eq%0#0"
+      ]
+    },
+    "143": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "to#0"
+      ]
+    },
+    "144": {
+      "op": "txn Sender",
+      "defined_out": [
+        "tmp%0#1",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "tmp%0#1"
+      ]
+    },
+    "146": {
+      "op": "intc_2 // 0",
+      "stack_out": [
+        "to#0",
+        "tmp%0#1",
+        "0"
+      ]
+    },
+    "147": {
+      "op": "bytec_0 // \"operator\"",
+      "defined_out": [
+        "\"operator\"",
+        "0",
+        "tmp%0#1",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "tmp%0#1",
+        "0",
+        "\"operator\""
+      ]
+    },
+    "148": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "tmp%0#1",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "149": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "to#0",
+        "tmp%0#1",
+        "maybe_value%0#0"
+      ]
+    },
+    "150": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#1",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "tmp%1#1"
+      ]
+    },
+    "151": {
+      "op": "bnz rekeyTo_after_assert@3",
+      "stack_out": [
+        "to#0"
+      ]
+    },
+    "154": {
+      "op": "pushbytes \"ERR:errMwop\"",
+      "defined_out": [
+        "\"ERR:errMwop\"",
+        "to#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "\"ERR:errMwop\""
+      ]
+    },
+    "167": {
+      "op": "log",
+      "stack_out": [
+        "to#0"
+      ]
+    },
+    "168": {
+      "error": "ERR:errMwop",
+      "op": "err // ERR:errMwop"
+    },
+    "169": {
+      "block": "rekeyTo_after_assert@3",
+      "stack_in": [
+        "to#0"
+      ],
+      "op": "itxn_begin"
+    },
+    "170": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ],
+      "stack_out": [
+        "to#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "172": {
+      "op": "swap",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "to#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "to#0"
+      ]
+    },
+    "173": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "175": {
+      "op": "intc_2 // 0",
+      "defined_out": [
+        "0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "0"
+      ]
+    },
+    "176": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "178": {
+      "op": "itxn_field Receiver",
+      "stack_out": []
+    },
+    "180": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "181": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "183": {
+      "op": "intc_2 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "184": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "186": {
+      "op": "itxn_submit"
+    },
+    "187": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "188": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

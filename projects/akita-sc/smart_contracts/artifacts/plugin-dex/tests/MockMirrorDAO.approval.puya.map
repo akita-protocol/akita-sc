@@ -1,0 +1,608 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../plugin-dex/tests/mock-mirror-dao.algo.ts",
+    "../../../utils/functions.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;AAmBA;;;;;;AAAA;;;AAAA;;;;AAAA;AAMG;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;ACsFsB;;AAAwC;AAAxC;AAAA;ADnFrB;;AAAA;;AARa;AASb;AAAA;AACiB;;AAAsC;AAAtC;AAAA;AATH;AAUd;AAAA;AACiB;AAAsC;AAAtC;AAAA;AAVL;AAWZ;AAAA;AAVO;;;;;;;;AAWP;AAAA;AATD;;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "bytecblock \"aal\" \"sal\" \"akita_assets\""
+    },
+    "24": {
+      "op": "pushbytes 0x7efda4d2 // method \"create(uint64,uint64,uint64)void\"",
+      "defined_out": [
+        "Method(create(uint64,uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(uint64,uint64,uint64)void)"
+      ]
+    },
+    "30": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(uint64,uint64,uint64)void)",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "Method(create(uint64,uint64,uint64)void)",
+        "tmp%0#1"
+      ]
+    },
+    "33": {
+      "op": "match main_create_route@2",
+      "stack_out": []
+    },
+    "37": {
+      "op": "err"
+    },
+    "38": {
+      "block": "main_create_route@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "40": {
+      "op": "!",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "41": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "43": {
+      "op": "!",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "44": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "45": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "46": {
+      "op": "b create"
+    },
+    "49": {
+      "subroutine": "smart_contracts/plugin-dex/tests/mock-mirror-dao.algo.ts::MockMirrorDAO.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "52": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "53": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "54": {
+      "op": "pushint 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "56": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "57": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "58": {
+      "op": "btoi",
+      "defined_out": [
+        "source#0"
+      ],
+      "stack_out": [
+        "source#0"
+      ]
+    },
+    "59": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "source#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0"
+      ]
+    },
+    "62": {
+      "op": "dup",
+      "defined_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "63": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "source#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "64": {
+      "op": "pushint 8",
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "66": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "source#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "67": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "source#0",
+        "tmp%2#0"
+      ]
+    },
+    "68": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "71": {
+      "op": "dup",
+      "defined_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "72": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "73": {
+      "op": "pushint 8",
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "75": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "76": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "77": {
+      "op": "btoi",
+      "defined_out": [
+        "daoWallet#0",
+        "source#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "daoWallet#0"
+      ]
+    },
+    "78": {
+      "op": "dig 2",
+      "defined_out": [
+        "daoWallet#0",
+        "source#0",
+        "source#0 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "daoWallet#0",
+        "source#0 (copy)"
+      ]
+    },
+    "80": {
+      "op": "bytec_0 // \"aal\"",
+      "defined_out": [
+        "\"aal\"",
+        "daoWallet#0",
+        "source#0",
+        "source#0 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "daoWallet#0",
+        "source#0 (copy)",
+        "\"aal\""
+      ]
+    },
+    "81": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "appListBytes#0",
+        "awst_tmp%1#0",
+        "daoWallet#0",
+        "source#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "daoWallet#0",
+        "appListBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "82": {
+      "op": "pop",
+      "stack_out": [
+        "source#0",
+        "tmp%2#0",
+        "daoWallet#0",
+        "appListBytes#0"
+      ]
+    },
+    "83": {
+      "op": "uncover 2",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "appListBytes#0",
+        "tmp%2#0"
+      ]
+    },
+    "85": {
+      "op": "replace2 88",
+      "defined_out": [
+        "daoWallet#0",
+        "list#1",
+        "source#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "list#1"
+      ]
+    },
+    "87": {
+      "op": "bytec_0 // \"aal\"",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "list#1",
+        "\"aal\""
+      ]
+    },
+    "88": {
+      "op": "swap",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "\"aal\"",
+        "list#1"
+      ]
+    },
+    "89": {
+      "op": "app_global_put",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0"
+      ]
+    },
+    "90": {
+      "op": "dig 1",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "source#0 (copy)"
+      ]
+    },
+    "92": {
+      "op": "bytec_1 // \"sal\"",
+      "defined_out": [
+        "\"sal\"",
+        "daoWallet#0",
+        "source#0",
+        "source#0 (copy)"
+      ],
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "source#0 (copy)",
+        "\"sal\""
+      ]
+    },
+    "93": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "daoWallet#0",
+        "social#0",
+        "source#0"
+      ],
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "social#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "94": {
+      "op": "pop",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "social#0"
+      ]
+    },
+    "95": {
+      "op": "bytec_1 // \"sal\"",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "social#0",
+        "\"sal\""
+      ]
+    },
+    "96": {
+      "op": "swap",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0",
+        "\"sal\"",
+        "social#0"
+      ]
+    },
+    "97": {
+      "op": "app_global_put",
+      "stack_out": [
+        "source#0",
+        "daoWallet#0"
+      ]
+    },
+    "98": {
+      "op": "swap",
+      "stack_out": [
+        "daoWallet#0",
+        "source#0"
+      ]
+    },
+    "99": {
+      "op": "bytec_2 // \"akita_assets\"",
+      "defined_out": [
+        "\"akita_assets\"",
+        "daoWallet#0",
+        "source#0"
+      ],
+      "stack_out": [
+        "daoWallet#0",
+        "source#0",
+        "\"akita_assets\""
+      ]
+    },
+    "100": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "assets#0",
+        "awst_tmp%3#0",
+        "daoWallet#0"
+      ],
+      "stack_out": [
+        "daoWallet#0",
+        "assets#0",
+        "awst_tmp%3#0"
+      ]
+    },
+    "101": {
+      "op": "pop",
+      "stack_out": [
+        "daoWallet#0",
+        "assets#0"
+      ]
+    },
+    "102": {
+      "op": "bytec_2 // \"akita_assets\"",
+      "stack_out": [
+        "daoWallet#0",
+        "assets#0",
+        "\"akita_assets\""
+      ]
+    },
+    "103": {
+      "op": "swap",
+      "stack_out": [
+        "daoWallet#0",
+        "\"akita_assets\"",
+        "assets#0"
+      ]
+    },
+    "104": {
+      "op": "app_global_put",
+      "stack_out": [
+        "daoWallet#0"
+      ]
+    },
+    "105": {
+      "op": "pushbytes \"wallet\"",
+      "defined_out": [
+        "\"wallet\"",
+        "daoWallet#0"
+      ],
+      "stack_out": [
+        "daoWallet#0",
+        "\"wallet\""
+      ]
+    },
+    "113": {
+      "op": "swap",
+      "stack_out": [
+        "\"wallet\"",
+        "daoWallet#0"
+      ]
+    },
+    "114": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "115": {
+      "op": "pushint 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "117": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

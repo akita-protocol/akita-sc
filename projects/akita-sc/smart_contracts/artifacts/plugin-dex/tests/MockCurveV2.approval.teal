@@ -1,0 +1,2555 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 16 8 137 129 10000
+    bytecblock "mode" "p" 0x01 "ERR:errMcar" 0x010000000000000000 0x151f7c75 "q" "ERR:errPdki" "vault" "lp_mode" "position_cursor" "last_op" "last_pool" "ERR:errMcrv" "ERR:errMcps" "ERR:errMcop" "ERR:errMcmb"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:460
+    // export class MockCurveV2 extends MockCurve {
+    pushbytes 0xa0e81872 // method "update()void"
+    txna ApplicationArgs 0
+    match main_update_route@2
+
+main_switch_case_next@3:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:460
+    // export class MockCurveV2 extends MockCurve {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@12
+    pushbytess 0x8e40b8aa 0xcc771457 0x8359f5a1 0xe8f3f2e4 0x2bed5e6a 0x367ae955 // method "codeVersion()uint64", method "setMode(uint64)void", method "getPoolState(uint64)(byte[16],uint64,uint64,uint64)", method "getPosition(uint64)(uint64,address,uint64)", method "akitaDexCurve((uint64,uint64,address,uint64,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[]))(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),uint64,uint64,byte[])", method "akitaDexCurveFunded(pay,(uint64,uint64,address,uint64,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[]))(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),uint64,uint64,byte[])"
+    txna ApplicationArgs 0
+    match main_codeVersion_route@5 setMode getPoolState getPosition akitaDexCurve akitaDexCurveFunded
+    err
+
+main_codeVersion_route@5:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:461
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c750000000000000002
+    log
+    intc_1 // 1
+    return
+
+main_create_NoOp@12:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:460
+    // export class MockCurveV2 extends MockCurve {
+    pushbytes 0x9479ff63 // method "create(uint64,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+main_update_route@2:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:131
+    // @abimethod({ allowActions: 'UpdateApplication' })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+
+// smart_contracts/plugin-dex/math.ts::mulDivUp(a: uint64, b: uint64, c: uint64) -> uint64:
+mulDivUp:
+    // smart_contracts/plugin-dex/math.ts:13
+    // export function mulDivUp(a: uint64, b: uint64, c: uint64): uint64 {
+    proto 3 1
+    // smart_contracts/plugin-dex/math.ts:14
+    // const [qHi, qLo, rHi, rLo] = op.divmodw(...op.mulw(a, b), 0, c)
+    frame_dig -3
+    frame_dig -2
+    mulw
+    intc_0 // 0
+    frame_dig -1
+    divmodw
+    cover 3
+    cover 2
+    swap
+    // smart_contracts/plugin-dex/math.ts:15
+    // loggedAssert(qHi === 0, errInvalidInput)
+    bz mulDivUp_after_assert@2
+    pushbytes "ERR:errPdin"
+    log
+    err // ERR:errPdin
+
+mulDivUp_after_assert@2:
+    // smart_contracts/plugin-dex/math.ts:16
+    // return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+    swap
+    bnz mulDivUp_ternary_false@5
+    frame_dig 0
+    bnz mulDivUp_ternary_false@5
+
+mulDivUp_ternary_merge@6:
+    // smart_contracts/plugin-dex/math.ts:16
+    // return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+    swap
+    retsub
+
+mulDivUp_ternary_false@5:
+    // smart_contracts/plugin-dex/math.ts:16
+    // return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+    intc_1 // 1
+    +
+    b mulDivUp_ternary_merge@6
+
+
+// smart_contracts/plugin-dex/math.ts::toX64(value: bytes) -> bytes:
+toX64:
+    // smart_contracts/plugin-dex/math.ts:37
+    // export function toX64(value: biguint): bytes<16> {
+    proto 1 1
+    // smart_contracts/plugin-dex/math.ts:38
+    // return op.bzero(16).bitwiseOr(Bytes(value)).toFixed({ length: 16 })
+    intc_2 // 16
+    bzero
+    frame_dig -1
+    b|
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // Length must be 16
+    retsub
+
+
+// smart_contracts/plugin-dex/math.ts::priceX64(reserveA: uint64, reserveB: uint64) -> bytes:
+priceX64:
+    // smart_contracts/plugin-dex/math.ts:45
+    // export function priceX64(reserveA: uint64, reserveB: uint64): bytes<16> {
+    proto 2 1
+    // smart_contracts/plugin-dex/math.ts:46
+    // if (reserveA === 0) {
+    frame_dig -2
+    bnz priceX64_after_if_else@2
+    // smart_contracts/plugin-dex/math.ts:33
+    // return op.bzero(16).toFixed({ length: 16 })
+    intc_2 // 16
+    bzero
+    // smart_contracts/plugin-dex/math.ts:47
+    // return zeroX64()
+    retsub
+
+priceX64_after_if_else@2:
+    // smart_contracts/plugin-dex/math.ts:50
+    // const [qHi, qLo] = op.divmodw(reserveB, 0, 0, reserveA)
+    frame_dig -1
+    intc_0 // 0
+    dup
+    frame_dig -2
+    divmodw
+    popn 2
+    swap
+    // smart_contracts/plugin-dex/math.ts:51
+    // return op.itob(qHi).concat(op.itob(qLo)).toFixed({ length: 16 })
+    itob
+    swap
+    itob
+    concat
+    dup
+    len
+    intc_2 // 16
+    ==
+    assert // Length must be 16
+    retsub
+
+
+// smart_contracts/plugin-dex/curve-interface.ts::requireVault(vault: uint64) -> void:
+requireVault:
+    // smart_contracts/plugin-dex/curve-interface.ts:117
+    // export function requireVault(vault: Application): void {
+    proto 1 0
+    // smart_contracts/plugin-dex/curve-interface.ts:118
+    // loggedAssert(Global.callerApplicationId === vault.id, 'errCurveCaller')
+    global CallerApplicationID
+    frame_dig -1
+    ==
+    bnz requireVault_after_assert@2
+    pushbytes "ERR:errCurveCaller"
+    log
+    err // ERR:errCurveCaller
+
+requireVault_after_assert@2:
+    retsub
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:120
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:110
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec 8 // "vault"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:122
+    // this.vault.value = vault
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:111
+    // lpMode = GlobalState<uint64>({ key: 'lp_mode' })
+    bytec 9 // "lp_mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:123
+    // this.lpMode.value = lpMode
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:124
+    // this.mode.value = CurveModeHonest
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:113
+    // lastOp = GlobalState<uint64>({ key: 'last_op' })
+    bytec 11 // "last_op"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:125
+    // this.lastOp.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:114
+    // lastPoolId = GlobalState<uint64>({ key: 'last_pool' })
+    bytec 12 // "last_pool"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:126
+    // this.lastPoolId.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:115
+    // positionCursor = GlobalState<uint64>({ key: 'position_cursor' })
+    bytec 10 // "position_cursor"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:127
+    // this.positionCursor.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:120
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.update[routing]() -> void:
+update:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:133
+    // loggedAssert(Txn.sender === Global.creatorAddress, 'errMcnc')
+    txn Sender
+    global CreatorAddress
+    ==
+    bnz update_after_assert@3
+    pushbytes "ERR:errMcnc"
+    log
+    err // ERR:errMcnc
+
+update_after_assert@3:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:131
+    // @abimethod({ allowActions: 'UpdateApplication' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.setMode[routing]() -> void:
+setMode:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:136
+    // setMode(mode: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:137
+    // this.mode.value = mode
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:136
+    // setMode(mode: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.getPoolState[routing]() -> void:
+getPoolState:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:140
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:142
+    // return clone(this.pools(poolId).value)
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:142
+    // return clone(this.pools(poolId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:140
+    // @abimethod({ readonly: true })
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.getPosition[routing]() -> void:
+getPosition:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:145
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:147
+    // return clone(this.positions(positionId).value)
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:118
+    // positions = BoxMap<uint64, MockCurvePosition>({ keyPrefix: 'q' })
+    bytec 6 // "q"
+    swap
+    concat
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:147
+    // return clone(this.positions(positionId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:145
+    // @abimethod({ readonly: true })
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.akitaDexCurve[routing]() -> void:
+akitaDexCurve:
+    intc_0 // 0
+    dupn 3
+    pushbytes ""
+    dupn 9
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:152
+    // akitaDexCurve(req: CurveRequest): CurveResult {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    dig 1
+    intc 4 // 137
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 139
+    ==
+    assert // invalid tail pointer at index 17 of (uint64,uint64,uint8[32],uint64,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(len+uint8[]))
+    uncover 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 141
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/curve-interface.ts::CurveRequest
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:153
+    // loggedAssert(this.mode.value !== CurveModeRevertAll, errRevert)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:153
+    // loggedAssert(this.mode.value !== CurveModeRevertAll, errRevert)
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 10
+    !=
+    bnz akitaDexCurve_after_assert@3
+    bytec 13 // "ERR:errMcrv"
+    log
+    err // ERR:errMcrv
+
+akitaDexCurve_after_assert@3:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:155
+    // if (req.op === CurveOpQuote) {
+    dup
+    intc_0 // 0
+    extract_uint64
+    pushint 3
+    ==
+    bz akitaDexCurve_else_body@5
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:156
+    // r = this.swapOp(req, false)
+    dup
+    intc_0 // 0
+    callsub swapOp
+    pop
+
+akitaDexCurve_after_if_else@14:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:169
+    // this.burn()
+    callsub burn
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:152
+    // akitaDexCurve(req: CurveRequest): CurveResult {
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+akitaDexCurve_else_body@5:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:158
+    // requireVault(this.vault.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:110
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec 8 // "vault"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:158
+    // requireVault(this.vault.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    callsub requireVault
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:159
+    // this.record(req)
+    dup
+    callsub record
+    dup
+    bury 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:160
+    // if (req.op === CurveOpSwap) {
+    intc_0 // 0
+    extract_uint64
+    dup
+    pushint 2
+    ==
+    bz akitaDexCurve_else_body@7
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:161
+    // r = this.swapOp(req, true)
+    dup
+    intc_1 // 1
+    callsub swapOp
+    pop
+    b akitaDexCurve_after_if_else@14
+
+akitaDexCurve_else_body@7:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:162
+    // } else if (req.op === CurveOpRemove) {
+    dup
+    pushint 5
+    ==
+    bz akitaDexCurve_else_body@9
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:386
+    // const pool = clone(this.pools(req.poolId).value)
+    dupn 2
+    intc_3 // 8
+    extract_uint64
+    dup
+    bury 4
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    bury 16
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:386
+    // const pool = clone(this.pools(req.poolId).value)
+    box_get
+    swap
+    bury 14
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:387
+    // let burn = req.lpAmount
+    dup
+    pushint 81
+    extract_uint64
+    swap
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:388
+    // let supply = req.lpSupply
+    pushint 89
+    extract_uint64
+    swap
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:389
+    // if (this.lpMode.value !== LpModeFungible) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:111
+    // lpMode = GlobalState<uint64>({ key: 'lp_mode' })
+    bytec 9 // "lp_mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:389
+    // if (this.lpMode.value !== LpModeFungible) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    bz akitaDexCurve_after_if_else@79
+    popn 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:390
+    // const position = clone(this.positions(req.positionId).value)
+    dupn 2
+    extract 48 8
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:118
+    // positions = BoxMap<uint64, MockCurvePosition>({ keyPrefix: 'q' })
+    bytec 6 // "q"
+    swap
+    concat
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:390
+    // const position = clone(this.positions(req.positionId).value)
+    box_get
+    swap
+    dup
+    cover 2
+    cover 3
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:391
+    // loggedAssert(position.owner === req.owner && position.poolId === req.poolId, errPosition)
+    extract 8 32
+    swap
+    extract 16 32
+    dup
+    bury 19
+    ==
+    bz akitaDexCurve_bool_false@63
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 4
+    ==
+    bz akitaDexCurve_bool_false@63
+    intc_1 // 1
+
+akitaDexCurve_bool_merge@64:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:391
+    // loggedAssert(position.owner === req.owner && position.poolId === req.poolId, errPosition)
+    bnz akitaDexCurve_after_assert@66
+    bytec 14 // "ERR:errMcps"
+    log
+    err // ERR:errMcps
+
+akitaDexCurve_after_assert@66:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:392
+    // burn = req.args.length === 8 ? op.extractUint64(req.args, 0) : position.shares
+    dig 2
+    dup
+    intc 4 // 137
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    dup
+    len
+    intc_3 // 8
+    ==
+    bz akitaDexCurve_ternary_false@68
+    intc_0 // 0
+    extract_uint64
+    swap
+
+akitaDexCurve_ternary_merge@69:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:393
+    // loggedAssert(burn > 0 && burn <= position.shares, errArgs)
+    dig 1
+    bz akitaDexCurve_bool_false@72
+    dup
+    pushint 40
+    extract_uint64
+    dig 2
+    >=
+    bz akitaDexCurve_bool_false@72
+    intc_1 // 1
+
+akitaDexCurve_bool_merge@73:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:393
+    // loggedAssert(burn > 0 && burn <= position.shares, errArgs)
+    bnz akitaDexCurve_after_assert@75
+    bytec_3 // "ERR:errMcar"
+    log
+    err // ERR:errMcar
+
+akitaDexCurve_after_assert@75:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:394
+    // supply = pool.totalShares
+    dig 14
+    dup
+    intc_2 // 16
+    extract_uint64
+    dup
+    cover 4
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:395
+    // pool.totalShares -= burn
+    dig 3
+    dup
+    cover 3
+    -
+    itob
+    swap
+    dig 1
+    replace2 16
+    bury 18
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:395-396
+    // pool.totalShares -= burn
+    // this.pools(req.poolId).value = clone(pool)
+    dig 19
+    intc_2 // 16
+    uncover 2
+    box_replace // on error: index out of bounds
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:397
+    // if (burn === position.shares) {
+    swap
+    pushint 40
+    extract_uint64
+    dup
+    cover 2
+    ==
+    bz akitaDexCurve_else_body@77
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:398
+    // const before = Global.currentApplicationAddress.minBalance
+    global CurrentApplicationAddress
+    acct_params_get AcctMinBalance
+    assert // account funded
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:399
+    // this.positions(req.positionId).delete()
+    uncover 3
+    box_del
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:400
+    // itxn.payment({ receiver: req.owner, amount: before - Global.currentApplicationAddress.minBalance }).submit()
+    itxn_begin
+    global CurrentApplicationAddress
+    acct_params_get AcctMinBalance
+    assert // account funded
+    -
+    itxn_field Amount
+    dig 16
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+akitaDexCurve_after_if_else@79:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:406
+    // let amountA = mulDiv(burn, req.reserveA, supply)
+    dig 2
+    dup
+    pushint 121
+    extract_uint64
+    dup
+    bury 13
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    dig 2
+    dup
+    cover 3
+    mulw
+    uncover 5
+    dup
+    cover 5
+    divw
+    cover 3
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:407
+    // const amountB = mulDiv(burn, req.reserveB, supply)
+    intc 5 // 129
+    extract_uint64
+    dup
+    bury 13
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    mulw
+    uncover 2
+    divw
+    bury 12
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:408
+    // if (this.mode.value === CurveModeRemoveOverpay) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:408
+    // if (this.mode.value === CurveModeRemoveOverpay) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 14
+    ==
+    bz akitaDexCurve_after_if_else@81
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:409
+    // amountA += 1
+    intc_1 // 1
+    +
+
+akitaDexCurve_after_if_else@81:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:411
+    // let price = pool.priceX64
+    dig 13
+    extract 0 16
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:412
+    // if (this.mode.value === CurveModeRemoveMovesPrice) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:412
+    // if (this.mode.value === CurveModeRemoveMovesPrice) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 15
+    ==
+    bz akitaDexCurve_after_if_else@83
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:413
+    // price = toX64(BigUint(price) + BigUint(1))
+    bytec_2 // 0x01
+    b+
+    callsub toX64
+
+akitaDexCurve_after_if_else@83:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:415
+    // return this.result(amountA, amountB, burn, req.positionId, req.reserveA - amountA, req.reserveB - amountB, price)
+    dig 3
+    pushint 48
+    extract_uint64
+    dig 12
+    uncover 3
+    dup
+    cover 2
+    -
+    dig 12
+    dig 15
+    dup
+    cover 2
+    -
+    uncover 3
+    uncover 2
+    uncover 6
+    uncover 5
+    uncover 5
+    uncover 5
+    uncover 6
+    callsub result
+    b akitaDexCurve_after_if_else@14
+
+akitaDexCurve_else_body@77:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:402
+    // position.shares -= burn
+    dig 1
+    -
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:402-403
+    // position.shares -= burn
+    // this.positions(req.positionId).value = clone(position)
+    uncover 3
+    pushint 40
+    uncover 2
+    box_replace // on error: index out of bounds
+    b akitaDexCurve_after_if_else@79
+
+akitaDexCurve_bool_false@72:
+    intc_0 // 0
+    b akitaDexCurve_bool_merge@73
+
+akitaDexCurve_ternary_false@68:
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:392
+    // burn = req.args.length === 8 ? op.extractUint64(req.args, 0) : position.shares
+    dup
+    pushint 40
+    extract_uint64
+    swap
+    b akitaDexCurve_ternary_merge@69
+
+akitaDexCurve_bool_false@63:
+    intc_0 // 0
+    b akitaDexCurve_bool_merge@64
+
+akitaDexCurve_else_body@9:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:165
+    // loggedAssert(req.op === CurveOpSettle, errOp)
+    pushint 6
+    ==
+    bnz akitaDexCurve_after_assert@11
+    bytec 15 // "ERR:errMcop"
+    log
+    err // ERR:errMcop
+
+akitaDexCurve_after_assert@11:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:423
+    // const pool = clone(this.pools(req.poolId).value)
+    dupn 2
+    extract 8 8
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    bury 16
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:423
+    // const pool = clone(this.pools(req.poolId).value)
+    box_get
+    swap
+    bury 14
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:424
+    // const rA = req.reserveA
+    dup
+    pushint 121
+    extract_uint64
+    bury 5
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:425
+    // const rB = req.reserveB
+    dup
+    intc 5 // 129
+    extract_uint64
+    bury 4
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:426
+    // loggedAssert(!req.negA || rA >= req.amountA, errSettle)
+    pushint 449
+    getbit
+    dup
+    bury 12
+    bz akitaDexCurve_bool_true@17
+    dup
+    pushint 65
+    extract_uint64
+    dig 4
+    <=
+    bz akitaDexCurve_bool_false@18
+
+akitaDexCurve_bool_true@17:
+    intc_1 // 1
+
+akitaDexCurve_bool_merge@19:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:426
+    // loggedAssert(!req.negA || rA >= req.amountA, errSettle)
+    bnz akitaDexCurve_after_assert@21
+    bytec 7 // "ERR:errPdki"
+    log
+    err // ERR:errPdki
+
+akitaDexCurve_after_assert@21:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:427
+    // loggedAssert(!req.negB || rB >= req.amountB, errSettle)
+    dup
+    pushint 450
+    getbit
+    dup
+    bury 8
+    bz akitaDexCurve_bool_true@23
+    dup
+    pushint 73
+    extract_uint64
+    dig 3
+    <=
+    bz akitaDexCurve_bool_false@24
+
+akitaDexCurve_bool_true@23:
+    intc_1 // 1
+
+akitaDexCurve_bool_merge@25:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:427
+    // loggedAssert(!req.negB || rB >= req.amountB, errSettle)
+    bnz akitaDexCurve_after_assert@27
+    bytec 7 // "ERR:errPdki"
+    log
+    err // ERR:errPdki
+
+akitaDexCurve_after_assert@27:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:428
+    // const newA: uint64 = req.negA ? rA - req.amountA : rA + req.amountA
+    dig 10
+    bz akitaDexCurve_ternary_false@29
+    dup
+    pushint 65
+    extract_uint64
+    dig 4
+    swap
+    -
+    bury 6
+
+akitaDexCurve_ternary_merge@30:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:429
+    // const newB: uint64 = req.negB ? rB - req.amountB : rB + req.amountB
+    dig 6
+    bz akitaDexCurve_ternary_false@32
+    dup
+    pushint 73
+    extract_uint64
+    dig 3
+    swap
+    -
+    bury 5
+
+akitaDexCurve_ternary_merge@33:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:430
+    // const p0 = pool.priceX64
+    dig 11
+    extract 0 16
+    bury 13
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:432
+    // if (this.mode.value !== CurveModePermissiveSettle) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:432
+    // if (this.mode.value !== CurveModePermissiveSettle) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 9
+    !=
+    bz akitaDexCurve_after_if_else@50
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:433
+    // if (req.negA || req.negB) {
+    dig 10
+    bnz akitaDexCurve_if_body@36
+    dig 6
+    bz akitaDexCurve_else_body@44
+
+akitaDexCurve_if_body@36:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:435
+    // const gain = gainIsA ? req.amountA : req.amountB
+    dig 6
+    bz akitaDexCurve_ternary_false@38
+    dup
+    pushint 65
+    extract_uint64
+
+akitaDexCurve_ternary_merge@39:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:436
+    // const loss = gainIsA ? req.amountB : req.amountA
+    dig 7
+    bz akitaDexCurve_ternary_false@41
+    dig 1
+    pushint 73
+    extract_uint64
+
+akitaDexCurve_ternary_merge@42:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:437
+    // const eGain = gainIsA ? rA : rB
+    dig 4
+    dup
+    dig 7
+    dup
+    cover 2
+    dig 12
+    dup
+    cover 4
+    select
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:438
+    // const eLoss = gainIsA ? rB : rA
+    swap
+    uncover 3
+    uncover 3
+    select
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:439
+    // const fee = mulDivUp(gain, req.feeBps, BpsDivisor)
+    dig 4
+    pushint 97
+    extract_uint64
+    uncover 4
+    dup
+    uncover 2
+    intc 6 // 10000
+    callsub mulDivUp
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:440
+    // loggedAssert(BigUint(eGain + gain - fee) * BigUint(eLoss - loss) >= BigUint(eGain) * BigUint(eLoss), errSettle)
+    dig 3
+    uncover 2
+    +
+    swap
+    -
+    itob
+    dig 1
+    uncover 4
+    -
+    itob
+    b*
+    uncover 2
+    itob
+    uncover 2
+    itob
+    b*
+    b>=
+    bnz akitaDexCurve_after_if_else@50
+    bytec 7 // "ERR:errPdki"
+    log
+    err // ERR:errPdki
+
+akitaDexCurve_after_if_else@50:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:446
+    // if (newA > 0) {
+    dig 5
+    bz akitaDexCurve_after_if_else@52
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:447
+    // pool.priceX64 = priceX64(newA, newB)
+    dig 5
+    dig 5
+    callsub priceX64
+    dig 12
+    swap
+    replace2 0
+    bury 12
+
+akitaDexCurve_after_if_else@52:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:449
+    // if (this.mode.value === CurveModeSettleWrongSide) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:449
+    // if (this.mode.value === CurveModeSettleWrongSide) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_2 // 16
+    ==
+    bz akitaDexCurve_after_if_else@54
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:450
+    // pool.priceX64 = toX64(BigUint(p0) + BigUint(1))
+    dig 12
+    bytec_2 // 0x01
+    b+
+    callsub toX64
+    dig 12
+    swap
+    replace2 0
+    bury 12
+
+akitaDexCurve_after_if_else@54:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:452
+    // pool.settles += 1
+    dig 11
+    dup
+    pushint 32
+    extract_uint64
+    intc_1 // 1
+    +
+    itob
+    replace2 32
+    dup
+    bury 13
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:453
+    // this.pools(req.poolId).value = clone(pool)
+    dig 14
+    swap
+    box_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:454
+    // const reportedB: uint64 = this.mode.value === CurveModeSettleWrongAggregate ? newB + 1 : newB
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:454
+    // const reportedB: uint64 = this.mode.value === CurveModeSettleWrongAggregate ? newB + 1 : newB
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 17
+    ==
+    bz akitaDexCurve_ternary_false@56
+    dig 4
+    intc_1 // 1
+    +
+
+akitaDexCurve_ternary_merge@57:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:455
+    // return this.result(0, 0, 0, 0, newA, reportedB, pool.priceX64)
+    dig 12
+    extract 0 16
+    intc_0 // 0
+    dupn 3
+    dig 11
+    uncover 6
+    uncover 6
+    callsub result
+    b akitaDexCurve_after_if_else@14
+
+akitaDexCurve_ternary_false@56:
+    dig 4
+    b akitaDexCurve_ternary_merge@57
+
+akitaDexCurve_ternary_false@41:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:436
+    // const loss = gainIsA ? req.amountB : req.amountA
+    dig 1
+    pushint 65
+    extract_uint64
+    b akitaDexCurve_ternary_merge@42
+
+akitaDexCurve_ternary_false@38:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:435
+    // const gain = gainIsA ? req.amountA : req.amountB
+    dup
+    pushint 73
+    extract_uint64
+    b akitaDexCurve_ternary_merge@39
+
+akitaDexCurve_else_body@44:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:442
+    // loggedAssert(rA > 0 && rB > 0, errSettle)
+    dig 3
+    bz akitaDexCurve_bool_false@47
+    dig 2
+    bz akitaDexCurve_bool_false@47
+    intc_1 // 1
+
+akitaDexCurve_bool_merge@48:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:442
+    // loggedAssert(rA > 0 && rB > 0, errSettle)
+    bnz akitaDexCurve_after_if_else@50
+    bytec 7 // "ERR:errPdki"
+    log
+    err // ERR:errPdki
+
+akitaDexCurve_bool_false@47:
+    intc_0 // 0
+    b akitaDexCurve_bool_merge@48
+
+akitaDexCurve_ternary_false@32:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:429
+    // const newB: uint64 = req.negB ? rB - req.amountB : rB + req.amountB
+    dup
+    pushint 73
+    extract_uint64
+    dig 3
+    +
+    bury 5
+    b akitaDexCurve_ternary_merge@33
+
+akitaDexCurve_ternary_false@29:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:428
+    // const newA: uint64 = req.negA ? rA - req.amountA : rA + req.amountA
+    dup
+    pushint 65
+    extract_uint64
+    dig 4
+    +
+    bury 6
+    b akitaDexCurve_ternary_merge@30
+
+akitaDexCurve_bool_false@24:
+    intc_0 // 0
+    b akitaDexCurve_bool_merge@25
+
+akitaDexCurve_bool_false@18:
+    intc_0 // 0
+    b akitaDexCurve_bool_merge@19
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.akitaDexCurveFunded[routing]() -> void:
+akitaDexCurveFunded:
+    intc_0 // 0
+    dup
+    pushbytes ""
+    dupn 4
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:182
+    // akitaDexCurveFunded(mbr: gtxn.PaymentTxn, req: CurveRequest): CurveResult {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    dup
+    len
+    dig 1
+    intc 4 // 137
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 139
+    ==
+    assert // invalid tail pointer at index 17 of (uint64,uint64,uint8[32],uint64,bool1,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(len+uint8[]))
+    uncover 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 141
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/curve-interface.ts::CurveRequest
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:183
+    // loggedAssert(this.mode.value !== CurveModeRevertAll, errRevert)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:183
+    // loggedAssert(this.mode.value !== CurveModeRevertAll, errRevert)
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 10
+    !=
+    bnz akitaDexCurveFunded_after_assert@3
+    bytec 13 // "ERR:errMcrv"
+    log
+    err // ERR:errMcrv
+
+akitaDexCurveFunded_after_assert@3:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:184
+    // requireVault(this.vault.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:110
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec 8 // "vault"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:184
+    // requireVault(this.vault.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    callsub requireVault
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:185
+    // loggedAssert(mbr.receiver === Global.currentApplicationAddress, errMbr)
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    bnz akitaDexCurveFunded_after_assert@5
+    bytec 16 // "ERR:errMcmb"
+    log
+    err // ERR:errMcmb
+
+akitaDexCurveFunded_after_assert@5:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:186
+    // this.record(req)
+    dig 1
+    callsub record
+    dup
+    bury 3
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:187
+    // const before = Global.currentApplicationAddress.minBalance
+    global CurrentApplicationAddress
+    acct_params_get AcctMinBalance
+    swap
+    cover 3
+    assert // account funded
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:189
+    // if (req.op === CurveOpInit) {
+    intc_0 // 0
+    extract_uint64
+    dup
+    intc_1 // 1
+    ==
+    bz akitaDexCurveFunded_else_body@7
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:241
+    // loggedAssert(!this.pools(req.poolId).exists && req.args.length === 16, errArgs)
+    dig 2
+    extract 8 8
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    bury 10
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:241
+    // loggedAssert(!this.pools(req.poolId).exists && req.args.length === 16, errArgs)
+    box_len
+    bury 1
+    bnz akitaDexCurveFunded_bool_false@61
+    dig 2
+    dup
+    intc 4 // 137
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    len
+    intc_2 // 16
+    ==
+    bz akitaDexCurveFunded_bool_false@61
+    intc_1 // 1
+
+akitaDexCurveFunded_bool_merge@62:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:241
+    // loggedAssert(!this.pools(req.poolId).exists && req.args.length === 16, errArgs)
+    bnz akitaDexCurveFunded_after_assert@64
+    bytec_3 // "ERR:errMcar"
+    log
+    err // ERR:errMcar
+
+akitaDexCurveFunded_after_assert@64:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:242
+    // const initA = op.extractUint64(req.args, 0)
+    dig 2
+    dup
+    intc 4 // 137
+    extract_uint16
+    dig 1
+    len
+    substring3
+    extract 2 0
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    cover 2
+    cover 3
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:243
+    // const initB = op.extractUint64(req.args, 8)
+    intc_3 // 8
+    extract_uint64
+    swap
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:244
+    // loggedAssert(initA > 0 && initB > 0, errArgs)
+    bz akitaDexCurveFunded_bool_false@67
+    dup
+    bz akitaDexCurveFunded_bool_false@67
+    intc_1 // 1
+
+akitaDexCurveFunded_bool_merge@68:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:244
+    // loggedAssert(initA > 0 && initB > 0, errArgs)
+    bnz akitaDexCurveFunded_after_assert@70
+    bytec_3 // "ERR:errMcar"
+    log
+    err // ERR:errMcar
+
+akitaDexCurveFunded_after_assert@70:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:245
+    // const price = priceX64(initA, initB)
+    uncover 2
+    swap
+    callsub priceX64
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:246
+    // this.pools(req.poolId).value = { priceX64: price, totalShares: 0, swaps: 0, settles: 0 }
+    intc_0 // 0
+    itob
+    dup2
+    concat
+    dig 1
+    concat
+    swap
+    concat
+    dig 10
+    swap
+    box_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:247
+    // const reserveA: uint64 = this.mode.value === CurveModeInitNonZero ? 1 : 0
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:247
+    // const reserveA: uint64 = this.mode.value === CurveModeInitNonZero ? 1 : 0
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_3 // 8
+    ==
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:248
+    // return this.result(0, 0, 0, 0, reserveA, 0, price)
+    intc_0 // 0
+    dupn 3
+    uncover 4
+    intc_0 // 0
+    uncover 6
+    callsub result
+
+akitaDexCurveFunded_after_if_else@10:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:195
+    // const after = Global.currentApplicationAddress.minBalance
+    global CurrentApplicationAddress
+    acct_params_get AcctMinBalance
+    swap
+    dup
+    uncover 2
+    assert // account funded
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:196
+    // const used: uint64 = after > before ? after - before : 0
+    dig 4
+    >
+    bz akitaDexCurveFunded_ternary_false@12
+    uncover 3
+    -
+    cover 2
+
+akitaDexCurveFunded_ternary_merge@13:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:197
+    // loggedAssert(mbr.amount >= used, errMbr)
+    swap
+    gtxns Amount
+    dup
+    bury 7
+    dig 2
+    >=
+    bnz akitaDexCurveFunded_after_assert@15
+    bytec 16 // "ERR:errMcmb"
+    log
+    err // ERR:errMcmb
+
+akitaDexCurveFunded_after_assert@15:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:198
+    // if (mbr.amount > used) {
+    dig 5
+    dig 2
+    >
+    bz akitaDexCurveFunded_after_if_else@18
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:199
+    // itxn.payment({ receiver: req.owner, amount: mbr.amount - used }).submit()
+    itxn_begin
+    dig 2
+    extract 16 32
+    dig 6
+    dig 3
+    -
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+akitaDexCurveFunded_after_if_else@18:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:201
+    // r.mbrUsed = used
+    swap
+    itob
+    replace2 128
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:202
+    // this.burn()
+    callsub burn
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:182
+    // akitaDexCurveFunded(mbr: gtxn.PaymentTxn, req: CurveRequest): CurveResult {
+    bytec 5 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+akitaDexCurveFunded_ternary_false@12:
+    pop
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:196
+    // const used: uint64 = after > before ? after - before : 0
+    intc_0 // 0
+    cover 2
+    b akitaDexCurveFunded_ternary_merge@13
+
+akitaDexCurveFunded_bool_false@67:
+    intc_0 // 0
+    b akitaDexCurveFunded_bool_merge@68
+
+akitaDexCurveFunded_bool_false@61:
+    intc_0 // 0
+    b akitaDexCurveFunded_bool_merge@62
+
+akitaDexCurveFunded_else_body@7:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:192
+    // loggedAssert(req.op === CurveOpAdd, errOp)
+    pushint 4
+    ==
+    bnz akitaDexCurveFunded_after_assert@9
+    bytec 15 // "ERR:errMcop"
+    log
+    err // ERR:errMcop
+
+akitaDexCurveFunded_after_assert@9:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:316
+    // const pool = clone(this.pools(req.poolId).value)
+    dig 2
+    intc_3 // 8
+    extract_uint64
+    dup
+    bury 8
+    itob
+    dup
+    bury 11
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    bury 10
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:316
+    // const pool = clone(this.pools(req.poolId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:317
+    // const fungible = this.lpMode.value === LpModeFungible
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:111
+    // lpMode = GlobalState<uint64>({ key: 'lp_mode' })
+    bytec 9 // "lp_mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:317
+    // const fungible = this.lpMode.value === LpModeFungible
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    cover 4
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:318
+    // const supply: uint64 = fungible ? req.lpSupply : pool.totalShares
+    bnz akitaDexCurveFunded_ternary_false@21
+    dig 4
+    pushint 89
+    extract_uint64
+    cover 2
+
+akitaDexCurveFunded_ternary_merge@22:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:319
+    // const rA = req.reserveA
+    dig 5
+    dup
+    pushint 121
+    extract_uint64
+    cover 6
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:320
+    // const rB = req.reserveB
+    dup
+    intc 5 // 129
+    extract_uint64
+    cover 7
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:322
+    // let usedA = req.amountA
+    dup
+    pushint 65
+    extract_uint64
+    bury 11
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:323
+    // let usedB = req.amountB
+    pushint 73
+    extract_uint64
+    bury 9
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:325
+    // if (supply === 0) {
+    dig 2
+    bnz akitaDexCurveFunded_else_body@31
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:327
+    // const p = BigUint(pool.priceX64)
+    dup
+    extract 0 16
+    dup
+    cover 5
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:328
+    // const needB = op.btoi(Bytes((BigUint(usedA) * p + q64One() - BigUint(1)) / q64One()))
+    dig 10
+    itob
+    b*
+    // smart_contracts/plugin-dex/math.ts:28
+    // return BigUint(Bytes.fromHex('010000000000000000'))
+    bytec 4 // 0x010000000000000000
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:328
+    // const needB = op.btoi(Bytes((BigUint(usedA) * p + q64One() - BigUint(1)) / q64One()))
+    b+
+    bytec_2 // 0x01
+    b-
+    // smart_contracts/plugin-dex/math.ts:28
+    // return BigUint(Bytes.fromHex('010000000000000000'))
+    bytec 4 // 0x010000000000000000
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:328
+    // const needB = op.btoi(Bytes((BigUint(usedA) * p + q64One() - BigUint(1)) / q64One()))
+    b/
+    btoi
+    dup
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:329
+    // if (needB <= usedB) {
+    dig 10
+    <=
+    bz akitaDexCurveFunded_else_body@25
+    uncover 5
+    pop
+    bury 8
+
+akitaDexCurveFunded_after_if_else@26:
+    // smart_contracts/plugin-dex/math.ts:21
+    // return op.btoi(Bytes(op.bsqrt(BigUint(a) * BigUint(b))))
+    dig 8
+    itob
+    dig 8
+    itob
+    b*
+    bsqrt
+    btoi
+    cover 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:335
+    // if (fungible) {
+    dig 3
+    bnz akitaDexCurveFunded_after_if_else@41
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:336
+    // loggedAssert(shares > MinimumLiquidity, errArgs)
+    dig 2
+    pushint 1000
+    >
+    bnz akitaDexCurveFunded_after_assert@29
+    bytec_3 // "ERR:errMcar"
+    log
+    err // ERR:errMcar
+
+akitaDexCurveFunded_after_assert@29:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:337
+    // shares = shares - MinimumLiquidity
+    uncover 2
+    pushint 1000
+    -
+    cover 2
+
+akitaDexCurveFunded_after_if_else@41:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:353
+    // if (this.mode.value === CurveModeOverMint) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:353
+    // if (this.mode.value === CurveModeOverMint) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 6
+    ==
+    bz akitaDexCurveFunded_after_if_else@43
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:354
+    // shares += 1
+    uncover 2
+    intc_1 // 1
+    +
+    cover 2
+
+akitaDexCurveFunded_after_if_else@43:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:357
+    // let positionId: uint64 = 0
+    intc_0 // 0
+    bury 13
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:358
+    // if (!fungible) {
+    uncover 3
+    bz akitaDexCurveFunded_after_if_else@54
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:359
+    // positionId = req.positionId
+    dig 6
+    pushint 48
+    extract_uint64
+    dup
+    bury 13
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:360
+    // if (positionId === 0) {
+    bnz akitaDexCurveFunded_else_body@46
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:361
+    // positionId = this.positionCursor.value + 1
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:115
+    // positionCursor = GlobalState<uint64>({ key: 'position_cursor' })
+    bytec 10 // "position_cursor"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:361
+    // positionId = this.positionCursor.value + 1
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_1 // 1
+    +
+    dup
+    bury 13
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:115
+    // positionCursor = GlobalState<uint64>({ key: 'position_cursor' })
+    bytec 10 // "position_cursor"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:362
+    // this.positionCursor.value = positionId
+    dig 1
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:363
+    // this.positions(positionId).value = { poolId: req.poolId, owner: req.owner, shares }
+    dig 7
+    extract 16 32
+    dig 15
+    swap
+    concat
+    dig 4
+    itob
+    concat
+    swap
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:118
+    // positions = BoxMap<uint64, MockCurvePosition>({ keyPrefix: 'q' })
+    bytec 6 // "q"
+    swap
+    concat
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:363
+    // this.positions(positionId).value = { poolId: req.poolId, owner: req.owner, shares }
+    swap
+    box_put
+
+akitaDexCurveFunded_after_if_else@53:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:370
+    // pool.totalShares += shares
+    dup
+    intc_2 // 16
+    extract_uint64
+    dig 3
+    +
+    itob
+    swap
+    dig 1
+    replace2 16
+    swap
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:370-371
+    // pool.totalShares += shares
+    // this.pools(req.poolId).value = clone(pool)
+    dig 13
+    intc_2 // 16
+    uncover 2
+    box_replace // on error: index out of bounds
+
+akitaDexCurveFunded_after_if_else@54:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:374
+    // let price = pool.priceX64
+    extract 0 16
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:375
+    // if (this.mode.value === CurveModeAddMovesPrice) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:375
+    // if (this.mode.value === CurveModeAddMovesPrice) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 7
+    ==
+    bz akitaDexCurveFunded_after_if_else@56
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:376
+    // price = toX64(BigUint(price) + BigUint(1))
+    bytec_2 // 0x01
+    b+
+    callsub toX64
+
+akitaDexCurveFunded_after_if_else@56:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:378
+    // return this.result(usedA, usedB, shares, positionId, rA + usedA, rB + usedB, price)
+    uncover 4
+    dig 8
+    dup
+    cover 2
+    +
+    uncover 6
+    dig 8
+    dup
+    cover 2
+    +
+    uncover 3
+    uncover 2
+    uncover 6
+    dig 13
+    uncover 5
+    uncover 5
+    uncover 6
+    callsub result
+    b akitaDexCurveFunded_after_if_else@10
+
+akitaDexCurveFunded_else_body@46:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:365
+    // const position = clone(this.positions(positionId).value)
+    dig 11
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:118
+    // positions = BoxMap<uint64, MockCurvePosition>({ keyPrefix: 'q' })
+    bytec 6 // "q"
+    swap
+    concat
+    dup
+    cover 6
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:365
+    // const position = clone(this.positions(positionId).value)
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:366
+    // loggedAssert(position.owner === req.owner && position.poolId === req.poolId, errPosition)
+    extract 8 32
+    dig 9
+    extract 16 32
+    ==
+    bz akitaDexCurveFunded_bool_false@49
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 13
+    ==
+    bz akitaDexCurveFunded_bool_false@49
+    intc_1 // 1
+
+akitaDexCurveFunded_bool_merge@50:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:366
+    // loggedAssert(position.owner === req.owner && position.poolId === req.poolId, errPosition)
+    bnz akitaDexCurveFunded_after_assert@52
+    bytec 14 // "ERR:errMcps"
+    log
+    err // ERR:errMcps
+
+akitaDexCurveFunded_after_assert@52:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:367
+    // position.shares += shares
+    pushint 40
+    extract_uint64
+    dig 3
+    +
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:367-368
+    // position.shares += shares
+    // this.positions(positionId).value = clone(position)
+    uncover 6
+    pushint 40
+    uncover 2
+    box_replace // on error: index out of bounds
+    b akitaDexCurveFunded_after_if_else@53
+
+akitaDexCurveFunded_bool_false@49:
+    intc_0 // 0
+    b akitaDexCurveFunded_bool_merge@50
+
+akitaDexCurveFunded_else_body@25:
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:332
+    // usedA = op.btoi(Bytes((BigUint(usedB) * q64One()) / p))
+    dig 8
+    itob
+    // smart_contracts/plugin-dex/math.ts:28
+    // return BigUint(Bytes.fromHex('010000000000000000'))
+    bytec 4 // 0x010000000000000000
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:332
+    // usedA = op.btoi(Bytes((BigUint(usedB) * q64One()) / p))
+    b*
+    uncover 5
+    b/
+    btoi
+    bury 9
+    b akitaDexCurveFunded_after_if_else@26
+
+akitaDexCurveFunded_else_body@31:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:340
+    // loggedAssert(rA > 0 && rB > 0, errArgs)
+    dig 5
+    bz akitaDexCurveFunded_bool_false@34
+    dig 6
+    bz akitaDexCurveFunded_bool_false@34
+    intc_1 // 1
+
+akitaDexCurveFunded_bool_merge@35:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:340
+    // loggedAssert(rA > 0 && rB > 0, errArgs)
+    bnz akitaDexCurveFunded_after_assert@37
+    bytec_3 // "ERR:errMcar"
+    log
+    err // ERR:errMcar
+
+akitaDexCurveFunded_after_assert@37:
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    dig 9
+    uncover 3
+    dup
+    cover 2
+    mulw
+    dig 7
+    divw
+    dup
+    cover 2
+    cover 8
+    dig 10
+    mulw
+    dig 8
+    divw
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:343
+    // if (fromA <= fromB) {
+    <=
+    bz akitaDexCurveFunded_else_body@39
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:345
+    // const needB = mulDivUp(usedA, rB, rA)
+    dig 9
+    dig 6
+    dig 6
+    callsub mulDivUp
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:346
+    // usedB = needB < usedB ? needB : usedB
+    dup
+    dig 10
+    dup
+    cover 2
+    <
+    swap
+    cover 2
+    select
+    bury 9
+    uncover 6
+    cover 2
+    b akitaDexCurveFunded_after_if_else@41
+
+akitaDexCurveFunded_else_body@39:
+    uncover 7
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:349
+    // const needA = mulDivUp(usedB, rA, rB)
+    dig 8
+    dig 6
+    dig 8
+    callsub mulDivUp
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:350
+    // usedA = needA < usedA ? needA : usedA
+    dup
+    dig 11
+    dup
+    cover 2
+    <
+    swap
+    cover 2
+    select
+    bury 10
+    cover 2
+    b akitaDexCurveFunded_after_if_else@41
+
+akitaDexCurveFunded_bool_false@34:
+    intc_0 // 0
+    b akitaDexCurveFunded_bool_merge@35
+
+akitaDexCurveFunded_ternary_false@21:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:318
+    // const supply: uint64 = fungible ? req.lpSupply : pool.totalShares
+    dup
+    intc_2 // 16
+    extract_uint64
+    cover 2
+    b akitaDexCurveFunded_ternary_merge@22
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.burn() -> void:
+burn:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:175
+    // if (this.mode.value === CurveModeBurnBudget) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:175
+    // if (this.mode.value === CurveModeBurnBudget) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 13
+    ==
+    bz burn_after_if_else@5
+
+burn_while_top@2:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:176
+    // while (Global.opcodeBudget > BurnFloor) {
+    global OpcodeBudget
+    pushint 100
+    >
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:176-178
+    // while (Global.opcodeBudget > BurnFloor) {
+    //   op.sha256(op.itob(Global.opcodeBudget))
+    // }
+    bnz burn_while_top@2
+
+burn_after_if_else@5:
+    retsub
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.record(req: bytes) -> bytes:
+record:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:208
+    // private record(req: CurveRequest): void {
+    proto 1 1
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:209
+    // this.lastOp.value = req.op
+    frame_dig -1
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:113
+    // lastOp = GlobalState<uint64>({ key: 'last_op' })
+    bytec 11 // "last_op"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:209
+    // this.lastOp.value = req.op
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:210
+    // this.lastPoolId.value = req.poolId
+    frame_dig -1
+    intc_3 // 8
+    extract_uint64
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:114
+    // lastPoolId = GlobalState<uint64>({ key: 'last_pool' })
+    bytec 12 // "last_pool"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:210
+    // this.lastPoolId.value = req.poolId
+    swap
+    app_global_put
+    frame_dig -1
+    retsub
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.result(amountA: uint64, amountB: uint64, shares: uint64, positionId: uint64, reserveA: uint64, reserveB: uint64, price: bytes) -> bytes:
+result:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:213-221
+    // private result(
+    //   amountA: uint64,
+    //   amountB: uint64,
+    //   shares: uint64,
+    //   positionId: uint64,
+    //   reserveA: uint64,
+    //   reserveB: uint64,
+    //   price: bytes<16>,
+    // ): CurveResult {
+    proto 7 1
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:233
+    // snapshot: { priceX64: price, activeId: 0, liquidity: reserveB, flags: 0 },
+    intc_0 // 0
+    itob
+    frame_dig -1
+    dig 1
+    concat
+    frame_dig -2
+    itob
+    swap
+    dig 1
+    concat
+    dig 2
+    concat
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:236
+    // hookData: op.itob(positionId),
+    frame_dig -4
+    itob
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:222-237
+    // return {
+    //   amountIn: 0,
+    //   amountOut: 0,
+    //   amountA,
+    //   amountB,
+    //   lpFee: 0,
+    //   protocolFee: 0,
+    //   shares,
+    //   positionId,
+    //   reserveA,
+    //   reserveB,
+    //   snapshot: { priceX64: price, activeId: 0, liquidity: reserveB, flags: 0 },
+    //   flags: 0,
+    //   mbrUsed: 0,
+    //   hookData: op.itob(positionId),
+    // }
+    frame_dig -7
+    itob
+    pushbytes 0x00000000000000000000000000000000
+    swap
+    concat
+    frame_dig -6
+    itob
+    concat
+    dig 4
+    concat
+    dig 4
+    concat
+    frame_dig -5
+    itob
+    concat
+    dig 1
+    concat
+    frame_dig -3
+    itob
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    dig 2
+    concat
+    uncover 2
+    concat
+    pushbytes 0x0008
+    uncover 2
+    concat
+    swap
+    pushbytes 0x008a
+    concat
+    swap
+    concat
+    retsub
+
+
+// smart_contracts/plugin-dex/tests/mock-curve.algo.ts::MockCurve.swapOp(req: bytes, commit: uint64) -> bytes, bytes:
+swapOp:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:252
+    // private swapOp(req: CurveRequest, commit: boolean): CurveResult {
+    proto 2 2
+    intc_0 // 0
+    pushbytes ""
+    dupn 3
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:253
+    // const pool = clone(this.pools(req.poolId).value)
+    frame_dig -2
+    extract 8 8
+    dup
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:117
+    // pools = BoxMap<uint64, MockCurvePool>({ keyPrefix: 'p' })
+    bytec_1 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:253
+    // const pool = clone(this.pools(req.poolId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:254
+    // const mode = this.mode.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:112
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:254
+    // const mode = this.mode.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:255
+    // const rIn: uint64 = req.inIsA ? req.reserveA : req.reserveB
+    frame_dig -2
+    pushint 448
+    getbit
+    dup
+    bz swapOp_ternary_false@2
+    frame_dig -2
+    pushint 121
+    extract_uint64
+
+swapOp_ternary_merge@3:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:256
+    // const rOut: uint64 = req.inIsA ? req.reserveB : req.reserveA
+    frame_dig 9
+    bz swapOp_ternary_false@5
+    frame_dig -2
+    intc 5 // 129
+    extract_uint64
+    swap
+
+swapOp_ternary_merge@6:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:257
+    // const net = req.amountIn
+    frame_dig -2
+    extract 57 8
+    cover 2
+    frame_dig -2
+    pushint 57
+    extract_uint64
+    dup
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:259
+    // let lpFee = mulDiv(net, req.feeBps, BpsDivisor)
+    frame_dig -2
+    pushint 97
+    extract_uint64
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    mulw
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:259
+    // let lpFee = mulDiv(net, req.feeBps, BpsDivisor)
+    intc 6 // 10000
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    divw
+    frame_bury 3
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:260
+    // if (mode === CurveModeLpFeeAboveMax) {
+    frame_dig 8
+    pushint 4
+    ==
+    bz swapOp_after_if_else@8
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:261
+    // lpFee = mulDivUp(net, req.maxFeeBps, BpsDivisor) + 1
+    frame_dig -2
+    pushint 105
+    extract_uint64
+    dig 1
+    swap
+    intc 6 // 10000
+    callsub mulDivUp
+    intc_1 // 1
+    +
+    frame_bury 3
+
+swapOp_after_if_else@8:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:263
+    // let protocolFee = mulDiv(lpFee, req.protocolFeeBps, BpsDivisor)
+    frame_dig -2
+    pushint 113
+    extract_uint64
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    frame_dig 3
+    mulw
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:263
+    // let protocolFee = mulDiv(lpFee, req.protocolFeeBps, BpsDivisor)
+    intc 6 // 10000
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    divw
+    cover 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:264
+    // if (mode === CurveModeProtocolFeeBelowFloor) {
+    frame_dig 8
+    pushint 5
+    ==
+    bz swapOp_after_if_else@10
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:265
+    // protocolFee = protocolFee - 1
+    uncover 2
+    intc_1 // 1
+    -
+    cover 2
+
+swapOp_after_if_else@10:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:267
+    // const effective: uint64 = net - lpFee
+    dup
+    frame_dig 3
+    -
+    dup
+    frame_bury 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:268
+    // let out: uint64 = 0
+    intc_0 // 0
+    frame_bury 4
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:269
+    // if (rIn + effective > 0) {
+    dig 2
+    +
+    dup
+    frame_bury 1
+    bz swapOp_after_if_else@12
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    frame_dig 2
+    dig 4
+    mulw
+    frame_dig 1
+    divw
+    frame_bury 4
+
+swapOp_after_if_else@12:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:272
+    // if (mode === CurveModeBetterThanBand) {
+    frame_dig 8
+    pushint 2
+    ==
+    bz swapOp_after_if_else@17
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:273
+    // const p0 = BigUint(pool.priceX64)
+    frame_dig 7
+    extract 0 16
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:274
+    // const fair: biguint = req.inIsA ? (BigUint(effective) * p0) / q64One() : (BigUint(effective) * q64One()) / p0
+    frame_dig 9
+    bz swapOp_ternary_false@15
+    frame_dig 2
+    itob
+    b*
+    // smart_contracts/plugin-dex/math.ts:28
+    // return BigUint(Bytes.fromHex('010000000000000000'))
+    bytec 4 // 0x010000000000000000
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:274
+    // const fair: biguint = req.inIsA ? (BigUint(effective) * p0) / q64One() : (BigUint(effective) * q64One()) / p0
+    b/
+
+swapOp_ternary_merge@16:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:275
+    // out = op.btoi(Bytes(fair)) + 2
+    btoi
+    pushint 2
+    +
+    frame_bury 4
+
+swapOp_after_if_else@17:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:278
+    // const r = this.result(0, 0, 0, 0, 0, 0, pool.priceX64)
+    frame_dig 7
+    extract 0 16
+    dup
+    frame_bury 0
+    intc_0 // 0
+    dupn 5
+    uncover 6
+    callsub result
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:279
+    // r.amountIn = net
+    uncover 5
+    replace2 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:280
+    // if (out === 0 || out >= rOut || (mode === CurveModeQuoteZero && !commit)) {
+    frame_dig 4
+    bz swapOp_if_body@21
+    frame_dig 4
+    dig 5
+    >=
+    bnz swapOp_if_body@21
+    frame_dig 8
+    pushint 11
+    ==
+    bz swapOp_after_if_else@22
+    frame_dig -1
+    bnz swapOp_after_if_else@22
+
+swapOp_if_body@21:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:282
+    // return r
+    frame_dig -2
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+swapOp_after_if_else@22:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:285
+    // const newIn: uint64 = rIn + net - protocolFee
+    cover 2
+    +
+    dig 2
+    -
+    swap
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:286
+    // let newOut: uint64 = rOut - out
+    uncover 3
+    frame_dig 4
+    -
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:287
+    // if (mode === CurveModeWrongAggregate) {
+    frame_dig 8
+    intc_1 // 1
+    ==
+    bz swapOp_after_if_else@24
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:288
+    // newOut += 1
+    intc_1 // 1
+    +
+
+swapOp_after_if_else@24:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:290
+    // const reserveA = req.inIsA ? newIn : newOut
+    dup
+    uncover 3
+    dup
+    cover 2
+    frame_dig 9
+    dup
+    cover 4
+    select
+    dup
+    cover 4
+    cover 6
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:291
+    // const reserveB = req.inIsA ? newOut : newIn
+    cover 2
+    select
+    dup
+    cover 4
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:292
+    // let price = priceX64(reserveA, reserveB)
+    callsub priceX64
+    cover 2
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:293
+    // if (mode === CurveModePriceWrongSide) {
+    frame_dig 8
+    pushint 3
+    ==
+    bz swapOp_after_if_else@29
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:295
+    // price = req.inIsA ? toX64(p0 + BigUint(1)) : toX64(p0 - BigUint(1))
+    frame_dig 9
+    bz swapOp_ternary_false@27
+    frame_dig 0
+    bytec_2 // 0x01
+    b+
+    callsub toX64
+    cover 2
+
+swapOp_after_if_else@29:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:298
+    // if (commit) {
+    frame_dig -1
+    bz swapOp_after_if_else@31
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:299
+    // pool.priceX64 = price
+    frame_dig 7
+    dig 3
+    replace2 0
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:300
+    // pool.swaps += 1
+    dup
+    pushint 24
+    extract_uint64
+    intc_1 // 1
+    +
+    itob
+    replace2 24
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:301
+    // this.pools(req.poolId).value = clone(pool)
+    frame_dig 6
+    swap
+    box_put
+
+swapOp_after_if_else@31:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:303
+    // r.amountOut = out
+    frame_dig 4
+    itob
+    replace2 8
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:304
+    // r.lpFee = lpFee
+    frame_dig 3
+    itob
+    replace2 32
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:305
+    // r.protocolFee = protocolFee
+    swap
+    itob
+    replace2 40
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:306
+    // r.reserveA = reserveA
+    uncover 3
+    itob
+    replace2 64
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:307
+    // r.reserveB = reserveB
+    uncover 2
+    itob
+    swap
+    dig 1
+    replace2 72
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:308
+    // r.snapshot = { priceX64: price, activeId: 0, liquidity: reserveB, flags: 0 }
+    intc_0 // 0
+    itob
+    uncover 3
+    dig 1
+    concat
+    uncover 3
+    concat
+    swap
+    concat
+    replace2 80
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:309
+    // r.flags = commit && mode === CurveModeClose ? CurveFlagClose : 0
+    frame_dig -1
+    bz swapOp_bool_false@34
+    frame_dig 8
+    pushint 12
+    ==
+    bz swapOp_bool_false@34
+    intc_1 // 1
+
+swapOp_bool_merge@35:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:309
+    // r.flags = commit && mode === CurveModeClose ? CurveFlagClose : 0
+    itob
+    replace2 120
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:310
+    // r.hookData = op.itob(req.poolId)
+    frame_dig 5
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    dig 1
+    pushint 136
+    extract_uint16
+    uncover 2
+    intc_0 // 0
+    uncover 2
+    extract3
+    swap
+    concat
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:311
+    // return r
+    frame_dig -2
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+swapOp_bool_false@34:
+    intc_0 // 0
+    b swapOp_bool_merge@35
+
+swapOp_ternary_false@27:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:295
+    // price = req.inIsA ? toX64(p0 + BigUint(1)) : toX64(p0 - BigUint(1))
+    frame_dig 0
+    bytec_2 // 0x01
+    b-
+    callsub toX64
+    cover 2
+    b swapOp_after_if_else@29
+
+swapOp_ternary_false@15:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:274
+    // const fair: biguint = req.inIsA ? (BigUint(effective) * p0) / q64One() : (BigUint(effective) * q64One()) / p0
+    frame_dig 2
+    itob
+    // smart_contracts/plugin-dex/math.ts:28
+    // return BigUint(Bytes.fromHex('010000000000000000'))
+    bytec 4 // 0x010000000000000000
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:274
+    // const fair: biguint = req.inIsA ? (BigUint(effective) * p0) / q64One() : (BigUint(effective) * q64One()) / p0
+    b*
+    swap
+    b/
+    b swapOp_ternary_merge@16
+
+swapOp_ternary_false@5:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:256
+    // const rOut: uint64 = req.inIsA ? req.reserveB : req.reserveA
+    frame_dig -2
+    pushint 121
+    extract_uint64
+    swap
+    b swapOp_ternary_merge@6
+
+swapOp_ternary_false@2:
+    // smart_contracts/plugin-dex/tests/mock-curve.algo.ts:255
+    // const rIn: uint64 = req.inIsA ? req.reserveA : req.reserveB
+    frame_dig -2
+    intc 5 // 129
+    extract_uint64
+    b swapOp_ternary_merge@3

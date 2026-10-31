@@ -1,0 +1,97 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 32 1
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:8
+    // export class MockSocialImpact extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x25f1cb54 0xd574bb10 // method "setImpact(address,uint64)void", method "getUserImpact(address)uint64"
+    txna ApplicationArgs 0
+    match setImpact getUserImpact
+    err
+
+main___algots__.defaultCreate@9:
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:8
+    // export class MockSocialImpact extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts::MockSocialImpact.setImpact[routing]() -> void:
+setImpact:
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:11
+    // setImpact(account: Account, impact: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:9
+    // impacts = BoxMap<Account, uint64>({ keyPrefix: 'i' })
+    pushbytes "i"
+    uncover 2
+    concat
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:12
+    // this.impacts(account).value = impact
+    swap
+    itob
+    box_put
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:11
+    // setImpact(account: Account, impact: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts::MockSocialImpact.getUserImpact[routing]() -> void:
+getUserImpact:
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:15
+    // getUserImpact(address: Account): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:9
+    // impacts = BoxMap<Account, uint64>({ keyPrefix: 'i' })
+    pushbytes "i"
+    swap
+    concat
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:16
+    // return this.impacts(address).get({ default: 0 })
+    box_get
+    swap
+    btoi
+    pushint 0
+    swap
+    uncover 2
+    select
+    // smart_contracts/plugin-dex/tests/mock-social-impact.algo.ts:15
+    // getUserImpact(address: Account): uint64 {
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

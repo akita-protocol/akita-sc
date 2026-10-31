@@ -1,0 +1,1351 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 8
+    bytecblock 0x151f7c75 "hook" "akita_dao" "" "aal" "ERR:errHnwl" "spending_address" "ERR:errHnbd"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:26
+    // export class GatedFeePassPlugin extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@9
+    pushbytess 0xfc481023 0x6696535d 0xad033e01 0x204306bc 0x854dede0 // method "openPass(uint64,bool,uint64,byte[][][])(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "refresh(uint64,bool,uint64,byte[][][])(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "refreshFromGate(uint64,bool,uint64,uint64,byte[][])(uint64,uint64,uint64,uint64,address,uint64,uint64)", method "closePass(uint64,bool)void", method "opUp()void"
+    txna ApplicationArgs 0
+    match openPass refresh refreshFromGate closePass main_opUp_route@7
+    err
+
+main_opUp_route@7:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:105
+    // opUp(): void {}
+    intc_1 // 1
+    return
+
+main_create_NoOp@9:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:26
+    // export class GatedFeePassPlugin extends Contract {
+    pushbytes 0xcd9ad67e // method "create(string,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
+isGenuineWallet:
+    // smart_contracts/utils/principal.ts:101
+    // export function isGenuineWallet(wallet: uint64, walletFactory: uint64): boolean {
+    proto 2 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:102
+    // if (wallet === 0 || walletFactory === 0) {
+    frame_dig -2
+    bz isGenuineWallet_if_body@2
+    frame_dig -1
+    bnz isGenuineWallet_after_if_else@3
+
+isGenuineWallet_if_body@2:
+    // smart_contracts/utils/principal.ts:103
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+isGenuineWallet_after_if_else@3:
+    // smart_contracts/utils/principal.ts:105
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    frame_dig -2
+    app_params_get AppCreator
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    bz isGenuineWallet_bool_false@6
+    // smart_contracts/utils/principal.ts:74
+    // return Account(op.sha512_256(Bytes('appID').concat(op.itob(appId))))
+    frame_dig -1
+    itob
+    pushbytes "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    frame_dig 0
+    ==
+    bz isGenuineWallet_bool_false@6
+    intc_1 // 1
+
+isGenuineWallet_bool_merge@7:
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    swap
+    retsub
+
+isGenuineWallet_bool_false@6:
+    intc_0 // 0
+    b isGenuineWallet_bool_merge@7
+
+
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/functions.ts:452
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:33
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:35
+    // const [dao, hasDao] = op.AppGlobal.getExUint64(hook, Bytes('akita_dao'))
+    bytec_2 // "akita_dao"
+    app_global_get_ex
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:36
+    // loggedAssert(hasDao && dao !== 0, errGpHook)
+    bz create_bool_false@4
+    dup
+    bz create_bool_false@4
+    intc_1 // 1
+
+create_bool_merge@5:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:36
+    // loggedAssert(hasDao && dao !== 0, errGpHook)
+    bnz create_after_assert@7
+    pushbytes "ERR:errGpHk"
+    log
+    err // ERR:errGpHk
+
+create_after_assert@7:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:27
+    // version = GlobalState<string>({ key: 'version' })
+    pushbytes "version"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:37
+    // this.version.value = version
+    uncover 3
+    app_global_put
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:29
+    // hook = GlobalState<Application>({ key: 'hook' })
+    bytec_1 // "hook"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:38
+    // this.hook.value = hook
+    uncover 2
+    app_global_put
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:31
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_2 // "akita_dao"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:39
+    // this.akitaDAO.value = Application(dao)
+    swap
+    app_global_put
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:33
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+create_bool_false@4:
+    intc_0 // 0
+    b create_bool_merge@5
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.openPass[routing]() -> void:
+openPass:
+    bytec_3 // ""
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+openPass_for_header@1:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    dup
+    dig 5
+    <
+    bz openPass_after_for@8
+    dup
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    ==
+    assert // invalid tail pointer for (len+(len+(len+uint8[])[])[])
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 13
+    intc_2 // 2
+    *
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+openPass_for_header@3:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    dup
+    dig 14
+    <
+    bz openPass_after_for@6
+    dup
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    cover 3
+    intc_1 // 1
+    +
+    b openPass_for_header@3
+
+openPass_after_for@6:
+    pop
+    bury 1
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    swap
+    intc_2 // 2
+    +
+    uncover 2
+    +
+    swap
+    intc_1 // 1
+    +
+    b openPass_for_header@1
+
+openPass_after_for@8:
+    pop
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    intc_2 // 2
+    +
+    dig 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:48
+    // const p = this.principal(wallet)
+    dig 6
+    dup
+    callsub principal
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:49-54
+    // return abiCall<typeof GatedFeeHook.prototype.openPass>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:52
+    // args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    dup
+    extract 72 32
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:29
+    // hook = GlobalState<Application>({ key: 'hook' })
+    bytec_1 // "hook"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:52
+    // args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    pushint 47700
+    itxn_field Amount
+    itxn_field Receiver
+    dig 1
+    itxn_field Sender
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:49-54
+    // return abiCall<typeof GatedFeeHook.prototype.openPass>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_next
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:52
+    // args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    uncover 2
+    extract 8 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:53
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    dig 9
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    uncover 2
+    itxn_field Sender
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:49-54
+    // return abiCall<typeof GatedFeeHook.prototype.openPass>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [itxn.payment({ sender: p.spender, receiver: this.hook.value.address, amount: PassMbr }), p.principal, measure, gateArgs, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    pushbytes 0x0eb9c717 // method "openPass(pay,address,uint64,byte[][][],uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    dig 4
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
+    dig 7
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 80
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::FeePass
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:47
+    // openPass(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.refresh[routing]() -> void:
+refresh:
+    bytec_3 // ""
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+refresh_for_header@1:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    dup
+    dig 5
+    <
+    bz refresh_after_for@8
+    dup
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    dig 4
+    ==
+    assert // invalid tail pointer for (len+(len+(len+uint8[])[])[])
+    dig 1
+    len
+    substring3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    bury 13
+    intc_2 // 2
+    *
+    cover 2
+    extract 2 0
+    swap
+    intc_0 // 0
+
+refresh_for_header@3:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    dup
+    dig 14
+    <
+    bz refresh_after_for@6
+    dup
+    intc_2 // 2
+    *
+    dig 3
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 6
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    cover 3
+    intc_1 // 1
+    +
+    b refresh_for_header@3
+
+refresh_after_for@6:
+    pop
+    bury 1
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    swap
+    intc_2 // 2
+    +
+    uncover 2
+    +
+    swap
+    intc_1 // 1
+    +
+    b refresh_for_header@1
+
+refresh_after_for@8:
+    pop
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    intc_2 // 2
+    +
+    dig 2
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.dynamic_array<bytes>>
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:59
+    // const p = this.principal(wallet)
+    dig 6
+    dup
+    callsub principal
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:60-65
+    // return abiCall<typeof GatedFeeHook.prototype.refresh>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [p.principal, measure, gateArgs, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:63
+    // args: [p.principal, measure, gateArgs, windowHint(wallet)],
+    dup
+    extract 8 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:61
+    // appId: this.hook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:29
+    // hook = GlobalState<Application>({ key: 'hook' })
+    bytec_1 // "hook"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:61
+    // appId: this.hook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:62
+    // sender: p.spender,
+    uncover 2
+    extract 72 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:64
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    dig 9
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:60-65
+    // return abiCall<typeof GatedFeeHook.prototype.refresh>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [p.principal, measure, gateArgs, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    pushbytes 0x6e57ffb8 // method "refresh(address,uint64,byte[][][],uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    dig 4
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
+    dig 7
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 80
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::FeePass
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:58
+    // refresh(wallet: Application, rekeyBack: boolean, measure: uint64, gateArgs: bytes[][]): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.refreshFromGate[routing]() -> void:
+refreshFromGate:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:74
+    // refreshFromGate(wallet: Application, rekeyBack: boolean, slot: uint64, gateId: uint64, args: GateArgs): FeePass {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 5
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    intc_0 // 0
+
+refreshFromGate_for_header@1:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:74
+    // refreshFromGate(wallet: Application, rekeyBack: boolean, slot: uint64, gateId: uint64, args: GateArgs): FeePass {
+    dup
+    dig 5
+    <
+    bz refreshFromGate_after_for@4
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    +
+    cover 2
+    intc_1 // 1
+    +
+    b refreshFromGate_for_header@1
+
+refreshFromGate_after_for@4:
+    popn 2
+    uncover 2
+    pop
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:74
+    // refreshFromGate(wallet: Application, rekeyBack: boolean, slot: uint64, gateId: uint64, args: GateArgs): FeePass {
+    intc_2 // 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes>
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:75
+    // const p = this.principal(wallet)
+    uncover 2
+    dup
+    callsub principal
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:76-90
+    // return abiCall<typeof GatedFeeHook.prototype.refreshFromGate>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [
+    //     itxn.applicationCall({
+    //       sender: p.spender,
+    //       appId: getAkitaAppList(this.akitaDAO.value).gate,
+    //       appArgs: [methodSelector(GateMustCheckForAbiMethod), encodeArc4(gateCtx(p)), op.itob(gateId), encodeArc4(args)],
+    //     }),
+    //     p.principal,
+    //     slot,
+    //     windowHint(wallet),
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:81
+    // sender: p.spender,
+    dup
+    extract 72 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:82
+    // appId: getAkitaAppList(this.akitaDAO.value).gate,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:31
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_2 // "akita_dao"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:82
+    // appId: getAkitaAppList(this.akitaDAO.value).gate,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec 4 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:82
+    // appId: getAkitaAppList(this.akitaDAO.value).gate,
+    pushint 40
+    extract_uint64
+    // smart_contracts/utils/principal.ts:304
+    // return { principal: p.principal, wallet: p.wallet, spender: p.spender }
+    dig 2
+    extract 8 32
+    uncover 3
+    extract 0 8
+    dig 1
+    swap
+    concat
+    dig 3
+    concat
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:83
+    // appArgs: [methodSelector(GateMustCheckForAbiMethod), encodeArc4(gateCtx(p)), op.itob(gateId), encodeArc4(args)],
+    uncover 6
+    itob
+    pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationID
+    dig 1
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:80-84
+    // itxn.applicationCall({
+    //   sender: p.spender,
+    //   appId: getAkitaAppList(this.akitaDAO.value).gate,
+    //   appArgs: [methodSelector(GateMustCheckForAbiMethod), encodeArc4(gateCtx(p)), op.itob(gateId), encodeArc4(args)],
+    // }),
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:76-90
+    // return abiCall<typeof GatedFeeHook.prototype.refreshFromGate>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [
+    //     itxn.applicationCall({
+    //       sender: p.spender,
+    //       appId: getAkitaAppList(this.akitaDAO.value).gate,
+    //       appArgs: [methodSelector(GateMustCheckForAbiMethod), encodeArc4(gateCtx(p)), op.itob(gateId), encodeArc4(args)],
+    //     }),
+    //     p.principal,
+    //     slot,
+    //     windowHint(wallet),
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_next
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:77
+    // appId: this.hook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:29
+    // hook = GlobalState<Application>({ key: 'hook' })
+    bytec_1 // "hook"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:77
+    // appId: this.hook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:89
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 5
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    uncover 2
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:76-90
+    // return abiCall<typeof GatedFeeHook.prototype.refreshFromGate>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [
+    //     itxn.applicationCall({
+    //       sender: p.spender,
+    //       appId: getAkitaAppList(this.akitaDAO.value).gate,
+    //       appArgs: [methodSelector(GateMustCheckForAbiMethod), encodeArc4(gateCtx(p)), op.itob(gateId), encodeArc4(args)],
+    //     }),
+    //     p.principal,
+    //     slot,
+    //     windowHint(wallet),
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    pushbytes 0xcb0cad86 // method "refreshFromGate(appl,address,uint64,uint64)(uint64,uint64,uint64,uint64,address,uint64,uint64)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 80
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::FeePass
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:74
+    // refreshFromGate(wallet: Application, rekeyBack: boolean, slot: uint64, gateId: uint64, args: GateArgs): FeePass {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.closePass[routing]() -> void:
+closePass:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:94
+    // closePass(wallet: Application, rekeyBack: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:95
+    // const p = this.principal(wallet)
+    dig 1
+    callsub principal
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:96-101
+    // abiCall<typeof GatedFeeHook.prototype.closePass>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [p.principal, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:99
+    // args: [p.principal, windowHint(wallet)],
+    dup
+    extract 8 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:97
+    // appId: this.hook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:29
+    // hook = GlobalState<Application>({ key: 'hook' })
+    bytec_1 // "hook"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:97
+    // appId: this.hook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:98
+    // sender: p.spender,
+    uncover 2
+    extract 72 32
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:100
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:96-101
+    // abiCall<typeof GatedFeeHook.prototype.closePass>({
+    //   appId: this.hook.value,
+    //   sender: p.spender,
+    //   args: [p.principal, windowHint(wallet)],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xc8b530b7 // method "closePass(address,uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:94
+    // closePass(wallet: Application, rekeyBack: boolean): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts::GatedFeePassPlugin.principal(wallet: uint64) -> bytes:
+principal:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:108
+    // private principal(wallet: Application): Principal {
+    proto 1 1
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:109
+    // return pluginPrincipalOf(this.akitaDAO.value, wallet)
+    dupn 2
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:31
+    // akitaDAO = GlobalState<Application>({ key: 'akita_dao' })
+    bytec_2 // "akita_dao"
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:109
+    // return pluginPrincipalOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec 4 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:864
+    // return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
+    pushint 88
+    extract_uint64
+    dup
+    // smart_contracts/utils/principal.ts:326
+    // loggedAssert(isGenuineWallet(wallet.id, walletFactory), errHintNotWallet)
+    frame_dig -1
+    swap
+    callsub isGenuineWallet
+    bnz principal_after_assert@3
+    bytec 5 // "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+principal_after_assert@3:
+    // smart_contracts/utils/principal.ts:327
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(wallet, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -1
+    bytec 6 // "spending_address"
+    app_global_get_ex
+    swap
+    cover 2
+    // smart_contracts/utils/principal.ts:328
+    // loggedAssert(spendingExists && spending.length === 32, errHintNotBound)
+    bz principal_bool_false@6
+    dig 1
+    len
+    pushint 32
+    ==
+    bz principal_bool_false@6
+    intc_1 // 1
+
+principal_bool_merge@7:
+    // smart_contracts/utils/principal.ts:328
+    // loggedAssert(spendingExists && spending.length === 32, errHintNotBound)
+    bnz principal_after_assert@9
+    bytec 7 // "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+principal_after_assert@9:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dig 1
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:330
+    // loggedAssert(authAddrOf(spender) === Global.currentApplicationAddress, errHintPluginNotAuth)
+    global CurrentApplicationAddress
+    ==
+    bnz principal_after_assert@11
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+principal_after_assert@11:
+    // smart_contracts/utils/principal.ts:335
+    // Global.currentApplicationId.id,
+    global CurrentApplicationID
+    swap
+    // smart_contracts/utils/principal.ts:336
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:148
+    // if (hint === 0) {
+    frame_dig -1
+    bnz principal_after_if_else@13
+    popn 2
+    // smart_contracts/utils/principal.ts:93
+    // origin: Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/utils/principal.ts:95
+    // referrer: Global.zeroAddress,
+    dup
+    // smart_contracts/utils/principal.ts:91
+    // wallet: 0,
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:90-97
+    // return {
+    //   wallet: 0,
+    //   principal: sender,
+    //   origin: Global.zeroAddress,
+    //   spender: sender,
+    //   referrer: Global.zeroAddress,
+    //   viaPlugin: false,
+    // }
+    itob
+    uncover 3
+    dup
+    cover 2
+    concat
+    uncover 3
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    concat
+
+principal_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@42:
+    // smart_contracts/arc58/plugins/gated-fee-pass/contract.algo.ts:109
+    // return pluginPrincipalOf(this.akitaDAO.value, wallet)
+    frame_bury 0
+    retsub
+
+principal_after_if_else@13:
+    // smart_contracts/utils/principal.ts:152
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    frame_dig -1
+    swap
+    callsub isGenuineWallet
+    bnz principal_after_if_else@15
+    // smart_contracts/utils/principal.ts:154
+    // loggedErr(errHintNotWallet)
+    bytec 5 // "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+principal_after_if_else@15:
+    // smart_contracts/utils/principal.ts:159
+    // if (callerApp === 0) {
+    dup
+    bnz principal_after_if_else@17
+    // smart_contracts/utils/principal.ts:161
+    // loggedErr(errHintTopLevel)
+    pushbytes "ERR:errHtop"
+    log
+    err // ERR:errHtop
+
+principal_after_if_else@17:
+    // smart_contracts/utils/principal.ts:166
+    // let viaPlugin = false
+    intc_0 // 0
+    cover 2
+    // smart_contracts/utils/principal.ts:167
+    // if (callerApp !== hint) {
+    frame_dig -1
+    !=
+    bz principal_after_if_else@24
+    bury 1
+    // smart_contracts/utils/principal.ts:171
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -1
+    bytec 6 // "spending_address"
+    app_global_get_ex
+    swap
+    frame_bury 1
+    // smart_contracts/utils/principal.ts:172
+    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
+    bz principal_if_body@22
+    frame_dig 1
+    len
+    pushint 32
+    ==
+    bz principal_if_body@22
+    frame_dig 1
+    dig 1
+    ==
+    bz principal_if_body@22
+    dup
+    frame_dig 0
+    !=
+    bnz principal_after_if_else@23
+
+principal_if_body@22:
+    // smart_contracts/utils/principal.ts:174
+    // loggedErr(errHintNotBound)
+    bytec 7 // "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+principal_after_if_else@23:
+    // smart_contracts/utils/principal.ts:178
+    // viaPlugin = true
+    intc_1 // 1
+    swap
+
+principal_after_if_else@24:
+    // smart_contracts/utils/principal.ts:181
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    frame_dig -1
+    pushbytes "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:182
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz principal_if_body@26
+    dup
+    len
+    pushint 32
+    ==
+    bnz principal_after_if_else@27
+
+principal_if_body@26:
+    // smart_contracts/utils/principal.ts:184
+    // loggedErr(errHintBadWallet)
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+principal_after_if_else@27:
+    // smart_contracts/utils/principal.ts:119
+    // if (controlled === spender) {
+    dup
+    dig 2
+    ==
+    bz principal_after_if_else@29
+    // smart_contracts/utils/principal.ts:120
+    // return true
+    intc_1 // 1
+    swap
+
+principal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@34:
+    // smart_contracts/utils/principal.ts:191
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    frame_dig -1
+    pushbytes "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz principal_ternary_false@37
+    dup
+    len
+    pushint 32
+    ==
+    bz principal_ternary_false@37
+    cover 3
+
+principal_ternary_merge@38:
+    // smart_contracts/utils/principal.ts:196
+    // principal: live ? controlled : sender,
+    dig 2
+    dig 1
+    uncover 3
+    dup
+    cover 3
+    select
+    swap
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    bz principal_ternary_false@40
+    swap
+
+principal_ternary_merge@41:
+    // smart_contracts/utils/principal.ts:194-201
+    // return {
+    //   wallet: hint,
+    //   principal: live ? controlled : sender,
+    //   origin: live ? controlled : Global.zeroAddress,
+    //   spender: sender,
+    //   referrer,
+    //   viaPlugin,
+    // }
+    frame_dig -1
+    itob
+    uncover 2
+    concat
+    swap
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    // smart_contracts/utils/principal.ts:331-338
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   wallet.id,
+    //   spender,
+    //   Global.currentApplicationId.id,
+    //   Global.currentApplicationAddress,
+    //   true
+    // )
+    b principal_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@42
+
+principal_ternary_false@40:
+    bury 1
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    global ZeroAddress
+    b principal_ternary_merge@41
+
+principal_ternary_false@37:
+    pop
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    cover 3
+    b principal_ternary_merge@38
+
+principal_after_if_else@29:
+    // smart_contracts/utils/principal.ts:122
+    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
+    frame_dig -1
+    app_params_get AppAddress
+    swap
+    cover 3
+    // smart_contracts/utils/principal.ts:123
+    // if (!walletExists) {
+    bnz principal_after_if_else@31
+    uncover 2
+    pop
+    // smart_contracts/utils/principal.ts:124
+    // return false
+    intc_0 // 0
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b principal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@34
+
+principal_after_if_else@31:
+    // smart_contracts/utils/principal.ts:126
+    // if (controlled === walletAddress) {
+    dup
+    dig 3
+    ==
+    bz principal_after_if_else@33
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    uncover 2
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:127
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b principal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@34
+
+principal_after_if_else@33:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dup
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:129
+    // return authAddrOf(controlled) === walletAddress
+    uncover 3
+    ==
+    swap
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b principal_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@34
+
+principal_bool_false@6:
+    intc_0 // 0
+    b principal_bool_merge@7

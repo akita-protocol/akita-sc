@@ -1,0 +1,60 @@
+import { Uint64, uint64 } from '@algorandfoundation/algorand-typescript'
+
+export const PluginDexGlobalStateKeyVersion = 'version'
+export const PluginDexGlobalStateKeyAdmin = 'admin'
+export const PluginDexGlobalStateKeyPoolCursor = 'pool_cursor'
+export const PluginDexGlobalStateKeyProtocolFeeBps = 'protocol_fee_bps'
+export const PluginDexGlobalStateKeyTreasury = 'treasury'
+
+export const PluginDexBoxPrefixPools = 'p'
+export const PluginDexBoxPrefixPoolHooks = 'h'
+export const PluginDexBoxPrefixApprovedHooks = 'a'
+export const PluginDexBoxPrefixPairPools = 'x'
+export const PluginDexBoxPrefixExternal = 'e'
+
+export const HookPointAfterInitialize: uint64 = 1
+export const HookPointBeforeAddLiquidity: uint64 = 2
+export const HookPointAfterAddLiquidity: uint64 = 4
+export const HookPointBeforeRemoveLiquidity: uint64 = 8
+export const HookPointAfterRemoveLiquidity: uint64 = 16
+export const HookPointBeforeSwap: uint64 = 32
+export const HookPointAfterSwap: uint64 = 64
+export const HookPointQuote: uint64 = 128
+export const HookPointAll: uint64 = 255
+
+export const HookPermCustody: uint64 = 1
+export const HookPermDynamicFee: uint64 = 2
+export const HookPermHookFee: uint64 = 4
+/** pool-type app: owns pricing/positions of a pool, never touches funds */
+export const HookPermCurve: uint64 = 8
+/** custody hook may move capped principal into escrow-held external positions */
+export const HookPermExternal: uint64 = 16
+export const HookPermAll: uint64 = 31
+
+export const HookResultSetFee: uint64 = 1
+export const HookResultExternal: uint64 = 2
+
+export const CurveOpInit: uint64 = 1
+export const CurveOpSwap: uint64 = 2
+export const CurveOpQuote: uint64 = 3
+export const CurveOpAdd: uint64 = 4
+export const CurveOpRemove: uint64 = 5
+export const CurveOpSettle: uint64 = 6
+
+export const CurveFlagClose: uint64 = 1
+
+export const LpModeFungible: uint64 = 0
+export const LpModeCurve: uint64 = 1
+
+export const MaxHooksPerPool: uint64 = 8
+export const MaxPoolsPerPair: uint64 = 64
+export const BpsDivisor: uint64 = 10_000
+export const MaxFeeBps: uint64 = 1_000
+export const MaxHookFeeBps: uint64 = 1_000
+export const MaxProtocolFeeBps: uint64 = 5_000
+export const MinimumLiquidity: uint64 = 1_000
+
+export const LPAssetTotal: uint64 = Uint64(18_446_744_073_709_551_615n)
+export const LPAssetDecimals: uint64 = 6
+export const LPAssetUnitName = 'AKLP'
+export const LPAssetName = 'Akita Hook LP'

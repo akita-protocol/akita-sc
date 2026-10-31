@@ -1,0 +1,373 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 1 10000
+    bytecblock "dex" "min_fee" "max_fee" "slope"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:21
+    // export class ImpactFeeHook extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@5
+    pushbytes 0x74322cba // method "akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)"
+    txna ApplicationArgs 0
+    match akitaDexHook
+    err
+
+main_create_NoOp@5:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:21
+    // export class ImpactFeeHook extends Contract {
+    pushbytes 0x2ff574e9 // method "create(uint64,uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:27
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:22
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_0 // "dex"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:29
+    // this.dex.value = dex
+    uncover 4
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:23
+    // minFeeBps = GlobalState<uint64>({ key: 'min_fee' })
+    bytec_1 // "min_fee"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:30
+    // this.minFeeBps.value = minFeeBps
+    uncover 3
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:24
+    // maxFeeBps = GlobalState<uint64>({ key: 'max_fee' })
+    bytec_2 // "max_fee"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:31
+    // this.maxFeeBps.value = maxFeeBps
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:25
+    // slopeBps = GlobalState<uint64>({ key: 'slope' })
+    bytec_3 // "slope"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:32
+    // this.slopeBps.value = slopeBps
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:27
+    // @abimethod({ onCreate: 'require' })
+    intc_2 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook[routing]() -> void:
+akitaDexHook:
+    pushbytes ""
+    dup
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:35
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    txna ApplicationArgs 1
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dupn 2
+    len
+    dig 1
+    pushint 305
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 309
+    ==
+    assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 311
+    +
+    dig 2
+    pushint 307
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    uncover 3
+    swap
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:36
+    // requireDexCaller(this.dex.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:22
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_0 // "dex"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:36
+    // requireDexCaller(this.dex.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hook-interface.ts:44
+    // loggedAssert(Global.callerApplicationId === dex.id, 'errHookCaller')
+    global CallerApplicationID
+    ==
+    bnz akitaDexHook_after_assert@25
+    pushbytes "ERR:errHookCaller"
+    log
+    err // ERR:errHookCaller
+
+akitaDexHook_after_assert@25:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:38
+    // if ((ctx.point !== HookPointBeforeSwap && ctx.point !== HookPointQuote) || ctx.reserveIn === 0) {
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    bury 3
+    pushint 32
+    !=
+    bz akitaDexHook_or_contd@3
+    dig 1
+    pushint 128
+    !=
+    bnz akitaDexHook_if_body@4
+
+akitaDexHook_or_contd@3:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:38
+    // if ((ctx.point !== HookPointBeforeSwap && ctx.point !== HookPointQuote) || ctx.reserveIn === 0) {
+    dup
+    pushint 169
+    extract_uint64
+    dup
+    bury 4
+    bnz akitaDexHook_after_if_else@5
+
+akitaDexHook_if_body@4:
+    pop
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook@9:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:35
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+akitaDexHook_after_if_else@5:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:41
+    // const fee = this.fee(ctx.amountIn, ctx.reserveIn)
+    dup
+    pushint 153
+    extract_uint64
+    swap
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:47
+    // const max = this.maxFeeBps.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:24
+    // maxFeeBps = GlobalState<uint64>({ key: 'max_fee' })
+    bytec_2 // "max_fee"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:47
+    // const max = this.maxFeeBps.value
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    cover 3
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:48
+    // const min = this.minFeeBps.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:23
+    // minFeeBps = GlobalState<uint64>({ key: 'min_fee' })
+    bytec_1 // "min_fee"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:48
+    // const min = this.minFeeBps.value
+    app_global_get_ex
+    swap
+    dup
+    cover 2
+    cover 5
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:49
+    // if (min >= max) {
+    <=
+    bz akitaDexHook_after_if_else@12
+    uncover 2
+    pop
+    uncover 2
+    pop
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:42
+    // return { flags: HookResultSetFee, feeBps: fee > ctx.feeBps ? fee : ctx.feeBps, hookFee: 0, hookFeeOutBps: 0 }
+    pushint 209
+    extract_uint64
+    dup
+    dig 2
+    <
+    bz akitaDexHook_ternary_false@7
+    pop
+
+akitaDexHook_ternary_merge@8:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:42
+    // return { flags: HookResultSetFee, feeBps: fee > ctx.feeBps ? fee : ctx.feeBps, hookFee: 0, hookFeeOutBps: 0 }
+    intc_2 // 1
+    itob
+    swap
+    itob
+    concat
+    intc_0 // 0
+    itob
+    swap
+    dig 1
+    concat
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:35
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.akitaDexHook@9
+
+akitaDexHook_ternary_false@7:
+    bury 1
+    b akitaDexHook_ternary_merge@8
+
+akitaDexHook_after_if_else@12:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:53
+    // const [impactHigh, impactLow] = op.mulw(amountIn, BpsDivisor)
+    uncover 3
+    intc_3 // 10000
+    mulw
+    cover 3
+    dup
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:54
+    // if (impactHigh >= reserveIn) {
+    dig 7
+    >=
+    bz akitaDexHook_after_if_else@14
+    pop
+    uncover 2
+    pop
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:41
+    // const fee = this.fee(ctx.amountIn, ctx.reserveIn)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20
+
+akitaDexHook_after_if_else@14:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:57
+    // const impactBps = op.divw(impactHigh, impactLow, reserveIn)
+    uncover 3
+    dig 6
+    divw
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:59
+    // const [extraHigh, extraLow] = op.mulw(impactBps, this.slopeBps.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:25
+    // slopeBps = GlobalState<uint64>({ key: 'slope' })
+    bytec_3 // "slope"
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:59
+    // const [extraHigh, extraLow] = op.mulw(impactBps, this.slopeBps.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    mulw
+    cover 3
+    dup
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:60
+    // if (extraHigh >= BpsDivisor) {
+    intc_3 // 10000
+    >=
+    bz akitaDexHook_after_if_else@16
+    pop
+    uncover 2
+    pop
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:41
+    // const fee = this.fee(ctx.amountIn, ctx.reserveIn)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20
+
+akitaDexHook_after_if_else@16:
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:63
+    // const extra = op.divw(extraHigh, extraLow, BpsDivisor)
+    uncover 3
+    intc_3 // 10000
+    divw
+    dup
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:64
+    // return extra >= max - min ? max : min + extra
+    dig 3
+    dig 5
+    -
+    >=
+    bz akitaDexHook_ternary_false@18
+    pop
+    uncover 2
+    pop
+    swap
+
+akitaDexHook_ternary_merge@19:
+    swap
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:41
+    // const fee = this.fee(ctx.amountIn, ctx.reserveIn)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/impact-fee.algo.ts::ImpactFeeHook.fee@20
+
+akitaDexHook_ternary_false@18:
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/hooks/impact-fee.algo.ts:64
+    // return extra >= max - min ? max : min + extra
+    uncover 2
+    +
+    b akitaDexHook_ternary_merge@19

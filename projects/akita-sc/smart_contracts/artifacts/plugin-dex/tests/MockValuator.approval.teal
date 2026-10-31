@@ -1,0 +1,275 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 1
+    bytecblock "mode" "value" "lender"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:29
+    // export class MockValuator extends Contract {
+    pushbytes 0xa0e81872 // method "update()void"
+    txna ApplicationArgs 0
+    match main_update_route@2
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@8
+    pushbytess 0xb99e94e3 0x33aec308 // method "configure(uint64,uint64)void", method "akitaDexRate(uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match configure akitaDexRate
+    err
+
+main_create_NoOp@8:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:29
+    // export class MockValuator extends Contract {
+    pushbytes 0x240d2f67 // method "create(uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+main_update_route@2:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:41
+    // @abimethod({ allowActions: 'UpdateApplication' })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:34
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:30
+    // lender = GlobalState<Application>({ key: 'lender' })
+    bytec_2 // "lender"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:36
+    // this.lender.value = lender
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:31
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:37
+    // this.mode.value = ValuatorModeLender
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:32
+    // value = GlobalState<uint64>({ key: 'value' })
+    bytec_1 // "value"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:38
+    // this.value.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:34
+    // @abimethod({ onCreate: 'require' })
+    intc_2 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.configure[routing]() -> void:
+configure:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:44
+    // configure(mode: uint64, value: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:31
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:45
+    // this.mode.value = mode
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:32
+    // value = GlobalState<uint64>({ key: 'value' })
+    bytec_1 // "value"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:46
+    // this.value.value = value
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:44
+    // configure(mode: uint64, value: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.akitaDexRate[routing]() -> void:
+akitaDexRate:
+    pushbytes ""
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:50
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:52
+    // loggedAssert(this.mode.value !== ValuatorModeRevert, 'errVlRv')
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:31
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:52
+    // loggedAssert(this.mode.value !== ValuatorModeRevert, 'errVlRv')
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushint 2
+    !=
+    bnz akitaDexRate_after_assert@3
+    pushbytes "ERR:errVlRv"
+    log
+    err // ERR:errVlRv
+
+akitaDexRate_after_assert@3:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:55
+    // if (asset.clawback !== Global.zeroAddress || asset.freeze !== Global.zeroAddress) {
+    dup
+    asset_params_get AssetClawback
+    assert // asset exists
+    global ZeroAddress
+    !=
+    bnz akitaDexRate_if_body@5
+    dup
+    asset_params_get AssetFreeze
+    assert // asset exists
+    global ZeroAddress
+    !=
+    bz akitaDexRate_after_if_else@6
+
+akitaDexRate_if_body@5:
+    pop
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:56
+    // return 0
+    intc_0 // 0
+
+akitaDexRate_after_inlined_smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.akitaDexRate@12:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:50
+    // @abimethod({ readonly: true })
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+akitaDexRate_after_if_else@6:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:58
+    // if (this.mode.value === ValuatorModeFixed) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:31
+    // mode = GlobalState<uint64>({ key: 'mode' })
+    bytec_0 // "mode"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:58
+    // if (this.mode.value === ValuatorModeFixed) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_2 // 1
+    ==
+    bz akitaDexRate_after_if_else@8
+    pop
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:59
+    // return this.value.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:32
+    // value = GlobalState<uint64>({ key: 'value' })
+    bytec_1 // "value"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:59
+    // return this.value.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:50
+    // @abimethod({ readonly: true })
+    b akitaDexRate_after_inlined_smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.akitaDexRate@12
+
+akitaDexRate_after_if_else@8:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:62
+    // const lender = this.lender.value
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:30
+    // lender = GlobalState<Application>({ key: 'lender' })
+    bytec_2 // "lender"
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:62
+    // const lender = this.lender.value
+    app_global_get_ex
+    swap
+    dup
+    uncover 2
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:63
+    // const [knownReceipt] = op.AppGlobal.getExUint64(lender, Bytes('receipt'))
+    dup
+    pushbytes "receipt"
+    app_global_get_ex
+    pop
+    swap
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:64
+    // const [knownUnderlying] = op.AppGlobal.getExUint64(lender, Bytes('underlying'))
+    pushbytes "underlying"
+    app_global_get_ex
+    pop
+    bury 5
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:65
+    // if (receipt !== knownReceipt || underlying !== knownUnderlying) {
+    uncover 2
+    !=
+    bnz akitaDexRate_if_body@10
+    dig 1
+    dig 3
+    !=
+    bz akitaDexRate_after_if_else@11
+
+akitaDexRate_if_body@10:
+    pop
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:66
+    // return 0
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:50
+    // @abimethod({ readonly: true })
+    b akitaDexRate_after_inlined_smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.akitaDexRate@12
+
+akitaDexRate_after_if_else@11:
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:68
+    // const [rate, exists] = op.AppGlobal.getExUint64(lender, Bytes('rate'))
+    pushbytes "rate"
+    app_global_get_ex
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:69
+    // return exists ? rate : 0
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/plugin-dex/tests/mock-valuator.algo.ts:50
+    // @abimethod({ readonly: true })
+    b akitaDexRate_after_inlined_smart_contracts/plugin-dex/tests/mock-valuator.algo.ts::MockValuator.akitaDexRate@12

@@ -1,0 +1,155 @@
+import { Account, bytes, uint64 } from '@algorandfoundation/algorand-typescript'
+
+export type PoolInfo = {
+  assetA: uint64
+  assetB: uint64
+  escrow: uint64
+  lpAsset: uint64
+  reserveA: uint64
+  reserveB: uint64
+  lpSupply: uint64
+  feeBps: uint64
+  maxHookFeeBps: uint64
+  hookPoints: uint64
+  protocolFeesA: uint64
+  protocolFeesB: uint64
+  creator: Account
+  paused: boolean
+  // v2
+  curve: uint64
+  lpMode: uint64
+  closed: boolean
+  priceX64: bytes<16>
+  activeId: uint64
+  lastUpdate: uint64
+  externalA: uint64
+  externalB: uint64
+}
+
+export type HookConfig = {
+  app: uint64
+  points: uint64
+  perms: uint64
+}
+
+export type HookApproval = {
+  perms: uint64
+  extCapBps: uint64
+}
+
+export type ExternalPosition = {
+  principalA: uint64
+  principalB: uint64
+  receipt: uint64
+}
+
+export type PairKey = {
+  assetA: uint64
+  assetB: uint64
+}
+
+export type ExtKey = {
+  poolId: uint64
+  hook: uint64
+}
+
+export type HookContext = {
+  point: uint64
+  poolId: uint64
+  escrow: Account
+  caller: Account
+  recipient: Account
+  assetIn: uint64
+  assetOut: uint64
+  amountIn: uint64
+  amountOut: uint64
+  reserveIn: uint64
+  reserveOut: uint64
+  lpAmount: uint64
+  lpSupply: uint64
+  feeBps: uint64
+  data: bytes
+  // v2
+  curve: uint64
+  priceX64: bytes<16>
+  priceAfterX64: bytes<16>
+  activeId: uint64
+  activeIdAfter: uint64
+  lastUpdate: uint64
+}
+
+export type HookResult = {
+  flags: uint64
+  feeBps: uint64
+  hookFee: uint64
+  extOutA: uint64
+  extOutB: uint64
+  extInA: uint64
+  extInB: uint64
+}
+
+export type CurveRequest = {
+  op: uint64
+  poolId: uint64
+  caller: Account
+  inIsA: boolean
+  amountA: uint64
+  amountB: uint64
+  negA: boolean
+  negB: boolean
+  lpAmount: uint64
+  lpSupply: uint64
+  feeBps: uint64
+  protocolFeeBps: uint64
+  reserveA: uint64
+  reserveB: uint64
+  args: bytes
+}
+
+export type CurveResult = {
+  amountA: uint64
+  amountB: uint64
+  lpFee: uint64
+  shares: uint64
+  priceX64: bytes<16>
+  activeId: uint64
+  reserveA: uint64
+  reserveB: uint64
+  flags: uint64
+}
+
+export type SwapResult = {
+  assetOut: uint64
+  amountOut: uint64
+}
+
+export type SwapEvent = {
+  poolId: uint64
+  caller: Account
+  assetIn: uint64
+  amountIn: uint64
+  assetOut: uint64
+  amountOut: uint64
+  feeBps: uint64
+  hookFees: uint64
+  reserveA: uint64
+  reserveB: uint64
+}
+
+export type LiquidityEvent = {
+  poolId: uint64
+  caller: Account
+  amountA: uint64
+  amountB: uint64
+  lpAmount: uint64
+  reserveA: uint64
+  reserveB: uint64
+}
+
+export type CustodyEvent = {
+  poolId: uint64
+  hook: uint64
+  point: uint64
+  reserveA: uint64
+  reserveB: uint64
+}

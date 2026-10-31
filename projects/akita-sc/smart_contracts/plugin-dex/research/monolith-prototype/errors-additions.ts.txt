@@ -1,0 +1,6 @@
+export const errInvalidRoute = 'errPdrt'
+export const errPoolType = 'errPdty'
+export const errBinRange = 'errPdbr'
+export const errExternalCap = 'errPdec'
+export const errForwarder = 'errPdfw'
+export const errGraduate = 'errPdgr'

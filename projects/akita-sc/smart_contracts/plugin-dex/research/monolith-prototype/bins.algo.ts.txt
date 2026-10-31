@@ -1,0 +1,305 @@
+import {
+  Account,
+  Application,
+  assert,
+  BigUint,
+  biguint,
+  BoxMap,
+  Bytes,
+  bytes,
+  clone,
+  Contract,
+  ensureBudget,
+  Global,
+  GlobalState,
+  gtxn,
+  itxn,
+  op,
+  OpUpFeeSource,
+  Txn,
+  uint64,
+} from '@algorandfoundation/algorand-typescript'
+import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
+import { BinBytes, BinCenterId, BinsPerPage, BpsDivisor, MaxBinId, MaxBinsPerSwap, PageHeaderBytes, PriceTableEntries } from './constants'
+import { errAdminOnly, errBinRange, errInsufficientLiquidity, errInvalidPayment, errSlippage } from './errors'
+import { BinLiquidityResult, BinSwapResult, PageKey, PositionKey } from './types'
+
+const Q64: biguint = BigUint(18_446_744_073_709_551_616n)
+type Bin = { x: uint64; y: uint64; shares: uint64; price: bytes<16> }
+
+/**
+ * Bins book: owns bin pages and LP positions for every bins pool of one PluginDex
+ * core and does all bin math. Holds no pool funds (those stay in the core's pool
+ * escrows); only box MBR, paid by LPs.
+ */
+export class PluginDexBins extends Contract {
+  core = GlobalState<Application>({ key: 'core' })
+  binPages = BoxMap<PageKey, bytes>({ keyPrefix: 'b' })
+  priceTables = BoxMap<uint64, bytes>({ keyPrefix: 't' })
+  positions = BoxMap<PositionKey, uint64[]>({ keyPrefix: 'q' })
+
+  @abimethod({ onCreate: 'require' })
+  create(core: Application): void {
+    this.core.value = core
+  }
+
+  private requireCore(): void {
+    assert(Global.callerApplicationId === this.core.value.id, errAdminOnly)
+  }
+
+  private mulDiv(a: uint64, b: uint64, c: uint64): uint64 {
+    return op.divw(...op.mulw(a, b), c)
+  }
+
+  private mulDivUp(a: uint64, b: uint64, c: uint64): uint64 {
+    const [qHi, qLo, rHi, rLo] = op.divmodw(...op.mulw(a, b), 0, c)
+    assert(qHi === 0)
+    return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+  }
+
+  private b16(v: biguint): bytes<16> {
+    return op.bzero(16).bitwiseOr(Bytes(v)).slice(-16).toFixed({ length: 16 })
+  }
+
+  private binPrice(binStep: uint64, id: uint64): biguint {
+    const table = this.priceTables(binStep).value
+    let e: uint64 = id >= BinCenterId ? id - BinCenterId : BinCenterId - id
+    let p: biguint = Q64
+    for (let k: uint64 = 0; k < PriceTableEntries; k += 1) {
+      if ((e & 1) === 1) {
+        p = (p * BigUint(op.extract(table, k * 16, 16))) / Q64
+      }
+      e = e >> 1
+      if (e === 0) break
+    }
+    assert(e === 0, errBinRange)
+    if (id < BinCenterId) {
+      p = (Q64 * Q64) / p
+    }
+    return p
+  }
+
+  private pageKey(poolId: uint64, id: uint64): PageKey {
+    return { poolId, page: id / BinsPerPage }
+  }
+
+  private readBin(poolId: uint64, id: uint64): Bin {
+    const key = this.pageKey(poolId, id)
+    if (!this.binPages(key).exists) {
+      return { x: 0, y: 0, shares: 0, price: op.bzero(16).toFixed({ length: 16 }) }
+    }
+    const raw = this.binPages(key).extract(PageHeaderBytes + (id % BinsPerPage) * BinBytes, BinBytes)
+    return {
+      x: op.extractUint64(raw, 0),
+      y: op.extractUint64(raw, 8),
+      shares: op.extractUint64(raw, 16),
+      price: op.extract(raw, 24, 16).toFixed({ length: 16 }),
+    }
+  }
+
+  private writeBin(poolId: uint64, id: uint64, bin: Bin): void {
+    const key = this.pageKey(poolId, id)
+    if (!this.binPages(key).exists) {
+      this.binPages(key).create({ size: PageHeaderBytes + BinsPerPage * BinBytes })
+    }
+    const slot: uint64 = id % BinsPerPage
+    this.binPages(key).replace(
+      PageHeaderBytes + slot * BinBytes,
+      op.itob(bin.x).concat(op.itob(bin.y)).concat(op.itob(bin.shares)).concat(bin.price),
+    )
+    const mask = op.btoi(this.binPages(key).extract(0, 8))
+    const nonEmpty: uint64 = bin.x > 0 || bin.y > 0 ? 1 : 0
+    this.binPages(key).replace(0, op.itob(op.setBit(mask, slot, nonEmpty)))
+  }
+
+  // CORE ONLY ------------------------------------------------------------------------------------
+
+  /** Swap through bins from the active bin. commit=false is a quote. */
+  swap(
+    poolId: uint64,
+    binStep: uint64,
+    activeId: uint64,
+    inIsA: boolean,
+    amountIn: uint64,
+    feeBps: uint64,
+    protocolFeeBps: uint64,
+    commit: boolean,
+  ): BinSwapResult {
+    this.requireCore()
+    let remaining = amountIn
+    let out: uint64 = 0
+    let protocolFee: uint64 = 0
+    let id = activeId
+    let price = this.binPrice(binStep, id)
+    const step: biguint = Q64 + (Q64 * BigUint(binStep)) / BigUint(BpsDivisor)
+
+    for (let n: uint64 = 0; n < MaxBinsPerSwap; n += 1) {
+      const bin = this.readBin(poolId, id)
+      const avail = inIsA ? bin.y : bin.x
+      if (avail > 0) {
+        const maxNet: uint64 = inIsA
+          ? op.btoi(Bytes((BigUint(avail) * Q64) / price)) + 1
+          : op.btoi(Bytes((BigUint(avail) * price) / Q64)) + 1
+        const maxGross: uint64 = this.mulDivUp(maxNet, BpsDivisor, BpsDivisor - feeBps)
+        const gross: uint64 = remaining < maxGross ? remaining : maxGross
+        const lpFee = this.mulDiv(gross, feeBps, BpsDivisor)
+        const pFee = this.mulDiv(lpFee, protocolFeeBps, BpsDivisor)
+        const net: uint64 = gross - lpFee
+        let binOut: uint64 = inIsA ? op.btoi(Bytes((BigUint(net) * price) / Q64)) : op.btoi(Bytes((BigUint(net) * Q64) / price))
+        if (binOut > avail) binOut = avail
+        if (inIsA) {
+          bin.x += gross - pFee
+          bin.y -= binOut
+        } else {
+          bin.y += gross - pFee
+          bin.x -= binOut
+        }
+        if (commit) this.writeBin(poolId, id, bin)
+        out += binOut
+        protocolFee += pFee
+        remaining -= gross
+        if (remaining === 0) break
+      }
+      if (inIsA) {
+        assert(id > 0, errInsufficientLiquidity)
+        id -= 1
+        price = (price * Q64) / step
+      } else {
+        assert(id < MaxBinId, errInsufficientLiquidity)
+        id += 1
+        price = (price * step) / Q64
+      }
+    }
+    assert(remaining === 0 && out > 0, errInsufficientLiquidity)
+    return { amountOut: out, protocolFee, activeId: id, price: this.b16(price) }
+  }
+
+  /** Credit a custody surplus or sync donation to the active bin */
+  donate(poolId: uint64, activeId: uint64, amountA: uint64, amountB: uint64): void {
+    this.requireCore()
+    const bin = this.readBin(poolId, activeId)
+    bin.x += amountA
+    bin.y += amountB
+    this.writeBin(poolId, activeId, bin)
+  }
+
+  addLiquidity(
+    mbr: gtxn.PaymentTxn,
+    poolId: uint64,
+    binStep: uint64,
+    activeId: uint64,
+    owner: Account,
+    lowerId: uint64,
+    amountA: uint64,
+    amountB: uint64,
+    weightsA: uint64[],
+    weightsB: uint64[],
+  ): BinLiquidityResult {
+    this.requireCore()
+    assert(mbr.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    assert(weightsA.length === weightsB.length && weightsA.length <= BinsPerPage, errBinRange)
+    const mbrBefore = Global.currentApplicationAddress.minBalance
+
+    const key: PositionKey = { poolId, owner, lowerId }
+    const shares: uint64[] = this.positions(key).exists ? clone(this.positions(key).value) : []
+    let usedA: uint64 = 0
+    let usedB: uint64 = 0
+    let price = this.binPrice(binStep, lowerId)
+    const step: biguint = Q64 + (Q64 * BigUint(binStep)) / BigUint(BpsDivisor)
+
+    for (let i: uint64 = 0; i < weightsA.length; i += 1) {
+      const id: uint64 = lowerId + i
+      const ax = this.mulDiv(amountA, weightsA[i], BpsDivisor)
+      const by = this.mulDiv(amountB, weightsB[i], BpsDivisor)
+      assert((id >= activeId || ax === 0) && (id <= activeId || by === 0), errBinRange)
+      const bin = this.readBin(poolId, id)
+      if (bin.shares === 0) bin.price = this.b16(price)
+      const value: uint64 = op.btoi(Bytes((BigUint(ax) * price) / Q64)) + by
+      const binValue: uint64 = op.btoi(Bytes((BigUint(bin.x) * price) / Q64)) + bin.y
+      const minted: uint64 = bin.shares === 0 ? value : this.mulDiv(value, bin.shares, binValue)
+      bin.x += ax
+      bin.y += by
+      bin.shares += minted
+      this.writeBin(poolId, id, bin)
+      if (i < shares.length) {
+        shares[i] = shares[i] + minted
+      } else {
+        shares.push(minted)
+      }
+      usedA += ax
+      usedB += by
+      price = (price * step) / Q64
+    }
+    this.positions(key).value = clone(shares)
+
+    const used: uint64 = Global.currentApplicationAddress.minBalance - mbrBefore
+    assert(mbr.amount >= used, errInvalidPayment)
+    if (mbr.amount > used) itxn.payment({ receiver: owner, amount: mbr.amount - used }).submit()
+    return { amountA: usedA, amountB: usedB, price: this.b16(this.binPrice(binStep, activeId)) }
+  }
+
+  removeLiquidity(poolId: uint64, owner: Account, lowerId: uint64, bps: uint64): BinLiquidityResult {
+    this.requireCore()
+    const key: PositionKey = { poolId, owner, lowerId }
+    const shares = clone(this.positions(key).value)
+    let outA: uint64 = 0
+    let outB: uint64 = 0
+    let remaining: uint64 = 0
+    for (let i: uint64 = 0; i < shares.length; i += 1) {
+      const burn = this.mulDiv(shares[i], bps, BpsDivisor)
+      if (burn === 0) continue
+      const id: uint64 = lowerId + i
+      const bin = this.readBin(poolId, id)
+      const ax = this.mulDiv(bin.x, burn, bin.shares)
+      const by = this.mulDiv(bin.y, burn, bin.shares)
+      bin.x -= ax
+      bin.y -= by
+      bin.shares -= burn
+      this.writeBin(poolId, id, bin)
+      shares[i] = shares[i] - burn
+      remaining += shares[i]
+      outA += ax
+      outB += by
+    }
+    if (remaining === 0) {
+      const mbrBefore = Global.currentApplicationAddress.minBalance
+      this.positions(key).delete()
+      itxn.payment({ receiver: owner, amount: mbrBefore - Global.currentApplicationAddress.minBalance }).submit()
+    } else {
+      this.positions(key).value = clone(shares)
+    }
+    return { amountA: outA, amountB: outB, price: op.bzero(16).toFixed({ length: 16 }) }
+  }
+
+  // ANYONE ---------------------------------------------------------------------------------------
+
+  initBinStep(binStep: uint64): void {
+    assert(binStep > 0 && binStep <= 200, errBinRange)
+    ensureBudget(800, OpUpFeeSource.GroupCredit)
+    let p: biguint = Q64 + (Q64 * BigUint(binStep)) / BigUint(BpsDivisor)
+    let table = Bytes('')
+    for (let k: uint64 = 0; k < PriceTableEntries; k += 1) {
+      table = table.concat(this.b16(p))
+      p = (p * p) / Q64
+    }
+    this.priceTables(binStep).value = table
+  }
+
+  @abimethod({ readonly: true })
+  price(binStep: uint64, id: uint64): bytes<16> {
+    assert(id <= MaxBinId, errBinRange)
+    return this.b16(this.binPrice(binStep, id))
+  }
+
+  @abimethod({ readonly: true })
+  getBins(poolId: uint64, id: uint64): bytes {
+    const key = this.pageKey(poolId, id)
+    return this.binPages(key).exists ? this.binPages(key).value : Bytes('')
+  }
+
+  @abimethod({ readonly: true })
+  getPosition(poolId: uint64, owner: Account, lowerId: uint64): uint64[] {
+    const key: PositionKey = { poolId, owner, lowerId }
+    return this.positions(key).exists ? clone(this.positions(key).value) : []
+  }
+}

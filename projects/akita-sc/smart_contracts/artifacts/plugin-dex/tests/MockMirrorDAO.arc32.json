@@ -1,0 +1,79 @@
+{
+    "hints": {
+        "create(uint64,uint64,uint64)void": {
+            "call_config": {
+                "no_op": "CREATE"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBieXRlY2Jsb2NrICJhYWwiICJzYWwiICJha2l0YV9hc3NldHMiCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC90ZXN0cy9tb2NrLW1pcnJvci1kYW8uYWxnby50czoyMAogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tNaXJyb3JEQU8gZXh0ZW5kcyBDb250cmFjdCB7CiAgICBwdXNoYnl0ZXMgMHg3ZWZkYTRkMiAvLyBtZXRob2QgImNyZWF0ZSh1aW50NjQsdWludDY0LHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9jcmVhdGVfcm91dGVAMgogICAgZXJyCgptYWluX2NyZWF0ZV9yb3V0ZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdGVzdHMvbW9jay1taXJyb3ItZGFvLmFsZ28udHM6MjYKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIGFzc2VydAogICAgYiBjcmVhdGUKCgovLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC90ZXN0cy9tb2NrLW1pcnJvci1kYW8uYWxnby50czo6TW9ja01pcnJvckRBTy5jcmVhdGVbcm91dGluZ10oKSAtPiB2b2lkOgpjcmVhdGU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC90ZXN0cy9tb2NrLW1pcnJvci1kYW8uYWxnby50czoyNgogICAgLy8gQGFiaW1ldGhvZCh7IG9uQ3JlYXRlOiAncmVxdWlyZScgfSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBkdXAKICAgIGxlbgogICAgcHVzaGludCA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgZHVwCiAgICBsZW4KICAgIHB1c2hpbnQgOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy91dGlscy9mdW5jdGlvbnMudHM6MTEyCiAgICAvLyBjb25zdCBbYXBwTGlzdEJ5dGVzXSA9IG9wLkFwcEdsb2JhbC5nZXRFeEJ5dGVzKGFraXRhREFPLCBCeXRlcyhBa2l0YURBT0dsb2JhbFN0YXRlS2V5c0FraXRhQXBwTGlzdCkpCiAgICBkaWcgMgogICAgYnl0ZWNfMCAvLyAiYWFsIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIHBvcAogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdGVzdHMvbW9jay1taXJyb3ItZGFvLmFsZ28udHM6MjkKICAgIC8vIGxpc3Qud2FsbGV0ID0gd2FsbGV0RmFjdG9yeQogICAgdW5jb3ZlciAyCiAgICByZXBsYWNlMiA4OAogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdGVzdHMvbW9jay1taXJyb3ItZGFvLmFsZ28udHM6MjEKICAgIC8vIGFraXRhQXBwTGlzdCA9IEdsb2JhbFN0YXRlPEFraXRhQXBwTGlzdD4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzQWtpdGFBcHBMaXN0IH0pCiAgICBieXRlY18wIC8vICJhYWwiCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC90ZXN0cy9tb2NrLW1pcnJvci1kYW8uYWxnby50czozMAogICAgLy8gdGhpcy5ha2l0YUFwcExpc3QudmFsdWUgPSBjbG9uZShsaXN0KQogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjMxCiAgICAvLyBjb25zdCBbc29jaWFsXSA9IG9wLkFwcEdsb2JhbC5nZXRFeEJ5dGVzKHNvdXJjZSwgQnl0ZXMoQWtpdGFEQU9HbG9iYWxTdGF0ZUtleXNBa2l0YVNvY2lhbEFwcExpc3QpKQogICAgZGlnIDEKICAgIGJ5dGVjXzEgLy8gInNhbCIKICAgIGFwcF9nbG9iYWxfZ2V0X2V4CiAgICBwb3AKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjIyCiAgICAvLyBzb2NpYWxBcHBMaXN0ID0gR2xvYmFsU3RhdGU8Ynl0ZXM+KHsga2V5OiBBa2l0YURBT0dsb2JhbFN0YXRlS2V5c0FraXRhU29jaWFsQXBwTGlzdCB9KQogICAgYnl0ZWNfMSAvLyAic2FsIgogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdGVzdHMvbW9jay1taXJyb3ItZGFvLmFsZ28udHM6MzIKICAgIC8vIHRoaXMuc29jaWFsQXBwTGlzdC52YWx1ZSA9IHNvY2lhbAogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjMzCiAgICAvLyBjb25zdCBbYXNzZXRzXSA9IG9wLkFwcEdsb2JhbC5nZXRFeEJ5dGVzKHNvdXJjZSwgQnl0ZXMoQWtpdGFEQU9HbG9iYWxTdGF0ZUtleXNBa2l0YUFzc2V0cykpCiAgICBzd2FwCiAgICBieXRlY18yIC8vICJha2l0YV9hc3NldHMiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgcG9wCiAgICAvLyBzbWFydF9jb250cmFjdHMvcGx1Z2luLWRleC90ZXN0cy9tb2NrLW1pcnJvci1kYW8uYWxnby50czoyMwogICAgLy8gYWtpdGFBc3NldHMgPSBHbG9iYWxTdGF0ZTxieXRlcz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzQWtpdGFBc3NldHMgfSkKICAgIGJ5dGVjXzIgLy8gImFraXRhX2Fzc2V0cyIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjM0CiAgICAvLyB0aGlzLmFraXRhQXNzZXRzLnZhbHVlID0gYXNzZXRzCiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL3BsdWdpbi1kZXgvdGVzdHMvbW9jay1taXJyb3ItZGFvLmFsZ28udHM6MjQKICAgIC8vIHdhbGxldCA9IEdsb2JhbFN0YXRlPHVpbnQ2ND4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzV2FsbGV0IH0pCiAgICBwdXNoYnl0ZXMgIndhbGxldCIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjM1CiAgICAvLyB0aGlzLndhbGxldC52YWx1ZSA9IGRhb1dhbGxldAogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9wbHVnaW4tZGV4L3Rlc3RzL21vY2stbWlycm9yLWRhby5hbGdvLnRzOjI2CiAgICAvLyBAYWJpbWV0aG9kKHsgb25DcmVhdGU6ICdyZXF1aXJlJyB9KQogICAgcHVzaGludCAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 3,
+            "num_uints": 1
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "akitaAppList": {
+                    "type": "bytes",
+                    "key": "aal"
+                },
+                "akitaAssets": {
+                    "type": "bytes",
+                    "key": "akita_assets"
+                },
+                "socialAppList": {
+                    "type": "bytes",
+                    "key": "sal"
+                },
+                "wallet": {
+                    "type": "uint64",
+                    "key": "wallet"
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockMirrorDAO",
+        "desc": "TEST-ONLY. A DAO stand-in for GatedFeeHook principal tests (principal-resolution spec \u00a76.12): it mirrors the\nfour DAO globals the hook reads (`aal`, `sal`, `akita_assets`, `wallet`) from a real `source` DAO, with two\noverrides: `AkitaAppList.wallet` names the REAL AbstractedAccountFactory (so ARC-58 wallets it created are\ngenuine), and `wallet` (the DAO's ARC-58 wallet, the hook's admin) names a test-controlled account. A real\nDAO cannot have both: `AkitaDAO.setup` creates the DAO wallet through `AkitaAppList.wallet` itself.\nNever deploy outside tests.",
+        "methods": [
+            {
+                "name": "create",
+                "args": [
+                    {
+                        "type": "uint64",
+                        "name": "source"
+                    },
+                    {
+                        "type": "uint64",
+                        "name": "walletFactory"
+                    },
+                    {
+                        "type": "uint64",
+                        "name": "daoWallet"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {}
+}

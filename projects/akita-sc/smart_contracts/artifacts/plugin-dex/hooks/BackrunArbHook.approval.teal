@@ -1,0 +1,2837 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 40 10000
+    bytecblock 0x00000000000000000000000000000000000000000000000000 "pending" "dex" "tinyman" "b" 0x0000000000000000000000000000000000000000000000000000000000000000 "admin" 0x151f7c75 0x2710 "paused" "ERR:errBrtm" "swap" "fixed-input" 0x068101 "ERR:errBrpl" "plan" 0x05f5e100
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:132
+    // export class BackrunArbHook extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@11
+    pushbytess 0x17866912 0x4e37efbd 0xcbcbbe37 0x47b2bf18 0x21f1ddff 0xdeed9478 0x74322cba // method "setAdmin(address)void", method "setPaused(bool)void", method "registerPool(uint64,uint64,uint64,uint64)void", method "setPoolEnabled(uint64,bool)void", method "withdraw(uint64)void", method "getVenue(uint64)(address,uint64,uint64,uint64,uint64,uint64,bool)", method "akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)"
+    txna ApplicationArgs 0
+    match setAdmin setPaused registerPool setPoolEnabled withdraw getVenue akitaDexHook
+    err
+
+main_create_NoOp@11:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:132
+    // export class BackrunArbHook extends Contract {
+    pushbytes 0xa2d11499 // method "create(uint64,uint64,address)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// _puya_lib.util.ensure_budget(required_budget: uint64, fee_source: uint64) -> void:
+ensure_budget:
+    proto 2 0
+    frame_dig -2
+    pushint 10
+    +
+
+ensure_budget_while_top@1:
+    dup
+    global OpcodeBudget
+    >
+    bz ensure_budget_after_while@6
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec 13 // 0x068101
+    itxn_field ApprovalProgram
+    bytec 13 // 0x068101
+    itxn_field ClearStateProgram
+    frame_dig -1
+    switch ensure_budget_switch_case_0@3 ensure_budget_switch_case_1@4
+
+ensure_budget_switch_case_next@5:
+    itxn_submit
+    b ensure_budget_while_top@1
+
+ensure_budget_switch_case_1@4:
+    global MinTxnFee
+    itxn_field Fee
+    b ensure_budget_switch_case_next@5
+
+ensure_budget_switch_case_0@3:
+    intc_0 // 0
+    itxn_field Fee
+    b ensure_budget_switch_case_next@5
+
+ensure_budget_after_while@6:
+    retsub
+
+
+// smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress(app: uint64, assetA: uint64, assetB: uint64) -> bytes:
+tmPoolAddress:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:56
+    // export function tmPoolAddress(app: Application, assetA: uint64, assetB: uint64): Account {
+    proto 3 1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:57
+    // const asset1: uint64 = assetA > assetB ? assetA : assetB
+    frame_dig -2
+    frame_dig -1
+    >
+    frame_dig -1
+    frame_dig -2
+    dig 2
+    select
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:58
+    // const asset2: uint64 = assetA > assetB ? assetB : assetA
+    frame_dig -2
+    frame_dig -1
+    uncover 3
+    select
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:60
+    // op.concat(op.concat(op.concat(TM_POOL_PREFIX, op.itob(app.id)), op.itob(asset1)), op.itob(asset2)),
+    frame_dig -3
+    itob
+    pushbytes 0x068018
+    swap
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:61
+    // TM_POOL_SUFFIX,
+    pushbytes 0x81005b3500340031181244311981011244810143
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:59-62
+    // const program = op.concat(
+    //   op.concat(op.concat(op.concat(TM_POOL_PREFIX, op.itob(app.id)), op.itob(asset1)), op.itob(asset2)),
+    //   TM_POOL_SUFFIX,
+    // )
+    concat
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:63
+    // return Account(op.sha512_256(op.concat(Bytes('Program'), program)))
+    pushbytes "Program"
+    swap
+    concat
+    sha512_256
+    retsub
+
+
+// smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmReadPool(pool: bytes, app: uint64) -> bytes:
+tmReadPool:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:76
+    // export function tmReadPool(pool: Account, app: Application): TmPool {
+    proto 2 1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:77
+    // if (!pool.isOptedIn(app)) {
+    frame_dig -2
+    frame_dig -1
+    app_opted_in
+    bnz tmReadPool_after_if_else@2
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:78-89
+    // return {
+    //   exists: false,
+    //   asset1: 0,
+    //   asset2: 0,
+    //   lpAsset: 0,
+    //   reserve1: 0,
+    //   reserve2: 0,
+    //   issued: 0,
+    //   feeShare: 0,
+    //   protocolFeeRatio: 0,
+    //   lock: 0,
+    // }
+    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    retsub
+
+tmReadPool_after_if_else@2:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:91
+    // const [asset1, exists] = op.AppLocal.getExUint64(pool, app, Bytes('asset_1_id'))
+    frame_dig -2
+    frame_dig -1
+    pushbytes "asset_1_id"
+    app_local_get_ex
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:95
+    // asset2: tmLocal(pool, app, Bytes('asset_2_id')),
+    pushbytes "asset_2_id"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 2
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:96
+    // lpAsset: tmLocal(pool, app, Bytes('pool_token_asset_id')),
+    pushbytes "pool_token_asset_id"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 3
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:97
+    // reserve1: tmLocal(pool, app, Bytes('asset_1_reserves')),
+    pushbytes "asset_1_reserves"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 4
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:98
+    // reserve2: tmLocal(pool, app, Bytes('asset_2_reserves')),
+    pushbytes "asset_2_reserves"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 5
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:99
+    // issued: tmLocal(pool, app, Bytes('issued_pool_tokens')),
+    pushbytes "issued_pool_tokens"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 6
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:100
+    // feeShare: tmLocal(pool, app, Bytes('total_fee_share')),
+    pushbytes "total_fee_share"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 7
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:101
+    // protocolFeeRatio: tmLocal(pool, app, Bytes('protocol_fee_ratio')),
+    pushbytes "protocol_fee_ratio"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 8
+    frame_dig -2
+    frame_dig -1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:102
+    // lock: tmLocal(pool, app, Bytes('lock')),
+    pushbytes "lock"
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:67
+    // const [value] = op.AppLocal.getExUint64(pool, app, key)
+    app_local_get_ex
+    pop
+    cover 9
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:92-103
+    // return {
+    //   exists: exists,
+    //   asset1: asset1,
+    //   asset2: tmLocal(pool, app, Bytes('asset_2_id')),
+    //   lpAsset: tmLocal(pool, app, Bytes('pool_token_asset_id')),
+    //   reserve1: tmLocal(pool, app, Bytes('asset_1_reserves')),
+    //   reserve2: tmLocal(pool, app, Bytes('asset_2_reserves')),
+    //   issued: tmLocal(pool, app, Bytes('issued_pool_tokens')),
+    //   feeShare: tmLocal(pool, app, Bytes('total_fee_share')),
+    //   protocolFeeRatio: tmLocal(pool, app, Bytes('protocol_fee_ratio')),
+    //   lock: tmLocal(pool, app, Bytes('lock')),
+    // }
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    retsub
+
+
+// smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding(account: bytes, asset: uint64) -> uint64:
+tmHolding:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:153
+    // export function tmHolding(account: Account, asset: uint64): uint64 {
+    proto 2 1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:154
+    // if (asset === 0) return account.balance
+    frame_dig -1
+    bnz tmHolding_after_if_else@2
+    frame_dig -2
+    acct_params_get AcctBalance
+    assert // account funded
+    retsub
+
+tmHolding_after_if_else@2:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:155
+    // const [balance] = op.AssetHolding.assetBalance(account, asset)
+    frame_dig -2
+    frame_dig -1
+    asset_holding_get AssetBalance
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:156
+    // return balance
+    retsub
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:149
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:151
+    // this.dex.value = dex
+    uncover 3
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:135
+    // tinyman = GlobalState<Application>({ key: 'tinyman' })
+    bytec_3 // "tinyman"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:152
+    // this.tinyman.value = tinyman
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:136
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec 6 // "admin"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:153
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:138
+    // paused = GlobalState<boolean>({ key: 'paused' })
+    bytec 9 // "paused"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:154
+    // this.paused.value = false
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:155
+    // this.pendingPool.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:149
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.setAdmin[routing]() -> void:
+setAdmin:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:164
+    // setAdmin(admin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:165
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:136
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec 6 // "admin"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:166
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:164
+    // setAdmin(admin: Account): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.setPaused[routing]() -> void:
+setPaused:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:169
+    // setPaused(paused: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:170
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:138
+    // paused = GlobalState<boolean>({ key: 'paused' })
+    bytec 9 // "paused"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:171
+    // this.paused.value = paused
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:169
+    // setPaused(paused: boolean): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.registerPool[routing]() -> void:
+registerPool:
+    intc_0 // 0
+    dup
+    pushbytes ""
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:179
+    // registerPool(poolId: uint64, minSurplusA: uint64, minSurplusB: uint64, maxTradeBps: uint64): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:180
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:181
+    // loggedAssert(maxTradeBps > 0 && maxTradeBps <= MaxTradeCapBps, errBadParams)
+    bz registerPool_bool_false@4
+    dig 1
+    pushint 5000
+    <=
+    bz registerPool_bool_false@4
+    intc_1 // 1
+
+registerPool_bool_merge@5:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:181
+    // loggedAssert(maxTradeBps > 0 && maxTradeBps <= MaxTradeCapBps, errBadParams)
+    bnz registerPool_after_assert@7
+    pushbytes "ERR:errBrpm"
+    log
+    err // ERR:errBrpm
+
+registerPool_after_assert@7:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:183
+    // const pool = abiCall<typeof PluginDex.prototype.getPool>({ appId: this.dex.value, args: [poolId], fee: 0 }).returnValue
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:183
+    // const pool = abiCall<typeof PluginDex.prototype.getPool>({ appId: this.dex.value, args: [poolId], fee: 0 }).returnValue
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    pushbytes 0xdc53d7e7 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dupn 2
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec 7 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    pushint 281
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::PoolInfo
+    pushint 36
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:184
+    // loggedAssert(pool.curve === 0 && pool.externalSlots === 0 && (pool.virtualA | pool.virtualB) === 0, errPoolNotEligible)
+    extract_uint64
+    bnz registerPool_bool_false@12
+    dup
+    pushint 92
+    extract_uint64
+    bnz registerPool_bool_false@12
+    dupn 2
+    pushint 100
+    extract_uint64
+    swap
+    pushint 108
+    extract_uint64
+    |
+    bnz registerPool_bool_false@12
+    intc_1 // 1
+
+registerPool_bool_merge@13:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:184
+    // loggedAssert(pool.curve === 0 && pool.externalSlots === 0 && (pool.virtualA | pool.virtualB) === 0, errPoolNotEligible)
+    bnz registerPool_after_assert@15
+    bytec 14 // "ERR:errBrpl"
+    log
+    err // ERR:errBrpl
+
+registerPool_after_assert@15:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:187
+    // const hooks = abiCall<typeof PluginDex.prototype.getPoolHooks>({ appId: this.dex.value, args: [poolId], fee: 0 }).returnValue
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:187
+    // const hooks = abiCall<typeof PluginDex.prototype.getPoolHooks>({ appId: this.dex.value, args: [poolId], fee: 0 }).returnValue
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    pushbytes 0xd12959c7 // method "getPoolHooks(uint64)(uint64,uint64,uint64,uint64,uint64)[]"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    cover 2
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec 7 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    intc_3 // 40
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/plugin-dex/types.ts::HookConfig>
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:188
+    // let installed = false
+    intc_0 // 0
+    bury 8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:189
+    // for (let i: uint64 = 0; i < hooks.length; i += 1) {
+    intc_0 // 0
+    swap
+
+registerPool_while_top@17:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:189
+    // for (let i: uint64 = 0; i < hooks.length; i += 1) {
+    dig 1
+    dig 3
+    <
+    bz registerPool_after_while@23
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:190-191
+    // const hook = clone(hooks[i])
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    dig 3
+    extract 6 0
+    dig 2
+    intc_3 // 40
+    *
+    intc_3 // 40
+    extract3 // on error: index access is out of bounds
+    dup
+    bury 12
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:191
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    extract_uint64
+    global CurrentApplicationID
+    ==
+    bz registerPool_after_if_else@22
+    dig 10
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:190-191
+    // const hook = clone(hooks[i])
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    pushint 24
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:191
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    extract_uint64
+    intc_1 // 1
+    &
+    bz registerPool_after_if_else@22
+    dig 10
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:190-191
+    // const hook = clone(hooks[i])
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    pushint 16
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:191
+    // if (hook.app === Global.currentApplicationId.id && (hook.perms & HookPermCustody) !== 0 && (hook.points & (HookPointAfterSwap | HookPointPoke)) !== 0) {
+    extract_uint64
+    pushint 320
+    &
+    bz registerPool_after_if_else@22
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:192
+    // installed = true
+    intc_1 // 1
+    bury 9
+
+registerPool_after_if_else@22:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:189
+    // for (let i: uint64 = 0; i < hooks.length; i += 1) {
+    swap
+    intc_1 // 1
+    +
+    swap
+    b registerPool_while_top@17
+
+registerPool_after_while@23:
+    bury 1
+    bury 1
+    bury 1
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:195
+    // loggedAssert(installed, errPoolNotEligible)
+    dig 5
+    bnz registerPool_after_assert@25
+    bytec 14 // "ERR:errBrpl"
+    log
+    err // ERR:errBrpl
+
+registerPool_after_assert@25:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:197
+    // const tmPool = tmPoolAddress(this.tinyman.value, pool.assetA, pool.assetB)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:135
+    // tinyman = GlobalState<Application>({ key: 'tinyman' })
+    bytec_3 // "tinyman"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:197
+    // const tmPool = tmPoolAddress(this.tinyman.value, pool.assetA, pool.assetB)
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    dup
+    pushint 4
+    extract_uint64
+    dup
+    cover 2
+    cover 3
+    pushint 12
+    extract_uint64
+    dup
+    cover 4
+    callsub tmPoolAddress
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:198
+    // const tm = tmReadPool(tmPool, this.tinyman.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:135
+    // tinyman = GlobalState<Application>({ key: 'tinyman' })
+    bytec_3 // "tinyman"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:198
+    // const tm = tmReadPool(tmPool, this.tinyman.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    callsub tmReadPool
+    dup
+    bury 10
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:200
+    // loggedAssert(tm.exists && tm.asset1 === pool.assetB && tm.asset2 === pool.assetA, errNoVenue)
+    intc_0 // 0
+    getbit
+    bz registerPool_bool_false@29
+    dig 8
+    intc_1 // 1
+    extract_uint64
+    dig 3
+    ==
+    bz registerPool_bool_false@29
+    dig 8
+    pushint 9
+    extract_uint64
+    dig 2
+    ==
+    bz registerPool_bool_false@29
+    intc_1 // 1
+
+registerPool_bool_merge@30:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:200
+    // loggedAssert(tm.exists && tm.asset1 === pool.assetB && tm.asset2 === pool.assetA, errNoVenue)
+    bnz registerPool_after_assert@32
+    bytec 10 // "ERR:errBrtm"
+    log
+    err // ERR:errBrtm
+
+registerPool_after_assert@32:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:202-210
+    // this.venues(poolId).value = {
+    //   pool: tmPool,
+    //   assetA: pool.assetA,
+    //   assetB: pool.assetB,
+    //   minSurplusA,
+    //   minSurplusB,
+    //   maxTradeBps,
+    //   enabled: true,
+    // }
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    dig 3
+    itob
+    concat
+    dig 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    pushbytes 0x80
+    concat
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:202
+    // this.venues(poolId).value = {
+    dig 3
+    itob
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:147
+    // venues = BoxMap<uint64, BackrunVenue>({ keyPrefix: 'b' })
+    bytec 4 // "b"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:202-210
+    // this.venues(poolId).value = {
+    //   pool: tmPool,
+    //   assetA: pool.assetA,
+    //   assetB: pool.assetB,
+    //   minSurplusA,
+    //   minSurplusB,
+    //   maxTradeBps,
+    //   enabled: true,
+    // }
+    swap
+    box_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:179
+    // registerPool(poolId: uint64, minSurplusA: uint64, minSurplusB: uint64, maxTradeBps: uint64): void {
+    intc_1 // 1
+    return
+
+registerPool_bool_false@29:
+    intc_0 // 0
+    b registerPool_bool_merge@30
+
+registerPool_bool_false@12:
+    intc_0 // 0
+    b registerPool_bool_merge@13
+
+registerPool_bool_false@4:
+    intc_0 // 0
+    b registerPool_bool_merge@5
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.setPoolEnabled[routing]() -> void:
+setPoolEnabled:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:214
+    // setPoolEnabled(poolId: uint64, enabled: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:215
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:216
+    // loggedAssert(this.venues(poolId).exists, errNoVenue)
+    itob
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:147
+    // venues = BoxMap<uint64, BackrunVenue>({ keyPrefix: 'b' })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:216
+    // loggedAssert(this.venues(poolId).exists, errNoVenue)
+    box_len
+    bury 1
+    bnz setPoolEnabled_after_assert@3
+    bytec 10 // "ERR:errBrtm"
+    log
+    err // ERR:errBrtm
+
+setPoolEnabled_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:217
+    // this.venues(poolId).value.enabled = enabled
+    dup
+    pushint 72
+    intc_1 // 1
+    box_extract
+    intc_0 // 0
+    uncover 3
+    setbit
+    pushint 72
+    swap
+    box_replace // on error: index out of bounds
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:214
+    // setPoolEnabled(poolId: uint64, enabled: boolean): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.withdraw[routing]() -> void:
+withdraw:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:221
+    // withdraw(amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:222
+    // this.requireAdmin()
+    callsub requireAdmin
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:223
+    // itxn.payment({ receiver: this.admin.value, amount, fee: 0 }).submit()
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:136
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec 6 // "admin"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:223
+    // itxn.payment({ receiver: this.admin.value, amount, fee: 0 }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:221
+    // withdraw(amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.getVenue[routing]() -> void:
+getVenue:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:226
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:228
+    // loggedAssert(this.venues(poolId).exists, errNoVenue)
+    itob
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:147
+    // venues = BoxMap<uint64, BackrunVenue>({ keyPrefix: 'b' })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:228
+    // loggedAssert(this.venues(poolId).exists, errNoVenue)
+    box_len
+    bury 1
+    bnz getVenue_after_assert@3
+    bytec 10 // "ERR:errBrtm"
+    log
+    err // ERR:errBrtm
+
+getVenue_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:229
+    // return clone(this.venues(poolId).value)
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:226
+    // @abimethod({ readonly: true })
+    bytec 7 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook[routing]() -> void:
+akitaDexHook:
+    intc_0 // 0
+    dup
+    pushbytes ""
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    txna ApplicationArgs 1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dupn 2
+    len
+    dig 1
+    pushint 305
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 309
+    ==
+    assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 311
+    +
+    dig 2
+    pushint 307
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    uncover 3
+    swap
+    dig 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:235
+    // requireDexCaller(this.dex.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:235
+    // requireDexCaller(this.dex.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hook-interface.ts:44
+    // loggedAssert(Global.callerApplicationId === dex.id, 'errHookCaller')
+    global CallerApplicationID
+    ==
+    bnz akitaDexHook_after_assert@48
+    pushbytes "ERR:errHookCaller"
+    log
+    err // ERR:errHookCaller
+
+akitaDexHook_after_assert@48:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:236
+    // const pointOk = ctx.point === HookPointAfterSwap || ctx.point === HookPointPoke
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    bury 3
+    pushint 64
+    ==
+    bnz akitaDexHook_bool_true@3
+    dig 1
+    pushint 256
+    ==
+    bz akitaDexHook_bool_false@4
+
+akitaDexHook_bool_true@3:
+    intc_1 // 1
+    bury 3
+
+akitaDexHook_bool_merge@5:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:237
+    // const custody = ctx.escrow.authAddress === Global.currentApplicationAddress
+    dup
+    extract 24 32
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:239
+    // if (!custody) {
+    bnz akitaDexHook_after_if_else@13
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:242
+    // if (this.pendingPool.value !== 0) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:242
+    // if (this.pendingPool.value !== 0) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    bz akitaDexHook_after_if_else@8
+    pop
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:243
+    // this.pendingPool.value = 0
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 5 // 0x0000000000000000000000000000000000000000000000000000000000000000
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    bytec 7 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+akitaDexHook_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:246
+    // if (!pointOk) {
+    dig 2
+    bnz akitaDexHook_after_if_else@10
+    pop
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 5 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26
+
+akitaDexHook_after_if_else@10:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:249
+    // const plan = this.plan(ctx)
+    callsub plan
+    swap
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:250
+    // if (!plan.execute) {
+    intc_0 // 0
+    getbit
+    bnz akitaDexHook_after_if_else@12
+    popn 2
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 5 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26
+
+akitaDexHook_after_if_else@12:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:255
+    // ensureBudget(LazyCustodyBudget, OpUpFeeSource.GroupCredit)
+    pushint 1000
+    intc_0 // 0
+    callsub ensure_budget
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:256
+    // this.pendingPool.value = ctx.poolId + 1
+    swap
+    intc_2 // 8
+    extract_uint64
+    intc_1 // 1
+    +
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:256
+    // this.pendingPool.value = ctx.poolId + 1
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:145
+    // pending = GlobalState<BackrunPlan>({ key: 'plan' })
+    bytec 15 // "plan"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:257
+    // this.pending.value = clone(plan)
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:258
+    // return { flags: HookResultRequestCustody, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    pushbytes 0x0000000000000002000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26
+
+akitaDexHook_after_if_else@13:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:261
+    // const lazy = this.pendingPool.value !== 0
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:261
+    // const lazy = this.pendingPool.value !== 0
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    bury 5
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:263
+    // if (lazy) {
+    bz akitaDexHook_else_body@18
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:265
+    // if (this.pendingPool.value === ctx.poolId + 1 && pointOk) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:265
+    // if (this.pendingPool.value === ctx.poolId + 1 && pointOk) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    dig 1
+    intc_2 // 8
+    extract_uint64
+    intc_1 // 1
+    +
+    ==
+    bz akitaDexHook_after_if_else@17
+    dig 2
+    bz akitaDexHook_after_if_else@17
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:266
+    // plan = clone(this.pending.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:145
+    // pending = GlobalState<BackrunPlan>({ key: 'plan' })
+    bytec 15 // "plan"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:266
+    // plan = clone(this.pending.value)
+    app_global_get_ex
+    swap
+    bury 5
+    assert // check GlobalState exists
+
+akitaDexHook_after_if_else@17:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:143
+    // pendingPool = GlobalState<uint64>({ key: 'pending' })
+    bytec_1 // "pending"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:268
+    // this.pendingPool.value = 0
+    intc_0 // 0
+    app_global_put
+
+akitaDexHook_after_if_else@23:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:276
+    // if (!plan.execute) {
+    dig 3
+    intc_0 // 0
+    getbit
+    bnz akitaDexHook_after_if_else@25
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:277
+    // rekeyBackToDex(this.dex.value, ctx.escrow)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:277
+    // rekeyBackToDex(this.dex.value, ctx.escrow)
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    extract 24 32
+    // smart_contracts/plugin-dex/hook-interface.ts:54-61
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugin-dex/hook-interface.ts:59
+    // rekeyTo: dex.address,
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    // smart_contracts/plugin-dex/hook-interface.ts:58
+    // amount: 0,
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/plugin-dex/hook-interface.ts:54-60
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/hook-interface.ts:54-61
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 5 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26
+
+akitaDexHook_after_if_else@25:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:411
+    // const venue = clone(this.venues(ctx.poolId).value)
+    dup
+    extract 8 8
+    dup
+    bury 6
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:147
+    // venues = BoxMap<uint64, BackrunVenue>({ keyPrefix: 'b' })
+    bytec 4 // "b"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:411
+    // const venue = clone(this.venues(ctx.poolId).value)
+    box_get
+    swap
+    cover 2
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:412
+    // const assetX: uint64 = plan.sellA ? venue.assetA : venue.assetB
+    dig 4
+    intc_1 // 1
+    getbit
+    dup
+    cover 3
+    bz akitaDexHook_ternary_false@29
+    dig 1
+    pushint 32
+    extract_uint64
+    cover 2
+
+akitaDexHook_ternary_merge@30:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:413
+    // const assetY: uint64 = plan.sellA ? venue.assetB : venue.assetA
+    dig 3
+    bz akitaDexHook_ternary_false@32
+    dig 1
+    intc_3 // 40
+    extract_uint64
+    cover 4
+
+akitaDexHook_ternary_merge@33:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:415
+    // tmSwapAs(ctx.escrow, this.tinyman.value, venue.pool, assetX, plan.amountIn, assetY, plan.minOut, this.dex.value.address)
+    dup
+    extract 24 32
+    cover 5
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:135
+    // tinyman = GlobalState<Application>({ key: 'tinyman' })
+    bytec_3 // "tinyman"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:415
+    // tmSwapAs(ctx.escrow, this.tinyman.value, venue.pool, assetX, plan.amountIn, assetY, plan.minOut, this.dex.value.address)
+    app_global_get_ex
+    swap
+    cover 7
+    assert // check GlobalState exists
+    swap
+    extract 0 32
+    cover 5
+    dig 9
+    dup
+    intc_1 // 1
+    extract_uint64
+    cover 3
+    pushint 17
+    extract_uint64
+    cover 7
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:133
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_2 // "dex"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:415
+    // tmSwapAs(ctx.escrow, this.tinyman.value, venue.pool, assetX, plan.amountIn, assetY, plan.minOut, this.dex.value.address)
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    swap
+    cover 9
+    assert // application exists
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:183
+    // loggedAssert(assetIn !== assetOut, 'errTmPair')
+    dig 1
+    dig 5
+    !=
+    bnz akitaDexHook_after_assert@35
+    pushbytes "ERR:errTmPair"
+    log
+    err // ERR:errTmPair
+
+akitaDexHook_after_assert@35:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:184
+    // loggedAssert(pool === tmPoolAddress(app, assetIn, assetOut), 'errTmPool')
+    dig 9
+    dig 2
+    dig 6
+    callsub tmPoolAddress
+    dig 7
+    ==
+    bnz akitaDexHook_after_assert@37
+    pushbytes "ERR:errTmPool"
+    log
+    err // ERR:errTmPool
+
+akitaDexHook_after_assert@37:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:186
+    // const before = tmHolding(account, assetOut)
+    dig 5
+    dig 5
+    callsub tmHolding
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:187
+    // if (assetIn === 0) {
+    dig 1
+    bnz akitaDexHook_else_body@39
+    bury 1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:188-199
+    // itxn.submitGroup(
+    //   itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetOut],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_begin
+    dig 1
+    itxn_field Amount
+    uncover 5
+    dup
+    itxn_field Receiver
+    dig 5
+    dup
+    cover 2
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:189
+    // itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:190-198
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetOut],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    itxn_next
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:193
+    // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    uncover 7
+    itob
+    uncover 8
+    itxn_field RekeyTo
+    dig 6
+    itxn_field Assets
+    swap
+    itxn_field Accounts
+    bytec 11 // "swap"
+    itxn_field ApplicationArgs
+    bytec 12 // "fixed-input"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 6
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:190-198
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetOut],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    pushint 6
+    itxn_field TypeEnum
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:197
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:188-199
+    // itxn.submitGroup(
+    //   itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetOut],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_submit
+
+akitaDexHook_after_if_else@42:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:227
+    // return tmHolding(account, assetOut) - before
+    uncover 4
+    uncover 4
+    callsub tmHolding
+    pop
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:419
+    // point: ctx.point,
+    extract 0 8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:422
+    // amountOut: plan.amountOut,
+    dig 5
+    extract 9 8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:417-423
+    // emit<BackrunEvent>({
+    //   poolId: ctx.poolId,
+    //   point: ctx.point,
+    //   sellA: plan.sellA,
+    //   amountIn: plan.amountIn,
+    //   amountOut: plan.amountOut,
+    // })
+    dig 7
+    uncover 2
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 5
+    setbit
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    pushbytes 0x498d67db // method "BackrunEvent(uint64,uint64,bool,uint64,uint64)"
+    swap
+    concat
+    log
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec 5 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:234
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.akitaDexHook@26
+
+akitaDexHook_else_body@39:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:200
+    // } else if (assetOut === 0) {
+    dig 4
+    bnz akitaDexHook_else_body@41
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:201-212
+    // itxn.submitGroup(
+    //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetIn],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_begin
+    dig 2
+    itxn_field AssetAmount
+    swap
+    dup
+    itxn_field XferAsset
+    uncover 6
+    dup
+    cover 2
+    itxn_field AssetReceiver
+    dig 6
+    dup
+    cover 3
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:202
+    // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:203-211
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetIn],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    itxn_next
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:206
+    // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    uncover 8
+    itob
+    uncover 9
+    itxn_field RekeyTo
+    swap
+    itxn_field Assets
+    swap
+    itxn_field Accounts
+    bytec 11 // "swap"
+    itxn_field ApplicationArgs
+    bytec 12 // "fixed-input"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 6
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:203-211
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetIn],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    pushint 6
+    itxn_field TypeEnum
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:210
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:201-212
+    // itxn.submitGroup(
+    //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetIn],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_submit
+    b akitaDexHook_after_if_else@42
+
+akitaDexHook_else_body@41:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:214-225
+    // itxn.submitGroup(
+    //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetIn, assetOut],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_begin
+    dig 2
+    itxn_field AssetAmount
+    swap
+    dup
+    itxn_field XferAsset
+    uncover 6
+    dup
+    cover 2
+    itxn_field AssetReceiver
+    dig 6
+    dup
+    cover 3
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:215
+    // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    pushint 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:216-224
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetIn, assetOut],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    itxn_next
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:219
+    // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    uncover 8
+    itob
+    uncover 9
+    itxn_field RekeyTo
+    swap
+    itxn_field Assets
+    dig 6
+    itxn_field Assets
+    swap
+    itxn_field Accounts
+    bytec 11 // "swap"
+    itxn_field ApplicationArgs
+    bytec 12 // "fixed-input"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 6
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:216-224
+    // itxn.applicationCall({
+    //   sender: account,
+    //   appId: app,
+    //   appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //   accounts: [pool],
+    //   assets: [assetIn, assetOut],
+    //   rekeyTo: rekeyTo,
+    //   fee: 0,
+    // }),
+    pushint 6
+    itxn_field TypeEnum
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:223
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:214-225
+    // itxn.submitGroup(
+    //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
+    //   itxn.applicationCall({
+    //     sender: account,
+    //     appId: app,
+    //     appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
+    //     accounts: [pool],
+    //     assets: [assetIn, assetOut],
+    //     rekeyTo: rekeyTo,
+    //     fee: 0,
+    //   }),
+    // )
+    itxn_submit
+    b akitaDexHook_after_if_else@42
+
+akitaDexHook_ternary_false@32:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:413
+    // const assetY: uint64 = plan.sellA ? venue.assetB : venue.assetA
+    dig 1
+    pushint 32
+    extract_uint64
+    cover 4
+    b akitaDexHook_ternary_merge@33
+
+akitaDexHook_ternary_false@29:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:412
+    // const assetX: uint64 = plan.sellA ? venue.assetA : venue.assetB
+    dig 1
+    intc_3 // 40
+    extract_uint64
+    cover 2
+    b akitaDexHook_ternary_merge@30
+
+akitaDexHook_else_body@18:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:269
+    // } else if (pointOk) {
+    dig 2
+    bz akitaDexHook_after_if_else@23
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:271
+    // plan = this.plan(ctx)
+    callsub plan
+    swap
+    dup
+    bury 5
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:272
+    // if (plan.execute) {
+    intc_0 // 0
+    getbit
+    bz akitaDexHook_after_if_else@23
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:273
+    // ensureBudget(EagerExecuteBudget, OpUpFeeSource.GroupCredit)
+    pushint 1000
+    intc_0 // 0
+    callsub ensure_budget
+    b akitaDexHook_after_if_else@23
+
+akitaDexHook_bool_false@4:
+    intc_0 // 0
+    bury 3
+    b akitaDexHook_bool_merge@5
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.requireAdmin() -> void:
+requireAdmin:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:161
+    // loggedAssert(Txn.sender === this.admin.value, errAdminOnly)
+    txn Sender
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:136
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec 6 // "admin"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:161
+    // loggedAssert(Txn.sender === this.admin.value, errAdminOnly)
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bnz requireAdmin_after_assert@2
+    pushbytes "ERR:errBrao"
+    log
+    err // ERR:errBrao
+
+requireAdmin_after_assert@2:
+    retsub
+
+
+// smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts::BackrunArbHook.plan(ctx: bytes) -> bytes, bytes:
+plan:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:290
+    // private plan(ctx: HookContext): BackrunPlan {
+    proto 1 2
+    pushbytes ""
+    dupn 8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:292
+    // if (this.paused.value || ctx.curve !== 0 || (ctx.before.flags & CurveFlagBonding) !== 0) {
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:138
+    // paused = GlobalState<boolean>({ key: 'paused' })
+    bytec 9 // "paused"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:292
+    // if (this.paused.value || ctx.curve !== 0 || (ctx.before.flags & CurveFlagBonding) !== 0) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    bnz plan_if_body@3
+    frame_dig -1
+    pushint 16
+    extract_uint64
+    bnz plan_if_body@3
+    frame_dig -1
+    extract 225 40
+    pushint 32
+    extract_uint64
+    pushint 2
+    &
+    bz plan_after_if_else@4
+
+plan_if_body@3:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:293
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@4:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:295
+    // if (!this.venues(ctx.poolId).exists) {
+    frame_dig -1
+    extract 8 8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:147
+    // venues = BoxMap<uint64, BackrunVenue>({ keyPrefix: 'b' })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:295
+    // if (!this.venues(ctx.poolId).exists) {
+    box_len
+    bury 1
+    bnz plan_after_if_else@6
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:296
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@6:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:298
+    // const venue = clone(this.venues(ctx.poolId).value)
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:299
+    // if (!venue.enabled) {
+    pushint 576
+    getbit
+    bnz plan_after_if_else@8
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:300
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:302
+    // const inIsA = ctx.assetIn === venue.assetA && ctx.assetOut === venue.assetB
+    frame_dig -1
+    pushint 136
+    extract_uint64
+    dup
+    frame_bury 8
+    dig 1
+    pushint 32
+    extract_uint64
+    dup
+    cover 2
+    ==
+    bz plan_bool_false@11
+    frame_dig -1
+    pushint 144
+    extract_uint64
+    dig 2
+    intc_3 // 40
+    extract_uint64
+    ==
+    bz plan_bool_false@11
+    intc_1 // 1
+
+plan_bool_merge@12:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:303
+    // if (!inIsA && !(ctx.assetIn === venue.assetB && ctx.assetOut === venue.assetA)) {
+    dup
+    bnz plan_after_if_else@16
+    dig 2
+    intc_3 // 40
+    extract_uint64
+    frame_dig 8
+    ==
+    bz plan_if_body@15
+    frame_dig -1
+    pushint 144
+    extract_uint64
+    dig 2
+    ==
+    bnz plan_after_if_else@16
+
+plan_if_body@15:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:304
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@16:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:306
+    // if (ctx.custodyFeeBps >= BpsDivisor) {
+    frame_dig -1
+    pushint 217
+    extract_uint64
+    dup
+    cover 4
+    intc 4 // 10000
+    >=
+    bz plan_after_if_else@18
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:307
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@18:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:311
+    // const rA: uint64 = inIsA ? ctx.reserveIn : ctx.reserveOut
+    dup
+    bz plan_ternary_false@20
+    frame_dig -1
+    pushint 169
+    extract_uint64
+    cover 3
+
+plan_ternary_merge@21:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:312
+    // const rB: uint64 = inIsA ? ctx.reserveOut : ctx.reserveIn
+    bz plan_ternary_false@23
+    frame_dig -1
+    pushint 177
+    extract_uint64
+    cover 2
+
+plan_ternary_merge@24:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:313
+    // const tm: TmPool = tmReadPool(venue.pool, this.tinyman.value)
+    dig 1
+    extract 0 32
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:135
+    // tinyman = GlobalState<Application>({ key: 'tinyman' })
+    bytec_3 // "tinyman"
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:313
+    // const tm: TmPool = tmReadPool(venue.pool, this.tinyman.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    callsub tmReadPool
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:314
+    // if (!tm.exists || tm.lock !== 0 || tm.feeShare >= BpsDivisor) {
+    intc_0 // 0
+    getbit
+    dup
+    frame_bury 0
+    bz plan_if_body@27
+    dig 1
+    pushint 65
+    extract_uint64
+    dup
+    frame_bury 6
+    bnz plan_if_body@27
+    dig 1
+    pushint 49
+    extract_uint64
+    dup
+    frame_bury 7
+    intc 4 // 10000
+    >=
+    bz plan_after_if_else@28
+
+plan_if_body@27:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:315
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@28:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:317
+    // const tA = tm.reserve2
+    dig 1
+    dup
+    pushint 33
+    extract_uint64
+    cover 7
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:318
+    // const tB = tm.reserve1
+    pushint 25
+    extract_uint64
+    cover 4
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:319
+    // if (rA === 0 || rB === 0 || tA === 0 || tB === 0) {
+    dig 5
+    bz plan_if_body@32
+    dig 3
+    bz plan_if_body@32
+    dig 7
+    bz plan_if_body@32
+    dig 4
+    bnz plan_after_if_else@33
+
+plan_if_body@32:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:320
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@33:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:324
+    // const g: uint64 = BpsDivisor - tm.feeShare
+    intc 4 // 10000
+    frame_dig 7
+    -
+    dup
+    frame_bury 2
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:325
+    // const p: uint64 = BpsDivisor - ctx.custodyFeeBps
+    intc 4 // 10000
+    dig 8
+    -
+    dup
+    frame_bury 3
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:326
+    // const gp: biguint = BigUint(g * p)
+    *
+    itob
+    dup
+    cover 9
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:329
+    // if (gp * BigUint(tB) * BigUint(rA) > scale * BigUint(rB) * BigUint(tA)) {
+    dig 5
+    itob
+    dup
+    cover 11
+    b*
+    dig 6
+    itob
+    dup
+    cover 11
+    b*
+    dig 4
+    itob
+    dup
+    cover 9
+    bytec 16 // 0x05f5e100
+    b*
+    dig 10
+    itob
+    dup
+    cover 3
+    b*
+    b>
+    bz plan_else_body@35
+    pop
+    uncover 7
+    pop
+    uncover 8
+    pop
+    uncover 8
+    pop
+    uncover 8
+    pop
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:330
+    // sellA = true
+    intc_1 // 1
+    cover 4
+
+plan_after_if_else@39:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:338
+    // ensureBudget(SizingBudget, OpUpFeeSource.GroupCredit)
+    pushint 900
+    intc_0 // 0
+    callsub ensure_budget
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:339
+    // const x1: uint64 = sellA ? rA : rB
+    uncover 3
+    dup
+    uncover 7
+    dup
+    cover 2
+    dig 7
+    dup
+    cover 4
+    select
+    dup
+    cover 4
+    cover 11
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:340
+    // const y1: uint64 = sellA ? rB : rA
+    uncover 2
+    dig 2
+    select
+    dup
+    cover 3
+    cover 9
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:341
+    // const x2: uint64 = sellA ? tA : tB
+    dig 7
+    dup
+    cover 2
+    dig 12
+    dup
+    cover 2
+    dig 3
+    select
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:342
+    // const y2: uint64 = sellA ? tB : tA
+    swap
+    uncover 3
+    uncover 3
+    select
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:347
+    // const bx2: biguint = BigUint(x2)
+    swap
+    itob
+    dup
+    cover 2
+    cover 10
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:348
+    // const num: biguint = bx2 * BigUint(y2) * BigUint(p) * (BigUint(g) * BigUint(x1) + bps * bx2)
+    itob
+    dup2
+    b*
+    frame_dig 3
+    itob
+    swap
+    dig 1
+    b*
+    frame_dig 2
+    itob
+    dup
+    cover 13
+    uncover 5
+    itob
+    b*
+    bytec 8 // 0x2710
+    dig 5
+    b*
+    b+
+    b*
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:349
+    // const den: biguint = bps * (bps * BigUint(y1) + BigUint(p) * BigUint(y2))
+    uncover 4
+    itob
+    bytec 8 // 0x2710
+    b*
+    uncover 2
+    uncover 3
+    b*
+    b+
+    bytec 8 // 0x2710
+    b*
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:350
+    // const u: biguint = op.bsqrt(num / den)
+    b/
+    bsqrt
+    dup
+    uncover 2
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:351
+    // if (u <= bx2) {
+    b<=
+    bz plan_after_if_else@41
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:352
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@41:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:354
+    // const ideal: biguint = ((u - bx2) * bps) / BigUint(g)
+    uncover 8
+    b-
+    bytec 8 // 0x2710
+    b*
+    uncover 7
+    b/
+    dup
+    cover 4
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:355
+    // const cap = mulDiv(x1, venue.maxTradeBps, BpsDivisor)
+    dig 3
+    pushint 64
+    extract_uint64
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    dig 11
+    mulw
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:355
+    // const cap = mulDiv(x1, venue.maxTradeBps, BpsDivisor)
+    intc 4 // 10000
+    // smart_contracts/plugin-dex/math.ts:9
+    // return op.divw(...op.mulw(a, b), c)
+    divw
+    dup
+    cover 2
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:357
+    // if (ideal < BigUint(cap)) {
+    itob
+    b<
+    bnz plan_if_body@42
+    uncover 4
+    pop
+    cover 3
+
+plan_after_if_else@43:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:361
+    // const assetX: uint64 = sellA ? venue.assetA : venue.assetB
+    dig 4
+    bz plan_ternary_false@45
+    dup
+    cover 3
+
+plan_ternary_merge@46:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:362
+    // const assetY: uint64 = sellA ? venue.assetB : venue.assetA
+    dig 5
+    bz plan_ternary_false@48
+    pop
+    dig 1
+    intc_3 // 40
+    extract_uint64
+    frame_bury 1
+
+plan_ternary_merge@49:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:113
+    // if (!pool.exists || pool.lock !== 0 || pool.issued === 0 || pool.protocolFeeRatio === 0) return 0
+    frame_dig 0
+    bz plan_if_body@81
+    frame_dig 6
+    bnz plan_if_body@81
+    dup
+    pushint 41
+    extract_uint64
+    bz plan_if_body@81
+    dup
+    pushint 57
+    extract_uint64
+    bnz plan_after_if_else@82
+
+plan_if_body@81:
+    pop
+    bury 1
+    uncover 3
+    pop
+    uncover 5
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:113
+    // if (!pool.exists || pool.lock !== 0 || pool.issued === 0 || pool.protocolFeeRatio === 0) return 0
+    intc_0 // 0
+    swap
+
+plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:365
+    // if (a === 0 || out === 0) {
+    dig 2
+    bz plan_if_body@51
+    dig 1
+    bnz plan_after_if_else@52
+
+plan_if_body@51:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:366
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@52:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:370
+    // const [qHigh, qLow, remHigh, remLow] = op.divmodw(...op.mulw(x1, y1), 0, x1 - a)
+    uncover 6
+    dup
+    dig 7
+    mulw
+    uncover 2
+    dig 5
+    -
+    cover 2
+    intc_0 // 0
+    uncover 3
+    divmodw
+    frame_bury 5
+    cover 4
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:371
+    // if (qHigh !== 0) {
+    bz plan_after_if_else@54
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:372
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@54:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:375
+    // if (remHigh !== 0 || remLow !== 0) {
+    uncover 3
+    bnz plan_if_body@56
+    frame_dig 5
+    bnz plan_if_body@56
+
+plan_after_if_else@59:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:381
+    // const need: uint64 = breakEven - y1
+    uncover 6
+    -
+    dup
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:382
+    // if (out <= need) {
+    dig 3
+    >=
+    bz plan_after_if_else@61
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:383
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@61:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:385
+    // const surplus: uint64 = out - need
+    dig 2
+    dup
+    uncover 2
+    -
+    cover 4
+    // smart_contracts/plugin-dex/math.ts:14
+    // const [qHi, qLo, rHi, rLo] = op.divmodw(...op.mulw(a, b), 0, c)
+    uncover 6
+    mulw
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:389
+    // const guardFee = mulDivUp(out, ctx.custodyFeeBps, BpsDivisor)
+    intc 4 // 10000
+    // smart_contracts/plugin-dex/math.ts:14
+    // const [qHi, qLo, rHi, rLo] = op.divmodw(...op.mulw(a, b), 0, c)
+    divmodw
+    frame_bury 4
+    cover 4
+    swap
+    // smart_contracts/plugin-dex/math.ts:15
+    // loggedAssert(qHi === 0, errInvalidInput)
+    bz plan_after_assert@71
+    pushbytes "ERR:errPdin"
+    log
+    err // ERR:errPdin
+
+plan_after_assert@71:
+    // smart_contracts/plugin-dex/math.ts:16
+    // return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+    uncover 3
+    bnz plan_ternary_false@74
+    frame_dig 4
+    bnz plan_ternary_false@74
+    cover 2
+
+plan_ternary_merge@75:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:390
+    // if (surplus <= guardFee) {
+    dig 4
+    dig 3
+    <=
+    bz plan_after_if_else@63
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:391
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@63:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:393
+    // const rest: uint64 = surplus - guardFee
+    uncover 4
+    uncover 3
+    -
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:394
+    // const minSurplus: uint64 = sellA ? venue.minSurplusB : venue.minSurplusA
+    dig 4
+    bz plan_ternary_false@65
+    swap
+    pushint 56
+    extract_uint64
+    cover 2
+
+plan_ternary_merge@66:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:395
+    // if (rest < minSurplus) {
+    dup
+    dig 3
+    <
+    bz plan_after_if_else@68
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:396
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@68:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:405
+    // minOut: out - (rest - minSurplus),
+    uncover 2
+    -
+    dig 1
+    swap
+    -
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:399-406
+    // return {
+    //   execute: true,
+    //   sellA,
+    //   amountIn: a,
+    //   amountOut: out,
+    //   // out − (rest − minSurplus) = need + guardFee + minSurplus
+    //   minOut: out - (rest - minSurplus),
+    // }
+    pushbytes 0x80
+    intc_1 // 1
+    uncover 5
+    setbit
+    uncover 3
+    itob
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    itob
+    concat
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_ternary_false@65:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:394
+    // const minSurplus: uint64 = sellA ? venue.minSurplusB : venue.minSurplusA
+    swap
+    pushint 48
+    extract_uint64
+    cover 2
+    b plan_ternary_merge@66
+
+plan_ternary_false@74:
+    // smart_contracts/plugin-dex/math.ts:16
+    // return rHi === 0 && rLo === 0 ? qLo : qLo + 1
+    intc_1 // 1
+    +
+    cover 2
+    b plan_ternary_merge@75
+
+plan_if_body@56:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:376
+    // if (qLow === MaxUint64) {
+    dup
+    pushint 18446744073709551615
+    ==
+    bz plan_after_if_else@58
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:377
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_after_if_else@58:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:379
+    // breakEven = qLow + 1
+    intc_1 // 1
+    +
+    b plan_after_if_else@59
+
+plan_after_if_else@82:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:114
+    // if (amountIn === 0 || assetIn === assetOut) return 0
+    dig 3
+    bz plan_if_body@84
+    dig 2
+    frame_dig 1
+    ==
+    bz plan_after_if_else@85
+
+plan_if_body@84:
+    pop
+    bury 1
+    uncover 3
+    pop
+    uncover 5
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:114
+    // if (amountIn === 0 || assetIn === assetOut) return 0
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@85:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:118
+    // if (assetIn === pool.asset1 && assetOut === pool.asset2) {
+    dup
+    intc_1 // 1
+    extract_uint64
+    dup
+    frame_bury 8
+    dig 3
+    ==
+    bz plan_else_body@88
+    dup
+    pushint 9
+    extract_uint64
+    frame_dig 1
+    ==
+    bz plan_else_body@88
+    pop
+    bury 1
+    uncover 6
+    swap
+    uncover 4
+    swap
+
+plan_after_if_else@92:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:127
+    // if (reserveIn === 0 || reserveOut === 0) return 0
+    dig 1
+    bz plan_if_body@94
+    dig 2
+    bnz plan_after_if_else@95
+
+plan_if_body@94:
+    bury 1
+    bury 1
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:127
+    // if (reserveIn === 0 || reserveOut === 0) return 0
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@95:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:130
+    // const [feeHigh, feeLow] = op.mulw(amountIn, pool.feeShare)
+    dig 3
+    frame_dig 7
+    mulw
+    swap
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:131
+    // if (feeHigh !== 0) return 0
+    bz plan_after_if_else@97
+    pop
+    bury 1
+    bury 1
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@97:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:132
+    // const totalFee: uint64 = feeLow / TmFeeDenominator
+    intc 4 // 10000
+    /
+    dup
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:133
+    // if (totalFee === 0) return 0
+    bnz plan_after_if_else@99
+    pop
+    bury 1
+    bury 1
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@99:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:134
+    // const swapAmount: uint64 = amountIn - totalFee
+    dig 4
+    dup
+    uncover 2
+    -
+    swap
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:137
+    // const [carry] = op.addw(reserveIn, amountIn)
+    dig 3
+    addw
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:138
+    // if (carry !== 0) return 0
+    bz plan_after_if_else@101
+    pop
+    bury 1
+    bury 1
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@101:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:141
+    // const [kHigh, kLow] = op.mulw(reserveIn, reserveOut)
+    uncover 2
+    dup
+    dig 4
+    dup
+    cover 3
+    mulw
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:142
+    // const quotient: uint64 = op.divw(kHigh, kLow, reserveIn + swapAmount)
+    uncover 2
+    uncover 4
+    +
+    divw
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:143
+    // if (quotient + 1 >= reserveOut) return 0
+    intc_1 // 1
+    +
+    dup
+    uncover 2
+    >=
+    bz plan_after_if_else@103
+    pop
+    bury 1
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_after_if_else@103:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:144
+    // return reserveOut - (quotient + 1)
+    uncover 2
+    swap
+    -
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_else_body@88:
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:121
+    // } else if (assetIn === pool.asset2 && assetOut === pool.asset1) {
+    pushint 9
+    extract_uint64
+    uncover 2
+    ==
+    bz plan_else_body@91
+    frame_dig 1
+    frame_dig 8
+    ==
+    bz plan_else_body@91
+    uncover 3
+    swap
+    uncover 6
+    swap
+    b plan_after_if_else@92
+
+plan_else_body@91:
+    uncover 3
+    pop
+    uncover 5
+    pop
+    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:125
+    // return 0
+    intc_0 // 0
+    swap
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:364
+    // const out = tmFixedInputOut(tm, assetX, assetY, a)
+    b plan_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@104
+
+plan_ternary_false@48:
+    frame_bury 1
+    b plan_ternary_merge@49
+
+plan_ternary_false@45:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:361
+    // const assetX: uint64 = sellA ? venue.assetA : venue.assetB
+    dig 2
+    intc_3 // 40
+    extract_uint64
+    cover 3
+    b plan_ternary_merge@46
+
+plan_if_body@42:
+    pop
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:358
+    // a = op.btoi(Bytes(ideal))
+    uncover 3
+    btoi
+    cover 3
+    b plan_after_if_else@43
+
+plan_else_body@35:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:331
+    // } else if (gp * BigUint(tA) * BigUint(rB) > scale * BigUint(rA) * BigUint(tB)) {
+    uncover 10
+    b*
+    uncover 8
+    b*
+    bytec 16 // 0x05f5e100
+    uncover 10
+    b*
+    uncover 10
+    b*
+    b>
+    bz plan_else_body@37
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:332
+    // sellA = false
+    intc_0 // 0
+    cover 4
+    b plan_after_if_else@39
+
+plan_else_body@37:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:98
+    // return { execute: false, sellA: false, amountIn: 0, amountOut: 0, minOut: 0 }
+    bytec_0 // 0x00000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:334
+    // return skip
+    frame_dig -1
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+plan_ternary_false@23:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:312
+    // const rB: uint64 = inIsA ? ctx.reserveOut : ctx.reserveIn
+    frame_dig -1
+    pushint 169
+    extract_uint64
+    cover 2
+    b plan_ternary_merge@24
+
+plan_ternary_false@20:
+    // smart_contracts/plugin-dex/hooks/backrun-arb.algo.ts:311
+    // const rA: uint64 = inIsA ? ctx.reserveIn : ctx.reserveOut
+    frame_dig -1
+    pushint 177
+    extract_uint64
+    cover 3
+    b plan_ternary_merge@21
+
+plan_bool_false@11:
+    intc_0 // 0
+    b plan_bool_merge@12

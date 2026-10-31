@@ -1,0 +1,745 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 2
+    bytecblock "k" "admin" 0x0000000000000000000000000000000000000000000000000000000000000000 "dex" 0x151f7c75 0x11bfaaed "ERR:errCkda"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:66
+    // export class ConsensusKeyregHook extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@10
+    pushbytess 0x17866912 0x4c4058da 0x27ce7b67 0x21f1ddff 0xa22f59bd 0x74322cba // method "setAdmin(address)void", method "setPoolKeys(uint64,(address,byte[32],byte[32],byte[64],uint64,uint64,uint64))void", method "deletePoolKeys(uint64)void", method "withdraw(uint64)void", method "getPoolKeys(uint64)(address,byte[32],byte[32],byte[64],uint64,uint64,uint64)", method "akitaDexHook(uint64,uint64,(uint64,uint64,uint64,address,address,uint64,uint64,address,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(byte[16],uint64,uint64,uint64),(byte[16],uint64,uint64,uint64),byte[],byte[]))(uint64,uint64,uint64,uint64)"
+    txna ApplicationArgs 0
+    match setAdmin setPoolKeys deletePoolKeys withdraw getPoolKeys akitaDexHook
+    err
+
+main_create_NoOp@10:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:66
+    // export class ConsensusKeyregHook extends Contract {
+    pushbytes 0x905c1c26 // method "create(uint64,address)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:71
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:67
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_3 // "dex"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:73
+    // this.dex.value = dex
+    uncover 2
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:68
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec_1 // "admin"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:74
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:71
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.setAdmin[routing]() -> void:
+setAdmin:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:81
+    // setAdmin(admin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:82
+    // this.onlyAdmin()
+    callsub onlyAdmin
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:68
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec_1 // "admin"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:83
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:81
+    // setAdmin(admin: Account): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.setPoolKeys[routing]() -> void:
+setPoolKeys:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:87
+    // setPoolKeys(poolId: uint64, keys: PoolKeys): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dupn 2
+    len
+    pushint 184
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::PoolKeys
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:88
+    // this.onlyAdmin()
+    callsub onlyAdmin
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:89
+    // loggedAssert(keys.voteFirst <= keys.voteLast, 'errCkkw')
+    dup
+    pushint 160
+    extract_uint64
+    swap
+    pushint 168
+    extract_uint64
+    <=
+    bnz setPoolKeys_after_assert@3
+    pushbytes "ERR:errCkkw"
+    log
+    err // ERR:errCkkw
+
+setPoolKeys_after_assert@3:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:90
+    // this.keys(poolId).value = clone(keys)
+    swap
+    itob
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:69
+    // keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
+    bytec_0 // "k"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:90
+    // this.keys(poolId).value = clone(keys)
+    swap
+    box_put
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:87
+    // setPoolKeys(poolId: uint64, keys: PoolKeys): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.deletePoolKeys[routing]() -> void:
+deletePoolKeys:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:94
+    // deletePoolKeys(poolId: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:95
+    // this.onlyAdmin()
+    callsub onlyAdmin
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:96
+    // this.keys(poolId).delete()
+    itob
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:69
+    // keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
+    bytec_0 // "k"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:96
+    // this.keys(poolId).delete()
+    box_del
+    pop
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:94
+    // deletePoolKeys(poolId: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.withdraw[routing]() -> void:
+withdraw:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:100
+    // withdraw(amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:101
+    // this.onlyAdmin()
+    callsub onlyAdmin
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:102
+    // itxn.payment({ receiver: this.admin.value, amount }).submit()
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:68
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec_1 // "admin"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:102
+    // itxn.payment({ receiver: this.admin.value, amount }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:100
+    // withdraw(amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.getPoolKeys[routing]() -> void:
+getPoolKeys:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:105
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:107
+    // return this.keys(poolId).value
+    itob
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:69
+    // keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
+    bytec_0 // "k"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:107
+    // return this.keys(poolId).value
+    box_get
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:105
+    // @abimethod({ readonly: true })
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.akitaDexHook[routing]() -> void:
+akitaDexHook:
+    intc_0 // 0
+    dupn 2
+    pushbytes ""
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:125
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dupn 2
+    len
+    dig 1
+    pushint 305
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 309
+    ==
+    assert // invalid tail pointer at index 23 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 311
+    +
+    dig 2
+    pushint 307
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 24 of (uint64,uint64,uint64,uint8[32],uint8[32],uint64,uint64,uint8[32],uint64,uint64,bool1,bool1,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,(uint8[16],uint64,uint64,uint64),(uint8[16],uint64,uint64,uint64),(len+uint8[]),(len+uint8[]))
+    uncover 3
+    swap
+    dig 3
+    substring3
+    dup
+    cover 3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:126
+    // requireDexCaller(this.dex.value)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:67
+    // dex = GlobalState<Application>({ key: 'dex' })
+    bytec_3 // "dex"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:126
+    // requireDexCaller(this.dex.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/hook-interface.ts:44
+    // loggedAssert(Global.callerApplicationId === dex.id, 'errHookCaller')
+    global CallerApplicationID
+    ==
+    bnz akitaDexHook_after_assert@31
+    pushbytes "ERR:errHookCaller"
+    log
+    err // ERR:errHookCaller
+
+akitaDexHook_after_assert@31:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:128
+    // let operator = false
+    intc_0 // 0
+    bury 4
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:129
+    // if (ctx.point === HookPointPoke && this.keys(ctx.poolId).exists) {
+    dig 1
+    intc_0 // 0
+    extract_uint64
+    pushint 256
+    ==
+    bz akitaDexHook_after_if_else@4
+    dig 1
+    extract 8 8
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:69
+    // keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
+    bytec_0 // "k"
+    swap
+    concat
+    dup
+    bury 6
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:129
+    // if (ctx.point === HookPointPoke && this.keys(ctx.poolId).exists) {
+    box_len
+    bury 1
+    bz akitaDexHook_after_if_else@4
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:130
+    // operator = this.keys(ctx.poolId).value.operator === ctx.caller
+    dig 4
+    box_get
+    assert // Box must have value
+    extract 0 32
+    dig 2
+    extract 56 32
+    ==
+    bury 4
+
+akitaDexHook_after_if_else@4:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:133
+    // if (!ctx.custody) {
+    dig 1
+    pushint 1217
+    getbit
+    bnz akitaDexHook_after_if_else@8
+    bury 1
+    bury 1
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:134
+    // if (!operator) return passResult()
+    dig 1
+    bnz akitaDexHook_after_if_else@7
+    pop
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000000
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.akitaDexHook@19:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:125
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+akitaDexHook_after_if_else@7:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:135
+    // this.action(ctx.data)
+    extract 2 0
+    callsub action
+    pop
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:136
+    // return { flags: HookResultRequestCustody, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    pushbytes 0x0000000000000002000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:125
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.akitaDexHook@19
+
+akitaDexHook_after_if_else@8:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:139
+    // if (!operator) {
+    dig 3
+    bnz akitaDexHook_after_if_else@10
+    pop
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:140
+    // rekeyBackToDex(dex, ctx.escrow)
+    extract 24 32
+    // smart_contracts/plugin-dex/hook-interface.ts:54-61
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugin-dex/hook-interface.ts:59
+    // rekeyTo: dex.address,
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    // smart_contracts/plugin-dex/hook-interface.ts:58
+    // amount: 0,
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/plugin-dex/hook-interface.ts:54-60
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/hook-interface.ts:54-61
+    // itxn
+    //   .payment({
+    //     sender: escrow,
+    //     receiver: escrow,
+    //     amount: 0,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:125
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.akitaDexHook@19
+
+akitaDexHook_after_if_else@10:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:144
+    // if (this.action(ctx.data) === KeyregActionOnline) {
+    extract 2 0
+    callsub action
+    intc_1 // 1
+    ==
+    bz akitaDexHook_else_body@16
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:145
+    // const keys = clone(this.keys(ctx.poolId).value)
+    dup
+    extract 8 8
+    dup
+    bury 7
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:69
+    // keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
+    bytec_0 // "k"
+    swap
+    concat
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:145
+    // const keys = clone(this.keys(ctx.poolId).value)
+    box_get
+    swap
+    bury 6
+    assert // Box must have value
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:146
+    // const fee = this.onlineFee(ctx.escrow)
+    extract 24 32
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:112
+    // if (!Global.payoutsEnabled) return 0
+    global PayoutsEnabled
+    bnz akitaDexHook_after_if_else@22
+    intc_0 // 0
+
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.onlineFee@26:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:147
+    // if (fee > 0) {
+    dup
+    bz akitaDexHook_after_if_else@14
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:148
+    // itxn.payment({ receiver: ctx.escrow, amount: fee }).submit()
+    itxn_begin
+    dup
+    itxn_field Amount
+    dig 1
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+akitaDexHook_after_if_else@14:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:150-162
+    // itxn
+    //   .keyRegistration({
+    //     sender: ctx.escrow,
+    //     fee,
+    //     voteKey: keys.voteKey,
+    //     selectionKey: keys.selectionKey,
+    //     stateProofKey: keys.stateProofKey,
+    //     voteFirst: keys.voteFirst,
+    //     voteLast: keys.voteLast,
+    //     voteKeyDilution: keys.voteKeyDilution,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:154
+    // voteKey: keys.voteKey,
+    dig 5
+    dup
+    extract 32 32
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:155
+    // selectionKey: keys.selectionKey,
+    dig 1
+    extract 64 32
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:156
+    // stateProofKey: keys.stateProofKey,
+    dig 2
+    extract 96 64
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:157
+    // voteFirst: keys.voteFirst,
+    dig 3
+    pushint 160
+    extract_uint64
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:158
+    // voteLast: keys.voteLast,
+    dig 4
+    pushint 168
+    extract_uint64
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:159
+    // voteKeyDilution: keys.voteKeyDilution,
+    uncover 5
+    pushint 176
+    extract_uint64
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:160
+    // rekeyTo: dex.address,
+    uncover 8
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    itxn_field VoteKeyDilution
+    itxn_field VoteLast
+    itxn_field VoteFirst
+    itxn_field StateProofPK
+    itxn_field SelectionPK
+    itxn_field VotePK
+    swap
+    dup
+    itxn_field Sender
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:150-161
+    // itxn
+    //   .keyRegistration({
+    //     sender: ctx.escrow,
+    //     fee,
+    //     voteKey: keys.voteKey,
+    //     selectionKey: keys.selectionKey,
+    //     stateProofKey: keys.stateProofKey,
+    //     voteFirst: keys.voteFirst,
+    //     voteLast: keys.voteLast,
+    //     voteKeyDilution: keys.voteKeyDilution,
+    //     rekeyTo: dex.address,
+    //   })
+    intc_3 // 2
+    itxn_field TypeEnum
+    dig 1
+    itxn_field Fee
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:150-162
+    // itxn
+    //   .keyRegistration({
+    //     sender: ctx.escrow,
+    //     fee,
+    //     voteKey: keys.voteKey,
+    //     selectionKey: keys.selectionKey,
+    //     stateProofKey: keys.stateProofKey,
+    //     voteFirst: keys.voteFirst,
+    //     voteLast: keys.voteLast,
+    //     voteKeyDilution: keys.voteKeyDilution,
+    //     rekeyTo: dex.address,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:163
+    // emit<KeyregEvent>({ poolId: ctx.poolId, escrow: ctx.escrow, online: true, fee })
+    dig 5
+    swap
+    concat
+    pushbytes 0x80
+    concat
+    swap
+    itob
+    concat
+    bytec 5 // method "KeyregEvent(uint64,address,bool,uint64)"
+    swap
+    concat
+    log
+
+akitaDexHook_after_if_else@18:
+    // smart_contracts/plugin-dex/hook-interface.ts:39
+    // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
+    bytec_2 // 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:125
+    // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.akitaDexHook@19
+
+akitaDexHook_after_if_else@22:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:113
+    // const [eligible] = op.AcctParams.acctIncentiveEligible(escrow)
+    dup
+    acct_params_get AcctIncentiveEligible
+    pop
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:114
+    // return eligible ? 0 : Global.payoutsGoOnlineFee
+    bz akitaDexHook_ternary_false@24
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:146
+    // const fee = this.onlineFee(ctx.escrow)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.onlineFee@26
+
+akitaDexHook_ternary_false@24:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:114
+    // return eligible ? 0 : Global.payoutsGoOnlineFee
+    global PayoutsGoOnlineFee
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:146
+    // const fee = this.onlineFee(ctx.escrow)
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.onlineFee@26
+
+akitaDexHook_else_body@16:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:165
+    // itxn.keyRegistration({ sender: ctx.escrow, fee: 0, rekeyTo: dex.address }).submit()
+    itxn_begin
+    dup
+    extract 24 32
+    uncover 2
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    dup
+    itxn_field Sender
+    intc_3 // 2
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:166
+    // emit<KeyregEvent>({ poolId: ctx.poolId, escrow: ctx.escrow, online: false, fee: 0 })
+    swap
+    extract 8 8
+    swap
+    concat
+    pushbytes 0x00
+    concat
+    intc_0 // 0
+    itob
+    concat
+    bytec 5 // method "KeyregEvent(uint64,address,bool,uint64)"
+    swap
+    concat
+    log
+    b akitaDexHook_after_if_else@18
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.onlyAdmin() -> void:
+onlyAdmin:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:78
+    // loggedAssert(Txn.sender === this.admin.value, 'errCkad')
+    txn Sender
+    intc_0 // 0
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:68
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec_1 // "admin"
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:78
+    // loggedAssert(Txn.sender === this.admin.value, 'errCkad')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bnz onlyAdmin_after_assert@2
+    pushbytes "ERR:errCkad"
+    log
+    err // ERR:errCkad
+
+onlyAdmin_after_assert@2:
+    retsub
+
+
+// smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::ConsensusKeyregHook.action(data: bytes) -> uint64:
+action:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:118
+    // private action(data: bytes): uint64 {
+    proto 1 1
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:119
+    // loggedAssert(data.length === 1, 'errCkda')
+    frame_dig -1
+    len
+    intc_1 // 1
+    ==
+    bnz action_after_assert@2
+    bytec 6 // "ERR:errCkda"
+    log
+    err // ERR:errCkda
+
+action_after_assert@2:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:120
+    // const action = op.btoi(data)
+    frame_dig -1
+    btoi
+    dup
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:121
+    // loggedAssert(action <= KeyregActionOnline, 'errCkda')
+    intc_1 // 1
+    <=
+    bnz action_after_assert@4
+    bytec 6 // "ERR:errCkda"
+    log
+    err // ERR:errCkda
+
+action_after_assert@4:
+    // smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts:122
+    // return action
+    retsub

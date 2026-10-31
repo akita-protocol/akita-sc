@@ -1,0 +1,359 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 32
+    bytecblock "operator"
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:16
+    // export class MockWalletFactory extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytess 0x9b67fa6d 0xe0d189b8 // method "cost()uint64", method "newAccount(pay,address,address,string,address,byte[32],string,bool,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64"
+    txna ApplicationArgs 0
+    match main_cost_route@3 newAccount
+    err
+
+main_cost_route@3:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:24
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c750000000000030d40
+    log
+    intc_1 // 1
+    return
+
+main_create_NoOp@6:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:16
+    // export class MockWalletFactory extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts::MockWalletFactory.create[routing]() -> void:
+create:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:17
+    // operator = GlobalState<Account>({ key: 'operator' })
+    bytec_0 // "operator"
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:21
+    // this.operator.value = Txn.sender
+    txn Sender
+    app_global_put
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:19
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts::MockWalletFactory.newAccount[routing]() -> void:
+newAccount:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:29-41
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 6
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 7
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 8
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 9
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    txna ApplicationArgs 10
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    intc_0 // 0
+
+newAccount_for_header@1:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:29-41
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    dup
+    dig 5
+    <
+    bz newAccount_after_for@4
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    pushint 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 63
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 65
+    +
+    dig 2
+    pushint 60
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 7 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    *
+    intc_2 // 2
+    +
+    +
+    +
+    cover 2
+    intc_1 // 1
+    +
+    b newAccount_for_header@1
+
+newAccount_after_for@4:
+    popn 2
+    uncover 2
+    pop
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:29-41
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    intc_2 // 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInstall>
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:42
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress && payment.amount >= MockWalletFunding, 'errMwfp')
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    bz newAccount_bool_false@8
+    dup
+    gtxns Amount
+    pushint 200000
+    >=
+    bz newAccount_bool_false@8
+    intc_1 // 1
+
+newAccount_bool_merge@9:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:42
+    // loggedAssert(payment.receiver === Global.currentApplicationAddress && payment.amount >= MockWalletFunding, 'errMwfp')
+    bnz newAccount_after_assert@11
+    pushbytes "ERR:errMwfp"
+    log
+    err // ERR:errMwfp
+
+newAccount_after_assert@11:
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:43-45
+    // const wallet = compileArc4(MockWallet).call.create({
+    //   args: [controlledAddress, admin, this.operator.value],
+    // }).itxn.createdApp
+    itxn_begin
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:44
+    // args: [controlledAddress, admin, this.operator.value],
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:17
+    // operator = GlobalState<Account>({ key: 'operator' })
+    bytec_0 // "operator"
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:44
+    // args: [controlledAddress, admin, this.operator.value],
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:43
+    // const wallet = compileArc4(MockWallet).call.create({
+    pushint 3
+    itxn_field GlobalNumByteSlice
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyADIAEAJgEIb3BlcmF0b3IxGRREMRhBAA6ABGUmUcc2GgCOAQBhAIAEVTmTFDYaAI4BAAEANhoBRwIVIhJENhoCSU4CFSISRDYaA0lOAhUiEkQyAxJBACpPAkgyCoASY29udHJvbGxlZF9hZGRyZXNzTGeABWFkbWluTwJnKExnI0NPAkL/1jYaAUkVIhJEMQAkKGVEEkAAD4ALRVJSOmVyck13b3CwALEyCkyyICSyCLIHI7IQJLIBsyND)
+    itxn_field ApprovalProgramPages
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:43-45
+    // const wallet = compileArc4(MockWallet).call.create({
+    //   args: [controlledAddress, admin, this.operator.value],
+    // }).itxn.createdApp
+    intc_0 // 0
+    itxn_field OnCompletion
+    pushbytes 0x55399314 // method "create(address,address,address)void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:46
+    // itxn.payment({ receiver: wallet.address, amount: payment.amount }).submit()
+    itxn_begin
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 2
+    gtxns Amount
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/tests/mock-wallet-factory.algo.ts:29-41
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+newAccount_bool_false@8:
+    intc_0 // 0
+    b newAccount_bool_merge@9
