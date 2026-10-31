@@ -7,6 +7,7 @@
  * social plugin. Currently registers:
  *
  *   - arc53_collection (RefType 5): NFT collections identified by collection ID
+ *   - url (RefType 6): web pages, identified by their canonical URL (see the schema below)
  *
  * Usage:
  *   Called by deploy-universe after setupSubscriptionServices.
@@ -40,6 +41,15 @@ const EXTENSIONS = [
     name: 'arc53_collection',
     schema: new TextEncoder().encode('sha256(nfd_app_id + collection_name)'),
     description: 'NFT collections (ARC-53)',
+  },
+  {
+    // Links people open from posts and chats, voted, reacted to and commented on like posts.
+    // The ref is the UTF-8 canonical URL; the app and the backend canonicalize it the same way.
+    name: 'url',
+    schema: new TextEncoder().encode(
+      'utf8(canonical_url): https/http only, lowercase scheme and host, no userinfo, default port, fragment or tracking params (utm_*, fbclid, gclid, mc_cid, mc_eid, igshid, ref_src), path without trailing slash unless root',
+    ),
+    description: 'Web links',
   },
 ] as const
 

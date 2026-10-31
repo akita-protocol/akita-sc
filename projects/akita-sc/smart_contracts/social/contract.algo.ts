@@ -173,13 +173,16 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     type: uint64,
     ref: bytes,
   ): { refBytes: bytes<32>, addedMbr: uint64, postGateID: uint64 } {
-    const { refBytes, creator: fallback } = this.toBytes32(type, ref)
+    const { refBytes, creator } = this.toBytes32(type, ref)
 
-    loggedAssert(this.posts(refBytes).exists, ERR_POST_NOT_FOUND)
-    const { creator, gateID: postGateID } = this.posts(refBytes).value
-
-    const c = (fallback === Global.zeroAddress) ? creator : fallback
-    const addedMbr = this.createEmptyPostIfNecessary(refBytes, c)
+    // A post has to exist to be replied or reacted to. Anything else (an asset, an address, an
+    // app, or a registered type such as a link) gets an empty post the first time someone
+    // comments or reacts, as a first vote does.
+    if (type === RefTypePost) {
+      loggedAssert(this.posts(refBytes).exists, ERR_POST_NOT_FOUND)
+    }
+    const addedMbr = this.createEmptyPostIfNecessary(refBytes, creator)
+    const { gateID: postGateID } = this.posts(refBytes).value
 
     return { refBytes, addedMbr, postGateID }
   }

@@ -32,6 +32,41 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
+  /**
+   * The 32-byte key the social contract stores a target under, from the ref a caller passes
+   * (matches `toBytes32` in the social contract). Posts and addresses are their own key, assets
+   * and apps are their id padded to 32 bytes, and registered ref types (collections, links) are
+   * `sha256(itob(type) || ref)`, so their refs can be any length.
+   */
+  private refKey(type: uint64, ref: bytes): bytes<32> {
+    let refBytes: bytes<32>
+    switch (type) {
+      case RefTypePost:
+        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        refBytes = ref.toFixed({ length: 32 })
+        break
+      case RefTypeAsset:
+        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
+        loggedAssert(Asset(btoi(ref)).total > 0, ERR_INVALID_ASSET)
+        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
+        break
+      case RefTypeAddress:
+        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        refBytes = ref.toFixed({ length: 32 })
+        break
+      case RefTypeApp:
+        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
+        loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, ERR_INVALID_APP)
+        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
+        break
+      default:
+        // Non-built-in ref types — derive storage key deterministically.
+        // The core social contract validates the ref type is registered.
+        refBytes = op.sha256(itob(type).concat(ref))
+    }
+    return refBytes
+  }
+
   private getCreatorDetails(type: uint64, sender: Account, ref: bytes<32>): { postExists: boolean, creator: Account, creatorWallet: uint64, gateID: uint64 } {
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
@@ -195,13 +230,14 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     creatorFlags: uint64
   ): void {
     const { origin, sender } = getAccounts(wallet)
+    const refBytes = this.refKey(type, ref)
 
     const { gate } = getAkitaAppList(this.akitaDAO.value)
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     let mbrAmount: uint64 = posts + votes + votelist
 
-    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, ref.toFixed({ length: 32 }))
+    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, refBytes)
 
     if (!postExists) {
       mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
@@ -276,12 +312,13 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     creatorFlags: uint64
   ): void {
     const sender = getSpendingAccount(wallet)
+    const refBytes = this.refKey(type, ref)
 
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
     let mbrAmount: uint64 = posts + votes + votelist
 
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, ref.toFixed({ length: 32 }))
+    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
 
     if (!postExists) {
       mbrAmount += this.mbr(op.bzero(0), '', Bytes('')).posts
@@ -469,31 +506,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     const { votelist, posts } = this.mbr(op.bzero(0), '', Bytes(''))
     let mbrAmount: uint64 = votelist
 
-    let refBytes: bytes<32>
-    switch (type) {
-      case RefTypePost:
-        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
-        refBytes = ref.toFixed({ length: 32 })
-        break
-      case RefTypeAsset:
-        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
-        loggedAssert(Asset(btoi(ref)).total > 0, ERR_INVALID_ASSET)
-        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
-        break
-      case RefTypeAddress:
-        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
-        refBytes = ref.toFixed({ length: 32 })
-        break
-      case RefTypeApp:
-        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
-        loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, ERR_INVALID_APP)
-        refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
-        break
-      default:
-        // Non-built-in ref types — derive storage key deterministically.
-        // The core social contract validates the ref type is registered.
-        refBytes = op.sha256(itob(type).concat(ref))
-    }
+    const refBytes = this.refKey(type, ref)
 
     const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
 
@@ -607,6 +620,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     args: GateArgs
   ): void {
     const { origin, sender } = getAccounts(wallet)
+    const refBytes = this.refKey(type, ref)
 
     const { gate } = getAkitaAppList(this.akitaDAO.value)
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
@@ -614,7 +628,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
       sender,
       appId: social,
-      args: [ref.toFixed({ length: 32 }), NFT]
+      args: [refBytes, NFT]
     }).returnValue
 
     const { reactions, reactionlist, posts } = this.mbr(op.bzero(0), '', Bytes(''))
@@ -623,7 +637,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       ? reactionlist
       : reactions + reactionlist
 
-    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, ref.toFixed({ length: 32 }))
+    const { postExists, creator, creatorWallet, gateID: postGateID } = this.getCreatorDetails(type, sender, refBytes)
 
     if (!postExists) {
       mbrAmount += posts
@@ -683,13 +697,14 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     NFT: uint64
   ): void {
     const sender = getSpendingAccount(wallet)
+    const refBytes = this.refKey(type, ref)
 
     const { social } = getAkitaSocialAppList(this.akitaDAO.value)
 
     const reactionExists = abiCall<typeof AkitaSocial.prototype.getReactionExists>({
       sender,
       appId: social,
-      args: [ref.toFixed({ length: 32 }), NFT]
+      args: [refBytes, NFT]
     }).returnValue
 
     const { reactions, reactionlist, posts } = this.mbr(op.bzero(0), '', Bytes(''))
@@ -698,7 +713,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
       ? reactionlist
       : reactions + reactionlist
 
-    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, ref.toFixed({ length: 32 }))
+    const { postExists, creator, creatorWallet } = this.getCreatorDetails(type, sender, refBytes)
 
     if (!postExists) {
       mbrAmount += posts
