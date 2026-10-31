@@ -1,6 +1,7 @@
 import {
   Account,
   Application,
+  Asset,
   BigUint,
   BoxMap,
   Bytes,
@@ -190,14 +191,20 @@ const SyncBudget: uint64 = 500
 const MarkBudget: uint64 = 400
 /** opcode budget for one slot's in-kind exit (pro-rata, receipt transfer, event) and the slot write-back */
 const ExitBudget: uint64 = 300
+/**
+ * opcode budget ensured before an add refunds the unused part of a deposit: the LP mint, one or two ASA refunds,
+ * the event and the return. An off-ratio add on a two-ASA hookless pool otherwise ends just past 700 (review M-1).
+ */
+const RefundBudget: uint64 = 300
 /** opcode budget for validating one HookInstall in createPool */
 const ValidateHookBudget: uint64 = 300
 /**
- * §10 A27: the largest maxMarkupBpsPerDay / maxMarkdownBpsPerDay a slot may declare (100% of the booked
- * rate per day each way). A larger markdown clip would let any valuator dip of a few blocks be booked
- * permissionlessly by `revalue`, which is the write-down-then-mint-cheap path the clip exists to stop.
+ * §10 A27: the largest maxMarkupBpsPerDay / maxMarkdownBpsPerDay a slot may declare (10% of the booked
+ * rate per day each way; OPEN-DECISIONS, decided 2026-10-31). A larger markdown clip would let a short
+ * valuator dip be booked permissionlessly by `revalue`, which is the write-down-then-mint-cheap path the
+ * clip exists to stop; at 10%/day an hour of dip books at most ~0.4%.
  */
-const MaxClipBpsPerDay: uint64 = 10_000
+const MaxClipBpsPerDay: uint64 = 1_000
 const MaxUint64: uint64 = Uint64(18_446_744_073_709_551_615n)
 
 type Deposit = {
@@ -1047,8 +1054,10 @@ export class PluginDex extends Contract {
 
   /**
    * createPool step 5 (§4.2): at most MaxExternalSlots slots, each with side ∈ {0,1}, a distinct receipt
-   * that is neither pool asset, capBps ≤ MaxExternalCapBps, both clips ≤ MaxClipBpsPerDay (§10 A27), a hook installed with External (which
-   * implies Custody), and an approved valuator at its approved version that quotes a rate > 0 now.
+   * that is neither pool asset and has no clawback or freeze address (an issuer could otherwise take or lock LP
+   * value outside the custody guard), capBps ≤ MaxExternalCapBps, both clips ≤ MaxClipBpsPerDay (§10 A27), a
+   * hook installed with External (which implies Custody), and an approved valuator at its approved version
+   * that quotes a rate > 0 now.
    */
   private validateExternals(
     assetA: uint64,
@@ -1070,6 +1079,8 @@ export class PluginDex extends Contract {
           ext.maxMarkdownBpsPerDay <= MaxClipBpsPerDay,
         errExternalConfig,
       )
+      const receipt = Asset(ext.receipt)
+      loggedAssert(receipt.clawback === Global.zeroAddress && receipt.freeze === Global.zeroAddress, errExternalConfig)
       for (let j: uint64 = 0; j < s; j += 1) {
         loggedAssert(slots[j].receipt !== ext.receipt, errExternalConfig)
       }
@@ -1508,6 +1519,7 @@ export class PluginDex extends Contract {
 
     this.pools(poolId).value = clone(pool)
 
+    if (a.amount > usedA || b.amount > usedB) ensureBudget(RefundBudget, OpUpFeeSource.GroupCredit)
     if (lpMode === LpModeFungible) {
       itxn.assetTransfer({ assetReceiver: Txn.sender, xferAsset: pool.lpAsset, assetAmount: minted }).submit()
     }

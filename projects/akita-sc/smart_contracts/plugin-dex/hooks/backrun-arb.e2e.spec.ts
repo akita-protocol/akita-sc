@@ -837,6 +837,7 @@ describe('BackrunArbHook', () => {
       await assertEscrowIdentity(algorand, dex, stacked.poolId)
     })
 
-    test.todo('(13) a swap through the router plugin (WP4) on a backrun pool stays within depth')
+    // (13) a swap through the router plugin on a backrun pool stays within depth: covered by
+    // akita-router.e2e.spec.ts "WP3 (13) a router swap on a backrun pool runs the backrun within the call-depth limit"
   })
 })

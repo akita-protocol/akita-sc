@@ -583,7 +583,9 @@ default in a type that wraps silently.
   VolatilityFeeHook reads live reserves instead.
 - **Curve-managed emergency exit** still calls the curve's `Remove`; fungible pools have a Vault-only exit.
 - **A25 under a binding clip:** deposits, and recalls after a binding markdown, can revert with errPdki
-  while the clip binds unless the hook donates the gap. (The skim of `Δu·(v − r')` is closed by A37.)
+  while the clip binds unless the hook donates the gap. (The skim of `Δu·(v − r')` is closed by A37: units
+  leaving are valued at max(v, r'), units entering at min(v, r').) Both per-day clips are capped at 1,000 bps
+  (`MaxClipBpsPerDay`, lowered from 10,000 on 2026-10-31).
 - **Curve-pool exits forfeit unsynced surplus** unless `sync()` runs first (A24).
 - **Bins: a donation that lands while one side of the book is empty is captured by the next depositor into
   the active bin** (B1 residual, OPEN-DECISIONS #15). Value that arrives without a deposit (a custody hook's
@@ -593,13 +595,27 @@ default in a type that wraps silently.
   group; existing LPs do not share in it. It only happens while one side of the book is empty, so LPs who
   want their donations kept should keep liquidity on both sides of the active bin. `closeChunk` cannot
   delete a chunk holding such a parked bin.
-- **Receipt ASAs with clawback or freeze** would break in-kind exits. The Vault does not check them; the
-  valuator approval checklist does (§7, OPEN-DECISIONS #6), so a valuator that skips the rule must not be
-  approved.
+- **Receipt ASAs with clawback or freeze** would break in-kind exits and let an issuer take LP value outside
+  the custody guard. `createPool` refuses them (errPdex, decided 2026-10-31); the valuator approval
+  checklist rule (§7, OPEN-DECISIONS #6) stays as a second line.
+- **Pool assets with clawback or freeze** are allowed. An issuer clawback from the escrow fails every sync
+  (errPdki), so adds and normal removes revert until the admin pauses the pool; the emergency exit then pays
+  the booked pro-rata (RUNBOOK.md). A freeze blocks every transfer until it is lifted. The app warns before
+  pool creation and adds.
 - **Bins dust bins** can push a swap past `maxBinsPerSwap` (128). Each one ties up at least `minBinShares`
   of value (≥ 2^32, one Y base unit) for as long as it stays occupied, plus refundable chunk MBR: no
-  position can keep a stake below the floor through a partial Remove or a co-add. Callers split trades into
-  slices (§4). This costs liveness, not funds.
+  position can keep a stake below the floor through a partial Remove or a co-add. The SDK pool draft
+  defaults `minBinShares` to one whole Y token per new bin (`defaultMinBinShares`), which makes each dust bin
+  cost a whole token. A swap that needs more moves than `maxBinsPerSwap` quotes 0 (reverts in `quote`); the
+  app then splits it into 2-4 equal chunks through `AkitaRouterPlugin.swapBest`, which runs them one after
+  another. This costs liveness, not funds.
+- **Fee caps, and how they stack** (decided 2026-10-31: keep the bins cap). A swapper pays, in order: hook
+  fees taken from the input at BeforeSwap (with any HookFeeOut, at most `maxHookFeeBps` ≤ 10% of the input,
+  checked by the Vault); then the LP fee on what is left, at most the pool's `maxFeeBps`. Bins pools cap
+  `maxFeeBps` at 10% at Init (`MaxPoolFeeBps`), and every bin's fee (base plus variable) is clamped to it,
+  so a DynamicFee hook cannot push a bin past it either. The protocol share comes out of the LP fee, not on
+  top. `custodyFeeBps` is not charged to swappers: it is the minimum edge a custody trade (a backrun, a
+  keyreg donation) must leave for LPs, and it is at most `maxFeeBps`.
 - **Pair index** holds 64 pools per pair; later pools are unindexed and junk pools can fill it.
 - **Router**: SANDBOX only (OPEN-DECISIONS #16). The wallet-side T7 escalation is judged not a concern for
   SANDBOX (#24); test E9 will not be written and its `test.todo` stays only as a marker. A DIRECT router would

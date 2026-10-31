@@ -701,6 +701,31 @@ describe('PluginDex v2 core', () => {
       expect(innerKinds(swapResult.txnResult).work).toEqual(['axfer'])
     })
 
+    test('a hookless addLiquidity off the pool ratio (one side refunded) completes without the caller adding budget', async () => {
+      const { poolId, escrow } = await livePool()
+      // each direction leaves an excess of the other asset that the Vault refunds from the escrow
+      for (const [amountA, amountB] of [
+        [1_000_000n, 5_000_000n],
+        [5_000_000n, 1_000_000n],
+      ]) {
+        await measure(
+          (group) =>
+            group.addLiquidity({
+              sender: trader.addr,
+              args: {
+                depositA: transferTxn(algorand, trader, escrow, 0n, amountA),
+                depositB: transferTxn(algorand, trader, escrow, tka, amountB),
+                poolId,
+                minLpOut: 0n,
+                data: NO_DATA,
+              },
+              staticFee: microAlgo(4_000),
+            }),
+          2,
+        )
+      }
+    })
+
     test('(L8) an AfterSwap-only hooked swap sent as a bare [input, swap] group tops up its own budget', async () => {
       const hook = await deployRecordingHook(1_000_000n)
       const { poolId, escrow } = await livePool(poolConfig(30n), [

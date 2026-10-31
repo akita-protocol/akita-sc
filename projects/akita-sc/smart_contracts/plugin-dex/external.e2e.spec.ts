@@ -577,9 +577,9 @@ describe('PluginDex external positions', () => {
   describe('caps, clips, write-down and illiquid reserves (cases 5-8)', () => {
     let poolId: bigint
     let timeWarp: TimeWarp
-    /** 100% per day each way: a warp of 864 s (1% of a day) allows a 1% move */
-    const CLIP = 10_000n
-    const WARP = 864n
+    /** the largest clip, 10% per day each way: a warp of 8,640 s (10% of a day) allows a 1% move */
+    const CLIP = 1_000n
+    const WARP = 8_640n
 
     beforeAll(async () => {
       timeWarp = new TimeWarp(algorand)
@@ -747,8 +747,9 @@ describe('PluginDex external positions', () => {
       await expectContractError(tryCreate([slot({ receipt: receiptA })]), 'errPdva')
     })
 
-    test('(OPEN-DECISIONS #6) a receipt with a clawback or freeze address is valued 0, so createPool fails (errPdva)', async () => {
-      // a valuator that would quote RATE for any receipt, except under the approval checklist's receipt rule
+    test('(OPEN-DECISIONS #6) the Vault refuses a receipt with a clawback or freeze address, whatever the valuator quotes (errPdex)', async () => {
+      // the valuator would also value such a receipt 0 (approval checklist), but the Vault refuses it first, so the
+      // rule no longer depends on every approved valuator implementing it
       const checked = await deployValuator(lenderB)
       await checked.send.configure({ args: { mode: VALUATOR.fixed, value: RATE }, ...send })
       const receipt = async (unitName: string, roles: { clawback?: string; freeze?: string }) =>
@@ -757,8 +758,8 @@ describe('PluginDex external positions', () => {
       const clawback = await receipt('rCLW', { clawback: admin.addr.toString() })
       const freeze = await receipt('rFRZ', { freeze: admin.addr.toString() })
       const clean = await receipt('rOK', {})
-      await expectContractError(tryCreate([slotFor(ext, checked, 1n, clawback)]), 'errPdva')
-      await expectContractError(tryCreate([slotFor(ext, checked, 1n, freeze)]), 'errPdva')
+      await expectContractError(tryCreate([slotFor(ext, checked, 1n, clawback)]), 'errPdex')
+      await expectContractError(tryCreate([slotFor(ext, checked, 1n, freeze)]), 'errPdex')
       // the same valuator values a receipt with neither role
       const { poolId } = await tryCreate([slotFor(ext, checked, 1n, clean)])
       expect((await slots(poolId))[0]).toMatchObject({ receipt: clean, rate: RATE })
@@ -821,9 +822,9 @@ describe('PluginDex external positions', () => {
   describe('custody re-marks book the revaluation of units already held like revalue (§10 A25)', () => {
     let poolId: bigint
     let timeWarp: TimeWarp
-    /** 100% per day each way: a warp of 1,000 s allows a move of about 1.16%, so a 1% rate change is not clipped */
-    const CLIP = 10_000n
-    const WARP = 1_000n
+    /** the largest clip, 10% per day each way: a warp of 10,000 s allows a move of about 1.16%, so a 1% rate change is not clipped */
+    const CLIP = 1_000n
+    const WARP = 10_000n
 
     beforeAll(async () => {
       timeWarp = new TimeWarp(algorand)
@@ -998,10 +999,10 @@ describe('PluginDex external positions', () => {
 
   describe('clip bounds and in-kind exit rounding with a coarse receipt (§10 A27, A28)', () => {
     // 1 receipt unit = 18.4 TKA (18,400,000 base units): a receipt with far fewer decimals than the underlying,
-    // and a booked rate close to 2^64 so an unclipped `rate + up` overflows after a ~210 s gap
+    // and a booked rate close to 2^64 so an unclipped `rate + up` overflows after a ~2,100 s gap
     const COARSE = 18_400_000n * RATE_SCALE
     const UNIT_VALUE = 18_400_000n
-    const CLIP = 10_000n
+    const CLIP = 1_000n
     let lenderC: MockLenderClient
     let receiptC: bigint
     let valuatorC: MockValuatorClient
@@ -1032,7 +1033,7 @@ describe('PluginDex external positions', () => {
       extC = await deployHook(CUSTODY | EXTERNAL, lenderC, tka, receiptC, [receiptC])
       await algorand.send.assetOptIn({ sender: trader.addr, assetId: receiptC })
 
-      // the largest accepted clips: 10,000 bps/day each way
+      // the largest accepted clips: 1,000 bps/day each way
       poolId = (await tryCreate([coarseSlot()])).poolId
       const [s0] = await slots(poolId)
       expect(s0).toMatchObject({ maxMarkupBpsPerDay: CLIP, maxMarkdownBpsPerDay: CLIP, rate: COARSE })
@@ -1045,9 +1046,9 @@ describe('PluginDex external positions', () => {
       await assertEscrowIdentity(algorand, dex, poolId)
     })
 
-    test('A27: createPool bounds both per-day clips at 10,000 bps (errPdex)', async () => {
-      await expectContractError(tryCreate([coarseSlot({ maxMarkupBpsPerDay: 10_001n })]), 'errPdex')
-      await expectContractError(tryCreate([coarseSlot({ maxMarkdownBpsPerDay: 10_001n })]), 'errPdex')
+    test('A27: createPool bounds both per-day clips at 1,000 bps (errPdex)', async () => {
+      await expectContractError(tryCreate([coarseSlot({ maxMarkupBpsPerDay: 1_001n })]), 'errPdex')
+      await expectContractError(tryCreate([coarseSlot({ maxMarkdownBpsPerDay: 1_001n })]), 'errPdex')
       await expectContractError(tryCreate([coarseSlot({ maxMarkupBpsPerDay: 10_000_000_000n })]), 'errPdex')
     })
 
@@ -1102,14 +1103,14 @@ describe('PluginDex external positions', () => {
 
     test('A27: a long gap saturates the clip band instead of overflowing; marks, markdowns and exits still work', async () => {
       // up = rate·dt/day is ~4.3e17 after 2,000 s, so rate + up passes 2^64: before A27 every mark panicked
-      await timeWarp.timeWarp(2_000n)
+      await timeWarp.timeWarp(20_000n)
       await revalue(poolId)
       const [s0] = await slots(poolId)
       expect(s0).toMatchObject({ units: 1n, rate: COARSE, bookValue: UNIT_VALUE })
 
       const lowered = (COARSE * 99n) / 100n
       await lenderC.send.setRate({ args: { rate: lowered }, ...send })
-      await timeWarp.timeWarp(2_000n)
+      await timeWarp.timeWarp(20_000n)
       const before = await pool(poolId)
       await revalue(poolId)
       const [s1] = await slots(poolId)
@@ -1118,7 +1119,7 @@ describe('PluginDex external positions', () => {
       expect((await pool(poolId)).reserveB).toBe(before.reserveB - (UNIT_VALUE - lowered / RATE_SCALE))
       await assertEscrowIdentity(algorand, dex, poolId)
 
-      await timeWarp.timeWarp(2_000n)
+      await timeWarp.timeWarp(20_000n)
       await removeCall(poolId, (await lpBalance()) / 2n)
       await assertEscrowIdentity(algorand, dex, poolId)
     })
