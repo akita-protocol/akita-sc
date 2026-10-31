@@ -43,6 +43,8 @@ export enum RefType {
   App = 4,
   // Extension types (registered via DAO registerRefType)
   Collection = 5,
+  /** A web page, keyed by its canonical URL (UTF-8). */
+  Link = 6,
 }
 
 // ============================================================================
