@@ -3,6 +3,39 @@
 What the Vault admin (the DAO wallet after activation) does when a pool stops working normally. On
 MainNet every admin call below is a DAO proposal action.
 
+## Deploy checklist (TestNet first, then MainNet)
+
+Run every step with `--dry-run` first and read the plan. Each real step needs explicit approval for that
+network and sender. These scripts have no extra MainNet guard: check `-n` before every real run.
+
+1. **Preconditions.** The DAO runs Rewards v2 at `aal.rewards` (LaunchManager dev buys need it). The deployer
+   can pay every create and its MBR (the dry runs print each program's size; fund with a margin). Pick the Tinyman v2 validator app id
+   (MainNet `1002541853`, TestNet `148607000`).
+2. **Build.** `npm run build` at the commit you ship; `size.test.ts` and the full suite must be green.
+3. **Deploy the stack in catalog order**, one receipt per contract in one directory (for example
+   `receipts/dex-<network>/`):
+
+   ```
+   npx ts-node --transpile-only scripts/deploy-immutable.ts -n <network> -m "$MNEMONIC" -v <version> \
+     --contract <Name> --config <args.json> --manifest receipts/dex-<network>/<Name>.json
+   ```
+
+   Order (dependencies are read from the earlier receipts and checked on chain): PluginDex (`admin` = the
+   deployer for now), BinEngine, ImpactFeeHook, SwapTaxHook, VolatilityFeeHook, BackrunArbHook (`tinyman`),
+   GatedFeeHook, AntiSnipeFeeHook, LaunchTaxHook, ConsensusKeyregHook, VenueRegistry, TinymanV2Adapter
+   (`tinyman`), AkitaRouterPlugin, PluginDexPlugin, LaunchManager, GatedFeePassPlugin. A failed step is
+   resumed by rerunning it with the same `--manifest`.
+4. **Activate.** `scripts/activate-plugin-dex.ts -n <network> --receipts receipts/dex-<network> --policy
+   <policy.json>` makes the curve and hook approvals, registers the Tinyman adapter, inits the router's leg
+   escrow, configures LaunchManager, then hands every admin to the DAO wallet. Rerunning skips what is done.
+   Once the DAO wallet is admin, any remaining call is printed for a DAO proposal instead of sent.
+5. **Verify on chain.** Every receipt's program hash matches the build; `getHookApproval` and the curve
+   approval are set; `VenueRegistry` lists the adapter; every app's admin is the DAO wallet.
+6. **Publish the IDs.** Rerun step 3 with `--register` (or edit `akita-sdk/src/networks.ts`) so `pluginDex`,
+   `akitaRouterPlugin`, `pluginDexPlugin` and the rest are in the network map; release the SDK; ship the apps.
+7. **Smoke test with small amounts**: create a pool, add liquidity, swap direct and through the router,
+   remove liquidity. Then tell aggregators the Vault id (INTEGRATION.md).
+
 ## Pause a pool
 
 `PluginDex.setPoolPaused(poolId, true)` stops swaps, adds and pokes on that pool. It also opens
