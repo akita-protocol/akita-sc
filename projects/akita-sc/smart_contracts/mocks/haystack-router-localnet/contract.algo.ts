@@ -6,12 +6,10 @@ import {
   bytes,
   contract,
   Global,
-  gtxn,
   itxn,
   loggedAssert,
   OnCompleteAction,
   op,
-  TransactionType,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
@@ -35,10 +33,12 @@ import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/venues/tiny
  *   arg 3  itob(assetIn)        arg 5  itob(amountIn)        arg 7  itob(assetOut), so an ALGO output needs
  *          no asset reference (for an ASA output, arg 2 must point at the same asset)
  *
- * The input (pay or axfer of amountIn to this app) is the transaction right before finalize. The legs
- * run in inner transactions from this app's account with fee 0 (outer fees pay them), the whole output
- * goes to the beneficiary, and finalize fails below minAmountOut. Any other selector is a no-op
- * reference carrier. The app opts itself into assets as it needs them, from its own ALGO.
+ * Like Haystack's router, finalize does not check an input transaction: it needs amountIn of the input asset
+ * in this app's account (from any earlier transfer in the group, outer or inner). The legs run in inner
+ * transactions from this app's account with fee 0 (outer fees pay them), the whole output goes to the
+ * beneficiary, and finalize fails below minAmountOut. `opt_in(itob(asset))` opts this app into the
+ * input asset, so it can receive the input later in the same group; finalize opts into the assets it receives.
+ * Any other call is a no-op reference carrier. Opt-ins are paid from this app's own ALGO.
  */
 @contract({ avmVersion: 13 })
 export class MockHaystackRouterLocalNet extends BaseContract {
@@ -46,6 +46,7 @@ export class MockHaystackRouterLocalNet extends BaseContract {
     if (Txn.applicationId.id === 0) return true
     loggedAssert(Txn.onCompletion === OnCompleteAction.NoOp, 'mockHsOnComplete')
     if (Txn.numAppArgs > 8 && Txn.applicationArgs(0) === FinalizeSelector) finalize()
+    if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === OptInSelector) optInIfNeeded(argUint(1))
     return true
   }
 
@@ -55,6 +56,7 @@ export class MockHaystackRouterLocalNet extends BaseContract {
 }
 
 const FinalizeSelector = Bytes.fromHex('c890dc20')
+const OptInSelector = Bytes('opt_in')
 const VenuePluginDex: uint64 = 0
 const VenueTinyman: uint64 = 1
 const HopSize: uint64 = 40
@@ -78,20 +80,10 @@ function finalize(): void {
   const self = Global.currentApplicationAddress
   loggedAssert(assetIn !== assetOut && amountIn > 0, 'mockHsArgs')
 
-  const inputIndex: uint64 = Txn.groupIndex - 1
-  const input = gtxn.Transaction(inputIndex)
-  if (assetIn === 0) {
-    loggedAssert(input.type === TransactionType.Payment, 'mockHsInput')
-    const pay = gtxn.PaymentTxn(inputIndex)
-    loggedAssert(pay.receiver === self && pay.amount === amountIn, 'mockHsInput')
-  } else {
-    loggedAssert(input.type === TransactionType.AssetTransfer, 'mockHsInput')
-    const axfer = gtxn.AssetTransferTxn(inputIndex)
-    loggedAssert(
-      axfer.assetReceiver === self && axfer.xferAsset.id === assetIn && axfer.assetAmount === amountIn,
-      'mockHsInput',
-    )
-  }
+  // like Haystack's router, finalize swaps from this app's own balance and never looks at an input transaction:
+  // the input may be any earlier pay/axfer to this app, or an inner one (an Akita wallet's HaystackRouterPlugin)
+  const available: uint64 = assetIn === 0 ? self.balance - self.minBalance : tmHolding(self, assetIn)
+  loggedAssert(available >= amountIn, 'mockHsInput')
 
   optInIfNeeded(assetOut)
   const before = tmHolding(self, assetOut)

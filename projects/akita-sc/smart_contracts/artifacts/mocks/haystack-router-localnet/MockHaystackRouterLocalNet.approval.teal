@@ -4,12 +4,10 @@
 
 // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts::MockHaystackRouterLocalNet.approvalProgram() -> uint64:
 main:
-    intcblock 0 1 4 8
-    bytecblock "ERR:mockHsInput" "ERR:mockHsRoute" "swap" "fixed-input" "ERR:mockHsArgs" 0xa3ca7f76 0x0000 0x151f7c75
-    intc_0 // 0
-    dupn 2
+    intcblock 0 1 8 6
+    bytecblock "ERR:mockHsRoute" "swap" "fixed-input" "ERR:mockHsArgs" 0xa3ca7f76 0x0000 0x151f7c75
     pushbytes ""
-    dupn 6
+    dupn 2
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:46
     // if (Txn.applicationId.id === 0) return true
     txn ApplicationID
@@ -30,158 +28,131 @@ main_after_assert@4:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:48
     // if (Txn.numAppArgs > 8 && Txn.applicationArgs(0) === FinalizeSelector) finalize()
     txn NumAppArgs
-    intc_3 // 8
+    intc_2 // 8
     >
     bz main_after_if_else@7
     txna ApplicationArgs 0
     pushbytes 0xc890dc20
     ==
     bz main_after_if_else@7
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:71
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:73
     // const route = Txn.applicationArgs(1)
     txna ApplicationArgs 1
-    bury 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:63
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:65
     // return op.btoi(Txn.applicationArgs(index))
     txna ApplicationArgs 7
     btoi
     dup
-    bury 6
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:73
+    cover 2
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:75
     // if (assetOut !== 0) loggedAssert(Txn.assets(argUint(2)).id === assetOut, 'mockHsArgs')
-    bz main_after_if_else@12
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:63
+    bz main_after_if_else@15
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:65
     // return op.btoi(Txn.applicationArgs(index))
     txna ApplicationArgs 2
     btoi
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:73
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:75
     // if (assetOut !== 0) loggedAssert(Txn.assets(argUint(2)).id === assetOut, 'mockHsArgs')
     txnas Assets
-    dig 5
+    dig 2
     ==
-    bnz main_after_if_else@12
-    bytec 4 // "ERR:mockHsArgs"
+    bnz main_after_if_else@15
+    bytec_3 // "ERR:mockHsArgs"
     log
     err // ERR:mockHsArgs
 
-main_after_if_else@12:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:63
+main_after_if_else@15:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:65
     // return op.btoi(Txn.applicationArgs(index))
     txna ApplicationArgs 3
     btoi
     dup
-    bury 7
+    cover 3
     txna ApplicationArgs 4
     btoi
-    bury 2
+    bury 5
     txna ApplicationArgs 5
     btoi
-    bury 8
+    cover 3
     txna ApplicationArgs 6
     btoi
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:77
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:79
     // const beneficiary = Txn.accounts(argUint(6))
     txnas Accounts
-    bury 11
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:78
+    cover 3
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:80
     // const self = Global.currentApplicationAddress
     global CurrentApplicationAddress
-    bury 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:79
+    cover 3
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:81
     // loggedAssert(assetIn !== assetOut && amountIn > 0, 'mockHsArgs')
-    dig 5
+    dig 2
     !=
-    bz main_bool_false@15
-    dig 6
-    bz main_bool_false@15
+    bz main_bool_false@18
+    dig 4
+    bz main_bool_false@18
     intc_1 // 1
 
-main_bool_merge@16:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:79
+main_bool_merge@19:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:81
     // loggedAssert(assetIn !== assetOut && amountIn > 0, 'mockHsArgs')
-    bnz main_after_assert@18
-    bytec 4 // "ERR:mockHsArgs"
+    bnz main_after_assert@21
+    bytec_3 // "ERR:mockHsArgs"
     log
     err // ERR:mockHsArgs
 
-main_after_assert@18:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:81
-    // const inputIndex: uint64 = Txn.groupIndex - 1
-    txn GroupIndex
-    intc_1 // 1
-    -
-    bury 2
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:83
-    // if (assetIn === 0) {
-    dig 5
-    bnz main_else_body@28
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:84
-    // loggedAssert(input.type === TransactionType.Payment, 'mockHsInput')
-    dig 1
-    gtxns TypeEnum
-    dup
-    intc_1 // 1
-    ==
-    bnz main_after_assert@21
-    bytec_0 // "ERR:mockHsInput"
-    log
-    err // ERR:mockHsInput
-
 main_after_assert@21:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:85
-    // const pay = gtxn.PaymentTxn(inputIndex)
-    intc_1 // pay
-    ==
-    assert // transaction type is pay
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:86
-    // loggedAssert(pay.receiver === self && pay.amount === amountIn, 'mockHsInput')
-    dig 1
-    gtxns Receiver
-    dig 8
-    ==
-    bz main_bool_false@24
-    dig 1
-    gtxns Amount
-    dig 7
-    ==
-    bz main_bool_false@24
-    intc_1 // 1
+    // const available: uint64 = assetIn === 0 ? self.balance - self.minBalance : tmHolding(self, assetIn)
+    dig 5
+    bnz main_ternary_false@23
+    dig 2
+    dup
+    acct_params_get AcctBalance
+    assert // account funded
+    swap
+    acct_params_get AcctMinBalance
+    assert // account funded
+    -
 
-main_bool_merge@25:
+main_ternary_merge@24:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:86
-    // loggedAssert(pay.receiver === self && pay.amount === amountIn, 'mockHsInput')
-    bnz main_after_if_else@38
-    bytec_0 // "ERR:mockHsInput"
+    // loggedAssert(available >= amountIn, 'mockHsInput')
+    dig 5
+    >=
+    bnz main_after_assert@26
+    pushbytes "ERR:mockHsInput"
     log
     err // ERR:mockHsInput
 
-main_after_if_else@38:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:96
+main_after_assert@26:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:88
     // optInIfNeeded(assetOut)
-    dig 4
+    dig 1
     dup
     callsub optInIfNeeded
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:97
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:89
     // const before = tmHolding(self, assetOut)
-    dig 8
+    dig 3
     swap
     callsub tmHolding
-    bury 4
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:99
-    // let offset: uint64 = 0
-    intc_0 // 0
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:98
+    bury 9
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:90
     // let spent: uint64 = 0
+    intc_0 // 0
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:91
+    // let offset: uint64 = 0
     dup
+    cover 2
 
-main_while_top@39:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:100
+main_while_top@27:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:92
     // while (offset < route.length) {
-    dig 10
+    dig 1
     len
-    dig 2
+    dig 3
     >
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:100-125
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:92-117
     // while (offset < route.length) {
     //   const legIn = word(route, offset)
     //   const hops = word(route, offset + 8)
@@ -208,151 +179,151 @@ main_while_top@39:
     //   loggedAssert(asset === assetOut, 'mockHsRoute')
     //   spent += legIn
     // }
-    bz main_after_while@53
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    bz main_after_while@41
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
-    dig 10
+    dig 1
     dup
-    uncover 3
+    uncover 4
     dup
     cover 2
     extract_uint64
-    cover 3
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:102
+    cover 6
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:94
     // const hops = word(route, offset + 8)
     dup
-    intc_3 // 8
+    intc_2 // 8
     +
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
     uncover 2
     swap
     extract_uint64
     dup
-    bury 7
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:103
+    bury 12
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:95
     // offset += 16
     swap
     pushint 16
     +
-    cover 2
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:104
+    cover 3
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:96
     // loggedAssert(hops > 0, 'mockHsRoute')
-    bnz main_after_assert@42
-    bytec_1 // "ERR:mockHsRoute"
+    bnz main_after_assert@30
+    bytec_0 // "ERR:mockHsRoute"
     log
     err // ERR:mockHsRoute
 
-main_after_assert@42:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:107
+main_after_assert@30:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:99
     // for (let i: uint64 = 0; i < hops; i++) {
     intc_0 // 0
-    cover 2
-    dig 3
-    dig 10
     cover 4
+    dig 6
+    dig 10
+    cover 6
 
-main_while_top@43:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:107
+main_while_top@31:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:99
     // for (let i: uint64 = 0; i < hops; i++) {
-    dig 3
-    dig 9
-    <
-    bz main_after_while@50
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
-    // return op.extractUint64(data, offset)
+    dig 5
     dig 14
+    <
+    bz main_after_while@38
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
+    // return op.extractUint64(data, offset)
+    dig 2
     dup
-    uncover 4
+    uncover 5
     dup
     cover 2
     extract_uint64
     dup
     cover 3
-    cover 8
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:109
+    cover 14
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:101
     // const app = Application(word(route, offset + 8))
     dup
-    intc_3 // 8
+    intc_2 // 8
     +
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
     dig 2
     swap
     extract_uint64
-    cover 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:110
+    cover 15
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:102
     // const pool = word(route, offset + 16)
     dup
     pushint 16
     +
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
     dig 2
     swap
     extract_uint64
-    cover 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:111
+    cover 15
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:103
     // const escrow = Application(word(route, offset + 24))
     dup
     pushint 24
     +
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
     dig 2
     swap
     extract_uint64
-    cover 7
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:112
+    cover 10
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:104
     // const next = word(route, offset + 32)
     dup
     pushint 32
     +
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:67
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:69
     // return op.extractUint64(data, offset)
     uncover 2
     swap
     extract_uint64
     dup
-    cover 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:113
+    cover 15
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:105
     // offset += HopSize
     swap
     pushint 40
     +
-    cover 4
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:114
+    cover 5
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:106
     // optInIfNeeded(next)
     callsub optInIfNeeded
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:115
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:107
     // if (venue === VenuePluginDex) {
-    bnz main_else_body@46
-    uncover 8
+    bnz main_else_body@34
+    uncover 14
     pop
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:116
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:108
     // amount = swapPluginDex(app, pool, escrow.address, asset, amount, next)
-    uncover 5
+    uncover 8
     app_params_get AppAddress
     swap
-    cover 8
+    cover 14
     assert // application exists
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:139
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:131
     // const self = Global.currentApplicationAddress
     global CurrentApplicationAddress
     dup
-    cover 9
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140
+    cover 15
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:132
     // const before = tmHolding(self, assetOut)
-    dig 7
+    dig 13
     callsub tmHolding
-    cover 5
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:141
+    cover 8
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:133
     // if (assetIn === 0) {
-    dig 4
-    bnz main_else_body@74
-    uncover 4
+    dig 6
+    bnz main_else_body@62
+    uncover 6
     pop
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:142-146
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:134-138
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
@@ -360,63 +331,63 @@ main_while_top@43:
     // })
     itxn_begin
     itxn_field Amount
-    uncover 6
+    uncover 12
     itxn_field Receiver
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:144
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:136
     // args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:142-146
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:134-138
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
     //   fee: 0,
     // })
     itxn_next
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:144
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:136
     // args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
-    uncover 7
+    uncover 13
     itob
     intc_1 // 1
     itob
     intc_0 // 0
     itob
-    uncover 10
+    uncover 16
     itxn_field ApplicationID
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:142-146
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:134-138
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
     //   fee: 0,
     // })
-    bytec 5 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
+    bytec 4 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 7
+    dig 13
     itxn_field ApplicationArgs
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:144
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:136
     // args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
-    bytec 6 // 0x0000
+    bytec 5 // 0x0000
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:142-146
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:134-138
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
     //   fee: 0,
     // })
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:145
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:137
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:142-146
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:134-138
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
@@ -428,36 +399,36 @@ main_while_top@43:
     extract 4 0
     swap
     extract 0 4
-    bytec 7 // 0x151f7c75
+    bytec 6 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
 
-main_after_if_else@75:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:161
+main_after_if_else@63:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:153
     // return tmHolding(self, assetOut) - before
-    uncover 6
-    dig 6
+    uncover 12
+    dig 12
     callsub tmHolding
-    uncover 4
+    uncover 7
     -
 
-main_after_if_else@49:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:107
+main_after_if_else@37:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:99
     // for (let i: uint64 = 0; i < hops; i++) {
-    uncover 3
+    uncover 5
     intc_1 // 1
     +
-    cover 3
-    uncover 5
-    cover 4
-    b main_while_top@43
+    cover 5
+    uncover 11
+    cover 6
+    b main_while_top@31
 
-main_else_body@74:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:148-159
+main_else_body@62:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140-151
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [
@@ -472,17 +443,17 @@ main_else_body@74:
     // })
     itxn_begin
     itxn_field AssetAmount
-    uncover 3
+    uncover 5
     itxn_field XferAsset
-    uncover 6
+    uncover 12
     itxn_field AssetReceiver
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:151
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:143
     // itxn.assetTransfer({ assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
-    intc_2 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:148-159
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140-151
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [
@@ -496,21 +467,21 @@ main_else_body@74:
     //   fee: 0,
     // })
     itxn_next
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:152
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:144
     // pool,
-    uncover 7
+    uncover 13
     itob
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:153
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:145
     // 1,
     intc_1 // 1
     itob
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:155
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:147
     // Bytes(''),
     intc_0 // 0
     itob
-    uncover 10
+    uncover 16
     itxn_field ApplicationID
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:148-159
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140-151
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [
@@ -523,20 +494,20 @@ main_else_body@74:
     //   ],
     //   fee: 0,
     // })
-    bytec 5 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
+    bytec 4 // method "swap(txn,uint64,uint64,address,byte[],uint64)uint64"
     itxn_field ApplicationArgs
     uncover 2
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 7
+    dig 13
     itxn_field ApplicationArgs
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:155
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:147
     // Bytes(''),
-    bytec 6 // 0x0000
+    bytec 5 // 0x0000
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:148-159
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140-151
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [
@@ -549,13 +520,13 @@ main_else_body@74:
     //   ],
     //   fee: 0,
     // })
-    pushint 6 // appl
+    intc_3 // appl
     itxn_field TypeEnum
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:158
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:150
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:148-159
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:140-151
     // abiCall<typeof PluginDex.prototype.swap>({
     //   appId: vault,
     //   args: [
@@ -574,76 +545,76 @@ main_else_body@74:
     extract 4 0
     swap
     extract 0 4
-    bytec 7 // 0x151f7c75
+    bytec 6 // 0x151f7c75
     ==
     assert // Bytes has valid prefix
     len
-    intc_3 // 8
+    intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    b main_after_if_else@75
+    b main_after_if_else@63
 
-main_else_body@46:
-    uncover 5
-    pop
+main_else_body@34:
     uncover 8
     pop
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:118
+    uncover 14
+    pop
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:110
     // loggedAssert(venue === VenueTinyman, 'mockHsVenue')
-    uncover 7
+    uncover 13
     intc_1 // 1
     ==
-    bnz main_after_assert@48
+    bnz main_after_assert@36
     pushbytes "ERR:mockHsVenue"
     log
     err // ERR:mockHsVenue
 
-main_after_assert@48:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:119
+main_after_assert@36:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:111
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
+    dig 13
     dig 7
-    dig 5
     dup
     cover 2
-    dig 9
+    dig 15
     dup
     cover 4
     callsub tmPoolAddress
-    cover 9
+    cover 15
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:183
     // loggedAssert(assetIn !== assetOut, 'errTmPair')
     !=
-    bnz main_after_assert@63
+    bnz main_after_assert@51
     pushbytes "ERR:errTmPair"
     log
     err // ERR:errTmPair
 
-main_after_assert@63:
+main_after_assert@51:
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:184
     // loggedAssert(pool === tmPoolAddress(app, assetIn, assetOut), 'errTmPool')
-    dig 8
-    dig 5
-    dig 8
+    dig 14
+    dig 7
+    dig 14
     callsub tmPoolAddress
-    dig 8
+    dig 14
     ==
-    bnz main_after_assert@65
+    bnz main_after_assert@53
     pushbytes "ERR:errTmPool"
     log
     err // ERR:errTmPool
 
-main_after_assert@65:
+main_after_assert@53:
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:186
     // const before = tmHolding(account, assetOut)
-    dig 16
     dig 7
+    dig 13
     callsub tmHolding
-    cover 5
+    cover 8
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:187
     // if (assetIn === 0) {
-    dig 4
-    bnz main_else_body@67
-    uncover 4
+    dig 6
+    bnz main_else_body@55
+    uncover 6
     pop
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:188-199
     // itxn.submitGroup(
@@ -660,10 +631,10 @@ main_after_assert@65:
     // )
     itxn_begin
     itxn_field Amount
-    uncover 6
+    uncover 12
     dup
     itxn_field Receiver
-    dig 15
+    dig 6
     dup
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:189
@@ -683,7 +654,7 @@ main_after_assert@65:
     //   fee: 0,
     // }),
     itxn_next
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:119
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:111
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:193
@@ -691,16 +662,16 @@ main_after_assert@65:
     itob
     dig 1
     itxn_field RekeyTo
-    dig 8
+    dig 14
     itxn_field Assets
     uncover 2
     itxn_field Accounts
-    bytec_2 // "swap"
+    bytec_1 // "swap"
     itxn_field ApplicationArgs
-    bytec_3 // "fixed-input"
+    bytec_2 // "fixed-input"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    uncover 7
+    uncover 13
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:190-198
@@ -713,7 +684,7 @@ main_after_assert@65:
     //   rekeyTo: rekeyTo,
     //   fee: 0,
     // }),
-    pushint 6
+    intc_3 // 6
     itxn_field TypeEnum
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:197
     // fee: 0,
@@ -734,21 +705,21 @@ main_after_assert@65:
     // )
     itxn_submit
 
-main_after_if_else@70:
+main_after_if_else@58:
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:227
     // return tmHolding(account, assetOut) - before
-    dig 13
-    dig 6
+    dig 5
+    dig 12
     callsub tmHolding
-    uncover 4
+    uncover 7
     -
-    b main_after_if_else@49
+    b main_after_if_else@37
 
-main_else_body@67:
+main_else_body@55:
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:200
     // } else if (assetOut === 0) {
-    dig 7
-    bnz main_else_body@69
+    dig 13
+    bnz main_else_body@57
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:201-212
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
@@ -764,19 +735,19 @@ main_else_body@67:
     // )
     itxn_begin
     itxn_field AssetAmount
-    uncover 3
+    uncover 5
     dup
     itxn_field XferAsset
-    uncover 7
+    uncover 13
     dup
     cover 2
     itxn_field AssetReceiver
-    dig 16
+    dig 7
     dup
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:202
     // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
-    intc_2 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -791,7 +762,7 @@ main_else_body@67:
     //   fee: 0,
     // }),
     itxn_next
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:119
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:111
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:206
@@ -803,12 +774,12 @@ main_else_body@67:
     itxn_field Assets
     uncover 2
     itxn_field Accounts
-    bytec_2 // "swap"
+    bytec_1 // "swap"
     itxn_field ApplicationArgs
-    bytec_3 // "fixed-input"
+    bytec_2 // "fixed-input"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    uncover 7
+    uncover 13
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:203-211
@@ -821,7 +792,7 @@ main_else_body@67:
     //   rekeyTo: rekeyTo,
     //   fee: 0,
     // }),
-    pushint 6
+    intc_3 // 6
     itxn_field TypeEnum
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:210
     // fee: 0,
@@ -841,9 +812,9 @@ main_else_body@67:
     //   }),
     // )
     itxn_submit
-    b main_after_if_else@70
+    b main_after_if_else@58
 
-main_else_body@69:
+main_else_body@57:
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:214-225
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
@@ -859,19 +830,19 @@ main_else_body@69:
     // )
     itxn_begin
     itxn_field AssetAmount
-    uncover 3
+    uncover 5
     dup
     itxn_field XferAsset
-    uncover 7
+    uncover 13
     dup
     cover 2
     itxn_field AssetReceiver
-    dig 16
+    dig 7
     dup
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:215
     // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
-    intc_2 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
@@ -886,7 +857,7 @@ main_else_body@69:
     //   fee: 0,
     // }),
     itxn_next
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:119
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:111
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:219
@@ -896,16 +867,16 @@ main_else_body@69:
     itxn_field RekeyTo
     uncover 2
     itxn_field Assets
-    dig 8
+    dig 14
     itxn_field Assets
     uncover 2
     itxn_field Accounts
-    bytec_2 // "swap"
+    bytec_1 // "swap"
     itxn_field ApplicationArgs
-    bytec_3 // "fixed-input"
+    bytec_2 // "fixed-input"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    uncover 7
+    uncover 13
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:216-224
@@ -918,7 +889,7 @@ main_else_body@69:
     //   rekeyTo: rekeyTo,
     //   fee: 0,
     // }),
-    pushint 6
+    intc_3 // 6
     itxn_field TypeEnum
     // smart_contracts/plugin-dex/venues/tinyman-v2.ts:223
     // fee: 0,
@@ -938,68 +909,71 @@ main_else_body@69:
     //   }),
     // )
     itxn_submit
-    b main_after_if_else@70
+    b main_after_if_else@58
 
-main_after_while@50:
+main_after_while@38:
     pop
-    uncover 2
+    uncover 4
     pop
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:123
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:115
     // loggedAssert(asset === assetOut, 'mockHsRoute')
-    uncover 2
-    dig 8
-    ==
-    bnz main_after_assert@52
-    bytec_1 // "ERR:mockHsRoute"
-    log
-    err // ERR:mockHsRoute
-
-main_after_assert@52:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:124
-    // spent += legIn
-    uncover 2
-    +
-    b main_while_top@39
-
-main_after_while@53:
-    bury 1
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:126
-    // loggedAssert(spent === amountIn, 'mockHsRoute')
-    dig 7
-    ==
-    bnz main_after_assert@55
-    bytec_1 // "ERR:mockHsRoute"
-    log
-    err // ERR:mockHsRoute
-
-main_after_assert@55:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:128
-    // const amountOut: uint64 = tmHolding(self, assetOut) - before
-    dig 7
-    dig 5
-    callsub tmHolding
+    uncover 4
     dig 4
+    ==
+    bnz main_after_assert@40
+    bytec_0 // "ERR:mockHsRoute"
+    log
+    err // ERR:mockHsRoute
+
+main_after_assert@40:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:116
+    // spent += legIn
+    uncover 5
+    +
+    b main_while_top@27
+
+main_after_while@41:
+    bury 1
+    bury 1
+    uncover 5
+    pop
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:118
+    // loggedAssert(spent === amountIn, 'mockHsRoute')
+    uncover 4
+    ==
+    bnz main_after_assert@43
+    bytec_0 // "ERR:mockHsRoute"
+    log
+    err // ERR:mockHsRoute
+
+main_after_assert@43:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:120
+    // const amountOut: uint64 = tmHolding(self, assetOut) - before
+    swap
+    dig 1
+    callsub tmHolding
+    dig 5
     -
     dup
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:129
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:121
     // loggedAssert(amountOut >= minAmountOut, 'mockHsSlippage')
-    dig 2
+    dig 4
     >=
-    bnz main_after_assert@57
+    bnz main_after_assert@45
     pushbytes "ERR:mockHsSlippage"
     log
     err // ERR:mockHsSlippage
 
-main_after_assert@57:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:130
+main_after_assert@45:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:122
     // if (assetOut === 0) {
-    dig 5
-    bnz main_else_body@60
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:131
+    dig 1
+    bnz main_else_body@48
+    bury 1
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:123
     // itxn.payment({ receiver: beneficiary, amount: amountOut, fee: 0 }).submit()
     itxn_begin
     itxn_field Amount
-    dig 9
     itxn_field Receiver
     intc_1 // 1
     itxn_field TypeEnum
@@ -1009,86 +983,54 @@ main_after_assert@57:
 
 main_after_if_else@7:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:49
+    // if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === OptInSelector) optInIfNeeded(argUint(1))
+    txn NumAppArgs
+    pushint 2
+    ==
+    bz main_after_if_else@10
+    txna ApplicationArgs 0
+    pushbytes "opt_in"
+    ==
+    bz main_after_if_else@10
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:65
+    // return op.btoi(Txn.applicationArgs(index))
+    txna ApplicationArgs 1
+    btoi
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:49
+    // if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === OptInSelector) optInIfNeeded(argUint(1))
+    callsub optInIfNeeded
+
+main_after_if_else@10:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:50
     // return true
     intc_1 // 1
     return
 
-main_else_body@60:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:133
+main_else_body@48:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:125
     // itxn.assetTransfer({ xferAsset: assetOut, assetReceiver: beneficiary, assetAmount: amountOut, fee: 0 }).submit()
     itxn_begin
     itxn_field AssetAmount
-    dig 9
-    itxn_field AssetReceiver
-    dig 4
     itxn_field XferAsset
-    intc_2 // 4
+    itxn_field AssetReceiver
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
     itxn_submit
     b main_after_if_else@7
 
-main_bool_false@24:
-    intc_0 // 0
-    b main_bool_merge@25
-
-main_else_body@28:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:88
-    // loggedAssert(input.type === TransactionType.AssetTransfer, 'mockHsInput')
-    dig 1
-    gtxns TypeEnum
-    dup
-    intc_2 // 4
-    ==
-    bnz main_after_assert@30
-    bytec_0 // "ERR:mockHsInput"
-    log
-    err // ERR:mockHsInput
-
-main_after_assert@30:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:89
-    // const axfer = gtxn.AssetTransferTxn(inputIndex)
-    intc_2 // axfer
-    ==
-    assert // transaction type is axfer
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:91
-    // axfer.assetReceiver === self && axfer.xferAsset.id === assetIn && axfer.assetAmount === amountIn,
-    dig 1
-    gtxns AssetReceiver
-    dig 8
-    ==
-    bz main_bool_false@34
-    dig 1
-    gtxns XferAsset
+main_ternary_false@23:
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:85
+    // const available: uint64 = assetIn === 0 ? self.balance - self.minBalance : tmHolding(self, assetIn)
+    dig 2
     dig 6
-    ==
-    bz main_bool_false@34
-    dig 1
-    gtxns AssetAmount
-    dig 7
-    ==
-    bz main_bool_false@34
-    intc_1 // 1
+    callsub tmHolding
+    b main_ternary_merge@24
 
-main_bool_merge@35:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:90-93
-    // loggedAssert(
-    //   axfer.assetReceiver === self && axfer.xferAsset.id === assetIn && axfer.assetAmount === amountIn,
-    //   'mockHsInput',
-    // )
-    bnz main_after_if_else@38
-    bytec_0 // "ERR:mockHsInput"
-    log
-    err // ERR:mockHsInput
-
-main_bool_false@34:
+main_bool_false@18:
     intc_0 // 0
-    b main_bool_merge@35
-
-main_bool_false@15:
-    intc_0 // 0
-    b main_bool_merge@16
+    b main_bool_merge@19
 
 
 // smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress(app: uint64, assetA: uint64, assetB: uint64) -> bytes:
@@ -1170,28 +1112,28 @@ tmHolding_after_if_else@2:
 
 // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts::optInIfNeeded(asset: uint64) -> void:
 optInIfNeeded:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:164
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:156
     // function optInIfNeeded(asset: uint64): void {
     proto 1 0
     intc_0 // 0
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:165
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:157
     // if (asset === 0) return
     frame_dig -1
     bnz optInIfNeeded_after_if_else@2
     retsub
 
 optInIfNeeded_after_if_else@2:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:166
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:158
     // const self = Global.currentApplicationAddress
     global CurrentApplicationAddress
     dup
     frame_bury 0
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:167
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:159
     // const [, optedIn] = op.AssetHolding.assetBalance(self, asset)
     frame_dig -1
     asset_holding_get AssetBalance
     bury 1
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:168
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:160
     // if (!optedIn) itxn.assetTransfer({ xferAsset: asset, assetReceiver: self, assetAmount: 0, fee: 0 }).submit()
     bnz optInIfNeeded_after_if_else@5
     itxn_begin
@@ -1201,7 +1143,7 @@ optInIfNeeded_after_if_else@2:
     itxn_field AssetReceiver
     frame_dig -1
     itxn_field XferAsset
-    intc_2 // 4
+    pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee

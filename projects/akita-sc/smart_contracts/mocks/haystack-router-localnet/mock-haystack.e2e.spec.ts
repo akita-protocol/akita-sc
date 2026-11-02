@@ -164,8 +164,10 @@ describe('MOCK Haystack Router (LocalNet)', () => {
     const quote = await fetchQuote(tka, 0n, 5n * UNIT)
     const before = await holding(user.addr.toString(), 0n)
     const { txns } = await execute(quote)
-    const userFees = txns.filter((t) => t.sender.toString() === user.addr.toString()).reduce((sum, t) => sum + t.fee, 0n)
-    expect((await holding(user.addr.toString(), 0n)) - before + userFees).toBe(BigInt(quote.quote))
+    // the user's ALGO also paid its transaction fees and the route fee (an ALGO payment to the router)
+    const userTxns = txns.filter((t) => t.sender.toString() === user.addr.toString())
+    const userSpent = userTxns.reduce((sum, t) => sum + t.fee + (t.payment?.amount ?? 0n), 0n)
+    expect((await holding(user.addr.toString(), 0n)) - before + userSpent).toBe(BigInt(quote.quote))
   })
 
   test('the finalize call keeps the argument positions our wallet code reads', async () => {
@@ -178,12 +180,13 @@ describe('MOCK Haystack Router (LocalNet)', () => {
     expect(finalize.foreignAssets[Number(algosdk.decodeUint64(finalize.appArgs[2], 'bigint'))]).toBe(tka)
     expect(algosdk.decodeUint64(finalize.appArgs[4], 'bigint')).toBe((BigInt(quote.quote) * 9_900n) / 10_000n)
     expect(finalize.accounts[Number(algosdk.decodeUint64(finalize.appArgs[6], 'bigint')) - 1].toString()).toBe(user.addr.toString())
-    // only the input is the user's to sign, and it is the transaction right before finalize
-    expect(txns.map((t) => t.signature === false)).toEqual(decoded.map((_, i) => i === decoded.length - 2))
-    expect(decoded.at(-2)!.sender.toString()).toBe(user.addr.toString())
+    // like Haystack's MainNet routes, the user signs the input and a 10,000 µALGO route fee, both to the router
+    expect(txns.map((t) => t.signature === false)).toEqual(decoded.map((_, i) => i === decoded.length - 3 || i === decoded.length - 2))
+    expect(decoded.at(-3)!.payment?.amount).toBe(UNIT)
+    expect(decoded.at(-2)!.payment?.amount).toBe(10_000n)
   })
 
-  test('finalize reverts below minAmountOut and when the input does not match', async () => {
+  test('finalize reverts below minAmountOut, when the router does not hold the input, and on a route mismatch', async () => {
     const route = (await mock.route(0n, tka, UNIT, 1))!
     const build = async (r: MockRoute, minOut: bigint, inputAmount = r.amountIn) => {
       const group = algorand.newGroup()
@@ -199,7 +202,9 @@ describe('MOCK Haystack Router (LocalNet)', () => {
       return group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
     }
     await expect(build(route, route.amountOut + 1n)).rejects.toThrow(/mockHsSlippage/)
-    await expect(build(route, 0n, route.amountIn - 1n)).rejects.toThrow(/mockHsInput/)
+    // like Haystack's router it swaps from its own balance: 100 ALGO it never received is more than its MBR buffer
+    const unfunded = { ...route, amountIn: 100n * UNIT, legs: [{ ...route.legs[0], amountIn: 100n * UNIT }] }
+    await expect(build(unfunded, 0n, 0n)).rejects.toThrow(/mockHsInput/)
     const short = { ...route, legs: [{ ...route.legs[0], amountIn: route.amountIn - 1n }] }
     await expect(build(short, 0n)).rejects.toThrow(/mockHsRoute/)
   })

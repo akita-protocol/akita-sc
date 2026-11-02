@@ -11,6 +11,11 @@ uses:
 
 The router's own route encoding, the relay key and the plain-JSON `txnPayload` (iv `"mock"`) are mock inventions.
 
+Like Haystack's MainNet router (app 3172554435), the mock's finalize swaps from its own balance and never checks who
+funded it. Its routes have the MainNet shape: the user sends the router the input and a 10,000 µALGO payment, and
+the relay sends everything else. An Akita wallet re-sends those user transactions from a one-swap temporary account
+that its HaystackRouterPlugin funds (`plugin-flow.e2e.spec.ts`, akita-rn `services/haystackPluginSwap.ts`).
+
 ## Parts
 
 | Part | File |
@@ -19,7 +24,7 @@ The router's own route encoding, the relay key and the plain-JSON `txnPayload` (
 | Routing engine and group builder | `scripts/lib/mock-haystack.ts` |
 | HTTP API | `scripts/mock-haystack-server.ts` |
 | LocalNet deploy (Tinyman pools, router app, relay) | `scripts/deploy-mock-haystack.ts` |
-| End-to-end test | `mock-haystack.e2e.spec.ts` |
+| End-to-end tests | `mock-haystack.e2e.spec.ts`, `plugin-flow.e2e.spec.ts` (through the HaystackRouterPlugin) |
 
 Venues are every live Plugin DEX pool, quoted with the Vault's `tryQuoteRoute` (swapper = the router app) as
 `plugin-dex/INTEGRATION.md` tells aggregators, and Tinyman v2 pools on the vendored fixture. Routes have up to 3
