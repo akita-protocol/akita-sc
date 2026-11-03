@@ -8,8 +8,8 @@
     "@algorandfoundation/algokit-client-generator": "7.0.0-beta.3",
     "@algorandfoundation/algokit-utils": "10.0.0-beta.1",
     "@algorandfoundation/algokit-utils-debug": "2.0.0-beta.2",
-    "@algorandfoundation/algorand-typescript": "1.2.0-beta.28",
-    "@algorandfoundation/puya-ts": "1.2.0-beta.28",
+    "@algorandfoundation/algorand-typescript": "https://github.com/akita-protocol/puya-ts/releases/download/v1.4.0-akita.1/algorand-typescript.tgz",
+    "@algorandfoundation/puya-ts": "https://github.com/akita-protocol/puya-ts/releases/download/v1.4.0-akita.1/puya-ts.tgz",
     "@joe-p/merkle-tree": "github:joe-p/merkle-tree",
     "algosdk": "^3.6.0",
     "typescript": "^5.9.3"

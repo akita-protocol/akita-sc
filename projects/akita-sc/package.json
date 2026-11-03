@@ -161,7 +161,7 @@
     "npm": ">=10.0"
   },
   "dependencies": {
-    "@algorandfoundation/puya-ts": "1.2.0-beta.28",
+    "@algorandfoundation/puya-ts": "https://github.com/akita-protocol/puya-ts/releases/download/v1.4.0-akita.1/puya-ts.tgz",
     "akita-sdk": "file:../akita-sdk"
   },
   "devDependencies": {
