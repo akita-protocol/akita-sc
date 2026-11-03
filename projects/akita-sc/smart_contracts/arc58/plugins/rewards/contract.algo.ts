@@ -1,4 +1,4 @@
-import { Application, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Application, itxn, uint64, contract } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { AllocationReclaimDetails, ClaimDetails, UserAllocation } from '../../../rewards/types'
@@ -9,6 +9,7 @@ import { BaseRewards } from '../../../rewards/base'
 import type { Rewards } from '../../../rewards/contract.algo'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
 
+@contract({ ui: { glyph: 'Gift', color: '#10b981', defaultAction: 'reward' } })
 export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
 
   @abimethod({ onCreate: 'require' })
@@ -17,6 +18,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     this.akitaDAO.value = akitaDAO
   }
 
+  @abimethod({ ui: { action: 'reward_create', glyph: 'Sparkles', label: 'Create rewards' } })
   createDisbursement(
     wallet: Application,
     rekeyBack: boolean,
@@ -68,6 +70,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reward_create', glyph: 'Sparkles', label: 'Allocate rewards' } })
   createUserAllocations(
     wallet: Application,
     rekeyBack: boolean,
@@ -94,6 +97,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reward_create', glyph: 'Sparkles', label: 'Allocate rewards' } })
   createAsaUserAllocations(
     wallet: Application,
     rekeyBack: boolean,
@@ -123,6 +127,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reward_create', glyph: 'Sparkles', label: 'Finalize rewards' } })
   finalizeDisbursement(
     wallet: Application,
     rekeyBack: boolean,
@@ -138,6 +143,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reward', glyph: 'Gift', label: 'Claim rewards' } })
   claimRewards(
     wallet: Application,
     rekeyBack: boolean,
@@ -153,6 +159,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reward', glyph: 'Gift', label: 'Reclaim rewards' } })
   reclaimRewards(
     wallet: Application,
     rekeyBack: boolean,

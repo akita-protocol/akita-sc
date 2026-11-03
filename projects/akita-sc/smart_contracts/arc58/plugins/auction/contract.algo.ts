@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64, contract } from "@algorandfoundation/algorand-typescript"
 import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
@@ -20,6 +20,7 @@ import type { PrizeBox } from "../../../prize-box/contract.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 
 
+@contract({ ui: { glyph: 'HandRaised', color: '#f97316', defaultAction: 'bid' } })
 export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -258,6 +259,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'bid', glyph: 'HandRaised', label: 'Bid' } })
   bid(
     wallet: Application,
     rekeyBack: boolean,
@@ -382,6 +384,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     }
   }
 
+  @abimethod({ ui: { action: 'bid_refund', glyph: 'ArrowUturnLeft', label: 'Refund bid' } })
   refundBid(
     wallet: Application,
     rekeyBack: boolean,
@@ -400,6 +403,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'auction_prize', glyph: 'Trophy', label: 'Claim prize' } })
   claimPrize(
     wallet: Application,
     rekeyBack: boolean,
@@ -416,6 +420,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'raffle_prize', glyph: 'Trophy', label: 'Claim raffle prize' } })
   claimRafflePrize(
     wallet: Application,
     rekeyBack: boolean,
@@ -432,6 +437,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'raffle_draw', glyph: 'Sparkles', label: 'Draw raffle' } })
   raffle(
     wallet: Application,
     rekeyBack: boolean,
@@ -447,6 +453,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'raffle_draw', glyph: 'Sparkles', label: 'Find winner' } })
   findWinner(
     wallet: Application,
     rekeyBack: boolean,

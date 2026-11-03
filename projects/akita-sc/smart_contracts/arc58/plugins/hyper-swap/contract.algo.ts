@@ -1,4 +1,4 @@
-import { Account, Application, Asset, bytes, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, bytes, Global, itxn, uint64, contract } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
@@ -9,6 +9,7 @@ import { BaseHyperSwap } from "../../../hyper-swap/base"
 import type { HyperSwap } from "../../../hyper-swap/contract.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 
+@contract({ ui: { glyph: 'ArrowsRightLeft', color: '#06b6d4', defaultAction: 'hyper_swap' } })
 export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
 
   @abimethod({ onCreate: 'require' })
@@ -19,6 +20,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
 
   // HYPER SWAP PLUGIN METHODS --------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'hyper_swap', glyph: 'ArrowsRightLeft', label: 'Offer trade' } })
   offer(
     wallet: Application,
     rekeyBack: boolean,
@@ -54,6 +56,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'hyper_swap', glyph: 'ArrowsRightLeft', label: 'Accept trade' } })
   accept(
     wallet: Application,
     rekeyBack: boolean,
@@ -80,6 +83,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'hyper_swap', glyph: 'ArrowsRightLeft', label: 'Escrow trade' } })
   escrow(
     wallet: Application,
     rekeyBack: boolean,
@@ -150,6 +154,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     }
   }
 
+  @abimethod({ ui: { action: 'hyper_swap', glyph: 'ArrowsRightLeft', label: 'Complete trade' } })
   disburse(
     wallet: Application,
     rekeyBack: boolean,
@@ -175,6 +180,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'swap_cancel', glyph: 'XCircle', label: 'Cancel trade' } })
   cancel(
     wallet: Application,
     rekeyBack: boolean,
@@ -191,6 +197,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'swap_cancel', glyph: 'XCircle', label: 'Withdraw from trade' } })
   withdraw(
     wallet: Application,
     rekeyBack: boolean,

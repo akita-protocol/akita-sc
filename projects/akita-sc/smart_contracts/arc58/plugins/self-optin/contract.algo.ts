@@ -1,9 +1,11 @@
-import { Application, Asset, Global, itxn, uint64, loggedAssert, Contract, op } from "@algorandfoundation/algorand-typescript";
+import { Application, Asset, Global, itxn, uint64, loggedAssert, Contract, op, abimethod, contract } from "@algorandfoundation/algorand-typescript";
 import { ERR_ALREADY_OPTED_IN, ERR_NOT_OPTED_IN, ERR_INVALID_ASSET_AMOUNT } from "./errors";
 import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
 
+@contract({ ui: { glyph: 'PlusCircle', color: '#22c55e', defaultAction: 'opt_in' } })
 export class SelfOptInPlugin extends Contract {
 
+  @abimethod({ ui: { action: 'opt_in', glyph: 'PlusCircle', label: 'Opt in' } })
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[]): void {
     const sender = getSpendingAccount(wallet)
 
@@ -22,6 +24,7 @@ export class SelfOptInPlugin extends Contract {
     }
   }
 
+  @abimethod({ ui: { action: 'opt_out', glyph: 'MinusCircle', label: 'Opt out' } })
   optOut(wallet: Application, rekeyBack: boolean, assets: uint64[]): void {
     const sender = getSpendingAccount(wallet)
     for (let i: uint64 = 0; i < assets.length; i++) {

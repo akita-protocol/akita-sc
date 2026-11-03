@@ -1,4 +1,4 @@
-import { Application, GlobalState, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Application, GlobalState, itxn, uint64, contract } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateArgs, GateFilter } from "../../../gates/types";
 import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
@@ -10,6 +10,7 @@ import { Gate } from "../../../gates/contract.algo";
 
 export const GatePluginGlobalStateKeyGateAppID = 'gate_app_id'
 
+@contract({ ui: { glyph: 'Key', color: '#ef4444', defaultAction: 'gate' } })
 export class GatePlugin extends BaseGate {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -25,6 +26,7 @@ export class GatePlugin extends BaseGate {
 
   // GATE PLUGIN METHODS --------------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'gate', glyph: 'Key', label: 'Register gate' } })
   register(
     wallet: Application,
     rekeyBack: boolean,

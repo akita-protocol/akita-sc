@@ -1,4 +1,4 @@
-import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64, contract } from "@algorandfoundation/algorand-typescript";
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions';
 import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey, DualStakePluginGlobalStateKeyLSTID } from './constants';
@@ -8,6 +8,7 @@ import { ERR_NOT_A_DUALSTAKE_APP, ERR_NOT_ENOUGH_OF_ASA } from './errors';
 import type { DualStake } from '../../../utils/types/dual-stake';
 
 
+@contract({ ui: { glyph: 'Sparkles', color: '#f8fafc', defaultAction: 'mint' } })
 export class DualStakePlugin extends Contract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -23,6 +24,7 @@ export class DualStakePlugin extends Contract {
 
   // DUAL STAKE PLUGIN METHODS --------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'mint', glyph: 'Sparkles', label: 'Mint' } })
   mint(
     wallet: Application,
     rekeyBack: boolean,
@@ -83,6 +85,7 @@ export class DualStakePlugin extends Contract {
     itxnCompose.submit()
   }
 
+  @abimethod({ ui: { action: 'redeem', glyph: 'ArrowUturnLeft', label: 'Redeem' } })
   redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
     const sender = getSpendingAccount(wallet)
 

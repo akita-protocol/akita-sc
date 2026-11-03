@@ -1,4 +1,4 @@
-import { Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64, contract } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { GateMustCheckAbiMethod } from '../../../gates/constants'
@@ -18,6 +18,7 @@ import type { PrizeBox } from '../../../prize-box/contract.algo'
 import { AkitaBaseContract } from '../../../utils/base-contracts/base'
 
 
+@contract({ ui: { glyph: 'ShoppingBag', color: '#ec4899', defaultAction: 'purchase' } })
 export class MarketplacePlugin extends AkitaBaseContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
 
   // MARKETPLACE PLUGIN METHODS -------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'list', glyph: 'Tag', label: 'List for sale' } })
   list(
     wallet: Application,
     rekeyBack: boolean,
@@ -148,6 +150,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     }).returnValue
   }
 
+  @abimethod({ ui: { action: 'list', glyph: 'Tag', label: 'List prize box' } })
   listPrizeBox(
     wallet: Application,
     rekeyBack: boolean,
@@ -240,6 +243,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     }).returnValue
   }
 
+  @abimethod({ ui: { action: 'purchase', glyph: 'ShoppingBag', label: 'Buy' } })
   purchase(
     wallet: Application,
     rekeyBack: boolean,
@@ -351,6 +355,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     }
   }
 
+  @abimethod({ ui: { action: 'list', glyph: 'Tag', label: 'Change price' } })
   changePrice(
     wallet: Application,
     rekeyBack: boolean,
@@ -369,6 +374,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     })
   }
 
+  @abimethod({ ui: { action: 'delist', glyph: 'ArchiveBoxXMark', label: 'Delist' } })
   delist(
     wallet: Application,
     rekeyBack: boolean,

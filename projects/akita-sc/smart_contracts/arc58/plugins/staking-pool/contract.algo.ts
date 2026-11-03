@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, Asset, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, Asset, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64, contract } from "@algorandfoundation/algorand-typescript";
 import { abiCall, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { btoi } from "@algorandfoundation/algorand-typescript/op";
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersion } from "../../../constants";
@@ -18,6 +18,7 @@ import { StakingPool } from "../../../staking-pool/contract.algo";
 import { StakingPoolFactory } from "../../../staking-pool/factory.algo";
 
 
+@contract({ ui: { glyph: 'PlusCircle', color: '#a855f7', defaultAction: 'stake' } })
 export class StakingPoolPlugin extends BaseStakingPool {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -39,6 +40,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
 
   // POOL PLUGIN METHODS --------------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'pool_create', glyph: 'PlusCircle', label: 'Create pool' } })
   newPool(
     wallet: Application,
     rekeyBack: boolean,
@@ -84,6 +86,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     })
   }
 
+  @abimethod({ ui: { action: 'pool_create', glyph: 'PlusCircle', label: 'Set up pool' } })
   initPool(
     wallet: Application,
     rekeyBack: boolean,
@@ -118,6 +121,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     })
   }
 
+  @abimethod({ ui: { action: 'pool_reward', glyph: 'Gift', label: 'Add pool reward' } })
   addReward(
     wallet: Application,
     rekeyBack: boolean,
@@ -216,6 +220,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     })
   }
 
+  @abimethod({ ui: { action: 'stake', glyph: 'LockClosed', label: 'Join pool' } })
   enter(
     wallet: Application,
     rekeyBack: boolean,

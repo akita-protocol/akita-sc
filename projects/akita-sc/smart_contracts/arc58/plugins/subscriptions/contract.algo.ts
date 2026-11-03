@@ -1,4 +1,4 @@
-import { Account, Application, Asset, Box, bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, Box, bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, TransactionType, Txn, uint64, contract } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { GateMustCheckAbiMethod } from "../../../gates/constants"
@@ -16,6 +16,7 @@ import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 import { BoxKeySubscriptionsDescription, MAX_LOAD_DESCRIPTION_CHUNK_SIZE } from "./constants"
 import { ERR_BAD_DESCRIPTION_LENGTH, ERR_DESCRIPTION_NOT_INITIALIZED, ERR_INVALID_CALL_ORDER } from "./errors"
 
+@contract({ ui: { glyph: 'BellAlert', color: '#A66BFF', defaultAction: 'subscribe' } })
 export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseContract) {
 
   // temporary storage for new service calls
@@ -102,6 +103,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     this.description.replace(offset, data)
   }
 
+  @abimethod({ ui: { action: 'service_create', glyph: 'PlusCircle', label: 'Create service' } })
   newService(
     wallet: Application,
     rekeyBack: boolean,
@@ -250,6 +252,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
   }
 
+  @abimethod({ ui: { action: 'service_pause', glyph: 'Pause', label: 'Pause service' } })
   pauseService(
     wallet: Application,
     rekeyBack: boolean,
@@ -267,6 +270,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
   }
 
+  @abimethod({ ui: { action: 'service_shutdown', glyph: 'Power', label: 'Shut down service' } })
   shutdownService(
     wallet: Application,
     rekeyBack: boolean,
@@ -284,6 +288,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
   }
 
+  @abimethod({ ui: { action: 'block', glyph: 'NoSymbol', label: 'Block subscriber' } })
   block(
     wallet: Application,
     rekeyBack: boolean,
@@ -308,6 +313,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
   }
 
+  @abimethod({ ui: { action: 'unblock', glyph: 'LockOpen', label: 'Unblock subscriber' } })
   unblock(
     wallet: Application,
     rekeyBack: boolean,
@@ -325,6 +331,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     })
   }
 
+  @abimethod({ ui: { action: 'subscribe', glyph: 'BellAlert', label: 'Subscribe' } })
   subscribe(
     wallet: Application,
     rekeyBack: boolean,
@@ -455,6 +462,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     }
   }
 
+  @abimethod({ ui: { action: 'subscription_payment', glyph: 'Banknotes', label: 'Subscription payment' } })
   triggerPayment(
     wallet: Application,
     rekeyBack: boolean,

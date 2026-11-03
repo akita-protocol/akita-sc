@@ -1,4 +1,4 @@
-import { Account, Application, bytes, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, bytes, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64, contract } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
@@ -10,6 +10,7 @@ import { ERR_CANNOT_AUTO_RENEW, ERR_NOT_AN_NFD, ERR_NO_SALE_AMOUNT } from './err
 import type { NFD } from '../../../utils/types/nfd'
 import type { NFDRegistry } from '../../../utils/types/nfd-registry'
 
+@contract({ ui: { glyph: 'Identification', color: '#ff602d', defaultAction: 'nfd_update' } })
 export class NFDPlugin extends Contract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -36,6 +37,7 @@ export class NFDPlugin extends Contract {
 
   // X METHODS ------------------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'nfd_purchase', glyph: 'ShoppingBag', label: 'Mint NFD' } })
   mint(
     wallet: Application,
     rekeyBack: boolean,
@@ -64,6 +66,7 @@ export class NFDPlugin extends Contract {
     }).returnValue
   }
 
+  @abimethod({ ui: { action: 'nfd_update', glyph: 'PencilSquare', label: 'Remove NFD fields' } })
   deleteFields(
     wallet: Application,
     rekeyBack: boolean,
@@ -82,6 +85,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_update', glyph: 'PencilSquare', label: 'Update NFD' } })
   updateFields(
     wallet: Application,
     rekeyBack: boolean,
@@ -110,6 +114,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_link', glyph: 'Link', label: 'Link address' } })
   linkNfdAddress(
     wallet: Application,
     rekeyBack: boolean,
@@ -147,6 +152,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_unlink', glyph: 'XCircle', label: 'Unlink address' } })
   unlinkNfdAddress(
     wallet: Application,
     rekeyBack: boolean,
@@ -167,6 +173,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_primary', glyph: 'Star', label: 'Set primary NFD' } })
   setAddressPrimaryNfd(
     wallet: Application,
     rekeyBack: boolean,
@@ -187,6 +194,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_list', glyph: 'Tag', label: 'List NFD for sale' } })
   offerForSale(
     wallet: Application,
     rekeyBack: boolean,
@@ -207,6 +215,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_delist', glyph: 'ArchiveBoxXMark', label: 'Cancel NFD sale' } })
   cancelSale(
     wallet: Application,
     rekeyBack: boolean,
@@ -225,6 +234,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_offer', glyph: 'HandRaised', label: 'Offer on NFD' } })
   postOffer(
     wallet: Application,
     rekeyBack: boolean,
@@ -245,6 +255,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_purchase', glyph: 'ShoppingBag', label: 'Buy NFD' } })
   purchase(
     wallet: Application,
     rekeyBack: boolean,
@@ -291,6 +302,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_lock', glyph: 'LockClosed', label: 'Lock NFD' } })
   contractLock(
     wallet: Application,
     rekeyBack: boolean,
@@ -391,6 +403,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_renew', glyph: 'ArrowPath', label: 'Renew NFD' } })
   renew(
     wallet: Application,
     rekeyBack: boolean,
@@ -422,6 +435,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_renew', glyph: 'ArrowPath', label: 'Auto-renew NFD' } })
   autoRenew(
     wallet: Application,
     rekeyBack: boolean,
@@ -459,6 +473,7 @@ export class NFDPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'nfd_primary', glyph: 'Star', label: 'Set primary address' } })
   setPrimaryAddress(
     wallet: Application,
     rekeyBack: boolean,

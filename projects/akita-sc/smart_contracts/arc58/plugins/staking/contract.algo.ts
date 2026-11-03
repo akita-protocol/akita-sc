@@ -1,4 +1,4 @@
-import { Account, Application, Asset, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, Global, itxn, uint64, contract } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { SettingsMBR, totalsMBR } from "../../../staking/constants"
@@ -11,6 +11,7 @@ import type { Staking } from "../../../staking/contract.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 import { AppSoftStakeKey, SoftStakeKey } from "./types"
 
+@contract({ ui: { glyph: 'LockClosed', color: '#F5C518', defaultAction: 'stake' } })
 export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -23,6 +24,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
   // STAKING PLUGIN METHODS -----------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'stake', glyph: 'LockClosed', label: 'Stake' } })
   stake(
     wallet: Application,
     rekeyBack: boolean,
@@ -110,6 +112,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     }
   }
 
+  @abimethod({ ui: { action: 'unstake', glyph: 'LockOpen', label: 'Unstake' } })
   withdraw(
     wallet: Application,
     rekeyBack: boolean,

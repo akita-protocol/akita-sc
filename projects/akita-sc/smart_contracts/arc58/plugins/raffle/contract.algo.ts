@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64, contract } from "@algorandfoundation/algorand-typescript"
 import { abiCall, compileArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, btoi, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
@@ -19,6 +19,7 @@ import type { RaffleFactory } from "../../../raffle/factory.algo"
 import { AkitaBaseContract } from "../../../utils/base-contracts/base"
 
 
+@contract({ ui: { glyph: 'Ticket', color: '#14b8a6', defaultAction: 'raffle_enter' } })
 export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -35,6 +36,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
 
   // RAFFLE PLUGIN METHODS ------------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'raffle_create', glyph: 'PlusCircle', label: 'Create raffle' } })
   newRaffle(
     wallet: Application,
     rekeyBack: boolean,
@@ -163,6 +165,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     return raffleApp
   }
 
+  @abimethod({ ui: { action: 'raffle_create', glyph: 'PlusCircle', label: 'Create prize box raffle' } })
   newPrizeBoxRaffle(
     wallet: Application,
     rekeyBack: boolean,
@@ -233,6 +236,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     return raffleApp
   }
 
+  @abimethod({ ui: { action: 'raffle_enter', glyph: 'Ticket', label: 'Enter raffle' } })
   enter(
     wallet: Application,
     rekeyBack: boolean,
@@ -286,6 +290,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     }
   }
 
+  @abimethod({ ui: { action: 'raffle_enter', glyph: 'Ticket', label: 'Add tickets' } })
   add(
     wallet: Application,
     rekeyBack: boolean,
@@ -328,6 +333,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     }
   }
 
+  @abimethod({ ui: { action: 'raffle_draw', glyph: 'Sparkles', label: 'Draw raffle' } })
   raffle(
     wallet: Application,
     rekeyBack: boolean,
@@ -344,6 +350,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'raffle_draw', glyph: 'Sparkles', label: 'Find winner' } })
   findWinner(
     wallet: Application,
     rekeyBack: boolean,
@@ -362,6 +369,7 @@ export class RafflePlugin extends classes(BaseRaffle, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'raffle_prize', glyph: 'Trophy', label: 'Claim prize' } })
   claimRafflePrize(
     wallet: Application,
     rekeyBack: boolean,

@@ -1,4 +1,4 @@
-import { Application, bytes, Bytes, Contract, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Application, bytes, Bytes, Contract, GlobalState, itxn, loggedAssert, op, uint64, contract } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod, decodeArc4 } from "@algorandfoundation/algorand-typescript/arc4";
 import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { CID, uint8 } from "../../../utils/types/base";
@@ -11,6 +11,7 @@ import type { AkitaDAO } from "../../dao/contract.algo";
 import { ERR_PROPOSAL_DOES_NOT_EXIST } from "./errors";
 
 
+@contract({ ui: { glyph: 'BuildingLibrary', color: '#22C7F0', defaultAction: 'proposal_vote' } })
 export class AkitaDAOPlugin extends Contract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -26,6 +27,7 @@ export class AkitaDAOPlugin extends Contract {
 
   // GATE PLUGIN METHODS --------------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'dao_setup', glyph: 'BuildingLibrary', label: 'Set up DAO' } })
   setup(wallet: Application, rekeyBack: boolean, nickname: string, salt: bytes<32>): void {
     const sender = getSpendingAccount(wallet)
 
@@ -37,6 +39,7 @@ export class AkitaDAOPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'New proposal' } })
   newProposal(wallet: Application, rekeyBack: boolean, cid: CID, actions: ProposalAction[]): uint64 {
     const sender = getSpendingAccount(wallet)
 
@@ -76,6 +79,7 @@ export class AkitaDAOPlugin extends Contract {
     }).returnValue
   }
 
+  @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Edit proposal' } })
   editProposal(wallet: Application, rekeyBack: boolean, id: uint64, cid: CID, actions: ProposalAction[]): void {
     const sender = getSpendingAccount(wallet)
 
@@ -125,6 +129,7 @@ export class AkitaDAOPlugin extends Contract {
     }
   }
 
+  @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Submit proposal' } })
   submitProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
     const sender = getSpendingAccount(wallet)
 
@@ -136,6 +141,7 @@ export class AkitaDAOPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'proposal_vote', glyph: 'HandRaised', label: 'Vote on proposal' } })
   voteProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64, vote: ProposalVoteType): void {
     const sender = getSpendingAccount(wallet)
 
@@ -157,6 +163,7 @@ export class AkitaDAOPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'proposal_finalize', glyph: 'CheckCircle', label: 'Finalize proposal' } })
   finalizeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
     const sender = getSpendingAccount(wallet)
 
@@ -168,6 +175,7 @@ export class AkitaDAOPlugin extends Contract {
     })
   }
 
+  @abimethod({ ui: { action: 'proposal_execute', glyph: 'Bolt', label: 'Execute proposal' } })
   executeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
     const sender = getSpendingAccount(wallet)
 

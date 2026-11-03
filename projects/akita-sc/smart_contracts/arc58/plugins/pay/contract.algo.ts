@@ -1,9 +1,11 @@
-import { Application, Contract, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Application, Contract, Global, itxn, uint64, abimethod, contract } from "@algorandfoundation/algorand-typescript";
 import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { PayParams } from "./types";
 
+@contract({ ui: { glyph: 'ArrowUp', color: '#FF8A1F', defaultAction: 'send' } })
 export class PayPlugin extends Contract {
 
+  @abimethod({ ui: { action: 'send', glyph: 'ArrowUp', label: 'Send' } })
   pay(wallet: Application, rekeyBack: boolean, payments: PayParams[]): void {
     const sender = getSpendingAccount(wallet)
 

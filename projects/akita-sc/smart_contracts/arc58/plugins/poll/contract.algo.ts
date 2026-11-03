@@ -1,4 +1,4 @@
-import { abimethod, Account, Application, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
+import { abimethod, Account, Application, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64, contract } from "@algorandfoundation/algorand-typescript";
 import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateMustCheckAbiMethod } from "../../../gates/constants";
 import { GateArgs } from "../../../gates/types";
@@ -15,6 +15,7 @@ import type { PollFactory } from "../../../poll/factory.algo";
 import { AkitaBaseContract } from "../../../utils/base-contracts/base";
 
 
+@contract({ ui: { glyph: 'ChartBar', color: '#7C83FF', defaultAction: 'poll_vote' } })
 export class PollPluginContract extends AkitaBaseContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -32,6 +33,7 @@ export class PollPluginContract extends AkitaBaseContract {
 
   // POLL PLUGIN METHODS -----------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'poll_create', glyph: 'ChartBar', label: 'Create poll' } })
   new(
     wallet: Application,
     rekeyBack: boolean,
@@ -88,6 +90,7 @@ export class PollPluginContract extends AkitaBaseContract {
     })
   }
 
+  @abimethod({ ui: { action: 'poll_vote', glyph: 'CheckCircle', label: 'Vote' } })
   vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
     const { origin, sender } = getAccounts(wallet)
 

@@ -1,4 +1,4 @@
-import { Account, Application, Asset, Bytes, bytes, Global, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
+import { Account, Application, Asset, Bytes, bytes, Global, itxn, loggedAssert, op, uint64, contract } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { GateMustCheckAbiMethod } from '../../../gates/constants'
@@ -20,6 +20,7 @@ import { btoi, itob } from '@algorandfoundation/algorand-typescript/op'
 import { ERR_INVALID_APP } from './errors'
 
 
+@contract({ ui: { glyph: 'ChatBubbleOvalLeft', color: '#3F83F8', defaultAction: 'post' } })
 export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -89,6 +90,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
   // AKITA SOCIAL PLUGIN METHODS ------------------------------------------------------------------
 
+  @abimethod({ ui: { action: 'post', glyph: 'PencilSquare', label: 'Post' } })
   post(
     wallet: Application,
     rekeyBack: boolean,
@@ -138,6 +140,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'post', glyph: 'PencilSquare', label: 'Edit post' } })
   editPost(
     wallet: Application,
     rekeyBack: boolean,
@@ -180,6 +183,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reply', glyph: 'ChatBubbleOvalLeft', label: 'Reply' } })
   gatedReply(
     wallet: Application,
     rekeyBack: boolean,
@@ -262,6 +266,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reply', glyph: 'ChatBubbleOvalLeft', label: 'Reply' } })
   reply(
     wallet: Application,
     rekeyBack: boolean,
@@ -328,6 +333,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'post', glyph: 'PencilSquare', label: 'Edit reply' } })
   gatedEditReply(
     wallet: Application,
     rekeyBack: boolean,
@@ -399,6 +405,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'post', glyph: 'PencilSquare', label: 'Edit reply' } })
   editReply(
     wallet: Application,
     rekeyBack: boolean,
@@ -456,6 +463,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'vote', glyph: 'ArrowTrendingUp', label: 'Vote' } })
   vote(
     wallet: Application,
     rekeyBack: boolean,
@@ -538,6 +546,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'vote', glyph: 'ArrowTrendingUp', label: 'Change vote' } })
   editVote(
     wallet: Application,
     rekeyBack: boolean,
@@ -598,6 +607,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reaction', glyph: 'FaceSmile', label: 'React' } })
   gatedReact(
     wallet: Application,
     rekeyBack: boolean,
@@ -675,6 +685,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'reaction', glyph: 'FaceSmile', label: 'React' } })
   react(
     wallet: Application,
     rekeyBack: boolean,
@@ -738,6 +749,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'unreact', glyph: 'FaceFrown', label: 'Remove reaction' } })
   deleteReaction(
     wallet: Application,
     rekeyBack: boolean,
@@ -756,6 +768,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'follow', glyph: 'UserPlus', label: 'Follow' } })
   gatedFollow(
     wallet: Application,
     rekeyBack: boolean,
@@ -802,6 +815,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'follow', glyph: 'UserPlus', label: 'Follow' } })
   follow(
     wallet: Application,
     rekeyBack: boolean,
@@ -828,6 +842,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'unfollow', glyph: 'UserMinus', label: 'Unfollow' } })
   unfollow(
     wallet: Application,
     rekeyBack: boolean,
@@ -847,6 +862,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
   // we dont remove followers because that requires us to know the index
   // instead, blocking supersedes following
+  @abimethod({ ui: { action: 'block', glyph: 'NoSymbol', label: 'Block' } })
   block(
     wallet: Application,
     rekeyBack: boolean,
@@ -870,6 +886,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'unblock', glyph: 'LockOpen', label: 'Unblock' } })
   unblock(
     wallet: Application,
     rekeyBack: boolean,
@@ -887,6 +904,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'add_moderator', glyph: 'ShieldCheck', label: 'Add moderator' } })
   addModerator(
     wallet: Application,
     rekeyBack: boolean,
@@ -905,6 +923,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
 
   }
 
+  @abimethod({ ui: { action: 'remove_moderator', glyph: 'ShieldExclamation', label: 'Remove moderator' } })
   removeModerator(
     wallet: Application,
     rekeyBack: boolean,
@@ -922,6 +941,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'block', glyph: 'NoSymbol', label: 'Ban' } })
   ban(
     wallet: Application,
     rekeyBack: boolean,
@@ -940,6 +960,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'flag', glyph: 'Flag', label: 'Flag post' } })
   flagPost(
     wallet: Application,
     rekeyBack: boolean,
@@ -957,6 +978,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'flag', glyph: 'Flag', label: 'Unflag post' } })
   unflagPost(
     wallet: Application,
     rekeyBack: boolean,
@@ -974,6 +996,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'unblock', glyph: 'LockOpen', label: 'Unban' } })
   unban(
     wallet: Application,
     rekeyBack: boolean,
@@ -991,6 +1014,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'post_action', glyph: 'Bolt', label: 'Add post action' } })
   addAction(
     wallet: Application,
     rekeyBack: boolean,
@@ -1012,6 +1036,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'post_action', glyph: 'Bolt', label: 'Remove post action' } })
   removeAction(
     wallet: Application,
     rekeyBack: boolean,
@@ -1029,6 +1054,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'profile', glyph: 'UserCircle', label: 'Set up profile' } })
   initMeta(
     wallet: Application,
     rekeyBack: boolean,
@@ -1063,6 +1089,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     return impact
   }
 
+  @abimethod({ ui: { action: 'profile', glyph: 'UserCircle', label: 'Update profile' } })
   updateMeta(
     wallet: Application,
     rekeyBack: boolean,
@@ -1118,6 +1145,7 @@ export class AkitaSocialPlugin extends classes(BaseSocial, AkitaBaseContract) {
     })
   }
 
+  @abimethod({ ui: { action: 'impact_stake', glyph: 'LockClosed', label: 'Commit staking impact' } })
   commitStakingImpact(
     wallet: Application,
     rekeyBack: boolean,
