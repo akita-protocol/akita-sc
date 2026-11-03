@@ -13,7 +13,7 @@ import { createMockHaystackServer } from '../../../scripts/mock-haystack-server'
 
 // The LocalNet mock Haystack Router end to end: the HTTP API quotes routes over Plugin DEX and Tinyman v2
 // pools, returns the swap group in Haystack's response shape, and the mock router app executes it. Every swap
-// is sent the way @txnlab/haystack-router does it (regroup, the user signs the input, the relay's
+// is sent the way @txnlab/haystack-router does it (regroup, the user signs the input, the per-swap account's
 // `secret_key` signs the rest), and the received amount must equal the quote.
 //
 // Prices (1 unit = 10^6): Plugin DEX ALGO/TKA 1:1 and TKA/TKB 1:1; Tinyman ALGO/TKB 1:1 and TKA/TKB 1:1.05.
@@ -164,26 +164,57 @@ describe('MOCK Haystack Router (LocalNet)', () => {
     const quote = await fetchQuote(tka, 0n, 5n * UNIT)
     const before = await holding(user.addr.toString(), 0n)
     const { txns } = await execute(quote)
-    // the user's ALGO also paid its transaction fees and the route fee (an ALGO payment to the router)
+    // the user's ALGO also paid the whole group's fees, all on its input
     const userTxns = txns.filter((t) => t.sender.toString() === user.addr.toString())
     const userSpent = userTxns.reduce((sum, t) => sum + t.fee + (t.payment?.amount ?? 0n), 0n)
     expect((await holding(user.addr.toString(), 0n)) - before + userSpent).toBe(BigInt(quote.quote))
   })
 
-  test('the finalize call keeps the argument positions our wallet code reads', async () => {
-    const quote = await fetchQuote(0n, tka, UNIT)
+  test('the route has the live shape: per-swap prefix and finalize calls, the user input right before finalize', async () => {
+    const quote = await fetchQuote(tka, 0n, UNIT)
     const txns = await fetchSwapTxns(quote, 1)
     const decoded = txns.map((t) => algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64')))
     const finalize = decoded.at(-1)!.applicationCall!
-    expect(Buffer.from(finalize.appArgs[0]).toString('hex')).toBe('c890dc20')
-    expect(finalize.appArgs.length).toBeGreaterThan(8)
-    expect(finalize.foreignAssets[Number(algosdk.decodeUint64(finalize.appArgs[2], 'bigint'))]).toBe(tka)
-    expect(algosdk.decodeUint64(finalize.appArgs[4], 'bigint')).toBe((BigInt(quote.quote) * 9_900n) / 10_000n)
-    expect(finalize.accounts[Number(algosdk.decodeUint64(finalize.appArgs[6], 'bigint')) - 1].toString()).toBe(user.addr.toString())
-    // like Haystack's MainNet routes, the user signs the input and a 10,000 µALGO route fee, both to the router
-    expect(txns.map((t) => t.signature === false)).toEqual(decoded.map((_, i) => i === decoded.length - 3 || i === decoded.length - 2))
-    expect(decoded.at(-3)!.payment?.amount).toBe(UNIT)
-    expect(decoded.at(-2)!.payment?.amount).toBe(10_000n)
+    const temp = decoded.at(-1)!.sender.toString()
+    expect(Buffer.from(finalize.appArgs[0]).toString('hex')).toBe('871a0354')
+    expect(finalize.appArgs).toHaveLength(7)
+    const assets = finalize.appArgs[1]
+    expect(Buffer.from(assets.slice(0, 2)).readUInt16BE()).toBe(2)
+    expect([algosdk.decodeUint64(assets.slice(2, 10), 'bigint'), algosdk.decodeUint64(assets.slice(10, 18), 'bigint')]).toEqual([tka, 0n])
+    const terms = finalize.appArgs[4]
+    expect(terms).toHaveLength(93)
+    expect(algosdk.decodeUint64(terms.slice(2, 10), 'bigint')).toBe((BigInt(quote.quote) * 9_900n) / 10_000n)
+    expect(algosdk.encodeAddress(terms.slice(29, 61))).toBe(user.addr.toString())
+    // the user signs only the input, which carries every fee; the per-swap account sends the rest with its own key
+    expect(txns.map((t) => t.signature === false)).toEqual(decoded.map((_, i) => i === decoded.length - 2))
+    const input = decoded.at(-2)!
+    expect(input.assetTransfer?.amount).toBe(UNIT)
+    expect(input.fee).toBe(decoded.reduce((sum, t) => sum + t.fee, 0n))
+    expect(temp).not.toBe(user.addr.toString())
+    for (const [i, t] of decoded.entries()) if (i !== decoded.length - 2) expect([t.sender.toString(), t.fee]).toEqual([temp, 0n])
+    expect(Buffer.from(decoded[1].applicationCall!.appArgs[0]).toString('hex')).toBe('a83187ea')
+    const sig = txns.at(-1)!.signature as { value: number[] }
+    expect(algosdk.encodeAddress(Uint8Array.from(sig.value).slice(32))).toBe(temp)
+  })
+
+  test('the input may come from any sender, as with the per-swap account', async () => {
+    const quote = await fetchQuote(0n, tka, UNIT)
+    const txns = await fetchSwapTxns(quote, 1)
+    const decoded = txns.map((t) => algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64')))
+    const temp = decoded.at(-1)!.sender.toString()
+    // re-send the input from the per-swap account, funded here as an Akita wallet's plugin would fund it
+    const input = decoded.at(-2)!
+    await algorand.send.payment({ sender: user.addr, receiver: temp, amount: microAlgo(UNIT + input.fee + 100_000n) })
+    decoded[decoded.length - 2] = algosdk.makePaymentTxnWithSuggestedParamsFromObject({
+      sender: temp,
+      receiver: input.payment!.receiver,
+      amount: input.payment!.amount,
+      suggestedParams: { ...(await algorand.getSuggestedParams()), fee: input.fee, flatFee: true },
+    })
+    const sk = Uint8Array.from((txns.at(-1)!.signature as { value: number[] }).value)
+    const before = await holding(user.addr.toString(), tka)
+    await sendSwapTxns(txns.map((t, i) => ({ ...t, data: Buffer.from(algosdk.encodeUnsignedTransaction(decoded[i])).toString('base64'), signature: { type: 'secret_key' as const, value: Array.from(sk) } })))
+    expect((await holding(user.addr.toString(), tka)) - before).toBe(BigInt(quote.quote))
   })
 
   test('finalize reverts below minAmountOut, when the router does not hold the input, and on a route mismatch', async () => {
@@ -194,17 +225,16 @@ describe('MOCK Haystack Router (LocalNet)', () => {
       group.addAppCall({
         sender: user.addr,
         appId: routerAppId,
-        args: finalizeArgs(r, minOut),
-        accountReferences: [user.addr, user.addr],
+        args: finalizeArgs(r, minOut, user.addr.toString(), user.addr.toString()),
+        accountReferences: [user.addr],
         assetReferences: [tka],
         maxFee: microAlgo(100_000),
       })
       return group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
     }
     await expect(build(route, route.amountOut + 1n)).rejects.toThrow(/mockHsSlippage/)
-    // like Haystack's router it swaps from its own balance: 100 ALGO it never received is more than its MBR buffer
-    const unfunded = { ...route, amountIn: 100n * UNIT, legs: [{ ...route.legs[0], amountIn: 100n * UNIT }] }
-    await expect(build(unfunded, 0n, 0n)).rejects.toThrow(/mockHsInput/)
+    // the input right before finalize must be there and match the route
+    await expect(build(route, 0n, 0n)).rejects.toThrow(/mockHsInput/)
     const short = { ...route, legs: [{ ...route.legs[0], amountIn: route.amountIn - 1n }] }
     await expect(build(short, 0n)).rejects.toThrow(/mockHsRoute/)
   })

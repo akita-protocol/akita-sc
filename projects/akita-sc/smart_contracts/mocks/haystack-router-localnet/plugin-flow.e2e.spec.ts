@@ -22,13 +22,15 @@ import { createMockHaystackServer } from '../../../scripts/mock-haystack-server'
 // The mock Haystack Router through an Akita wallet's HaystackRouterPlugin, the group both apps build
 // (akita-rn services/haystackPluginSwap.ts, akita-desktop services/swap/haystack-plugin.ts):
 //
-//   caller → temp (minimum balance + the route's other ALGO), temp opt-in (ASA input)
+//   caller → temp (minimum balance + the route's fees + its other ALGO), temp opt-in (ASA input)
 //   [rekeyToPlugin, plugin.swap (pays temp `amount` from the wallet), verify]          signed by the plugin's caller
-//   Haystack's route, its user transactions re-sent from temp                         relay / temp
+//   Haystack's route, its user transactions re-sent from temp                         temp (Haystack's key)
 //   temp closes the input asset to the wallet (ASA input), temp closes its ALGO to the caller
 //
-// The route is requested for the wallet, so its output goes to the wallet. Like Haystack's router, the mock swaps
-// from its own balance whoever funded it. The wallet must receive exactly the quote, and temp must end empty.
+// temp is Haystack's per-swap account: the route's prefix and finalize calls come from it, with its key as a
+// `secret_key` signature. The route is requested for the wallet, so its output goes to the wallet, and the router
+// takes its input from the transaction right before finalize, whoever sent it. The wallet must receive exactly the
+// quote, and temp must end empty.
 
 const UNIT = 1_000_000n
 type Quote = Awaited<ReturnType<typeof quoteResponse>>
@@ -71,20 +73,26 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     return body.txns
   }
 
-  /** The apps' send path (see the header): a fresh temporary account re-sends the route's user transactions */
+  /** The apps' send path (see the header): Haystack's per-swap account re-sends the route's user transactions */
   const sendWindowWithRoute = async (txns: SwapTxn[], call: { asset: bigint; amount: bigint; outputAsset: bigint; minOutputAmount: bigint }) => {
     const caller = admin.addr.toString()
     const walletAddress = wallet.client.appAddress.toString()
-    const temp = algosdk.generateAccount()
-    const tempAddr = temp.addr.toString()
-    const tempSigner = algosdk.makeBasicAccountTransactionSigner(temp)
+    const keyed = txns.find((t) => t.signature !== false)!
+    const sk = Uint8Array.from((keyed.signature as { value: number[] }).value)
+    const tempAddr = algosdk.encodeAddress(sk.slice(32))
+    const tempSigner = algosdk.makeBasicAccountTransactionSigner({ addr: algosdk.Address.fromString(tempAddr), sk })
     const sp = { ...(await algorand.getSuggestedParams()), fee: 0n, flatFee: true }
     let extraAlgo = 0n
+    let routeFees = 0n
+    // temp holds only what the group gives it, so every route transaction is fee 0 and the caller's funding pays
     const route = txns.map((t) => {
       const txn = algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64'))
+      routeFees += txn.fee
       if (t.signature !== false) {
+        expect(txn.sender.toString()).toBe(tempAddr)
         txn.group = undefined
-        return { txn, signer: algosdk.makeBasicAccountTransactionSigner({ addr: txn.sender, sk: new Uint8Array(Object.values(t.signature.value)) }) }
+        txn.fee = 0n
+        return { txn, signer: tempSigner }
       }
       const params = { sender: tempAddr, suggestedParams: { ...sp, firstValid: txn.firstValid, lastValid: txn.lastValid } }
       extraAlgo += txn.payment?.amount ?? 0n
@@ -93,11 +101,10 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
         : algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({ ...params, receiver: txn.assetTransfer!.receiver, assetIndex: txn.assetTransfer!.assetIndex, amount: txn.assetTransfer!.amount })
       return { txn: rewritten, signer: tempSigner }
     })
-    // the plugin funds the input; the caller funds temp's minimum balance and the route's other ALGO
+    // the plugin funds the input; the caller funds temp's minimum balance, the route's fees and its other ALGO
     if (call.asset === 0n) extraAlgo -= call.amount
-    // temp's transactions are fee 0 (it holds only its minimum balance); the caller's funding carries their fees
-    const tempTxns = BigInt(txns.filter((t) => t.signature === false).length + (call.asset === 0n ? 1 : 3))
-    const fundingFee = { ...sp, fee: BigInt(sp.minFee) * (1n + tempTxns) }
+    const ownTxns = BigInt(call.asset === 0n ? 1 : 3)
+    const fundingFee = { ...sp, fee: BigInt(sp.minFee) * (1n + ownTxns) + routeFees }
     const pre = [
       { txn: algosdk.makePaymentTxnWithSuggestedParamsFromObject({ sender: caller, receiver: tempAddr, amount: 100_000n * (call.asset === 0n ? 1n : 2n) + extraAlgo, suggestedParams: fundingFee }), signer: admin.signer },
       ...(call.asset === 0n ? [] : [{ txn: algosdk.makeAssetTransferTxnWithSuggestedParamsFromObject({ sender: tempAddr, receiver: tempAddr, assetIndex: call.asset, amount: 0n, suggestedParams: sp }), signer: tempSigner }]),
@@ -122,7 +129,7 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     const finalize = txns
       .map((t) => algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64')))
       .find((t) => Buffer.from(t.applicationCall?.appArgs[0] ?? []).equals(FINALIZE_SELECTOR))!
-    const minOutputAmount = algosdk.decodeUint64(finalize.applicationCall!.appArgs[4], 'bigint')
+    const minOutputAmount = algosdk.decodeUint64(finalize.applicationCall!.appArgs[4].slice(2, 10), 'bigint')
     const before = await holding(wallet.client.appAddress.toString(), to)
     const { temp } = await sendWindowWithRoute(txns, { asset: from, amount, outputAsset: to, minOutputAmount })
     // temp ends closed: no ALGO, no assets
@@ -169,7 +176,6 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     await algorand.send.payment({ sender, receiver: algosdk.getApplicationAddress(routerAppId), amount: (2).algo() })
     const relay = algosdk.generateAccount()
     await algorand.send.payment({ sender, receiver: relay.addr, amount: (1).algo() })
-
     plugin = await deployHaystackRouterPlugin({ fixture, sender, signer, args: {
       router: routerAppId, routerMethod: FINALIZE_SELECTOR, referrer, referrerTreasury: routerAppId,
     } })
@@ -193,15 +199,15 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     else process.env.WALLET_MBR_APP_ID = previousMbr
   })
 
-  test("the route for a wallet pays the wallet; its user transactions are the input and the route fee", async () => {
+  test('the route for a wallet pays the wallet; its only user transaction is the input, right before finalize', async () => {
     const txns = await routeTxns(await quote(0n, tkb, 10n * UNIT), 1)
     const decoded = txns.map((t) => algosdk.decodeUnsignedTransaction(Buffer.from(t.data, 'base64')))
     const user = decoded.filter((_, i) => txns[i].signature === false)
-    expect(user.map((t) => t.sender.toString())).toEqual([wallet.client.appAddress.toString(), wallet.client.appAddress.toString()])
-    expect(user.map((t) => t.payment?.amount)).toEqual([10n * UNIT, 10_000n])
-    const finalize = decoded.at(-1)!.applicationCall!
-    const beneficiary = finalize.accounts[Number(algosdk.decodeUint64(finalize.appArgs[6], 'bigint')) - 1]
-    expect(beneficiary.toString()).toBe(wallet.client.appAddress.toString())
+    expect(user).toEqual([decoded.at(-2)])
+    expect([user[0].sender.toString(), user[0].payment?.amount]).toEqual([wallet.client.appAddress.toString(), 10n * UNIT])
+    const terms = decoded.at(-1)!.applicationCall!.appArgs[4]
+    expect(algosdk.encodeAddress(terms.slice(29, 61))).toBe(wallet.client.appAddress.toString())
+    expect(algosdk.encodeAddress(terms.slice(61, 93))).toBe(referrer)
   })
 
   test('ALGO → TKB across Plugin DEX and Tinyman: the wallet receives exactly the quote', async () => {

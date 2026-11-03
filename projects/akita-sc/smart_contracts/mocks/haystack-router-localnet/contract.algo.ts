@@ -6,10 +6,12 @@ import {
   bytes,
   contract,
   Global,
+  gtxn,
   itxn,
   loggedAssert,
   OnCompleteAction,
   op,
+  TransactionType,
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
@@ -20,33 +22,34 @@ import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/venues/tiny
 /**
  * MOCK, LocalNet only. This is not Haystack's code and has none of it.
  *
- * A stand-in for the Haystack router app so the apps' Haystack swap path runs on LocalNet. It keeps
- * the parts of the real finalize call that our code reads: method selector `c890dc20`, more than 8
- * app args, arg 2 = index of the output asset in `assets`, arg 4 = itob(minAmountOut), arg 6 = index
- * of the beneficiary in `accounts`, arg 8 = index of the referrer in `accounts`. The positions our code
- * ignores carry the route:
+ * A stand-in for Haystack's ORDER_ROUTER v4 (MainNet app 3757715482) so the apps' Haystack swap path runs on
+ * LocalNet. It keeps the parts of the real calls our code reads, decoded from the live API's routes:
  *
- *   arg 1  route: legs, each `itob(amountIn) ‖ itob(hopCount) ‖ hops`; each hop is
- *          `itob(venue) ‖ itob(app) ‖ itob(pool) ‖ itob(escrow) ‖ itob(assetOut)`
- *          venue 0 = Plugin DEX (app = Vault, pool = pool id, escrow = pool escrow app),
- *          venue 1 = Tinyman v2 (app = AMM app; the pool address is derived from the pair)
- *   arg 3  itob(assetIn)        arg 5  itob(amountIn)        arg 7  itob(assetOut), so an ALGO output needs
- *          no asset reference (for an ASA output, arg 2 must point at the same asset)
+ *   prefix    selector a83187ea, a no-op here (reference carrier)
+ *   finalize  selector 871a0354, 7 args:
+ *     arg 1  uint16 length, uint64 asset ids: [0] input, [1] output (ALGO = 0)
+ *     arg 2  uint16 length, 32-byte addresses (unused here)
+ *     arg 3  the route (the mock's own encoding, after a uint16 length): legs, each
+ *            `itob(amountIn) ‖ itob(hopCount) ‖ hops`; each hop is `itob(venue) ‖ itob(app) ‖ itob(pool) ‖
+ *            itob(escrow) ‖ itob(assetOut)`; venue 0 = Plugin DEX (app = Vault, pool = pool id, escrow = pool
+ *            escrow app), venue 1 = Tinyman v2 (app = AMM app; the pool address is derived from the pair)
+ *     arg 4  93 bytes: minAmountOut at 2, expected output at 10, beneficiary at 29, referrer at 61
+ *     arg 5  39 bytes (unused here)        arg 6  uint16 length, tag (unused here)
  *
- * Like Haystack's router, finalize does not check an input transaction: it needs amountIn of the input asset
- * in this app's account (from any earlier transfer in the group, outer or inner). The legs run in inner
- * transactions from this app's account with fee 0 (outer fees pay them), the whole output goes to the
- * beneficiary, and finalize fails below minAmountOut. `opt_in(itob(asset))` opts this app into the
- * input asset, so it can receive the input later in the same group; finalize opts into the assets it receives.
- * Any other call is a no-op reference carrier. Opt-ins are paid from this app's own ALGO.
+ * Like the real router, finalize takes its input from the transaction right before it: a pay/axfer of the input
+ * asset to this app, with no close-out or clawback. Whoever sent it does not matter (Haystack's per-swap account
+ * or the user). The legs run in inner transactions from this app's account with fee 0 (outer fees pay them), the
+ * whole output goes to the beneficiary, and finalize fails below minAmountOut. `opt_in(itob(asset))` (a mock
+ * call) opts this app into the input asset, so it can receive the input later in the same group; finalize opts
+ * into the assets it receives. Any other call is a no-op. Opt-ins are paid from this app's own ALGO.
  */
 @contract({ avmVersion: 13 })
 export class MockHaystackRouterLocalNet extends BaseContract {
   approvalProgram(): boolean {
     if (Txn.applicationId.id === 0) return true
     loggedAssert(Txn.onCompletion === OnCompleteAction.NoOp, 'mockHsOnComplete')
-    if (Txn.numAppArgs > 8 && Txn.applicationArgs(0) === FinalizeSelector) finalize()
-    if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === OptInSelector) optInIfNeeded(argUint(1))
+    if (Txn.numAppArgs === 7 && Txn.applicationArgs(0) === FinalizeSelector) finalize()
+    if (Txn.numAppArgs === 2 && Txn.applicationArgs(0) === OptInSelector) optInIfNeeded(op.btoi(Txn.applicationArgs(1)))
     return true
   }
 
@@ -55,35 +58,51 @@ export class MockHaystackRouterLocalNet extends BaseContract {
   }
 }
 
-const FinalizeSelector = Bytes.fromHex('c890dc20')
+const FinalizeSelector = Bytes.fromHex('871a0354')
 const OptInSelector = Bytes('opt_in')
 const VenuePluginDex: uint64 = 0
 const VenueTinyman: uint64 = 1
 const HopSize: uint64 = 40
-
-function argUint(index: uint64): uint64 {
-  return op.btoi(Txn.applicationArgs(index))
-}
 
 function word(data: bytes, offset: uint64): uint64 {
   return op.extractUint64(data, offset)
 }
 
 function finalize(): void {
-  const route = Txn.applicationArgs(1)
-  const assetOut = argUint(7)
-  if (assetOut !== 0) loggedAssert(Txn.assets(argUint(2)).id === assetOut, 'mockHsArgs')
-  const assetIn = argUint(3)
-  const minAmountOut = argUint(4)
-  const amountIn = argUint(5)
-  const beneficiary = Txn.accounts(argUint(6))
+  const assets = Txn.applicationArgs(1)
+  loggedAssert(assets.length >= 18 && op.extractUint16(assets, 0) >= 2, 'mockHsArgs')
+  const assetIn = word(assets, 2)
+  const assetOut = word(assets, 10)
+  const routeArg = Txn.applicationArgs(3)
+  const route = op.extract(routeArg, 2, op.extractUint16(routeArg, 0))
+  const terms = Txn.applicationArgs(4)
+  loggedAssert(terms.length === 93, 'mockHsArgs')
+  const minAmountOut = word(terms, 2)
+  const beneficiary = Account(op.extract(terms, 29, 32))
   const self = Global.currentApplicationAddress
-  loggedAssert(assetIn !== assetOut && amountIn > 0, 'mockHsArgs')
+  loggedAssert(assetIn !== assetOut, 'mockHsArgs')
 
-  // like Haystack's router, finalize swaps from this app's own balance and never looks at an input transaction:
-  // the input may be any earlier pay/axfer to this app, or an inner one (an Akita wallet's HaystackRouterPlugin)
-  const available: uint64 = assetIn === 0 ? self.balance - self.minBalance : tmHolding(self, assetIn)
-  loggedAssert(available >= amountIn, 'mockHsInput')
+  // the input: the transaction right before this call, to this app, no close-out or clawback, any sender
+  const inputIndex: uint64 = Txn.groupIndex - 1
+  let amountIn: uint64 = 0
+  if (assetIn === 0) {
+    loggedAssert(gtxn.Transaction(inputIndex).type === TransactionType.Payment, 'mockHsInput')
+    const pay = gtxn.PaymentTxn(inputIndex)
+    loggedAssert(pay.receiver === self && pay.closeRemainderTo === Global.zeroAddress, 'mockHsInput')
+    amountIn = pay.amount
+  } else {
+    loggedAssert(gtxn.Transaction(inputIndex).type === TransactionType.AssetTransfer, 'mockHsInput')
+    const axfer = gtxn.AssetTransferTxn(inputIndex)
+    loggedAssert(
+      axfer.assetReceiver === self &&
+        axfer.xferAsset.id === assetIn &&
+        axfer.assetCloseTo === Global.zeroAddress &&
+        axfer.assetSender === Global.zeroAddress,
+      'mockHsInput',
+    )
+    amountIn = axfer.assetAmount
+  }
+  loggedAssert(amountIn > 0, 'mockHsInput')
 
   optInIfNeeded(assetOut)
   const before = tmHolding(self, assetOut)

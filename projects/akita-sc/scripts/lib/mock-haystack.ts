@@ -9,10 +9,11 @@
  * assets those pools use (exact off-chain Tinyman math). Routes have up to 3 hops and at most 2 split legs
  * that share no pool, so each leg's quote is independent and the quote equals the execution within a block.
  *
- * Execution: [reference carriers…, input (user), route fee (user), finalize (relay)], like Haystack's MainNet
- * routes; the finalize call goes to the mock router app (`smart_contracts/mocks/haystack-router-localnet`), which,
- * like Haystack's router, swaps from its own balance whoever funded it. An Akita wallet's app re-sends the user
- * transactions from a temporary account its HaystackRouterPlugin funds.
+ * Execution, in the shape of Haystack's live routes (ORDER_ROUTER v4): [prefix calls…, input (user), finalize], the
+ * prefix and finalize calls sent by a fresh per-swap account whose key goes out as a `secret_key` signature, and
+ * every fee on the user's input. The finalize call goes to the mock router app
+ * (`smart_contracts/mocks/haystack-router-localnet`), which takes the input right before it. An Akita wallet's app
+ * re-sends the input from that per-swap account, which its HaystackRouterPlugin funds.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -21,7 +22,9 @@ import type { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-
 import algosdk from 'algosdk'
 import { deriveTinymanPool, readPoolState, tinymanFixedInputOut, type TinymanPoolState } from '../../tests/fixtures/external/tinyman-v2'
 
-export const FINALIZE_SELECTOR = Uint8Array.from([0xc8, 0x90, 0xdc, 0x20])
+/** Haystack's ORDER_ROUTER v4 route call (finalize) and prefix selectors, as the live API's routes use them */
+export const FINALIZE_SELECTOR = Uint8Array.from([0x87, 0x1a, 0x03, 0x54])
+export const PREFIX_SELECTOR = Uint8Array.from([0xa8, 0x31, 0x87, 0xea])
 export const VENUE_PLUGIN_DEX = 0n
 export const VENUE_TINYMAN = 1n
 export const PROTOCOL_NAME = { [VENUE_PLUGIN_DEX.toString()]: 'PluginDex', [VENUE_TINYMAN.toString()]: 'TinymanV2' } as Record<string, string>
@@ -30,8 +33,6 @@ const MAX_PATHS_FOR_SPLIT = 4
 const SPLIT_STEPS = [10n, 20n, 30n, 40n, 50n, 60n, 70n, 80n, 90n]
 /** reference carriers before the input; each holds 8 references for the legs' inner calls */
 const CARRIERS = 4
-/** the small ALGO payment Haystack's MainNet routes take from the user next to the input (10,000 µALGO) */
-const ROUTE_FEE = 10_000n
 
 const ARTIFACTS = path.resolve(__dirname, '../../smart_contracts/artifacts')
 const vaultSpec = () =>
@@ -42,7 +43,7 @@ export type MockHaystackConfig = {
   vaultAppId: bigint
   /** 0 = no Tinyman venue */
   tinymanAppId: bigint
-  /** the relay account that sends the carriers and finalize; its key goes out as a `secret_key` signature */
+  /** sender of the read-only quote simulations */
   relay: algosdk.Account
 }
 
@@ -184,49 +185,62 @@ export class MockHaystack {
   }
 
   /**
-   * The swap group in Haystack's `fetchExecuteSwapTxns` shape: [carriers…, input, route fee, finalize], output to
-   * `address`. As in Haystack's MainNet routes, `address` sends the router the input and a small ALGO payment, both
-   * unsigned (`signature: false`, the user signs them); the relay's txns carry its key as a `secret_key` signature,
-   * which the SDK re-signs with after the caller regroups. Fees cover every inner transaction.
+   * The swap group in Haystack's `fetchExecuteSwapTxns` shape: [prefix calls…, input, finalize], output to
+   * `address`. As in Haystack's live routes, a fresh per-swap account sends the prefix and finalize calls and its key
+   * goes out as a `secret_key` signature (the SDK re-signs with it after the caller regroups); `address` sends the
+   * router the input, unsigned (`signature: false`), and carries every fee of the group.
    */
   async executeTxns(route: MockRoute, address: string, minAmountOut: bigint, referrer: string): Promise<{ txns: SwapTxn[] }> {
-    const relay = this.config.relay.addr.toString()
-    this.algorand.setSigner(relay, algosdk.makeBasicAccountTransactionSigner(this.config.relay))
-    const user = algosdk.makeEmptyTransactionSigner()
+    const temp = algosdk.generateAccount()
+    const tempAddress = temp.addr.toString()
+    const sp = await this.algorand.getSuggestedParams()
+    // the per-swap account holds nothing, so it pays no fee; the input pays a budget while the group is simulated
+    const zero = microAlgo(0)
+    const budget = microAlgo(BigInt(sp.minFee) * 256n)
     const group = this.algorand.newGroup()
-    // carrier 0 opts the router into the input asset; every carrier also holds references for the legs
+    // prefix 0 opts the router into the input asset (a mock call); each prefix also holds references for the legs
     for (let i = 0; i < CARRIERS; i++) {
-      const args = i === 0 && route.assetIn !== 0n ? ['opt_in', route.assetIn] : ['ref', BigInt(i)]
-      group.addAppCall({ sender: relay, appId: this.config.routerAppId, args: [new TextEncoder().encode(args[0] as string), algosdk.encodeUint64(args[1] as bigint)] })
+      const args = i === 0 && route.assetIn !== 0n ? [new TextEncoder().encode('opt_in'), algosdk.encodeUint64(route.assetIn)] : [PREFIX_SELECTOR]
+      group.addAppCall({ sender: tempAddress, signer: algosdk.makeEmptyTransactionSigner(), appId: this.config.routerAppId, args, note: `prefix ${i}`, staticFee: zero })
     }
-    group.addTransaction(
-      route.assetIn === 0n
-        ? await this.algorand.createTransaction.payment({ sender: address, receiver: this.routerAddress, amount: microAlgo(route.amountIn) })
-        : await this.algorand.createTransaction.assetTransfer({ sender: address, receiver: this.routerAddress, assetId: route.assetIn, amount: route.amountIn }),
-      user,
-    )
-    group.addTransaction(await this.algorand.createTransaction.payment({ sender: address, receiver: this.routerAddress, amount: microAlgo(ROUTE_FEE) }), user)
+    const input = { sender: address, receiver: this.routerAddress, signer: algosdk.makeEmptyTransactionSigner(), staticFee: budget }
+    if (route.assetIn === 0n) group.addPayment({ ...input, amount: microAlgo(route.amountIn) })
+    else group.addAssetTransfer({ ...input, assetId: route.assetIn, amount: route.amountIn })
     group.addAppCall({
-      sender: relay,
+      sender: tempAddress,
+      signer: algosdk.makeEmptyTransactionSigner(),
       appId: this.config.routerAppId,
-      args: finalizeArgs(route, minAmountOut),
-      accountReferences: [address, referrer],
+      args: finalizeArgs(route, minAmountOut, address, referrer),
+      accountReferences: [address],
       assetReferences: route.assetOut === 0n ? [] : [route.assetOut],
-      maxFee: microAlgo(500_000),
+      staticFee: zero,
     })
     const { atc } = await group.build()
-    const finalizeIndex = CARRIERS + 2
-    const prepared = await prepareGroupForSending(
-      atc,
-      this.algorand.client.algod,
-      { populateAppCallResources: true, coverAppCallInnerTransactionFees: true },
-      { maxFees: new Map([...Array.from({ length: CARRIERS }, (_, i) => [i, microAlgo(10_000)] as const), [finalizeIndex, microAlgo(500_000)]]), suggestedParams: await this.algorand.getSuggestedParams() },
-    )
-    const txns = prepared.buildGroup().map(({ txn }) => ({
+    const inputIndex = CARRIERS
+    const prepared = await prepareGroupForSending(atc, this.algorand.client.algod, { populateAppCallResources: true }, { maxFees: new Map(), suggestedParams: sp })
+    const routeTxns = prepared.buildGroup().map(({ txn }) => txn)
+    // like the live routes, the user's input carries every fee: one min fee per outer and inner transaction
+    const simulated = await this.algorand.client.algod
+      .simulateTransactions(
+        new algosdk.modelsv2.SimulateRequest({
+          txnGroups: [new algosdk.modelsv2.SimulateRequestTransactionGroup({ txns: routeTxns.map((txn) => new algosdk.SignedTransaction({ txn })) })],
+          allowEmptySignatures: true,
+        }),
+      )
+      .do()
+    const failure = simulated.txnGroups[0].failureMessage
+    if (failure) throw new Error(`mock route does not execute: ${failure}`)
+    type Applied = { innerTxns?: Applied[] }
+    const count = (applied: Applied): number => (applied.innerTxns ?? []).reduce((sum, inner) => sum + 1 + count(inner), 0)
+    const innerCount = simulated.txnGroups[0].txnResults.reduce((sum, r) => sum + count(r.txnResult as Applied), 0)
+    for (const txn of routeTxns) txn.group = undefined
+    routeTxns[inputIndex].fee = BigInt(sp.minFee) * BigInt(routeTxns.length + innerCount)
+    algosdk.assignGroupID(routeTxns)
+    const txns = routeTxns.map((txn) => ({
       data: Buffer.from(algosdk.encodeUnsignedTransaction(txn)).toString('base64'),
       group: Buffer.from(txn.group ?? new Uint8Array()).toString('base64'),
       logicSigBlob: false as const,
-      signature: txn.sender.toString() === address ? (false as const) : { type: 'secret_key' as const, value: Array.from(this.config.relay.sk) },
+      signature: txn.sender.toString() === address ? (false as const) : { type: 'secret_key' as const, value: Array.from(temp.sk) },
     }))
     return { txns }
   }
@@ -239,25 +253,35 @@ export type SwapTxn = {
   signature: false | { type: 'secret_key'; value: number[] }
 }
 
-/** finalize args: the selector, the route at 1, and the positions our code reads at 2/4/6/8 (see the contract) */
-export function finalizeArgs(route: MockRoute, minAmountOut: bigint): Uint8Array[] {
+/** finalize args in ORDER_ROUTER v4's layout (see the mock router contract); the route goes in arg 3 */
+export function finalizeArgs(route: MockRoute, minAmountOut: bigint, beneficiary: string, referrer: string): Uint8Array[] {
   const words: bigint[] = []
   for (const leg of route.legs) {
     words.push(leg.amountIn, BigInt(leg.hops.length))
     for (const h of leg.hops) words.push(h.venue, h.app, h.pool, h.escrow, h.assetOut)
   }
+  const uint16 = (n: number) => Uint8Array.from([n >> 8, n & 0xff])
+  const withLength = (count: number, body: Uint8Array) => Uint8Array.from([...uint16(count), ...body])
   const routeBytes = new Uint8Array(words.length * 8)
   words.forEach((w, i) => routeBytes.set(algosdk.encodeUint64(w), i * 8))
+  const assets = new Uint8Array(16)
+  assets.set(algosdk.encodeUint64(route.assetIn), 0)
+  assets.set(algosdk.encodeUint64(route.assetOut), 8)
+  const terms = new Uint8Array(93)
+  terms.set(uint16(1), 0)
+  terms.set(algosdk.encodeUint64(minAmountOut), 2)
+  terms.set(algosdk.encodeUint64(route.amountOut), 10)
+  terms.set(algosdk.decodeAddress(beneficiary).publicKey, 29)
+  terms.set(algosdk.decodeAddress(referrer).publicKey, 61)
+  const tag = new TextEncoder().encode('hayrouter/v1:{"tag":"akita-localnet-mock"}')
   return [
     FINALIZE_SELECTOR,
-    routeBytes,
-    algosdk.encodeUint64(0), // assets[0] = assetOut (an ALGO output has no asset reference; the index is unused)
-    algosdk.encodeUint64(route.assetIn),
-    algosdk.encodeUint64(minAmountOut),
-    algosdk.encodeUint64(route.amountIn),
-    algosdk.encodeUint64(1), // accounts[1] = beneficiary
-    algosdk.encodeUint64(route.assetOut),
-    algosdk.encodeUint64(2), // accounts[2] = referrer
+    withLength(2, assets),
+    withLength(0, new Uint8Array()),
+    withLength(routeBytes.length, routeBytes),
+    terms,
+    new Uint8Array(39),
+    withLength(tag.length, tag),
   ]
 }
 

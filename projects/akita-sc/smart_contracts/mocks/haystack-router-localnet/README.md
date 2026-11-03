@@ -6,15 +6,19 @@ uses:
 
 - the HTTP API of `@txnlab/haystack-router` v2 (MIT): `GET /fetchQuote` and `POST /fetchExecuteSwapTxns`, in the
   SDK's response shapes;
-- the finalize call our wallet code reads: selector `c890dc20`, more than 8 app args, arg 2 = output-asset index,
-  arg 4 = `itob(minAmountOut)`, arg 6 = beneficiary account index, arg 8 = referrer account index.
+- the route shape and finalize call of Haystack's ORDER_ROUTER v4 (MainNet app 3757715482), as the live API
+  returns them: prefix calls (selector `a83187ea`) and a finalize call (selector `871a0354`) sent by a fresh
+  per-swap account whose key goes out as a `secret_key` signature, with the user's input (a pay/axfer to the router)
+  right before finalize and carrying every fee of the group. Finalize arg 1 holds the input and output asset ids
+  (after a uint16 length), arg 4 is 93 bytes of terms (minAmountOut at 2, beneficiary at 29, referrer at 61).
 
-The router's own route encoding, the relay key and the plain-JSON `txnPayload` (iv `"mock"`) are mock inventions.
+The router's own route encoding (arg 3), the relay key (used only for quote simulations) and the plain-JSON
+`txnPayload` (iv `"mock"`) are mock inventions.
 
-Like Haystack's MainNet router (app 3172554435), the mock's finalize swaps from its own balance and never checks who
-funded it. Its routes have the MainNet shape: the user sends the router the input and a 10,000 µALGO payment, and
-the relay sends everything else. An Akita wallet re-sends those user transactions from a one-swap temporary account
-that its HaystackRouterPlugin funds (`plugin-flow.e2e.spec.ts`, akita-rn `services/haystackPluginSwap.ts`).
+Like Haystack's router, the mock's finalize takes its input from the transaction right before it (to the router,
+no close-out or clawback, any sender) and pays the output to the beneficiary. An Akita wallet re-sends that input
+from Haystack's per-swap account, which its HaystackRouterPlugin funds (`plugin-flow.e2e.spec.ts`, akita-rn
+`services/haystackPluginSwap.ts`, akita-desktop `services/swap/haystack-plugin.ts`).
 
 ## Parts
 
@@ -23,7 +27,7 @@ that its HaystackRouterPlugin funds (`plugin-flow.e2e.spec.ts`, akita-rn `servic
 | Router app (PuyaTs) | `contract.algo.ts` |
 | Routing engine and group builder | `scripts/lib/mock-haystack.ts` |
 | HTTP API | `scripts/mock-haystack-server.ts` |
-| LocalNet deploy (Tinyman pools, router app, relay) | `scripts/deploy-mock-haystack.ts` |
+| LocalNet deploy (Tinyman pools, router app, quote relay) | `scripts/deploy-mock-haystack.ts` |
 | End-to-end tests | `mock-haystack.e2e.spec.ts`, `plugin-flow.e2e.spec.ts` (through the HaystackRouterPlugin) |
 
 Venues are every live Plugin DEX pool, quoted with the Vault's `tryQuoteRoute` (swapper = the router app) as

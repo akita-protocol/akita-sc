@@ -4,8 +4,8 @@
  *
  *   - Tinyman v2 from the vendored fixture (official bytecode, downloaded and hash-checked) with an ALGO/USDC and
  *     an AKTA/USDC pool, priced a little apart from the Plugin DEX demo pools so routes mix venues
- *   - the mock router app (smart_contracts/mocks/haystack-router-localnet) and the relay account that sends its
- *     finalize calls
+ *   - the mock router app (smart_contracts/mocks/haystack-router-localnet) and the relay account that sends the
+ *     API's read-only quote simulations (each swap's route comes from a fresh per-swap account, as Haystack's do)
  *
  * Writes MOCK_TINYMAN_APP_ID, MOCK_HAYSTACK_ROUTER_APP_ID and MOCK_HAYSTACK_API_URL to `.env.localnet` here and in
  * akita-rn (the apps use the mock only when these are set), and MOCK_HAYSTACK_RELAY_MNEMONIC here only. IDs already
