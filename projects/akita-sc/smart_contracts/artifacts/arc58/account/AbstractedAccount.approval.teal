@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 8 400 23700 320 12800 20500 27700
-    bytecblock "" "controlled_address" "p" "last_user_interaction" "e" "last_change" 0x151f7c75 0x0000 "spending_address" 0x00 0x002a "x" "admin" "n" "a" 0x0002 0x01 "d" 0x000a "rekey_index" "domain" "escrow_factory" "revocation" "update_settings" "current_plugin" "ERR:FORB" 0x6cc3f606 "version" "akita_dao" "nickname" "factory_app" "ERR:AUAM" "ERR:NRKB" "ERR:NPLG" "ERR:ADMN" "ERR:EPLG"
+    bytecblock "controlled_address" "" "p" "last_user_interaction" "e" "last_change" 0x151f7c75 0x0000 "spending_address" 0x00 0x002a "x" "admin" "n" "a" 0x0002 0x01 "d" 0x000a "rekey_index" "domain" "escrow_factory" "revocation" "update_settings" "current_plugin" "ERR:FORB" 0x6cc3f606 "version" "akita_dao" "nickname" "factory_app" "ERR:AUAM" "ERR:NRKB" "ERR:NPLG" "ERR:ADMN" "ERR:EPLG"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/arc58/account/contract.algo.ts:150
@@ -134,45 +134,40 @@ dynamic_array_concat_byte_length_head:
     intc_0 // 0
 
 dynamic_array_concat_byte_length_head_for_header@2:
-    frame_dig 4
-    frame_dig 2
+    dup
+    dig 3
     <
     bz dynamic_array_concat_byte_length_head_after_for@4
-    frame_dig 3
+    swap
     dup
     itob
     extract 6 0
-    frame_dig 0
-    frame_dig 4
-    dup
-    cover 4
+    uncover 5
+    dig 3
     uncover 2
     replace3
     dup
-    frame_bury 0
+    cover 5
     dig 1
     extract_uint16
     intc_2 // 2
     +
     +
-    frame_bury 3
+    swap
     intc_2 // 2
     +
-    frame_bury 4
     b dynamic_array_concat_byte_length_head_for_header@2
 
 dynamic_array_concat_byte_length_head_after_for@4:
-    frame_dig 1
-    frame_dig 0
+    popn 3
+    swap
     concat
-    frame_bury 0
     retsub
 
 
 // _puya_lib.arc4.dynamic_array_concat_dynamic_element(array: bytes, new_head_and_tail: bytes, new_items_count: uint64) -> bytes:
 dynamic_array_concat_dynamic_element:
     proto 3 1
-    bytec_0 // ""
     frame_dig -3
     intc_0 // 0
     extract_uint16
@@ -187,80 +182,81 @@ dynamic_array_concat_dynamic_element:
     swap
     intc_2 // 2
     *
+    swap
     frame_dig -1
     intc_2 // 2
     *
+    cover 2
     intc_0 // 0
+    cover 4
 
 dynamic_array_concat_dynamic_element_for_header@1:
-    frame_dig 5
-    frame_dig 3
+    frame_dig 0
+    dig 2
     <
     bz dynamic_array_concat_dynamic_element_after_for@4
-    frame_dig 2
-    frame_dig 5
+    dup
+    frame_dig 0
     dup
     cover 2
     extract_uint16
-    frame_dig 4
+    dig 4
     +
     itob
     extract 6 0
-    frame_dig 1
+    uncover 5
     swap
     concat
-    frame_bury 1
+    cover 4
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 0
     b dynamic_array_concat_dynamic_element_for_header@1
 
 dynamic_array_concat_dynamic_element_after_for@4:
-    frame_dig 2
+    dup
     len
-    frame_bury 0
+    swap
     intc_0 // 0
-    frame_bury 5
+    frame_bury 0
 
 dynamic_array_concat_dynamic_element_for_header@5:
-    frame_dig 5
-    frame_dig 4
+    frame_dig 0
+    dig 4
     <
     bz dynamic_array_concat_dynamic_element_after_for@8
     frame_dig -2
-    frame_dig 5
+    frame_dig 0
     dup
     cover 2
     extract_uint16
-    frame_dig 0
+    dig 3
     +
     itob
     extract 6 0
-    frame_dig 1
+    uncover 6
     swap
     concat
-    frame_bury 1
+    cover 5
     intc_2 // 2
     +
-    frame_bury 5
+    frame_bury 0
     b dynamic_array_concat_dynamic_element_for_header@5
 
 dynamic_array_concat_dynamic_element_after_for@8:
-    frame_dig 2
-    frame_dig 3
-    frame_dig 0
+    cover 2
     substring3
-    frame_dig 1
+    uncover 2
     swap
     concat
     frame_dig -2
     len
     frame_dig -2
-    frame_dig 4
+    uncover 3
     uncover 2
     substring3
     concat
-    frame_bury 0
+    swap
     retsub
 
 
@@ -387,6 +383,7 @@ create:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
+    cover 2
     txna ApplicationArgs 6
     dup
     len
@@ -435,8 +432,8 @@ create:
 create_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:766
     // loggedAssert(admin !== controlledAddress, ERR_ADMIN_CANNOT_BE_CONTROLLED)
-    dig 6
-    dig 8
+    dig 5
+    dig 7
     !=
     bnz create_after_assert@5
     pushbytes "ERR:ACBC"
@@ -449,32 +446,32 @@ create_after_assert@5:
     bytec 27 // "version"
     // smart_contracts/arc58/account/contract.algo.ts:768
     // this.version.value = version
-    dig 10
+    uncover 10
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:126
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec 28 // "akita_dao"
     // smart_contracts/arc58/account/contract.algo.ts:769
     // this.akitaDAO.value = Application(akitaDAO)
-    dig 9
+    uncover 9
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:128
     // admin = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysAdmin })
     bytec 12 // "admin"
     // smart_contracts/arc58/account/contract.algo.ts:770
     // this.admin.value = admin
-    dig 7
+    uncover 6
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:130
     // domain = GlobalState<string>({ key: AbstractAccountGlobalStateKeysDomain });
     bytec 20 // "domain"
     // smart_contracts/arc58/account/contract.algo.ts:771
     // this.domain.value = domain
-    dig 6
+    uncover 7
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:773
     // controlledAddress === Global.zeroAddress
-    dig 7
+    dig 5
     global ZeroAddress
     ==
     // smart_contracts/arc58/account/contract.algo.ts:773-775
@@ -482,6 +479,8 @@ create_after_assert@5:
     //   ? Global.currentApplicationAddress
     //   : controlledAddress
     bz create_ternary_false@7
+    uncover 5
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:774
     // ? Global.currentApplicationAddress
     global CurrentApplicationAddress
@@ -489,7 +488,7 @@ create_after_assert@5:
 create_ternary_merge@8:
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:772-775
     // this.controlledAddress.value =
     //   controlledAddress === Global.zeroAddress
@@ -502,7 +501,7 @@ create_ternary_merge@8:
     bytec 21 // "escrow_factory"
     // smart_contracts/arc58/account/contract.algo.ts:776
     // this.escrowFactory.value = Application(escrowFactory)
-    dig 5
+    uncover 5
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:146
     // spendingAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysSpendingAddress })
@@ -516,14 +515,14 @@ create_ternary_merge@8:
     bytec 22 // "revocation"
     // smart_contracts/arc58/account/contract.algo.ts:778
     // this.revocation.value = Application(revocationApp)
-    dig 4
+    uncover 4
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:134
     // nickname = GlobalState<string>({ key: AbstractAccountGlobalStateKeysNickname })
     bytec 29 // "nickname"
     // smart_contracts/arc58/account/contract.algo.ts:779
     // this.nickname.value = nickname
-    dig 3
+    uncover 3
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:154
     // factoryApp = GlobalState<Application>({ key: AbstractAccountGlobalStateKeysFactoryApp })
@@ -537,7 +536,7 @@ create_ternary_merge@8:
     pushbytes "referrer"
     // smart_contracts/arc58/account/contract.algo.ts:781
     // this.referrer.value = referrer
-    dig 2
+    uncover 2
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:160
     // factoryUpdateSettings = GlobalState<FactoryUpdateSettings>({ key: AbstractAccountGlobalStateKeysUpdateSettings })
@@ -551,7 +550,7 @@ create_ternary_merge@8:
     pushbytes "salt"
     // smart_contracts/arc58/account/contract.algo.ts:783
     // this.salt.value = salt
-    dig 1
+    swap
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:142
     // lastUserInteraction = GlobalState<uint64>({ key: AbstractAccountGlobalStateKeysLastUserInteraction })
@@ -573,7 +572,7 @@ create_ternary_merge@8:
     return
 
 create_ternary_false@7:
-    dig 7
+    uncover 5
     b create_ternary_merge@8
 
 
@@ -599,7 +598,7 @@ register:
     swap
     // smart_contracts/arc58/account/contract.algo.ts:797
     // if (escrow !== '') {
-    bytec_0 // ""
+    bytec_1 // ""
     !=
     bz register_after_if_else@3
     // smart_contracts/arc58/account/contract.algo.ts:798
@@ -779,7 +778,7 @@ update_after_assert@8:
     bytec 27 // "version"
     // smart_contracts/arc58/account/contract.algo.ts:825
     // this.version.value = version
-    dig 1
+    swap
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:816
     // @abimethod({ allowActions: ['UpdateApplication'] })
@@ -1079,7 +1078,6 @@ arc58_changeAdmin:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_pluginChangeAdmin[routing]() -> void:
 arc58_pluginChangeAdmin:
-    intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:928
     // arc58_pluginChangeAdmin(newAdmin: Account): void {
     txna ApplicationArgs 1
@@ -1116,7 +1114,7 @@ arc58_pluginChangeAdmin:
     extract 2 0
     // smart_contracts/arc58/account/contract.algo.ts:932
     // loggedAssert(escrow === '', ERR_ADMIN_PLUGINS_CANNOT_USE_ESCROWS);
-    bytec_0 // ""
+    bytec_1 // ""
     ==
     bnz arc58_pluginChangeAdmin_after_assert@3
     pushbytes "ERR:APNE"
@@ -1142,14 +1140,14 @@ arc58_pluginChangeAdmin_after_assert@5:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:935
     // this.controlledAddress.value.authAddress === Application(plugin).address,
     app_global_get_ex
     assert // check GlobalState exists
     acct_params_get AcctAuthAddr
     assert // account funded
-    dig 1
+    swap
     app_params_get AppAddress
     assert // application exists
     ==
@@ -1167,16 +1165,15 @@ arc58_pluginChangeAdmin_after_assert@7:
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
-    dig 2
+    swap
     concat
     dup
-    bury 5
     // smart_contracts/arc58/account/contract.algo.ts:940
     // this.plugins(key).exists && this.plugins(key).value.admin,
     box_len
     bury 1
     bz arc58_pluginChangeAdmin_bool_false@10
-    dig 3
+    dup
     pushint 27
     intc_1 // 1
     box_extract // on error: index out of bounds
@@ -1202,11 +1199,10 @@ arc58_pluginChangeAdmin_after_assert@13:
     bytec 12 // "admin"
     // smart_contracts/arc58/account/contract.algo.ts:944
     // this.admin.value = newAdmin;
-    dig 3
+    uncover 2
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:945
     // if (this.plugins(key).value.delegationType === DelegationTypeSelf) {
-    dig 3
     intc_3 // 8
     intc_1 // 1
     box_extract // on error: index out of bounds
@@ -1261,7 +1257,7 @@ arc58_verifyAuthAddress:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:732
     // this.spendingAddress.value === this.controlledAddress.value
     app_global_get_ex
@@ -1276,7 +1272,7 @@ arc58_verifyAuthAddress:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:733
     // && this.controlledAddress.value === Global.currentApplicationAddress
     app_global_get_ex
@@ -1294,7 +1290,6 @@ arc58_verifyAuthAddress:
 arc58_verifyAuthAddress_ternary_merge@8:
     // smart_contracts/arc58/account/contract.algo.ts:955
     // loggedAssert(this.spendingAddress.value.authAddress === this.getAuthAddress(), ERR_AUTH_ADDR_MISMATCH);
-    dig 1
     ==
     bnz arc58_verifyAuthAddress_after_assert@3
     bytec 31 // "ERR:AUAM"
@@ -1346,7 +1341,7 @@ arc58_verifyAuthAddress_ternary_false@7:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyTo[routing]() -> void:
 arc58_rekeyTo:
-    bytec_0 // ""
+    bytec_1 // ""
     dup
     // smart_contracts/arc58/account/contract.algo.ts:967
     // arc58_rekeyTo(address: Account, flash: boolean): void {
@@ -1382,7 +1377,7 @@ arc58_rekeyTo:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:972
     // sender: this.controlledAddress.value,
     app_global_get_ex
@@ -1483,7 +1478,7 @@ arc58_rekeyTo_after_if_else@9:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_canCall[routing]() -> void:
 arc58_canCall:
-    bytec_0 // ""
+    bytec_1 // ""
     dupn 4
     // smart_contracts/arc58/account/contract.algo.ts:994
     // @abimethod({ readonly: true })
@@ -1979,7 +1974,7 @@ arc58_addPlugin:
     getbit
     // smart_contracts/arc58/account/contract.algo.ts:1243
     // '',
-    bytec_0 // ""
+    bytec_1 // ""
     // smart_contracts/arc58/account/contract.algo.ts:1242-1257
     // this._addPlugin(
     //   '',
@@ -2052,7 +2047,7 @@ assignDomain:
 assignDomain_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:327
     // return MinDomainKeysMBR + this._calcBCPB(Bytes(domain).length)
-    dupn 2
+    dup
     len
     // smart_contracts/arc58/account/contract.algo.ts:291
     // return BoxCostPerByte * len
@@ -2068,7 +2063,7 @@ assignDomain_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:186
     // domainKeys = BoxMap<Account, string>({ keyPrefix: AbstractAccountBoxPrefixDomainKeys })
     bytec 17 // "d"
-    dig 3
+    uncover 2
     concat
     // smart_contracts/arc58/account/contract.algo.ts:1271
     // this.domainKeys(caller).value = domain
@@ -2374,7 +2369,7 @@ arc58_removeNamedPlugin:
 arc58_removeNamedPlugin_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:1351
     // const app = clone(this.namedPlugins(name).value)
-    dupn 2
+    dup
     box_get
     assert // Box must have value
     // smart_contracts/arc58/account/contract.algo.ts:1352
@@ -2404,7 +2399,7 @@ arc58_removeNamedPlugin_after_assert@3:
     pop
     // smart_contracts/arc58/account/contract.algo.ts:299
     // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
-    dig 3
+    uncover 2
     len
     // smart_contracts/arc58/account/contract.algo.ts:291
     // return BoxCostPerByte * len
@@ -2467,7 +2462,7 @@ arc58_newEscrow:
     dup
     txna ApplicationArgs 2
     dup
-    cover 2
+    cover 3
     len
     pushint 32
     ==
@@ -2492,8 +2487,8 @@ arc58_newEscrow:
 arc58_newEscrow_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:1372
     // loggedAssert(escrow !== '', ERR_ESCROW_NAME_REQUIRED);
-    dig 1
-    bytec_0 // ""
+    dup
+    bytec_1 // ""
     !=
     bnz arc58_newEscrow_after_assert@5
     pushbytes "ERR:ENRQ"
@@ -2503,7 +2498,7 @@ arc58_newEscrow_after_assert@3:
 arc58_newEscrow_after_assert@5:
     // smart_contracts/arc58/account/contract.algo.ts:1373
     // return this.newEscrow(escrow, address);
-    dup2
+    swap
     callsub newEscrow
     // smart_contracts/arc58/account/contract.algo.ts:1369
     // arc58_newEscrow(escrow: string, address: Account): uint64 {
@@ -2727,13 +2722,13 @@ arc58_pluginReclaim:
 arc58_pluginReclaim_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:1423
     // this._requireEscrow(escrow)
-    dig 1
+    swap
     dup
     callsub _requireEscrow
     // smart_contracts/arc58/account/contract.algo.ts:1425
     // this._requirePluginCaller(plugin, caller)
-    dig 4
-    dig 4
+    uncover 3
+    uncover 3
     callsub _requirePluginCaller
     // smart_contracts/arc58/account/contract.algo.ts:171
     // escrows = BoxMap<string, EscrowInfo>({ keyPrefix: AbstractAccountBoxPrefixEscrows })
@@ -2747,8 +2742,8 @@ arc58_pluginReclaim_after_assert@3:
     intc 6 // 320
     getbit
     !
-    dig 2
     swap
+    cover 2
     callsub reclaim
     pop
     // smart_contracts/arc58/account/contract.algo.ts:1413-1418
@@ -2918,7 +2913,7 @@ arc58_pluginOptInEscrow:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:1471
     // receiver: this.controlledAddress.value,
     app_global_get_ex
@@ -2968,7 +2963,6 @@ arc58_pluginOptInEscrow:
 arc58_pluginOptInEscrow_after_assert@3:
     // smart_contracts/arc58/account/contract.algo.ts:1478
     // this.optInEscrow(escrow, assets);
-    dup2
     callsub optInEscrow
     pop
     // smart_contracts/arc58/account/contract.algo.ts:1452-1458
@@ -2985,10 +2979,6 @@ arc58_pluginOptInEscrow_after_assert@3:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_addAllowances[routing]() -> void:
 arc58_addAllowances:
-    intc_0 // 0
-    dupn 2
-    bytec_0 // ""
-    dupn 2
     // smart_contracts/arc58/account/contract.algo.ts:1487
     // arc58_addAllowances(escrow: string, allowances: AddAllowanceInfo[]): void {
     txna ApplicationArgs 1
@@ -3052,19 +3042,20 @@ arc58_addAllowances:
     // smart_contracts/arc58/account/contract.algo.ts:1494
     // for (let i: uint64 = 0; i < allowances.length; i += 1) {
     intc_0 // 0
+    cover 3
 
 arc58_addAllowances_while_top@2:
     // smart_contracts/arc58/account/contract.algo.ts:1494
     // for (let i: uint64 = 0; i < allowances.length; i += 1) {
-    dup
     dig 3
+    dig 2
     <
     bz arc58_addAllowances_after_while@9
     // smart_contracts/arc58/account/contract.algo.ts:1495
     // const { asset, type, amount, max, interval, useRounds } = allowances[i];
-    dig 3
+    dig 2
     extract 2 0
-    dig 1
+    dig 4
     pushint 34
     *
     pushint 34
@@ -3075,34 +3066,34 @@ arc58_addAllowances_while_top@2:
     extract 8 1
     dup
     cover 2
-    bury 12
+    cover 7
     dig 2
     extract 9 8
-    bury 14
+    cover 8
     dig 2
     pushint 17
     extract_uint64
-    bury 10
+    cover 7
     dig 2
     pushint 25
     extract_uint64
     dup
     cover 2
-    bury 12
+    cover 9
     uncover 3
     pushint 264
     getbit
-    bury 9
+    cover 7
     // smart_contracts/arc58/account/contract.algo.ts:1496
     // this.validateAllowance(type, interval)
     cover 2
     callsub validateAllowance
     // smart_contracts/arc58/account/contract.algo.ts:1497
     // const key: AllowanceKey = { escrow, asset }
-    dig 2
+    dig 1
     itob
     extract 6 2
-    dig 6
+    dig 11
     concat
     bytec 18 // 0x000a
     uncover 2
@@ -3115,7 +3106,7 @@ arc58_addAllowances_while_top@2:
     swap
     concat
     dup
-    bury 11
+    cover 9
     // smart_contracts/arc58/account/contract.algo.ts:1498
     // loggedAssert(!this.allowances(key).exists, ERR_ALLOWANCE_ALREADY_EXISTS);
     box_len
@@ -3128,19 +3119,19 @@ arc58_addAllowances_while_top@2:
 arc58_addAllowances_after_assert@5:
     // smart_contracts/arc58/account/contract.algo.ts:1499
     // const start = useRounds ? Global.round : Global.latestTimestamp;
-    dig 5
+    dig 4
     bz arc58_addAllowances_ternary_false@7
     global Round
 
 arc58_addAllowances_ternary_merge@8:
     // smart_contracts/arc58/account/contract.algo.ts:1500
     // const initialAvailable: uint64 = type === SpendAllowanceTypeDrip ? max : 0
-    dig 9
+    uncover 8
     dup
     pushbytes 0x03
     ==
     intc_0 // 0
-    dig 10
+    uncover 9
     dup
     cover 3
     uncover 2
@@ -3161,12 +3152,12 @@ arc58_addAllowances_ternary_merge@8:
     uncover 2
     swap
     concat
-    dig 13
+    uncover 10
     concat
     swap
     itob
     concat
-    dig 9
+    uncover 7
     itob
     concat
     swap
@@ -3178,18 +3169,18 @@ arc58_addAllowances_ternary_merge@8:
     concat
     bytec 9 // 0x00
     intc_0 // 0
-    dig 8
+    uncover 7
     setbit
     concat
-    dig 10
+    uncover 5
     swap
     box_put
     // smart_contracts/arc58/account/contract.algo.ts:1494
     // for (let i: uint64 = 0; i < allowances.length; i += 1) {
-    dup
+    uncover 3
     intc_1 // 1
     +
-    bury 1
+    cover 3
     b arc58_addAllowances_while_top@2
 
 arc58_addAllowances_ternary_false@7:
@@ -3221,8 +3212,6 @@ arc58_addAllowances_after_while@9:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_removeAllowances[routing]() -> void:
 arc58_removeAllowances:
-    bytec_0 // ""
-    dup
     // smart_contracts/arc58/account/contract.algo.ts:1523
     // arc58_removeAllowances(escrow: string, assets: uint64[]): void {
     txna ApplicationArgs 1
@@ -3241,7 +3230,7 @@ arc58_removeAllowances:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 3
     intc_3 // 8
     *
     intc_2 // 2
@@ -3282,7 +3271,7 @@ arc58_removeAllowances_after_assert@7:
     // return MinAllowanceMBR + this._calcBCPB(Bytes(escrow).length)
     len
     dup
-    bury 5
+    cover 3
     // smart_contracts/arc58/account/contract.algo.ts:291
     // return BoxCostPerByte * len
     intc 4 // 400
@@ -3293,28 +3282,25 @@ arc58_removeAllowances_after_assert@7:
     +
     // smart_contracts/arc58/account/contract.algo.ts:1528
     // this._refundMbrToControlled(this.allowancesMbr(escrow) * assets.length)
-    dig 1
+    dig 2
     *
     callsub _refundMbrToControlled
     // smart_contracts/arc58/account/contract.algo.ts:1530
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
     intc_0 // 0
-    bury 5
 
 arc58_removeAllowances_while_top@8:
     // smart_contracts/arc58/account/contract.algo.ts:1530
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    dig 4
-    dig 1
+    dup
+    dig 3
     <
     bz arc58_removeAllowances_after_while@10
     // smart_contracts/arc58/account/contract.algo.ts:1533
     // asset: assets[i]
     dig 1
     extract 2 0
-    dig 5
-    dup
-    cover 2
+    dig 1
     intc_3 // 8
     *
     intc_3 // 8
@@ -3324,10 +3310,10 @@ arc58_removeAllowances_while_top@8:
     //   escrow,
     //   asset: assets[i]
     // }
-    dig 5
+    dig 4
     itob
     extract 6 2
-    dig 5
+    dig 6
     concat
     bytec 18 // 0x000a
     uncover 2
@@ -3350,7 +3336,6 @@ arc58_removeAllowances_while_top@8:
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
     intc_1 // 1
     +
-    bury 5
     b arc58_removeAllowances_while_top@8
 
 arc58_removeAllowances_after_while@10:
@@ -3399,7 +3384,7 @@ arc58_addExecutionKey:
     pushint 32
     *
     dup
-    cover 3
+    cover 4
     intc_2 // 2
     +
     swap
@@ -3421,7 +3406,7 @@ arc58_addExecutionKey:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 2
+    swap
     // smart_contracts/arc58/account/contract.algo.ts:1551
     // this._requireAdmin()
     callsub _requireAdmin
@@ -3431,15 +3416,16 @@ arc58_addExecutionKey:
     swap
     concat
     dup
-    cover 2
     // smart_contracts/arc58/account/contract.algo.ts:1552
     // if (!this.executions(lease).exists) {
     box_len
     bury 1
     bnz arc58_addExecutionKey_else_body@3
+    uncover 4
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:291
     // return BoxCostPerByte * len
-    dig 4
+    uncover 3
     intc 7 // 12800
     *
     // smart_contracts/arc58/account/contract.algo.ts:311
@@ -3455,16 +3441,17 @@ arc58_addExecutionKey:
     //   firstValid,
     //   lastValid
     // }
+    uncover 2
     itob
     pushbytes 0x0012
     swap
     concat
-    dig 2
+    uncover 2
     itob
     concat
-    dig 5
+    uncover 2
     concat
-    dig 1
+    swap
     dup
     box_del
     pop
@@ -3494,11 +3481,12 @@ arc58_addExecutionKey_after_if_else@8:
 arc58_addExecutionKey_else_body@3:
     // smart_contracts/arc58/account/contract.algo.ts:1560
     // loggedAssert(this.executions(lease).value.firstValid === firstValid, ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_FIRST_VALID)
-    dig 1
+    dup
     intc_2 // 2
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
+    uncover 3
     ==
     bnz arc58_addExecutionKey_after_assert@5
     pushbytes "ERR:EKFV"
@@ -3513,7 +3501,7 @@ arc58_addExecutionKey_after_assert@5:
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
-    dig 2
+    uncover 2
     ==
     bnz arc58_addExecutionKey_after_assert@7
     pushbytes "ERR:EKLV"
@@ -3523,7 +3511,7 @@ arc58_addExecutionKey_after_assert@5:
 arc58_addExecutionKey_after_assert@7:
     // smart_contracts/arc58/account/contract.algo.ts:291
     // return BoxCostPerByte * len
-    dig 3
+    swap
     dup
     intc 7 // 12800
     *
@@ -3538,9 +3526,9 @@ arc58_addExecutionKey_after_assert@7:
     callsub _payMbrFromControlled
     // smart_contracts/arc58/account/contract.algo.ts:1564
     // this.executions(lease).value.groups = [...clone(this.executions(lease).value.groups), ...clone(groups)]
-    dig 5
+    uncover 3
     extract 2 0
-    dig 2
+    uncover 2
     dup
     // smart_contracts/arc58/account/contract.algo.ts:1564
     // this.executions(lease).value.groups = [...clone(this.executions(lease).value.groups), ...clone(groups)]
@@ -3551,7 +3539,7 @@ arc58_addExecutionKey_after_assert@7:
     dig 1
     box_len
     pop
-    dig 7
+    uncover 5
     +
     dig 2
     swap
@@ -3630,13 +3618,10 @@ arc58_removeExecutionKey_bool_merge@5:
 arc58_removeExecutionKey_after_assert@7:
     // smart_contracts/arc58/account/contract.algo.ts:1580
     // this.deleteExecution(lease, execution.groups.length)
-    dup
     pushint 18
     intc_2 // 2
     box_extract
     btoi
-    dig 2
-    swap
     callsub deleteExecution
     // smart_contracts/arc58/account/contract.algo.ts:142
     // lastUserInteraction = GlobalState<uint64>({ key: AbstractAccountGlobalStateKeysLastUserInteraction })
@@ -3686,10 +3671,6 @@ arc58_getAdmin:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getPlugins[routing]() -> void:
 arc58_getPlugins:
-    intc_0 // 0
-    dup
-    bytec_0 // ""
-    dup
     // smart_contracts/arc58/account/contract.algo.ts:1602
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -3703,7 +3684,7 @@ arc58_getPlugins:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -3714,15 +3695,15 @@ arc58_getPlugins_for_header@1:
     dig 5
     <
     bz arc58_getPlugins_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -3746,38 +3727,35 @@ arc58_getPlugins_for_header@1:
     pushint 44
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b arc58_getPlugins_for_header@1
 
 arc58_getPlugins_after_for@4:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1602
     // @abimethod({ readonly: true })
-    dig 3
+    swap
     intc_2 // 2
     +
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginKey>
     // smart_contracts/arc58/account/contract.algo.ts:1604
     // let plugins: PluginInfo[] = []
     bytec 7 // 0x0000
-    bury 8
     // smart_contracts/arc58/account/contract.algo.ts:1605
     // for (let i: uint64 = 0; i < keys.length; i += 1) {
     intc_0 // 0
-    bury 7
 
 arc58_getPlugins_while_top@6:
     // smart_contracts/arc58/account/contract.algo.ts:1605
     // for (let i: uint64 = 0; i < keys.length; i += 1) {
-    dig 6
-    dig 5
+    dup
+    dig 4
     <
     bz arc58_getPlugins_after_while@11
-    dig 6
     dup
     intc_2 // 2
     *
@@ -3791,14 +3769,14 @@ arc58_getPlugins_while_top@6:
     intc_1 // 1
     +
     dup
-    bury 10
+    cover 5
     dup
     intc_2 // 2
     *
     dig 4
     swap
     extract_uint16
-    dig 9
+    dig 8
     uncover 2
     -
     select
@@ -3809,7 +3787,6 @@ arc58_getPlugins_while_top@6:
     swap
     concat
     dup
-    bury 10
     // smart_contracts/arc58/account/contract.algo.ts:1606
     // if (this.plugins(keys[i]).exists) {
     box_len
@@ -3817,42 +3794,36 @@ arc58_getPlugins_while_top@6:
     bz arc58_getPlugins_after_if_else@9
     // smart_contracts/arc58/account/contract.algo.ts:1607
     // plugins.push(this.plugins(keys[i]).value)
-    dig 8
     box_get
     assert // Box must have value
     bytec 15 // 0x0002
     swap
     concat
-    dig 8
-    swap
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 8
 
 arc58_getPlugins_block@10:
-    dig 5
-    bury 7
+    swap
     b arc58_getPlugins_while_top@6
 
 arc58_getPlugins_after_if_else@9:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1610
     // plugins.push(emptyPluginInfo())
     callsub emptyPluginInfo
     bytec 15 // 0x0002
     swap
     concat
-    dig 8
-    swap
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 8
     b arc58_getPlugins_block@10
 
 arc58_getPlugins_after_while@11:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1602
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 8
+    swap
     concat
     log
     intc_1 // 1
@@ -3862,8 +3833,6 @@ arc58_getPlugins_after_while@11:
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getNamedPlugins[routing]() -> void:
 arc58_getNamedPlugins:
     intc_0 // 0
-    dupn 2
-    bytec_0 // ""
     dup
     // smart_contracts/arc58/account/contract.algo.ts:1621
     // @abimethod({ readonly: true })
@@ -3878,7 +3847,7 @@ arc58_getNamedPlugins:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -3889,15 +3858,15 @@ arc58_getNamedPlugins_for_header@1:
     dig 5
     <
     bz arc58_getNamedPlugins_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -3910,45 +3879,39 @@ arc58_getNamedPlugins_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b arc58_getNamedPlugins_for_header@1
 
 arc58_getNamedPlugins_after_for@4:
+    popn 2
     // smart_contracts/arc58/account/contract.algo.ts:1621
     // @abimethod({ readonly: true })
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<string>
-    // smart_contracts/arc58/account/contract.algo.ts:1623
-    // let plugins: PluginInfo[] = []
-    bytec 7 // 0x0000
-    bury 9
     // smart_contracts/arc58/account/contract.algo.ts:1624
     // for (let i: uint64 = 0; i < names.length; i += 1) {
     intc_0 // 0
-    bury 8
+    // smart_contracts/arc58/account/contract.algo.ts:1623
+    // let plugins: PluginInfo[] = []
+    bytec 7 // 0x0000
 
 arc58_getNamedPlugins_while_top@6:
     // smart_contracts/arc58/account/contract.algo.ts:1624
     // for (let i: uint64 = 0; i < names.length; i += 1) {
-    dig 7
-    dig 5
+    dig 1
+    dig 3
     <
     dup
-    bury 8
     bz arc58_getNamedPlugins_after_while@13
-    dig 6
     assert // index out of bounds
     // smart_contracts/arc58/account/contract.algo.ts:1625
     // if (this.namedPlugins(names[i]).exists) {
-    dig 5
-    dig 8
+    dig 3
+    dig 2
     callsub dynamic_array_read_byte_length_element
     extract 2 0
     // smart_contracts/arc58/account/contract.algo.ts:169
@@ -3957,7 +3920,7 @@ arc58_getNamedPlugins_while_top@6:
     swap
     concat
     dup
-    bury 12
+    bury 7
     // smart_contracts/arc58/account/contract.algo.ts:1625
     // if (this.namedPlugins(names[i]).exists) {
     box_len
@@ -3965,7 +3928,7 @@ arc58_getNamedPlugins_while_top@6:
     bz arc58_getNamedPlugins_after_if_else@11
     // smart_contracts/arc58/account/contract.algo.ts:1626
     // const nameKey = clone(this.namedPlugins(names[i]).value)
-    dig 10
+    dig 5
     box_get
     assert // Box must have value
     // smart_contracts/arc58/account/contract.algo.ts:167
@@ -3974,7 +3937,7 @@ arc58_getNamedPlugins_while_top@6:
     swap
     concat
     dup
-    bury 11
+    bury 6
     // smart_contracts/arc58/account/contract.algo.ts:1627
     // if (this.plugins(nameKey).exists) {
     box_len
@@ -3982,25 +3945,22 @@ arc58_getNamedPlugins_while_top@6:
     bz arc58_getNamedPlugins_after_if_else@11
     // smart_contracts/arc58/account/contract.algo.ts:1628
     // plugins.push(this.plugins(nameKey).value)
-    dig 9
+    dig 4
     box_get
     assert // Box must have value
     bytec 15 // 0x0002
     swap
     concat
-    dig 9
-    swap
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 9
 
 arc58_getNamedPlugins_block@12:
     // smart_contracts/arc58/account/contract.algo.ts:1624
     // for (let i: uint64 = 0; i < names.length; i += 1) {
-    dig 7
+    swap
     intc_1 // 1
     +
-    bury 8
+    swap
     b arc58_getNamedPlugins_while_top@6
 
 arc58_getNamedPlugins_after_if_else@11:
@@ -4010,18 +3970,16 @@ arc58_getNamedPlugins_after_if_else@11:
     bytec 15 // 0x0002
     swap
     concat
-    dig 9
-    swap
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 9
     b arc58_getNamedPlugins_block@12
 
 arc58_getNamedPlugins_after_while@13:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1621
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 9
+    swap
     concat
     log
     intc_1 // 1
@@ -4030,10 +3988,6 @@ arc58_getNamedPlugins_after_while@13:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getEscrows[routing]() -> void:
 arc58_getEscrows:
-    intc_0 // 0
-    dup
-    bytec_0 // ""
-    dup
     // smart_contracts/arc58/account/contract.algo.ts:1643
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4047,7 +4001,7 @@ arc58_getEscrows:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -4058,15 +4012,15 @@ arc58_getEscrows_for_header@1:
     dig 5
     <
     bz arc58_getEscrows_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -4079,45 +4033,39 @@ arc58_getEscrows_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b arc58_getEscrows_for_header@1
 
 arc58_getEscrows_after_for@4:
+    popn 2
     // smart_contracts/arc58/account/contract.algo.ts:1643
     // @abimethod({ readonly: true })
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<string>
-    // smart_contracts/arc58/account/contract.algo.ts:1645
-    // let result: EscrowInfo[] = []
-    bytec 7 // 0x0000
-    bury 9
     // smart_contracts/arc58/account/contract.algo.ts:1646
     // for (let i: uint64 = 0; i < escrows.length; i += 1) {
     intc_0 // 0
-    bury 8
+    // smart_contracts/arc58/account/contract.algo.ts:1645
+    // let result: EscrowInfo[] = []
+    bytec 7 // 0x0000
 
 arc58_getEscrows_while_top@6:
     // smart_contracts/arc58/account/contract.algo.ts:1646
     // for (let i: uint64 = 0; i < escrows.length; i += 1) {
-    dig 7
-    dig 5
+    dig 1
+    dig 3
     <
     dup
-    bury 8
     bz arc58_getEscrows_after_while@11
-    dig 6
     assert // index out of bounds
     // smart_contracts/arc58/account/contract.algo.ts:1647
     // if (this.escrows(escrows[i]).exists) {
-    dig 5
-    dig 8
+    dig 3
+    dig 2
     callsub dynamic_array_read_byte_length_element
     extract 2 0
     // smart_contracts/arc58/account/contract.algo.ts:171
@@ -4126,7 +4074,6 @@ arc58_getEscrows_while_top@6:
     swap
     concat
     dup
-    bury 11
     // smart_contracts/arc58/account/contract.algo.ts:1647
     // if (this.escrows(escrows[i]).exists) {
     box_len
@@ -4134,10 +4081,9 @@ arc58_getEscrows_while_top@6:
     bz arc58_getEscrows_after_if_else@9
     // smart_contracts/arc58/account/contract.algo.ts:1648
     // result.push(this.escrows(escrows[i]).value)
-    dig 9
     box_get
     assert // Box must have value
-    dig 9
+    swap
     dup
     intc_0 // 0
     extract_uint16
@@ -4150,19 +4096,18 @@ arc58_getEscrows_while_top@6:
     replace2 0
     swap
     concat
-    bury 9
 
 arc58_getEscrows_block@10:
     // smart_contracts/arc58/account/contract.algo.ts:1646
     // for (let i: uint64 = 0; i < escrows.length; i += 1) {
-    dig 7
+    swap
     intc_1 // 1
     +
-    bury 8
+    swap
     b arc58_getEscrows_while_top@6
 
 arc58_getEscrows_after_if_else@9:
-    dig 8
+    pop
     dup
     intc_0 // 0
     extract_uint16
@@ -4181,14 +4126,14 @@ arc58_getEscrows_after_if_else@9:
     // };
     pushbytes base32(AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
     concat
-    bury 9
     b arc58_getEscrows_block@10
 
 arc58_getEscrows_after_while@11:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1643
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 9
+    swap
     concat
     log
     intc_1 // 1
@@ -4197,7 +4142,6 @@ arc58_getEscrows_after_while@11:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getAllowances[routing]() -> void:
 arc58_getAllowances:
-    intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:1663
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4268,7 +4212,6 @@ arc58_getAllowances_while_top@2:
     swap
     concat
     dup
-    bury 8
     // smart_contracts/arc58/account/contract.algo.ts:1668
     // if (this.allowances(key).exists) {
     box_len
@@ -4276,10 +4219,9 @@ arc58_getAllowances_while_top@2:
     bz arc58_getAllowances_after_if_else@5
     // smart_contracts/arc58/account/contract.algo.ts:1669
     // result.push(this.allowances(key).value)
-    dig 6
     box_get
     assert // Box must have value
-    dig 2
+    uncover 2
     dup
     intc_0 // 0
     extract_uint16
@@ -4292,18 +4234,17 @@ arc58_getAllowances_while_top@2:
     replace2 0
     swap
     concat
-    bury 2
+    swap
 
 arc58_getAllowances_block@6:
     // smart_contracts/arc58/account/contract.algo.ts:1666
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    dup
     intc_1 // 1
     +
-    bury 1
     b arc58_getAllowances_while_top@2
 
 arc58_getAllowances_after_if_else@5:
+    pop
     // smart_contracts/arc58/account/utils.ts:32
     // type: uint8(0),
     intc_0 // 0
@@ -4335,7 +4276,7 @@ arc58_getAllowances_after_if_else@5:
     concat
     bytec 9 // 0x00
     concat
-    dig 2
+    uncover 2
     dup
     intc_0 // 0
     extract_uint16
@@ -4348,14 +4289,15 @@ arc58_getAllowances_after_if_else@5:
     replace2 0
     swap
     concat
-    bury 2
+    swap
     b arc58_getAllowances_block@6
 
 arc58_getAllowances_after_while@7:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1663
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_1 // 1
@@ -4364,7 +4306,6 @@ arc58_getAllowances_after_while@7:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getExecutions[routing]() -> void:
 arc58_getExecutions:
-    intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:1683
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4410,7 +4351,6 @@ arc58_getExecutions_while_top@2:
     swap
     concat
     dup
-    bury 6
     // smart_contracts/arc58/account/contract.algo.ts:1687
     // if (this.executions(leases[i]).exists) {
     box_len
@@ -4418,42 +4358,41 @@ arc58_getExecutions_while_top@2:
     bz arc58_getExecutions_after_if_else@5
     // smart_contracts/arc58/account/contract.algo.ts:1688
     // result.push(this.executions(leases[i]).value)
-    dig 4
     box_get
     assert // Box must have value
     bytec 15 // 0x0002
     swap
     concat
-    dig 2
+    uncover 2
     swap
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 2
+    swap
 
 arc58_getExecutions_block@6:
     // smart_contracts/arc58/account/contract.algo.ts:1686
     // for (let i: uint64 = 0; i < leases.length; i += 1) {
-    dup
     intc_1 // 1
     +
-    bury 1
     b arc58_getExecutions_while_top@2
 
 arc58_getExecutions_after_if_else@5:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1691
     // result.push(emptyExecutionInfo())
-    dig 1
+    swap
     pushbytes 0x00020012000000000000000000000000000000000000
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
-    bury 2
+    swap
     b arc58_getExecutions_block@6
 
 arc58_getExecutions_after_while@7:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1683
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_1 // 1
@@ -4462,7 +4401,6 @@ arc58_getExecutions_after_while@7:
 
 // smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_getDomainKeys[routing]() -> void:
 arc58_getDomainKeys:
-    intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:1702
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4508,7 +4446,6 @@ arc58_getDomainKeys_while_top@2:
     swap
     concat
     dup
-    bury 6
     // smart_contracts/arc58/account/contract.algo.ts:1706
     // if (this.domainKeys(addresses[i]).exists) {
     box_len
@@ -4516,7 +4453,6 @@ arc58_getDomainKeys_while_top@2:
     bz arc58_getDomainKeys_after_if_else@5
     // smart_contracts/arc58/account/contract.algo.ts:1707
     // result.push(this.domainKeys(addresses[i]).value)
-    dig 4
     box_get
     assert // Box must have value
     dup
@@ -4525,36 +4461,36 @@ arc58_getDomainKeys_while_top@2:
     extract 6 2
     swap
     concat
-    dig 2
+    uncover 2
     swap
     intc_1 // 1
     callsub dynamic_array_concat_byte_length_head
-    bury 2
+    swap
 
 arc58_getDomainKeys_block@6:
     // smart_contracts/arc58/account/contract.algo.ts:1705
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
-    dup
     intc_1 // 1
     +
-    bury 1
     b arc58_getDomainKeys_while_top@2
 
 arc58_getDomainKeys_after_if_else@5:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1710
     // result.push("")
-    dig 1
+    swap
     bytec 7 // 0x0000
     intc_1 // 1
     callsub dynamic_array_concat_byte_length_head
-    bury 2
+    swap
     b arc58_getDomainKeys_block@6
 
 arc58_getDomainKeys_after_while@7:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1702
     // @abimethod({ readonly: true })
     bytec 6 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_1 // 1
@@ -4851,7 +4787,7 @@ _payMbrFromControlled:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:267
     // if (this.controlledAddress.value !== Global.currentApplicationAddress) {
     app_global_get_ex
@@ -4873,7 +4809,7 @@ _payMbrFromControlled:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:270
     // sender: this.controlledAddress.value,
     app_global_get_ex
@@ -4920,7 +4856,7 @@ _refundMbrToControlled:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:280
     // if (this.controlledAddress.value !== Global.currentApplicationAddress) {
     app_global_get_ex
@@ -4941,7 +4877,7 @@ _refundMbrToControlled:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:283
     // receiver: this.controlledAddress.value,
     app_global_get_ex
@@ -5009,7 +4945,7 @@ validateAllowance:
     // smart_contracts/arc58/account/contract.algo.ts:316
     // assert(value >= 1 && value <= 3)
     bz validateAllowance_bool_false@3
-    frame_dig 0
+    dup
     pushint 3
     <=
     bz validateAllowance_bool_false@3
@@ -5021,7 +4957,6 @@ validateAllowance_bool_merge@4:
     assert
     // smart_contracts/arc58/account/contract.algo.ts:317
     // assert(value === 1 || interval > 0)
-    frame_dig 0
     intc_1 // 1
     ==
     bnz validateAllowance_bool_true@6
@@ -5119,7 +5054,7 @@ newEscrow:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:350
     // sender: this.controlledAddress.value,
     app_global_get_ex
@@ -5380,7 +5315,7 @@ txnRekeysBack:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:419
     // txn.sender === this.controlledAddress.value &&
     app_global_get_ex
@@ -5450,8 +5385,7 @@ txnRekeysBack_after_if_else@3:
     // smart_contracts/arc58/account/contract.algo.ts:430
     // && txn.appArgs(0) === methodSelector('arc58_verifyAuthAddress()void')
     frame_dig -1
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    gtxnsa ApplicationArgs 0
     bytec 26 // method "arc58_verifyAuthAddress()void"
     ==
     // smart_contracts/arc58/account/contract.algo.ts:426-430
@@ -5531,8 +5465,6 @@ pluginCheck:
     // smart_contracts/arc58/account/contract.algo.ts:460
     // private pluginCheck(key: PluginKey): PluginValidation {
     proto 1 2
-    bytec_0 // ""
-    dupn 2
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
@@ -5543,7 +5475,8 @@ pluginCheck:
     // const exists = this.plugins(key).exists;
     box_len
     dup
-    uncover 2
+    cover 2
+    cover 3
     pop
     // smart_contracts/arc58/account/contract.algo.ts:463
     // if (!exists) {
@@ -5557,26 +5490,25 @@ pluginCheck:
     // }
     pushbytes 0x60
     frame_dig -1
-    frame_bury 1
-    frame_bury 0
+    uncover 3
+    uncover 3
     retsub
 
 pluginCheck_after_if_else@2:
     // smart_contracts/arc58/account/contract.algo.ts:472
     // const { useRounds, lastValid, cooldown, lastCalled, methods } = this.plugins(key).value as Readonly<PluginInfo>
-    frame_dig 3
-    dup
+    dupn 2
     pushint 9
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 2
+    swap
     dup
     pushint 17
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 0
+    cover 3
     dup
     pushint 27
     intc_1 // 1
@@ -5588,7 +5520,7 @@ pluginCheck_after_if_else@2:
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 1
+    swap
     // smart_contracts/arc58/account/contract.algo.ts:473
     // const epochRef = useRounds ? Global.round : Global.latestTimestamp;
     bz pluginCheck_ternary_false@4
@@ -5598,17 +5530,17 @@ pluginCheck_ternary_merge@5:
     // smart_contracts/arc58/account/contract.algo.ts:477
     // expired: epochRef > lastValid,
     dup
-    frame_dig 2
+    uncover 3
     >
     // smart_contracts/arc58/account/contract.algo.ts:478
     // onCooldown: this.isOnCooldown(epochRef, lastCalled, cooldown),
     swap
-    frame_dig 1
-    frame_dig 0
+    uncover 2
+    uncover 4
     callsub isOnCooldown
     // smart_contracts/arc58/account/contract.algo.ts:479
     // hasMethodRestrictions: methods.length > 0,
-    frame_dig 3
+    uncover 2
     pushint 44
     intc_2 // 2
     box_extract
@@ -5624,7 +5556,7 @@ pluginCheck_ternary_merge@5:
     // }
     bytec 9 // 0x00
     intc_0 // 0
-    frame_dig 4
+    uncover 5
     setbit
     intc_1 // 1
     uncover 4
@@ -5636,8 +5568,6 @@ pluginCheck_ternary_merge@5:
     uncover 2
     setbit
     frame_dig -1
-    frame_bury 1
-    frame_bury 0
     retsub
 
 pluginCheck_ternary_false@4:
@@ -5677,7 +5607,7 @@ optInEscrow:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:603
     // sender: this.controlledAddress.value,
     app_global_get_ex
@@ -5721,8 +5651,8 @@ optInEscrow:
 optInEscrow_while_top@2:
     // smart_contracts/arc58/account/contract.algo.ts:609
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    frame_dig 2
-    frame_dig 1
+    dup
+    dig 2
     <
     bz optInEscrow_after_while@5
     // smart_contracts/arc58/account/contract.algo.ts:610-617
@@ -5739,9 +5669,7 @@ optInEscrow_while_top@2:
     // xferAsset: assets[i]
     frame_dig -1
     extract 2 0
-    frame_dig 2
-    dup
-    cover 2
+    dig 1
     intc_3 // 8
     *
     extract_uint64
@@ -5750,7 +5678,7 @@ optInEscrow_while_top@2:
     // assetAmount: 0,
     intc_0 // 0
     itxn_field AssetAmount
-    frame_dig 0
+    dig 2
     dup
     itxn_field AssetReceiver
     itxn_field Sender
@@ -5780,7 +5708,6 @@ optInEscrow_while_top@2:
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
     intc_1 // 1
     +
-    frame_bury 2
     b optInEscrow_while_top@2
 
 optInEscrow_after_while@5:
@@ -5795,9 +5722,7 @@ reclaim:
     // private reclaim(escrow: string, reclaims: EscrowReclaim[], allowCloseOut: boolean): void {
     proto 3 1
     intc_0 // 0
-    dup
-    bytec_0 // ""
-    dupn 2
+    bytec_1 // ""
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:171
     // escrows = BoxMap<string, EscrowInfo>({ keyPrefix: AbstractAccountBoxPrefixEscrows })
@@ -5819,14 +5744,14 @@ reclaim_while_top@1:
     frame_dig -2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    frame_dig 7
+    dig 1
     >
     bz reclaim_after_while@13
     // smart_contracts/arc58/account/contract.algo.ts:625
     // if (reclaims[i].asset === 0) {
     frame_dig -2
     extract 2 0
-    frame_dig 7
+    dig 1
     pushint 17
     *
     pushint 17
@@ -5836,8 +5761,9 @@ reclaim_while_top@1:
     intc_0 // 0
     extract_uint64
     dup
-    frame_bury 2
+    cover 2
     bnz reclaim_else_body@5
+    bury 1
     // smart_contracts/arc58/account/contract.algo.ts:626-630
     // itxn.payment({
     //   sender,
@@ -5850,7 +5776,7 @@ reclaim_while_top@1:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:628
     // receiver: this.controlledAddress.value,
     app_global_get_ex
@@ -5862,7 +5788,7 @@ reclaim_while_top@1:
     extract_uint64
     itxn_field Amount
     itxn_field Receiver
-    frame_dig 6
+    dig 1
     itxn_field Sender
     // smart_contracts/arc58/account/contract.algo.ts:626-630
     // itxn.payment({
@@ -5879,10 +5805,8 @@ reclaim_while_top@1:
 reclaim_after_if_else@12:
     // smart_contracts/arc58/account/contract.algo.ts:624
     // for (let i: uint64 = 0; i < reclaims.length; i += 1) {
-    frame_dig 7
     intc_1 // 1
     +
-    frame_bury 7
     b reclaim_while_top@1
 
 reclaim_else_body@5:
@@ -5891,23 +5815,23 @@ reclaim_else_body@5:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:634
     // assetReceiver: this.controlledAddress.value,
     app_global_get_ex
     swap
-    frame_bury 1
+    cover 4
     assert // check GlobalState exists
     // smart_contracts/arc58/account/contract.algo.ts:635
     // assetAmount: reclaims[i].amount,
     frame_dig 0
     intc_3 // 8
     extract_uint64
-    frame_bury 3
+    cover 2
     // smart_contracts/arc58/account/contract.algo.ts:632
     // const xfer = itxn.assetTransfer({
     intc_0 // 0
-    frame_bury 4
+    frame_bury 1
     // smart_contracts/arc58/account/contract.algo.ts:639
     // if (allowCloseOut && reclaims[i].closeOut) {
     frame_dig -1
@@ -5921,32 +5845,32 @@ reclaim_else_body@5:
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:640
     // xfer.set({ assetCloseTo: this.controlledAddress.value });
     app_global_get_ex
     assert // check GlobalState exists
     intc_1 // 1
-    frame_bury 4
-    frame_bury 5
+    frame_bury 1
+    frame_bury 2
 
 reclaim_after_if_else@8:
     // smart_contracts/arc58/account/contract.algo.ts:643
     // xfer.submit();
     itxn_begin
-    frame_dig 4
+    frame_dig 1
     bz reclaim_next_field@10
-    frame_dig 5
+    frame_dig 2
     itxn_field AssetCloseTo
 
 reclaim_next_field@10:
-    frame_dig 2
+    swap
     itxn_field XferAsset
-    frame_dig 3
+    swap
     itxn_field AssetAmount
-    frame_dig 1
+    uncover 2
     itxn_field AssetReceiver
-    frame_dig 6
+    dig 1
     itxn_field Sender
     // smart_contracts/arc58/account/contract.algo.ts:632-637
     // const xfer = itxn.assetTransfer({
@@ -5982,9 +5906,9 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // ): void {
     proto 5 2
     intc_0 // 0
-    dupn 9
-    bytec_0 // ""
-    dupn 22
+    dup
+    bytec_1 // ""
+    dupn 14
     // smart_contracts/arc58/account/contract.algo.ts:1023
     // const caller = this.resolveCallerType(type, Txn.sender)
     frame_dig -4
@@ -6021,10 +5945,10 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@2:
     // smart_contracts/arc58/account/contract.algo.ts:1031
     // this._requirePlugin(key)
-    frame_dig 34
+    frame_dig 18
     callsub _requirePlugin
     dup
-    frame_bury 34
+    frame_bury 18
     // smart_contracts/arc58/account/contract.algo.ts:148
     // currentPlugin = GlobalState<PluginKey>({ key: AbstractAccountGlobalStateKeysCurrentPlugin })
     bytec 24 // "current_plugin"
@@ -6038,21 +5962,20 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     swap
     concat
     dup
-    frame_bury 2
+    frame_bury 0
     // smart_contracts/arc58/account/contract.algo.ts:1033
     // const { escrow: escrowID } = this.plugins(key).value
     intc_0 // 0
     intc_3 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 14
     // smart_contracts/arc58/account/contract.algo.ts:1035
     // if (escrow !== '' || escrowID !== 0) {
     frame_dig -3
-    bytec_0 // ""
+    bytec_1 // ""
     !=
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_if_body@4
-    frame_dig 14
+    dup
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@10
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_if_body@4:
@@ -6060,14 +5983,13 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // const spendingAddress = (escrowID !== 0)
     //   ? Application(escrowID).address
     //   : this.escrows(escrow).value.address
-    frame_dig 14
+    dup
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@6
     // smart_contracts/arc58/account/contract.algo.ts:1037
     // ? Application(escrowID).address
-    frame_dig 14
     app_params_get AppAddress
     assert // application exists
-    frame_bury 8
+    frame_bury 1
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@7:
     // smart_contracts/arc58/account/contract.algo.ts:146
@@ -6075,12 +5997,12 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     bytec 8 // "spending_address"
     // smart_contracts/arc58/account/contract.algo.ts:1039
     // this.spendingAddress.value = spendingAddress
-    frame_dig 8
+    frame_dig 1
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:649
     // for (let i: uint64 = 0; i < fundsRequests.length; i += 1) {
     intc_0 // 0
-    frame_bury 16
+    frame_bury 6
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@87:
     // smart_contracts/arc58/account/contract.algo.ts:649
@@ -6088,24 +6010,23 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     frame_dig -1
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    frame_dig 16
+    frame_dig 6
     >
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@11
     // smart_contracts/arc58/account/contract.algo.ts:653
     // asset: fundsRequests[i].asset
     frame_dig -1
     extract 2 0
-    frame_dig 16
+    frame_dig 6
     pushint 16
     *
     pushint 16
     extract3 // on error: index access is out of bounds
     dup
-    frame_bury 0
     intc_0 // 0
     extract_uint64
     dup
-    frame_bury 31
+    cover 2
     // smart_contracts/arc58/account/contract.algo.ts:651-654
     // const allowanceKey: AllowanceKey = {
     //   escrow,
@@ -6115,7 +6036,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     bytec 18 // 0x000a
     swap
     concat
-    frame_dig 33
+    frame_dig 17
     concat
     // smart_contracts/arc58/account/contract.algo.ts:680
     // this._requireAllowance(key)
@@ -6126,7 +6047,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     swap
     concat
     dup
-    frame_bury 3
+    cover 3
     // smart_contracts/arc58/account/contract.algo.ts:681
     // const { type, spent, amount, last, max, interval, start, useRounds } = this.allowances(key).value
     box_get
@@ -6134,38 +6055,37 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     dup
     extract 0 1
     dup
-    cover 2
-    frame_bury 9
+    uncover 2
     dup
     pushint 17
     extract_uint64
-    frame_bury 28
+    frame_bury 14
     dup
     pushint 9
     extract_uint64
-    frame_bury 10
+    frame_bury 2
     dup
     pushint 33
     extract_uint64
-    frame_bury 19
+    frame_bury 9
     dup
     intc_1 // 1
     extract_uint64
-    frame_bury 21
+    frame_bury 10
     dup
     pushint 25
     extract_uint64
     dup
     cover 2
-    frame_bury 17
+    frame_bury 7
     dup
     pushint 41
     extract_uint64
-    frame_bury 29
+    frame_bury 15
     pushint 392
     getbit
     dup
-    frame_bury 32
+    frame_bury 16
     // smart_contracts/arc58/account/contract.algo.ts:682
     // this.validateAllowance(type, interval)
     cover 2
@@ -6174,23 +6094,23 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // const newLast = useRounds ? Global.round : Global.latestTimestamp;
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@90
     global Round
-    frame_bury 25
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@91:
     // smart_contracts/arc58/account/contract.algo.ts:685
     // if (type === SpendAllowanceTypeFlat) {
-    frame_dig 9
+    dig 1
     bytec 16 // 0x01
     ==
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@93
+    bury 1
     // smart_contracts/arc58/account/contract.algo.ts:686
     // const leftover: uint64 = amount - spent;
-    frame_dig 10
-    frame_dig 28
+    frame_dig 2
+    frame_dig 14
     -
     // smart_contracts/arc58/account/contract.algo.ts:687
     // this._requireAllowanceAmount(leftover, fundRequest.amount)
-    frame_dig 0
+    dig 2
     intc_3 // 8
     extract_uint64
     swap
@@ -6198,7 +6118,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     callsub _requireAllowanceAmount
     // smart_contracts/arc58/account/contract.algo.ts:688
     // this.allowances(key).value.spent += fundRequest.amount
-    frame_dig 3
+    dig 4
     dup
     cover 2
     box_get
@@ -6214,15 +6134,14 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@102:
     // smart_contracts/arc58/account/contract.algo.ts:716
     // this.allowances(key).value.last = newLast
-    frame_dig 25
     itob
-    frame_dig 3
+    uncover 3
     pushint 33
     uncover 2
     box_replace // on error: index out of bounds
     // smart_contracts/arc58/account/contract.algo.ts:658
     // if (fundsRequests[i].asset !== 0) {
-    frame_dig 31
+    dig 1
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@104
     // smart_contracts/arc58/account/contract.algo.ts:659-666
     // itxn
@@ -6239,20 +6158,20 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:661
     // sender: this.controlledAddress.value,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/arc58/account/contract.algo.ts:663
     // assetAmount: fundsRequests[i].amount,
-    frame_dig 0
+    swap
     intc_3 // 8
     extract_uint64
-    frame_dig 31
+    uncover 2
     itxn_field XferAsset
     itxn_field AssetAmount
-    frame_dig 8
+    frame_dig 1
     itxn_field AssetReceiver
     itxn_field Sender
     // smart_contracts/arc58/account/contract.algo.ts:659-665
@@ -6281,13 +6200,14 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@105:
     // smart_contracts/arc58/account/contract.algo.ts:649
     // for (let i: uint64 = 0; i < fundsRequests.length; i += 1) {
-    frame_dig 16
+    frame_dig 6
     intc_1 // 1
     +
-    frame_bury 16
+    frame_bury 6
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@87
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@104:
+    bury 1
     // smart_contracts/arc58/account/contract.algo.ts:668-674
     // itxn
     //   .payment({
@@ -6302,18 +6222,18 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:670
     // sender: this.controlledAddress.value,
     app_global_get_ex
     assert // check GlobalState exists
     // smart_contracts/arc58/account/contract.algo.ts:672
     // amount: fundsRequests[i].amount
-    frame_dig 0
+    swap
     intc_3 // 8
     extract_uint64
     itxn_field Amount
-    frame_dig 8
+    frame_dig 1
     itxn_field Receiver
     itxn_field Sender
     // smart_contracts/arc58/account/contract.algo.ts:668-673
@@ -6341,44 +6261,45 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@93:
     // smart_contracts/arc58/account/contract.algo.ts:689
     // } else if (type === SpendAllowanceTypeWindow) {
-    frame_dig 9
+    dig 1
     pushbytes 0x02
     ==
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@97
+    bury 1
     // smart_contracts/arc58/account/contract.algo.ts:720
     // if (useRounds) {
-    frame_dig 32
+    frame_dig 16
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@108
     // smart_contracts/arc58/account/contract.algo.ts:721
     // return Global.round - ((Global.round - start) % interval)
     global Round
     dup
-    frame_dig 29
+    frame_dig 15
     -
-    frame_dig 17
+    frame_dig 7
     %
     -
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.getLatestWindowStart@109:
     // smart_contracts/arc58/account/contract.algo.ts:692
     // if (currentWindowStart > last) {
-    frame_dig 19
+    frame_dig 9
     >
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@96
     // smart_contracts/arc58/account/contract.algo.ts:693
     // this._requireAllowanceAmount(amount, fundRequest.amount)
-    frame_dig 0
+    dig 1
     dup
     extract 8 8
     swap
     intc_3 // 8
     extract_uint64
-    frame_dig 10
+    frame_dig 2
     swap
     callsub _requireAllowanceAmount
     // smart_contracts/arc58/account/contract.algo.ts:694
     // this.allowances(key).value.spent = fundRequest.amount
-    frame_dig 3
+    dig 4
     pushint 17
     uncover 2
     box_replace // on error: index out of bounds
@@ -6387,12 +6308,12 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@96:
     // smart_contracts/arc58/account/contract.algo.ts:697
     // const leftover: uint64 = amount - spent;
-    frame_dig 10
-    frame_dig 28
+    frame_dig 2
+    frame_dig 14
     -
     // smart_contracts/arc58/account/contract.algo.ts:698
     // this._requireAllowanceAmount(leftover, fundRequest.amount)
-    frame_dig 0
+    dig 2
     intc_3 // 8
     extract_uint64
     swap
@@ -6400,7 +6321,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     callsub _requireAllowanceAmount
     // smart_contracts/arc58/account/contract.algo.ts:699
     // this.allowances(key).value.spent += fundRequest.amount
-    frame_dig 3
+    dig 4
     dup
     cover 2
     box_get
@@ -6419,9 +6340,9 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // return Global.latestTimestamp - ((Global.latestTimestamp - start) % interval)
     global LatestTimestamp
     dup
-    frame_dig 29
+    frame_dig 15
     -
-    frame_dig 17
+    frame_dig 7
     %
     -
     // smart_contracts/arc58/account/contract.algo.ts:690
@@ -6431,43 +6352,43 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@97:
     // smart_contracts/arc58/account/contract.algo.ts:701
     // } else if (type === SpendAllowanceTypeDrip) {
-    frame_dig 9
+    swap
     pushbytes 0x03
     ==
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@102
     // smart_contracts/arc58/account/contract.algo.ts:702
     // const epochRef = useRounds ? Global.round : Global.latestTimestamp;
-    frame_dig 32
+    frame_dig 16
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@100
     global Round
-    frame_bury 13
+    frame_bury 4
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@101:
     // smart_contracts/arc58/account/contract.algo.ts:705
     // const accrualStart: uint64 = last === 0 ? start : last
-    frame_dig 19
+    frame_dig 9
     dup
     !
-    frame_dig 29
+    frame_dig 15
     swap
     select
     // smart_contracts/arc58/account/contract.algo.ts:706
     // const passed: uint64 = epochRef - accrualStart
-    frame_dig 13
+    frame_dig 4
     swap
     -
     // smart_contracts/arc58/account/contract.algo.ts:710
     // const accrued: uint64 = spent + ((passed / interval) * amount)
-    frame_dig 17
+    frame_dig 7
     /
-    frame_dig 10
+    frame_dig 2
     *
-    frame_dig 28
+    frame_dig 14
     +
     // smart_contracts/arc58/account/contract.algo.ts:711
     // const available: uint64 = accrued > max ? max : accrued
     dup
-    frame_dig 21
+    frame_dig 10
     dup
     cover 3
     >
@@ -6476,7 +6397,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     select
     // smart_contracts/arc58/account/contract.algo.ts:713
     // this._requireAllowanceAmount(available, fundRequest.amount)
-    frame_dig 0
+    dig 2
     intc_3 // 8
     extract_uint64
     dup2
@@ -6485,7 +6406,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // this.allowances(key).value.spent = (available - fundRequest.amount)
     -
     itob
-    frame_dig 3
+    dig 4
     pushint 17
     uncover 2
     box_replace // on error: index out of bounds
@@ -6495,27 +6416,26 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:702
     // const epochRef = useRounds ? Global.round : Global.latestTimestamp;
     global LatestTimestamp
-    frame_bury 13
+    frame_bury 4
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@101
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@90:
     // smart_contracts/arc58/account/contract.algo.ts:683
     // const newLast = useRounds ? Global.round : Global.latestTimestamp;
     global LatestTimestamp
-    frame_bury 25
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@91
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@11:
     // smart_contracts/arc58/account/contract.algo.ts:491
     // const { useRounds, useExecutionKey } = this.plugins(key).value
-    frame_dig 2
+    frame_dig 0
     pushint 27
     intc_1 // 1
     box_extract // on error: index out of bounds
     dup
     intc_1 // 1
     getbit
-    frame_bury 32
+    frame_bury 16
     intc_2 // 2
     getbit
     // smart_contracts/arc58/account/contract.algo.ts:493
@@ -6537,7 +6457,6 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // executions = BoxMap<bytes<32>, ExecutionInfo>({ keyPrefix: AbstractAccountBoxPrefixExecutions })
     concat
     dup
-    frame_bury 4
     // smart_contracts/arc58/account/contract.algo.ts:495-496
     // const execution = clone(this.executions(Txn.lease).value)
     // loggedAssert(execution.firstValid <= Global.round, ERR_EXECUTION_NOT_READY);
@@ -6557,7 +6476,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@28:
     // smart_contracts/arc58/account/contract.algo.ts:497
     // loggedAssert(execution.lastValid >= Global.round, ERR_EXECUTION_EXPIRED);
-    frame_dig 4
+    dup
     pushint 10
     intc_3 // 8
     box_extract // on error: index out of bounds
@@ -6573,31 +6492,31 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:501
     // let foundGroup = false;
     intc_0 // 0
-    frame_bury 15
+    frame_bury 5
     // smart_contracts/arc58/account/contract.algo.ts:502
     // for (let i: uint64 = 0; i < groups.length; i += 1) {
     intc_0 // 0
-    frame_bury 16
+    frame_bury 6
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@31:
     // smart_contracts/arc58/account/contract.algo.ts:502
     // for (let i: uint64 = 0; i < groups.length; i += 1) {
-    frame_dig 4
+    dup
     pushint 18
     intc_2 // 2
     box_extract
     btoi
-    frame_dig 16
+    frame_dig 6
     >
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_while@35
     // smart_contracts/arc58/account/contract.algo.ts:503
     // if (groups[i] === Global.groupId) {
-    frame_dig 16
+    frame_dig 6
     pushint 32
     *
     pushint 20
     +
-    frame_dig 4
+    dig 1
     swap
     pushint 32
     box_extract // on error: index out of bounds
@@ -6607,21 +6526,21 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:504
     // foundGroup = true;
     intc_1 // 1
-    frame_bury 15
+    frame_bury 5
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@34:
     // smart_contracts/arc58/account/contract.algo.ts:502
     // for (let i: uint64 = 0; i < groups.length; i += 1) {
-    frame_dig 16
+    frame_dig 6
     intc_1 // 1
     +
-    frame_bury 16
+    frame_bury 6
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@31
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_while@35:
     // smart_contracts/arc58/account/contract.algo.ts:508
     // loggedAssert(foundGroup, ERR_GROUP_NOT_FOUND);
-    frame_dig 15
+    frame_dig 5
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@37
     pushbytes "ERR:NGRP"
     log
@@ -6631,7 +6550,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:509
     // this.deleteExecution(Txn.lease, groups.length)
     txn Lease
-    frame_dig 4
+    swap
     pushint 18
     intc_2 // 2
     box_extract
@@ -6641,12 +6560,12 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@38:
     // smart_contracts/arc58/account/contract.algo.ts:512
     // const initialCheck = this.pluginCheck(key);
-    frame_dig 34
+    frame_dig 18
     callsub pluginCheck
     // smart_contracts/arc58/account/contract.algo.ts:514
     // this._requirePlugin(key)
     callsub _requirePlugin
-    frame_bury 34
+    frame_bury 18
     // smart_contracts/arc58/account/contract.algo.ts:515
     // this._requirePluginReady(initialCheck.expired, initialCheck.onCooldown)
     dup
@@ -6660,52 +6579,51 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // const epochRef = useRounds
     //   ? Global.round
     //   : Global.latestTimestamp;
-    frame_dig 32
+    frame_dig 16
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@40
     // smart_contracts/arc58/account/contract.algo.ts:518
     // ? Global.round
     global Round
-    frame_bury 13
+    frame_bury 4
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@41:
     // smart_contracts/arc58/account/contract.algo.ts:521
     // let rekeysBack = false;
     intc_0 // 0
-    frame_bury 27
+    frame_bury 13
     // smart_contracts/arc58/account/contract.algo.ts:522
     // let methodIndex: uint64 = 0;
     intc_0 // 0
-    frame_bury 23
+    frame_bury 11
     // smart_contracts/arc58/account/contract.algo.ts:524
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
     txn GroupIndex
     intc_1 // 1
     +
-    frame_bury 18
-    frame_dig 34
-    frame_bury 1
+    frame_bury 8
+    frame_dig 18
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@42:
     // smart_contracts/arc58/account/contract.algo.ts:524
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
-    frame_dig 18
+    frame_dig 8
     global GroupSize
     <
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_block@82
     // smart_contracts/arc58/account/contract.algo.ts:527
     // if (this.txnRekeysBack(txn)) {
-    frame_dig 18
+    frame_dig 8
     callsub txnRekeysBack
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@45
     // smart_contracts/arc58/account/contract.algo.ts:528
     // rekeysBack = true;
     intc_1 // 1
-    frame_bury 27
+    frame_bury 13
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_block@82:
     // smart_contracts/arc58/account/contract.algo.ts:557
     // loggedAssert(rekeysBack, ERR_MISSING_REKEY_BACK);
-    frame_dig 27
+    frame_dig 13
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@84
     bytec 32 // "ERR:NRKB"
     log
@@ -6715,10 +6633,9 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
-    frame_dig 1
+    swap
     concat
     dup
-    frame_bury 5
     // smart_contracts/arc58/account/contract.algo.ts:1048
     // if (this.plugins(key).value.coverFees) {
     pushint 27
@@ -6733,12 +6650,12 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     global MinTxnFee
     *
     dup
-    frame_bury 22
     // smart_contracts/arc58/account/contract.algo.ts:1051
     // const reimbursement = Txn.fee < maxFee ? Txn.fee : maxFee
     txn Fee
     >
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@16
+    pop
     txn Fee
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@17:
@@ -6815,7 +6732,6 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     app_global_put
     // smart_contracts/arc58/account/contract.algo.ts:1076
     // if (this.plugins(key).value.delegationType === DelegationTypeSelf) {
-    frame_dig 5
     intc_3 // 8
     intc_1 // 1
     box_extract // on error: index out of bounds
@@ -6838,7 +6754,6 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     retsub
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@16:
-    frame_dig 22
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@17
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@19:
@@ -6902,29 +6817,28 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@45:
     // smart_contracts/arc58/account/contract.algo.ts:532
     // if (txn.type !== TransactionType.ApplicationCall) {
-    frame_dig 18
+    frame_dig 8
     gtxns TypeEnum
     pushint 6
     !=
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@47
-    frame_dig 1
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_block@80:
     // smart_contracts/arc58/account/contract.algo.ts:524
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
-    frame_dig 18
+    frame_dig 8
     intc_1 // 1
     +
-    frame_bury 18
-    frame_bury 1
+    frame_bury 8
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_while_top@42
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@47:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:536
     // loggedAssert(txn.appId.id === key.plugin, ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY);
-    frame_dig 18
+    frame_dig 8
     gtxns ApplicationID
-    frame_dig 34
+    frame_dig 18
     intc_0 // 0
     extract_uint64
     ==
@@ -6936,7 +6850,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@49:
     // smart_contracts/arc58/account/contract.algo.ts:537
     // loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_ONCOMPLETE);
-    frame_dig 18
+    frame_dig 8
     gtxns OnCompletion
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@51
     pushbytes "ERR:IOCN"
@@ -6946,7 +6860,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@51:
     // smart_contracts/arc58/account/contract.algo.ts:540
     // loggedAssert(txn.numAppArgs > 1, ERR_INVALID_SENDER_ARG);
-    frame_dig 18
+    frame_dig 8
     gtxns NumAppArgs
     intc_1 // 1
     >
@@ -6958,9 +6872,8 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@53:
     // smart_contracts/arc58/account/contract.algo.ts:541
     // loggedAssert(Application(btoi(txn.appArgs(1))) === Global.currentApplicationId, ERR_INVALID_SENDER_VALUE);
-    frame_dig 18
-    intc_1 // 1
-    gtxnsas ApplicationArgs
+    frame_dig 8
+    gtxnsa ApplicationArgs 1
     btoi
     global CurrentApplicationID
     ==
@@ -6972,9 +6885,9 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@55:
     // smart_contracts/arc58/account/contract.algo.ts:543
     // const { expired, onCooldown, hasMethodRestrictions } = this.pluginCheck(key);
-    frame_dig 34
+    frame_dig 18
     callsub pluginCheck
-    frame_bury 34
+    frame_bury 18
     dup
     intc_1 // 1
     getbit
@@ -6996,7 +6909,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     frame_dig -2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    frame_dig 23
+    frame_dig 11
     >
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@58
     pushbytes "ERR:MOFF"
@@ -7008,23 +6921,20 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // const { methodAllowed, methodOnCooldown } = this.methodCheck(key, txn, methodOffsets[methodIndex]);
     frame_dig -2
     extract 2 0
-    frame_dig 23
+    frame_dig 11
     intc_3 // 8
     *
     extract_uint64
-    frame_bury 26
     // smart_contracts/arc58/account/contract.algo.ts:570
     // loggedAssert(len(txn.appArgs(0)) === 4, ERR_INVALID_METHOD_SIGNATURE_LENGTH)
-    frame_dig 18
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    frame_dig 8
+    gtxnsa ApplicationArgs 0
     dup
-    frame_bury 7
+    cover 2
     len
     pushint 4
     ==
     dup
-    frame_bury 30
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@60
     pushbytes "ERR:IMSL"
     log
@@ -7033,15 +6943,14 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_assert@60:
     // smart_contracts/arc58/account/contract.algo.ts:571
     // const selectorArg = txn.appArgs(0).toFixed({ length: 4 })
-    frame_dig 30
     assert // Length must be 4
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
-    frame_dig 34
+    frame_dig 18
     concat
     dup
-    frame_bury 2
+    frame_bury 0
     // smart_contracts/arc58/account/contract.algo.ts:573
     // const { useRounds } = this.plugins(key).value
     dup
@@ -7052,28 +6961,28 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     getbit
     dup
     cover 2
-    frame_bury 32
+    frame_bury 16
     // smart_contracts/arc58/account/contract.algo.ts:574
     // const { selector, cooldown, lastCalled } = this.plugins(key).value.methods[offset]
-    frame_dig 26
+    uncover 2
     pushint 20
     *
     dup
-    frame_bury 11
+    frame_bury 3
     pushint 46
     +
     pushint 20
     box_extract // on error: index out of bounds
     dup
     extract 0 4
-    frame_bury 6
+    cover 2
     dup
     pushint 4
     extract_uint64
-    frame_bury 12
+    cover 2
     pushint 12
     extract_uint64
-    frame_bury 20
+    swap
     // smart_contracts/arc58/account/contract.algo.ts:576
     // const epochRef = useRounds ? Global.round : Global.latestTimestamp
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@62
@@ -7082,25 +6991,24 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@63:
     // smart_contracts/arc58/account/contract.algo.ts:577
     // const methodOnCooldown = this.isOnCooldown(epochRef, lastCalled, cooldown)
-    frame_dig 20
-    frame_dig 12
+    swap
+    dig 2
     callsub isOnCooldown
-    frame_bury 24
+    frame_bury 12
     // smart_contracts/arc58/account/contract.algo.ts:579
     // if (selector === selectorArg && !methodOnCooldown) {
-    frame_dig 6
-    frame_dig 7
+    swap
+    uncover 2
     ==
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@71
-    frame_dig 24
+    frame_dig 12
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@71
     // smart_contracts/arc58/account/contract.algo.ts:581
     // if (cooldown > 0) {
-    frame_dig 12
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@70
     // smart_contracts/arc58/account/contract.algo.ts:582
     // const lastCalled = useRounds ? Global.round : Global.latestTimestamp;
-    frame_dig 32
+    frame_dig 16
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@68
     global Round
 
@@ -7108,10 +7016,10 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:583
     // this.plugins(key).value.methods[offset].lastCalled = lastCalled
     itob
-    frame_dig 11
+    frame_dig 3
     pushint 58
     +
-    frame_dig 2
+    frame_dig 0
     swap
     uncover 2
     box_replace // on error: index out of bounds
@@ -7124,7 +7032,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // }
     pushbytes 0x80
     intc_1 // 1
-    frame_dig 24
+    frame_dig 12
     setbit
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.methodCheck@72:
@@ -7136,11 +7044,11 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     swap
     intc_1 // 1
     getbit
-    frame_bury 24
+    frame_bury 12
     // smart_contracts/arc58/account/contract.algo.ts:550
     // loggedAssert(methodAllowed && !methodOnCooldown, ERR_METHOD_ON_COOLDOWN);
     bz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_bool_false@75
-    frame_dig 24
+    frame_dig 12
     bnz smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_bool_false@75
     intc_1 // 1
 
@@ -7156,23 +7064,23 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
-    frame_dig 34
+    frame_dig 18
     dup
     cover 2
     concat
     // smart_contracts/arc58/account/contract.algo.ts:553
     // this.plugins(key).value.lastCalled = epochRef
-    frame_dig 13
+    frame_dig 4
     itob
     pushint 28
     swap
     box_replace // on error: index out of bounds
     // smart_contracts/arc58/account/contract.algo.ts:554
     // methodIndex += 1;
-    frame_dig 23
+    frame_dig 11
     intc_1 // 1
     +
-    frame_bury 23
+    frame_bury 11
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_block@80
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_bool_false@75:
@@ -7186,6 +7094,7 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@69
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_after_if_else@71:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:592-595
     // return {
     //   methodAllowed: false,
@@ -7206,10 +7115,11 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     // smart_contracts/arc58/account/contract.algo.ts:519
     // : Global.latestTimestamp;
     global LatestTimestamp
-    frame_bury 13
+    frame_bury 4
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@41
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_false@6:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:171
     // escrows = BoxMap<string, EscrowInfo>({ keyPrefix: AbstractAccountBoxPrefixEscrows })
     bytec 4 // "e"
@@ -7220,16 +7130,17 @@ smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToP
     box_get
     assert // Box must have value
     extract 8 32
-    frame_bury 8
+    frame_bury 1
     b smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_ternary_merge@7
 
 smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.arc58_rekeyToPlugin_else_body@10:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1042
     // this.spendingAddress.value = this.controlledAddress.value
     intc_0 // 0
     // smart_contracts/arc58/account/contract.algo.ts:132
     // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress });
-    bytec_1 // "controlled_address"
+    bytec_0 // "controlled_address"
     // smart_contracts/arc58/account/contract.algo.ts:1042
     // this.spendingAddress.value = this.controlledAddress.value
     app_global_get_ex
@@ -7265,8 +7176,6 @@ _addPlugin:
     // ): void {
     proto 14 1
     intc_0 // 0
-    dupn 5
-    bytec_0 // ""
     dup
     // smart_contracts/arc58/account/contract.algo.ts:1139
     // this._requireAdmin();
@@ -7274,7 +7183,7 @@ _addPlugin:
     // smart_contracts/arc58/account/contract.algo.ts:1141
     // const isNamed = name !== ''
     frame_dig -14
-    bytec_0 // ""
+    bytec_1 // ""
     !=
     dup
     // smart_contracts/arc58/account/contract.algo.ts:1142
@@ -7366,7 +7275,6 @@ _addPlugin_after_assert@16:
     frame_dig -1
     bnz _addPlugin_if_body@17
     frame_dig -11
-    frame_bury 1
 
 _addPlugin_after_if_else@20:
     // smart_contracts/arc58/account/contract.algo.ts:1167
@@ -7375,7 +7283,7 @@ _addPlugin_after_if_else@20:
     itob
     frame_dig -12
     concat
-    frame_dig 1
+    dig 1
     dup
     len
     itob
@@ -7388,14 +7296,14 @@ _addPlugin_after_if_else@20:
     swap
     concat
     dup
-    frame_bury 2
+    frame_bury 0
     // smart_contracts/arc58/account/contract.algo.ts:167
     // plugins = BoxMap<PluginKey, PluginInfo>({ keyPrefix: AbstractAccountBoxPrefixPlugins });
     bytec_2 // "p"
     swap
     concat
     dup
-    frame_bury 4
+    frame_bury 1
     // smart_contracts/arc58/account/contract.algo.ts:1169
     // loggedAssert(!this.plugins(key).exists, ERR_PLUGIN_ALREADY_EXISTS)
     box_len
@@ -7410,13 +7318,12 @@ _addPlugin_after_assert@22:
     // let methodInfos: MethodInfo[] = []
     intc_0 // 0
     itob
-    frame_bury 0
+    swap
     bytec 7 // 0x0000
-    frame_bury 5
+    cover 2
     // smart_contracts/arc58/account/contract.algo.ts:1172
     // for (let i: uint64 = 0; i < methods.length; i += 1) {
     intc_0 // 0
-    frame_bury 7
 
 _addPlugin_while_top@23:
     // smart_contracts/arc58/account/contract.algo.ts:1172
@@ -7424,16 +7331,14 @@ _addPlugin_while_top@23:
     frame_dig -6
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    frame_dig 7
+    dig 1
     >
     bz _addPlugin_after_while@25
     // smart_contracts/arc58/account/contract.algo.ts:1173
     // methodInfos.push({ ...methods[i], lastCalled: 0 })
     frame_dig -6
     extract 2 0
-    frame_dig 7
-    dup
-    cover 2
+    dig 1
     pushint 12
     *
     pushint 12
@@ -7443,9 +7348,9 @@ _addPlugin_while_top@23:
     swap
     extract 4 8
     concat
-    frame_dig 0
+    dig 3
     concat
-    frame_dig 5
+    uncover 4
     dup
     intc_0 // 0
     extract_uint16
@@ -7458,26 +7363,24 @@ _addPlugin_while_top@23:
     replace2 0
     swap
     concat
-    frame_bury 5
+    cover 3
     // smart_contracts/arc58/account/contract.algo.ts:1172
     // for (let i: uint64 = 0; i < methods.length; i += 1) {
     intc_1 // 1
     +
-    frame_bury 7
     b _addPlugin_while_top@23
 
 _addPlugin_after_while@25:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:1176
     // let totalMbr: uint64 = this.pluginsMbr(escrowKey, methodInfos.length)
-    frame_dig 5
+    dig 2
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    frame_dig 1
-    swap
     callsub pluginsMbr
     // smart_contracts/arc58/account/contract.algo.ts:1177
     // if (isNamed) {
-    frame_dig 8
+    dig 3
     bz _addPlugin_after_if_else@27
     // smart_contracts/arc58/account/contract.algo.ts:299
     // return MinNamedPluginMBR + this._calcBCPB(Bytes(name).length)
@@ -7502,13 +7405,12 @@ _addPlugin_after_if_else@27:
     // smart_contracts/arc58/account/contract.algo.ts:331
     // if (escrow === '') {
     frame_dig -11
-    bytec_0 // ""
+    bytec_1 // ""
     ==
     bz _addPlugin_after_if_else@37
     // smart_contracts/arc58/account/contract.algo.ts:332
     // return 0
     intc_0 // 0
-    frame_bury 6
 
 _addPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.maybeNewEscrow@41:
     // smart_contracts/arc58/account/contract.algo.ts:1183
@@ -7517,7 +7419,7 @@ _addPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::Abstrac
     bz _addPlugin_after_if_else@29
     // smart_contracts/arc58/account/contract.algo.ts:1184
     // assert(escrowID !== 0)
-    frame_dig 6
+    dup
     assert
 
 _addPlugin_after_if_else@29:
@@ -7531,7 +7433,7 @@ _addPlugin_ternary_merge@32:
     // smart_contracts/arc58/account/contract.algo.ts:1198
     // canReclaim: escrow !== '' ? canReclaim : false,
     frame_dig -11
-    bytec_0 // ""
+    bytec_1 // ""
     !=
     intc_0 // 0
     frame_dig -2
@@ -7552,7 +7454,7 @@ _addPlugin_ternary_merge@32:
     //   lastCalled: 0,
     //   start: epochRef,
     // }
-    frame_dig 6
+    uncover 2
     itob
     frame_dig -9
     concat
@@ -7581,14 +7483,14 @@ _addPlugin_ternary_merge@32:
     uncover 3
     setbit
     concat
-    frame_dig 0
+    uncover 2
     concat
     swap
     itob
     concat
-    frame_dig 5
+    swap
     concat
-    frame_dig 4
+    frame_dig 1
     dup
     box_del
     pop
@@ -7596,7 +7498,6 @@ _addPlugin_ternary_merge@32:
     box_put
     // smart_contracts/arc58/account/contract.algo.ts:1203
     // if (isNamed) {
-    frame_dig 8
     bz _addPlugin_after_if_else@34
     // smart_contracts/arc58/account/contract.algo.ts:169
     // namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: AbstractAccountBoxPrefixNamedPlugins });
@@ -7608,7 +7509,7 @@ _addPlugin_ternary_merge@32:
     dup
     box_del
     pop
-    frame_dig 2
+    frame_dig 0
     box_put
 
 _addPlugin_after_if_else@34:
@@ -7643,7 +7544,6 @@ _addPlugin_after_if_else@37:
     frame_dig -11
     concat
     dup
-    frame_bury 3
     // smart_contracts/arc58/account/contract.algo.ts:335
     // return this.escrows(escrow).exists
     box_len
@@ -7655,31 +7555,30 @@ _addPlugin_after_if_else@37:
     bz _addPlugin_ternary_false@39
     // smart_contracts/arc58/account/contract.algo.ts:336
     // ? this.escrows(escrow).value.id
-    frame_dig 3
     box_get
     assert // Box must have value
     intc_0 // 0
     extract_uint64
-
-_addPlugin_ternary_merge@40:
-    frame_bury 6
     // smart_contracts/arc58/account/contract.algo.ts:1182
     // const escrowID = this.maybeNewEscrow(escrow);
     b _addPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.maybeNewEscrow@41
 
 _addPlugin_ternary_false@39:
+    pop
     // smart_contracts/arc58/account/contract.algo.ts:337
     // : this.newEscrow(escrow, Global.zeroAddress)
     frame_dig -11
     global ZeroAddress
     callsub newEscrow
-    b _addPlugin_ternary_merge@40
+    // smart_contracts/arc58/account/contract.algo.ts:1182
+    // const escrowID = this.maybeNewEscrow(escrow);
+    b _addPlugin_after_inlined_smart_contracts/arc58/account/contract.algo.ts::AbstractedAccount.maybeNewEscrow@41
 
 _addPlugin_if_body@17:
     // smart_contracts/arc58/account/contract.algo.ts:1163
     // loggedAssert(escrow !== '', ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT)
     frame_dig -11
-    bytec_0 // ""
+    bytec_1 // ""
     !=
     bnz _addPlugin_after_assert@19
     pushbytes "ERR:ERSD"
@@ -7689,8 +7588,7 @@ _addPlugin_if_body@17:
 _addPlugin_after_assert@19:
     // smart_contracts/arc58/account/contract.algo.ts:1164
     // escrowKey = ''
-    bytec_0 // ""
-    frame_bury 1
+    bytec_1 // ""
     b _addPlugin_after_if_else@20
 
 _addPlugin_bool_false@13:

@@ -4,8 +4,9 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 6
-    bytecblock "dao_id" "spending_address" 0x151f7c75 "" 0x8c564768
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:14
+    bytecblock "dao_id" "spending_address" 0x151f7c75 0x8c564768
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:14-15
+    // @contract({ ui: { glyph: 'BuildingLibrary', color: '#22C7F0', defaultAction: 'proposal_vote' } })
     // export class AkitaDAOPlugin extends Contract {
     txn OnCompletion
     !
@@ -18,7 +19,8 @@ main:
     err
 
 main_create_NoOp@11:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:14
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:14-15
+    // @contract({ ui: { glyph: 'BuildingLibrary', color: '#22C7F0', defaultAction: 'proposal_vote' } })
     // export class AkitaDAOPlugin extends Contract {
     pushbytes 0x240d2f67 // method "create(uint64)void"
     txna ApplicationArgs 0
@@ -51,7 +53,7 @@ rekeyAddress_after_if_else@2:
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.create[routing]() -> void:
 create:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:22
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:23
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -60,14 +62,14 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:24
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:25
     // this.daoAppID.value = Application(daoAppID)
     swap
     app_global_put
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:22
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:23
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -75,8 +77,8 @@ create:
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.setup[routing]() -> void:
 setup:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:29
-    // setup(wallet: Application, rekeyBack: boolean, nickname: string, salt: bytes<32>): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:30
+    // @abimethod({ ui: { action: 'dao_setup', glyph: 'BuildingLibrary', label: 'Set up DAO' } })
     txna ApplicationArgs 1
     dup
     len
@@ -125,7 +127,7 @@ setup:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:32-37
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:34-39
     // abiCall<typeof AkitaDAO.prototype.setup>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -133,17 +135,17 @@ setup:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:34
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:36
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:34
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:36
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:36
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:38
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -152,7 +154,7 @@ setup:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:32-37
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:34-39
     // abiCall<typeof AkitaDAO.prototype.setup>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -181,18 +183,17 @@ setup:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:29
-    // setup(wallet: Application, rekeyBack: boolean, nickname: string, salt: bytes<32>): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:30
+    // @abimethod({ ui: { action: 'dao_setup', glyph: 'BuildingLibrary', label: 'Set up DAO' } })
     intc_1 // 1
     return
 
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.newProposal[routing]() -> void:
 newProposal:
-    intc_0 // 0
-    bytec_3 // ""
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:40
-    // newProposal(wallet: Application, rekeyBack: boolean, cid: CID, actions: ProposalAction[]): uint64 {
+    pushbytes ""
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:42
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'New proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -210,12 +211,15 @@ newProposal:
     getbit
     txna ApplicationArgs 3
     dup
+    cover 3
     len
     pushint 36
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
     txna ApplicationArgs 4
-    dupn 2
+    dup
+    cover 3
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
@@ -225,26 +229,26 @@ newProposal:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
 newProposal_for_header@1:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:40
-    // newProposal(wallet: Application, rekeyBack: boolean, cid: CID, actions: ProposalAction[]): uint64 {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:42
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'New proposal' } })
     dup
     dig 5
     <
     bz newProposal_after_for@4
-    dupn 2
+    dup
     pushint 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -268,19 +272,19 @@ newProposal_for_header@1:
     pushint 5
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b newProposal_for_header@1
 
 newProposal_after_for@4:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:40
-    // newProposal(wallet: Application, rekeyBack: boolean, cid: CID, actions: ProposalAction[]): uint64 {
-    dig 3
+    popn 2
+    uncover 2
+    pop
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:42
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'New proposal' } })
     pushint 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/dao/types.ts::ProposalAction>
     // smart_contracts/utils/functions.ts:286-289
@@ -288,7 +292,7 @@ newProposal_after_for@4:
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    dig 8
+    dig 1
     // smart_contracts/utils/functions.ts:288
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
@@ -299,28 +303,27 @@ newProposal_after_for@4:
     // )
     app_global_get_ex
     pop
-    bury 11
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:45
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:48
     // this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:45
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:48
     // this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:46
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:49
     // Bytes(AkitaDAOGlobalStateKeysInitialized)
     pushbytes "initialized"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:44-47
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:47-50
     // op.AppGlobal.getExBytes(
     //   this.daoAppID.value,
     //   Bytes(AkitaDAOGlobalStateKeysInitialized)
     // )[0]
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:43-48
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:46-51
     // const initialized = decodeArc4<boolean>(
     //   op.AppGlobal.getExBytes(
     //     this.daoAppID.value,
@@ -329,14 +332,14 @@ newProposal_after_for@4:
     // )
     intc_0 // 0
     getbit
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:51
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:54
     // let total: uint64 = 0;
     intc_0 // 0
-    bury 11
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:52
+    bury 7
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:55
     // if (initialized) {
     bz newProposal_after_if_else@8
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:53-58
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:56-61
     // ({ total } = abiCall<typeof AkitaDAO.prototype.proposalCost>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -344,35 +347,35 @@ newProposal_after_for@4:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue)
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:55
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:58
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:55
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:58
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:57
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:60
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 8
-    dig 10
+    dig 2
+    dig 4
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field ApplicationID
-    dig 10
+    dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:53-58
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:56-61
     // ({ total } = abiCall<typeof AkitaDAO.prototype.proposalCost>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [actions],
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue)
-    bytec 4 // method "proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
+    bytec_3 // method "proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
-    dig 5
+    dig 3
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -393,23 +396,23 @@ newProposal_after_for@4:
     assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalCostInfo
     pushint 4
     extract_uint64
-    bury 10
+    bury 6
 
 newProposal_after_if_else@8:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:63
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:66
     // receiver: this.daoAppID.value.address,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:63
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:66
     // receiver: this.daoAppID.value.address,
     app_global_get_ex
     assert // check GlobalState exists
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:67-76
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:70-79
     // return abiCall<typeof AkitaDAO.prototype.newProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -421,13 +424,13 @@ newProposal_after_if_else@8:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_begin
-    dig 11
+    dig 7
     itxn_field Amount
     itxn_field Receiver
-    dig 11
+    swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:61-65
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:64-68
     // const actionsPayment = itxn.payment({
     //   sender,
     //   receiver: this.daoAppID.value.address,
@@ -437,7 +440,7 @@ newProposal_after_if_else@8:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:67-76
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:70-79
     // return abiCall<typeof AkitaDAO.prototype.newProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -449,15 +452,15 @@ newProposal_after_if_else@8:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // }).returnValue
     itxn_next
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:75
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:78
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
-    dig 11
+    uncover 2
+    uncover 3
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:67-76
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:70-79
     // return abiCall<typeof AkitaDAO.prototype.newProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -470,9 +473,8 @@ newProposal_after_if_else@8:
     // }).returnValue
     pushbytes 0x0198fe3b // method "newProposal(pay,byte[36],(uint8,byte[])[])uint64"
     itxn_field ApplicationArgs
-    dig 6
+    swap
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -492,8 +494,8 @@ newProposal_after_if_else@8:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:40
-    // newProposal(wallet: Application, rekeyBack: boolean, cid: CID, actions: ProposalAction[]): uint64 {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:42
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'New proposal' } })
     bytec_2 // 0x151f7c75
     swap
     concat
@@ -504,12 +506,8 @@ newProposal_after_if_else@8:
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.editProposal[routing]() -> void:
 editProposal:
-    intc_0 // 0
-    dup
-    bytec_3 // ""
-    dupn 3
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:79
-    // editProposal(wallet: Application, rekeyBack: boolean, id: uint64, cid: CID, actions: ProposalAction[]): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Edit proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -527,47 +525,54 @@ editProposal:
     getbit
     txna ApplicationArgs 3
     dup
+    cover 3
     len
     intc_2 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
     dup
+    cover 4
     len
     pushint 36
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
     txna ApplicationArgs 5
-    dupn 2
+    dup
+    cover 3
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 7
     pushint 2
     *
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
+    cover 7
     intc_0 // 0
+    cover 7
 
 editProposal_for_header@1:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:79
-    // editProposal(wallet: Application, rekeyBack: boolean, id: uint64, cid: CID, actions: ProposalAction[]): void {
-    dup
-    dig 5
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Edit proposal' } })
+    dig 7
+    dig 10
     <
     bz editProposal_after_for@4
-    dupn 2
+    dig 7
+    dup
     pushint 2
     *
-    dig 3
+    dig 10
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 4
     dup
     cover 4
     ==
@@ -591,19 +596,17 @@ editProposal_for_header@1:
     pushint 5
     +
     +
-    bury 5
+    swap
     intc_1 // 1
     +
-    bury 1
+    bury 8
     b editProposal_for_header@1
 
 editProposal_after_for@4:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:79
-    // editProposal(wallet: Application, rekeyBack: boolean, id: uint64, cid: CID, actions: ProposalAction[]): void {
-    dig 3
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Edit proposal' } })
     pushint 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/dao/types.ts::ProposalAction>
     // smart_contracts/utils/functions.ts:286-289
@@ -611,7 +614,7 @@ editProposal_after_for@4:
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    dig 9
+    dig 1
     // smart_contracts/utils/functions.ts:288
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     bytec_1 // "spending_address"
@@ -623,27 +626,26 @@ editProposal_after_for@4:
     app_global_get_ex
     pop
     dup
-    bury 16
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82-86
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:86-90
     // const { status, feesPaid } = abiCall<typeof AkitaDAO.prototype.getProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [id],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:84
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:88
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:84
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:88
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82-86
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:86-90
     // const { status, feesPaid } = abiCall<typeof AkitaDAO.prototype.getProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -651,7 +653,7 @@ editProposal_after_for@4:
     // }).returnValue
     pushbytes 0x1f9f8b20 // method "getProposal(uint64)(uint8,byte[36],(uint64,uint64,uint64),address,uint64,uint64,uint64,(uint8,byte[])[])"
     itxn_field ApplicationArgs
-    dig 7
+    dig 4
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -660,7 +662,7 @@ editProposal_after_for@4:
     itxn_submit
     itxn LastLog
     dup
-    bury 17
+    cover 2
     dup
     extract 4 0
     swap
@@ -671,8 +673,7 @@ editProposal_after_for@4:
     dup
     len
     dup
-    cover 2
-    bury 13
+    uncover 2
     dup
     pushint 117
     extract_uint16 // on error: invalid tuple encoding
@@ -686,35 +687,36 @@ editProposal_after_for@4:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 16
+    cover 2
     pushint 2
     *
-    bury 5
+    swap
     extract 2 0
-    bury 2
+    bury 12
     intc_0 // 0
-    bury 1
+    bury 11
 
 editProposal_for_header@7:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82-86
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:86-90
     // const { status, feesPaid } = abiCall<typeof AkitaDAO.prototype.getProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [id],
     // }).returnValue
-    dup
-    dig 14
+    dig 10
+    dig 2
     <
     bz editProposal_after_for@10
-    dupn 2
+    dig 10
+    dup
     pushint 2
     *
-    dig 3
+    dig 13
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 4
     dup
     cover 4
     ==
@@ -738,36 +740,35 @@ editProposal_for_header@7:
     pushint 5
     +
     +
-    bury 5
+    swap
     intc_1 // 1
     +
-    bury 1
+    bury 11
     b editProposal_for_header@7
 
 editProposal_after_for@10:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82-86
+    bury 1
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:86-90
     // const { status, feesPaid } = abiCall<typeof AkitaDAO.prototype.getProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [id],
     // }).returnValue
-    dig 3
     pushint 121
     +
-    dig 11
     ==
     assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::ProposalDetails
-    dig 15
+    swap
     dup
     extract 4 1
     swap
     pushint 113
     extract_uint64
-    bury 14
+    swap
     // smart_contracts/utils/types/base.ts:4
     // return new arc4.Uint8(v)
     pushbytes 0x00
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:88
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:92
     // loggedAssert(status !== uint8(0), ERR_PROPOSAL_DOES_NOT_EXIST)
     !=
     bnz editProposal_after_assert@12
@@ -776,35 +777,35 @@ editProposal_after_for@10:
     err // ERR:NPRP
 
 editProposal_after_assert@12:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:90-94
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:94-98
     // const { total } = abiCall<typeof AkitaDAO.prototype.proposalCost>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [actions],
     // }).returnValue
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:96
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:92
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:96
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
     itxn_field ApplicationID
-    dig 14
+    dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:90-94
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:94-98
     // const { total } = abiCall<typeof AkitaDAO.prototype.proposalCost>({
     //   sender,
     //   appId: this.daoAppID.value,
     //   args: [actions],
     // }).returnValue
-    bytec 4 // method "proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
+    bytec_3 // method "proposalCost((uint8,byte[])[])(uint64,uint64,uint64,uint64,uint64,uint64,uint64)"
     itxn_field ApplicationArgs
-    dig 5
+    dig 4
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -826,31 +827,30 @@ editProposal_after_assert@12:
     pushint 4
     extract_uint64
     dup
-    bury 13
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:96
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:100
     // if (feesPaid < total) {
-    dig 13
+    dig 2
     >
     bz editProposal_else_body@17
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:99
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:103
     // receiver: this.daoAppID.value.address,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:99
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:103
     // receiver: this.daoAppID.value.address,
     app_global_get_ex
     assert // check GlobalState exists
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:100
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:104
     // amount: total - feesPaid,
-    dig 13
-    dig 15
+    uncover 2
+    uncover 3
     -
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:103-113
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:107-117
     // abiCall<typeof AkitaDAO.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -865,10 +865,10 @@ editProposal_after_assert@12:
     itxn_begin
     itxn_field Amount
     itxn_field Receiver
-    dig 15
+    swap
     dup
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:97-101
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:101-105
     // const actionsPayment = itxn.payment({
     //   sender,
     //   receiver: this.daoAppID.value.address,
@@ -878,7 +878,7 @@ editProposal_after_assert@12:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:103-113
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:107-117
     // abiCall<typeof AkitaDAO.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -891,15 +891,15 @@ editProposal_after_assert@12:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:112
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:116
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 10
-    dig 12
+    uncover 2
+    uncover 3
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field Sender
     itxn_field ApplicationID
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:103-113
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:107-117
     // abiCall<typeof AkitaDAO.prototype.editProposalWithPayment>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -913,11 +913,10 @@ editProposal_after_assert@12:
     // })
     pushbytes 0xcb37e668 // method "editProposalWithPayment(pay,uint64,byte[36],(uint8,byte[])[])void"
     itxn_field ApplicationArgs
-    dig 7
+    swap
     itxn_field ApplicationArgs
-    dig 6
+    swap
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -926,13 +925,14 @@ editProposal_after_assert@12:
     itxn_submit
 
 editProposal_after_if_else@19:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:79
-    // editProposal(wallet: Application, rekeyBack: boolean, id: uint64, cid: CID, actions: ProposalAction[]): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:82
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Edit proposal' } })
     intc_1 // 1
     return
 
 editProposal_else_body@17:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:115-124
+    popn 2
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:119-128
     // abiCall<typeof AkitaDAO.prototype.editProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -944,26 +944,25 @@ editProposal_else_body@17:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:117
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:121
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:117
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:121
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:123
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:127
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
-    dig 11
+    uncover 2
+    uncover 3
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field ApplicationID
-    dig 14
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:115-124
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:119-128
     // abiCall<typeof AkitaDAO.prototype.editProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -976,11 +975,10 @@ editProposal_else_body@17:
     // })
     pushbytes 0xfe20c269 // method "editProposal(uint64,byte[36],(uint8,byte[])[])void"
     itxn_field ApplicationArgs
-    dig 7
+    swap
     itxn_field ApplicationArgs
-    dig 6
+    swap
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -992,8 +990,8 @@ editProposal_else_body@17:
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.submitProposal[routing]() -> void:
 submitProposal:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:128
-    // submitProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:132
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Submit proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -1032,7 +1030,7 @@ submitProposal:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:131-136
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:136-141
     // abiCall<typeof AkitaDAO.prototype.submitProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1040,17 +1038,17 @@ submitProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:133
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:138
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:133
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:138
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:135
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:140
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -1059,7 +1057,7 @@ submitProposal:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:131-136
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:136-141
     // abiCall<typeof AkitaDAO.prototype.submitProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1074,16 +1072,16 @@ submitProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:128
-    // submitProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:132
+    // @abimethod({ ui: { action: 'proposal_create', glyph: 'DocumentText', label: 'Submit proposal' } })
     intc_1 // 1
     return
 
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.voteProposal[routing]() -> void:
 voteProposal:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:139
-    // voteProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64, vote: ProposalVoteType): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:144
+    // @abimethod({ ui: { action: 'proposal_vote', glyph: 'HandRaised', label: 'Vote on proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -1127,20 +1125,20 @@ voteProposal:
     // )
     app_global_get_ex
     pop
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:144
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:150
     // receiver: this.daoAppID.value.address,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:144
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:150
     // receiver: this.daoAppID.value.address,
     app_global_get_ex
     assert // check GlobalState exists
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:148-157
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:154-163
     // abiCall<typeof AkitaDAO.prototype.voteProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1152,14 +1150,14 @@ voteProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:145
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:151
     // amount: DAOProposalVotesMBR
     pushint 22500
     itxn_field Amount
     itxn_field Receiver
     dig 1
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:142-146
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:148-152
     // const mbrPayment = itxn.payment({
     //   sender,
     //   receiver: this.daoAppID.value.address,
@@ -1169,7 +1167,7 @@ voteProposal:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:148-157
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:154-163
     // abiCall<typeof AkitaDAO.prototype.voteProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1181,7 +1179,7 @@ voteProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_next
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:156
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:162
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 4
     uncover 5
@@ -1189,7 +1187,7 @@ voteProposal:
     itxn_field RekeyTo
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:148-157
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:154-163
     // abiCall<typeof AkitaDAO.prototype.voteProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1210,16 +1208,16 @@ voteProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:139
-    // voteProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64, vote: ProposalVoteType): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:144
+    // @abimethod({ ui: { action: 'proposal_vote', glyph: 'HandRaised', label: 'Vote on proposal' } })
     intc_1 // 1
     return
 
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.finalizeProposal[routing]() -> void:
 finalizeProposal:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:160
-    // finalizeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:166
+    // @abimethod({ ui: { action: 'proposal_finalize', glyph: 'CheckCircle', label: 'Finalize proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -1258,7 +1256,7 @@ finalizeProposal:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:163-168
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:170-175
     // abiCall<typeof AkitaDAO.prototype.finalizeProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1266,17 +1264,17 @@ finalizeProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:165
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:172
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:165
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:172
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:167
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:174
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -1285,7 +1283,7 @@ finalizeProposal:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:163-168
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:170-175
     // abiCall<typeof AkitaDAO.prototype.finalizeProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1300,16 +1298,16 @@ finalizeProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:160
-    // finalizeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:166
+    // @abimethod({ ui: { action: 'proposal_finalize', glyph: 'CheckCircle', label: 'Finalize proposal' } })
     intc_1 // 1
     return
 
 
 // smart_contracts/arc58/plugins/dao/contract.algo.ts::AkitaDAOPlugin.executeProposal[routing]() -> void:
 executeProposal:
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:171
-    // executeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:178
+    // @abimethod({ ui: { action: 'proposal_execute', glyph: 'Bolt', label: 'Execute proposal' } })
     txna ApplicationArgs 1
     dup
     len
@@ -1348,7 +1346,7 @@ executeProposal:
     app_global_get_ex
     pop
     swap
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:174-179
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:182-187
     // abiCall<typeof AkitaDAO.prototype.executeProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1356,17 +1354,17 @@ executeProposal:
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
     itxn_begin
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:184
     // appId: this.daoAppID.value,
     intc_0 // 0
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:18
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:19
     // daoAppID = GlobalState<Application>({ key: AkitaDAOPluginGlobalStateKeysDAOAppID })
     bytec_0 // "dao_id"
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:176
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:184
     // appId: this.daoAppID.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:178
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:186
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
     uncover 3
     uncover 4
@@ -1375,7 +1373,7 @@ executeProposal:
     itxn_field ApplicationID
     swap
     itxn_field Sender
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:174-179
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:182-187
     // abiCall<typeof AkitaDAO.prototype.executeProposal>({
     //   sender,
     //   appId: this.daoAppID.value,
@@ -1390,7 +1388,7 @@ executeProposal:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/arc58/plugins/dao/contract.algo.ts:171
-    // executeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
+    // smart_contracts/arc58/plugins/dao/contract.algo.ts:178
+    // @abimethod({ ui: { action: 'proposal_execute', glyph: 'Bolt', label: 'Execute proposal' } })
     intc_1 // 1
     return

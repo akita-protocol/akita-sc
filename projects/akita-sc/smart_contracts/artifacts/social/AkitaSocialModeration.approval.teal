@@ -94,7 +94,6 @@ create:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.addModerator[routing]() -> void:
 addModerator:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:34
     // addModerator(address: Account): void {
     txna ApplicationArgs 1
@@ -133,10 +132,9 @@ addModerator_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:18
     // moderators = BoxMap<Account, uint64>({ keyPrefix: AkitaSocialBoxPrefixModerators })
     bytec_1 // "d"
-    dig 1
+    swap
     concat
     dup
-    bury 3
     // smart_contracts/social/moderation.algo.ts:36
     // loggedAssert(!this.moderators(address).exists, ERR_ALREADY_A_MODERATOR)
     box_len
@@ -149,7 +147,6 @@ addModerator_after_assert@3:
 addModerator_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:37
     // this.moderators(address).create()
-    dig 1
     intc_3 // 8
     box_create
     pop
@@ -161,7 +158,6 @@ addModerator_after_assert@5:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.removeModerator[routing]() -> void:
 removeModerator:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:40
     // removeModerator(address: Account): void {
     txna ApplicationArgs 1
@@ -200,10 +196,9 @@ removeModerator_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:18
     // moderators = BoxMap<Account, uint64>({ keyPrefix: AkitaSocialBoxPrefixModerators })
     bytec_1 // "d"
-    dig 1
+    swap
     concat
     dup
-    bury 3
     // smart_contracts/social/moderation.algo.ts:42
     // loggedAssert(this.moderators(address).exists, ERR_NOT_A_MODERATOR)
     box_len
@@ -216,7 +211,6 @@ removeModerator_after_assert@3:
 removeModerator_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:43
     // this.moderators(address).delete()
-    dig 1
     box_del
     pop
     // smart_contracts/social/moderation.algo.ts:40
@@ -227,7 +221,6 @@ removeModerator_after_assert@5:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.ban[routing]() -> void:
 ban:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:46
     // ban(address: Account, expiration: uint64): void {
     txna ApplicationArgs 1
@@ -265,10 +258,9 @@ ban_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:20
     // banned = BoxMap<Account, uint64>({ keyPrefix: AkitaSocialBoxPrefixBanned })
     bytec 6 // "n"
-    dig 2
+    uncover 2
     concat
     dup
-    bury 4
     // smart_contracts/social/moderation.algo.ts:48
     // loggedAssert(!this.banned(address).exists, ERR_ALREADY_BANNED)
     box_len
@@ -281,10 +273,8 @@ ban_after_assert@3:
 ban_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:49
     // this.banned(address).value = expiration
-    dup
-    itob
-    dig 3
     swap
+    itob
     box_put
     // smart_contracts/social/moderation.algo.ts:46
     // ban(address: Account, expiration: uint64): void {
@@ -294,7 +284,6 @@ ban_after_assert@5:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.unban[routing]() -> void:
 unban:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:52
     // unban(address: Account): void {
     txna ApplicationArgs 1
@@ -325,10 +314,9 @@ unban_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:20
     // banned = BoxMap<Account, uint64>({ keyPrefix: AkitaSocialBoxPrefixBanned })
     bytec 6 // "n"
-    dig 1
+    swap
     concat
     dup
-    bury 3
     // smart_contracts/social/moderation.algo.ts:54
     // loggedAssert(this.banned(address).exists, ERR_USER_NOT_BANNED)
     box_len
@@ -341,7 +329,6 @@ unban_after_assert@3:
 unban_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:55
     // this.banned(address).delete()
-    dig 1
     box_del
     pop
     // smart_contracts/social/moderation.algo.ts:52
@@ -381,7 +368,6 @@ flagPost:
 flagPost_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:60
     // this.applyModeration(ref, true, true, 0, false)
-    dup
     intc_1 // 1
     dup
     intc_0 // 0
@@ -424,7 +410,6 @@ unflagPost:
 unflagPost_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:65
     // this.applyModeration(ref, true, false, 0, false)
-    dup
     intc_1 // 1
     intc_0 // 0
     dupn 2
@@ -473,10 +458,10 @@ setModeratorContentFlags:
 setModeratorContentFlags_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:70
     // this.applyModeration(ref, false, false, flags, true)
-    dig 1
+    swap
     intc_0 // 0
     dup
-    dig 3
+    uncover 3
     intc_1 // 1
     callsub applyModeration
     // smart_contracts/social/moderation.algo.ts:68
@@ -487,7 +472,6 @@ setModeratorContentFlags_after_assert@3:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.addAction[routing]() -> void:
 addAction:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:101
     // addAction(actionAppID: uint64, content: CID): void {
     txna ApplicationArgs 1
@@ -532,7 +516,7 @@ addAction:
 addAction_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:103
     // loggedAssert(!this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
-    dig 1
+    swap
     itob
     // smart_contracts/social/moderation.algo.ts:22
     // actions = BoxMap<uint64, Action>({ keyPrefix: AkitaSocialBoxPrefixActions })
@@ -540,7 +524,6 @@ addAction_after_assert@3:
     swap
     concat
     dup
-    bury 4
     // smart_contracts/social/moderation.algo.ts:103
     // loggedAssert(!this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
     box_len
@@ -553,8 +536,7 @@ addAction_after_assert@3:
 addAction_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:104
     // this.actions(actionAppID).value = { content }
-    dig 2
-    dig 1
+    swap
     box_put
     // smart_contracts/social/moderation.algo.ts:101
     // addAction(actionAppID: uint64, content: CID): void {
@@ -564,7 +546,6 @@ addAction_after_assert@5:
 
 // smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.removeAction[routing]() -> void:
 removeAction:
-    intc_0 // 0
     // smart_contracts/social/moderation.algo.ts:107
     // removeAction(actionAppID: uint64): void {
     txna ApplicationArgs 1
@@ -603,7 +584,6 @@ removeAction:
 removeAction_after_assert@3:
     // smart_contracts/social/moderation.algo.ts:109
     // loggedAssert(this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
-    dup
     itob
     // smart_contracts/social/moderation.algo.ts:22
     // actions = BoxMap<uint64, Action>({ keyPrefix: AkitaSocialBoxPrefixActions })
@@ -611,7 +591,6 @@ removeAction_after_assert@3:
     swap
     concat
     dup
-    bury 3
     // smart_contracts/social/moderation.algo.ts:109
     // loggedAssert(this.actions(actionAppID).exists, ERR_ALREADY_AN_ACTION)
     box_len
@@ -624,7 +603,6 @@ removeAction_after_assert@3:
 removeAction_after_assert@5:
     // smart_contracts/social/moderation.algo.ts:110
     // this.actions(actionAppID).delete()
-    dig 1
     box_del
     pop
     // smart_contracts/social/moderation.algo.ts:107
@@ -738,7 +716,6 @@ moderatorMeta:
     bz moderatorMeta_after_if_else@3
     // smart_contracts/social/moderation.algo.ts:130
     // lastActive: this.moderators(user).value
-    dup
     box_get
     assert // Box must have value
     btoi
@@ -763,6 +740,7 @@ moderatorMeta_after_inlined_smart_contracts/social/moderation.algo.ts::AkitaSoci
     return
 
 moderatorMeta_after_if_else@3:
+    pop
     // smart_contracts/social/moderation.algo.ts:133
     // return { exists: false, lastActive: 0 }
     pushbytes 0x000000000000000000
@@ -847,7 +825,7 @@ update_after_assert@5:
     bytec 8 // "version"
     // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
@@ -898,7 +876,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
@@ -917,7 +895,6 @@ applyModeration:
     //   updateFlags: boolean,
     // ): void {
     proto 5 0
-    pushbytes ""
     // smart_contracts/social/moderation.algo.ts:86
     // const { social } = getAkitaSocialAppList(this.akitaDAO.value)
     intc_0 // 0
@@ -986,14 +963,15 @@ applyModeration:
     // const nextFlagged: boolean = updateFlagged ? flaggedValue : post.againstContentPolicy
     frame_dig -4
     bz applyModeration_ternary_false@3
+    pop
     frame_dig -3
-    frame_bury 0
 
 applyModeration_ternary_merge@4:
     // smart_contracts/social/moderation.algo.ts:93
     // const nextFlags: uint64 = updateFlags ? flagsValue : post.moderatorFlags
     frame_dig -1
     bz applyModeration_ternary_false@6
+    bury 1
     frame_dig -2
 
 applyModeration_ternary_merge@7:
@@ -1007,11 +985,11 @@ applyModeration_ternary_merge@7:
     // args: [ref, nextFlagged, nextFlags]
     bytec 7 // 0x00
     intc_0 // 0
-    frame_dig 0
+    uncover 3
     setbit
     swap
     itob
-    frame_dig 1
+    uncover 2
     itxn_field ApplicationID
     // smart_contracts/social/moderation.algo.ts:95-98
     // abiCall<typeof AkitaSocial.prototype.setPostModeration>({
@@ -1035,7 +1013,7 @@ applyModeration_ternary_merge@7:
 applyModeration_ternary_false@6:
     // smart_contracts/social/moderation.algo.ts:93
     // const nextFlags: uint64 = updateFlags ? flagsValue : post.moderatorFlags
-    frame_dig 2
+    swap
     pushint 71
     extract_uint64
     b applyModeration_ternary_merge@7
@@ -1043,8 +1021,6 @@ applyModeration_ternary_false@6:
 applyModeration_ternary_false@3:
     // smart_contracts/social/moderation.algo.ts:92
     // const nextFlagged: boolean = updateFlagged ? flaggedValue : post.againstContentPolicy
-    frame_dig 3
     pushint 456
     getbit
-    frame_bury 0
     b applyModeration_ternary_merge@4

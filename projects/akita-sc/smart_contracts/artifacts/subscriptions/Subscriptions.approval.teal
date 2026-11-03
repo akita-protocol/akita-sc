@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 2 100000 18900 60500 479400 67000 62500
-    bytecblock "akita_dao" 0x151f7c75 "o" "" "ERR:SDNE" "s" "akita_escrow" "ERR:IPAY" "ERR:UDNE" "b" 0x0000 0x00 "l" "m" "ERR:MAMT" "ERR:MINV" 0x14 0x28 "wallet" "ERR:ASAM" "p" "aal" "subscription_fees" "ERR:NOPT" "ERR:ISEQ" "ERR:SNAC" "ERR:NSVC" "ERR:FGTE" "ERR:BLKD" "ERR:NDAO" 0xc8835130 0x281b891b 0x394eaeb2 0x0001 "version" "ERR:TTLG" "ERR:SSHD" "ERR:HGTE" "pal" "ERR:IXFR"
+    bytecblock "akita_dao" 0x151f7c75 "o" "ERR:SDNE" "s" "akita_escrow" "ERR:IPAY" "ERR:UDNE" "b" 0x0000 "l" "m" "ERR:MAMT" "ERR:MINV" 0x14 0x28 0x00 "wallet" "ERR:ASAM" "p" "aal" "subscription_fees" "ERR:NOPT" "ERR:ISEQ" "ERR:SNAC" "ERR:NSVC" "ERR:FGTE" "ERR:BLKD" "ERR:NDAO" 0xc8835130 0x281b891b 0x394eaeb2 0x0001 "version" "ERR:TTLG" "ERR:SSHD" "ERR:HGTE" "pal" "ERR:IXFR"
     // smart_contracts/subscriptions/contract.algo.ts:95-101
     // @contract({
     //   stateTotals: {
@@ -32,11 +32,11 @@ main_switch_case_next@5:
     txn ApplicationID
     bz main_create_NoOp@48
     pushbytess 0x9b0f89d6 0x366d5b27 0x9ba020b6 // method "newService(pay,uint64,uint64,uint64,uint64,uint64,address,string,byte[36],uint8,byte[3])uint64", method "setServiceDescription(uint64,uint64,byte[])void", method "updateServiceTitle(uint64,string)void"
-    bytec 30 // method "activateService()void"
+    bytec 29 // method "activateService()void"
     pushbytess 0x17c8730b 0x4cdf0cd7 0x87e055c6 0xb59c8a54 0xaeebb378 0x5355da6d 0x10f00c3a 0xa68e6963 0xb10a306e 0xf2355b55 0x1ac4a758 0xe3aeb25c 0xeaaaa4d3 // method "pauseService(uint64)void", method "unpauseService(uint64)void", method "shutdownService(uint64)void", method "block(pay,address)void", method "unblock(address)void", method "gatedSubscribe(pay,appl,address,uint64,uint64,uint64)uint64", method "subscribe(pay,address,uint64,uint64,uint64)uint64", method "gatedSubscribeAsa(pay,axfer,appl,address,uint64,uint64,uint64)uint64", method "subscribeAsa(pay,axfer,address,uint64,uint64,uint64)uint64", method "deposit(pay,uint64)void", method "depositAsa(axfer,uint64)void", method "withdraw(uint64,uint64)void", method "unsubscribe(uint64)void"
-    bytec 31 // method "gatedTriggerPayment(appl,(address,uint64))void"
+    bytec 30 // method "gatedTriggerPayment(appl,(address,uint64))void"
     pushbytess 0xc3d9f1dc 0xc0ff2730 0x275203af 0x1269d87e 0x4303668e 0x0d6a47a3 0x1dc78371 0x09a3158e 0xf99963d4 0xd4b16e7a 0x74def59a 0x25b812a7 0x969ced9b 0x33d8e5ad 0x603d7297 0xdfe602cf 0xd8a6c523 // method "triggerPayment((address,uint64))void", method "streakCheck((address,uint64))void", method "setPasses(uint64,address[])void", method "triggerList((address,uint64[])[])bool[]", method "isBlocked(address,address)bool", method "isShutdown(address,uint64)bool", method "newServiceCost(uint64)uint64", method "newSubscriptionCost(address,uint64,uint64)uint64", method "blockCost()uint64", method "getService(address,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])", method "getServicesByAddress(address,uint64,uint64)(uint8,uint64,uint64,uint64,uint64,uint64,address,string,string,byte[36],uint8,byte[3])[]", method "getSubscription((address,uint64))(bool,address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "mustGetSubscription((address,uint64))(address,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64)", method "getSubscriptionWithDetails((address,uint64))(address,uint64,uint64,uint64,uint64,uint64,uint64,uint8,address,string,string,byte[36],uint8,byte[3],uint64,uint64,uint64,address[])", method "isFirstSubscription(address)bool", method "getServiceList(address)uint64", method "getSubscriptionList(address)uint64"
-    bytec 32 // method "optIn(pay,uint64)void"
+    bytec 31 // method "optIn(pay,uint64)void"
     pushbytess 0x33f78808 0xae84cbd8 0x33e92c94 0x854dede0 // method "optInCost(uint64)uint64", method "updateAkitaDAOEscrow((string,uint64))void", method "updateAkitaDAO(uint64)void", method "opUp()void"
     txna ApplicationArgs 0
     match newService setServiceDescription updateServiceTitle activateService pauseService unpauseService shutdownService block unblock gatedSubscribe subscribe gatedSubscribeAsa subscribeAsa deposit depositAsa withdraw unsubscribe gatedTriggerPayment triggerPayment streakCheck setPasses triggerList isBlocked isShutdown newServiceCost newSubscriptionCost main_blockCost_route@33 getService getServicesByAddress getSubscription mustGetSubscription getSubscriptionWithDetails isFirstSubscription getServiceList getSubscriptionList optIn optInCost updateAkitaDAOEscrow updateAkitaDAO main_opUp_route@46
@@ -127,15 +127,12 @@ originOrTxnSender:
     // if (walletID.id === 0) {
     frame_dig -1
     bnz originOrTxnSender_after_if_else@3
-    frame_dig 0
-
-originOrTxnSender_after_inlined_smart_contracts/utils/functions.ts::originOr@4:
     // smart_contracts/utils/functions.ts:150
     // return originOr(walletID, Txn.sender)
-    swap
     retsub
 
 originOrTxnSender_after_if_else@3:
+    pop
     // smart_contracts/utils/functions.ts:165-168
     // const [controlledAccountBytes] = op.AppGlobal.getExBytes(
     //   walletID,
@@ -154,7 +151,7 @@ originOrTxnSender_after_if_else@3:
     pop
     // smart_contracts/utils/functions.ts:150
     // return originOr(walletID, Txn.sender)
-    b originOrTxnSender_after_inlined_smart_contracts/utils/functions.ts::originOr@4
+    retsub
 
 
 // smart_contracts/utils/functions.ts::referrerOrZeroAddress(walletID: uint64) -> bytes:
@@ -169,15 +166,12 @@ referrerOrZeroAddress:
     // if (walletID.id === 0) {
     frame_dig -1
     bnz referrerOrZeroAddress_after_if_else@3
-    frame_dig 0
-
-referrerOrZeroAddress_after_inlined_smart_contracts/utils/functions.ts::referrerOr@4:
     // smart_contracts/utils/functions.ts:161
     // return referrerOr(walletID, Global.zeroAddress)
-    swap
     retsub
 
 referrerOrZeroAddress_after_if_else@3:
+    pop
     // smart_contracts/utils/functions.ts:173-176
     // const [referrerBytes] = op.AppGlobal.getExBytes(
     //   walletID,
@@ -196,7 +190,7 @@ referrerOrZeroAddress_after_if_else@3:
     pop
     // smart_contracts/utils/functions.ts:161
     // return referrerOr(walletID, Global.zeroAddress)
-    b referrerOrZeroAddress_after_inlined_smart_contracts/utils/functions.ts::referrerOr@4
+    retsub
 
 
 // smart_contracts/utils/functions.ts::getWalletIDUsingAkitaDAO(akitaDAO: uint64, address: bytes) -> uint64:
@@ -253,13 +247,15 @@ getWalletIDUsingAkitaDAO:
     // if (Bytes(data).length === 0 || Bytes(data).length !== 8) {
     len
     dup
+    cover 2
     bz getWalletIDUsingAkitaDAO_if_body@6
-    frame_dig 1
+    frame_dig 0
     intc_2 // 8
     !=
     bz getWalletIDUsingAkitaDAO_after_if_else@7
 
 getWalletIDUsingAkitaDAO_if_body@6:
+    pop
     // smart_contracts/utils/functions.ts:192
     // return 0
     intc_0 // 0
@@ -267,13 +263,12 @@ getWalletIDUsingAkitaDAO_if_body@6:
 getWalletIDUsingAkitaDAO_after_inlined_smart_contracts/utils/functions.ts::getWalletID@8:
     // smart_contracts/utils/functions.ts:182
     // return Application(getWalletID(escrowFactory, address))
-    frame_bury 0
+    swap
     retsub
 
 getWalletIDUsingAkitaDAO_after_if_else@7:
     // smart_contracts/utils/functions.ts:195
     // return btoi(data)
-    frame_dig 0
     btoi
     // smart_contracts/utils/functions.ts:182
     // return Application(getWalletID(escrowFactory, address))
@@ -292,7 +287,7 @@ gateCheck:
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     frame_dig -3
-    bytec 21 // "aal"
+    bytec 20 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:249
@@ -326,8 +321,7 @@ gateCheck:
     // smart_contracts/utils/functions.ts:252
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
     frame_dig -4
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    gtxnsa ApplicationArgs 0
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
     // smart_contracts/utils/functions.ts:249-252
@@ -339,8 +333,7 @@ gateCheck:
     // smart_contracts/utils/functions.ts:253
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
     frame_dig -4
-    intc_1 // 1
-    gtxnsas ApplicationArgs
+    gtxnsa ApplicationArgs 1
     frame_dig -2
     ==
     // smart_contracts/utils/functions.ts:249-253
@@ -353,8 +346,7 @@ gateCheck:
     // smart_contracts/utils/functions.ts:254
     // gateTxn.appArgs(2) === itob(id)
     frame_dig -4
-    intc_3 // 2
-    gtxnsas ApplicationArgs
+    gtxnsa ApplicationArgs 2
     frame_dig -1
     itob
     ==
@@ -397,7 +389,7 @@ referralFee:
     // smart_contracts/utils/functions.ts:596
     // export function referralFee(akitaDAO: Application, asset: uint64): uint64 {
     proto 2 1
-    bytec_3 // ""
+    pushbytes ""
     dup
     // smart_contracts/utils/functions.ts:597
     // const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
@@ -422,7 +414,7 @@ referralFee_after_if_else@2:
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     frame_dig -2
-    bytec 21 // "aal"
+    bytec 20 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:502
@@ -465,9 +457,7 @@ sendReferralPayment:
     // smart_contracts/utils/functions.ts:607
     // export function sendReferralPayment(akitaDAO: Application, asset: uint64, amount: uint64): ReferralPaymentInfo {
     proto 3 1
-    intc_0 // 0
-    bytec_3 // ""
-    dupn 4
+    pushbytes ""
     // smart_contracts/utils/functions.ts:608
     // const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
     frame_dig -3
@@ -480,7 +470,7 @@ sendReferralPayment:
     // if (amount > 0 && referrer !== Global.zeroAddress) {
     frame_dig -1
     bz sendReferralPayment_after_if_else@6
-    frame_dig 6
+    dup
     global ZeroAddress
     !=
     bz sendReferralPayment_after_if_else@6
@@ -507,7 +497,7 @@ sendReferralPayment:
     intc 4 // 100000
     divw
     dup
-    frame_bury 3
+    frame_bury 0
     // smart_contracts/utils/functions.ts:617
     // if (referralFee === 0 && amount > 0) {
     bnz sendReferralPayment_after_if_else@5
@@ -516,42 +506,41 @@ sendReferralPayment:
     // smart_contracts/utils/functions.ts:618
     // referralFee = 1
     intc_1 // 1
-    frame_bury 3
+    frame_bury 0
 
 sendReferralPayment_after_if_else@5:
     // smart_contracts/utils/functions.ts:624
     // Global.latestTimestamp,
     global LatestTimestamp
-    frame_bury 5
     // smart_contracts/utils/functions.ts:625
     // (Global.latestTimestamp + ONE_WEEK),
-    global LatestTimestamp
+    dup
     pushint 604800
     +
-    frame_bury 2
+    swap
     // smart_contracts/utils/functions.ts:626
     // [{ address: referrer, amount: referralFee }],
-    frame_dig 3
+    frame_dig 0
     itob
-    frame_dig 6
+    uncover 3
     swap
     concat
-    bytec 33 // 0x0001
+    bytec 32 // 0x0001
     swap
     concat
     dup
-    frame_bury 0
+    cover 3
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     frame_dig -3
-    bytec 21 // "aal"
+    bytec 20 // "aal"
     app_global_get_ex
     pop
     // smart_contracts/utils/functions.ts:536
     // const rewardsApp = getAkitaAppList(akitaDAO).rewards
     intc_2 // 8
     extract_uint64
-    frame_bury 4
+    swap
     // smart_contracts/utils/functions.ts:539
     // let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
     intc_0 // 0
@@ -560,7 +549,7 @@ sendReferralPayment_after_if_else@5:
     *
     pushint 41700
     +
-    frame_bury 1
+    swap
     // smart_contracts/utils/functions.ts:540
     // if (asset === 0) {
     frame_dig -2
@@ -581,14 +570,13 @@ sendReferralPayment_after_if_else@5:
     itxn_begin
     // smart_contracts/utils/functions.ts:545
     // receiver: Application(rewardsApp).address,
-    frame_dig 4
     dup
     app_params_get AppAddress
     assert // application exists
     // smart_contracts/utils/functions.ts:546
     // amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length) + sum
-    frame_dig 1
-    frame_dig 3
+    dig 2
+    frame_dig 0
     +
     itxn_field Amount
     itxn_field Receiver
@@ -617,11 +605,11 @@ sendReferralPayment_after_if_else@5:
     itxn_next
     // smart_contracts/utils/functions.ts:548
     // timeToUnlock,
-    frame_dig 5
+    uncover 2
     itob
     // smart_contracts/utils/functions.ts:549
     // expiration,
-    frame_dig 2
+    uncover 3
     itob
     uncover 2
     itxn_field ApplicationID
@@ -643,7 +631,7 @@ sendReferralPayment_after_if_else@5:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    frame_dig 0
+    swap
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -669,7 +657,7 @@ sendReferralPayment_after_if_else@20:
     // smart_contracts/utils/functions.ts:593
     // return { id, cost }
     itob
-    frame_dig 1
+    swap
     itob
     concat
     // smart_contracts/utils/functions.ts:621-629
@@ -686,30 +674,30 @@ sendReferralPayment_after_if_else@20:
     // smart_contracts/utils/functions.ts:631
     // return { leftover: (amount - referralFee), referralMbr }
     frame_dig -1
-    frame_dig 3
+    frame_dig 0
     -
     itob
     swap
     concat
-    frame_bury 0
+    swap
     retsub
 
 sendReferralPayment_else_body@13:
     // smart_contracts/utils/functions.ts:554
     // if (!Application(rewardsApp).address.isOptedIn(Asset(asset))) {
-    frame_dig 4
+    dup
     app_params_get AppAddress
     assert // application exists
     frame_dig -2
     asset_holding_get AssetBalance
     bury 1
     bz sendReferralPayment_if_body@14
-    frame_dig 1
+    dig 1
 
 sendReferralPayment_after_if_else@15:
     // smart_contracts/utils/functions.ts:569
     // assetReceiver: Application(rewardsApp).address,
-    frame_dig 4
+    swap
     dup
     app_params_get AppAddress
     assert // application exists
@@ -733,7 +721,7 @@ sendReferralPayment_after_if_else@15:
     dig 1
     app_params_get AppAddress
     assert // application exists
-    frame_dig 1
+    uncover 4
     itxn_field Amount
     itxn_field Receiver
     // smart_contracts/utils/functions.ts:581-584
@@ -750,7 +738,7 @@ sendReferralPayment_after_if_else@15:
     itxn_next
     frame_dig -2
     itxn_field XferAsset
-    frame_dig 3
+    frame_dig 0
     itxn_field AssetAmount
     itxn_field AssetReceiver
     // smart_contracts/utils/functions.ts:568-572
@@ -780,11 +768,11 @@ sendReferralPayment_after_if_else@15:
     itxn_next
     // smart_contracts/utils/functions.ts:586
     // timeToUnlock,
-    frame_dig 5
+    uncover 2
     itob
     // smart_contracts/utils/functions.ts:587
     // expiration,
-    frame_dig 2
+    uncover 3
     itob
     uncover 2
     itxn_field ApplicationID
@@ -807,7 +795,7 @@ sendReferralPayment_after_if_else@15:
     swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    frame_dig 0
+    swap
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -828,14 +816,12 @@ sendReferralPayment_after_if_else@15:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    swap
-    frame_bury 1
     b sendReferralPayment_after_if_else@20
 
 sendReferralPayment_if_body@14:
     // smart_contracts/utils/functions.ts:555
     // cost += Global.assetOptInMinBalance
-    frame_dig 1
+    dig 1
     global AssetOptInMinBalance
     +
     // smart_contracts/utils/functions.ts:556-565
@@ -852,7 +838,7 @@ sendReferralPayment_if_body@14:
     itxn_begin
     // smart_contracts/utils/functions.ts:560
     // receiver: Application(rewardsApp).address,
-    frame_dig 4
+    dig 1
     dup
     app_params_get AppAddress
     assert // application exists
@@ -899,7 +885,7 @@ sendReferralPayment_if_body@14:
     //     Asset(asset)
     //   ]
     // })
-    bytec 32 // method "optIn(pay,uint64)void"
+    bytec 31 // method "optIn(pay,uint64)void"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1006,7 +992,7 @@ create:
     assert // invalid number of bytes for smart_contracts/utils/base-contracts/base.ts::EscrowConfig
     // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 34 // "version"
+    bytec 33 // "version"
     // smart_contracts/subscriptions/contract.algo.ts:479
     // this.version.value = version
     uncover 3
@@ -1020,7 +1006,7 @@ create:
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:481
     // this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
     swap
@@ -1034,9 +1020,8 @@ create:
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.newService[routing]() -> void:
 newService:
     intc_0 // 0
+    pushbytes ""
     dup
-    bytec_3 // ""
-    dupn 6
     // smart_contracts/subscriptions/contract.algo.ts:497-509
     // newService(
     //   payment: gtxn.PaymentTxn,
@@ -1080,6 +1065,7 @@ newService:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    cover 2
     txna ApplicationArgs 4
     dup
     len
@@ -1087,6 +1073,7 @@ newService:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    swap
     txna ApplicationArgs 5
     dup
     len
@@ -1094,8 +1081,10 @@ newService:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    cover 5
     txna ApplicationArgs 6
     dup
+    cover 6
     len
     pushint 32
     ==
@@ -1111,27 +1100,31 @@ newService:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
+    cover 3
     txna ApplicationArgs 8
     dup
+    cover 9
     len
     pushint 36
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
     txna ApplicationArgs 9
     dup
+    cover 9
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     txna ApplicationArgs 10
     dup
+    cover 9
     len
     pushint 3
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 3>
     // smart_contracts/subscriptions/contract.algo.ts:120
     // serviceslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixServicesList })
-    bytec 13 // "m"
+    bytec 11 // "m"
     // smart_contracts/subscriptions/contract.algo.ts:510
     // const needsServicesListBoxMbr = !this.serviceslist(Txn.sender).exists
     txn Sender
@@ -1144,7 +1137,7 @@ newService:
     bury 1
     // smart_contracts/subscriptions/contract.algo.ts:120
     // serviceslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixServicesList })
-    bytec 13 // "m"
+    bytec 11 // "m"
     // smart_contracts/subscriptions/contract.algo.ts:511
     // const id = this.newServiceID(Txn.sender)
     txn Sender
@@ -1175,7 +1168,7 @@ newService_ternary_merge@40:
     intc_1 // 1
     +
     itob
-    dig 2
+    uncover 2
     swap
     box_put
     // smart_contracts/subscriptions/contract.algo.ts:512
@@ -1184,34 +1177,34 @@ newService_ternary_merge@40:
     swap
     itob
     dup
-    bury 24
+    bury 17
     concat
-    bury 21
+    cover 7
     // smart_contracts/subscriptions/contract.algo.ts:515
     // loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
-    dig 9
+    dig 5
     pushint 4
     >=
     bnz newService_after_assert@3
-    bytec 14 // "ERR:MAMT"
+    bytec 12 // "ERR:MAMT"
     log
     err // ERR:MAMT
 
 newService_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:517
     // loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
-    dig 11
+    dig 3
     pushint 60
     >=
     bnz newService_after_assert@5
-    bytec 15 // "ERR:MINV"
+    bytec 13 // "ERR:MINV"
     log
     err // ERR:MINV
 
 newService_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:519
     // loggedAssert(passes <= MAX_PASSES, ERR_MAX_PASSES_IS_FIVE)
-    dig 8
+    dig 2
     pushint 5
     <=
     bnz newService_after_assert@7
@@ -1222,14 +1215,14 @@ newService_after_assert@5:
 newService_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:520
     // loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
-    dig 5
+    dig 4
     len
     dup
-    bury 15
+    cover 3
     pushint 128
     <=
     bnz newService_after_assert@9
-    bytec 35 // "ERR:TTLG"
+    bytec 34 // "ERR:TTLG"
     log
     err // ERR:TTLG
 
@@ -1246,7 +1239,7 @@ newService_after_assert@9:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:83
     // const [subscriptionFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSubscriptionFees))
-    bytec 22 // "subscription_fees"
+    bytec 21 // "subscription_fees"
     app_global_get_ex
     pop
     // smart_contracts/subscriptions/contract.algo.ts:522
@@ -1254,36 +1247,32 @@ newService_after_assert@9:
     intc_0 // 0
     extract_uint64
     dup
-    bury 16
     // smart_contracts/subscriptions/contract.algo.ts:525
     // let requiredAmount: uint64 = serviceCreationFee + costs.services
     intc 9 // 62500
     +
-    bury 16
     // smart_contracts/subscriptions/contract.algo.ts:526
     // if (needsServicesListBoxMbr) {
-    dig 1
+    uncover 2
     bnz newService_after_if_else@11
     // smart_contracts/subscriptions/contract.algo.ts:527
     // requiredAmount += costs.serviceslist
-    dig 15
     intc 5 // 18900
     +
-    bury 16
 
 newService_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:529
     // if (asset !== 0) {
-    dig 10
+    dig 2
     bz newService_after_if_else@17
     // smart_contracts/subscriptions/contract.algo.ts:534
     // loggedAssert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
     global CurrentApplicationAddress
-    dig 11
+    dig 3
     asset_holding_get AssetBalance
     bury 1
     bnz newService_after_assert@14
-    bytec 23 // "ERR:NOPT"
+    bytec 22 // "ERR:NOPT"
     log
     err // ERR:NOPT
 
@@ -1293,7 +1282,7 @@ newService_after_assert@14:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:535
     // loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
     app_global_get_ex
@@ -1302,11 +1291,11 @@ newService_after_assert@14:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    dig 11
+    dig 3
     asset_holding_get AssetBalance
     bury 1
     bnz newService_after_if_else@17
-    bytec 23 // "ERR:NOPT"
+    bytec 22 // "ERR:NOPT"
     log
     err // ERR:NOPT
 
@@ -1321,38 +1310,36 @@ newService_after_if_else@17:
     // const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, asset, serviceCreationFee)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 11
-    dig 16
+    dig 3
+    uncover 3
     callsub sendReferralPayment
     dup
     intc_0 // 0
     extract_uint64
-    bury 19
+    cover 2
     intc_2 // 8
     extract_uint64
-    bury 17
     // smart_contracts/subscriptions/contract.algo.ts:540
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    dig 12
+    dig 9
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     bnz newService_after_assert@19
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 newService_after_assert@19:
     // smart_contracts/subscriptions/contract.algo.ts:541
     // loggedAssert(payment.amount === requiredAmount + referralMbr, ERR_INVALID_PAYMENT)
-    dig 12
+    uncover 9
     gtxns Amount
-    dig 16
-    dig 18
+    cover 2
     +
     ==
     bnz newService_after_assert@21
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -1370,7 +1357,7 @@ newService_after_assert@21:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:545
     // receiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
@@ -1379,9 +1366,8 @@ newService_after_assert@21:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    dig 18
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     // smart_contracts/subscriptions/contract.algo.ts:543-547
     // itxn
     //   .payment({
@@ -1415,7 +1401,7 @@ newService_after_assert@21:
     //   highlightMessage,
     //   highlightColor
     // }
-    dig 11
+    uncover 3
     itob
     // smart_contracts/subscriptions/contract.algo.ts:551
     // status: ServiceStatusDraft,
@@ -1437,24 +1423,24 @@ newService_after_assert@21:
     // }
     swap
     concat
-    dig 11
+    swap
     itob
     concat
-    dig 10
+    uncover 4
     itob
     concat
-    dig 9
+    uncover 2
     itob
     concat
-    dig 8
+    uncover 5
     itob
     concat
-    dig 7
+    uncover 4
     concat
-    dig 14
+    swap
     itob
     extract 6 2
-    dig 7
+    uncover 2
     concat
     swap
     pushbytes 0x0075
@@ -1466,20 +1452,20 @@ newService_after_assert@21:
     itob
     extract 6 2
     concat
-    dig 6
+    uncover 5
     concat
-    dig 5
+    uncover 4
     concat
-    dig 4
+    uncover 3
     concat
     swap
     concat
-    bytec 10 // 0x0000
+    bytec 9 // 0x0000
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
     // services = BoxMap<ServicesKey, Service>({ keyPrefix: SubscriptionsBoxPrefixServices })
     bytec_2 // "o"
-    dig 22
+    uncover 2
     concat
     // smart_contracts/subscriptions/contract.algo.ts:550-563
     // this.services(boxKey).value = {
@@ -1504,67 +1490,66 @@ newService_after_assert@21:
     // smart_contracts/subscriptions/contract.algo.ts:454
     // let activated = false
     intc_0 // 0
-    bury 20
+    bury 2
     // smart_contracts/subscriptions/contract.algo.ts:455
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
     txn GroupIndex
     intc_1 // 1
     +
-    bury 19
+    bury 1
 
 newService_while_top@23:
     // smart_contracts/subscriptions/contract.algo.ts:455
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
-    dig 18
+    dup
     global GroupSize
     <
     bz newService_block@33
     // smart_contracts/subscriptions/contract.algo.ts:458
     // if (txn.type !== TransactionType.ApplicationCall) {
-    dig 18
+    dup
     gtxns TypeEnum
     pushint 6
     !=
     bnz newService_block@31
     // smart_contracts/subscriptions/contract.algo.ts:462
     // loggedAssert(txn.appId === Global.currentApplicationId, ERR_INVALID_SEQUENCE)
-    dig 18
+    dup
     gtxns ApplicationID
     global CurrentApplicationID
     ==
     bnz newService_after_assert@27
-    bytec 24 // "ERR:ISEQ"
+    bytec 23 // "ERR:ISEQ"
     log
     err // ERR:ISEQ
 
 newService_after_assert@27:
     // smart_contracts/subscriptions/contract.algo.ts:463
     // loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_SEQUENCE)
-    dig 18
+    dup
     gtxns OnCompletion
     bz newService_after_assert@29
-    bytec 24 // "ERR:ISEQ"
+    bytec 23 // "ERR:ISEQ"
     log
     err // ERR:ISEQ
 
 newService_after_assert@29:
     // smart_contracts/subscriptions/contract.algo.ts:465
     // if (txn.appArgs(0) === methodSelector(this.activateService)) {
-    dig 18
-    intc_0 // 0
-    gtxnsas ApplicationArgs
-    bytec 30 // method "activateService()void"
+    dup
+    gtxnsa ApplicationArgs 0
+    bytec 29 // method "activateService()void"
     ==
     bz newService_block@31
     // smart_contracts/subscriptions/contract.algo.ts:466
     // activated = true
     intc_1 // 1
-    bury 20
+    bury 2
 
 newService_block@33:
     // smart_contracts/subscriptions/contract.algo.ts:472
     // loggedAssert(activated, ERR_SERVICE_NOT_ACTIVATED)
-    dig 19
+    dig 1
     bnz newService_after_assert@35
     pushbytes "ERR:SNAV"
     log
@@ -1586,7 +1571,7 @@ newService_after_assert@35:
     //   highlightColor: bytes<3>
     // ): uint64 {
     bytec_1 // 0x151f7c75
-    dig 22
+    dig 3
     concat
     log
     intc_1 // 1
@@ -1595,10 +1580,10 @@ newService_after_assert@35:
 newService_block@31:
     // smart_contracts/subscriptions/contract.algo.ts:455
     // for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
-    dig 18
+    dup
     intc_1 // 1
     +
-    bury 19
+    bury 1
     b newService_while_top@23
 
 newService_ternary_false@39:
@@ -1610,8 +1595,7 @@ newService_ternary_false@39:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.setServiceDescription[routing]() -> void:
 setServiceDescription:
-    intc_0 // 0
-    bytec_3 // ""
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:570
     // setServiceDescription(id: ServiceID, offset: uint64, data: bytes): void {
     txna ApplicationArgs 1
@@ -1658,7 +1642,7 @@ setServiceDescription:
     box_len
     bury 1
     bnz setServiceDescription_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
@@ -1693,13 +1677,13 @@ setServiceDescription_after_assert@5:
     box_extract
     extract 2 0
     dup
-    bury 6
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:578
     // loggedAssert(offset <= descBytes.length, ERR_BAD_OFFSET)
     len
     dup
-    bury 5
-    dig 3
+    bury 6
+    dig 4
     >=
     bnz setServiceDescription_after_assert@7
     pushbytes "ERR:BOFS"
@@ -1709,14 +1693,14 @@ setServiceDescription_after_assert@5:
 setServiceDescription_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:580
     // if (offset < descBytes.length) {
-    dig 2
-    dig 4
+    dig 3
+    dig 5
     <
     bz setServiceDescription_after_if_else@9
     // smart_contracts/subscriptions/contract.algo.ts:581
     // descBytes = descBytes.slice(0, offset)
     intc_0 // 0
-    dig 4
+    dig 5
     dup
     cover 2
     >=
@@ -1724,7 +1708,7 @@ setServiceDescription_after_assert@7:
     dig 2
     uncover 2
     select
-    dig 4
+    dig 5
     dup
     dig 3
     >=
@@ -1732,20 +1716,17 @@ setServiceDescription_after_assert@7:
     uncover 3
     uncover 2
     select
-    dig 6
+    uncover 4
     cover 2
     substring3
-    bury 5
+    cover 2
 
 setServiceDescription_after_if_else@9:
     // smart_contracts/subscriptions/contract.algo.ts:584
     // this.services(key).value.description = String(descBytes.concat(data))
-    dig 4
-    dig 2
+    cover 2
     concat
     dig 1
-    dup
-    cover 2
     box_get
     assert // Box must have value
     dig 1
@@ -1817,26 +1798,26 @@ updateServiceTitle:
     box_len
     bury 1
     bnz updateServiceTitle_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 updateServiceTitle_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:591
     // loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
-    dig 1
+    swap
     len
     pushint 128
     <=
     bnz updateServiceTitle_after_assert@5
-    bytec 35 // "ERR:TTLG"
+    bytec 34 // "ERR:TTLG"
     log
     err // ERR:TTLG
 
 updateServiceTitle_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:593
     // this.services(key).value.title = title
-    dupn 2
+    dup
     box_get
     assert // Box must have value
     dup
@@ -1846,7 +1827,7 @@ updateServiceTitle_after_assert@5:
     intc_0 // 0
     dig 2
     extract3
-    dig 7
+    uncover 5
     concat
     dig 2
     pushint 75
@@ -1864,7 +1845,7 @@ updateServiceTitle_after_assert@5:
     uncover 3
     -
     uncover 2
-    dig 6
+    uncover 4
     +
     swap
     -
@@ -1885,7 +1866,7 @@ updateServiceTitle_after_assert@5:
 activateService:
     // smart_contracts/subscriptions/contract.algo.ts:120
     // serviceslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixServicesList })
-    bytec 13 // "m"
+    bytec 11 // "m"
     // smart_contracts/subscriptions/contract.algo.ts:600
     // const id: uint64 = this.serviceslist(Txn.sender).value - 1
     txn Sender
@@ -1916,7 +1897,7 @@ activateService:
     box_len
     bury 1
     bnz activateService_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
@@ -1937,9 +1918,8 @@ activateService_after_assert@3:
 activateService_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:607
     // this.services(boxKey).value.status = ServiceStatusActive
-    dup
     intc_0 // 0
-    bytec 16 // 0x14
+    bytec 14 // 0x14
     box_replace // on error: index out of bounds
     // smart_contracts/subscriptions/contract.algo.ts:599
     // activateService(): void {
@@ -1975,7 +1955,7 @@ pauseService:
     box_len
     bury 1
     bnz pauseService_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
@@ -1986,17 +1966,16 @@ pauseService_after_assert@3:
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 16 // 0x14
+    bytec 14 // 0x14
     ==
     bnz pauseService_after_assert@5
-    bytec 25 // "ERR:SNAC"
+    bytec 24 // "ERR:SNAC"
     log
     err // ERR:SNAC
 
 pauseService_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:624
     // this.services(boxKey).value.status = ServiceStatusPaused
-    dup
     intc_0 // 0
     pushbytes 0x1e
     box_replace // on error: index out of bounds
@@ -2034,7 +2013,7 @@ unpauseService:
     box_len
     bury 1
     bnz unpauseService_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
@@ -2055,9 +2034,8 @@ unpauseService_after_assert@3:
 unpauseService_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:640
     // this.services(boxKey).value.status = ServiceStatusActive
-    dup
     intc_0 // 0
-    bytec 16 // 0x14
+    bytec 14 // 0x14
     box_replace // on error: index out of bounds
     // smart_contracts/subscriptions/contract.algo.ts:632
     // unpauseService(id: ServiceID): void {
@@ -2093,7 +2071,7 @@ shutdownService:
     box_len
     bury 1
     bnz shutdownService_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
@@ -2104,19 +2082,22 @@ shutdownService_after_assert@3:
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 17 // 0x28
+    bytec 15 // 0x28
     !=
     bnz shutdownService_after_assert@5
-    bytec 36 // "ERR:SSHD"
+    bytec 35 // "ERR:SSHD"
     log
     err // ERR:SSHD
 
 shutdownService_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:655
     // this.services(boxKey).value.status = ServiceStatusShutdown
-    dup
     intc_0 // 0
-    bytec 17 // 0x28
+    // smart_contracts/subscriptions/contract.algo.ts:653
+    // loggedAssert(this.services(boxKey).value.status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
+    bytec 15 // 0x28
+    // smart_contracts/subscriptions/contract.algo.ts:655
+    // this.services(boxKey).value.status = ServiceStatusShutdown
     box_replace // on error: index out of bounds
     // smart_contracts/subscriptions/contract.algo.ts:648
     // shutdownService(id: ServiceID): void {
@@ -2149,7 +2130,7 @@ block:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     dup
@@ -2170,26 +2151,25 @@ block_after_assert@3:
     global CurrentApplicationAddress
     ==
     bnz block_after_assert@5
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 block_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:672
     // loggedAssert(payment.amount === costs.blocks, ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     pushint 15700
     ==
     bnz block_after_assert@7
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 block_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:674
     // this.blocks(boxKey).create()
-    dup
     intc_0 // 0
     box_create
     pop
@@ -2216,7 +2196,7 @@ unblock:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     dup
@@ -2232,7 +2212,6 @@ unblock:
 unblock_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:687
     // this.blocks(boxKey).delete()
-    dup
     box_del
     pop
     // smart_contracts/subscriptions/contract.algo.ts:691-694
@@ -2267,7 +2246,6 @@ unblock_after_assert@3:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.gatedSubscribe[routing]() -> void:
 gatedSubscribe:
-    intc_0 // 0
     // smart_contracts/subscriptions/contract.algo.ts:697-704
     // gatedSubscribe(
     //   payment: gtxn.PaymentTxn,
@@ -2307,6 +2285,7 @@ gatedSubscribe:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -2328,7 +2307,7 @@ gatedSubscribe:
     pushint 4
     >=
     bnz gatedSubscribe_after_assert@3
-    bytec 14 // "ERR:MAMT"
+    bytec 12 // "ERR:MAMT"
     log
     err // ERR:MAMT
 
@@ -2339,7 +2318,7 @@ gatedSubscribe_after_assert@3:
     pushint 60
     >=
     bnz gatedSubscribe_after_assert@5
-    bytec 15 // "ERR:MINV"
+    bytec 13 // "ERR:MINV"
     log
     err // ERR:MINV
 
@@ -2348,7 +2327,7 @@ gatedSubscribe_after_assert@5:
     // loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
     dup
     bnz gatedSubscribe_after_assert@7
-    bytec 26 // "ERR:NSVC"
+    bytec 25 // "ERR:NSVC"
     log
     err // ERR:NSVC
 
@@ -2357,7 +2336,7 @@ gatedSubscribe_after_assert@7:
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     dup
     itob
-    dig 4
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -2366,20 +2345,18 @@ gatedSubscribe_after_assert@7:
     swap
     concat
     dup
-    bury 8
     // smart_contracts/subscriptions/contract.algo.ts:711
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz gatedSubscribe_after_assert@9
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 gatedSubscribe_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:712
     // const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-    dig 6
     pushint 33
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -2409,24 +2386,23 @@ gatedSubscribe_after_assert@9:
     // loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 7
+    uncover 7
     swap
     uncover 2
     uncover 3
     callsub gateCheck
     bnz gatedSubscribe_after_assert@11
-    bytec 27 // "ERR:FGTE"
+    bytec 26 // "ERR:FGTE"
     log
     err // ERR:FGTE
 
 gatedSubscribe_after_assert@11:
     // smart_contracts/subscriptions/contract.algo.ts:718
     // return this.createSubscription(payment, recipient, amount, interval, serviceID)
-    dig 5
-    dig 4
-    dig 4
-    dig 4
-    dig 4
+    uncover 4
+    uncover 3
+    cover 4
+    cover 4
     callsub createSubscription
     // smart_contracts/subscriptions/contract.algo.ts:697-704
     // gatedSubscribe(
@@ -2448,7 +2424,6 @@ gatedSubscribe_after_assert@11:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.subscribe[routing]() -> void:
 subscribe:
-    intc_0 // 0
     // smart_contracts/subscriptions/contract.algo.ts:721-727
     // subscribe(
     //   payment: gtxn.PaymentTxn,
@@ -2479,6 +2454,7 @@ subscribe:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -2500,7 +2476,7 @@ subscribe:
     pushint 4
     >=
     bnz subscribe_after_assert@3
-    bytec 14 // "ERR:MAMT"
+    bytec 12 // "ERR:MAMT"
     log
     err // ERR:MAMT
 
@@ -2511,7 +2487,7 @@ subscribe_after_assert@3:
     pushint 60
     >=
     bnz subscribe_after_assert@5
-    bytec 15 // "ERR:MINV"
+    bytec 13 // "ERR:MINV"
     log
     err // ERR:MINV
 
@@ -2524,7 +2500,7 @@ subscribe_after_assert@5:
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     dup
     itob
-    dig 4
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -2533,20 +2509,18 @@ subscribe_after_assert@5:
     swap
     concat
     dup
-    bury 7
     // smart_contracts/subscriptions/contract.algo.ts:734
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz subscribe_after_assert@8
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 subscribe_after_assert@8:
     // smart_contracts/subscriptions/contract.algo.ts:735
     // const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-    dig 5
     pushint 33
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -2554,18 +2528,17 @@ subscribe_after_assert@8:
     // smart_contracts/subscriptions/contract.algo.ts:736
     // loggedAssert(gateID === 0, ERR_HAS_GATE)
     bz subscribe_after_if_else@11
-    bytec 37 // "ERR:HGTE"
+    bytec 36 // "ERR:HGTE"
     log
     err // ERR:HGTE
 
 subscribe_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:739
     // return this.createSubscription(payment, recipient, amount, interval, serviceID)
-    dig 4
-    dig 4
-    dig 4
-    dig 4
-    dig 4
+    uncover 4
+    uncover 3
+    cover 4
+    cover 4
     callsub createSubscription
     // smart_contracts/subscriptions/contract.algo.ts:721-727
     // subscribe(
@@ -2586,7 +2559,6 @@ subscribe_after_if_else@11:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.gatedSubscribeAsa[routing]() -> void:
 gatedSubscribeAsa:
-    intc_0 // 0
     // smart_contracts/subscriptions/contract.algo.ts:742-750
     // gatedSubscribeAsa(
     //   payment: gtxn.PaymentTxn,
@@ -2635,6 +2607,7 @@ gatedSubscribeAsa:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -2656,7 +2629,7 @@ gatedSubscribeAsa:
     pushint 4
     >=
     bnz gatedSubscribeAsa_after_assert@3
-    bytec 14 // "ERR:MAMT"
+    bytec 12 // "ERR:MAMT"
     log
     err // ERR:MAMT
 
@@ -2667,7 +2640,7 @@ gatedSubscribeAsa_after_assert@3:
     pushint 60
     >=
     bnz gatedSubscribeAsa_after_assert@5
-    bytec 15 // "ERR:MINV"
+    bytec 13 // "ERR:MINV"
     log
     err // ERR:MINV
 
@@ -2676,7 +2649,7 @@ gatedSubscribeAsa_after_assert@5:
     // loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
     dup
     bnz gatedSubscribeAsa_after_assert@7
-    bytec 26 // "ERR:NSVC"
+    bytec 25 // "ERR:NSVC"
     log
     err // ERR:NSVC
 
@@ -2685,7 +2658,7 @@ gatedSubscribeAsa_after_assert@7:
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     dup
     itob
-    dig 4
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -2694,20 +2667,18 @@ gatedSubscribeAsa_after_assert@7:
     swap
     concat
     dup
-    bury 9
     // smart_contracts/subscriptions/contract.algo.ts:757
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz gatedSubscribeAsa_after_assert@9
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 gatedSubscribeAsa_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:758
     // const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-    dig 7
     pushint 33
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -2737,13 +2708,13 @@ gatedSubscribeAsa_after_assert@9:
     // loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 7
+    uncover 7
     swap
     uncover 2
     uncover 3
     callsub gateCheck
     bnz gatedSubscribeAsa_after_assert@11
-    bytec 27 // "ERR:FGTE"
+    bytec 26 // "ERR:FGTE"
     log
     err // ERR:FGTE
 
@@ -2757,12 +2728,12 @@ gatedSubscribeAsa_after_assert@11:
     //   interval,
     //   serviceID
     // )
-    dig 6
-    dig 6
-    dig 5
-    dig 5
-    dig 5
-    dig 5
+    uncover 5
+    uncover 5
+    uncover 4
+    uncover 5
+    uncover 5
+    uncover 5
     callsub createAsaSubscription
     // smart_contracts/subscriptions/contract.algo.ts:742-750
     // gatedSubscribeAsa(
@@ -2785,7 +2756,6 @@ gatedSubscribeAsa_after_assert@11:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.subscribeAsa[routing]() -> void:
 subscribeAsa:
-    intc_0 // 0
     // smart_contracts/subscriptions/contract.algo.ts:774-781
     // subscribeAsa(
     //   payment: gtxn.PaymentTxn,
@@ -2825,6 +2795,7 @@ subscribeAsa:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 3
     dup
     len
@@ -2846,7 +2817,7 @@ subscribeAsa:
     pushint 4
     >=
     bnz subscribeAsa_after_assert@3
-    bytec 14 // "ERR:MAMT"
+    bytec 12 // "ERR:MAMT"
     log
     err // ERR:MAMT
 
@@ -2857,7 +2828,7 @@ subscribeAsa_after_assert@3:
     pushint 60
     >=
     bnz subscribeAsa_after_assert@5
-    bytec 15 // "ERR:MINV"
+    bytec 13 // "ERR:MINV"
     log
     err // ERR:MINV
 
@@ -2870,7 +2841,7 @@ subscribeAsa_after_assert@5:
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     dup
     itob
-    dig 4
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -2879,20 +2850,18 @@ subscribeAsa_after_assert@5:
     swap
     concat
     dup
-    bury 8
     // smart_contracts/subscriptions/contract.algo.ts:788
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz subscribeAsa_after_assert@8
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 subscribeAsa_after_assert@8:
     // smart_contracts/subscriptions/contract.algo.ts:789
     // const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-    dig 6
     pushint 33
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -2900,7 +2869,7 @@ subscribeAsa_after_assert@8:
     // smart_contracts/subscriptions/contract.algo.ts:790
     // loggedAssert(gateID === 0, ERR_HAS_GATE)
     bz subscribeAsa_after_if_else@11
-    bytec 37 // "ERR:HGTE"
+    bytec 36 // "ERR:HGTE"
     log
     err // ERR:HGTE
 
@@ -2914,12 +2883,12 @@ subscribeAsa_after_if_else@11:
     //   interval,
     //   serviceID
     // )
-    dig 5
-    dig 5
-    dig 5
-    dig 5
-    dig 5
-    dig 5
+    uncover 5
+    uncover 5
+    uncover 4
+    uncover 5
+    uncover 5
+    uncover 5
     callsub createAsaSubscription
     // smart_contracts/subscriptions/contract.algo.ts:774-781
     // subscribeAsa(
@@ -2975,7 +2944,7 @@ deposit:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -2984,7 +2953,7 @@ deposit:
     box_len
     bury 1
     bnz deposit_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
@@ -2999,7 +2968,7 @@ deposit_after_assert@3:
     pushint 64
     extract_uint64
     bz deposit_after_assert@5
-    bytec 19 // "ERR:ASAM"
+    bytec 18 // "ERR:ASAM"
     log
     err // ERR:ASAM
 
@@ -3011,19 +2980,19 @@ deposit_after_assert@5:
     global CurrentApplicationAddress
     ==
     bnz deposit_after_assert@7
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 deposit_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:814
     // this.subscriptions(subKey).value.escrowed += payment.amount
-    dupn 2
+    dup
     box_get
     assert // Box must have value
     pushint 96
     extract_uint64
-    dig 3
+    uncover 2
     gtxns Amount
     +
     itob
@@ -3065,7 +3034,7 @@ depositAsa:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -3074,7 +3043,7 @@ depositAsa:
     box_len
     bury 1
     bnz depositAsa_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
@@ -3092,7 +3061,7 @@ depositAsa_after_assert@3:
     gtxns XferAsset
     ==
     bnz depositAsa_after_assert@5
-    bytec 19 // "ERR:ASAM"
+    bytec 18 // "ERR:ASAM"
     log
     err // ERR:ASAM
 
@@ -3111,12 +3080,12 @@ depositAsa_after_assert@5:
 depositAsa_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:828
     // this.subscriptions(subKey).value.escrowed += assetXfer.assetAmount
-    dupn 2
+    dup
     box_get
     assert // Box must have value
     pushint 96
     extract_uint64
-    dig 3
+    uncover 2
     gtxns AssetAmount
     +
     itob
@@ -3131,8 +3100,6 @@ depositAsa_after_assert@7:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.withdraw[routing]() -> void:
 withdraw:
-    intc_0 // 0
-    bytec_3 // ""
     // smart_contracts/subscriptions/contract.algo.ts:831
     // withdraw(id: SubscriptionID, amount: uint64): void {
     txna ApplicationArgs 1
@@ -3160,7 +3127,7 @@ withdraw:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -3169,7 +3136,7 @@ withdraw:
     box_len
     bury 1
     bnz withdraw_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
@@ -3180,14 +3147,13 @@ withdraw_after_assert@3:
     box_get
     swap
     dup
-    cover 2
-    bury 6
+    uncover 2
     assert // Box must have value
     // smart_contracts/subscriptions/contract.algo.ts:838
     // loggedAssert(sub.escrowed >= amount, ERR_NOT_ENOUGH_FUNDS)
     pushint 96
     extract_uint64
-    dig 2
+    dig 3
     >=
     bnz withdraw_after_assert@5
     pushbytes "ERR:NEFN"
@@ -3197,11 +3163,9 @@ withdraw_after_assert@3:
 withdraw_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:840
     // if (sub.asset !== 0) {
-    dig 3
     pushint 64
     extract_uint64
     dup
-    bury 4
     bz withdraw_else_body@8
     // smart_contracts/subscriptions/contract.algo.ts:841-847
     // itxn
@@ -3215,11 +3179,10 @@ withdraw_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:843
     // assetReceiver: Txn.sender,
     txn Sender
-    dig 2
-    itxn_field AssetAmount
     dig 3
-    itxn_field XferAsset
+    itxn_field AssetAmount
     itxn_field AssetReceiver
+    itxn_field XferAsset
     // smart_contracts/subscriptions/contract.algo.ts:841-846
     // itxn
     //   .assetTransfer({
@@ -3244,12 +3207,12 @@ withdraw_after_assert@5:
 withdraw_after_if_else@10:
     // smart_contracts/subscriptions/contract.algo.ts:857
     // this.subscriptions(subKey).value.escrowed -= amount
-    dupn 2
+    dup
     box_get
     assert // Box must have value
     pushint 96
     extract_uint64
-    dig 3
+    uncover 2
     -
     itob
     pushint 96
@@ -3261,6 +3224,7 @@ withdraw_after_if_else@10:
     return
 
 withdraw_else_body@8:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:849-854
     // itxn
     //   .payment({
@@ -3299,8 +3263,7 @@ withdraw_else_body@8:
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.unsubscribe[routing]() -> void:
 unsubscribe:
     intc_0 // 0
-    dup
-    bytec_3 // ""
+    pushbytes ""
     dupn 3
     // smart_contracts/subscriptions/contract.algo.ts:860
     // unsubscribe(id: SubscriptionID): void {
@@ -3321,7 +3284,7 @@ unsubscribe:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -3330,7 +3293,7 @@ unsubscribe:
     box_len
     bury 1
     bnz unsubscribe_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
@@ -3342,24 +3305,24 @@ unsubscribe_after_assert@3:
     swap
     dup
     cover 2
-    bury 8
+    cover 3
     assert // Box must have value
     // smart_contracts/subscriptions/contract.algo.ts:868
     // let mbrRefund: uint64 = costs.subscriptions
     intc 6 // 60500
-    bury 6
+    bury 7
     // smart_contracts/subscriptions/contract.algo.ts:869
     // if (sub.serviceID > 0) {
     pushint 32
     extract_uint64
     dup
-    bury 3
+    bury 4
     bz unsubscribe_after_if_else@8
     // smart_contracts/subscriptions/contract.algo.ts:870
     // const { passes } = this.services({ address: sub.recipient, id: sub.serviceID }).value
-    dig 5
+    dig 1
     extract 0 32
-    dig 2
+    dig 3
     itob
     dup
     bury 9
@@ -3383,7 +3346,7 @@ unsubscribe_after_assert@3:
     concat
     // smart_contracts/subscriptions/contract.algo.ts:130
     // passes = BoxMap<SubscriptionKey, Account[]>({ keyPrefix: SubscriptionsBoxPrefixPasses })
-    bytec 20 // "p"
+    bytec 19 // "p"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:871
@@ -3398,7 +3361,7 @@ unsubscribe_after_assert@3:
     concat
     // smart_contracts/subscriptions/contract.algo.ts:130
     // passes = BoxMap<SubscriptionKey, Account[]>({ keyPrefix: SubscriptionsBoxPrefixPasses })
-    bytec 20 // "p"
+    bytec 19 // "p"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:872
@@ -3408,20 +3371,20 @@ unsubscribe_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:873
     // mbrRefund += costs.passes
     intc 7 // 479400
-    bury 5
+    bury 6
 
 unsubscribe_after_if_else@8:
     // smart_contracts/subscriptions/contract.algo.ts:877
     // if (sub.asset !== 0) {
-    dig 5
+    dig 1
     pushint 64
     extract_uint64
     dup
-    bury 5
+    bury 6
     bz unsubscribe_else_body@14
     // smart_contracts/subscriptions/contract.algo.ts:878
     // if (sub.escrowed > 0) {
-    dig 5
+    swap
     pushint 96
     extract_uint64
     dup
@@ -3502,7 +3465,6 @@ unsubscribe_after_if_else@12:
 unsubscribe_after_if_else@16:
     // smart_contracts/subscriptions/contract.algo.ts:903
     // this.subscriptions(subKey).delete()
-    dup
     box_del
     pop
     // smart_contracts/subscriptions/contract.algo.ts:860
@@ -3524,7 +3486,7 @@ unsubscribe_else_body@14:
     txn Sender
     // smart_contracts/subscriptions/contract.algo.ts:898
     // amount: sub.escrowed + mbrRefund
-    dig 6
+    uncover 2
     pushint 96
     extract_uint64
     dig 6
@@ -3554,9 +3516,6 @@ unsubscribe_else_body@14:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.gatedTriggerPayment[routing]() -> void:
 gatedTriggerPayment:
-    intc_0 // 0
-    dup
-    bytec_3 // ""
     // smart_contracts/subscriptions/contract.algo.ts:906
     // gatedTriggerPayment(gateTxn: gtxn.ApplicationCallTxn, key: SubscriptionKey): void {
     txn GroupIndex
@@ -3577,7 +3536,7 @@ gatedTriggerPayment:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -3586,38 +3545,34 @@ gatedTriggerPayment:
     box_len
     bury 1
     bnz gatedTriggerPayment_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
 gatedTriggerPayment_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:910
     // const { serviceID, recipient } = this.subscriptions(key).value
-    dup
     box_get
     assert // Box must have value
     dup
     pushint 32
     extract_uint64
     dup
-    cover 2
-    bury 6
+    uncover 2
     extract 0 32
-    bury 6
+    swap
     // smart_contracts/subscriptions/contract.algo.ts:912
     // loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
     bnz gatedTriggerPayment_after_assert@5
-    bytec 26 // "ERR:NSVC"
+    bytec 25 // "ERR:NSVC"
     log
     err // ERR:NSVC
 
 gatedTriggerPayment_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:913
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    dig 3
-    itob
-    dig 5
     swap
+    itob
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
     // services = BoxMap<ServicesKey, Service>({ keyPrefix: SubscriptionsBoxPrefixServices })
@@ -3625,20 +3580,18 @@ gatedTriggerPayment_after_assert@5:
     swap
     concat
     dup
-    bury 7
     // smart_contracts/subscriptions/contract.algo.ts:913
     // loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz gatedTriggerPayment_after_assert@7
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 gatedTriggerPayment_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:914
     // const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-    dig 5
     pushint 33
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -3668,20 +3621,19 @@ gatedTriggerPayment_after_assert@7:
     // loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 5
+    uncover 4
     swap
     uncover 2
     uncover 3
     callsub gateCheck
     bnz gatedTriggerPayment_after_assert@9
-    bytec 27 // "ERR:FGTE"
+    bytec 26 // "ERR:FGTE"
     log
     err // ERR:FGTE
 
 gatedTriggerPayment_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:920
     // this.triggerPayment(key)
-    dig 1
     callsub smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment
     pop
     // smart_contracts/subscriptions/contract.algo.ts:906
@@ -3729,10 +3681,6 @@ streakCheck:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.setPasses[routing]() -> void:
 setPasses:
-    intc_0 // 0
-    dup
-    bytec_3 // ""
-    dupn 2
     // smart_contracts/subscriptions/contract.algo.ts:1013
     // setPasses(id: SubscriptionID, addresses: Account[]): void {
     txna ApplicationArgs 1
@@ -3764,13 +3712,13 @@ setPasses:
     swap
     itob
     dup
-    cover 2
+    cover 4
     concat
     // smart_contracts/subscriptions/contract.algo.ts:105-107
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -3779,24 +3727,22 @@ setPasses:
     box_len
     bury 1
     bnz setPasses_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
 setPasses_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:1018
     // const { serviceID, recipient } = clone(this.subscriptions(subscriptionsKey).value)
-    dup
     box_get
     assert // Box must have value
     dup
     pushint 32
     extract_uint64
     dup
-    cover 2
-    bury 7
+    uncover 2
     extract 0 32
-    bury 9
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:1020
     // loggedAssert(serviceID > 0, ERR_NO_DONATIONS)
     bnz setPasses_after_assert@5
@@ -3807,9 +3753,8 @@ setPasses_after_assert@3:
 setPasses_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:1022
     // const serviceKey: ServicesKey = { address: recipient, id: serviceID }
-    dig 4
     itob
-    dig 8
+    dig 1
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -3818,20 +3763,18 @@ setPasses_after_assert@5:
     swap
     concat
     dup
-    bury 10
     // smart_contracts/subscriptions/contract.algo.ts:1024
     // loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz setPasses_after_assert@7
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 setPasses_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:1026
     // const { status, passes } = this.services(serviceKey).value
-    dig 8
     dup
     intc_0 // 0
     intc_1 // 1
@@ -3841,21 +3784,20 @@ setPasses_after_assert@7:
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    bury 7
+    swap
     // smart_contracts/subscriptions/contract.algo.ts:1028
     // loggedAssert(status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
-    bytec 17 // 0x28
+    bytec 15 // 0x28
     !=
     bnz setPasses_after_assert@9
-    bytec 36 // "ERR:SSHD"
+    bytec 35 // "ERR:SSHD"
     log
     err // ERR:SSHD
 
 setPasses_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:1029
     // loggedAssert(passes >= addresses.length, ERR_PASS_COUNT_OVERFLOW)
-    dig 5
-    dig 3
+    dig 2
     >=
     bnz setPasses_after_assert@11
     pushbytes "ERR:PCOF"
@@ -3866,12 +3808,11 @@ setPasses_after_assert@11:
     // smart_contracts/subscriptions/contract.algo.ts:1031
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
     intc_0 // 0
-    bury 7
 
 setPasses_while_top@12:
     // smart_contracts/subscriptions/contract.algo.ts:1031
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
-    dig 6
+    dup
     dig 3
     <
     bz setPasses_after_while@16
@@ -3879,17 +3820,17 @@ setPasses_while_top@12:
     // loggedAssert(!this.blocks(this.getBlockKey(recipient, addresses[i])).exists, ERR_BLOCKED)
     dig 3
     extract 2 0
-    dig 7
+    dig 1
     pushint 32
     *
     pushint 32
     extract3 // on error: index access is out of bounds
-    dig 8
+    dig 2
     swap
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1032
@@ -3897,20 +3838,19 @@ setPasses_while_top@12:
     box_len
     bury 1
     bz setPasses_after_assert@15
-    bytec 28 // "ERR:BLKD"
+    bytec 27 // "ERR:BLKD"
     log
     err // ERR:BLKD
 
 setPasses_after_assert@15:
     // smart_contracts/subscriptions/contract.algo.ts:1031
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
-    dig 6
     intc_1 // 1
     +
-    bury 7
     b setPasses_while_top@12
 
 setPasses_after_while@16:
+    popn 3
     // smart_contracts/subscriptions/contract.algo.ts:1035
     // this.passes({ address: Txn.sender, id }).value = clone(addresses)
     txn Sender
@@ -3918,7 +3858,7 @@ setPasses_after_while@16:
     concat
     // smart_contracts/subscriptions/contract.algo.ts:130
     // passes = BoxMap<SubscriptionKey, Account[]>({ keyPrefix: SubscriptionsBoxPrefixPasses })
-    bytec 20 // "p"
+    bytec 19 // "p"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1035
@@ -3926,7 +3866,7 @@ setPasses_after_while@16:
     dup
     box_del
     pop
-    dig 4
+    swap
     box_put
     // smart_contracts/subscriptions/contract.algo.ts:1013
     // setPasses(id: SubscriptionID, addresses: Account[]): void {
@@ -3937,9 +3877,8 @@ setPasses_after_while@16:
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerList[routing]() -> void:
 triggerList:
     intc_0 // 0
+    pushbytes ""
     dupn 2
-    bytec_3 // ""
-    dupn 7
     // smart_contracts/subscriptions/contract.algo.ts:1040
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -3947,13 +3886,13 @@ triggerList:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 3
     intc_3 // 2
     *
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -3961,18 +3900,18 @@ triggerList_for_header@1:
     // smart_contracts/subscriptions/contract.algo.ts:1040
     // @abimethod({ readonly: true })
     dup
-    dig 5
+    dig 6
     <
     bz triggerList_after_for@4
-    dupn 2
+    dup
     intc_3 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -3998,47 +3937,43 @@ triggerList_for_header@1:
     pushint 36
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b triggerList_for_header@1
 
 triggerList_after_for@4:
+    popn 2
     // smart_contracts/subscriptions/contract.algo.ts:1040
     // @abimethod({ readonly: true })
-    dig 3
     intc_3 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/subscriptions/types.ts::TriggerListRequest>
     // smart_contracts/subscriptions/contract.algo.ts:1042
     // const results: boolean[] = []
-    bytec 10 // 0x0000
-    bury 15
+    bytec 9 // 0x0000
     // smart_contracts/subscriptions/contract.algo.ts:1043
     // for (let i: uint64 = 0; i < req.length; i += 1) {
     intc_0 // 0
-    bury 12
 
 triggerList_while_top@6:
     // smart_contracts/subscriptions/contract.algo.ts:1043
     // for (let i: uint64 = 0; i < req.length; i += 1) {
-    dig 11
-    dig 5
+    dup
+    dig 4
     <
     bz triggerList_after_while@11
     // smart_contracts/subscriptions/contract.algo.ts:1044
     // for (let j: uint64 = 0; j < req[i].ids.length; j += 1) {
     intc_0 // 0
-    bury 11
+    cover 2
 
 triggerList_while_top@8:
     // smart_contracts/subscriptions/contract.algo.ts:1044
     // for (let j: uint64 = 0; j < req[i].ids.length; j += 1) {
-    dig 5
-    dig 12
+    dig 3
+    dig 1
     callsub dynamic_array_read_dynamic_element
     dup
     pushint 32
@@ -4048,15 +3983,15 @@ triggerList_while_top@8:
     substring3
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    dig 11
+    dig 3
     >
     bz triggerList_after_while@10
     // smart_contracts/subscriptions/contract.algo.ts:1044-1045
     // for (let j: uint64 = 0; j < req[i].ids.length; j += 1) {
     //   const key: SubscriptionKey = { address: req[i].address, id: req[i].ids[j] }
-    dig 5
+    dig 3
     dup
-    dig 13
+    dig 2
     dup
     cover 3
     callsub dynamic_array_read_dynamic_element
@@ -4071,7 +4006,7 @@ triggerList_while_top@8:
     len
     substring3
     extract 2 0
-    dig 12
+    dig 4
     intc_2 // 8
     *
     intc_2 // 8
@@ -4083,17 +4018,17 @@ triggerList_while_top@8:
     // results.push(this.canTrigger(key))
     callsub canTrigger
     pop
-    bytec 11 // 0x00
+    bytec 16 // 0x00
     intc_0 // 0
     uncover 2
     setbit
-    bury 17
-    dig 14
+    bury 9
+    swap
     dup
     intc_0 // 0
     extract_uint16
     dup
-    bury 16
+    cover 4
     dup
     // smart_contracts/subscriptions/contract.algo.ts:1046
     // results.push(this.canTrigger(key))
@@ -4105,14 +4040,7 @@ triggerList_while_top@8:
     uncover 3
     swap
     replace2 0
-    bury 18
-    swap
-    pushint 7
-    +
-    intc_2 // 8
-    /
-    dup
-    bury 15
+    cover 4
     swap
     pushint 7
     +
@@ -4120,25 +4048,32 @@ triggerList_while_top@8:
     /
     dup
     bury 11
+    swap
+    pushint 7
+    +
+    intc_2 // 8
+    /
+    dup
+    bury 10
     <
     bz triggerList_after_if_else@14
-    dig 8
-    dig 13
+    dig 7
+    dig 9
     -
     bzero
-    dig 16
+    uncover 3
     swap
     concat
-    bury 16
+    cover 2
 
 triggerList_after_if_else@14:
     intc_0 // 0
-    bury 10
-    dig 13
+    cover 2
+    uncover 4
     pushint 16
     +
     dup
-    bury 8
+    cover 4
     // smart_contracts/subscriptions/contract.algo.ts:1046
     // results.push(this.canTrigger(key))
     intc_1 // 1
@@ -4146,57 +4081,62 @@ triggerList_after_if_else@14:
     bury 8
 
 triggerList_while_top@15:
-    dig 6
+    dig 3
     dig 8
     <
     bz triggerList_after_while@17
-    dig 16
     dig 10
+    uncover 3
     dup
     cover 2
     getbit
-    dig 17
-    dig 9
+    uncover 5
+    uncover 5
     dup
     cover 3
     uncover 2
     setbit
-    bury 18
+    cover 4
     intc_1 // 1
     +
-    bury 8
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:1046
     // results.push(this.canTrigger(key))
     intc_1 // 1
     +
-    bury 10
+    cover 2
     b triggerList_while_top@15
 
 triggerList_after_while@17:
+    uncover 2
+    pop
+    uncover 2
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1044
     // for (let j: uint64 = 0; j < req[i].ids.length; j += 1) {
-    dig 10
+    swap
     intc_1 // 1
     +
-    bury 11
-    dig 15
-    bury 15
+    swap
+    uncover 2
+    swap
     b triggerList_while_top@8
 
 triggerList_after_while@10:
+    uncover 2
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1043
     // for (let i: uint64 = 0; i < req.length; i += 1) {
-    dig 11
     intc_1 // 1
     +
-    bury 12
     b triggerList_while_top@6
 
 triggerList_after_while@11:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1040
     // @abimethod({ readonly: true })
     bytec_1 // 0x151f7c75
-    dig 15
+    swap
     concat
     log
     intc_1 // 1
@@ -4224,7 +4164,7 @@ isBlocked:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1059
@@ -4233,7 +4173,7 @@ isBlocked:
     bury 1
     // smart_contracts/subscriptions/contract.algo.ts:1057
     // @abimethod({ readonly: true })
-    bytec 11 // 0x00
+    bytec 16 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -4286,7 +4226,7 @@ isShutdown:
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 17 // 0x28
+    bytec 15 // 0x28
     ==
     // smart_contracts/subscriptions/contract.algo.ts:1068-1069
     // this.services({ address, id }).exists &&
@@ -4297,7 +4237,7 @@ isShutdown:
 isShutdown_bool_merge@5:
     // smart_contracts/subscriptions/contract.algo.ts:1065
     // @abimethod({ readonly: true })
-    bytec 11 // 0x00
+    bytec 16 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -4336,7 +4276,7 @@ newServiceCost:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:83
     // const [subscriptionFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSubscriptionFees))
-    bytec 22 // "subscription_fees"
+    bytec 21 // "subscription_fees"
     app_global_get_ex
     pop
     // smart_contracts/subscriptions/contract.algo.ts:1075
@@ -4349,7 +4289,7 @@ newServiceCost:
     +
     // smart_contracts/subscriptions/contract.algo.ts:120
     // serviceslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixServicesList })
-    bytec 13 // "m"
+    bytec 11 // "m"
     // smart_contracts/subscriptions/contract.algo.ts:1079
     // if (!this.serviceslist(Txn.sender).exists) {
     txn Sender
@@ -4377,7 +4317,7 @@ newServiceCost_after_if_else@3:
     // const referralCost = referralFee(this.akitaDAO.value, asset)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 2
+    uncover 2
     callsub referralFee
     // smart_contracts/subscriptions/contract.algo.ts:1085
     // return requiredAmount + referralCost
@@ -4395,7 +4335,6 @@ newServiceCost_after_if_else@3:
 
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.newSubscriptionCost[routing]() -> void:
 newSubscriptionCost:
-    intc_0 // 0
     // smart_contracts/subscriptions/contract.algo.ts:1088
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4419,16 +4358,17 @@ newSubscriptionCost:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:1095
     // let mbrAmount = costs.subscriptions
     intc 6 // 60500
-    swap
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:1098
     // if (!isDonation) {
     bz newSubscriptionCost_after_if_else@7
     // smart_contracts/subscriptions/contract.algo.ts:1099
     // const boxKey: ServicesKey = { address: recipient, id: serviceID }
-    dig 1
+    dig 2
     itob
     dig 4
     swap
@@ -4439,20 +4379,18 @@ newSubscriptionCost:
     swap
     concat
     dup
-    bury 6
     // smart_contracts/subscriptions/contract.algo.ts:1101
     // loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz newSubscriptionCost_after_assert@4
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 newSubscriptionCost_after_assert@4:
     // smart_contracts/subscriptions/contract.algo.ts:1105
     // if (service.passes > 0) {
-    dig 4
     pushint 25
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -4461,12 +4399,12 @@ newSubscriptionCost_after_assert@4:
     // smart_contracts/subscriptions/contract.algo.ts:1106
     // mbrAmount += costs.passes
     intc 7 // 479400
-    bury 1
+    bury 2
 
 newSubscriptionCost_after_if_else@7:
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     // smart_contracts/subscriptions/contract.algo.ts:1110
     // if (!this.subscriptionslist(Txn.sender).exists) {
     txn Sender
@@ -4480,10 +4418,10 @@ newSubscriptionCost_after_if_else@7:
     bnz newSubscriptionCost_after_if_else@9
     // smart_contracts/subscriptions/contract.algo.ts:1111
     // mbrAmount += costs.subscriptionslist
-    dup
+    dig 1
     intc 5 // 18900
     +
-    bury 1
+    bury 2
 
 newSubscriptionCost_after_if_else@9:
     // smart_contracts/subscriptions/contract.algo.ts:1114
@@ -4496,7 +4434,7 @@ newSubscriptionCost_after_if_else@9:
     // const referralCost = referralFee(this.akitaDAO.value, asset)
     app_global_get_ex
     assert // check GlobalState exists
-    dig 3
+    swap
     callsub referralFee
     // smart_contracts/subscriptions/contract.algo.ts:1119
     // return mbrAmount + referralCost
@@ -4545,14 +4483,13 @@ getService:
     box_len
     bury 1
     bnz getService_after_assert@3
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 getService_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:1131
     // return this.services(key).value
-    dup
     box_get
     assert // Box must have value
     // smart_contracts/subscriptions/contract.algo.ts:1127
@@ -4568,9 +4505,7 @@ getService_after_assert@3:
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.getServicesByAddress[routing]() -> void:
 getServicesByAddress:
     intc_0 // 0
-    dupn 3
-    bytec_3 // ""
-    dupn 2
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:1134
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4597,8 +4532,7 @@ getServicesByAddress:
     swap
     // smart_contracts/subscriptions/contract.algo.ts:1136
     // const services: Service[] = []
-    bytec 10 // 0x0000
-    swap
+    bytec 9 // 0x0000
 
 getServicesByAddress_while_top@2:
     // smart_contracts/subscriptions/contract.algo.ts:1137
@@ -4606,12 +4540,12 @@ getServicesByAddress_while_top@2:
     dig 3
     dig 3
     +
-    dig 1
+    dig 2
     >
     bz getServicesByAddress_block@8
     // smart_contracts/subscriptions/contract.algo.ts:1138
     // const key: ServicesKey = { address, id: i }
-    dup
+    dig 1
     itob
     dig 5
     swap
@@ -4622,7 +4556,7 @@ getServicesByAddress_while_top@2:
     swap
     concat
     dup
-    bury 12
+    bury 8
     // smart_contracts/subscriptions/contract.algo.ts:1139
     // if (this.services(key).exists) {
     box_len
@@ -4630,14 +4564,13 @@ getServicesByAddress_while_top@2:
     bz getServicesByAddress_block@8
     // smart_contracts/subscriptions/contract.algo.ts:1140
     // services.push(this.services(key).value)
-    dig 10
+    dig 6
     box_get
     assert // Box must have value
     pushbytes 0x0002
     swap
     concat
-    bury 10
-    dig 1
+    cover 2
     dup
     intc_0 // 0
     extract_uint16
@@ -4648,23 +4581,23 @@ getServicesByAddress_while_top@2:
     +
     itob
     extract 6 0
-    bury 11
+    cover 3
     swap
     extract 2 0
-    bury 13
+    swap
     intc_3 // 2
     *
-    bury 8
+    swap
     intc_0 // 0
-    bury 6
+    bury 9
 
 getServicesByAddress_for_header@10:
-    dig 5
     dig 8
+    dig 2
     <
     bz getServicesByAddress_after_for@12
-    dig 11
-    dig 6
+    dup
+    dig 9
     dup
     cover 2
     extract_uint16
@@ -4672,70 +4605,68 @@ getServicesByAddress_for_header@10:
     +
     itob
     extract 6 0
-    dig 10
+    uncover 5
     swap
     concat
-    bury 10
+    cover 4
     intc_3 // 2
     +
-    bury 6
+    bury 9
     b getServicesByAddress_for_header@10
 
 getServicesByAddress_after_for@12:
-    dig 11
+    dup
     len
-    bury 7
+    cover 3
     intc_0 // 0
-    bury 6
+    bury 10
 
 getServicesByAddress_for_header@13:
-    dig 5
+    dig 9
     intc_3 // 2
     <
     bz getServicesByAddress_after_for@15
-    dig 9
-    dig 6
+    dig 5
+    dig 10
     dup
     cover 2
     extract_uint16
-    dig 8
+    dig 5
     +
     itob
     extract 6 0
-    dig 10
+    uncover 6
     swap
     concat
-    bury 10
+    cover 5
     intc_3 // 2
     +
-    bury 6
+    bury 10
     b getServicesByAddress_for_header@13
 
 getServicesByAddress_after_for@15:
-    dig 11
-    dig 8
-    dig 8
+    swap
+    uncover 3
     substring3
-    dig 9
+    uncover 2
     swap
     concat
-    dig 10
+    uncover 2
     extract 2 0
     concat
-    bury 2
     // smart_contracts/subscriptions/contract.algo.ts:1137
     // for (let i: uint64 = start; i < start + windowSize; i += 1) {
-    dup
+    swap
     intc_1 // 1
     +
-    bury 1
+    swap
     b getServicesByAddress_while_top@2
 
 getServicesByAddress_block@8:
     // smart_contracts/subscriptions/contract.algo.ts:1134
     // @abimethod({ readonly: true })
     bytec_1 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_1 // 1
@@ -4756,7 +4687,7 @@ getSubscription:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -4765,6 +4696,7 @@ getSubscription:
     box_len
     bury 1
     bnz getSubscription_after_if_else@3
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1151-1163
     // return {
     //   exists: false,
@@ -4794,7 +4726,6 @@ getSubscription_after_inlined_smart_contracts/subscriptions/contract.algo.ts::Su
 getSubscription_after_if_else@3:
     // smart_contracts/subscriptions/contract.algo.ts:1168
     // ...this.subscriptions(key).value,
-    dup
     box_get
     assert // Box must have value
     dup
@@ -4862,7 +4793,7 @@ mustGetSubscription:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -4871,14 +4802,13 @@ mustGetSubscription:
     box_len
     bury 1
     bnz mustGetSubscription_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
 mustGetSubscription_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:1175
     // return this.subscriptions(key).value
-    dup
     box_get
     assert // Box must have value
     // smart_contracts/subscriptions/contract.algo.ts:1172
@@ -4894,8 +4824,7 @@ mustGetSubscription_after_assert@3:
 // smart_contracts/subscriptions/contract.algo.ts::Subscriptions.getSubscriptionWithDetails[routing]() -> void:
 getSubscriptionWithDetails:
     intc_0 // 0
-    dupn 11
-    bytec_3 // ""
+    dupn 2
     // smart_contracts/subscriptions/contract.algo.ts:1178
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -4908,7 +4837,7 @@ getSubscriptionWithDetails:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     dup
@@ -4917,72 +4846,69 @@ getSubscriptionWithDetails:
     box_len
     bury 1
     bnz getSubscriptionWithDetails_after_assert@3
-    bytec 8 // "ERR:UDNE"
+    bytec 7 // "ERR:UDNE"
     log
     err // ERR:UDNE
 
 getSubscriptionWithDetails_after_assert@3:
     // smart_contracts/subscriptions/contract.algo.ts:1182
     // const sub = clone(this.subscriptions(key).value)
-    dup
     box_get
     swap
     dup
     cover 2
-    bury 7
+    cover 3
     assert // Box must have value
     // smart_contracts/subscriptions/contract.algo.ts:1184
     // let status: ServiceStatus = ServiceStatusNone
-    bytec 11 // 0x00
-    bury 7
+    bytec 16 // 0x00
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:1185
     // let payoutAddress: Account = sub.recipient
     dup
     extract 0 32
-    bury 9
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:1186
     // let title: string = ''
-    bytec_3 // ""
-    bury 5
+    pushbytes ""
+    cover 5
     // smart_contracts/subscriptions/contract.algo.ts:1187
     // let description: string = ''
-    bytec_3 // ""
-    bury 15
+    pushbytes ""
+    cover 5
     // smart_contracts/subscriptions/contract.algo.ts:1188
     // let bannerImage: CID = op.bzero(36)
     pushint 36
     bzero
-    bury 16
-    // smart_contracts/subscriptions/contract.algo.ts:1189
-    // let highlightMessage: Uint8 = HighlightMessageNone
-    bytec 11 // 0x00
-    bury 13
+    cover 4
     // smart_contracts/subscriptions/contract.algo.ts:1190
     // let highlightColor: bytes<3> = Bytes('000').toFixed({ length: 3 })
     pushbytes "000"
-    bury 14
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:1191
     // if (sub.serviceID !== 0) {
     pushint 32
     extract_uint64
     dup
-    bury 4
+    cover 2
     bnz getSubscriptionWithDetails_if_body@4
-    dig 7
-    bury 7
+    dig 6
+    cover 3
+    dig 2
+    bury 11
 
 getSubscriptionWithDetails_after_if_else@9:
     // smart_contracts/subscriptions/contract.algo.ts:1200
     // let passes: Account[] = []
-    bytec 10 // 0x0000
-    bury 9
+    bytec 9 // 0x0000
+    bury 12
     // smart_contracts/subscriptions/contract.algo.ts:130
     // passes = BoxMap<SubscriptionKey, Account[]>({ keyPrefix: SubscriptionsBoxPrefixPasses })
-    bytec 20 // "p"
-    dig 2
+    bytec 19 // "p"
+    swap
     concat
     dup
-    bury 11
+    bury 13
     // smart_contracts/subscriptions/contract.algo.ts:1201
     // if (this.passes(key).exists) {
     box_len
@@ -4990,7 +4916,7 @@ getSubscriptionWithDetails_after_if_else@9:
     bz getSubscriptionWithDetails_after_if_else@11
     // smart_contracts/subscriptions/contract.algo.ts:1202
     // passes = [...passes, ...this.passes(key).value]
-    dig 9
+    dig 11
     dup
     box_get
     assert // Box must have value
@@ -5004,17 +4930,17 @@ getSubscriptionWithDetails_after_if_else@9:
     extract 6 0
     // smart_contracts/subscriptions/contract.algo.ts:1200
     // let passes: Account[] = []
-    bytec 10 // 0x0000
+    bytec 9 // 0x0000
     swap
     replace2 0
     swap
     concat
-    bury 9
+    bury 11
 
 getSubscriptionWithDetails_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:1206
     // ...sub,
-    dig 4
+    uncover 4
     dup
     extract 40 8
     dig 1
@@ -5043,7 +4969,7 @@ getSubscriptionWithDetails_after_if_else@11:
     //   highlightColor,
     //   passes
     // }
-    dig 15
+    uncover 9
     uncover 8
     concat
     uncover 7
@@ -5054,14 +4980,14 @@ getSubscriptionWithDetails_after_if_else@11:
     concat
     uncover 4
     concat
-    dig 6
+    uncover 4
     itob
+    concat
+    uncover 7
     concat
     dig 9
     concat
-    dig 10
-    concat
-    dig 7
+    uncover 8
     dup
     len
     itob
@@ -5075,7 +5001,7 @@ getSubscriptionWithDetails_after_if_else@11:
     len
     pushint 183
     +
-    dig 19
+    uncover 9
     dup
     len
     itob
@@ -5093,11 +5019,11 @@ getSubscriptionWithDetails_after_if_else@11:
     uncover 3
     +
     swap
-    dig 21
+    uncover 9
     concat
-    dig 18
+    uncover 7
     concat
-    dig 19
+    uncover 7
     concat
     uncover 6
     concat
@@ -5113,7 +5039,7 @@ getSubscriptionWithDetails_after_if_else@11:
     concat
     swap
     concat
-    dig 9
+    dig 2
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1178
     // @abimethod({ readonly: true })
@@ -5125,11 +5051,21 @@ getSubscriptionWithDetails_after_if_else@11:
     return
 
 getSubscriptionWithDetails_if_body@4:
+    uncover 3
+    pop
+    uncover 4
+    pop
+    uncover 4
+    pop
+    uncover 4
+    pop
+    uncover 4
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1192
     // const serviceKey: ServicesKey = { address: sub.recipient, id: sub.serviceID }
-    dig 2
+    dig 1
     itob
-    dig 8
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -5138,31 +5074,29 @@ getSubscriptionWithDetails_if_body@4:
     swap
     concat
     dup
-    bury 12
     // smart_contracts/subscriptions/contract.algo.ts:1193
     // loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST);
     box_len
     bury 1
     bnz getSubscriptionWithDetails_after_assert@6
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 getSubscriptionWithDetails_after_assert@6:
     // smart_contracts/subscriptions/contract.algo.ts:1194
     // ({ status, payoutAddress, title, description, bannerImage, highlightMessage, highlightColor } = clone(this.services(serviceKey).value))
-    dig 10
     dup
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bury 7
+    cover 5
     dup
     pushints 41 32
     box_extract // on error: index out of bounds
     dup
     cover 2
-    bury 9
+    bury 8
     dup
     pushint 117
     intc_3 // 2
@@ -5175,7 +5109,7 @@ getSubscriptionWithDetails_after_assert@6:
     uncover 2
     box_extract
     extract 2 0
-    bury 6
+    cover 7
     dup
     pushint 75
     intc_3 // 2
@@ -5191,26 +5125,26 @@ getSubscriptionWithDetails_after_assert@6:
     cover 2
     box_extract
     extract 2 0
-    bury 16
+    cover 7
     dup
     pushints 77 36
     box_extract // on error: index out of bounds
-    bury 17
+    cover 6
     dup
     pushint 113
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bury 14
+    cover 5
     pushints 114 3
     box_extract // on error: index out of bounds
-    bury 14
+    cover 5
     // smart_contracts/subscriptions/contract.algo.ts:1195
     // if (payoutAddress === Global.zeroAddress) {
     global ZeroAddress
     ==
     bz getSubscriptionWithDetails_after_if_else@9
-    dig 7
-    bury 7
+    dig 2
+    bury 11
     b getSubscriptionWithDetails_after_if_else@9
 
 
@@ -5226,7 +5160,7 @@ isFirstSubscription:
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1220
@@ -5236,7 +5170,7 @@ isFirstSubscription:
     !
     // smart_contracts/subscriptions/contract.algo.ts:1218
     // @abimethod({ readonly: true })
-    bytec 11 // 0x00
+    bytec 16 // 0x00
     intc_0 // 0
     uncover 2
     setbit
@@ -5260,7 +5194,7 @@ getServiceList:
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/subscriptions/contract.algo.ts:120
     // serviceslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixServicesList })
-    bytec 13 // "m"
+    bytec 11 // "m"
     swap
     concat
     dup
@@ -5269,7 +5203,6 @@ getServiceList:
     box_len
     bury 1
     bz getServiceList_ternary_false@3
-    dup
     box_get
     assert // Box must have value
     btoi
@@ -5286,6 +5219,7 @@ getServiceList_ternary_merge@4:
     return
 
 getServiceList_ternary_false@3:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1225
     // return this.serviceslist(address).exists ? this.serviceslist(address).value : 0
     intc_0 // 0
@@ -5304,7 +5238,7 @@ getSubscriptionList:
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     swap
     concat
     dup
@@ -5313,7 +5247,6 @@ getSubscriptionList:
     box_len
     bury 1
     bz getSubscriptionList_ternary_false@3
-    dup
     box_get
     assert // Box must have value
     btoi
@@ -5330,6 +5263,7 @@ getSubscriptionList_ternary_merge@4:
     return
 
 getSubscriptionList_ternary_false@3:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:1230
     // return this.subscriptionslist(address).exists ? this.subscriptionslist(address).value : 0
     intc_0 // 0
@@ -5338,10 +5272,6 @@ getSubscriptionList_ternary_false@3:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaFeeGeneratorContractWithOptIn.optIn[routing]() -> void:
 optIn:
-    intc_0 // 0
-    dupn 2
-    bytec_3 // ""
-    dupn 3
     // smart_contracts/utils/base-contracts/base.ts:194
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     txn GroupIndex
@@ -5360,20 +5290,20 @@ optIn:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    cover 2
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:196
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:196
     // const escrow = clone(this.akitaDAOEscrow.value)
     app_global_get_ex
     swap
     dup
     cover 2
-    cover 4
+    cover 5
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:197
     // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
@@ -5406,7 +5336,7 @@ optIn:
 optIn_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:200
     // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), ERR_INVALID_PAYMENT_AMOUNT)
-    dig 3
+    swap
     gtxns Amount
     global AssetOptInMinBalance
     intc_1 // 1
@@ -5461,17 +5391,15 @@ optIn_after_assert@5:
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:215
     // if (count > 0 && escrow.name !== '') {
-    dup
     bz optIn_after_if_else@9
-    dig 1
-    dup
+    dupn 2
     intc_0 // 0
     extract_uint16
     dig 1
     len
     substring3
     extract 2 0
-    bytec_3 // ""
+    pushbytes ""
     !=
     bz optIn_after_if_else@9
     // smart_contracts/utils/base-contracts/base.ts:30
@@ -5485,37 +5413,37 @@ optIn_after_assert@5:
     app_global_get_ex
     assert // check GlobalState exists
     dup
-    bytec 18 // "wallet"
+    bytec 17 // "wallet"
     app_global_get_ex
     pop
-    bury 6
+    swap
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     dup
-    bytec 38 // "pal"
+    bytec 37 // "pal"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:118
     // const { revenueManager } = getPluginAppList(this.akitaDAO.value)
     dup
     extract 8 8
-    bury 12
+    cover 2
     intc_2 // 8
     extract_uint64
-    bury 8
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:120
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:120
     // const escrow = clone(this.akitaDAOEscrow.value)
     app_global_get_ex
     swap
     dup
     cover 2
-    bury 5
+    bury 7
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:121
     // const { id } = this.getEscrow(escrow.name)
@@ -5526,12 +5454,12 @@ optIn_after_assert@5:
     len
     substring3
     dup
-    bury 11
+    cover 2
     extract 2 0
     // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     swap
-    bytec 18 // "wallet"
+    bytec 17 // "wallet"
     app_global_get_ex
     pop
     swap
@@ -5545,7 +5473,7 @@ optIn_after_assert@5:
     // args: [[name]],
     intc_1 // 1
     itob
-    bury 13
+    cover 2
     dup
     len
     itob
@@ -5595,7 +5523,6 @@ optIn_after_assert@5:
     intc_0 // 0
     extract_uint64
     dup
-    bury 9
     bnz optIn_after_assert@12
     pushbytes "ERR:NESC"
     log
@@ -5604,12 +5531,11 @@ optIn_after_assert@5:
 optIn_after_assert@12:
     // smart_contracts/utils/base-contracts/base.ts:122
     // loggedAssert(id === escrow.app.id, ERR_WRONG_ESCROW_FOR_OPERATION)
-    dig 1
+    dig 6
     intc_3 // 2
     extract_uint64
     dup
-    bury 7
-    dig 8
+    uncover 2
     ==
     bnz optIn_after_assert@14
     pushbytes "ERR:WESC"
@@ -5629,16 +5555,16 @@ optIn_after_assert@14:
     //   ],
     // })
     itxn_begin
-    dig 4
+    uncover 4
     dup
     itxn_field ApplicationID
     pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     itxn_field ApplicationArgs
-    dig 10
+    uncover 4
     itxn_field ApplicationArgs
-    dig 11
+    uncover 2
     itxn_field ApplicationArgs
-    dig 9
+    uncover 2
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:130
     // [0], // all the akita escrows have method restrictions with optin being index 0
@@ -5646,7 +5572,7 @@ optIn_after_assert@14:
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:131
     // []
-    bytec 10 // 0x0000
+    bytec 9 // 0x0000
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:124-133
     // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
@@ -5675,7 +5601,7 @@ optIn_after_assert@14:
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:137
     // escrow.app.address,
-    dig 7
+    uncover 2
     dup
     cover 2
     app_params_get AppAddress
@@ -5746,10 +5672,10 @@ optIn_after_assert@14:
     // [asset.id],
     swap
     itob
-    bytec 33 // 0x0001
+    bytec 32 // 0x0001
     swap
     concat
-    dig 9
+    uncover 3
     itxn_field ApplicationID
     // smart_contracts/utils/base-contracts/base.ts:143-154
     // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
@@ -5835,7 +5761,7 @@ optInCost:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:222
     // const count = splitOptInCount(this.akitaDAO.value, this.akitaDAOEscrow.value.app.address, asset)
     app_global_get_ex
@@ -5901,7 +5827,7 @@ updateAkitaDAOEscrow:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 18 // "wallet"
+    bytec 17 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:85
@@ -5910,17 +5836,17 @@ updateAkitaDAOEscrow:
     assert // application exists
     ==
     bnz updateAkitaDAOEscrow_after_assert@3
-    bytec 29 // "ERR:NDAO"
+    bytec 28 // "ERR:NDAO"
     log
     err // ERR:NDAO
 
 updateAkitaDAOEscrow_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:86
     // this.akitaDAOEscrow.value = clone(config)
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:84
     // updateAkitaDAOEscrow(config: EscrowConfig): void {
@@ -5956,7 +5882,7 @@ update:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 18 // "wallet"
+    bytec 17 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:48
@@ -5965,7 +5891,7 @@ update:
     assert // application exists
     ==
     bnz update_after_assert@3
-    bytec 29 // "ERR:NDAO"
+    bytec 28 // "ERR:NDAO"
     log
     err // ERR:NDAO
 
@@ -5982,7 +5908,7 @@ update_after_assert@3:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
-    bytec 38 // "pal"
+    bytec 37 // "pal"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:49
@@ -6001,10 +5927,10 @@ update_after_assert@3:
 update_after_assert@5:
     // smart_contracts/utils/base-contracts/base.ts:25
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
-    bytec 34 // "version"
+    bytec 33 // "version"
     // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
@@ -6036,7 +5962,7 @@ updateAkitaDAO:
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
-    bytec 18 // "wallet"
+    bytec 17 // "wallet"
     app_global_get_ex
     pop
     // smart_contracts/utils/base-contracts/base.ts:37
@@ -6045,7 +5971,7 @@ updateAkitaDAO:
     assert // application exists
     ==
     bnz updateAkitaDAO_after_assert@3
-    bytec 29 // "ERR:NDAO"
+    bytec 28 // "ERR:NDAO"
     log
     err // ERR:NDAO
 
@@ -6055,7 +5981,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
@@ -6121,7 +6047,7 @@ updateStreak:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     frame_dig -2
     concat
     dup
@@ -6153,8 +6079,8 @@ updateStreak:
     pushint 80
     extract_uint64
     dup
-    uncover 2
-    <
+    cover 3
+    >
     bz updateStreak_after_if_else@2
     // smart_contracts/subscriptions/contract.algo.ts:153
     // this.subscriptions(key).value.streak = elseStreak
@@ -6173,11 +6099,10 @@ updateStreak:
 updateStreak_after_if_else@2:
     // smart_contracts/subscriptions/contract.algo.ts:160
     // if (sub.lastPayment >= lastWindowStart && !(sub.lastPayment >= currentWindowStart)) {
-    frame_dig 3
     frame_dig 2
-    >=
+    <=
     bz updateStreak_after_if_else@5
-    frame_dig 3
+    frame_dig 2
     frame_dig 1
     >=
     bnz updateStreak_after_if_else@5
@@ -6207,7 +6132,7 @@ getAmounts:
     // smart_contracts/subscriptions/contract.algo.ts:165
     // private getAmounts(amount: uint64): Amounts {
     proto 1 1
-    bytec_3 // ""
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:166
     // const fees = getSubscriptionFees(this.akitaDAO.value)
     intc_0 // 0
@@ -6220,23 +6145,24 @@ getAmounts:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:83
     // const [subscriptionFeesBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysSubscriptionFees))
-    bytec 22 // "subscription_fees"
+    bytec 21 // "subscription_fees"
     app_global_get_ex
     pop
     dup
     // smart_contracts/subscriptions/contract.algo.ts:168
     // let akitaFee: uint64 = 0
     intc_0 // 0
-    swap
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:169
     // if (fees.paymentPercentage > 0) {
     intc_2 // 8
     extract_uint64
     dup
+    cover 2
     bz getAmounts_after_if_else@5
     // smart_contracts/utils/functions.ts:108
     // assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
-    frame_dig 3
+    frame_dig 2
     dup
     intc 4 // 100000
     <=
@@ -6248,7 +6174,7 @@ getAmounts:
     intc 4 // 100000
     divw
     dup
-    frame_bury 2
+    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:171
     // if (akitaFee === 0 && amount > 0) {
     bnz getAmounts_after_if_else@5
@@ -6257,7 +6183,7 @@ getAmounts:
     // smart_contracts/subscriptions/contract.algo.ts:172
     // akitaFee = 2
     intc_3 // 2
-    frame_bury 2
+    frame_bury 1
 
 getAmounts_after_if_else@5:
     // smart_contracts/subscriptions/contract.algo.ts:176
@@ -6266,15 +6192,14 @@ getAmounts_after_if_else@5:
     frame_bury 0
     // smart_contracts/subscriptions/contract.algo.ts:177
     // if (fees.triggerPercentage > 0) {
-    frame_dig 1
     pushint 16
     extract_uint64
     dup
-    frame_bury 3
+    frame_bury 2
     bz getAmounts_after_if_else@10
     // smart_contracts/utils/functions.ts:108
     // assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
-    frame_dig 3
+    frame_dig 2
     dup
     intc 4 // 100000
     <=
@@ -6300,7 +6225,7 @@ getAmounts_after_if_else@5:
 getAmounts_after_if_else@10:
     // smart_contracts/subscriptions/contract.algo.ts:184
     // const leftOver: uint64 = amount - (akitaFee + triggerFee)
-    frame_dig 2
+    frame_dig 1
     dup
     frame_dig 0
     dup
@@ -6334,7 +6259,7 @@ newSubscriptionID:
     proto 1 1
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     frame_dig -1
     concat
     dup
@@ -6349,7 +6274,7 @@ newSubscriptionID:
     bz newSubscriptionID_ternary_false@2
     // smart_contracts/subscriptions/contract.algo.ts:203
     // ? this.subscriptionslist(address).value
-    frame_dig 0
+    dup
     box_get
     assert // Box must have value
     btoi
@@ -6361,12 +6286,11 @@ newSubscriptionID_ternary_merge@3:
     intc_1 // 1
     +
     itob
-    frame_dig 0
+    uncover 2
     swap
     box_put
     // smart_contracts/subscriptions/contract.algo.ts:206
     // return id
-    swap
     retsub
 
 newSubscriptionID_ternary_false@2:
@@ -6388,9 +6312,7 @@ createSubscription:
     // ): uint64 {
     proto 5 1
     intc_0 // 0
-    dupn 3
-    bytec_3 // ""
-    dupn 6
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:216
     // const blocksKey = this.getBlockKey(recipient, Txn.sender)
     frame_dig -4
@@ -6398,7 +6320,7 @@ createSubscription:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:218
@@ -6406,7 +6328,7 @@ createSubscription:
     box_len
     bury 1
     bz createSubscription_after_assert@2
-    bytec 28 // "ERR:BLKD"
+    bytec 27 // "ERR:BLKD"
     log
     err // ERR:BLKD
 
@@ -6414,22 +6336,21 @@ createSubscription_after_assert@2:
     // smart_contracts/subscriptions/contract.algo.ts:220
     // let gateID: uint64 = 0
     intc_0 // 0
-    frame_bury 4
     // smart_contracts/subscriptions/contract.algo.ts:223
     // let mbrAmount = costs.subscriptions
     intc 6 // 60500
-    frame_bury 6
+    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:227
     // if (!isDonation) {
     frame_dig -1
     bnz createSubscription_if_body@3
     frame_dig -4
-    frame_bury 2
+    frame_bury 0
 
 createSubscription_after_if_else@14:
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     // smart_contracts/subscriptions/contract.algo.ts:251
     // const needsSubscriptionsListBoxMbr = !this.subscriptionslist(Txn.sender).exists
     txn Sender
@@ -6445,34 +6366,32 @@ createSubscription_after_if_else@14:
     txn Sender
     callsub newSubscriptionID
     dup
-    frame_bury 8
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:253
     // const subscriptionKey: SubscriptionKey = { address: Txn.sender, id: subscriptionID }
     txn Sender
     swap
     itob
     concat
-    frame_bury 3
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:254
     // if (needsSubscriptionsListBoxMbr) {
     bnz createSubscription_after_if_else@16
     // smart_contracts/subscriptions/contract.algo.ts:255
     // mbrAmount += costs.subscriptionslist
-    frame_dig 6
+    frame_dig 1
     intc 5 // 18900
     +
-    frame_bury 6
+    frame_bury 1
 
 createSubscription_after_if_else@16:
     // smart_contracts/subscriptions/contract.algo.ts:258
     // const amounts = this.getAmounts(amount)
     frame_dig -3
     callsub getAmounts
-    dup
-    frame_bury 0
+    dupn 2
     // smart_contracts/subscriptions/contract.algo.ts:259
     // const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
-    dup
     intc_0 // 0
     extract_uint64
     swap
@@ -6495,10 +6414,9 @@ createSubscription_after_if_else@16:
     dup
     intc_0 // 0
     extract_uint64
-    frame_bury 5
+    swap
     intc_2 // 8
     extract_uint64
-    frame_bury 7
     // smart_contracts/subscriptions/contract.algo.ts:262
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
     frame_dig -5
@@ -6506,7 +6424,7 @@ createSubscription_after_if_else@16:
     global CurrentApplicationAddress
     ==
     bnz createSubscription_after_assert@18
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -6516,17 +6434,17 @@ createSubscription_after_assert@18:
     frame_dig -5
     gtxns Amount
     dup
-    frame_bury 9
+    cover 4
     frame_dig -3
-    frame_dig 6
+    frame_dig 1
     +
-    frame_dig 7
+    uncover 2
     +
     dup
-    frame_bury 10
+    cover 2
     >=
     bnz createSubscription_after_assert@20
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -6544,7 +6462,7 @@ createSubscription_after_assert@20:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:267
     // receiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
@@ -6553,7 +6471,7 @@ createSubscription_after_assert@20:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    frame_dig 5
+    uncover 2
     itxn_field Amount
     itxn_field Receiver
     // smart_contracts/subscriptions/contract.algo.ts:265-269
@@ -6584,11 +6502,11 @@ createSubscription_after_assert@20:
     itxn_begin
     // smart_contracts/subscriptions/contract.algo.ts:275
     // amount: amounts.leftOver
-    frame_dig 0
+    swap
     pushint 16
     extract_uint64
     itxn_field Amount
-    frame_dig 2
+    frame_dig 0
     itxn_field Receiver
     // smart_contracts/subscriptions/contract.algo.ts:272-276
     // itxn
@@ -6610,8 +6528,6 @@ createSubscription_after_assert@20:
     itxn_submit
     // smart_contracts/subscriptions/contract.algo.ts:283
     // const paymentDifference: uint64 = payment.amount - (amount + mbrAmount + referralMbr)
-    frame_dig 9
-    frame_dig 10
     -
     // smart_contracts/subscriptions/contract.algo.ts:288
     // startDate: Global.latestTimestamp,
@@ -6664,7 +6580,7 @@ createSubscription_after_assert@20:
     // }
     itob
     concat
-    frame_dig 4
+    uncover 3
     itob
     concat
     swap
@@ -6695,8 +6611,8 @@ createSubscription_after_assert@20:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
-    frame_dig 3
+    bytec 4 // "s"
+    uncover 2
     concat
     // smart_contracts/subscriptions/contract.algo.ts:285-296
     // this.subscriptions(subscriptionKey).value = {
@@ -6715,11 +6631,11 @@ createSubscription_after_assert@20:
     box_put
     // smart_contracts/subscriptions/contract.algo.ts:298
     // return subscriptionID
-    frame_dig 8
     frame_bury 0
     retsub
 
 createSubscription_if_body@3:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:228
     // const boxKey: ServicesKey = { address: recipient, id: serviceID }
     frame_dig -1
@@ -6733,48 +6649,46 @@ createSubscription_if_body@3:
     swap
     concat
     dup
-    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:230
     // loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz createSubscription_after_assert@5
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 createSubscription_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:234
     // loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
-    frame_dig 1
+    dup
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 16 // 0x14
+    bytec 14 // 0x14
     ==
     bnz createSubscription_after_assert@7
-    bytec 25 // "ERR:SNAC"
+    bytec 24 // "ERR:SNAC"
     log
     err // ERR:SNAC
 
 createSubscription_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:236
     // loggedAssert(service.asset === 0, ERR_ASA_MISMATCH)
-    frame_dig 1
+    dup
     pushint 9
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
     bz createSubscription_after_assert@9
-    bytec 19 // "ERR:ASAM"
+    bytec 18 // "ERR:ASAM"
     log
     err // ERR:ASAM
 
 createSubscription_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:238
     // amount = service.amount
-    frame_dig 1
-    dup
+    dupn 2
     pushint 17
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -6795,23 +6709,22 @@ createSubscription_after_assert@9:
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 4
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:242
     // if (service.payoutAddress !== Global.zeroAddress) {
     pushints 41 32
     box_extract // on error: index out of bounds
     dup
-    frame_bury 2
+    frame_bury 0
     global ZeroAddress
     !=
     bnz createSubscription_after_if_else@11
     frame_dig -4
-    frame_bury 2
+    frame_bury 0
 
 createSubscription_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:246
     // if (service.passes > 0) {
-    frame_dig 1
     pushint 25
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -6820,7 +6733,7 @@ createSubscription_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:247
     // mbrAmount += costs.passes
     intc 7 // 479400
-    frame_bury 6
+    frame_bury 1
     b createSubscription_after_if_else@14
 
 
@@ -6837,9 +6750,7 @@ createAsaSubscription:
     // ): uint64 {
     proto 6 1
     intc_0 // 0
-    dupn 3
-    bytec_3 // ""
-    dupn 6
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:309
     // const blocksKey = this.getBlockKey(recipient, Txn.sender)
     frame_dig -4
@@ -6847,7 +6758,7 @@ createAsaSubscription:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:311
@@ -6855,7 +6766,7 @@ createAsaSubscription:
     box_len
     bury 1
     bz createAsaSubscription_after_assert@2
-    bytec 28 // "ERR:BLKD"
+    bytec 27 // "ERR:BLKD"
     log
     err // ERR:BLKD
 
@@ -6863,22 +6774,21 @@ createAsaSubscription_after_assert@2:
     // smart_contracts/subscriptions/contract.algo.ts:313
     // let gateID: uint64 = 0
     intc_0 // 0
-    frame_bury 4
     // smart_contracts/subscriptions/contract.algo.ts:316
     // let mbrAmount = costs.subscriptions
     intc 6 // 60500
-    frame_bury 6
+    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:320
     // if (!isDonation) {
     frame_dig -1
     bnz createAsaSubscription_if_body@3
     frame_dig -4
-    frame_bury 2
+    frame_bury 0
 
 createAsaSubscription_after_if_else@14:
     // smart_contracts/subscriptions/contract.algo.ts:110
     // subscriptionslist = BoxMap<Account, uint64>({ keyPrefix: SubscriptionsBoxPrefixSubscriptionsList })
-    bytec 12 // "l"
+    bytec 10 // "l"
     // smart_contracts/subscriptions/contract.algo.ts:344
     // const needsSubscriptionsListBoxMbr = !this.subscriptionslist(Txn.sender).exists
     txn Sender
@@ -6894,34 +6804,32 @@ createAsaSubscription_after_if_else@14:
     txn Sender
     callsub newSubscriptionID
     dup
-    frame_bury 8
+    cover 3
     // smart_contracts/subscriptions/contract.algo.ts:346
     // const subscriptionKey = { address: Txn.sender, id: subscriptionID }
     txn Sender
     swap
     itob
     concat
-    frame_bury 3
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:348
     // if (needsSubscriptionsListBoxMbr) {
     bnz createAsaSubscription_after_if_else@16
     // smart_contracts/subscriptions/contract.algo.ts:349
     // mbrAmount += costs.subscriptionslist
-    frame_dig 6
+    frame_dig 1
     intc 5 // 18900
     +
-    frame_bury 6
+    frame_bury 1
 
 createAsaSubscription_after_if_else@16:
     // smart_contracts/subscriptions/contract.algo.ts:352
     // const amounts = this.getAmounts(amount)
     frame_dig -3
     callsub getAmounts
-    dup
-    frame_bury 0
+    dupn 2
     // smart_contracts/subscriptions/contract.algo.ts:353
     // const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
-    dup
     intc_0 // 0
     extract_uint64
     swap
@@ -6941,7 +6849,7 @@ createAsaSubscription_after_if_else@16:
     frame_dig -5
     gtxns XferAsset
     dup
-    frame_bury 9
+    cover 3
     swap
     dig 1
     uncover 3
@@ -6949,16 +6857,16 @@ createAsaSubscription_after_if_else@16:
     dup
     intc_0 // 0
     extract_uint64
-    frame_bury 5
+    cover 2
     intc_2 // 8
     extract_uint64
-    frame_bury 7
+    swap
     // smart_contracts/subscriptions/contract.algo.ts:361
     // loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(assetXfer.xferAsset), ERR_NOT_OPTED_IN)
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:361
     // loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(assetXfer.xferAsset), ERR_NOT_OPTED_IN)
     app_global_get_ex
@@ -6971,7 +6879,7 @@ createAsaSubscription_after_if_else@16:
     asset_holding_get AssetBalance
     bury 1
     bnz createAsaSubscription_after_assert@18
-    bytec 23 // "ERR:NOPT"
+    bytec 22 // "ERR:NOPT"
     log
     err // ERR:NOPT
 
@@ -6990,7 +6898,7 @@ createAsaSubscription_after_assert@18:
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:364
     // assetReceiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
@@ -6999,9 +6907,9 @@ createAsaSubscription_after_assert@18:
     extract_uint64
     app_params_get AppAddress
     assert // application exists
-    frame_dig 5
+    uncover 2
     itxn_field AssetAmount
-    frame_dig 9
+    dig 2
     itxn_field XferAsset
     itxn_field AssetReceiver
     // smart_contracts/subscriptions/contract.algo.ts:362-367
@@ -7031,7 +6939,7 @@ createAsaSubscription_after_assert@18:
     global CurrentApplicationAddress
     ==
     bnz createAsaSubscription_after_assert@21
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -7040,12 +6948,12 @@ createAsaSubscription_after_assert@21:
     // loggedAssert(mbrPayment.amount === mbrAmount + referralMbr, ERR_INVALID_PAYMENT)
     frame_dig -6
     gtxns Amount
-    frame_dig 6
-    frame_dig 7
+    frame_dig 1
+    uncover 2
     +
     ==
     bnz createAsaSubscription_after_assert@23
-    bytec 7 // "ERR:IPAY"
+    bytec 6 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -7057,7 +6965,7 @@ createAsaSubscription_after_assert@23:
     global CurrentApplicationAddress
     ==
     bnz createAsaSubscription_after_assert@25
-    bytec 39 // "ERR:IXFR"
+    bytec 38 // "ERR:IXFR"
     log
     err // ERR:IXFR
 
@@ -7067,11 +6975,10 @@ createAsaSubscription_after_assert@25:
     frame_dig -5
     gtxns AssetAmount
     dup
-    frame_bury 10
     frame_dig -3
     >=
     bnz createAsaSubscription_after_assert@27
-    bytec 39 // "ERR:IXFR"
+    bytec 38 // "ERR:IXFR"
     log
     err // ERR:IXFR
 
@@ -7087,14 +6994,14 @@ createAsaSubscription_after_assert@27:
     itxn_begin
     // smart_contracts/subscriptions/contract.algo.ts:382
     // assetAmount: amounts.leftOver
-    frame_dig 0
+    uncover 2
     pushint 16
     extract_uint64
     itxn_field AssetAmount
-    frame_dig 9
+    swap
     dup
     itxn_field XferAsset
-    frame_dig 2
+    frame_dig 0
     itxn_field AssetReceiver
     // smart_contracts/subscriptions/contract.algo.ts:378-383
     // itxn
@@ -7118,7 +7025,7 @@ createAsaSubscription_after_assert@27:
     itxn_submit
     // smart_contracts/subscriptions/contract.algo.ts:390
     // const paymentDifference: uint64 = assetXfer.assetAmount - amount
-    frame_dig 10
+    swap
     frame_dig -3
     -
     // smart_contracts/subscriptions/contract.algo.ts:395
@@ -7157,7 +7064,7 @@ createAsaSubscription_after_assert@27:
     uncover 3
     itob
     concat
-    frame_dig 4
+    uncover 3
     itob
     concat
     swap
@@ -7186,7 +7093,7 @@ createAsaSubscription_after_assert@27:
     concat
     // smart_contracts/subscriptions/contract.algo.ts:392
     // this.subscriptions(subscriptionKey).value = {
-    frame_dig 3
+    swap
     dup
     extract 0 32
     swap
@@ -7196,7 +7103,7 @@ createAsaSubscription_after_assert@27:
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:392-403
@@ -7216,11 +7123,11 @@ createAsaSubscription_after_assert@27:
     box_put
     // smart_contracts/subscriptions/contract.algo.ts:405
     // return subscriptionID
-    frame_dig 8
     frame_bury 0
     retsub
 
 createAsaSubscription_if_body@3:
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:321
     // const boxKey: ServicesKey = { address: recipient, id: serviceID }
     frame_dig -1
@@ -7234,34 +7141,33 @@ createAsaSubscription_if_body@3:
     swap
     concat
     dup
-    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:323
     // loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
     box_len
     bury 1
     bnz createAsaSubscription_after_assert@5
-    bytec 4 // "ERR:SDNE"
+    bytec_3 // "ERR:SDNE"
     log
     err // ERR:SDNE
 
 createAsaSubscription_after_assert@5:
     // smart_contracts/subscriptions/contract.algo.ts:327
     // loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
-    frame_dig 1
+    dup
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 16 // 0x14
+    bytec 14 // 0x14
     ==
     bnz createAsaSubscription_after_assert@7
-    bytec 25 // "ERR:SNAC"
+    bytec 24 // "ERR:SNAC"
     log
     err // ERR:SNAC
 
 createAsaSubscription_after_assert@7:
     // smart_contracts/subscriptions/contract.algo.ts:329
     // loggedAssert(service.asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
-    frame_dig 1
+    dup
     pushint 9
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -7270,15 +7176,14 @@ createAsaSubscription_after_assert@7:
     gtxns XferAsset
     ==
     bnz createAsaSubscription_after_assert@9
-    bytec 19 // "ERR:ASAM"
+    bytec 18 // "ERR:ASAM"
     log
     err // ERR:ASAM
 
 createAsaSubscription_after_assert@9:
     // smart_contracts/subscriptions/contract.algo.ts:331
     // amount = service.amount
-    frame_dig 1
-    dup
+    dupn 2
     pushint 17
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -7299,23 +7204,22 @@ createAsaSubscription_after_assert@9:
     intc_2 // 8
     box_extract // on error: index out of bounds
     btoi
-    frame_bury 4
+    cover 2
     // smart_contracts/subscriptions/contract.algo.ts:335
     // if (service.payoutAddress !== Global.zeroAddress) {
     pushints 41 32
     box_extract // on error: index out of bounds
     dup
-    frame_bury 2
+    frame_bury 0
     global ZeroAddress
     !=
     bnz createAsaSubscription_after_if_else@11
     frame_dig -4
-    frame_bury 2
+    frame_bury 0
 
 createAsaSubscription_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:339
     // if (service.passes > 0) {
-    frame_dig 1
     pushint 25
     intc_2 // 8
     box_extract // on error: index out of bounds
@@ -7324,7 +7228,7 @@ createAsaSubscription_after_if_else@11:
     // smart_contracts/subscriptions/contract.algo.ts:340
     // mbrAmount += costs.passes
     intc 7 // 479400
-    frame_bury 6
+    frame_bury 1
     b createAsaSubscription_after_if_else@14
 
 
@@ -7335,13 +7239,12 @@ canTrigger:
     proto 1 2
     intc_0 // 0
     dup
-    bytec_3 // ""
-    dupn 5
+    pushbytes ""
     // smart_contracts/subscriptions/contract.algo.ts:105-107
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     frame_dig -1
     concat
     dup
@@ -7361,7 +7264,6 @@ canTrigger:
 canTrigger_after_if_else@2:
     // smart_contracts/subscriptions/contract.algo.ts:421
     // } = this.subscriptions(key).value
-    frame_dig 8
     box_get
     assert // Box must have value
     dup
@@ -7372,26 +7274,26 @@ canTrigger_after_if_else@2:
     dup
     pushint 32
     extract_uint64
-    frame_bury 6
+    frame_bury 2
     dup
     pushint 80
     extract_uint64
-    frame_bury 5
+    cover 2
     dup
     pushint 40
     extract_uint64
-    frame_bury 7
+    cover 2
     dup
     pushint 56
     extract_uint64
-    frame_bury 4
+    cover 2
     dup
     pushint 96
     extract_uint64
-    frame_bury 3
+    cover 2
     pushint 48
     extract_uint64
-    frame_bury 2
+    swap
     // smart_contracts/subscriptions/contract.algo.ts:423
     // const blocksKey = this.getBlockKey(recipient, key.address)
     frame_dig -1
@@ -7399,7 +7301,7 @@ canTrigger_after_if_else@2:
     callsub getBlockKey
     // smart_contracts/subscriptions/contract.algo.ts:128
     // blocks = BoxMap<BlockListKey, bytes<0>>({ keyPrefix: SubscriptionsBoxPrefixBlocks })
-    bytec 9 // "b"
+    bytec 8 // "b"
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:426
@@ -7422,11 +7324,11 @@ canTrigger_after_if_else@4:
     //   !this.services({ address: recipient, id: serviceID }).exists ||
     //   this.services({ address: recipient, id: serviceID }).value.status === ServiceStatusShutdown
     // )
-    frame_dig 6
+    frame_dig 2
     bz canTrigger_after_if_else@8
     // smart_contracts/subscriptions/contract.algo.ts:434
     // !this.services({ address: recipient, id: serviceID }).exists ||
-    frame_dig 6
+    frame_dig 2
     itob
     frame_dig 1
     swap
@@ -7449,7 +7351,7 @@ canTrigger_after_if_else@4:
     intc_0 // 0
     intc_1 // 1
     box_extract // on error: index out of bounds
-    bytec 17 // 0x28
+    bytec 15 // 0x28
     ==
     // smart_contracts/subscriptions/contract.algo.ts:434-435
     // !this.services({ address: recipient, id: serviceID }).exists ||
@@ -7468,10 +7370,10 @@ canTrigger_if_body@7:
 canTrigger_after_if_else@8:
     // smart_contracts/subscriptions/contract.algo.ts:442
     // if (lastPayment >= this.getLatestWindowStart(startDate, interval)) {
-    frame_dig 7
-    frame_dig 4
+    uncover 3
+    uncover 3
     callsub getLatestWindowStart
-    frame_dig 5
+    uncover 3
     <=
     bz canTrigger_after_if_else@10
     // smart_contracts/subscriptions/contract.algo.ts:443
@@ -7485,9 +7387,7 @@ canTrigger_after_if_else@8:
 canTrigger_after_if_else@10:
     // smart_contracts/subscriptions/contract.algo.ts:446
     // if (amount > escrowed) {
-    frame_dig 2
-    frame_dig 3
-    >
+    <
     bz canTrigger_after_if_else@12
     // smart_contracts/subscriptions/contract.algo.ts:447
     // return false
@@ -7512,10 +7412,6 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment:
     // smart_contracts/subscriptions/contract.algo.ts:923
     // triggerPayment(key: SubscriptionKey): void {
     proto 1 1
-    intc_0 // 0
-    dupn 3
-    bytec_3 // ""
-    dupn 2
     // smart_contracts/subscriptions/contract.algo.ts:925
     // loggedAssert(this.canTrigger(key), ERR_CANNOT_TRIGGER)
     frame_dig -1
@@ -7531,7 +7427,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     frame_dig -1
     concat
     // smart_contracts/subscriptions/contract.algo.ts:933
@@ -7540,19 +7436,19 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     assert // Box must have value
     dup
     extract 0 32
-    frame_bury 3
+    swap
     dup
     pushint 32
     extract_uint64
-    frame_bury 6
+    swap
     dup
     pushint 48
     extract_uint64
-    frame_bury 4
+    swap
     dup
     pushint 64
     extract_uint64
-    frame_bury 5
+    cover 2
     pushint 72
     extract_uint64
     // smart_contracts/subscriptions/contract.algo.ts:935
@@ -7560,31 +7456,32 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     bz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@8
     // smart_contracts/subscriptions/contract.algo.ts:936
     // loggedAssert(Txn.applicationArgs(0) === methodSelector(this.gatedTriggerPayment), ERR_INVALID_SEQUENCE)
-    intc_0 // 0
-    txnas ApplicationArgs
-    bytec 31 // method "gatedTriggerPayment(appl,(address,uint64))void"
+    txna ApplicationArgs 0
+    bytec 30 // method "gatedTriggerPayment(appl,(address,uint64))void"
     ==
     bnz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@8
-    bytec 24 // "ERR:ISEQ"
+    bytec 23 // "ERR:ISEQ"
     log
     err // ERR:ISEQ
 
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@8:
     // smart_contracts/subscriptions/contract.algo.ts:940
     // if (serviceID !== 0) {
-    frame_dig 6
+    dig 2
     bnz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@9
-    frame_dig 3
-    frame_bury 2
+    uncover 2
+    pop
+    uncover 2
+    swap
 
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@14:
     // smart_contracts/subscriptions/contract.algo.ts:951
     // const amounts = this.getAmounts(amount)
-    frame_dig 4
+    dup
     callsub getAmounts
     // smart_contracts/subscriptions/contract.algo.ts:953
     // if (isAsa) {
-    frame_dig 5
+    dig 3
     bz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_else_body@19
     // smart_contracts/subscriptions/contract.algo.ts:956-962
     // itxn
@@ -7600,7 +7497,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:958
     // assetReceiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
@@ -7615,7 +7512,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     intc_0 // 0
     extract_uint64
     itxn_field AssetAmount
-    frame_dig 5
+    uncover 4
     dup
     cover 3
     itxn_field XferAsset
@@ -7696,7 +7593,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     extract_uint64
     itxn_field AssetAmount
     itxn_field XferAsset
-    frame_dig 2
+    swap
     itxn_field AssetReceiver
     // smart_contracts/subscriptions/contract.algo.ts:972-977
     // itxn
@@ -7730,7 +7627,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     // subscriptions = BoxMap<SubscriptionKey, SubscriptionInfo>({
     //   keyPrefix: SubscriptionsBoxPrefixSubscriptions,
     // })
-    bytec 5 // "s"
+    bytec 4 // "s"
     frame_dig -1
     concat
     // smart_contracts/subscriptions/contract.algo.ts:1005
@@ -7740,7 +7637,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     assert // Box must have value
     pushint 96
     extract_uint64
-    frame_dig 4
+    uncover 2
     -
     itob
     dig 1
@@ -7755,10 +7652,11 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_aft
     swap
     box_replace // on error: index out of bounds
     frame_dig -1
-    frame_bury 0
     retsub
 
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_else_body@19:
+    uncover 3
+    pop
     // smart_contracts/subscriptions/contract.algo.ts:981-986
     // itxn
     //   .payment({
@@ -7772,7 +7670,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_els
     intc_0 // 0
     // smart_contracts/utils/base-contracts/base.ts:82
     // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
-    bytec 6 // "akita_escrow"
+    bytec 5 // "akita_escrow"
     // smart_contracts/subscriptions/contract.algo.ts:983
     // receiver: this.akitaDAOEscrow.value.app.address,
     app_global_get_ex
@@ -7855,7 +7753,7 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_els
     pushint 16
     extract_uint64
     itxn_field Amount
-    frame_dig 2
+    swap
     itxn_field Receiver
     // smart_contracts/subscriptions/contract.algo.ts:995-999
     // itxn
@@ -7880,9 +7778,9 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_els
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@9:
     // smart_contracts/subscriptions/contract.algo.ts:941
     // const serviceKey: ServicesKey = { address: recipient, id: serviceID }
-    frame_dig 6
+    uncover 2
     itob
-    frame_dig 3
+    dig 3
     swap
     concat
     // smart_contracts/subscriptions/contract.algo.ts:118
@@ -7891,34 +7789,34 @@ smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_
     swap
     concat
     dup
-    frame_bury 0
     // smart_contracts/subscriptions/contract.algo.ts:942
     // if (this.services(serviceKey).exists) {
     box_len
     bury 1
     bnz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@10
-    frame_dig 3
-    frame_bury 2
+    pop
+    uncover 2
+    swap
     b smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@14
 
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@10:
     // smart_contracts/subscriptions/contract.algo.ts:943
     // const payoutAddress = this.services(serviceKey).value.payoutAddress
-    frame_dig 0
     pushints 41 32
     box_extract // on error: index out of bounds
     dup
-    frame_bury 1
     // smart_contracts/subscriptions/contract.algo.ts:944
     // if (payoutAddress !== Global.zeroAddress) {
     global ZeroAddress
     !=
     bnz smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@11
-    frame_dig 3
-    frame_bury 2
+    pop
+    uncover 2
+    swap
     b smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@14
 
 smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_if_body@11:
-    frame_dig 1
-    frame_bury 2
+    uncover 3
+    pop
+    swap
     b smart_contracts/subscriptions/contract.algo.ts::Subscriptions.triggerPayment_after_if_else@14

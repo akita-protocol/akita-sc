@@ -100,7 +100,6 @@ dynamic_array_read_byte_length_element:
 
 // smart_contracts/poll/contract.algo.ts::Poll.create[routing]() -> void:
 create:
-    pushbytes ""
     // smart_contracts/poll/contract.algo.ts:150
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
@@ -112,6 +111,7 @@ create:
     btoi
     txna ApplicationArgs 2
     dup
+    cover 2
     len
     intc_1 // 1
     ==
@@ -130,8 +130,10 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    cover 2
     txna ApplicationArgs 5
     dup
+    cover 2
     len
     pushint 40
     ==
@@ -147,18 +149,21 @@ create:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     extract 2 0
+    swap
     txna ApplicationArgs 7
-    dupn 2
+    dup
+    cover 5
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 6
     intc_2 // 2
     *
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -166,18 +171,18 @@ create_for_header@1:
     // smart_contracts/poll/contract.algo.ts:150
     // @abimethod({ onCreate: 'require' })
     dup
-    dig 5
+    dig 9
     <
     bz create_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -190,19 +195,17 @@ create_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b create_for_header@1
 
 create_after_for@4:
+    popn 2
     // smart_contracts/poll/contract.algo.ts:150
     // @abimethod({ onCreate: 'require' })
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<string>
     txna ApplicationArgs 8
@@ -212,7 +215,6 @@ create_after_for@4:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    bury 13
     // smart_contracts/poll/contract.algo.ts:161
     // loggedAssert(Global.callerApplicationId !== 0, ERR_BAD_DEPLOYER)
     global CallerApplicationID
@@ -225,7 +227,7 @@ create_after_assert@7:
     // smart_contracts/poll/contract.algo.ts:162
     // loggedAssert(Global.latestTimestamp < endTime, ERR_INVALID_END_TIME)
     global LatestTimestamp
-    dig 10
+    dig 2
     <
     bnz create_after_assert@9
     pushbytes "ERR:IETM"
@@ -235,7 +237,7 @@ create_after_assert@7:
 create_after_assert@9:
     // smart_contracts/poll/contract.algo.ts:163
     // loggedAssert(type.asUint64() < MultipleChoiceImpact.asUint64(), ERR_INVALID_POLL_TYPE)
-    dig 10
+    dig 8
     btoi
     pushint 40
     <
@@ -250,50 +252,50 @@ create_after_assert@11:
     bytec 6 // "akita_dao"
     // smart_contracts/poll/contract.algo.ts:165
     // this.akitaDAO.value = Application(akitaDAO)
-    dig 12
+    uncover 5
     app_global_put
     // smart_contracts/poll/contract.algo.ts:65
     // type = GlobalState<Uint8>({ key: PollGlobalStateKeyType })
     bytec 7 // "type"
     // smart_contracts/poll/contract.algo.ts:166
     // this.type.value = type
-    dig 11
+    dig 8
     app_global_put
     // smart_contracts/poll/contract.algo.ts:67
     // gateID = GlobalState<uint64>({ key: PollGlobalStateKeyGateID })
     bytec 10 // "gate_id"
     // smart_contracts/poll/contract.algo.ts:167
     // this.gateID.value = gateID
-    dig 13
+    swap
     app_global_put
     // smart_contracts/poll/contract.algo.ts:69
     // endTime = GlobalState<uint64>({ key: PollGlobalStateKeyEndTime })
     bytec 8 // "end_time"
     // smart_contracts/poll/contract.algo.ts:168
     // this.endTime.value = endTime
-    dig 10
+    swap
     app_global_put
     // smart_contracts/poll/contract.algo.ts:77
     // funder = GlobalState<FunderInfo>({ key: GlobalStateKeyFunder })
     pushbytes "funder"
     // smart_contracts/poll/contract.algo.ts:169
     // this.funder.value = clone(funder)
-    dig 8
+    uncover 2
     app_global_put
     // smart_contracts/poll/contract.algo.ts:79
     // question = GlobalState<string>({ key: PollGlobalStateKeyQuestion })
     pushbytes "question"
     // smart_contracts/poll/contract.algo.ts:170
     // this.question.value = question
-    dig 7
+    swap
     app_global_put
     // smart_contracts/poll/contract.algo.ts:172
     // loggedAssert(options.length >= 2 && options.length <= 5, ERR_INVALID_OPTION_COUNT)
-    dig 4
+    dup
     intc_2 // 2
     >=
     bz create_bool_false@14
-    dig 4
+    dup
     pushint 5
     <=
     bz create_bool_false@14
@@ -310,26 +312,30 @@ create_bool_merge@15:
 create_after_assert@17:
     // smart_contracts/poll/contract.algo.ts:174
     // if (type === MultipleChoice || type === MultipleChoiceImpact) {
-    dig 10
+    dig 3
     pushbytes 0x14
     ==
     bnz create_if_body@19
-    dig 10
+    dig 3
+    // smart_contracts/poll/contract.algo.ts:163
+    // loggedAssert(type.asUint64() < MultipleChoiceImpact.asUint64(), ERR_INVALID_POLL_TYPE)
     pushbytes 0x28
+    // smart_contracts/poll/contract.algo.ts:174
+    // if (type === MultipleChoice || type === MultipleChoiceImpact) {
     ==
     bz create_after_if_else@26
 
 create_if_body@19:
     // smart_contracts/poll/contract.algo.ts:175
     // loggedAssert(maxSelected >= 2 && maxSelected <= options.length - 1, ERR_INVALID_MAX_SELECTION)
-    dig 8
+    dig 2
     intc_2 // 2
     >=
     bz create_bool_false@22
-    dig 4
+    dup
     intc_1 // 1
     -
-    dig 9
+    dig 3
     >=
     bz create_bool_false@22
     intc_1 // 1
@@ -348,7 +354,7 @@ create_after_assert@25:
     bytec 13 // "max_selected"
     // smart_contracts/poll/contract.algo.ts:176
     // this.maxSelected.value = maxSelected
-    dig 9
+    dig 3
     app_global_put
 
 create_after_if_else@26:
@@ -357,7 +363,7 @@ create_after_if_else@26:
     bytec 11 // "option_count"
     // smart_contracts/poll/contract.algo.ts:179
     // this.optionCount.value = options.length
-    dig 5
+    dig 1
     dup
     cover 2
     app_global_put
@@ -372,7 +378,7 @@ create_after_if_else@26:
     assert // index out of bounds
     // smart_contracts/poll/contract.algo.ts:182
     // this.optionOne.value = options[0]
-    dig 6
+    dig 2
     dup
     cover 2
     intc_0 // 0
@@ -412,12 +418,12 @@ create_after_if_else@26:
     // smart_contracts/poll/contract.algo.ts:186
     // this.optionThree.value = options[2]
     intc_2 // 2
-    dig 5
+    dig 1
     <
     assert // index out of bounds
     // smart_contracts/poll/contract.algo.ts:186
     // this.optionThree.value = options[2]
-    dig 5
+    dig 1
     intc_2 // 2
     callsub dynamic_array_read_byte_length_element
     extract 2 0
@@ -432,19 +438,19 @@ create_after_if_else@26:
 create_after_if_else@28:
     // smart_contracts/poll/contract.algo.ts:189
     // if (options.length >= 4) {
-    dig 4
+    dup
     pushint 4
     >=
     bz create_after_if_else@30
     // smart_contracts/poll/contract.algo.ts:190
     // this.optionFour.value = options[3]
     pushint 3
-    dig 5
+    dig 1
     <
     assert // index out of bounds
     // smart_contracts/poll/contract.algo.ts:190
     // this.optionFour.value = options[3]
-    dig 5
+    dig 1
     pushint 3
     callsub dynamic_array_read_byte_length_element
     extract 2 0
@@ -459,19 +465,19 @@ create_after_if_else@28:
 create_after_if_else@30:
     // smart_contracts/poll/contract.algo.ts:193
     // if (options.length >= 5) {
-    dig 4
+    dup
     pushint 5
     >=
     bz create_after_if_else@32
     // smart_contracts/poll/contract.algo.ts:194
     // this.optionFive.value = options[4]
     pushint 4
-    dig 5
+    dig 1
     <
     assert // index out of bounds
     // smart_contracts/poll/contract.algo.ts:194
     // this.optionFive.value = options[4]
-    dig 5
+    dig 1
     pushint 4
     callsub dynamic_array_read_byte_length_element
     extract 2 0
@@ -500,8 +506,6 @@ create_bool_false@14:
 
 // smart_contracts/poll/contract.algo.ts::Poll.deleteBoxes[routing]() -> void:
 deleteBoxes:
-    intc_0 // 0
-    pushbytes ""
     // smart_contracts/poll/contract.algo.ts:198
     // deleteBoxes(addresses: Account[]): void {
     txna ApplicationArgs 1
@@ -539,26 +543,24 @@ deleteBoxes_after_assert@3:
     // smart_contracts/poll/contract.algo.ts:201
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
     intc_0 // 0
-    bury 3
 
 deleteBoxes_while_top@4:
     // smart_contracts/poll/contract.algo.ts:201
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
+    dup
     dig 2
-    dig 1
     <
     bz deleteBoxes_after_while@9
     // smart_contracts/poll/contract.algo.ts:203
     // loggedAssert(this.votes(addresses[i]).exists, ERR_NOT_VOTED)
-    dig 1
+    dig 2
     extract 2 0
-    dig 3
+    dig 1
     pushint 32
     *
     pushint 32
     extract3 // on error: index access is out of bounds
     dup
-    bury 5
     box_len
     bury 1
     bnz deleteBoxes_after_assert@7
@@ -569,7 +571,6 @@ deleteBoxes_while_top@4:
 deleteBoxes_after_assert@7:
     // smart_contracts/poll/contract.algo.ts:204
     // this.votes(addresses[i]).delete()
-    dig 3
     dup
     box_del
     pop
@@ -632,10 +633,8 @@ deleteBoxes_after_assert@7:
     app_global_put
     // smart_contracts/poll/contract.algo.ts:201
     // for (let i: uint64 = 0; i < addresses.length; i += 1) {
-    dig 2
     intc_1 // 1
     +
-    bury 3
     b deleteBoxes_while_top@4
 
 deleteBoxes_after_while@9:
@@ -720,6 +719,7 @@ gatedVote:
     intc_1 // 1
     -
     dup
+    cover 2
     gtxns TypeEnum
     pushint 6 // appl
     ==
@@ -729,7 +729,7 @@ gatedVote:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 4
     intc_3 // 8
     *
     intc_2 // 2
@@ -769,11 +769,11 @@ gatedVote_after_assert@3:
 gatedVote_after_assert@5:
     // smart_contracts/poll/contract.algo.ts:234
     // loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    dup
+    dig 2
     pushint 5
     <=
     bz gatedVote_bool_false@8
-    dup
+    dig 2
     bz gatedVote_bool_false@8
     intc_1 // 1
 
@@ -810,7 +810,7 @@ gatedVote_after_assert@11:
     assert // check GlobalState exists
     // smart_contracts/utils/functions.ts:249
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
-    dig 3
+    dig 4
     gtxns ApplicationID
     // smart_contracts/utils/functions.ts:44
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
@@ -829,7 +829,7 @@ gatedVote_after_assert@11:
     bz gatedVote_bool_false@25
     // smart_contracts/utils/functions.ts:250
     // gateTxn.onCompletion === OnCompleteAction.NoOp &&
-    dig 2
+    dig 3
     gtxns OnCompletion
     // smart_contracts/utils/functions.ts:249-250
     // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
@@ -837,7 +837,7 @@ gatedVote_after_assert@11:
     bnz gatedVote_bool_false@25
     // smart_contracts/utils/functions.ts:251
     // gateTxn.numAppArgs === 4 &&
-    dig 2
+    dig 3
     gtxns NumAppArgs
     pushint 4
     ==
@@ -848,9 +848,8 @@ gatedVote_after_assert@11:
     bz gatedVote_bool_false@25
     // smart_contracts/utils/functions.ts:252
     // gateTxn.appArgs(0) === methodSelector<typeof Gate.prototype.mustCheck>() &&
-    dig 2
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    dig 3
+    gtxnsa ApplicationArgs 0
     pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
     ==
     // smart_contracts/utils/functions.ts:249-252
@@ -861,9 +860,8 @@ gatedVote_after_assert@11:
     bz gatedVote_bool_false@25
     // smart_contracts/utils/functions.ts:253
     // gateTxn.appArgs(1) === new Address(caller).bytes &&
-    dig 2
-    intc_1 // 1
-    gtxnsas ApplicationArgs
+    dig 3
+    gtxnsa ApplicationArgs 1
     dig 6
     ==
     // smart_contracts/utils/functions.ts:249-253
@@ -875,9 +873,8 @@ gatedVote_after_assert@11:
     bz gatedVote_bool_false@25
     // smart_contracts/utils/functions.ts:254
     // gateTxn.appArgs(2) === itob(id)
-    dig 2
-    intc_2 // 2
-    gtxnsas ApplicationArgs
+    dig 3
+    gtxnsa ApplicationArgs 2
     dig 5
     itob
     ==
@@ -902,7 +899,7 @@ gatedVote_bool_merge@26:
 gatedVote_after_assert@13:
     // smart_contracts/poll/contract.algo.ts:236
     // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    dig 3
+    dig 1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -914,7 +911,7 @@ gatedVote_after_assert@13:
 gatedVote_after_assert@15:
     // smart_contracts/poll/contract.algo.ts:237
     // loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
-    dig 3
+    swap
     gtxns Amount
     intc 4 // 15300
     ==
@@ -926,7 +923,6 @@ gatedVote_after_assert@15:
 gatedVote_after_assert@17:
     // smart_contracts/poll/contract.algo.ts:239
     // this.createVote(votes)
-    dig 1
     callsub createVote
     pop
     // smart_contracts/poll/contract.algo.ts:227-231
@@ -964,7 +960,7 @@ vote:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 4
     intc_3 // 8
     *
     intc_2 // 2
@@ -1004,11 +1000,11 @@ vote_after_assert@3:
 vote_after_assert@5:
     // smart_contracts/poll/contract.algo.ts:245
     // loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    dup
+    dig 2
     pushint 5
     <=
     bz vote_bool_false@8
-    dup
+    dig 2
     bz vote_bool_false@8
     intc_1 // 1
 
@@ -1039,7 +1035,7 @@ vote_after_assert@11:
 vote_after_assert@13:
     // smart_contracts/poll/contract.algo.ts:247
     // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    dig 2
+    dig 1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -1051,7 +1047,7 @@ vote_after_assert@13:
 vote_after_assert@15:
     // smart_contracts/poll/contract.algo.ts:248
     // loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
-    dig 2
+    swap
     gtxns Amount
     intc 4 // 15300
     ==
@@ -1063,7 +1059,6 @@ vote_after_assert@15:
 vote_after_assert@17:
     // smart_contracts/poll/contract.algo.ts:250
     // this.createVote(votes)
-    dig 1
     callsub createVote
     pop
     // smart_contracts/poll/contract.algo.ts:242
@@ -1147,7 +1142,7 @@ updateAkitaDAO_after_assert@3:
     bytec 6 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
@@ -1162,7 +1157,7 @@ createVote:
     proto 1 1
     intc_0 // 0
     pushbytes ""
-    dupn 5
+    dup
     // smart_contracts/poll/contract.algo.ts:101
     // let impact: uint64 = 1
     intc_1 // 1
@@ -1247,7 +1242,7 @@ createVote_if_body@2:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    frame_bury 7
+    frame_bury 3
 
 createVote_after_if_else@3:
     // smart_contracts/poll/contract.algo.ts:106
@@ -1271,7 +1266,11 @@ createVote_after_if_else@3:
     // if (this.type.value === SingleChoice || this.type.value === SingleChoiceImpact) {
     app_global_get_ex
     assert // check GlobalState exists
+    // smart_contracts/poll/contract.algo.ts:102
+    // if (this.type.value === SingleChoiceImpact || this.type.value === MultipleChoiceImpact) {
     pushbytes 0x1e
+    // smart_contracts/poll/contract.algo.ts:106
+    // if (this.type.value === SingleChoice || this.type.value === SingleChoiceImpact) {
     ==
     bz createVote_else_body@24
 
@@ -1295,7 +1294,6 @@ createVote_after_assert@7:
     intc_2 // 2
     extract_uint64
     dup
-    frame_bury 6
     intc_0 // 0
     // smart_contracts/poll/contract.algo.ts:71
     // optionCount = GlobalState<uint64>({ key: PollGlobalStateKeyOptionCount })
@@ -1315,8 +1313,9 @@ createVote_after_assert@7:
 createVote_after_assert@9:
     // smart_contracts/poll/contract.algo.ts:110
     // if (votes[0] === 0) {
-    frame_dig 6
+    dup
     bnz createVote_else_body@11
+    pop
     // smart_contracts/poll/contract.algo.ts:111
     // this.votesOne.value += impact
     intc_0 // 0
@@ -1327,7 +1326,7 @@ createVote_after_assert@9:
     // this.votesOne.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:87
     // votesOne = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesOne })
@@ -1370,10 +1369,11 @@ createVote_after_if_else@51:
 createVote_else_body@11:
     // smart_contracts/poll/contract.algo.ts:112
     // } else if (votes[0] === 1) {
-    frame_dig 6
+    dup
     intc_1 // 1
     ==
     bz createVote_else_body@13
+    pop
     // smart_contracts/poll/contract.algo.ts:113
     // this.votesTwo.value += impact
     intc_0 // 0
@@ -1384,7 +1384,7 @@ createVote_else_body@11:
     // this.votesTwo.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:88
     // votesTwo = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesTwo })
@@ -1398,10 +1398,11 @@ createVote_else_body@11:
 createVote_else_body@13:
     // smart_contracts/poll/contract.algo.ts:114
     // } else if (votes[0] === 2) {
-    frame_dig 6
+    dup
     intc_2 // 2
     ==
     bz createVote_else_body@15
+    pop
     // smart_contracts/poll/contract.algo.ts:115
     // this.votesThree.value += impact
     intc_0 // 0
@@ -1412,7 +1413,7 @@ createVote_else_body@13:
     // this.votesThree.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:89
     // votesThree = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesThree })
@@ -1426,10 +1427,11 @@ createVote_else_body@13:
 createVote_else_body@15:
     // smart_contracts/poll/contract.algo.ts:116
     // } else if (votes[0] === 3) {
-    frame_dig 6
+    dup
     pushint 3
     ==
     bz createVote_else_body@17
+    pop
     // smart_contracts/poll/contract.algo.ts:117
     // this.votesFour.value += impact
     intc_0 // 0
@@ -1440,7 +1442,7 @@ createVote_else_body@15:
     // this.votesFour.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:90
     // votesFour = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesFour })
@@ -1454,7 +1456,6 @@ createVote_else_body@15:
 createVote_else_body@17:
     // smart_contracts/poll/contract.algo.ts:118
     // } else if (votes[0] === 4) {
-    frame_dig 6
     pushint 4
     ==
     bz createVote_after_if_else@51
@@ -1468,7 +1469,7 @@ createVote_else_body@17:
     // this.votesFive.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:91
     // votesFive = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesFive })
@@ -1525,7 +1526,6 @@ createVote_while_top@27:
     *
     extract_uint64
     dup
-    frame_bury 5
     intc_0 // 0
     // smart_contracts/poll/contract.algo.ts:71
     // optionCount = GlobalState<uint64>({ key: PollGlobalStateKeyOptionCount })
@@ -1549,25 +1549,24 @@ createVote_after_assert@30:
     intc_1 // 1
     +
     dup
-    frame_bury 3
-    frame_bury 4
+    cover 2
 
 createVote_while_top@31:
     // smart_contracts/poll/contract.algo.ts:126
     // for (let j: uint64 = i + 1; j < votes.length; j += 1) {
-    frame_dig 4
+    dup
     frame_dig 1
     <
     bz createVote_after_while@35
     // smart_contracts/poll/contract.algo.ts:127
     // loggedAssert(votes[i] !== votes[j], ERR_INVALID_VOTE_OPTION)
-    frame_dig 4
+    dup
     intc_3 // 8
     *
     frame_dig 0
     swap
     extract_uint64
-    frame_dig 5
+    dig 2
     !=
     bnz createVote_after_assert@34
     bytec 12 // "ERR:IVOP"
@@ -1577,17 +1576,17 @@ createVote_while_top@31:
 createVote_after_assert@34:
     // smart_contracts/poll/contract.algo.ts:126
     // for (let j: uint64 = i + 1; j < votes.length; j += 1) {
-    frame_dig 4
     intc_1 // 1
     +
-    frame_bury 4
     b createVote_while_top@31
 
 createVote_after_while@35:
+    pop
     // smart_contracts/poll/contract.algo.ts:130
     // if (votes[i] === 0) {
-    frame_dig 5
+    dup
     bnz createVote_else_body@37
+    pop
     // smart_contracts/poll/contract.algo.ts:131
     // this.votesOne.value += impact
     intc_0 // 0
@@ -1598,7 +1597,7 @@ createVote_after_while@35:
     // this.votesOne.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:87
     // votesOne = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesOne })
@@ -1609,17 +1608,17 @@ createVote_after_while@35:
     app_global_put
 
 createVote_after_if_else@49:
-    frame_dig 3
     frame_bury 2
     b createVote_while_top@27
 
 createVote_else_body@37:
     // smart_contracts/poll/contract.algo.ts:132
     // } else if (votes[i] === 1) {
-    frame_dig 5
+    dup
     intc_1 // 1
     ==
     bz createVote_else_body@39
+    pop
     // smart_contracts/poll/contract.algo.ts:133
     // this.votesTwo.value += impact
     intc_0 // 0
@@ -1630,7 +1629,7 @@ createVote_else_body@37:
     // this.votesTwo.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:88
     // votesTwo = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesTwo })
@@ -1644,10 +1643,11 @@ createVote_else_body@37:
 createVote_else_body@39:
     // smart_contracts/poll/contract.algo.ts:134
     // } else if (votes[i] === 2) {
-    frame_dig 5
+    dup
     intc_2 // 2
     ==
     bz createVote_else_body@41
+    pop
     // smart_contracts/poll/contract.algo.ts:135
     // this.votesThree.value += impact
     intc_0 // 0
@@ -1658,7 +1658,7 @@ createVote_else_body@39:
     // this.votesThree.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:89
     // votesThree = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesThree })
@@ -1672,10 +1672,11 @@ createVote_else_body@39:
 createVote_else_body@41:
     // smart_contracts/poll/contract.algo.ts:136
     // } else if (votes[i] === 3) {
-    frame_dig 5
+    dup
     pushint 3
     ==
     bz createVote_else_body@43
+    pop
     // smart_contracts/poll/contract.algo.ts:137
     // this.votesFour.value += impact
     intc_0 // 0
@@ -1686,7 +1687,7 @@ createVote_else_body@41:
     // this.votesFour.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:90
     // votesFour = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesFour })
@@ -1700,7 +1701,6 @@ createVote_else_body@41:
 createVote_else_body@43:
     // smart_contracts/poll/contract.algo.ts:138
     // } else if (votes[i] === 4) {
-    frame_dig 5
     pushint 4
     ==
     bz createVote_after_if_else@49
@@ -1714,7 +1714,7 @@ createVote_else_body@43:
     // this.votesFive.value += impact
     app_global_get_ex
     assert // check GlobalState exists
-    frame_dig 7
+    frame_dig 3
     +
     // smart_contracts/poll/contract.algo.ts:91
     // votesFive = GlobalState<uint64>({ initialValue: 0, key: PollGlobalStateKeyVotesFive })

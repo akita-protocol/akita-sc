@@ -160,7 +160,7 @@ register_after_assert@3:
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/poll/contract.algo.ts:72
     // loggedAssert(mbrPayment.amount === PollGateRegistryMBR, ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     pushint 8900
     ==
@@ -196,7 +196,7 @@ register_after_assert@7:
     // this.registry(id).value = decodeArc4<PollGateRegistryInfo>(args)
     itob
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/poll/contract.algo.ts:69
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -247,7 +247,6 @@ check:
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/poll/contract.algo.ts:82
     // const { poll } = this.registry(registryID).value
-    dup
     itob
     box_get
     assert // Box must have value
@@ -282,7 +281,7 @@ check_after_assert@3:
     itxn_field ApplicationID
     pushbytes 0x5a7f4932 // method "hasVoted(address)bool"
     itxn_field ApplicationArgs
-    dig 3
+    uncover 2
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -406,7 +405,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {

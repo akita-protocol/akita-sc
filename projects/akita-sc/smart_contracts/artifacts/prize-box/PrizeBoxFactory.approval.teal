@@ -192,7 +192,7 @@ mint:
 mint_after_assert@3:
     // smart_contracts/prize-box/factory.algo.ts:45
     // loggedAssert(payment.amount === (
-    dig 1
+    swap
     gtxns Amount
     // smart_contracts/prize-box/factory.algo.ts:46-48
     // MIN_PROGRAM_PAGES +
@@ -236,7 +236,7 @@ mint_after_assert@5:
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyAEAAEIBCYEBW93bmVyC29wdGluX2NvdW50CEVSUjpOT1dOCEVSUjpJUEFZgAQkh8MsNhoAjgEANDEZFEQxGEEAHYIDBD6hGDIErfkq5AREIA+9NhoAjgMAXAC0ANAAgATMaU6qNhoAjgEADQAxGYEFEjEYEERCABE2GgFJFYEgEkQoTGcpImcjQzEAIihlRBJAAAMqsAAiKWVEQQAMgAhFUlI6TkVNVLAAsSIoZUSyCSOyECKyAbMjQzEWIwlJOBAjEkQ2GgFJFSQSRBcxACIoZUQSQAADKrAASwE4BzIKEkAAAyuwAEsBOAgyEBJAAAMrsACxMgpLAbIRIrISshQlshAisgGzIillRCMIKUxnI0M2GgFJFYEgEkQxACIoZUQSQAADKrAAKEsBZyNDIoAARwI2GgFHAiJZSU4CgRALgQIITBUSRDEAIihlRBJAAAMqsAAiRQRLA0sBDEEAkksBVwIASwSBEAuBEFhJRQciW0lFBEEAYzIKSwNwAExFBkAADIAIRVJSOklBU1SwAEsFJFtJSwYSQQApIillRCMJKUxnsSIoZURJshWyFLISSwKyESWyECKyAbNLAyMIRQRC/5SxIihlRLIUshJLArIRJbIQIrIBs0L/4LFLBSRbIihlRLIHsggjshAisgGzQv/JI0M=)
+    pushbytes base64(CyAEAAEIBCYEBW93bmVyC29wdGluX2NvdW50CEVSUjpOT1dOCEVSUjpJUEFZgAQkh8MsNhoAjgEANDEZFEQxGEEAHYIDBD6hGDIErfkq5AREIA+9NhoAjgMAXACyAM0AgATMaU6qNhoAjgEADQAxGYEFEjEYEERCABE2GgFJFYEgEkQoTGcpImcjQzEAIihlRBJAAAMqsAAiKWVEQQAMgAhFUlI6TkVNVLAAsSIoZUSyCSOyECKyAbMjQzEWIwlJOBAjEkQ2GgFJFSQSRBcxACIoZUQSQAADKrAASwE4BzIKEkAAAyuwAEw4CDIQEkAAAyuwALEyCkyyESKyErIUJbIQIrIBsyIpZUQjCClMZyNDNhoBSRWBIBJEMQAiKGVEEkAAAyqwAChMZyNDNhoBRwIiWUlOAoEQC4ECCEwVEkQxACIoZUQSQAADKrAAIklLAgxBAItLAlcCAEsBgRALgRBYSU4CIltJTgNBAFoyCksDcABAAAyACEVSUjpJQVNUsABPAiRbSU8CEkEAJCIpZUQjCSlMZ7EiKGVESbIVshSyEkyyESWyECKyAbMjCEL/nbEiKGVEshSyEkyyESWyECKyAbNC/+VPAkixTCRbIihlRLIHsggjshAisgGzQv/MI0M=)
     itxn_field ApprovalProgramPages
     // smart_contracts/prize-box/factory.algo.ts:52-55
     // const prizeBoxApp = prizeBox.call
@@ -247,7 +247,6 @@ mint_after_assert@5:
     itxn_field OnCompletion
     pushbytes 0xcc694eaa // method "create(address)void"
     itxn_field ApplicationArgs
-    dup
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -363,7 +362,7 @@ initBoxedContract_after_assert@4:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:46
     // this.boxedContract.create({ size })
-    dig 1
+    swap
     box_create
     pop
 
@@ -406,7 +405,7 @@ initBoxedContract_after_assert@7:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:49
     // this.boxedContract.resize(size)
-    dig 1
+    swap
     box_resize
     b initBoxedContract_after_if_else@8
 
@@ -447,6 +446,7 @@ loadBoxedContract:
     intc_1 // 1
     -
     dup
+    cover 3
     // smart_contracts/utils/base-contracts/factory.ts:57
     // txn.type === TransactionType.ApplicationCall
     gtxns TypeEnum
@@ -458,7 +458,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:58
     // && txn.appId === Global.currentApplicationId
-    dup
+    dig 2
     gtxns ApplicationID
     global CurrentApplicationID
     ==
@@ -468,7 +468,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:59
     // && txn.numAppArgs === 3
-    dup
+    dig 2
     gtxns NumAppArgs
     pushint 3
     ==
@@ -479,7 +479,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:60
     // && txn.onCompletion === OnCompleteAction.NoOp
-    dup
+    dig 2
     gtxns OnCompletion
     // smart_contracts/utils/base-contracts/factory.ts:57-60
     // txn.type === TransactionType.ApplicationCall
@@ -489,9 +489,8 @@ loadBoxedContract:
     bnz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:61
     // && txn.appArgs(0) === methodSelector(this.initBoxedContract)
-    dup
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    dig 2
+    gtxnsa ApplicationArgs 0
     bytec 6 // method "initBoxedContract(string,uint64)void"
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-61
@@ -503,7 +502,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:62
     // && txn.sender === Txn.sender
-    dup
+    dig 2
     gtxns Sender
     txn Sender
     ==
@@ -551,8 +550,7 @@ loadBoxedContract_after_assert@13:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:65
     // this.boxedContract.replace(offset, data)
-    dig 3
-    dig 3
+    cover 2
     box_replace
     // smart_contracts/utils/base-contracts/factory.ts:53
     // loadBoxedContract(offset: uint64, data: bytes): void {
@@ -608,10 +606,6 @@ deleteBoxedContract_after_assert@3:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaFeeGeneratorContractWithOptIn.optIn[routing]() -> void:
 optIn:
-    intc_0 // 0
-    dupn 2
-    pushbytes ""
-    dupn 3
     // smart_contracts/utils/base-contracts/base.ts:194
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     txn GroupIndex
@@ -630,7 +624,7 @@ optIn:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    cover 2
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:196
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
@@ -643,7 +637,7 @@ optIn:
     swap
     dup
     cover 2
-    cover 4
+    cover 5
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:197
     // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
@@ -676,7 +670,7 @@ optIn:
 optIn_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:200
     // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), ERR_INVALID_PAYMENT_AMOUNT)
-    dig 3
+    swap
     gtxns Amount
     global AssetOptInMinBalance
     intc_1 // 1
@@ -731,10 +725,8 @@ optIn_after_assert@5:
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:215
     // if (count > 0 && escrow.name !== '') {
-    dup
     bz optIn_after_if_else@9
-    dig 1
-    dup
+    dupn 2
     intc_0 // 0
     extract_uint16
     dig 1
@@ -758,7 +750,7 @@ optIn_after_assert@5:
     bytec_1 // "wallet"
     app_global_get_ex
     pop
-    bury 6
+    swap
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     dup
@@ -769,10 +761,10 @@ optIn_after_assert@5:
     // const { revenueManager } = getPluginAppList(this.akitaDAO.value)
     dup
     extract 8 8
-    bury 12
+    cover 2
     intc_3 // 8
     extract_uint64
-    bury 8
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:120
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
@@ -785,7 +777,7 @@ optIn_after_assert@5:
     swap
     dup
     cover 2
-    bury 5
+    bury 7
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:121
     // const { id } = this.getEscrow(escrow.name)
@@ -796,7 +788,7 @@ optIn_after_assert@5:
     len
     substring3
     dup
-    bury 11
+    cover 2
     extract 2 0
     // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
@@ -815,7 +807,7 @@ optIn_after_assert@5:
     // args: [[name]],
     intc_1 // 1
     itob
-    bury 13
+    cover 2
     dup
     len
     itob
@@ -865,7 +857,6 @@ optIn_after_assert@5:
     intc_0 // 0
     extract_uint64
     dup
-    bury 9
     bnz optIn_after_assert@12
     pushbytes "ERR:NESC"
     log
@@ -874,12 +865,11 @@ optIn_after_assert@5:
 optIn_after_assert@12:
     // smart_contracts/utils/base-contracts/base.ts:122
     // loggedAssert(id === escrow.app.id, ERR_WRONG_ESCROW_FOR_OPERATION)
-    dig 1
+    dig 6
     intc_2 // 2
     extract_uint64
     dup
-    bury 7
-    dig 8
+    uncover 2
     ==
     bnz optIn_after_assert@14
     pushbytes "ERR:WESC"
@@ -899,16 +889,16 @@ optIn_after_assert@14:
     //   ],
     // })
     itxn_begin
-    dig 4
+    uncover 4
     dup
     itxn_field ApplicationID
     pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     itxn_field ApplicationArgs
-    dig 10
+    uncover 4
     itxn_field ApplicationArgs
-    dig 11
+    uncover 2
     itxn_field ApplicationArgs
-    dig 9
+    uncover 2
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:130
     // [0], // all the akita escrows have method restrictions with optin being index 0
@@ -945,7 +935,7 @@ optIn_after_assert@14:
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:137
     // escrow.app.address,
-    dig 7
+    uncover 2
     dup
     cover 2
     app_params_get AppAddress
@@ -1019,7 +1009,7 @@ optIn_after_assert@14:
     pushbytes 0x0001
     swap
     concat
-    dig 9
+    uncover 3
     itxn_field ApplicationID
     // smart_contracts/utils/base-contracts/base.ts:143-154
     // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
@@ -1190,7 +1180,7 @@ updateAkitaDAOEscrow_after_assert@3:
     bytec 4 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:86
     // this.akitaDAOEscrow.value = clone(config)
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:84
     // updateAkitaDAOEscrow(config: EscrowConfig): void {
@@ -1274,7 +1264,7 @@ update_after_assert@5:
     bytec 7 // "version"
     // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
@@ -1325,7 +1315,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {

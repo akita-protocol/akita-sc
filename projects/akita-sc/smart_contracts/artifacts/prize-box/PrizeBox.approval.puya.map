@@ -3,7 +3,7 @@
   "sources": [
     "../../prize-box/contract.algo.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAiBA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAiBG;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AANO;AAQN;AAAA;AANW;AAOa;AAAxB;AAHD;AAAA;AAQc;;AAAe;AAdtB;AAcsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AACa;AAbF;AAaE;AAAA;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AACA;AAC+B;AAjBzB;AAiByB;AAAA;;;AAD/B;;;AAAA;;;AAAA;AAJD;AAAA;AAgBD;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;AA7BtB;AA6BsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AACa;;AAAA;;AAAqB;;AAArB;AAAb;;;AAAA;AAAA;AAAA;AACa;;AAAA;;AAAmB;;AAAnB;AAAb;;;AAAA;AAAA;AAAA;AAEA;AAEmB;;;;;;AACF;;;;;AAHjB;;;AAAA;;;AAAA;AAQA;AAvCW;AAuCX;AAAA;AAAyB;AAAzB;AAvCW;AAuCX;AAAA;AAbF;AAAA;AAgBA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACe;;AAAe;AA7CtB;AA6CsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AA7CM;AA8CN;;AAAA;AAFF;AAAA;;;;;;AAKA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;AAlDtB;AAkDsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AAEqB;AAAZ;;AAAe;;AAAA;;AAAA;AAAxB;;;AACM;;AAAA;;;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAJ;;;AAEI;;AAD8B;;AAAA;;AAAA;AAAA;;AAIhC;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEkC;;AAAA;AAAA;AAAA;AAAjB;;AAAA;AACjB;;;AACE;AA5DK;AA4DL;AAAA;AAAyB;AAAzB;AA5DK;AA4DL;AAAA;AAEA;AAImB;AApEnB;AAoEmB;AAAA;;;;;;;;;;;;AAJnB;;;AAAA;;;AAAA;AAZqC;;AAAK;AAAL;AAAA;;;;;AAqBrC;AAImB;AA7EnB;AA6EmB;AAAA;;;;;;;;;AAJnB;;;AAAA;;;AAAA;;;;AASF;AAEY;;AAAA;AAAA;AACE;AArFZ;AAqFY;AAAA;;;;;AAHd;;;AAAA;;;AAAA;;;;AAjCN;AAAA",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAiBA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAiBG;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AANA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AANO;AAQN;AAAA;AANW;AAOa;AAAxB;AAHD;AAAA;AAQc;;AAAe;AAdtB;AAcsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AACa;AAbF;AAaE;AAAA;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AACA;AAC+B;AAjBzB;AAiByB;AAAA;;;AAD/B;;;AAAA;;;AAAA;AAJD;AAAA;AAgBD;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;AA7BtB;AA6BsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AACa;;AAAA;;AAAqB;;AAArB;AAAb;;;AAAA;AAAA;AAAA;AACa;AAAA;;AAAmB;;AAAnB;AAAb;;;AAAA;AAAA;AAAA;AAEA;AAEmB;;;;;AACF;;;;;AAHjB;;;AAAA;;;AAAA;AAQA;AAvCW;AAuCX;AAAA;AAAyB;AAAzB;AAvCW;AAuCX;AAAA;AAbF;AAAA;AAgBA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACe;;AAAe;AA7CtB;AA6CsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AA7CM;AA8CN;AAAA;AAFF;AAAA;AAKA;;;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;AAlDtB;AAkDsB;AAAA;AAAf;AAAb;;;AAAA;AAAA;AAAA;AAEqB;AAAG;AAAA;;AAAA;AAAxB;;;AACM;;AAAA;;;AAAA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;AAAJ;;;AAEI;;AAD8B;;AAAA;;AAIhC;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEkC;;AAAA;AAAA;AAAA;AAAjB;;AAAA;AACjB;;;AACE;AA5DK;AA4DL;AAAA;AAAyB;AAAzB;AA5DK;AA4DL;AAAA;AAEA;AAImB;AApEnB;AAoEmB;AAAA;;;;;;;;;;;AAJnB;;;AAAA;;;AAAA;AAZ0C;AAAL;;;;AAqBrC;AAImB;AA7EnB;AA6EmB;AAAA;;;;;;;;AAJnB;;;AAAA;;;AAAA;;;;;;;AASF;AAEY;AAAA;AAAA;AACE;AArFZ;AAqFY;AAAA;;;;;AAHd;;;AAAA;;;AAAA;;;;AAjCN;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -843,18 +843,17 @@
       ],
       "op": "dig 1",
       "defined_out": [
-        "payment#0"
+        "payment#0 (copy)"
       ],
       "stack_out": [
         "payment#0",
         "asset#0",
-        "payment#0"
+        "payment#0 (copy)"
       ]
     },
     "221": {
       "op": "gtxns Receiver",
       "defined_out": [
-        "payment#0",
         "tmp%2#1"
       ],
       "stack_out": [
@@ -866,7 +865,6 @@
     "223": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
-        "payment#0",
         "tmp%2#1",
         "tmp%3#0"
       ],
@@ -880,7 +878,6 @@
     "225": {
       "op": "==",
       "defined_out": [
-        "payment#0",
         "tmp%4#0"
       ],
       "stack_out": [
@@ -899,8 +896,7 @@
     "229": {
       "op": "bytec_3 // \"ERR:IPAY\"",
       "defined_out": [
-        "\"ERR:IPAY\"",
-        "payment#0"
+        "\"ERR:IPAY\""
       ],
       "stack_out": [
         "payment#0",
@@ -925,309 +921,245 @@
         "payment#0",
         "asset#0"
       ],
-      "op": "dig 1",
+      "op": "swap",
       "defined_out": [
         "payment#0"
       ],
       "stack_out": [
-        "payment#0",
         "asset#0",
         "payment#0"
       ]
     },
-    "234": {
+    "233": {
       "op": "gtxns Amount",
       "defined_out": [
-        "payment#0",
         "tmp%5#0"
       ],
       "stack_out": [
-        "payment#0",
         "asset#0",
         "tmp%5#0"
       ]
     },
-    "236": {
+    "235": {
       "op": "global AssetOptInMinBalance",
       "defined_out": [
-        "payment#0",
         "tmp%5#0",
         "tmp%6#0"
       ],
       "stack_out": [
-        "payment#0",
         "asset#0",
         "tmp%5#0",
         "tmp%6#0"
+      ]
+    },
+    "237": {
+      "op": "==",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "asset#0",
+        "tmp%7#0"
       ]
     },
     "238": {
-      "op": "==",
-      "defined_out": [
-        "payment#0",
-        "tmp%7#0"
-      ],
-      "stack_out": [
-        "payment#0",
-        "asset#0",
-        "tmp%7#0"
-      ]
-    },
-    "239": {
       "op": "bnz optin_after_assert@7",
       "stack_out": [
-        "payment#0",
         "asset#0"
       ]
     },
-    "242": {
+    "241": {
       "op": "bytec_3 // \"ERR:IPAY\"",
       "defined_out": [
-        "\"ERR:IPAY\"",
-        "payment#0"
+        "\"ERR:IPAY\""
       ],
       "stack_out": [
-        "payment#0",
         "asset#0",
         "\"ERR:IPAY\""
       ]
     },
-    "243": {
+    "242": {
       "op": "log",
       "stack_out": [
-        "payment#0",
         "asset#0"
       ]
     },
-    "244": {
+    "243": {
       "error": "ERR:IPAY",
       "op": "err // ERR:IPAY"
     },
-    "245": {
+    "244": {
       "block": "optin_after_assert@7",
       "stack_in": [
-        "payment#0",
         "asset#0"
       ],
       "op": "itxn_begin"
     },
-    "246": {
+    "245": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
       ],
       "stack_out": [
-        "payment#0",
         "asset#0",
         "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "247": {
+      "op": "swap",
+      "defined_out": [
+        "asset#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "asset#0"
       ]
     },
     "248": {
-      "op": "dig 1",
-      "defined_out": [
-        "asset#0",
-        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
-      ],
+      "op": "itxn_field XferAsset",
       "stack_out": [
-        "payment#0",
-        "asset#0",
-        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
-        "asset#0"
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
       ]
     },
     "250": {
-      "op": "itxn_field XferAsset",
-      "stack_out": [
-        "payment#0",
-        "asset#0",
-        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
-      ]
-    },
-    "252": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "asset#0",
         "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
         "0"
       ]
     },
-    "253": {
+    "251": {
       "op": "itxn_field AssetAmount",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
       ]
     },
-    "255": {
+    "253": {
       "op": "itxn_field AssetReceiver",
-      "stack_out": [
-        "payment#0",
-        "asset#0"
-      ]
+      "stack_out": []
     },
-    "257": {
+    "255": {
       "op": "intc_3 // 4",
       "defined_out": [
-        "4",
-        "asset#0"
+        "4"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "4"
       ]
     },
-    "258": {
+    "256": {
       "op": "itxn_field TypeEnum",
-      "stack_out": [
-        "payment#0",
-        "asset#0"
-      ]
+      "stack_out": []
     },
-    "260": {
+    "258": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "0"
       ]
     },
-    "261": {
+    "259": {
       "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "261": {
+      "op": "itxn_submit"
+    },
+    "262": {
+      "op": "intc_0 // 0",
       "stack_out": [
-        "payment#0",
-        "asset#0"
+        "0"
       ]
     },
     "263": {
-      "op": "itxn_submit"
-    },
-    "264": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "payment#0",
-        "asset#0",
-        "0"
-      ]
-    },
-    "265": {
       "op": "bytec_1 // \"optin_count\"",
       "defined_out": [
         "\"optin_count\"",
-        "0",
-        "asset#0"
+        "0"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "0",
         "\"optin_count\""
       ]
     },
-    "266": {
+    "264": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "asset#0",
         "maybe_exists%1#0",
         "maybe_value%1#0"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "maybe_value%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "267": {
+    "265": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "maybe_value%1#0"
       ]
     },
-    "268": {
+    "266": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
-        "asset#0",
         "maybe_value%1#0"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "maybe_value%1#0",
         "1"
       ]
     },
-    "269": {
+    "267": {
       "op": "+",
       "defined_out": [
-        "asset#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "tmp%8#0"
       ]
     },
-    "270": {
+    "268": {
       "op": "bytec_1 // \"optin_count\"",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "tmp%8#0",
         "\"optin_count\""
       ]
     },
-    "271": {
+    "269": {
       "op": "swap",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "\"optin_count\"",
         "tmp%8#0"
       ]
     },
-    "272": {
+    "270": {
       "op": "app_global_put",
-      "stack_out": [
-        "payment#0",
-        "asset#0"
-      ]
+      "stack_out": []
     },
-    "273": {
+    "271": {
       "op": "intc_1 // 1",
       "stack_out": [
-        "payment#0",
-        "asset#0",
         "1"
       ]
     },
-    "274": {
+    "272": {
       "op": "return",
-      "stack_out": [
-        "payment#0",
-        "asset#0"
-      ]
+      "stack_out": []
     },
-    "275": {
+    "273": {
       "subroutine": "smart_contracts/prize-box/contract.algo.ts::PrizeBox.transfer[routing]",
       "params": {},
       "block": "transfer",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "278": {
+    "276": {
       "op": "dup",
       "defined_out": [
         "newOwner#0"
@@ -1237,7 +1169,7 @@
         "newOwner#0"
       ]
     },
-    "279": {
+    "277": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -1248,7 +1180,7 @@
         "len%0#0"
       ]
     },
-    "280": {
+    "278": {
       "op": "pushint 32",
       "defined_out": [
         "32",
@@ -1261,7 +1193,7 @@
         "32"
       ]
     },
-    "282": {
+    "280": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -1272,14 +1204,14 @@
         "eq%0#0"
       ]
     },
-    "283": {
+    "281": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "newOwner#0"
       ]
     },
-    "284": {
+    "282": {
       "op": "txn Sender",
       "defined_out": [
         "newOwner#0",
@@ -1290,7 +1222,7 @@
         "tmp%0#1"
       ]
     },
-    "286": {
+    "284": {
       "op": "intc_0 // 0",
       "stack_out": [
         "newOwner#0",
@@ -1298,7 +1230,7 @@
         "0"
       ]
     },
-    "287": {
+    "285": {
       "op": "bytec_0 // \"owner\"",
       "defined_out": [
         "\"owner\"",
@@ -1313,7 +1245,7 @@
         "\"owner\""
       ]
     },
-    "288": {
+    "286": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%0#0",
@@ -1328,7 +1260,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "289": {
+    "287": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -1337,7 +1269,7 @@
         "maybe_value%0#0"
       ]
     },
-    "290": {
+    "288": {
       "op": "==",
       "defined_out": [
         "newOwner#0",
@@ -1348,13 +1280,13 @@
         "tmp%1#1"
       ]
     },
-    "291": {
+    "289": {
       "op": "bnz transfer_after_assert@3",
       "stack_out": [
         "newOwner#0"
       ]
     },
-    "294": {
+    "292": {
       "op": "bytec_2 // \"ERR:NOWN\"",
       "defined_out": [
         "\"ERR:NOWN\"",
@@ -1365,17 +1297,17 @@
         "\"ERR:NOWN\""
       ]
     },
-    "295": {
+    "293": {
       "op": "log",
       "stack_out": [
         "newOwner#0"
       ]
     },
-    "296": {
+    "294": {
       "error": "ERR:NOWN",
       "op": "err // ERR:NOWN"
     },
-    "297": {
+    "295": {
       "block": "transfer_after_assert@3",
       "stack_in": [
         "newOwner#0"
@@ -1389,100 +1321,63 @@
         "\"owner\""
       ]
     },
-    "298": {
-      "op": "dig 1",
+    "296": {
+      "op": "swap",
       "defined_out": [
         "\"owner\"",
         "newOwner#0"
       ],
       "stack_out": [
-        "newOwner#0",
         "\"owner\"",
         "newOwner#0"
       ]
     },
-    "300": {
+    "297": {
       "op": "app_global_put",
-      "stack_out": [
-        "newOwner#0"
-      ]
+      "stack_out": []
     },
-    "301": {
+    "298": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "newOwner#0"
+        "1"
       ],
       "stack_out": [
-        "newOwner#0",
         "1"
       ]
     },
-    "302": {
+    "299": {
       "op": "return",
-      "stack_out": [
-        "newOwner#0"
-      ]
+      "stack_out": []
     },
-    "303": {
+    "300": {
       "subroutine": "smart_contracts/prize-box/contract.algo.ts::PrizeBox.withdraw[routing]",
       "params": {},
       "block": "withdraw",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "aggregate%encoded_element%0#0"
-      ]
-    },
-    "304": {
-      "op": "pushbytes \"\"",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0"
-      ]
-    },
-    "306": {
-      "op": "dupn 2",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0"
-      ]
-    },
-    "308": {
       "op": "txna ApplicationArgs 1"
     },
-    "311": {
+    "303": {
       "op": "dupn 2",
       "defined_out": [
         "assets#0",
         "assets#0 (copy)"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "assets#0",
         "assets#0 (copy)"
       ]
     },
-    "313": {
+    "305": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "assets#0",
         "assets#0 (copy)",
         "0"
       ]
     },
-    "314": {
+    "306": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -1490,46 +1385,34 @@
         "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "315": {
+    "307": {
       "op": "dup",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "316": {
+    "308": {
       "op": "cover 2",
       "defined_out": [
         "aggregate%array_length%0#0",
         "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "318": {
+    "310": {
       "op": "pushint 16",
       "defined_out": [
         "16",
@@ -1537,10 +1420,6 @@
         "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "assets#0",
@@ -1548,7 +1427,7 @@
         "16"
       ]
     },
-    "320": {
+    "312": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -1556,17 +1435,13 @@
         "mul%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "assets#0",
         "mul%0#0"
       ]
     },
-    "321": {
+    "313": {
       "op": "pushint 2",
       "defined_out": [
         "2",
@@ -1575,10 +1450,6 @@
         "mul%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "assets#0",
@@ -1586,7 +1457,7 @@
         "2"
       ]
     },
-    "323": {
+    "315": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -1594,30 +1465,22 @@
         "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "assets#0",
         "add%0#0"
       ]
     },
-    "324": {
+    "316": {
       "op": "swap",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "add%0#0",
         "assets#0"
       ]
     },
-    "325": {
+    "317": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -1626,17 +1489,13 @@
         "len%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "add%0#0",
         "len%0#0"
       ]
     },
-    "326": {
+    "318": {
       "op": "==",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -1644,28 +1503,20 @@
         "eq%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "eq%0#0"
       ]
     },
-    "327": {
+    "319": {
       "error": "invalid number of bytes for arc4.dynamic_array<smart_contracts/utils/types/asset.ts::AssetInfo>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/utils/types/asset.ts::AssetInfo>",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "328": {
+    "320": {
       "op": "txn Sender",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -1673,29 +1524,21 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%0#1"
       ]
     },
-    "330": {
+    "322": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "331": {
+    "323": {
       "op": "bytec_0 // \"owner\"",
       "defined_out": [
         "\"owner\"",
@@ -1705,10 +1548,6 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%0#1",
@@ -1716,7 +1555,7 @@
         "\"owner\""
       ]
     },
-    "332": {
+    "324": {
       "op": "app_global_get_ex",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -1726,10 +1565,6 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%0#1",
@@ -1737,21 +1572,17 @@
         "maybe_exists%0#0"
       ]
     },
-    "333": {
+    "325": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%0#1",
         "maybe_value%0#0"
       ]
     },
-    "334": {
+    "326": {
       "op": "==",
       "defined_out": [
         "aggregate%array_length%0#0",
@@ -1759,27 +1590,19 @@
         "tmp%1#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "tmp%1#0"
       ]
     },
-    "335": {
+    "327": {
       "op": "bnz withdraw_after_assert@3",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "338": {
+    "330": {
       "op": "bytec_2 // \"ERR:NOWN\"",
       "defined_out": [
         "\"ERR:NOWN\"",
@@ -1787,37 +1610,25 @@
         "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "\"ERR:NOWN\""
       ]
     },
-    "339": {
+    "331": {
       "op": "log",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ]
     },
-    "340": {
+    "332": {
       "error": "ERR:NOWN",
       "op": "err // ERR:NOWN"
     },
-    "341": {
+    "333": {
       "block": "withdraw_after_assert@3",
       "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0"
       ],
@@ -1826,427 +1637,321 @@
         "i#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "i#0"
       ]
     },
-    "342": {
-      "op": "bury 4",
-      "defined_out": [
-        "i#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "344": {
+    "334": {
       "block": "withdraw_while_top@4",
       "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ],
-      "op": "dig 3",
-      "defined_out": [
-        "i#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "i#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "i#0 (copy)"
+      ],
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
+        "i#0 (copy)"
       ]
     },
-    "346": {
-      "op": "dig 1",
+    "335": {
+      "op": "dig 2",
       "defined_out": [
         "aggregate%array_length%0#0",
-        "i#0"
+        "i#0 (copy)"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "i#0",
+        "i#0 (copy)",
         "aggregate%array_length%0#0"
       ]
     },
-    "348": {
+    "337": {
       "op": "<",
       "defined_out": [
         "aggregate%array_length%0#0",
-        "i#0",
         "tmp%3#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%3#0"
       ]
     },
-    "349": {
+    "338": {
       "op": "bz withdraw_after_while@17",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "i#0"
       ]
     },
-    "352": {
-      "op": "dig 1",
+    "341": {
+      "op": "dig 2",
       "defined_out": [
         "aggregate%array_length%0#0",
-        "assets#0",
-        "i#0"
+        "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "assets#0"
       ]
     },
-    "354": {
+    "343": {
       "op": "extract 2 0",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
-        "assets#0",
-        "i#0"
+        "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%array_trimmed%0#0"
       ]
     },
-    "357": {
-      "op": "dig 4",
+    "346": {
+      "op": "dig 1",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%array_trimmed%0#0",
-        "i#0"
+        "i#0 (copy)"
       ]
     },
-    "359": {
+    "348": {
       "op": "pushint 16",
       "defined_out": [
         "16",
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
         "assets#0",
-        "i#0"
+        "i#0 (copy)"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
-        "aggregate%array_trimmed%0#0",
         "i#0",
+        "aggregate%array_trimmed%0#0",
+        "i#0 (copy)",
         "16"
       ]
     },
-    "361": {
+    "350": {
       "op": "*",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%array_trimmed%0#0",
         "aggregate%bytes_offset%0#0",
-        "assets#0",
-        "i#0"
+        "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%array_trimmed%0#0",
         "aggregate%bytes_offset%0#0"
       ]
     },
-    "362": {
+    "351": {
       "op": "pushint 16",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%array_trimmed%0#0",
         "aggregate%bytes_offset%0#0",
         "16"
       ]
     },
-    "364": {
+    "353": {
       "error": "index access is out of bounds",
       "op": "extract3 // on error: index access is out of bounds",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
-        "assets#0",
-        "i#0"
+        "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "365": {
+    "354": {
       "op": "dup",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "366": {
-      "op": "bury 7",
+    "355": {
+      "op": "cover 2",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
-        "assets#0",
-        "i#0"
+        "assets#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "368": {
+    "357": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0",
         "0"
       ]
     },
-    "369": {
+    "358": {
       "op": "extract_uint64",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
         "assets#0",
-        "i#0",
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "tmp%4#0"
       ]
     },
-    "370": {
+    "359": {
       "op": "dup",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "tmp%4#0",
         "tmp%4#0"
       ]
     },
-    "371": {
-      "op": "bury 4",
+    "360": {
+      "op": "cover 3",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
         "assets#0",
-        "i#0",
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "tmp%4#0"
       ]
     },
-    "373": {
+    "362": {
       "op": "bz withdraw_else_body@14",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0"
       ]
     },
-    "376": {
+    "365": {
       "op": "global CurrentApplicationAddress",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
         "assets#0",
-        "i#0",
         "tmp%4#0",
         "tmp%6#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "tmp%6#0"
       ]
     },
-    "378": {
+    "367": {
       "op": "dig 3",
-      "stack_out": [
+      "defined_out": [
+        "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
+        "assets#0",
         "tmp%4#0",
+        "tmp%4#0 (copy)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "tmp%6#0",
-        "tmp%4#0"
+        "tmp%4#0 (copy)"
       ]
     },
-    "380": {
+    "369": {
       "op": "asset_holding_get AssetBalance",
       "defined_out": [
         "aggregate%array_length%0#0",
         "aggregate%encoded_element%0#0",
         "assetHolding#0",
         "assets#0",
-        "i#0",
         "optedIn#0",
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "assetHolding#0",
         "optedIn#0"
       ]
     },
-    "382": {
-      "op": "swap",
+    "371": {
+      "op": "bnz withdraw_after_assert@8",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
-        "optedIn#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
         "assetHolding#0"
       ]
     },
-    "383": {
-      "op": "bury 6",
-      "defined_out": [
-        "aggregate%array_length%0#0",
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "assets#0",
-        "i#0",
-        "optedIn#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0",
-        "optedIn#0"
-      ]
-    },
-    "385": {
-      "op": "bnz withdraw_after_assert@8",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "388": {
+    "374": {
       "op": "pushbytes \"ERR:IAST\"",
       "defined_out": [
         "\"ERR:IAST\"",
@@ -2254,1020 +1959,831 @@
         "aggregate%encoded_element%0#0",
         "assetHolding#0",
         "assets#0",
-        "i#0",
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
+        "assetHolding#0",
         "\"ERR:IAST\""
       ]
     },
-    "398": {
+    "384": {
       "op": "log",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
+        "assetHolding#0"
       ]
     },
-    "399": {
+    "385": {
       "error": "ERR:IAST",
       "op": "err // ERR:IAST"
     },
-    "400": {
+    "386": {
       "block": "withdraw_after_assert@8",
       "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
+        "assetHolding#0"
       ],
-      "op": "dig 5",
+      "op": "uncover 2",
       "defined_out": [
         "aggregate%encoded_element%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
+        "assetHolding#0",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "402": {
+    "388": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "aggregate%encoded_element%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
+        "assetHolding#0",
         "aggregate%encoded_element%0#0",
         "8"
       ]
     },
-    "403": {
+    "389": {
       "op": "extract_uint64",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
+        "assetHolding#0",
         "tmp%8#0"
       ]
     },
-    "404": {
+    "390": {
       "op": "dup",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
+        "assetHolding#0",
         "tmp%8#0",
         "tmp%8#0"
       ]
     },
-    "405": {
-      "op": "dig 6",
+    "391": {
+      "op": "uncover 2",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
         "assetHolding#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "tmp%8#0",
         "assetHolding#0"
       ]
     },
-    "407": {
+    "393": {
       "op": "==",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "closeOut#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "closeOut#0"
       ]
     },
-    "408": {
+    "394": {
       "op": "bz withdraw_else_body@11",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0"
       ]
     },
-    "411": {
+    "397": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0"
       ]
     },
-    "412": {
+    "398": {
       "op": "bytec_1 // \"optin_count\"",
       "defined_out": [
         "\"optin_count\"",
         "0",
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0",
         "\"optin_count\""
       ]
     },
-    "413": {
+    "399": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "maybe_exists%1#0",
         "maybe_value%1#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "414": {
+    "400": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%1#0"
       ]
     },
-    "415": {
+    "401": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "maybe_value%1#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%1#0",
         "1"
       ]
     },
-    "416": {
+    "402": {
       "op": "-",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "tmp%10#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "tmp%10#0"
       ]
     },
-    "417": {
+    "403": {
       "op": "bytec_1 // \"optin_count\"",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "tmp%10#0",
         "\"optin_count\""
       ]
     },
-    "418": {
+    "404": {
       "op": "swap",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "\"optin_count\"",
         "tmp%10#0"
       ]
     },
-    "419": {
+    "405": {
       "op": "app_global_put",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0"
       ]
     },
-    "420": {
+    "406": {
       "op": "itxn_begin"
     },
-    "421": {
+    "407": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0"
       ]
     },
-    "422": {
+    "408": {
       "op": "bytec_0 // \"owner\"",
       "defined_out": [
         "\"owner\"",
         "0",
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0",
         "\"owner\""
       ]
     },
-    "423": {
+    "409": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "maybe_exists%2#0",
         "maybe_value%2#0",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%2#0",
         "maybe_exists%2#0"
       ]
     },
-    "424": {
+    "410": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%2#0"
       ]
     },
-    "425": {
+    "411": {
       "op": "dup",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "maybe_value%2#0",
         "maybe_value%2#0 (copy)",
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%2#0",
         "maybe_value%2#0 (copy)"
       ]
     },
-    "426": {
+    "412": {
       "op": "itxn_field AssetCloseTo",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%2#0"
       ]
     },
-    "428": {
+    "414": {
       "op": "itxn_field AssetReceiver",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0"
       ]
     },
-    "430": {
+    "416": {
       "op": "itxn_field AssetAmount",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0"
       ]
     },
-    "432": {
-      "op": "dig 2",
+    "418": {
+      "op": "swap",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%4#0"
       ]
     },
-    "434": {
+    "419": {
       "op": "itxn_field XferAsset",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "436": {
-      "op": "intc_3 // 4",
-      "defined_out": [
-        "4",
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "421": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4"
+      ],
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "4"
       ]
     },
-    "437": {
+    "422": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "439": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "424": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "0"
       ]
     },
-    "440": {
+    "425": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "442": {
-      "op": "itxn_submit"
-    },
-    "443": {
-      "block": "withdraw_after_if_else@16",
-      "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ],
-      "op": "dig 3",
-      "defined_out": [
-        "i#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "i#0"
       ]
     },
-    "445": {
+    "427": {
+      "op": "itxn_submit"
+    },
+    "428": {
+      "block": "withdraw_after_if_else@16",
+      "stack_in": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0"
+      ],
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
         "i#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
         "i#0",
         "1"
       ]
     },
-    "446": {
+    "429": {
       "op": "+",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0",
-        "i#0"
-      ]
-    },
-    "447": {
-      "op": "bury 4",
       "defined_out": [
         "i#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "449": {
-      "op": "b withdraw_while_top@4"
-    },
-    "452": {
-      "block": "withdraw_else_body@11",
-      "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "430": {
+      "op": "b withdraw_while_top@4"
+    },
+    "433": {
+      "block": "withdraw_else_body@11",
+      "stack_in": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0"
       ],
       "op": "itxn_begin"
     },
-    "453": {
+    "434": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0"
       ]
     },
-    "454": {
+    "435": {
       "op": "bytec_0 // \"owner\"",
       "defined_out": [
         "\"owner\"",
         "0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "0",
         "\"owner\""
       ]
     },
-    "455": {
+    "436": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%4#0",
         "maybe_value%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%4#0",
         "maybe_exists%4#0"
       ]
     },
-    "456": {
+    "437": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0",
         "maybe_value%4#0"
       ]
     },
-    "457": {
+    "438": {
       "op": "itxn_field AssetReceiver",
       "defined_out": [
         "tmp%8#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0",
         "tmp%8#0"
       ]
     },
-    "459": {
+    "440": {
       "op": "itxn_field AssetAmount",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "i#0"
       ]
     },
-    "461": {
-      "op": "dig 2",
+    "442": {
+      "op": "swap",
       "defined_out": [
         "tmp%4#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%4#0"
       ]
     },
-    "463": {
+    "443": {
       "op": "itxn_field XferAsset",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "465": {
-      "op": "intc_3 // 4",
-      "defined_out": [
-        "4",
-        "tmp%4#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "445": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4"
+      ],
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "4"
       ]
     },
-    "466": {
+    "446": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "468": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "448": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "0"
       ]
     },
-    "469": {
+    "449": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "i#0"
       ]
     },
-    "471": {
+    "451": {
       "op": "itxn_submit"
     },
-    "472": {
+    "452": {
       "op": "b withdraw_after_if_else@16"
     },
-    "475": {
+    "455": {
       "block": "withdraw_else_body@14",
       "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "tmp%4#0",
+        "aggregate%encoded_element%0#0",
+        "i#0"
       ],
+      "op": "uncover 2",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0",
+        "tmp%4#0"
+      ]
+    },
+    "457": {
+      "op": "pop",
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "aggregate%encoded_element%0#0",
+        "i#0"
+      ]
+    },
+    "458": {
       "op": "itxn_begin"
     },
-    "476": {
-      "op": "dig 5",
+    "459": {
+      "op": "swap",
       "defined_out": [
         "aggregate%encoded_element%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0"
       ]
     },
-    "478": {
+    "460": {
       "op": "intc_2 // 8",
       "defined_out": [
         "8",
         "aggregate%encoded_element%0#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "aggregate%encoded_element%0#0",
         "8"
       ]
     },
-    "479": {
+    "461": {
       "op": "extract_uint64",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
         "tmp%15#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0"
       ]
     },
-    "480": {
+    "462": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "aggregate%encoded_element%0#0",
         "tmp%15#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0",
         "0"
       ]
     },
-    "481": {
+    "463": {
       "op": "bytec_0 // \"owner\"",
       "defined_out": [
         "\"owner\"",
         "0",
-        "aggregate%encoded_element%0#0",
         "tmp%15#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0",
         "0",
         "\"owner\""
       ]
     },
-    "482": {
+    "464": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "aggregate%encoded_element%0#0",
         "maybe_exists%5#0",
         "maybe_value%5#0",
         "tmp%15#0"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0",
         "maybe_value%5#0",
         "maybe_exists%5#0"
       ]
     },
-    "483": {
+    "465": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0",
         "maybe_value%5#0"
       ]
     },
-    "484": {
+    "466": {
       "op": "itxn_field Receiver",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "tmp%15#0"
       ]
     },
-    "486": {
+    "468": {
       "op": "itxn_field Amount",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "488": {
-      "op": "intc_1 // 1",
-      "defined_out": [
-        "1",
-        "aggregate%encoded_element%0#0"
-      ],
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "470": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "1"
       ]
     },
-    "489": {
+    "471": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
-        "assets#0",
-        "aggregate%array_length%0#0"
-      ]
-    },
-    "491": {
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0"
+      ]
+    },
+    "473": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "assets#0",
+        "aggregate%array_length%0#0",
+        "i#0",
         "0"
       ]
     },
-    "492": {
+    "474": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "i#0"
       ]
     },
-    "494": {
+    "476": {
       "op": "itxn_submit"
     },
-    "495": {
+    "477": {
       "op": "b withdraw_after_if_else@16"
     },
-    "498": {
+    "480": {
       "block": "withdraw_after_while@17",
       "stack_in": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "i#0"
       ],
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
       ],
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
         "aggregate%array_length%0#0",
+        "i#0",
         "1"
       ]
     },
-    "499": {
+    "481": {
       "op": "return",
       "stack_out": [
-        "aggregate%encoded_element%0#0",
-        "assetHolding#0",
-        "i#0",
-        "tmp%4#0",
         "assets#0",
-        "aggregate%array_length%0#0"
+        "aggregate%array_length%0#0",
+        "i#0"
       ]
     }
   }

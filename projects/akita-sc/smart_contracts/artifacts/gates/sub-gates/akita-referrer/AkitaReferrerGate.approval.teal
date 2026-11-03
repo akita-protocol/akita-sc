@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "akita_dao" 0x151f7c75 "registry_cursor" "" "ERR:IARG" "ERR:IPAY"
+    bytecblock "akita_dao" 0x151f7c75 "registry_cursor" "ERR:IARG" "ERR:IPAY"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:23
@@ -18,8 +18,7 @@ main:
     app_global_put
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:28
     // checkShape = GlobalState<string>({ initialValue: '', key: GateGlobalStateKeyCheckShape })
-    pushbytes "check_shape"
-    bytec_3 // ""
+    pushbytess "check_shape" ""
     app_global_put
 
 main_after_if_else@2:
@@ -142,7 +141,7 @@ register:
     pushint 32
     ==
     bnz register_after_assert@3
-    bytec 4 // "ERR:IARG"
+    bytec_3 // "ERR:IARG"
     log
     err // ERR:IARG
 
@@ -154,19 +153,19 @@ register_after_assert@3:
     global CurrentApplicationAddress
     ==
     bnz register_after_assert@5
-    bytec 5 // "ERR:IPAY"
+    bytec 4 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:69
     // loggedAssert(mbrPayment.amount === AkitaReferrerGateRegistryMBR, ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     pushint 18900
     ==
     bnz register_after_assert@7
-    bytec 5 // "ERR:IPAY"
+    bytec 4 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -197,7 +196,7 @@ register_after_assert@7:
     // this.registry(id).value = decodeArc4<AkitaReferrerGateRegistryInfo>(args)
     itob
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:66
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -213,7 +212,6 @@ register_after_assert@7:
 check:
     intc_0 // 0
     dup
-    bytec_3 // ""
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:76
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
@@ -247,24 +245,24 @@ check:
     intc_3 // 8
     ==
     bnz check_after_assert@3
-    bytec 4 // "ERR:IARG"
+    bytec_3 // "ERR:IARG"
     log
     err // ERR:IARG
 
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:79
     // const { referrer } = clone(this.registry(registryID).value)
-    dig 1
+    swap
     itob
     box_get
     assert // Box must have value
     extract 0 32
-    bury 6
+    bury 4
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:80
     // const wallet = Application(btoi(args))
-    dupn 2
+    dup
     btoi
-    bury 5
+    swap
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:82
     // const appId = getOtherAppList(this.akitaDAO.value).escrow
     intc_0 // 0
@@ -293,7 +291,7 @@ check_after_assert@3:
     itxn_field ApplicationID
     pushbytes 0x2b5602a3 // method "mustGet(address)byte[]"
     itxn_field ApplicationArgs
-    dig 3
+    uncover 2
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -351,7 +349,7 @@ check_after_assert@6:
     //   walletID,
     //   Bytes(AbstractAccountGlobalStateKeysReferrer)
     // )
-    dig 4
+    swap
     dup
     // smart_contracts/utils/functions.ts:175
     // Bytes(AbstractAccountGlobalStateKeysReferrer)
@@ -363,7 +361,7 @@ check_after_assert@6:
     // )
     app_global_get_ex
     pop
-    bury 7
+    bury 3
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:47
     // wallet.creator === Application(factory).address &&
     app_params_get AppCreator
@@ -378,8 +376,8 @@ check_after_assert@6:
     bz check_bool_false@10
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:48
     // fetchedReferrer === referrer
-    dig 4
-    dig 6
+    dup
+    dig 2
     ==
     // smart_contracts/gates/sub-gates/akita-referrer/contract.algo.ts:47-48
     // wallet.creator === Application(factory).address &&
@@ -481,7 +479,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {

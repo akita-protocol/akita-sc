@@ -14,7 +14,7 @@ import {
   hexToBytes,
   translateMetaMerklesError,
   verifyProof
-} from "../chunk-U6NK3RUI.mjs";
+} from "../chunk-NDELTCOF.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

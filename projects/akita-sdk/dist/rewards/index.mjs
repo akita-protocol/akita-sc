@@ -2,7 +2,7 @@ import {
   REWARDS_ERROR_MESSAGES,
   RewardsSDK,
   translateRewardsError
-} from "../chunk-5JHOF5EW.mjs";
+} from "../chunk-U6RLFJHX.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

@@ -104,9 +104,8 @@ rekey_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:21
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    dig 1
-    itxn_field RekeyTo
     itxn_field Receiver
+    itxn_field RekeyTo
     // smart_contracts/escrow/contract.algo.ts:20
     // amount: 0,
     intc_1 // 0

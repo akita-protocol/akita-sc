@@ -3,7 +3,7 @@
 
 
 
-var _chunkO3BKRRBMjs = require('../chunk-O3BKRRBM.js');
+var _chunkIKFQIHBCjs = require('../chunk-IKFQIHBC.js');
 require('../chunk-GIGYZ6YC.js');
 require('../chunk-KLHVDYDW.js');
 require('../chunk-HFHM5QOF.js');
@@ -13,5 +13,5 @@ require('../chunk-L3SAIW4G.js');
 
 
 
-exports.STAKING_ERROR_MESSAGES = _chunkO3BKRRBMjs.STAKING_ERROR_MESSAGES; exports.StakingSDK = _chunkO3BKRRBMjs.StakingSDK; exports.StakingType = _chunkO3BKRRBMjs.StakingType; exports.translateStakingError = _chunkO3BKRRBMjs.translateStakingError;
+exports.STAKING_ERROR_MESSAGES = _chunkIKFQIHBCjs.STAKING_ERROR_MESSAGES; exports.StakingSDK = _chunkIKFQIHBCjs.StakingSDK; exports.StakingType = _chunkIKFQIHBCjs.StakingType; exports.translateStakingError = _chunkIKFQIHBCjs.translateStakingError;
 //# sourceMappingURL=index.js.map

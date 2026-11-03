@@ -572,7 +572,12 @@ export declare class EscrowFactory {
                     accountReferences?: import("@algorandfoundation/algokit-utils").ReadableAddress[] | undefined;
                     appReferences?: bigint[] | undefined;
                     assetReferences?: bigint[] | undefined;
-                    boxReferences?: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
+                    boxReferences? /**
+                     * Creates a new instance of the Escrow smart contract using the create(byte[])void ABI method.
+                     *
+                     * @param params The params for the smart contract call
+                     * @returns The create params
+                     */: (import("@algorandfoundation/algokit-utils").BoxReference | import("@algorandfoundation/algokit-utils").BoxIdentifier)[] | undefined;
                     accessReferences?: import("@algorandfoundation/algokit-utils/transact").ResourceReference[] | undefined;
                     rejectVersion?: number | undefined;
                     approvalProgram: string | Uint8Array;

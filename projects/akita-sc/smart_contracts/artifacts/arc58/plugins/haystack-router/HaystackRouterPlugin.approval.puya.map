@@ -4,7 +4,7 @@
     "../../../../arc58/plugins/haystack-router/contract.algo.ts",
     "../../../../utils/functions.ts"
   ],
-  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAsCA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AC8SA;;;AACM;;AAAA;;;AACK;;AAAP;AAGK;;AAAA;;AAAA;AAAP;ADzSC;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AARQ;AAUP;;AAAA;AARa;AASb;;AAAA;AAPS;AAQT;;AAAA;AANiB;;;;;;;;;;;;;;;;;;AAOjB;AAAA;AALD;AAAA;;;;;AA0FD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;ACmJ+B;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AAAA;ADhL7B;;;AAAA;;;;;;;;;;AAAA;AAAA;AAhDsB;AAAlB;;AAEiB;;AAAiB;AAAjB;AAAA;;AAAoB;;AAAI;;AAAJ;AAAzC;;;AAGM;;AAAA;;AAAA;AAAA;;AAAa;;AAAb;AAAA;;;AAAgD;;AAAA;;AAAc;AA1B7D;AA0B6D;AAAA;AAAd;AAAhD;;;AAIe;;AAAA;;AAAA;AAAA;AAEN;;AAAA;;AAAb;;;AAAA;AAAA;AAAA;AACa;;AAAA;;AAAA;AAAA;;AAAb;;;AAAA;AAAA;AAAA;AAEI;;AAAmB;AAAnB;;AAA0B;AAjCnB;AAiCmB;AAAA;AAA1B;AAAJ;;;AAIa;;AAAwB;AAAxB;AAAb;;;AAAA;AAAA;AAAA;AAgBwB;;AAAA;AAfoB;;AAepB;;AAAL;AAEd;;AAjBQ;;AAAA;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEyB;;AAAA;AAAmB;;AAAnB;;AAAL;AAAlB;;AAAA;;AAAA;AADF;;;AAAA;;;;;;;;;;AAAA;AAAA;AAIa;;AAAmB;AAAnB;;AAA0D;;AAAA;AAA1D;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAUwB;;AAAA;AAToB;AASpB;;AAAL;AAEd;;AAXuE;AA1CrE;AA0CqE;AAAA;AAA/D;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEkB;AAAlB;;AAzB6D;;AAAK;AAAL;AAAA;;;;;AA4B/D;;AAAA;;;AAAA;;;;;;;;;;AAAA;AAAA;AAyBA;;AAAA;;;AACE;AAGc;AAhFT;AAgFS;AAAA;AAAA;;AAAA;AAED;;AAAA;;AAAA;;;;;;;;;;;;;;AALb;;;AAAA;;;AAAA;AAqBJ;AAAA;AAZI;AAGmB;AAzFd;AAyFc;AAAA;AAAA;;AAAA;AAGN;;AAAA;;AAAA;;;;;;;;;;;;;;;;;;AANb;;;AAAA;;;AAAA;",
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAsCA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AC8SA;;;AACM;;AAAA;;;AACK;;AAAP;AAGK;;AAAA;;AAAA;AAAP;ADzSC;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AARQ;AAUP;;AAAA;AARa;AASb;;AAAA;AAPS;AAQT;;AAAA;AANiB;;;;;;;;;;;;;;;;;;AAOjB;AAAA;AALD;AAAA;;;;AA0FD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;ACmJ+B;AAEvB;;;;;;;;;;;;;;;;;;AAFuB;AAAA;AAAA;;ADhL7B;;;AAAA;;;;;;;;;;AAAA;AAAA;AAhDsB;AAED;;AAAiB;AAAjB;AAAoB;AAAI;;AAAJ;AAAzC;;;AAGM;AAAA;;AAAA;AAAA;;AAAa;;AAAb;AAAA;;;AAAgD;AAAA;;AAAc;AA1B7D;AA0B6D;AAAA;AAAd;AAAhD;;;AAIe;;AAAA;;AAAA;AAAA;AAEN;AAAA;;AAAb;;;AAAA;AAAA;AAAA;AACa;AAAA;;AAAA;AAAA;;AAAb;;;AAAA;AAAA;AAAA;AAEI;AAAA;;;AAA0B;AAjCnB;AAiCmB;AAAA;AAA1B;AAAJ;;;;;AAIa;;AAAwB;AAAxB;AAAb;;;AAAA;AAAA;AAAA;AAgBwB;;AAAA;;;AAAL;AAEd;;AAjBQ;;AAAA;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEyB;;AAAA;;;AAAL;AAAlB;;AAAA;;AAAA;AADF;;;AAAA;;;;;;;;;;AAAA;AAAA;AAIa;AAAA;;;AAA0D;;AAAA;AAA1D;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAUwB;;AAAA;;;AAAL;AAEd;;AAXuE;AA1CrE;AA0CqE;AAAA;AAA/D;AAAb;;;AAAA;;;;;;;;;;AAAA;AAAA;AAEkB;AAAlB;AAzBkE;AAAL;;;;;AA4B/D;;;AAAA;;;;;;;;;;AAAA;AAAA;AAyBA;;AAAA;;;;;;AACE;AAGc;AAhFT;AAgFS;AAAA;AAAA;;AAAA;AAED;AAAA;;AAAA;;;;;;;;;;;;;AALb;;;AAAA;;;AAAA;AAqBJ;AAAA;AAZI;AAGmB;AAzFd;AAyFc;AAAA;AAAA;;AAAA;AAGN;AAAA;;AAAA;;;;;;;;;;;;;;;;;AANb;;;AAAA;;;AAAA;",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -646,62 +646,54 @@
       "stack_in": [],
       "op": "pushbytes \"\"",
       "stack_out": [
-        "foundRouterCall#0"
+        "tmp%10#1"
       ]
     },
     "172": {
-      "op": "dupn 3",
+      "op": "dup",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1"
       ]
     },
-    "174": {
+    "173": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0"
       ]
     },
-    "177": {
+    "176": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ]
     },
-    "178": {
+    "177": {
       "op": "len",
       "defined_out": [
         "len%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0",
         "len%0#0"
       ]
     },
-    "179": {
+    "178": {
       "op": "intc_1 // 8",
       "defined_out": [
         "8",
@@ -709,8 +701,6 @@
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0",
@@ -718,68 +708,58 @@
         "8"
       ]
     },
-    "180": {
+    "179": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0",
         "eq%0#0"
       ]
     },
-    "181": {
+    "180": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "tmp%0#0"
       ]
     },
-    "182": {
+    "181": {
       "op": "btoi",
       "defined_out": [
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0"
       ]
     },
-    "183": {
+    "182": {
       "op": "dup",
       "defined_out": [
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
         "wallet#0"
       ]
     },
-    "184": {
+    "183": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "tmp%2#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -787,7 +767,7 @@
         "tmp%2#0"
       ]
     },
-    "187": {
+    "186": {
       "op": "dup",
       "defined_out": [
         "tmp%2#0",
@@ -795,8 +775,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -805,7 +783,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "188": {
+    "187": {
       "op": "len",
       "defined_out": [
         "len%1#0",
@@ -813,8 +791,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -823,7 +799,7 @@
         "len%1#0"
       ]
     },
-    "189": {
+    "188": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1",
@@ -832,8 +808,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -843,7 +817,7 @@
         "1"
       ]
     },
-    "190": {
+    "189": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -851,8 +825,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -861,12 +833,10 @@
         "eq%1#0"
       ]
     },
-    "191": {
+    "190": {
       "error": "invalid number of bytes for arc4.bool",
       "op": "assert // invalid number of bytes for arc4.bool",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -874,11 +844,9 @@
         "tmp%2#0"
       ]
     },
-    "192": {
+    "191": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -887,15 +855,13 @@
         "0"
       ]
     },
-    "193": {
+    "192": {
       "op": "getbit",
       "defined_out": [
         "rekeyBack#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -903,15 +869,13 @@
         "rekeyBack#0"
       ]
     },
-    "194": {
+    "193": {
       "op": "swap",
       "defined_out": [
         "rekeyBack#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -919,7 +883,7 @@
         "wallet#0"
       ]
     },
-    "195": {
+    "194": {
       "op": "txna ApplicationArgs 3",
       "defined_out": [
         "rekeyBack#0",
@@ -927,8 +891,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -937,7 +899,7 @@
         "tmp%4#0"
       ]
     },
-    "198": {
+    "197": {
       "op": "dup",
       "defined_out": [
         "rekeyBack#0",
@@ -946,8 +908,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -957,7 +917,7 @@
         "tmp%4#0 (copy)"
       ]
     },
-    "199": {
+    "198": {
       "op": "len",
       "defined_out": [
         "len%2#0",
@@ -966,8 +926,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -977,11 +935,9 @@
         "len%2#0"
       ]
     },
-    "200": {
+    "199": {
       "op": "intc_1 // 8",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -992,7 +948,7 @@
         "8"
       ]
     },
-    "201": {
+    "200": {
       "op": "==",
       "defined_out": [
         "eq%2#0",
@@ -1001,8 +957,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -1012,12 +966,10 @@
         "eq%2#0"
       ]
     },
-    "202": {
+    "201": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -1026,7 +978,7 @@
         "tmp%4#0"
       ]
     },
-    "203": {
+    "202": {
       "op": "btoi",
       "defined_out": [
         "asset#0",
@@ -1034,8 +986,6 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
@@ -1044,21 +994,19 @@
         "asset#0"
       ]
     },
-    "204": {
-      "op": "swap",
+    "203": {
+      "op": "cover 2",
       "defined_out": [
         "asset#0",
         "rekeyBack#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0"
       ]
     },
@@ -1071,13 +1019,11 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0"
       ]
@@ -1092,13 +1038,11 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0",
         "tmp%6#0 (copy)"
@@ -1114,13 +1058,11 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0",
         "len%3#0"
@@ -1129,13 +1071,11 @@
     "210": {
       "op": "intc_1 // 8",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0",
         "len%3#0",
@@ -1152,13 +1092,11 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0",
         "eq%3#0"
@@ -1168,13 +1106,11 @@
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "tmp%6#0"
       ]
@@ -1188,13 +1124,11 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0"
       ]
@@ -1202,20 +1136,18 @@
     "214": {
       "op": "dup",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
         "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "amount#0"
       ]
     },
     "215": {
-      "op": "cover 2",
+      "op": "cover 4",
       "defined_out": [
         "amount#0",
         "asset#0",
@@ -1223,14 +1155,12 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0"
       ]
@@ -1245,14 +1175,12 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0"
@@ -1269,14 +1197,12 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0",
@@ -1294,14 +1220,12 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0",
@@ -1311,14 +1235,12 @@
     "222": {
       "op": "intc_1 // 8",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0",
@@ -1337,14 +1259,12 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0",
@@ -1355,14 +1275,12 @@
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%8#0"
@@ -1378,21 +1296,19 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "outputAsset#0"
       ]
     },
     "226": {
-      "op": "cover 2",
+      "op": "cover 6",
       "defined_out": [
         "amount#0",
         "asset#0",
@@ -1401,15 +1317,13 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0"
       ]
@@ -1425,15 +1339,13 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0"
@@ -1451,15 +1363,13 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0",
@@ -1478,15 +1388,13 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0",
@@ -1496,15 +1404,13 @@
     "233": {
       "op": "intc_1 // 8",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0",
@@ -1524,15 +1430,13 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0",
@@ -1543,15 +1447,13 @@
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "tmp%10#0"
@@ -1568,22 +1470,20 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0",
         "minOutputAmount#0"
       ]
     },
     "237": {
-      "op": "cover 2",
+      "op": "cover 6",
       "defined_out": [
         "amount#0",
         "asset#0",
@@ -1593,16 +1493,14 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "wallet#0",
         "amount#0"
       ]
@@ -1610,16 +1508,14 @@
     "239": {
       "op": "swap",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "amount#0",
         "wallet#0"
       ]
@@ -1636,16 +1532,14 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "amount#0",
         "wallet#0",
         "\"spending_address\""
@@ -1664,16 +1558,14 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "amount#0",
         "spendingAddressBytes#0",
         "awst_tmp%1#0"
@@ -1682,22 +1574,20 @@
     "259": {
       "op": "pop",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "rekeyBack#0",
         "amount#0",
         "spendingAddressBytes#0"
       ]
     },
     "260": {
-      "op": "swap",
+      "op": "cover 2",
       "defined_out": [
         "amount#0",
         "asset#0",
@@ -1708,37 +1598,33 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "amount#0"
       ]
     },
-    "261": {
+    "262": {
       "op": "bnz swap_after_assert@5",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ]
     },
-    "264": {
+    "265": {
       "op": "pushbytes \"ERR:IHFD\"",
       "defined_out": [
         "\"ERR:IHFD\"",
@@ -1751,115 +1637,55 @@
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "\"ERR:IHFD\""
       ]
     },
-    "274": {
+    "275": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ]
     },
-    "275": {
+    "276": {
       "error": "ERR:IHFD",
       "op": "err // ERR:IHFD"
     },
-    "276": {
+    "277": {
       "block": "swap_after_assert@5",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "intc_0 // 0",
-      "defined_out": [
-        "foundRouterCall#0"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "foundRouterCall#0"
-      ]
-    },
-    "277": {
-      "op": "bury 11",
-      "defined_out": [
-        "foundRouterCall#0"
+        "rekeyBack#0"
       ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
+      "op": "intc_0 // 0"
     },
-    "279": {
-      "op": "txn GroupIndex",
-      "defined_out": [
-        "foundRouterCall#0",
-        "tmp%0#3"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%0#3"
-      ]
+    "278": {
+      "op": "txn GroupIndex"
     },
-    "281": {
+    "280": {
       "op": "intc_2 // 1",
       "defined_out": [
         "1",
@@ -1867,1535 +1693,1357 @@
         "tmp%0#3"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "tmp%0#3",
         "1"
       ]
     },
-    "282": {
+    "281": {
       "op": "+",
       "defined_out": [
         "foundRouterCall#0",
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
       ]
     },
-    "283": {
-      "op": "bury 10",
-      "defined_out": [
+    "282": {
+      "block": "swap_while_top@6",
+      "stack_in": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "foundRouterCall#0",
         "i#0"
       ],
+      "op": "dup"
+    },
+    "283": {
+      "op": "global GroupSize",
+      "defined_out": [
+        "i#0 (copy)",
+        "tmp%2#1"
+      ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)",
+        "tmp%2#1"
       ]
     },
     "285": {
-      "block": "swap_while_top@6",
-      "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
+      "op": "<",
       "defined_out": [
-        "i#0"
+        "tmp%3#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "i#0"
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%3#0"
       ]
     },
-    "287": {
-      "op": "global GroupSize",
-      "defined_out": [
-        "i#0",
-        "tmp%2#1"
-      ],
+    "286": {
+      "op": "bz swap_after_while@28",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "i#0",
-        "tmp%2#1"
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
     "289": {
-      "op": "<",
-      "defined_out": [
-        "i#0",
-        "tmp%3#0"
-      ],
+      "op": "dup",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "tmp%3#0"
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)"
       ]
     },
     "290": {
-      "op": "bz swap_after_while@28",
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "tmp%4#1"
+      ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%4#1"
+      ]
+    },
+    "292": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%4#1",
+        "tmp%4#1"
       ]
     },
     "293": {
-      "op": "dig 9",
+      "op": "bury 11",
+      "defined_out": [
+        "tmp%4#1"
+      ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "i#0"
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%4#1"
       ]
     },
     "295": {
-      "op": "gtxns TypeEnum",
-      "defined_out": [
-        "i#0",
-        "tmp%4#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%4#1"
-      ]
-    },
-    "297": {
-      "op": "dup",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%4#1",
-        "tmp%4#1"
-      ]
-    },
-    "298": {
-      "op": "bury 9",
-      "defined_out": [
-        "i#0",
-        "tmp%4#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%4#1"
-      ]
-    },
-    "300": {
       "op": "pushint 6",
       "defined_out": [
         "6",
-        "i#0",
         "tmp%4#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%4#1",
         "6"
       ]
     },
-    "302": {
+    "297": {
       "op": "!=",
       "defined_out": [
-        "i#0",
         "tmp%4#1",
         "tmp%5#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%5#0"
       ]
     },
-    "303": {
+    "298": {
       "op": "bnz swap_block@27",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "306": {
-      "op": "dig 9",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
       ]
     },
-    "308": {
+    "301": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)"
+      ]
+    },
+    "302": {
       "op": "gtxns ApplicationID",
       "defined_out": [
-        "i#0",
         "tmp%4#1",
         "tmp%6#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%6#1"
       ]
     },
-    "310": {
+    "304": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "i#0",
         "tmp%4#1",
         "tmp%6#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%6#1",
         "0"
       ]
     },
-    "311": {
+    "305": {
       "op": "bytec_0 // \"router\"",
       "defined_out": [
         "\"router\"",
         "0",
-        "i#0",
         "tmp%4#1",
         "tmp%6#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%6#1",
         "0",
         "\"router\""
       ]
     },
-    "312": {
+    "306": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "i#0",
         "maybe_exists%0#0",
         "maybe_value%0#0",
         "tmp%4#1",
         "tmp%6#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%6#1",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "313": {
+    "307": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%6#1",
         "maybe_value%0#0"
       ]
     },
-    "314": {
+    "308": {
       "op": "!=",
       "defined_out": [
-        "i#0",
         "tmp%4#1",
         "tmp%7#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%7#0"
       ]
     },
-    "315": {
+    "309": {
       "op": "bnz swap_block@27",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
-    "318": {
-      "op": "dig 7",
+    "312": {
+      "op": "dig 9",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%4#1"
       ]
     },
-    "320": {
+    "314": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl",
-        "i#0",
         "tmp%4#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%4#1",
         "appl"
       ]
     },
-    "322": {
+    "316": {
       "op": "==",
       "defined_out": [
         "gtxn_type_matches%0#0",
-        "i#0",
         "tmp%4#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "gtxn_type_matches%0#0"
       ]
     },
-    "323": {
+    "317": {
       "error": "transaction type is appl",
       "op": "assert // transaction type is appl",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
+      ]
+    },
+    "318": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)"
+      ]
+    },
+    "319": {
+      "op": "gtxns OnCompletion",
+      "defined_out": [
+        "tmp%4#1",
+        "tmp%8#1"
+      ],
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%8#1"
+      ]
+    },
+    "321": {
+      "op": "bz swap_after_assert@12",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
     "324": {
-      "op": "dig 9",
+      "op": "bytec_1 // \"ERR:IHRC\"",
+      "defined_out": [
+        "\"ERR:IHRC\"",
+        "tmp%4#1"
+      ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "\"ERR:IHRC\""
+      ]
+    },
+    "325": {
+      "op": "log",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
       ]
     },
     "326": {
-      "op": "gtxns OnCompletion",
-      "defined_out": [
-        "i#0",
-        "tmp%4#1",
-        "tmp%8#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%8#1"
-      ]
-    },
-    "328": {
-      "op": "bz swap_after_assert@12",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "331": {
-      "op": "bytec_1 // \"ERR:IHRC\"",
-      "defined_out": [
-        "\"ERR:IHRC\"",
-        "i#0",
-        "tmp%4#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "\"ERR:IHRC\""
-      ]
-    },
-    "332": {
-      "op": "log",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "333": {
       "error": "ERR:IHRC",
       "op": "err // ERR:IHRC"
     },
-    "334": {
+    "327": {
       "block": "swap_after_assert@12",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
       ],
+      "op": "dup",
+      "defined_out": [
+        "i#0 (copy)"
+      ],
       "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)"
+      ]
+    },
+    "328": {
+      "op": "gtxns NumAppArgs",
+      "defined_out": [
+        "tmp%10#1"
+      ],
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%10#1"
+      ]
+    },
+    "330": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "foundRouterCall#0",
         "i#0",
         "tmp%10#1",
+        "tmp%10#1"
+      ]
+    },
+    "331": {
+      "op": "bury 12",
+      "defined_out": [
+        "tmp%10#1"
+      ],
+      "stack_out": [
+        "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%10#1"
+      ]
+    },
+    "333": {
+      "op": "bnz swap_after_assert@14",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
       ]
     },
     "336": {
-      "op": "gtxns NumAppArgs",
-      "defined_out": [
-        "i#0",
-        "tmp%10#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%10#1"
-      ]
-    },
-    "338": {
-      "op": "dup",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%10#1",
-        "tmp%10#1"
-      ]
-    },
-    "339": {
-      "op": "bury 10",
-      "defined_out": [
-        "i#0",
-        "tmp%10#1"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "tmp%10#1"
-      ]
-    },
-    "341": {
-      "op": "bnz swap_after_assert@14",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "344": {
       "op": "bytec_1 // \"ERR:IHRC\"",
       "defined_out": [
         "\"ERR:IHRC\"",
-        "i#0",
         "tmp%10#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "\"ERR:IHRC\""
       ]
     },
-    "345": {
+    "337": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
-    "346": {
+    "338": {
       "error": "ERR:IHRC",
       "op": "err // ERR:IHRC"
     },
-    "347": {
+    "339": {
       "block": "swap_after_assert@14",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "i#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "i#0"
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "i#0 (copy)"
       ]
     },
-    "349": {
+    "340": {
+      "op": "gtxnsa ApplicationArgs 0",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
+        "tmp%12#0"
+      ]
+    },
+    "343": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
-        "i#0"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0",
-        "0"
-      ]
-    },
-    "350": {
-      "op": "gtxnsas ApplicationArgs",
-      "defined_out": [
-        "i#0",
         "tmp%12#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "tmp%12#0"
-      ]
-    },
-    "352": {
-      "op": "intc_0 // 0",
-      "stack_out": [
+        "rekeyBack#0",
         "foundRouterCall#0",
         "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "tmp%12#0",
         "0"
       ]
     },
-    "353": {
+    "344": {
       "op": "bytec_2 // \"routerMethod\"",
       "defined_out": [
         "\"routerMethod\"",
         "0",
-        "i#0",
         "tmp%12#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%12#0",
         "0",
         "\"routerMethod\""
       ]
     },
-    "354": {
+    "345": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "i#0",
         "maybe_exists%1#0",
         "maybe_value%1#1",
         "tmp%12#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%12#0",
         "maybe_value%1#1",
         "maybe_exists%1#0"
       ]
     },
-    "355": {
+    "346": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%12#0",
         "maybe_value%1#1"
       ]
     },
-    "356": {
+    "347": {
       "op": "!=",
       "defined_out": [
-        "i#0",
         "tmp%13#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0",
         "tmp%13#0"
       ]
     },
-    "357": {
+    "348": {
       "op": "bnz swap_block@27",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
-    "360": {
-      "op": "dig 8",
+    "351": {
+      "op": "bury 1",
+      "defined_out": [],
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
+      ]
+    },
+    "353": {
+      "op": "dig 9",
       "defined_out": [
-        "i#0",
         "tmp%10#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%10#1"
       ]
     },
-    "362": {
+    "355": {
       "op": "intc_1 // 8",
       "defined_out": [
         "8",
-        "i#0",
         "tmp%10#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%10#1",
         "8"
       ]
     },
-    "363": {
+    "356": {
       "op": ">",
       "defined_out": [
-        "i#0",
         "tmp%10#1",
         "tmp%15#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%15#0"
       ]
     },
-    "364": {
+    "357": {
       "op": "bnz swap_after_assert@18",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "367": {
+    "360": {
       "op": "bytec_1 // \"ERR:IHRC\"",
       "defined_out": [
         "\"ERR:IHRC\"",
-        "i#0",
         "tmp%10#1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "\"ERR:IHRC\""
       ]
     },
-    "368": {
+    "361": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "369": {
+    "362": {
       "error": "ERR:IHRC",
       "op": "err // ERR:IHRC"
     },
-    "370": {
+    "363": {
       "block": "swap_after_assert@18",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "i#0"
       ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0"
-      ]
-    },
-    "372": {
-      "op": "dup",
+      "op": "dupn 2",
       "defined_out": [
         "i#0",
         "i#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "i#0 (copy)"
       ]
     },
-    "373": {
-      "op": "pushint 6",
-      "defined_out": [
-        "6",
-        "i#0",
-        "i#0 (copy)"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0",
-        "i#0 (copy)",
-        "6"
-      ]
-    },
-    "375": {
-      "op": "gtxnsas ApplicationArgs",
+    "365": {
+      "op": "gtxnsa ApplicationArgs 6",
       "defined_out": [
         "i#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "tmp%0#0"
       ]
     },
-    "377": {
+    "368": {
       "op": "btoi",
       "defined_out": [
         "accountIndex#0",
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "accountIndex#0"
       ]
     },
-    "378": {
+    "369": {
       "op": "gtxnsas Accounts",
       "defined_out": [
         "i#0",
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2"
       ]
     },
-    "380": {
-      "op": "dig 1",
+    "371": {
+      "op": "dig 3",
       "defined_out": [
         "i#0",
-        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)",
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2",
-        "spendingAddressBytes#0"
+        "spendingAddressBytes#0 (copy)"
       ]
     },
-    "382": {
+    "373": {
       "op": "==",
       "defined_out": [
         "i#0",
-        "spendingAddressBytes#0",
         "tmp%17#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%17#0"
       ]
     },
-    "383": {
+    "374": {
       "op": "bnz swap_after_assert@20",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "386": {
+    "377": {
       "op": "pushbytes \"ERR:IHRA\"",
       "defined_out": [
         "\"ERR:IHRA\"",
-        "i#0",
-        "spendingAddressBytes#0"
+        "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "\"ERR:IHRA\""
       ]
     },
-    "396": {
+    "387": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "397": {
+    "388": {
       "error": "ERR:IHRA",
       "op": "err // ERR:IHRA"
     },
-    "398": {
+    "389": {
       "block": "swap_after_assert@20",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "i#0"
       ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0"
-      ]
-    },
-    "400": {
-      "op": "dup",
+      "op": "dupn 2",
       "defined_out": [
         "i#0",
         "i#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "i#0 (copy)"
       ]
     },
-    "401": {
-      "op": "pushint 2",
-      "defined_out": [
-        "2",
-        "i#0",
-        "i#0 (copy)"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0",
-        "i#0 (copy)",
-        "2"
-      ]
-    },
-    "403": {
-      "op": "gtxnsas ApplicationArgs",
+    "391": {
+      "op": "gtxnsa ApplicationArgs 2",
       "defined_out": [
         "i#0",
         "tmp%18#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "tmp%18#0"
       ]
     },
-    "405": {
+    "394": {
       "op": "btoi",
       "defined_out": [
         "i#0",
         "tmp%19#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "tmp%19#0"
       ]
     },
-    "406": {
+    "395": {
       "op": "gtxnsas Assets",
       "defined_out": [
         "i#0",
         "tmp%20#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%20#0"
       ]
     },
-    "408": {
-      "op": "dig 3",
+    "397": {
+      "op": "dig 8",
       "defined_out": [
         "i#0",
         "outputAsset#0",
         "tmp%20#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%20#0",
         "outputAsset#0"
       ]
     },
-    "410": {
+    "399": {
       "op": "==",
       "defined_out": [
         "i#0",
@@ -3403,37 +3051,35 @@
         "tmp%21#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%21#0"
       ]
     },
-    "411": {
+    "400": {
       "op": "bnz swap_after_assert@22",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "414": {
+    "403": {
       "op": "pushbytes \"ERR:IHOA\"",
       "defined_out": [
         "\"ERR:IHOA\"",
@@ -3441,390 +3087,303 @@
         "outputAsset#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "\"ERR:IHOA\""
       ]
     },
-    "424": {
+    "413": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "425": {
+    "414": {
       "error": "ERR:IHOA",
       "op": "err // ERR:IHOA"
     },
-    "426": {
+    "415": {
       "block": "swap_after_assert@22",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "i#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "i#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0"
-      ]
-    },
-    "428": {
-      "op": "intc_3 // 4",
-      "defined_out": [
-        "4",
-        "i#0"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "i#0",
-        "4"
+        "i#0 (copy)"
       ]
     },
-    "429": {
-      "op": "gtxnsas ApplicationArgs",
+    "416": {
+      "op": "gtxnsa ApplicationArgs 4",
       "defined_out": [
-        "i#0",
         "tmp%22#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%22#0"
       ]
     },
-    "431": {
-      "op": "dig 2",
+    "419": {
+      "op": "dig 7",
       "defined_out": [
-        "i#0",
         "minOutputAmount#0",
         "tmp%22#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%22#0",
         "minOutputAmount#0"
       ]
     },
-    "433": {
+    "421": {
       "op": "itob",
       "defined_out": [
-        "i#0",
         "minOutputAmount#0",
         "tmp%22#0",
         "tmp%23#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%22#0",
         "tmp%23#0"
       ]
     },
-    "434": {
+    "422": {
       "op": "==",
       "defined_out": [
-        "i#0",
         "minOutputAmount#0",
         "tmp%24#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%24#0"
       ]
     },
-    "435": {
+    "423": {
       "op": "bnz swap_after_assert@24",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "438": {
+    "426": {
       "op": "pushbytes \"ERR:IHMO\"",
       "defined_out": [
         "\"ERR:IHMO\"",
-        "i#0",
         "minOutputAmount#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "\"ERR:IHMO\""
       ]
     },
-    "448": {
+    "436": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "449": {
+    "437": {
       "error": "ERR:IHMO",
       "op": "err // ERR:IHMO"
     },
-    "450": {
+    "438": {
       "block": "swap_after_assert@24",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "i#0"
       ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0"
-      ]
-    },
-    "452": {
-      "op": "dup",
+      "op": "dupn 2",
       "defined_out": [
         "i#0",
         "i#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "i#0 (copy)"
       ]
     },
-    "453": {
-      "op": "intc_1 // 8",
-      "defined_out": [
-        "8",
-        "i#0",
-        "i#0 (copy)"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0",
-        "i#0 (copy)",
-        "8"
-      ]
-    },
-    "454": {
-      "op": "gtxnsas ApplicationArgs",
+    "440": {
+      "op": "gtxnsa ApplicationArgs 8",
       "defined_out": [
         "i#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "tmp%0#0"
       ]
     },
-    "456": {
+    "443": {
       "op": "btoi",
       "defined_out": [
         "accountIndex#0",
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "i#0",
         "accountIndex#0"
       ]
     },
-    "457": {
+    "444": {
       "op": "gtxnsas Accounts",
       "defined_out": [
         "i#0",
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2"
       ]
     },
-    "459": {
+    "446": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -3832,22 +3391,21 @@
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2",
         "0"
       ]
     },
-    "460": {
+    "447": {
       "op": "bytec_3 // \"referrer\"",
       "defined_out": [
         "\"referrer\"",
@@ -3856,23 +3414,22 @@
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2",
         "0",
         "\"referrer\""
       ]
     },
-    "461": {
+    "448": {
       "op": "app_global_get_ex",
       "defined_out": [
         "i#0",
@@ -3881,646 +3438,560 @@
         "tmp%2#2"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2",
         "maybe_value%2#0",
         "maybe_exists%2#0"
       ]
     },
-    "462": {
+    "449": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%2#2",
         "maybe_value%2#0"
       ]
     },
-    "463": {
+    "450": {
       "op": "==",
       "defined_out": [
         "i#0",
         "tmp%26#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "tmp%26#0"
       ]
     },
-    "464": {
+    "451": {
       "op": "bnz swap_after_assert@26",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "467": {
+    "454": {
       "op": "pushbytes \"ERR:IHBI\"",
       "defined_out": [
         "\"ERR:IHBI\"",
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "\"ERR:IHBI\""
       ]
     },
-    "477": {
+    "464": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ]
     },
-    "478": {
+    "465": {
       "error": "ERR:IHBI",
       "op": "err // ERR:IHBI"
     },
-    "479": {
+    "466": {
       "block": "swap_after_assert@26",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0"
       ],
       "op": "intc_2 // 1",
       "defined_out": [
         "foundRouterCall#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "i#0",
         "foundRouterCall#0"
       ]
     },
-    "480": {
-      "op": "bury 11",
+    "467": {
+      "op": "swap",
       "defined_out": [
         "foundRouterCall#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
-    "482": {
+    "468": {
       "block": "swap_block@27",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ],
-      "op": "dig 9",
-      "defined_out": [
-        "i#0"
-      ],
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
         "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
         "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0"
-      ]
-    },
-    "484": {
+      ],
       "op": "intc_2 // 1",
       "defined_out": [
         "1",
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
         "i#0",
         "1"
       ]
     },
-    "485": {
+    "469": {
       "op": "+",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0",
-        "i#0"
-      ]
-    },
-    "486": {
-      "op": "bury 10",
       "defined_out": [
         "i#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ]
     },
-    "488": {
+    "470": {
       "op": "b swap_while_top@6"
     },
-    "491": {
+    "473": {
       "block": "swap_after_while@28",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "foundRouterCall#0",
+        "i#0"
       ],
-      "op": "dig 10",
+      "op": "pop",
       "defined_out": [
         "foundRouterCall#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "foundRouterCall#0"
       ]
     },
-    "493": {
+    "474": {
       "op": "bnz swap_after_assert@30",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ]
     },
-    "496": {
+    "477": {
       "op": "pushbytes \"ERR:IHTR\"",
       "defined_out": [
-        "\"ERR:IHTR\"",
-        "foundRouterCall#0"
+        "\"ERR:IHTR\""
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "\"ERR:IHTR\""
       ]
     },
-    "506": {
+    "487": {
       "op": "log",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ]
     },
-    "507": {
+    "488": {
       "error": "ERR:IHTR",
       "op": "err // ERR:IHTR"
     },
-    "508": {
+    "489": {
       "block": "swap_after_assert@30",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ],
-      "op": "dig 4",
+      "op": "dig 2",
       "defined_out": [
-        "asset#0"
+        "asset#0 (copy)"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
-        "asset#0"
+        "rekeyBack#0",
+        "asset#0 (copy)"
       ]
     },
-    "510": {
+    "491": {
       "op": "bnz swap_else_body@32",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ]
     },
-    "513": {
-      "op": "itxn_begin"
-    },
-    "514": {
-      "op": "intc_0 // 0",
+    "494": {
+      "op": "uncover 2",
       "defined_out": [
-        "0",
         "asset#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "asset#0"
+      ]
+    },
+    "496": {
+      "op": "pop",
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
+      ]
+    },
+    "497": {
+      "op": "itxn_begin"
+    },
+    "498": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "tmp%10#1",
+        "tmp%4#1",
+        "outputAsset#0",
+        "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
         "0"
       ]
     },
-    "515": {
+    "499": {
       "op": "bytec_0 // \"router\"",
       "defined_out": [
         "\"router\"",
-        "0",
-        "asset#0"
+        "0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "0",
         "\"router\""
       ]
     },
-    "516": {
+    "500": {
       "op": "app_global_get_ex",
       "defined_out": [
-        "asset#0",
         "maybe_exists%0#0",
         "maybe_value%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "517": {
+    "501": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "maybe_value%0#0"
       ]
     },
-    "518": {
+    "502": {
       "op": "app_params_get AppAddress",
       "defined_out": [
-        "asset#0",
         "check%0#0",
         "value%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "value%0#0",
         "check%0#0"
       ]
     },
-    "520": {
+    "504": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "value%0#0"
       ]
     },
-    "521": {
-      "op": "dig 6",
+    "505": {
+      "op": "swap",
       "defined_out": [
-        "asset#0",
         "rekeyBack#0",
         "value%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%0#0",
         "rekeyBack#0"
       ]
     },
-    "523": {
-      "op": "dig 8",
+    "506": {
+      "op": "uncover 4",
       "defined_out": [
-        "asset#0",
         "rekeyBack#0",
         "value%0#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%0#0",
         "rekeyBack#0",
         "wallet#0"
       ]
     },
-    "525": {
+    "508": {
       "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
-        "asset#0",
         "inner_txn_params%0%%param_RekeyTo_idx_0#0",
-        "rekeyBack#0",
-        "value%0#0",
-        "wallet#0"
+        "value%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%0#0",
         "inner_txn_params%0%%param_RekeyTo_idx_0#0"
       ]
     },
-    "528": {
+    "511": {
       "op": "itxn_field RekeyTo",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%0#0"
       ]
     },
-    "530": {
-      "op": "dig 4",
+    "513": {
+      "op": "uncover 2",
       "defined_out": [
         "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "value%0#0",
-        "wallet#0"
+        "value%0#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
         "spendingAddressBytes#0",
@@ -4528,492 +3999,346 @@
         "amount#0"
       ]
     },
-    "532": {
+    "515": {
       "op": "itxn_field Amount",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
         "spendingAddressBytes#0",
         "value%0#0"
       ]
     },
-    "534": {
+    "517": {
       "op": "itxn_field Receiver",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "536": {
-      "op": "dup",
       "defined_out": [
-        "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "spendingAddressBytes#0",
-        "wallet#0"
+        "spendingAddressBytes#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "spendingAddressBytes#0"
       ]
     },
-    "537": {
+    "519": {
       "op": "itxn_field Sender",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "539": {
+    "521": {
       "op": "intc_2 // 1",
       "defined_out": [
-        "1",
-        "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "spendingAddressBytes#0",
-        "wallet#0"
+        "1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "1"
       ]
     },
-    "540": {
+    "522": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "542": {
+    "524": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "0"
       ]
     },
-    "543": {
+    "525": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "545": {
+    "527": {
       "op": "itxn_submit"
     },
-    "546": {
+    "528": {
       "block": "swap_after_if_else@33",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ],
       "op": "intc_2 // 1",
       "defined_out": [
         "1"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "1"
       ]
     },
-    "547": {
+    "529": {
       "op": "return",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "548": {
+    "530": {
       "block": "swap_else_body@32",
       "stack_in": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "wallet#0",
+        "amount#0",
+        "asset#0",
+        "spendingAddressBytes#0",
+        "rekeyBack#0"
       ],
       "op": "itxn_begin"
     },
-    "549": {
+    "531": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "0"
       ]
     },
-    "550": {
+    "532": {
       "op": "bytec_0 // \"router\"",
       "defined_out": [
         "\"router\"",
         "0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "0",
         "\"router\""
       ]
     },
-    "551": {
+    "533": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%1#0",
         "maybe_value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "maybe_value%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "552": {
+    "534": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "maybe_value%1#0"
       ]
     },
-    "553": {
+    "535": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%1#0",
         "value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "value%1#0",
         "check%1#0"
       ]
     },
-    "555": {
+    "537": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
+        "rekeyBack#0",
         "value%1#0"
       ]
     },
-    "556": {
-      "op": "dig 6",
+    "538": {
+      "op": "swap",
       "defined_out": [
         "rekeyBack#0",
         "value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "wallet#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
         "value%1#0",
         "rekeyBack#0"
       ]
     },
-    "558": {
-      "op": "dig 8",
+    "539": {
+      "op": "uncover 5",
       "defined_out": [
         "rekeyBack#0",
         "value%1#0",
         "wallet#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
         "value%1#0",
         "rekeyBack#0",
         "wallet#0"
       ]
     },
-    "560": {
+    "541": {
       "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
       "op": "callsub rekeyAddress",
       "defined_out": [
         "inner_txn_params%1%%param_RekeyTo_idx_0#0",
-        "rekeyBack#0",
-        "value%1#0",
-        "wallet#0"
+        "value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
         "value%1#0",
         "inner_txn_params%1%%param_RekeyTo_idx_0#0"
       ]
     },
-    "563": {
+    "544": {
       "op": "itxn_field RekeyTo",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
+        "asset#0",
         "spendingAddressBytes#0",
         "value%1#0"
       ]
     },
-    "565": {
-      "op": "dig 5",
+    "546": {
+      "op": "uncover 2",
       "defined_out": [
         "asset#0",
-        "rekeyBack#0",
-        "value%1#0",
-        "wallet#0"
+        "value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%1#0",
         "asset#0"
       ]
     },
-    "567": {
+    "548": {
       "op": "itxn_field XferAsset",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
+        "amount#0",
         "spendingAddressBytes#0",
         "value%1#0"
       ]
     },
-    "569": {
-      "op": "dig 4",
+    "550": {
+      "op": "uncover 2",
       "defined_out": [
         "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "value%1#0",
-        "wallet#0"
+        "value%1#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
         "spendingAddressBytes#0",
@@ -5021,157 +4346,84 @@
         "amount#0"
       ]
     },
-    "571": {
+    "552": {
       "op": "itxn_field AssetAmount",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
         "spendingAddressBytes#0",
         "value%1#0"
       ]
     },
-    "573": {
+    "554": {
       "op": "itxn_field AssetReceiver",
-      "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
-        "tmp%10#1",
-        "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
-        "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
-      ]
-    },
-    "575": {
-      "op": "dup",
       "defined_out": [
-        "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "spendingAddressBytes#0",
-        "wallet#0"
+        "spendingAddressBytes#0"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "spendingAddressBytes#0"
       ]
     },
-    "576": {
+    "556": {
       "op": "itxn_field Sender",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "578": {
+    "558": {
       "op": "intc_3 // 4",
       "defined_out": [
-        "4",
-        "amount#0",
-        "asset#0",
-        "rekeyBack#0",
-        "spendingAddressBytes#0",
-        "wallet#0"
+        "4"
       ],
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "4"
       ]
     },
-    "579": {
+    "559": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "581": {
+    "561": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
         "minOutputAmount#0",
-        "spendingAddressBytes#0",
         "0"
       ]
     },
-    "582": {
+    "562": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "foundRouterCall#0",
-        "i#0",
         "tmp%10#1",
         "tmp%4#1",
-        "wallet#0",
-        "rekeyBack#0",
-        "asset#0",
-        "amount#0",
         "outputAsset#0",
-        "minOutputAmount#0",
-        "spendingAddressBytes#0"
+        "minOutputAmount#0"
       ]
     },
-    "584": {
+    "564": {
       "op": "itxn_submit"
     },
-    "585": {
+    "565": {
       "op": "b swap_after_if_else@33"
     }
   }

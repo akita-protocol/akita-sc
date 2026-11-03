@@ -4,7 +4,7 @@ import {
   EscrowSDK,
   newEscrow,
   translateEscrowError
-} from "../chunk-US2YCWR4.mjs";
+} from "../chunk-CFQQAY7V.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

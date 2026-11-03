@@ -3,7 +3,7 @@ import {
   StakingSDK,
   StakingType,
   translateStakingError
-} from "../chunk-VB24EFFR.mjs";
+} from "../chunk-G3N4KJSS.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

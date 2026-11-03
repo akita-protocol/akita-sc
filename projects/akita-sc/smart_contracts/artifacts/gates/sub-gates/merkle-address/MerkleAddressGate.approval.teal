@@ -172,7 +172,7 @@ register_after_assert@3:
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:66
     // loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     dig 1
     callsub smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.cost
@@ -212,7 +212,7 @@ register_after_assert@7:
     box_del
     pop
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:63
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -266,7 +266,7 @@ check:
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:76
     // const { creator, name } = clone(this.registry(registryID).value)
-    dig 1
+    swap
     itob
     dup
     intc_1 // 0
@@ -297,7 +297,7 @@ check_after_assert@3:
     itxn_begin
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:83
     // sha256(sha256(caller.bytes)),
-    dig 4
+    uncover 3
     sha256
     sha256
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:85
@@ -343,7 +343,7 @@ check_after_assert@3:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 1
+    swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -505,7 +505,7 @@ updateAkitaDAO_after_assert@3:
     bytec_2 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
@@ -533,12 +533,10 @@ smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGa
 smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts::MerkleAddressGate.cost_after_assert@2:
     // smart_contracts/gates/sub-gates/merkle-address/contract.algo.ts:60
     // return MinMetaMerkleRegistryMBR + (BoxCostPerBox * (args.length - 32))
-    frame_dig 0
     intc_3 // 32
     -
     pushint 2500
     *
     pushint 18500
     +
-    swap
     retsub

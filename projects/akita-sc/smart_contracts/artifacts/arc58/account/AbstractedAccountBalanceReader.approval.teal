@@ -58,9 +58,8 @@ create:
 
 // smart_contracts/arc58/account/balance-reader.algo.ts::AbstractedAccountBalanceReader.balance[routing]() -> void:
 balance:
-    intc_0 // 0
     pushbytes ""
-    dupn 2
+    dup
     // smart_contracts/arc58/account/balance-reader.algo.ts:52
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -70,11 +69,13 @@ balance:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     txna ApplicationArgs 2
-    dupn 2
+    dup
+    cover 2
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    cover 2
+    cover 3
     intc_1 // 8
     *
     pushint 2
@@ -86,6 +87,7 @@ balance:
     // smart_contracts/arc58/account/balance-reader.algo.ts:54
     // let amounts: uint64[] = []
     pushbytes 0x0000
+    swap
     // smart_contracts/arc58/account/balance-reader.algo.ts:55
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
     intc_0 // 0
@@ -94,16 +96,16 @@ balance_while_top@2:
     // smart_contracts/arc58/account/balance-reader.algo.ts:55
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
     dup
-    dig 3
+    dig 4
     <
     bz balance_after_while@10
     // smart_contracts/arc58/account/balance-reader.algo.ts:56
     // let amount: uint64 = 0
     intc_0 // 0
-    bury 8
+    bury 7
     // smart_contracts/arc58/account/balance-reader.algo.ts:57
     // const asset = Asset(assets[i])
-    dig 3
+    dig 4
     extract 2 0
     dig 1
     intc_1 // 8
@@ -111,16 +113,16 @@ balance_while_top@2:
     dup2
     intc_1 // 8
     extract3 // on error: index access is out of bounds
-    bury 11
+    cover 3
     extract_uint64
     dup
-    bury 8
     // smart_contracts/arc58/account/balance-reader.algo.ts:59
     // if (asset.id === 0) {
     bnz balance_else_body@5
+    pop
     // smart_contracts/arc58/account/balance-reader.algo.ts:60
     // amount = address.balance
-    dig 4
+    dig 2
     acct_params_get AcctBalance
     swap
     bury 9
@@ -160,9 +162,9 @@ balance_after_if_else@8:
     // }).returnValue
     pushbytes 0x4c88eace // method "getEscrowInfo(address,uint64)(uint64,uint64)"
     itxn_field ApplicationArgs
-    dig 4
+    dig 2
     itxn_field ApplicationArgs
-    dig 8
+    swap
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -186,7 +188,7 @@ balance_after_if_else@8:
     dup
     pushint 4
     extract_uint64
-    dig 9
+    dig 8
     +
     swap
     pushint 12
@@ -201,7 +203,7 @@ balance_after_if_else@8:
     swap
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
-    dig 3
+    uncover 4
     dup
     cover 2
     intc_0 // 0
@@ -212,35 +214,34 @@ balance_after_if_else@8:
     replace2 0
     swap
     concat
-    bury 2
+    cover 2
     // smart_contracts/arc58/account/balance-reader.algo.ts:55
     // for (let i: uint64 = 0; i < assets.length; i += 1) {
-    dup
     intc_2 // 1
     +
-    bury 1
     b balance_while_top@2
 
 balance_else_body@5:
     // smart_contracts/arc58/account/balance-reader.algo.ts:62
     // const [holdingAmount, optedIn] = AssetHolding.assetBalance(address, asset)
-    dig 4
-    dig 7
+    dig 3
+    swap
     asset_holding_get AssetBalance
     swap
-    bury 7
+    bury 8
     // smart_contracts/arc58/account/balance-reader.algo.ts:63
     // if (optedIn) {
     bz balance_after_if_else@8
-    dig 5
+    dig 6
     bury 8
     b balance_after_if_else@8
 
 balance_after_while@10:
+    popn 2
     // smart_contracts/arc58/account/balance-reader.algo.ts:52
     // @abimethod({ readonly: true })
     bytec_1 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_2 // 1

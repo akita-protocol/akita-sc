@@ -200,8 +200,6 @@ create:
 
 // smart_contracts/poll/factory.algo.ts::PollFactory.new[routing]() -> void:
 new:
-    intc_0 // 0
-    pushbytes ""
     // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
@@ -222,24 +220,29 @@ new:
     assert // transaction type is pay
     txna ApplicationArgs 1
     dup
+    cover 2
     len
     intc_1 // 1
     ==
     assert // invalid number of bytes for arc4.uint8
     txna ApplicationArgs 2
     dup
+    cover 2
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 3
     dup
+    cover 2
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     txna ApplicationArgs 4
-    dupn 2
+    dup
+    cover 2
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     intc_2 // 2
@@ -249,7 +252,9 @@ new:
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
     txna ApplicationArgs 5
-    dupn 2
+    dup
+    cover 2
+    dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
@@ -259,7 +264,7 @@ new:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -278,15 +283,15 @@ new_for_header@1:
     dig 5
     <
     bz new_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -299,13 +304,15 @@ new_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b new_for_header@1
 
 new_after_for@4:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/poll/factory.algo.ts:28-36
     // new(
     //   payment: gtxn.PaymentTxn,
@@ -316,22 +323,20 @@ new_after_for@4:
     //   options: string[],
     //   gateID: uint64,
     // ): uint64 {
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<string>
     txna ApplicationArgs 6
     dup
-    bury 14
+    cover 2
     len
     intc_3 // 8
     ==
     assert // invalid number of bytes for arc4.uint64
     // smart_contracts/poll/factory.algo.ts:40
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    dig 10
+    dup
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -343,10 +348,9 @@ new_after_for@4:
 new_after_assert@7:
     // smart_contracts/poll/factory.algo.ts:41
     // loggedAssert(payment.amount === this.newPollCost(), ERR_INVALID_PAYMENT)
-    dig 10
+    dup
     gtxns Amount
     dup
-    bury 13
     // smart_contracts/poll/factory.algo.ts:87-89
     // MIN_PROGRAM_PAGES +
     // (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
@@ -398,9 +402,9 @@ new_after_assert@9:
     itob
     // smart_contracts/poll/factory.algo.ts:50
     // { account: payment.sender, amount: payment.amount },
-    dig 11
+    uncover 2
     gtxns Sender
-    dig 13
+    uncover 2
     itob
     concat
     // smart_contracts/poll/factory.algo.ts:38
@@ -411,7 +415,7 @@ new_after_assert@9:
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(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)
+    pushbytes base64(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)
     itxn_field ApprovalProgramPages
     // smart_contracts/poll/factory.algo.ts:43-55
     // const mint = poll.call
@@ -433,18 +437,17 @@ new_after_assert@9:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 10
+    uncover 6
     itxn_field ApplicationArgs
-    dig 9
+    uncover 5
     itxn_field ApplicationArgs
-    dig 8
+    uncover 4
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    dig 6
+    uncover 2
     itxn_field ApplicationArgs
-    dig 5
+    swap
     itxn_field ApplicationArgs
-    dig 12
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -549,7 +552,7 @@ deletePoll:
 deletePoll_after_assert@3:
     // smart_contracts/poll/factory.algo.ts:72
     // const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
-    dupn 2
+    dup
     pushbytes "funder"
     app_global_get_ex
     pop
@@ -680,7 +683,7 @@ initBoxedContract_after_assert@4:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:46
     // this.boxedContract.create({ size })
-    dig 1
+    swap
     box_create
     pop
 
@@ -723,7 +726,7 @@ initBoxedContract_after_assert@7:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:49
     // this.boxedContract.resize(size)
-    dig 1
+    swap
     box_resize
     b initBoxedContract_after_if_else@8
 
@@ -764,6 +767,7 @@ loadBoxedContract:
     intc_1 // 1
     -
     dup
+    cover 3
     // smart_contracts/utils/base-contracts/factory.ts:57
     // txn.type === TransactionType.ApplicationCall
     gtxns TypeEnum
@@ -775,7 +779,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:58
     // && txn.appId === Global.currentApplicationId
-    dup
+    dig 2
     gtxns ApplicationID
     global CurrentApplicationID
     ==
@@ -785,7 +789,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:59
     // && txn.numAppArgs === 3
-    dup
+    dig 2
     gtxns NumAppArgs
     pushint 3
     ==
@@ -796,7 +800,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:60
     // && txn.onCompletion === OnCompleteAction.NoOp
-    dup
+    dig 2
     gtxns OnCompletion
     // smart_contracts/utils/base-contracts/factory.ts:57-60
     // txn.type === TransactionType.ApplicationCall
@@ -806,9 +810,8 @@ loadBoxedContract:
     bnz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:61
     // && txn.appArgs(0) === methodSelector(this.initBoxedContract)
-    dup
-    intc_0 // 0
-    gtxnsas ApplicationArgs
+    dig 2
+    gtxnsa ApplicationArgs 0
     bytec 6 // method "initBoxedContract(string,uint64)void"
     ==
     // smart_contracts/utils/base-contracts/factory.ts:57-61
@@ -820,7 +823,7 @@ loadBoxedContract:
     bz loadBoxedContract_bool_false@8
     // smart_contracts/utils/base-contracts/factory.ts:62
     // && txn.sender === Txn.sender
-    dup
+    dig 2
     gtxns Sender
     txn Sender
     ==
@@ -868,8 +871,7 @@ loadBoxedContract_after_assert@13:
     bytec_2 // "bc"
     // smart_contracts/utils/base-contracts/factory.ts:65
     // this.boxedContract.replace(offset, data)
-    dig 3
-    dig 3
+    cover 2
     box_replace
     // smart_contracts/utils/base-contracts/factory.ts:53
     // loadBoxedContract(offset: uint64, data: bytes): void {
@@ -925,10 +927,6 @@ deleteBoxedContract_after_assert@3:
 
 // smart_contracts/utils/base-contracts/base.ts::AkitaFeeGeneratorContractWithOptIn.optIn[routing]() -> void:
 optIn:
-    intc_0 // 0
-    dupn 2
-    pushbytes ""
-    dupn 3
     // smart_contracts/utils/base-contracts/base.ts:194
     // optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
     txn GroupIndex
@@ -947,7 +945,7 @@ optIn:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    cover 2
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:196
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
@@ -960,7 +958,7 @@ optIn:
     swap
     dup
     cover 2
-    cover 4
+    cover 5
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:197
     // const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
@@ -993,7 +991,7 @@ optIn:
 optIn_after_assert@3:
     // smart_contracts/utils/base-contracts/base.ts:200
     // loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), ERR_INVALID_PAYMENT_AMOUNT)
-    dig 3
+    swap
     gtxns Amount
     global AssetOptInMinBalance
     intc_1 // 1
@@ -1048,10 +1046,8 @@ optIn_after_assert@5:
     itxn_submit
     // smart_contracts/utils/base-contracts/base.ts:215
     // if (count > 0 && escrow.name !== '') {
-    dup
     bz optIn_after_if_else@9
-    dig 1
-    dup
+    dupn 2
     intc_0 // 0
     extract_uint16
     dig 1
@@ -1075,7 +1071,7 @@ optIn_after_assert@5:
     bytec_1 // "wallet"
     app_global_get_ex
     pop
-    bury 6
+    swap
     // smart_contracts/utils/functions.ts:54
     // const [pluginAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
     dup
@@ -1086,10 +1082,10 @@ optIn_after_assert@5:
     // const { revenueManager } = getPluginAppList(this.akitaDAO.value)
     dup
     extract 8 8
-    bury 12
+    cover 2
     intc_3 // 8
     extract_uint64
-    bury 8
+    cover 3
     // smart_contracts/utils/base-contracts/base.ts:120
     // const escrow = clone(this.akitaDAOEscrow.value)
     intc_0 // 0
@@ -1102,7 +1098,7 @@ optIn_after_assert@5:
     swap
     dup
     cover 2
-    bury 5
+    bury 7
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:121
     // const { id } = this.getEscrow(escrow.name)
@@ -1113,7 +1109,7 @@ optIn_after_assert@5:
     len
     substring3
     dup
-    bury 11
+    cover 2
     extract 2 0
     // smart_contracts/utils/base-contracts/base.ts:30
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
@@ -1132,7 +1128,7 @@ optIn_after_assert@5:
     // args: [[name]],
     intc_1 // 1
     itob
-    bury 13
+    cover 2
     dup
     len
     itob
@@ -1182,7 +1178,6 @@ optIn_after_assert@5:
     intc_0 // 0
     extract_uint64
     dup
-    bury 9
     bnz optIn_after_assert@12
     pushbytes "ERR:NESC"
     log
@@ -1191,12 +1186,11 @@ optIn_after_assert@5:
 optIn_after_assert@12:
     // smart_contracts/utils/base-contracts/base.ts:122
     // loggedAssert(id === escrow.app.id, ERR_WRONG_ESCROW_FOR_OPERATION)
-    dig 1
+    dig 6
     intc_2 // 2
     extract_uint64
     dup
-    bury 7
-    dig 8
+    uncover 2
     ==
     bnz optIn_after_assert@14
     pushbytes "ERR:WESC"
@@ -1216,16 +1210,16 @@ optIn_after_assert@14:
     //   ],
     // })
     itxn_begin
-    dig 4
+    uncover 4
     dup
     itxn_field ApplicationID
     pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
     itxn_field ApplicationArgs
-    dig 10
+    uncover 4
     itxn_field ApplicationArgs
-    dig 11
+    uncover 2
     itxn_field ApplicationArgs
-    dig 9
+    uncover 2
     itxn_field ApplicationArgs
     // smart_contracts/utils/base-contracts/base.ts:130
     // [0], // all the akita escrows have method restrictions with optin being index 0
@@ -1262,7 +1256,7 @@ optIn_after_assert@14:
     assert // check GlobalState exists
     // smart_contracts/utils/base-contracts/base.ts:137
     // escrow.app.address,
-    dig 7
+    uncover 2
     dup
     cover 2
     app_params_get AppAddress
@@ -1336,7 +1330,7 @@ optIn_after_assert@14:
     pushbytes 0x0001
     swap
     concat
-    dig 9
+    uncover 3
     itxn_field ApplicationID
     // smart_contracts/utils/base-contracts/base.ts:143-154
     // itxnCompose.next<typeof RevenueManagerPluginStub.prototype.optIn>({
@@ -1507,7 +1501,7 @@ updateAkitaDAOEscrow_after_assert@3:
     bytec 4 // "akita_escrow"
     // smart_contracts/utils/base-contracts/base.ts:86
     // this.akitaDAOEscrow.value = clone(config)
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:84
     // updateAkitaDAOEscrow(config: EscrowConfig): void {
@@ -1591,7 +1585,7 @@ update_after_assert@5:
     bytec 7 // "version"
     // smart_contracts/utils/base-contracts/base.ts:51
     // this.version.value = newVersion
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:46
     // @abimethod({ allowActions: ['UpdateApplication'] })
@@ -1642,7 +1636,7 @@ updateAkitaDAO_after_assert@3:
     bytec_0 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {

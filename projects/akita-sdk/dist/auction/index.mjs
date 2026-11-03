@@ -4,8 +4,8 @@ import {
   AuctionSDK,
   newAuction,
   translateAuctionError
-} from "../chunk-VTIHR5J5.mjs";
-import "../chunk-BXRXZO7H.mjs";
+} from "../chunk-WDKHKCIQ.mjs";
+import "../chunk-E3MPH3MK.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

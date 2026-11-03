@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 8
-    bytecblock "" TMPL_SUNSET_CALLER
+    bytecblock TMPL_SUNSET_CALLER
     // smart_contracts/sunset/contract.algo.ts:11
     // export class SunsetContract extends Contract {
     txn NumAppArgs
@@ -111,8 +111,6 @@ delete:
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.deleteBoxes[routing]() -> void:
 deleteBoxes:
-    bytec_0 // ""
-    dup
     // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
     txna ApplicationArgs 1
@@ -126,7 +124,7 @@ deleteBoxes:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -137,15 +135,15 @@ deleteBoxes_for_header@1:
     dig 5
     <
     bz deleteBoxes_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -158,42 +156,38 @@ deleteBoxes_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b deleteBoxes_for_header@1
 
 deleteBoxes_after_for@4:
+    pop
     // smart_contracts/sunset/contract.algo.ts:26
     // deleteBoxes(boxes: bytes[]): void {
-    dig 3
+    swap
     intc_2 // 2
     +
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
     // smart_contracts/sunset/contract.algo.ts:27
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_0 // 0
-    bury 7
 
 deleteBoxes_while_top@6:
     // smart_contracts/sunset/contract.algo.ts:27
     // for (let i: uint64 = 0; i < boxes.length; i++) {
-    dig 6
-    dig 5
+    dup
+    dig 3
     <
     dup
-    bury 7
     bz deleteBoxes_after_while@8
-    dig 5
     assert // index out of bounds
-    dig 6
     dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16
@@ -211,7 +205,6 @@ deleteBoxes_while_top@6:
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_1 // 1
     +
-    bury 7
     b deleteBoxes_while_top@6
 
 deleteBoxes_after_while@8:
@@ -258,8 +251,6 @@ closeOut_while_top@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     pushint 40
     *
     pushint 40
@@ -283,7 +274,6 @@ closeOut_while_top@2:
     // for (let i: uint64 = 0; i < closes.length; i++) {
     intc_1 // 1
     +
-    bury 1
     b closeOut_while_top@2
 
 closeOut_after_while@5:
@@ -331,8 +321,6 @@ deleteAssets_while_top@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     intc_3 // 8
     *
     extract_uint64
@@ -346,7 +334,6 @@ deleteAssets_while_top@2:
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_1 // 1
     +
-    bury 1
     b deleteAssets_while_top@2
 
 deleteAssets_after_while@5:
@@ -406,13 +393,11 @@ deleteEscrows_while_top@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     intc_3 // 8
     *
     intc_3 // 8
     extract3 // on error: index access is out of bounds
-    dig 5
+    dig 4
     itxn_field ApplicationID
     // smart_contracts/sunset/contract.algo.ts:50-53
     // abiCall<typeof EscrowFactory.prototype.delete>({
@@ -431,7 +416,6 @@ deleteEscrows_while_top@2:
     // for (let i: uint64 = 0; i < escrowIds.length; i++) {
     intc_1 // 1
     +
-    bury 1
     b deleteEscrows_while_top@2
 
 deleteEscrows_after_while@5:
@@ -443,7 +427,6 @@ deleteEscrows_after_while@5:
 
 // smart_contracts/sunset/contract.algo.ts::SunsetContract.reclaimWalletEscrows[routing]() -> void:
 reclaimWalletEscrows:
-    bytec_0 // ""
     // smart_contracts/sunset/contract.algo.ts:57
     // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
     txna ApplicationArgs 1
@@ -464,7 +447,7 @@ reclaimWalletEscrows:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -475,15 +458,15 @@ reclaimWalletEscrows_for_header@1:
     dig 5
     <
     bz reclaimWalletEscrows_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -507,19 +490,17 @@ reclaimWalletEscrows_for_header@1:
     pushint 21
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b reclaimWalletEscrows_for_header@1
 
 reclaimWalletEscrows_after_for@4:
+    popn 2
     // smart_contracts/sunset/contract.algo.ts:57
     // reclaimWalletEscrows(wallet: Application, reclaims: WalletEscrowReclaim[]): void {
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/sunset/types.ts::WalletEscrowReclaim>
     // smart_contracts/sunset/contract.algo.ts:58
@@ -528,22 +509,19 @@ reclaimWalletEscrows_after_for@4:
     // smart_contracts/sunset/contract.algo.ts:59
     // for (let i: uint64 = 0; i < reclaims.length; i++) {
     intc_0 // 0
-    bury 8
 
 reclaimWalletEscrows_while_top@6:
     // smart_contracts/sunset/contract.algo.ts:59
     // for (let i: uint64 = 0; i < reclaims.length; i++) {
-    dig 7
-    dig 5
+    dup
+    dig 2
     <
     bz reclaimWalletEscrows_after_while@9
     // smart_contracts/sunset/contract.algo.ts:62
     // asset: reclaim.asset,
-    dig 5
+    dig 2
     dup
-    dig 9
-    dup
-    cover 3
+    dig 2
     callsub dynamic_array_read_dynamic_element
     extract 2 8
     // smart_contracts/sunset/contract.algo.ts:63
@@ -592,7 +570,7 @@ reclaimWalletEscrows_while_top@6:
     dig 1
     len
     substring3
-    dig 9
+    dig 5
     itxn_field ApplicationID
     // smart_contracts/sunset/contract.algo.ts:66-69
     // abiCall<typeof AbstractedAccount.prototype.arc58_reclaim>({
@@ -612,7 +590,6 @@ reclaimWalletEscrows_while_top@6:
     // for (let i: uint64 = 0; i < reclaims.length; i++) {
     intc_1 // 1
     +
-    bury 8
     b reclaimWalletEscrows_while_top@6
 
 reclaimWalletEscrows_after_while@9:
@@ -631,7 +608,7 @@ auth:
     ==
     bnz auth_bool_true@2
     txn Sender
-    bytec_1 // TMPL_SUNSET_CALLER
+    bytec_0 // TMPL_SUNSET_CALLER
     ==
     bz auth_bool_false@3
 

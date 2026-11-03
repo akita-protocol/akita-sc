@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 2 8 1000 100000
-    bytecblock 0x151f7c75 0x00010002 "" 0x002a "ERR:NPLG" "ERR:EPLG" 0x89a76826 "ERR:LEMP" 0x0000
+    bytecblock 0x151f7c75 0x00010002 0x002a "ERR:NPLG" "ERR:EPLG" 0x89a76826 "ERR:LEMP" 0x0000
     // smart_contracts/arc58/dao/validator.algo.ts:26-29
     // @contract({
     //   stateTotals: { globalBytes: 0, globalUints: 0 }
@@ -74,9 +74,9 @@ dynamic_array_read_dynamic_element:
 // smart_contracts/arc58/dao/validator.algo.ts::AkitaDAOProposalValidator.validateActions[routing]() -> void:
 validateActions:
     intc_0 // 0
-    dupn 16
-    bytec_2 // ""
     dupn 7
+    pushbytes ""
+    dup
     // smart_contracts/arc58/dao/validator.algo.ts:48
     // validateActions(wallet: Application, actions: ProposalAction[]): void {
     txna ApplicationArgs 1
@@ -97,7 +97,7 @@ validateActions:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -108,15 +108,15 @@ validateActions_for_header@1:
     dig 5
     <
     bz validateActions_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -140,24 +140,22 @@ validateActions_for_header@1:
     pushint 5
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b validateActions_for_header@1
 
 validateActions_after_for@4:
+    popn 2
     // smart_contracts/arc58/dao/validator.algo.ts:48
     // validateActions(wallet: Application, actions: ProposalAction[]): void {
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/dao/types.ts::ProposalAction>
     // smart_contracts/arc58/dao/validator.algo.ts:49
     // loggedAssert(actions.length > 0, ERR_EMPTY_ACTION_LIST)
-    dig 4
+    dup
     bnz validateActions_after_assert@7
     pushbytes "ERR:NACT"
     log
@@ -167,23 +165,22 @@ validateActions_after_assert@7:
     // smart_contracts/arc58/dao/validator.algo.ts:51
     // for (let i: uint64 = 0; i < actions.length; i++) {
     intc_0 // 0
-    bury 11
+    bury 4
 
 validateActions_while_top@8:
     // smart_contracts/arc58/dao/validator.algo.ts:51
     // for (let i: uint64 = 0; i < actions.length; i++) {
-    dig 10
-    dig 5
+    dig 3
+    dig 1
     <
     bz validateActions_after_while@204
     // smart_contracts/arc58/dao/validator.algo.ts:52
     // switch (actions[i].type) {
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     extract 0 1
     dup
-    bury 33
     // smart_contracts/arc58/dao/validator.algo.ts:53
     // case ProposalActionTypeUpgradeApp: {
     pushbytes 0x0a
@@ -199,10 +196,11 @@ validateActions_while_top@8:
     //   break
     // }
     bz validateActions_after_if_else@19
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:56
     // const { groups, firstValid, lastValid } = decodeArc4<ProposalUpgradeApp>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -221,11 +219,11 @@ validateActions_while_top@8:
     dig 1
     pushint 44
     extract_uint64
-    bury 14
+    cover 2
     swap
     pushint 52
     extract_uint64
-    bury 10
+    swap
     // smart_contracts/arc58/dao/validator.algo.ts:57
     // loggedAssert(groups.length > 0, ERR_UPGRADE_NO_GROUPS)
     intc_0 // 0
@@ -238,7 +236,7 @@ validateActions_while_top@8:
 validateActions_after_assert@14:
     // smart_contracts/arc58/dao/validator.algo.ts:58
     // loggedAssert(firstValid > 0, ERR_INVALID_FIRST_VALID)
-    dig 11
+    dig 1
     bnz validateActions_after_assert@16
     pushbytes "ERR:IFV"
     log
@@ -247,9 +245,7 @@ validateActions_after_assert@14:
 validateActions_after_assert@16:
     // smart_contracts/arc58/dao/validator.algo.ts:59
     // loggedAssert(lastValid > firstValid, ERR_INVALID_LAST_VALID)
-    dig 8
-    dig 12
-    >
+    <
     bnz validateActions_block@203
     pushbytes "ERR:ILV"
     log
@@ -258,16 +254,16 @@ validateActions_after_assert@16:
 validateActions_block@203:
     // smart_contracts/arc58/dao/validator.algo.ts:51
     // for (let i: uint64 = 0; i < actions.length; i++) {
-    dig 10
+    dig 3
     intc_1 // 1
     +
-    bury 11
+    bury 4
     b validateActions_while_top@8
 
 validateActions_after_if_else@19:
     // smart_contracts/arc58/dao/validator.algo.ts:62
     // case ProposalActionTypeAddPlugin: {
-    dig 31
+    dup
     pushbytes 0x14
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:62-69
@@ -280,10 +276,11 @@ validateActions_after_if_else@19:
     //   break;
     // }
     bz validateActions_after_if_else@27
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:63
     // const { plugin, caller, escrow, fee, power, duration, participation, approval, useExecutionKey } = decodeArc4<ProposalAddPlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -295,10 +292,10 @@ validateActions_after_if_else@19:
     extract 2 0
     dig 1
     extract 2 8
-    bury 33
+    cover 2
     dig 1
     extract 10 32
-    bury 24
+    cover 2
     dup
     pushint 40
     extract_uint16
@@ -309,22 +306,22 @@ validateActions_after_if_else@19:
     cover 2
     substring3
     extract 2 0
-    bury 23
+    cover 2
     dig 1
     extract 64 8
-    bury 32
+    bury 18
     dig 1
     extract 72 8
-    bury 31
+    bury 17
     dig 1
     extract 80 8
-    bury 30
+    bury 16
     dig 1
     extract 88 8
-    bury 29
+    bury 15
     swap
     extract 96 8
-    bury 27
+    bury 13
     pushint 489
     getbit
     // smart_contracts/arc58/dao/validator.algo.ts:64
@@ -332,14 +329,14 @@ validateActions_after_if_else@19:
     bz validateActions_after_if_else@24
     // smart_contracts/arc58/dao/validator.algo.ts:65
     // this.validateSettings({ fee, power, duration, participation, approval })
-    dig 29
-    dig 29
+    dig 15
+    dig 15
     concat
-    dig 28
+    dig 14
     concat
-    dig 27
+    dig 13
     concat
-    dig 26
+    dig 12
     concat
     callsub validateSettings
     pop
@@ -347,10 +344,9 @@ validateActions_after_if_else@19:
 validateActions_after_if_else@24:
     // smart_contracts/arc58/dao/validator.algo.ts:67
     // loggedAssert(!this.pluginExists(wallet, { plugin, caller, escrow }), ERR_PLUGIN_ALREADY_EXISTS)
-    dig 30
-    dig 22
+    cover 2
     concat
-    dig 21
+    swap
     dup
     len
     itob
@@ -358,23 +354,23 @@ validateActions_after_if_else@24:
     swap
     concat
     swap
-    bytec_3 // 0x002a
+    bytec_2 // 0x002a
     concat
     swap
     concat
-    dig 7
+    dig 3
     swap
     callsub pluginExists
     pop
     bz validateActions_block@203
-    bytec 5 // "ERR:EPLG"
+    bytec 4 // "ERR:EPLG"
     log
     err // ERR:EPLG
 
 validateActions_after_if_else@27:
     // smart_contracts/arc58/dao/validator.algo.ts:70
     // case ProposalActionTypeAddNamedPlugin: {
-    dig 31
+    dup
     pushbytes 0x15
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:70-74
@@ -384,10 +380,11 @@ validateActions_after_if_else@27:
     //   break
     // }
     bz validateActions_after_if_else@33
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:71
     // const { name } = decodeArc4<ProposalAddNamedPlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -406,18 +403,18 @@ validateActions_after_if_else@27:
     extract 2 0
     // smart_contracts/arc58/dao/validator.algo.ts:72
     // loggedAssert(!this.namedPluginExists(wallet, name), ERR_PLUGIN_ALREADY_EXISTS)
-    dig 7
+    dig 3
     swap
     callsub namedPluginExists
     bz validateActions_block@203
-    bytec 5 // "ERR:EPLG"
+    bytec 4 // "ERR:EPLG"
     log
     err // ERR:EPLG
 
 validateActions_after_if_else@33:
     // smart_contracts/arc58/dao/validator.algo.ts:75
     // case ProposalActionTypeExecutePlugin: {
-    dig 31
+    dup
     pushbytes 0x1e
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:75-83
@@ -431,10 +428,11 @@ validateActions_after_if_else@33:
     //   break
     // }
     bz validateActions_after_if_else@46
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:76
     // const { plugin, escrow } = decodeArc4<ProposalExecutePlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -469,7 +467,7 @@ validateActions_after_if_else@33:
     uncover 2
     concat
     swap
-    bytec_3 // 0x002a
+    bytec_2 // 0x002a
     concat
     swap
     concat
@@ -484,14 +482,14 @@ validateActions_after_if_else@33:
     bytec_1 // 0x00010002
     swap
     concat
-    dig 7
+    dig 3
     itxn_field ApplicationID
     // smart_contracts/arc58/dao/validator.algo.ts:248-251
     // return abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[key]]
     // }).returnValue[0]
-    bytec 6 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
+    bytec 5 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -503,8 +501,7 @@ validateActions_after_if_else@33:
     dup
     extract 4 0
     dup
-    cover 2
-    bury 19
+    uncover 2
     dup
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -514,17 +511,15 @@ validateActions_after_if_else@33:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 17
+    cover 4
     intc_2 // 2
     *
-    bury 6
+    cover 2
     swap
     len
-    bury 4
+    cover 2
     extract 6 0
-    bury 2
     intc_0 // 0
-    bury 1
 
 validateActions_for_header@211:
     // smart_contracts/arc58/dao/validator.algo.ts:248-251
@@ -533,18 +528,18 @@ validateActions_for_header@211:
     //   args: [[key]]
     // }).returnValue[0]
     dup
-    dig 14
+    dig 6
     <
     bz validateActions_after_for@213
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -570,27 +565,27 @@ validateActions_for_header@211:
     pushint 46
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b validateActions_for_header@211
 
 validateActions_after_for@213:
+    popn 2
+    uncover 3
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:248-251
     // return abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[key]]
     // }).returnValue[0]
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInfo>
     // smart_contracts/arc58/dao/validator.algo.ts:78
     // loggedAssert(pluginInfo.start !== 0, ERR_PLUGIN_DOES_NOT_EXIST)
-    dig 16
+    dup
     // smart_contracts/arc58/dao/validator.algo.ts:251
     // }).returnValue[0]
     intc_0 // 0
@@ -600,14 +595,14 @@ validateActions_after_for@213:
     pushint 36
     extract_uint64
     bnz validateActions_after_assert@38
-    bytec 4 // "ERR:NPLG"
+    bytec_3 // "ERR:NPLG"
     log
     err // ERR:NPLG
 
 validateActions_after_assert@38:
     // smart_contracts/arc58/dao/validator.algo.ts:79
     // loggedAssert(pluginInfo.useExecutionKey, ERR_NOT_EXECUTABLE_PLUGIN)
-    dig 16
+    dup
     // smart_contracts/arc58/dao/validator.algo.ts:251
     // }).returnValue[0]
     intc_0 // 0
@@ -624,7 +619,7 @@ validateActions_after_assert@38:
 validateActions_after_assert@40:
     // smart_contracts/arc58/dao/validator.algo.ts:80
     // const epochRef = pluginInfo.useRounds ? Global.round : Global.latestTimestamp
-    dig 16
+    dup
     // smart_contracts/arc58/dao/validator.algo.ts:251
     // }).returnValue[0]
     intc_0 // 0
@@ -639,7 +634,7 @@ validateActions_after_assert@40:
 validateActions_ternary_merge@43:
     // smart_contracts/arc58/dao/validator.algo.ts:81
     // loggedAssert(pluginInfo.lastValid > epochRef, ERR_PLUGIN_EXPIRED)
-    dig 17
+    swap
     // smart_contracts/arc58/dao/validator.algo.ts:251
     // }).returnValue[0]
     intc_0 // 0
@@ -663,7 +658,7 @@ validateActions_ternary_false@42:
 validateActions_after_if_else@46:
     // smart_contracts/arc58/dao/validator.algo.ts:84
     // case ProposalActionTypeRemoveExecutePlugin: {
-    dig 31
+    dup
     pushbytes 0x1f
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:84-88
@@ -673,10 +668,11 @@ validateActions_after_if_else@46:
     //   break
     // }
     bz validateActions_after_if_else@52
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:85
     // const { executionKey } = decodeArc4<ProposalRemoveExecutePlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -696,7 +692,7 @@ validateActions_after_if_else@46:
     pushbytes 0x0001
     swap
     concat
-    dig 7
+    dig 3
     itxn_field ApplicationID
     // smart_contracts/arc58/dao/validator.algo.ts:295-298
     // const info = abiCall<typeof AbstractedAccount.prototype.arc58_getExecutions>({
@@ -715,8 +711,7 @@ validateActions_after_if_else@46:
     dup
     extract 4 0
     dup
-    cover 2
-    bury 19
+    uncover 2
     dup
     extract 0 4
     bytec_0 // 0x151f7c75
@@ -726,17 +721,15 @@ validateActions_after_if_else@46:
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 16
+    cover 4
     intc_2 // 2
     *
-    bury 6
+    cover 2
     swap
     len
-    bury 4
+    cover 2
     extract 6 0
-    bury 2
     intc_0 // 0
-    bury 1
 
 validateActions_for_header@206:
     // smart_contracts/arc58/dao/validator.algo.ts:295-298
@@ -745,18 +738,18 @@ validateActions_for_header@206:
     //   args: [[lease]]
     // }).returnValue[0]
     dup
-    dig 13
+    dig 6
     <
     bz validateActions_after_for@208
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -782,27 +775,24 @@ validateActions_for_header@206:
     pushint 20
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b validateActions_for_header@206
 
 validateActions_after_for@208:
+    popn 2
+    uncover 3
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:295-298
     // const info = abiCall<typeof AbstractedAccount.prototype.arc58_getExecutions>({
     //   appId: wallet,
     //   args: [[lease]]
     // }).returnValue[0]
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::ExecutionInfo>
-    // smart_contracts/arc58/dao/validator.algo.ts:300
-    // return info.groups.length > 0
-    dig 16
     // smart_contracts/arc58/dao/validator.algo.ts:298
     // }).returnValue[0]
     intc_0 // 0
@@ -827,7 +817,7 @@ validateActions_after_for@208:
 validateActions_after_if_else@52:
     // smart_contracts/arc58/dao/validator.algo.ts:89
     // case ProposalActionTypeRemovePlugin: {
-    dig 31
+    dup
     pushbytes 0x28
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:89-93
@@ -837,10 +827,11 @@ validateActions_after_if_else@52:
     //   break
     // }
     bz validateActions_after_if_else@58
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:90
     // const { plugin, caller, escrow } = decodeArc4<ProposalRemovePlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -874,23 +865,23 @@ validateActions_after_if_else@52:
     uncover 2
     concat
     swap
-    bytec_3 // 0x002a
+    bytec_2 // 0x002a
     concat
     swap
     concat
-    dig 7
+    dig 3
     swap
     callsub pluginExists
     pop
     bnz validateActions_block@203
-    bytec 4 // "ERR:NPLG"
+    bytec_3 // "ERR:NPLG"
     log
     err // ERR:NPLG
 
 validateActions_after_if_else@58:
     // smart_contracts/arc58/dao/validator.algo.ts:94
     // case ProposalActionTypeRemoveNamedPlugin: {
-    dig 31
+    dup
     pushbytes 0x29
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:94-98
@@ -900,10 +891,11 @@ validateActions_after_if_else@58:
     //   break
     // }
     bz validateActions_after_if_else@64
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:95
     // const { name } = decodeArc4<ProposalRemoveNamedPlugin>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -922,18 +914,18 @@ validateActions_after_if_else@58:
     extract 2 0
     // smart_contracts/arc58/dao/validator.algo.ts:96
     // loggedAssert(this.namedPluginExists(wallet, name), ERR_PLUGIN_DOES_NOT_EXIST)
-    dig 7
+    dig 3
     swap
     callsub namedPluginExists
     bnz validateActions_block@203
-    bytec 4 // "ERR:NPLG"
+    bytec_3 // "ERR:NPLG"
     log
     err // ERR:NPLG
 
 validateActions_after_if_else@64:
     // smart_contracts/arc58/dao/validator.algo.ts:99
     // case ProposalActionTypeAddAllowances: {
-    dig 31
+    dup
     pushbytes 0x32
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:99-111
@@ -951,10 +943,11 @@ validateActions_after_if_else@64:
     //   break
     // }
     bz validateActions_after_if_else@75
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:100
     // const { escrow, allowances } = decodeArc4<ProposalAddAllowances>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -974,53 +967,49 @@ validateActions_after_if_else@64:
     dig 2
     substring3
     extract 2 0
-    bury 22
+    bury 10
     dig 1
     len
     substring3
     dup
-    bury 26
     // smart_contracts/arc58/dao/validator.algo.ts:101
     // loggedAssert(allowances.length > 0, ERR_ALLOWANCE_LIST_EMPTY)
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     dup
-    bury 16
+    bury 7
     bnz validateActions_after_assert@69
-    bytec 7 // "ERR:LEMP"
+    bytec 6 // "ERR:LEMP"
     log
     err // ERR:LEMP
 
 validateActions_after_assert@69:
     // smart_contracts/arc58/dao/validator.algo.ts:103
     // let assets: uint64[] = []
-    bytec 8 // 0x0000
-    bury 24
+    bytec 7 // 0x0000
+    swap
     // smart_contracts/arc58/dao/validator.algo.ts:104
     // for (let i: uint64 = 0; i < allowances.length; i++) {
     intc_0 // 0
-    bury 10
 
 validateActions_while_top@70:
     // smart_contracts/arc58/dao/validator.algo.ts:104
     // for (let i: uint64 = 0; i < allowances.length; i++) {
-    dig 9
-    dig 15
+    dup
+    dig 8
     <
     bz validateActions_after_while@72
     // smart_contracts/arc58/dao/validator.algo.ts:105
     // assets.push(allowances[i].asset)
-    dig 24
+    dig 1
     extract 2 0
-    dig 10
-    dup
-    cover 2
+    dig 1
     pushint 34
     *
     pushint 34
     extract3 // on error: index access is out of bounds
     extract 0 8
-    dig 25
+    uncover 3
     dup
     intc_0 // 0
     extract_uint16
@@ -1033,20 +1022,20 @@ validateActions_while_top@70:
     replace2 0
     swap
     concat
-    bury 25
+    cover 2
     // smart_contracts/arc58/dao/validator.algo.ts:104
     // for (let i: uint64 = 0; i < allowances.length; i++) {
     intc_1 // 1
     +
-    bury 10
     b validateActions_while_top@70
 
 validateActions_after_while@72:
+    popn 2
     // smart_contracts/arc58/dao/validator.algo.ts:108
     // const { anyExist } = this.allowanceCheck(wallet, escrow, assets)
-    dig 6
-    dig 20
-    dig 25
+    dig 3
+    dig 9
+    uncover 2
     callsub allowanceCheck
     pop
     pushint 16
@@ -1061,7 +1050,7 @@ validateActions_after_while@72:
 validateActions_after_if_else@75:
     // smart_contracts/arc58/dao/validator.algo.ts:112
     // case ProposalActionTypeRemoveAllowances: {
-    dig 31
+    dup
     pushbytes 0x3c
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:112-118
@@ -1073,10 +1062,11 @@ validateActions_after_if_else@75:
     //   break
     // }
     bz validateActions_after_if_else@83
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:113
     // const { escrow, assets } = decodeArc4<ProposalRemoveAllowances>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -1096,27 +1086,25 @@ validateActions_after_if_else@75:
     dig 2
     substring3
     extract 2 0
-    bury 21
+    cover 2
     dig 1
     len
     substring3
     dup
-    bury 24
     // smart_contracts/arc58/dao/validator.algo.ts:114
     // loggedAssert(assets.length > 0, ERR_ALLOWANCE_LIST_EMPTY)
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
     bnz validateActions_after_assert@80
-    bytec 7 // "ERR:LEMP"
+    bytec 6 // "ERR:LEMP"
     log
     err // ERR:LEMP
 
 validateActions_after_assert@80:
     // smart_contracts/arc58/dao/validator.algo.ts:115
     // const { allExist } = this.allowanceCheck(wallet, escrow, assets)
-    dig 6
-    dig 19
-    dig 24
+    dig 4
+    cover 2
     callsub allowanceCheck
     pop
     pushint 17
@@ -1131,7 +1119,7 @@ validateActions_after_assert@80:
 validateActions_after_if_else@83:
     // smart_contracts/arc58/dao/validator.algo.ts:119
     // case ProposalActionTypeNewEscrow: {
-    dig 31
+    dup
     pushbytes 0x46
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:119-123
@@ -1141,10 +1129,11 @@ validateActions_after_if_else@83:
     //   break
     // }
     bz validateActions_after_if_else@89
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:120
     // const { escrow } = decodeArc4<ProposalNewEscrow>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -1162,7 +1151,7 @@ validateActions_after_if_else@83:
     extract 2 0
     // smart_contracts/arc58/dao/validator.algo.ts:121
     // loggedAssert(!this.escrowExists(wallet, escrow), ERR_ESCROW_ALREADY_EXISTS)
-    dig 7
+    dig 3
     swap
     callsub escrowExists
     bz validateActions_block@203
@@ -1173,7 +1162,7 @@ validateActions_after_if_else@83:
 validateActions_after_if_else@89:
     // smart_contracts/arc58/dao/validator.algo.ts:124
     // case ProposalActionTypeToggleEscrowLock: {
-    dig 31
+    dup
     pushbytes 0x47
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:124-128
@@ -1183,10 +1172,11 @@ validateActions_after_if_else@89:
     //   break
     // }
     bz validateActions_after_if_else@95
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:125
     // const { escrow } = decodeArc4<ProposalToggleEscrowLock>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -1204,7 +1194,7 @@ validateActions_after_if_else@89:
     extract 2 0
     // smart_contracts/arc58/dao/validator.algo.ts:126
     // loggedAssert(this.escrowExists(wallet, escrow), ERR_ESCROW_DOES_NOT_EXIST)
-    dig 7
+    dig 3
     swap
     callsub escrowExists
     bnz validateActions_block@203
@@ -1215,7 +1205,7 @@ validateActions_after_if_else@89:
 validateActions_after_if_else@95:
     // smart_contracts/arc58/dao/validator.algo.ts:129
     // case ProposalActionTypeUpdateFields: {
-    dig 31
+    dup
     pushbytes 0x50
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:129-211
@@ -1303,10 +1293,11 @@ validateActions_after_if_else@95:
     //   break
     // }
     bz validateActions_after_if_else@196
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:130
     // const { field, value } = decodeArc4<ProposalUpdateField>(actions[i].data)
-    dig 5
-    dig 11
+    dig 1
+    dig 4
     callsub dynamic_array_read_dynamic_element
     dup
     intc_1 // 1
@@ -1328,12 +1319,12 @@ validateActions_after_if_else@95:
     extract 2 0
     dup
     cover 3
-    bury 21
+    bury 10
     dig 1
     len
     substring3
     extract 2 0
-    bury 17
+    bury 7
     // smart_contracts/arc58/dao/validator.algo.ts:132
     // case AkitaDAOGlobalStateKeysContentPolicy: {
     pushbytes "content_policy"
@@ -1346,7 +1337,7 @@ validateActions_after_if_else@95:
     bz validateActions_after_if_else@104
     // smart_contracts/arc58/dao/validator.algo.ts:133
     // loggedAssert(value.length === 36, ERR_INVALID_CID)
-    dig 15
+    dig 5
     len
     pushint 36
     ==
@@ -1358,7 +1349,7 @@ validateActions_after_if_else@95:
 validateActions_after_if_else@104:
     // smart_contracts/arc58/dao/validator.algo.ts:136
     // case AkitaDAOGlobalStateKeysProposalActionLimit: {
-    dig 17
+    dig 6
     pushbytes "proposal_action_limit"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:136-140
@@ -1370,7 +1361,7 @@ validateActions_after_if_else@104:
     bz validateActions_after_if_else@112
     // smart_contracts/arc58/dao/validator.algo.ts:137
     // loggedAssert(value.length === 8, ERR_INVALID_PROPOSAL_ACTION_LIMIT)
-    dig 15
+    dig 5
     len
     intc_3 // 8
     ==
@@ -1382,7 +1373,7 @@ validateActions_after_if_else@104:
 validateActions_after_assert@109:
     // smart_contracts/arc58/dao/validator.algo.ts:138
     // loggedAssert(btoi(value) > 0, ERR_ACTION_LIMIT_MUST_BE_GREATER_THAN_ZERO)
-    dig 15
+    dig 5
     btoi
     bnz validateActions_block@203
     pushbytes "ERR:ALZ0"
@@ -1392,7 +1383,7 @@ validateActions_after_assert@109:
 validateActions_after_if_else@112:
     // smart_contracts/arc58/dao/validator.algo.ts:141
     // case AkitaDAOGlobalStateKeysMinRewardsImpact: {
-    dig 17
+    dig 6
     pushbytes "min_rewards_impact"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:141-146
@@ -1405,7 +1396,7 @@ validateActions_after_if_else@112:
     bz validateActions_after_if_else@122
     // smart_contracts/arc58/dao/validator.algo.ts:142
     // loggedAssert(value.length === 8, ERR_INVALID_MINIMUM_REWARDS_IMPACT)
-    dig 15
+    dig 5
     len
     intc_3 // 8
     ==
@@ -1417,10 +1408,9 @@ validateActions_after_if_else@112:
 validateActions_after_assert@117:
     // smart_contracts/arc58/dao/validator.algo.ts:143
     // loggedAssert(btoi(value) > 0, ERR_MIN_REWARDS_IMPACT_MUST_BE_GREATER_THAN_ZERO)
-    dig 15
+    dig 5
     btoi
     dup
-    bury 9
     bnz validateActions_after_assert@119
     pushbytes "ERR:MRI0"
     log
@@ -1429,7 +1419,6 @@ validateActions_after_assert@117:
 validateActions_after_assert@119:
     // smart_contracts/arc58/dao/validator.algo.ts:144
     // loggedAssert(btoi(value) <= 1000, ERR_MIN_REWARDS_IMPACT_MUST_BE_LESS_THAN_OR_EQUAL_TO_1000s)
-    dig 7
     intc 4 // 1000
     <=
     bnz validateActions_block@203
@@ -1440,7 +1429,7 @@ validateActions_after_assert@119:
 validateActions_after_if_else@122:
     // smart_contracts/arc58/dao/validator.algo.ts:147
     // case AkitaDAOGlobalStateKeysAkitaAppList: {
-    dig 17
+    dig 6
     pushbytes "aal"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:147-150
@@ -1451,7 +1440,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:151
     // case AkitaDAOGlobalStateKeysAkitaSocialAppList: {
-    dig 17
+    dig 6
     pushbytes "sal"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:151-154
@@ -1462,7 +1451,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:155
     // case AkitaDAOGlobalStateKeysPluginAppList: {
-    dig 17
+    dig 6
     pushbytes "pal"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:155-158
@@ -1473,7 +1462,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:159
     // case AkitaDAOGlobalStateKeysOtherAppList: {
-    dig 17
+    dig 6
     pushbytes "oal"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:159-162
@@ -1484,7 +1473,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:163
     // case AkitaDAOGlobalStateKeysWalletFees: {
-    dig 17
+    dig 6
     pushbytes "wallet_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:163-166
@@ -1495,7 +1484,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:167
     // case AkitaDAOGlobalStateKeysSocialFees: {
-    dig 17
+    dig 6
     pushbytes "social_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:167-170
@@ -1506,7 +1495,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:171
     // case AkitaDAOGlobalStateKeysStakingFees: {
-    dig 17
+    dig 6
     pushbytes "staking_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:171-174
@@ -1517,7 +1506,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:175
     // case AkitaDAOGlobalStateKeysSubscriptionFees: {
-    dig 17
+    dig 6
     pushbytes "subscription_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:175-178
@@ -1528,7 +1517,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:179
     // case AkitaDAOGlobalStateKeysNFTFees: {
-    dig 17
+    dig 6
     pushbytes "nft_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:179-182
@@ -1539,7 +1528,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:183
     // case AkitaDAOGlobalStateKeysSwapFees: {
-    dig 17
+    dig 6
     pushbytes "swap_fees"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:183-186
@@ -1550,7 +1539,7 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:187
     // case AkitaDAOGlobalStateKeysAkitaAssets: {
-    dig 17
+    dig 6
     pushbytes "akita_assets"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:187-190
@@ -1561,43 +1550,43 @@ validateActions_after_if_else@122:
     bnz validateActions_block@203
     // smart_contracts/arc58/dao/validator.algo.ts:191
     // case AkitaDAOGlobalStateKeysUpgradeAppProposalSettings:
-    dig 17
+    dig 6
     pushbytes "upgrade_app_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:192
     // case AkitaDAOGlobalStateKeysAddPluginProposalSettings:
-    dig 17
+    dig 6
     pushbytes "add_plugin_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:193
     // case AkitaDAOGlobalStateKeysRemovePluginProposalSettings:
-    dig 17
+    dig 6
     pushbytes "remove_plugin_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:194
     // case AkitaDAOGlobalStateKeysAddAllowancesProposalSettings:
-    dig 17
+    dig 6
     pushbytes "add_allowance_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:195
     // case AkitaDAOGlobalStateKeysRemoveAllowancesProposalSettings:
-    dig 17
+    dig 6
     pushbytes "remove_allowance_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:196
     // case AkitaDAOGlobalStateKeysNewEscrowProposalSettings:
-    dig 17
+    dig 6
     pushbytes "new_escrow_ps"
     ==
     bnz validateActions_block@186
     // smart_contracts/arc58/dao/validator.algo.ts:197
     // case AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings: {
-    dig 17
+    dig 6
     pushbytes "update_fields_ps"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:197-201
@@ -1611,7 +1600,7 @@ validateActions_after_if_else@122:
 validateActions_block@186:
     // smart_contracts/arc58/dao/validator.algo.ts:199
     // this.validateSettings(settings)
-    dig 15
+    dig 5
     callsub validateSettings
     pop
     // smart_contracts/arc58/dao/validator.algo.ts:200
@@ -1621,7 +1610,7 @@ validateActions_block@186:
 validateActions_after_if_else@188:
     // smart_contracts/arc58/dao/validator.algo.ts:202
     // case AkitaDAOGlobalStateKeysRevenueSplits: {
-    dig 17
+    dig 6
     pushbytes "revenue_splits"
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:202-205
@@ -1639,7 +1628,6 @@ validateActions_after_if_else@188:
 validateActions_after_if_else@196:
     // smart_contracts/arc58/dao/validator.algo.ts:212
     // case ProposalActionTypeUpdateWallet: {
-    dig 31
     pushbytes 0x5a
     ==
     // smart_contracts/arc58/dao/validator.algo.ts:212-215
@@ -1666,8 +1654,6 @@ validateSettings:
     // smart_contracts/arc58/dao/validator.algo.ts:225
     // private validateSettings(settings: ProposalSettings): void {
     proto 1 1
-    bytec_2 // ""
-    dup
     // smart_contracts/arc58/dao/validator.algo.ts:226
     // loggedAssert(settings.approval > 1_000, ERR_INVALID_MIN_APPROVAL) // 1%
     frame_dig -1
@@ -1684,7 +1670,6 @@ validateSettings:
 validateSettings_after_assert@2:
     // smart_contracts/arc58/dao/validator.algo.ts:227
     // loggedAssert(settings.approval <= 100_000, ERR_INVALID_MAX_APPROVAL) // 100%
-    frame_dig 2
     intc 5 // 100000
     <=
     bnz validateSettings_after_assert@4
@@ -1699,7 +1684,6 @@ validateSettings_after_assert@4:
     pushint 24
     extract_uint64
     dup
-    frame_bury 1
     intc 4 // 1000
     >
     bnz validateSettings_after_assert@6
@@ -1710,7 +1694,6 @@ validateSettings_after_assert@4:
 validateSettings_after_assert@6:
     // smart_contracts/arc58/dao/validator.algo.ts:230
     // loggedAssert(settings.participation <= 100_000, ERR_INVALID_MAX_PARTICIPATION) // 100%
-    frame_dig 1
     intc 5 // 100000
     <=
     bnz validateSettings_after_assert@8
@@ -1736,7 +1719,6 @@ validateSettings_after_assert@10:
     intc_3 // 8
     extract_uint64
     dup
-    frame_bury 0
     bnz validateSettings_after_assert@12
     pushbytes "ERR:IMNW"
     log
@@ -1745,7 +1727,6 @@ validateSettings_after_assert@10:
 validateSettings_after_assert@12:
     // smart_contracts/arc58/dao/validator.algo.ts:235
     // loggedAssert(settings.power <= 1_000, ERR_INVALID_MAX_POWER)
-    frame_dig 0
     intc 4 // 1000
     <=
     bnz validateSettings_after_assert@14
@@ -1755,7 +1736,6 @@ validateSettings_after_assert@12:
 
 validateSettings_after_assert@14:
     frame_dig -1
-    frame_bury 0
     retsub
 
 
@@ -1782,7 +1762,7 @@ pluginExists:
     //   appId: wallet,
     //   args: [[key]]
     // }).returnValue[0]
-    bytec 6 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
+    bytec 5 // method "arc58_getPlugins((uint64,address,string)[])(uint64,uint8,uint64,uint64,(byte[4],uint64,uint64)[],bool,bool,bool,bool,bool,uint64,uint64)[]"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -1810,7 +1790,7 @@ pluginExists:
     cover 2
     swap
     len
-    swap
+    cover 2
     extract 6 0
     intc_0 // 0
 
@@ -1820,20 +1800,19 @@ pluginExists_for_header@2:
     //   appId: wallet,
     //   args: [[key]]
     // }).returnValue[0]
-    frame_dig 5
-    frame_dig 1
+    dup
+    dig 5
     <
     bz pluginExists_after_for@5
-    frame_dig 5
     dup
     intc_2 // 2
     *
-    frame_dig 4
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    frame_dig 2
+    uncover 5
     dup
     cover 4
     ==
@@ -1859,27 +1838,24 @@ pluginExists_for_header@2:
     pushint 46
     +
     +
-    frame_bury 2
+    cover 2
     intc_1 // 1
     +
-    frame_bury 5
     b pluginExists_for_header@2
 
 pluginExists_after_for@5:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:239-242
     // const info = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
     //   appId: wallet,
     //   args: [[key]]
     // }).returnValue[0]
-    frame_dig 2
     intc_2 // 2
     +
-    frame_dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInfo>
-    // smart_contracts/arc58/dao/validator.algo.ts:244
-    // return info.start !== 0
-    frame_dig 0
     // smart_contracts/arc58/dao/validator.algo.ts:242
     // }).returnValue[0]
     intc_0 // 0
@@ -1891,8 +1867,6 @@ pluginExists_after_for@5:
     intc_0 // 0
     !=
     frame_dig -1
-    frame_bury 1
-    frame_bury 0
     retsub
 
 
@@ -1953,7 +1927,7 @@ namedPluginExists:
     cover 2
     swap
     len
-    swap
+    cover 2
     extract 6 0
     intc_0 // 0
 
@@ -1963,20 +1937,19 @@ namedPluginExists_for_header@2:
     //   appId: wallet,
     //   args: [[name]]
     // }).returnValue[0]
-    frame_dig 5
-    frame_dig 1
+    dup
+    dig 5
     <
     bz namedPluginExists_after_for@5
-    frame_dig 5
     dup
     intc_2 // 2
     *
-    frame_dig 4
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    frame_dig 2
+    uncover 5
     dup
     cover 4
     ==
@@ -2002,27 +1975,24 @@ namedPluginExists_for_header@2:
     pushint 46
     +
     +
-    frame_bury 2
+    cover 2
     intc_1 // 1
     +
-    frame_bury 5
     b namedPluginExists_for_header@2
 
 namedPluginExists_after_for@5:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:255-258
     // const info = abiCall<typeof AbstractedAccount.prototype.arc58_getNamedPlugins>({
     //   appId: wallet,
     //   args: [[name]]
     // }).returnValue[0]
-    frame_dig 2
     intc_2 // 2
     +
-    frame_dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInfo>
-    // smart_contracts/arc58/dao/validator.algo.ts:260
-    // return info.start !== 0
-    frame_dig 0
     // smart_contracts/arc58/dao/validator.algo.ts:258
     // }).returnValue[0]
     intc_0 // 0
@@ -2033,7 +2003,6 @@ namedPluginExists_after_for@5:
     extract_uint64
     intc_0 // 0
     !=
-    frame_bury 0
     retsub
 
 
@@ -2107,10 +2076,8 @@ allowanceCheck:
     // smart_contracts/arc58/dao/validator.algo.ts:272
     // private allowanceCheck(wallet: Application, escrow: string, assets: uint64[]): { existences: boolean[], anyExist: boolean, allExist: boolean } {
     proto 3 2
-    intc_0 // 0
-    dup
-    bytec_2 // ""
-    dupn 6
+    pushbytes ""
+    dupn 2
     // smart_contracts/arc58/dao/validator.algo.ts:273-276
     // const info = abiCall<typeof AbstractedAccount.prototype.arc58_getAllowances>({
     //   appId: wallet,
@@ -2163,15 +2130,15 @@ allowanceCheck:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::AllowanceInfo>
-    // smart_contracts/arc58/dao/validator.algo.ts:278
-    // let existences: boolean[] = []
-    bytec 8 // 0x0000
     // smart_contracts/arc58/dao/validator.algo.ts:279
     // let anyExist: boolean = false
     intc_0 // 0
     // smart_contracts/arc58/dao/validator.algo.ts:280
     // let allExist: boolean = true
     intc_1 // 1
+    // smart_contracts/arc58/dao/validator.algo.ts:278
+    // let existences: boolean[] = []
+    bytec 7 // 0x0000
     // smart_contracts/arc58/dao/validator.algo.ts:281
     // for (let i: uint64 = 0; i < info.length; i++) {
     intc_0 // 0
@@ -2179,15 +2146,15 @@ allowanceCheck:
 allowanceCheck_while_top@2:
     // smart_contracts/arc58/dao/validator.algo.ts:281
     // for (let i: uint64 = 0; i < info.length; i++) {
-    frame_dig 14
-    frame_dig 10
+    dup
+    frame_dig 4
     <
     bz allowanceCheck_after_while@7
     // smart_contracts/arc58/dao/validator.algo.ts:282
     // const exists = info[i].start !== 0
-    frame_dig 9
+    frame_dig 3
     extract 6 0
-    frame_dig 14
+    dig 1
     pushint 50
     *
     pushint 50
@@ -2195,7 +2162,7 @@ allowanceCheck_while_top@2:
     pushint 41
     extract_uint64
     dup
-    frame_bury 6
+    frame_bury 2
     intc_0 // 0
     !=
     // smart_contracts/arc58/dao/validator.algo.ts:283
@@ -2204,13 +2171,13 @@ allowanceCheck_while_top@2:
     intc_0 // 0
     uncover 2
     setbit
-    frame_bury 0
-    frame_dig 11
+    swap
+    uncover 2
     dup
     intc_0 // 0
     extract_uint16
     dup
-    frame_bury 2
+    cover 3
     dup
     // smart_contracts/arc58/dao/validator.algo.ts:283
     // existences.push(exists)
@@ -2222,115 +2189,117 @@ allowanceCheck_while_top@2:
     uncover 3
     swap
     replace2 0
+    cover 3
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    dup
+    frame_bury 0
+    swap
+    pushint 7
+    +
+    intc_3 // 8
+    /
+    dup
     frame_bury 1
-    swap
-    pushint 7
-    +
-    intc_3 // 8
-    /
-    dup
-    frame_bury 3
-    swap
-    pushint 7
-    +
-    intc_3 // 8
-    /
-    dup
-    frame_bury 5
     <
     bz allowanceCheck_after_if_else@10
-    frame_dig 5
-    frame_dig 3
+    frame_dig 1
+    frame_dig 0
     -
     bzero
-    frame_dig 1
+    uncover 2
     swap
     concat
-    frame_bury 1
+    swap
 
 allowanceCheck_after_if_else@10:
     intc_0 // 0
-    frame_bury 4
-    frame_dig 2
+    swap
+    uncover 3
     pushint 16
     +
     dup
-    frame_bury 8
+    cover 3
     // smart_contracts/arc58/dao/validator.algo.ts:283
     // existences.push(exists)
     intc_1 // 1
     +
-    frame_bury 7
+    swap
 
 allowanceCheck_while_top@11:
-    frame_dig 8
-    frame_dig 7
+    dig 3
+    dig 2
     <
     bz allowanceCheck_after_while@13
-    frame_dig 0
-    frame_dig 4
+    dig 5
+    uncover 3
     dup
     cover 2
     getbit
-    frame_dig 1
-    frame_dig 8
+    uncover 5
+    uncover 5
     dup
     cover 3
     uncover 2
     setbit
-    frame_bury 1
+    cover 4
     intc_1 // 1
     +
-    frame_bury 8
+    cover 3
     // smart_contracts/arc58/dao/validator.algo.ts:283
     // existences.push(exists)
     intc_1 // 1
     +
-    frame_bury 4
+    cover 2
     b allowanceCheck_while_top@11
 
 allowanceCheck_after_while@13:
+    bury 1
+    bury 1
+    bury 1
+    uncover 2
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:284
     // if (exists) {
-    frame_dig 6
+    frame_dig 2
     bz allowanceCheck_else_body@5
     // smart_contracts/arc58/dao/validator.algo.ts:285
     // anyExist = true
     intc_1 // 1
-    frame_bury 12
+    frame_bury 5
 
 allowanceCheck_after_if_else@6:
     // smart_contracts/arc58/dao/validator.algo.ts:281
     // for (let i: uint64 = 0; i < info.length; i++) {
-    frame_dig 14
     intc_1 // 1
     +
-    frame_bury 14
-    frame_dig 1
-    frame_bury 11
     b allowanceCheck_while_top@2
 
 allowanceCheck_else_body@5:
     // smart_contracts/arc58/dao/validator.algo.ts:287
     // allExist = false
     intc_0 // 0
-    frame_bury 13
+    frame_bury 6
     b allowanceCheck_after_if_else@6
 
 allowanceCheck_after_while@7:
+    pop
     // smart_contracts/arc58/dao/validator.algo.ts:291
     // return { existences, anyExist, allExist }
     pushbytes 0x00
     intc_0 // 0
-    frame_dig 12
+    frame_dig 5
     setbit
     intc_1 // 1
-    frame_dig 13
+    frame_dig 6
     setbit
     pushbytes 0x0003
     swap
     concat
-    frame_dig 11
+    swap
     concat
     frame_dig -1
     frame_bury 1

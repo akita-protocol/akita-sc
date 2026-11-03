@@ -64,7 +64,7 @@ mint:
     getbit
     txna ApplicationArgs 3
     dup
-    cover 3
+    cover 4
     len
     pushint 32
     ==
@@ -96,6 +96,7 @@ mint:
     // smart_contracts/utils/functions.ts:342
     // if (!rekeyBack) {
     bnz mint_after_if_else@5
+    bury 1
     // smart_contracts/utils/functions.ts:343
     // return Global.zeroAddress
     global ZeroAddress
@@ -115,7 +116,7 @@ mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
     itxn_field GlobalNumUint
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyAEAAEQCCYBCXJlY2lwaWVudDEZFEQxGEEADoAE4EdSYjYaAI4BAC4AgATMaU6qNhoAjgEAEgCKAgGL/kAAAzIDiYv/cghEiTYaAUkVgSASRChMZyNDIkmAAEk2GgFJFSUSRBdJNhoCSRUjEkQiU0w2GgNJTgJJIllJTgMkC4ECCEwVEkSAEHNwZW5kaW5nX2FkZHJlc3NlSCJJSwMMQQCQSwNXAgBLASQLJFhJIltJTgJFCSVbRQlAADuxIihlTEULREsCIwlLAQ1BAB8yA7IgSweyCEsJsgdLAbIAI7IQIrIBs0kjCEUBQv+uSwRLBoj/REL/2bEiKGVMRQpESwIjCUsBDUEAHzIDsiBLBrIRSweyEksIshRLAbIAgQSyECKyAbNC/71LBEsGiP8JQv/ZI0M=)
+    pushbytes base64(CyAEAAEQCCYBCXJlY2lwaWVudDEZFEQxGEEADoAE4EdSYjYaAI4BAC4AgATMaU6qNhoAjgEAEgCKAgGL/kAAAzIDiYv/cghEiTYaAUkVgSASRChMZyNDNhoBSRUlEkQXSTYaAkkVIxJEIlNMNhoDSU4DSSJZSU4DJAuBAghMFRJEgBBzcGVuZGluZ19hZGRyZXNzZUhOBCJJSwIMQQCQSwNXAgBLASQLJFhJIltJTgJOBCVbTgNAADtPA0ixIihlTE4DREsBIwlLAQ1BABwyA7IgTwOyCE8CsgdLBbIAI7IQIrIBsyMIQv+uSwRLB4j/R0L/3LEiKGVMTgZESwEjCUsBDUEAHzIDsiBPA7IRTwKyEk8DshRLBbIAgQSyECKyAbNC/8BLBEsIiP8MQv/ZI0M=)
     itxn_field ApprovalProgramPages
     // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:26-30
     // const result = paySilo.call.create({
@@ -126,11 +127,9 @@ mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
     intc_0 // 0
     itxn_field OnCompletion
     itxn_field RekeyTo
-    dup
     itxn_field Sender
     pushbytes 0xcc694eaa // method "create(address)void"
     itxn_field ApplicationArgs
-    dig 1
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -155,7 +154,7 @@ mint_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@6:
 mint_after_if_else@5:
     // smart_contracts/utils/functions.ts:346
     // return wallet.address
-    dig 2
+    swap
     app_params_get AppAddress
     assert // application exists
     // smart_contracts/arc58/plugins/pay-silo/factory.algo.ts:29

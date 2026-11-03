@@ -66,7 +66,6 @@ main___algots__.defaultCreate@19:
 
 // smart_contracts/sunset/wallet-factory.algo.ts::WalletFactorySunsetContract.updateWallet[routing]() -> void:
 updateWallet:
-    intc_0 // 0
     // smart_contracts/sunset/wallet-factory.algo.ts:42
     // updateWallet(wallet: Application): void {
     txna ApplicationArgs 1
@@ -99,9 +98,9 @@ updateWallet:
     intc_0 // 0
     intc 4 // 4096
     box_extract
-    bury 3
     // smart_contracts/sunset/wallet-factory.algo.ts:49
     // chunk2 = this.boxedContract.extract(MAX_AVM_BYTE_ARRAY_LENGTH, approvalSize - MAX_AVM_BYTE_ARRAY_LENGTH)
+    swap
     intc 4 // 4096
     -
     // smart_contracts/sunset/wallet-factory.algo.ts:40
@@ -143,7 +142,7 @@ updateWallet_after_if_else@4:
     // clearStateProgram: compileArc4(SunsetContract).clearStateProgram,
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    dig 3
+    uncover 2
     itxn_field ApprovalProgramPages
     swap
     itxn_field ApprovalProgramPages
@@ -151,7 +150,7 @@ updateWallet_after_if_else@4:
     // onCompletion: OnCompleteAction.UpdateApplication,
     pushint 4
     itxn_field OnCompletion
-    dig 1
+    swap
     itxn_field ApplicationID
     // smart_contracts/sunset/wallet-factory.algo.ts:55-61
     // abiCall<typeof AbstractedAccountUpdateStub.prototype.update>({
@@ -183,7 +182,6 @@ updateWallet_else_body@3:
     intc_0 // 0
     uncover 2
     box_extract
-    bury 2
     // smart_contracts/sunset/wallet-factory.algo.ts:52
     // chunk2 = Bytes('')
     pushbytes ""
@@ -212,7 +210,7 @@ deleteWalletBoxes:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -223,15 +221,15 @@ deleteWalletBoxes_for_header@1:
     dig 5
     <
     bz deleteWalletBoxes_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -244,19 +242,19 @@ deleteWalletBoxes_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b deleteWalletBoxes_for_header@1
 
 deleteWalletBoxes_after_for@4:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/sunset/wallet-factory.algo.ts:64
     // deleteWalletBoxes(wallet: Application, boxes: bytes[]): void {
-    dig 3
     intc_2 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
     // smart_contracts/sunset/wallet-factory.algo.ts:65-69
@@ -269,7 +267,7 @@ deleteWalletBoxes_after_for@4:
     // smart_contracts/sunset/wallet-factory.algo.ts:66
     // sender: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    dig 7
+    uncover 2
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/sunset/wallet-factory.algo.ts:65-69
@@ -280,7 +278,6 @@ deleteWalletBoxes_after_for@4:
     // })
     bytec_2 // method "deleteBoxes(byte[][])void"
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -527,8 +524,6 @@ deleteWallet:
 
 // smart_contracts/sunset/wallet-factory.algo.ts::WalletFactorySunsetContract.deleteBoxes[routing]() -> void:
 deleteBoxes:
-    pushbytes ""
-    dup
     // smart_contracts/sunset/wallet-factory.algo.ts:109
     // deleteBoxes(boxes: bytes[]): void {
     txna ApplicationArgs 1
@@ -542,7 +537,7 @@ deleteBoxes:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -553,15 +548,15 @@ deleteBoxes_for_header@1:
     dig 5
     <
     bz deleteBoxes_after_for@4
-    dupn 2
+    dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -574,42 +569,38 @@ deleteBoxes_for_header@1:
     intc_2 // 2
     +
     +
-    bury 5
+    cover 2
     intc_1 // 1
     +
-    bury 1
     b deleteBoxes_for_header@1
 
 deleteBoxes_after_for@4:
+    pop
     // smart_contracts/sunset/wallet-factory.algo.ts:109
     // deleteBoxes(boxes: bytes[]): void {
-    dig 3
+    swap
     intc_2 // 2
     +
-    dig 3
+    uncover 2
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
     // smart_contracts/sunset/wallet-factory.algo.ts:110
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_0 // 0
-    bury 7
 
 deleteBoxes_while_top@6:
     // smart_contracts/sunset/wallet-factory.algo.ts:110
     // for (let i: uint64 = 0; i < boxes.length; i++) {
-    dig 6
-    dig 5
+    dup
+    dig 3
     <
     dup
-    bury 7
     bz deleteBoxes_after_while@8
-    dig 5
     assert // index out of bounds
-    dig 6
     dup
     intc_2 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16
@@ -627,7 +618,6 @@ deleteBoxes_while_top@6:
     // for (let i: uint64 = 0; i < boxes.length; i++) {
     intc_1 // 1
     +
-    bury 7
     b deleteBoxes_while_top@6
 
 deleteBoxes_after_while@8:
@@ -671,8 +661,6 @@ closeOut_while_top@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     pushint 40
     *
     pushint 40
@@ -696,7 +684,6 @@ closeOut_while_top@2:
     // for (let i: uint64 = 0; i < closes.length; i++) {
     intc_1 // 1
     +
-    bury 1
     b closeOut_while_top@2
 
 closeOut_after_while@5:
@@ -741,8 +728,6 @@ deleteAssets_while_top@2:
     dig 2
     extract 2 0
     dig 1
-    dup
-    cover 2
     intc_3 // 8
     *
     extract_uint64
@@ -756,7 +741,6 @@ deleteAssets_while_top@2:
     // for (let i: uint64 = 0; i < assets.length; i++) {
     intc_1 // 1
     +
-    bury 1
     b deleteAssets_while_top@2
 
 deleteAssets_after_while@5:

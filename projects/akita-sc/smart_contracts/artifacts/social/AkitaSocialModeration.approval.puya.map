@@ -5,7 +5,7 @@
     "../../utils/base-contracts/base.ts",
     "../../utils/functions.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -532,38 +532,30 @@
       "params": {},
       "block": "addModerator",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "265": {
       "op": "txna ApplicationArgs 1"
     },
-    "268": {
+    "267": {
       "op": "dup",
       "defined_out": [
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "address#0"
       ]
     },
-    "269": {
+    "268": {
       "op": "len",
       "defined_out": [
         "address#0",
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "len%0#0"
       ]
     },
-    "270": {
+    "269": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -571,54 +563,49 @@
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "len%0#0",
         "32"
       ]
     },
-    "271": {
+    "270": {
       "op": "==",
       "defined_out": [
         "address#0",
         "eq%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "eq%0#0"
       ]
     },
-    "272": {
+    "271": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "273": {
+    "272": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1"
       ]
     },
-    "275": {
+    "274": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "276": {
+    "275": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -627,14 +614,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "0",
         "\"akita_dao\""
       ]
     },
-    "277": {
+    "276": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -643,24 +629,22 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "278": {
+    "277": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0"
       ]
     },
-    "279": {
+    "278": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -669,14 +653,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "\"wallet\""
       ]
     },
-    "280": {
+    "279": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -685,23 +668,21 @@
         "walletID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "walletID#0",
         "awst_tmp%1#0"
       ]
     },
-    "281": {
+    "280": {
       "op": "pop",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "walletID#0"
       ]
     },
-    "282": {
+    "281": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "address#0",
@@ -710,69 +691,62 @@
         "value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "value%0#0",
         "check%0#0"
       ]
     },
-    "284": {
+    "283": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "value%0#0"
       ]
     },
-    "285": {
+    "284": {
       "op": "==",
       "defined_out": [
         "address#0",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%2#0"
       ]
     },
-    "286": {
+    "285": {
       "op": "bnz addModerator_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "289": {
+    "288": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "\"ERR:NDAO\""
       ]
     },
-    "290": {
+    "289": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "291": {
+    "290": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "292": {
+    "291": {
       "block": "addModerator_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%0#0",
         "address#0"
       ],
       "op": "bytec_1 // \"d\"",
@@ -780,128 +754,92 @@
         "\"d\""
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "\"d\""
       ]
     },
-    "293": {
-      "op": "dig 1",
+    "292": {
+      "op": "swap",
       "defined_out": [
         "\"d\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "\"d\"",
         "address#0"
+      ]
+    },
+    "293": {
+      "op": "concat",
+      "defined_out": [
+        "map_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "map_prefixed_key%0#0"
+      ]
+    },
+    "294": {
+      "op": "dup",
+      "defined_out": [
+        "map_prefixed_key%0#0"
+      ],
+      "stack_out": [
+        "map_prefixed_key%0#0",
+        "map_prefixed_key%0#0"
       ]
     },
     "295": {
-      "op": "concat",
-      "defined_out": [
-        "address#0",
-        "map_prefixed_key%0#0"
-      ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "296": {
-      "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "297": {
-      "op": "bury 3",
-      "defined_out": [
-        "address#0",
-        "map_prefixed_key%0#0"
-      ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "299": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
-        "address#0",
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "300": {
+    "296": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "maybe_exists%0#0"
       ]
     },
-    "302": {
+    "298": {
       "op": "bz addModerator_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "305": {
+    "301": {
       "op": "pushbytes \"ERR:EMOD\"",
       "defined_out": [
         "\"ERR:EMOD\"",
-        "address#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "\"ERR:EMOD\""
       ]
     },
-    "315": {
+    "311": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "316": {
+    "312": {
       "error": "ERR:EMOD",
       "op": "err // ERR:EMOD"
     },
-    "317": {
+    "313": {
       "block": "addModerator_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ],
-      "op": "dig 1",
-      "defined_out": [
         "map_prefixed_key%0#0"
       ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "319": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -909,86 +847,64 @@
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0",
         "8"
       ]
     },
-    "320": {
+    "314": {
       "op": "box_create",
       "defined_out": [
-        "map_prefixed_key%0#0",
         "{box_create}"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "{box_create}"
       ]
     },
-    "321": {
+    "315": {
       "op": "pop",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "322": {
+    "316": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "map_prefixed_key%0#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "1"
       ]
     },
-    "323": {
+    "317": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "324": {
+    "318": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.removeModerator[routing]",
       "params": {},
       "block": "removeModerator",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "325": {
       "op": "txna ApplicationArgs 1"
     },
-    "328": {
+    "321": {
       "op": "dup",
       "defined_out": [
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "address#0"
       ]
     },
-    "329": {
+    "322": {
       "op": "len",
       "defined_out": [
         "address#0",
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "len%0#0"
       ]
     },
-    "330": {
+    "323": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -996,54 +912,49 @@
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "len%0#0",
         "32"
       ]
     },
-    "331": {
+    "324": {
       "op": "==",
       "defined_out": [
         "address#0",
         "eq%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "eq%0#0"
       ]
     },
-    "332": {
+    "325": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "333": {
+    "326": {
       "op": "txn Sender",
       "defined_out": [
         "address#0",
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1"
       ]
     },
-    "335": {
+    "328": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "336": {
+    "329": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -1052,14 +963,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "0",
         "\"akita_dao\""
       ]
     },
-    "337": {
+    "330": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -1068,24 +978,22 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "338": {
+    "331": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0"
       ]
     },
-    "339": {
+    "332": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -1094,14 +1002,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "\"wallet\""
       ]
     },
-    "340": {
+    "333": {
       "op": "app_global_get_ex",
       "defined_out": [
         "address#0",
@@ -1110,23 +1017,21 @@
         "walletID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "walletID#0",
         "awst_tmp%1#0"
       ]
     },
-    "341": {
+    "334": {
       "op": "pop",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "walletID#0"
       ]
     },
-    "342": {
+    "335": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "address#0",
@@ -1135,69 +1040,62 @@
         "value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "value%0#0",
         "check%0#0"
       ]
     },
-    "344": {
+    "337": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%0#1",
         "value%0#0"
       ]
     },
-    "345": {
+    "338": {
       "op": "==",
       "defined_out": [
         "address#0",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "tmp%2#0"
       ]
     },
-    "346": {
+    "339": {
       "op": "bnz removeModerator_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "349": {
+    "342": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "\"ERR:NDAO\""
       ]
     },
-    "350": {
+    "343": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0"
       ]
     },
-    "351": {
+    "344": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "352": {
+    "345": {
       "block": "removeModerator_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%0#0",
         "address#0"
       ],
       "op": "bytec_1 // \"d\"",
@@ -1205,202 +1103,146 @@
         "\"d\""
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "address#0",
         "\"d\""
       ]
     },
-    "353": {
-      "op": "dig 1",
+    "346": {
+      "op": "swap",
       "defined_out": [
         "\"d\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "\"d\"",
         "address#0"
       ]
     },
-    "355": {
+    "347": {
       "op": "concat",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "356": {
+    "348": {
       "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "357": {
-      "op": "bury 3",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "359": {
+    "349": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
-        "address#0",
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "360": {
+    "350": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "maybe_exists%0#0"
       ]
     },
-    "362": {
+    "352": {
       "op": "bnz removeModerator_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "365": {
+    "355": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
-        "address#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "address#0",
         "\"ERR:NMOD\""
       ]
     },
-    "367": {
+    "357": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "368": {
+    "358": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "369": {
+    "359": {
       "block": "removeModerator_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ],
-      "op": "dig 1",
-      "defined_out": [
         "map_prefixed_key%0#0"
       ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "371": {
       "op": "box_del",
       "defined_out": [
-        "map_prefixed_key%0#0",
         "{box_del}"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "{box_del}"
       ]
     },
-    "372": {
+    "360": {
       "op": "pop",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "373": {
+    "361": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "map_prefixed_key%0#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0",
         "1"
       ]
     },
-    "374": {
+    "362": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "375": {
+    "363": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.ban[routing]",
       "params": {},
       "block": "ban",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "376": {
       "op": "txna ApplicationArgs 1"
     },
-    "379": {
+    "366": {
       "op": "dup",
       "defined_out": [
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "address#0"
       ]
     },
-    "380": {
+    "367": {
       "op": "len",
       "defined_out": [
         "address#0",
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "len%0#0"
       ]
     },
-    "381": {
+    "368": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -1408,45 +1250,41 @@
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "len%0#0",
         "32"
       ]
     },
-    "382": {
+    "369": {
       "op": "==",
       "defined_out": [
         "address#0",
         "eq%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "eq%0#0"
       ]
     },
-    "383": {
+    "370": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0"
       ]
     },
-    "384": {
+    "371": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "address#0",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0"
       ]
     },
-    "387": {
+    "374": {
       "op": "dup",
       "defined_out": [
         "address#0",
@@ -1454,13 +1292,12 @@
         "tmp%2#0 (copy)"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0",
         "tmp%2#0 (copy)"
       ]
     },
-    "388": {
+    "375": {
       "op": "len",
       "defined_out": [
         "address#0",
@@ -1468,13 +1305,12 @@
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0",
         "len%1#0"
       ]
     },
-    "389": {
+    "376": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -1483,14 +1319,13 @@
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0",
         "len%1#0",
         "8"
       ]
     },
-    "390": {
+    "377": {
       "op": "==",
       "defined_out": [
         "address#0",
@@ -1498,34 +1333,31 @@
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0",
         "eq%1#0"
       ]
     },
-    "391": {
+    "378": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "tmp%2#0"
       ]
     },
-    "392": {
+    "379": {
       "op": "btoi",
       "defined_out": [
         "address#0",
         "expiration#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0"
       ]
     },
-    "393": {
+    "380": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -1533,13 +1365,12 @@
         "expiration#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "\"d\""
       ]
     },
-    "394": {
+    "381": {
       "op": "txn Sender",
       "defined_out": [
         "\"d\"",
@@ -1548,14 +1379,13 @@
         "materialized_values%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "\"d\"",
         "materialized_values%0#0"
       ]
     },
-    "396": {
+    "383": {
       "op": "concat",
       "defined_out": [
         "address#0",
@@ -1563,13 +1393,12 @@
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "397": {
+    "384": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -1578,31 +1407,28 @@
         "maybe_exists%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "398": {
+    "385": {
       "op": "bury 1",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "maybe_exists%0#0"
       ]
     },
-    "400": {
+    "387": {
       "op": "bnz ban_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0"
       ]
     },
-    "403": {
+    "390": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
@@ -1610,28 +1436,25 @@
         "expiration#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "\"ERR:NMOD\""
       ]
     },
-    "405": {
+    "392": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0"
       ]
     },
-    "406": {
+    "393": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "407": {
+    "394": {
       "block": "ban_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0"
       ],
@@ -1640,244 +1463,168 @@
         "\"n\""
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "expiration#0",
         "\"n\""
       ]
     },
-    "409": {
-      "op": "dig 2",
+    "396": {
+      "op": "uncover 2",
       "defined_out": [
         "\"n\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
         "\"n\"",
         "address#0"
       ]
     },
-    "411": {
+    "398": {
       "op": "concat",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
         "map_prefixed_key%1#0"
       ]
     },
-    "412": {
+    "399": {
       "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
-        "map_prefixed_key%1#0",
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "413": {
-      "op": "bury 4",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
+        "map_prefixed_key%1#0",
         "map_prefixed_key%1#0"
       ]
     },
-    "415": {
+    "400": {
       "op": "box_len",
       "defined_out": [
         "_%1#0",
-        "address#0",
         "map_prefixed_key%1#0",
         "maybe_exists%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
+        "map_prefixed_key%1#0",
         "_%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "416": {
+    "401": {
       "op": "bury 1",
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
+        "map_prefixed_key%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "418": {
+    "403": {
       "op": "bz ban_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0"
+        "expiration#0",
+        "map_prefixed_key%1#0"
       ]
     },
-    "421": {
+    "406": {
       "op": "pushbytes \"ERR:EBAN\"",
       "defined_out": [
         "\"ERR:EBAN\"",
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "expiration#0",
+        "map_prefixed_key%1#0",
         "\"ERR:EBAN\""
       ]
     },
-    "431": {
+    "416": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0"
+        "expiration#0",
+        "map_prefixed_key%1#0"
       ]
     },
-    "432": {
+    "417": {
       "error": "ERR:EBAN",
       "op": "err // ERR:EBAN"
     },
-    "433": {
+    "418": {
       "block": "ban_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0"
+        "expiration#0",
+        "map_prefixed_key%1#0"
       ],
-      "op": "dup",
+      "op": "swap",
       "defined_out": [
         "expiration#0"
       ],
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
         "expiration#0"
       ]
     },
-    "434": {
+    "419": {
       "op": "itob",
       "defined_out": [
         "encoded_value%0#0",
-        "expiration#0"
-      ],
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
-        "encoded_value%0#0"
-      ]
-    },
-    "435": {
-      "op": "dig 3",
-      "defined_out": [
-        "encoded_value%0#0",
-        "expiration#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
-        "encoded_value%0#0",
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "437": {
-      "op": "swap",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
-        "map_prefixed_key%1#0",
         "encoded_value%0#0"
       ]
     },
-    "438": {
+    "420": {
       "op": "box_put",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0"
-      ]
+      "stack_out": []
     },
-    "439": {
+    "421": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "expiration#0",
-        "map_prefixed_key%1#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0",
         "1"
       ]
     },
-    "440": {
+    "422": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "expiration#0"
-      ]
+      "stack_out": []
     },
-    "441": {
+    "423": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.unban[routing]",
       "params": {},
       "block": "unban",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "442": {
       "op": "txna ApplicationArgs 1"
     },
-    "445": {
+    "426": {
       "op": "dup",
       "defined_out": [
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "address#0"
       ]
     },
-    "446": {
+    "427": {
       "op": "len",
       "defined_out": [
         "address#0",
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "len%0#0"
       ]
     },
-    "447": {
+    "428": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -1885,45 +1632,41 @@
         "len%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "len%0#0",
         "32"
       ]
     },
-    "448": {
+    "429": {
       "op": "==",
       "defined_out": [
         "address#0",
         "eq%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "eq%0#0"
       ]
     },
-    "449": {
+    "430": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0"
       ]
     },
-    "450": {
+    "431": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "\"d\""
       ]
     },
-    "451": {
+    "432": {
       "op": "txn Sender",
       "defined_out": [
         "\"d\"",
@@ -1931,25 +1674,23 @@
         "materialized_values%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "\"d\"",
         "materialized_values%0#0"
       ]
     },
-    "453": {
+    "434": {
       "op": "concat",
       "defined_out": [
         "address#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "454": {
+    "435": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -1957,54 +1698,48 @@
         "maybe_exists%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "455": {
+    "436": {
       "op": "bury 1",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "maybe_exists%0#0"
       ]
     },
-    "457": {
+    "438": {
       "op": "bnz unban_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0"
       ]
     },
-    "460": {
+    "441": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "\"ERR:NMOD\""
       ]
     },
-    "462": {
+    "443": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0"
       ]
     },
-    "463": {
+    "444": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "464": {
+    "445": {
       "block": "unban_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%1#0",
         "address#0"
       ],
       "op": "bytec 6 // \"n\"",
@@ -2012,173 +1747,125 @@
         "\"n\""
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
         "address#0",
         "\"n\""
       ]
     },
-    "466": {
-      "op": "dig 1",
+    "447": {
+      "op": "swap",
       "defined_out": [
         "\"n\"",
         "address#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "\"n\"",
         "address#0"
       ]
     },
-    "468": {
+    "448": {
       "op": "concat",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "map_prefixed_key%1#0"
       ]
     },
-    "469": {
+    "449": {
       "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "map_prefixed_key%1#0",
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "470": {
-      "op": "bury 3",
       "defined_out": [
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
         "map_prefixed_key%1#0"
       ]
     },
-    "472": {
+    "450": {
       "op": "box_len",
       "defined_out": [
         "_%1#0",
-        "address#0",
         "map_prefixed_key%1#0",
         "maybe_exists%1#0"
       ],
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
         "_%1#0",
         "maybe_exists%1#0"
       ]
     },
-    "473": {
+    "451": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
         "maybe_exists%1#0"
       ]
     },
-    "475": {
+    "453": {
       "op": "bnz unban_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0"
+        "map_prefixed_key%1#0"
       ]
     },
-    "478": {
+    "456": {
       "op": "pushbytes \"ERR:NBAN\"",
       "defined_out": [
         "\"ERR:NBAN\"",
-        "address#0",
         "map_prefixed_key%1#0"
       ],
       "stack_out": [
         "map_prefixed_key%1#0",
-        "address#0",
         "\"ERR:NBAN\""
       ]
     },
-    "488": {
+    "466": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0"
+        "map_prefixed_key%1#0"
       ]
     },
-    "489": {
+    "467": {
       "error": "ERR:NBAN",
       "op": "err // ERR:NBAN"
     },
-    "490": {
+    "468": {
       "block": "unban_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%1#0",
-        "address#0"
-      ],
-      "op": "dig 1",
-      "defined_out": [
         "map_prefixed_key%1#0"
       ],
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
-        "map_prefixed_key%1#0"
-      ]
-    },
-    "492": {
       "op": "box_del",
       "defined_out": [
-        "map_prefixed_key%1#0",
         "{box_del}"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "{box_del}"
       ]
     },
-    "493": {
+    "469": {
       "op": "pop",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "494": {
+    "470": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "map_prefixed_key%1#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0",
         "1"
       ]
     },
-    "495": {
+    "471": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%1#0",
-        "address#0"
-      ]
+      "stack_out": []
     },
-    "496": {
+    "472": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.flagPost[routing]",
       "params": {},
       "block": "flagPost",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "499": {
+    "475": {
       "op": "dup",
       "defined_out": [
         "ref#0"
@@ -2188,7 +1875,7 @@
         "ref#0"
       ]
     },
-    "500": {
+    "476": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -2199,7 +1886,7 @@
         "len%0#0"
       ]
     },
-    "501": {
+    "477": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -2212,7 +1899,7 @@
         "32"
       ]
     },
-    "502": {
+    "478": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2223,14 +1910,14 @@
         "eq%0#0"
       ]
     },
-    "503": {
+    "479": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "ref#0"
       ]
     },
-    "504": {
+    "480": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -2241,7 +1928,7 @@
         "\"d\""
       ]
     },
-    "505": {
+    "481": {
       "op": "txn Sender",
       "defined_out": [
         "\"d\"",
@@ -2254,7 +1941,7 @@
         "materialized_values%0#0"
       ]
     },
-    "507": {
+    "483": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -2265,7 +1952,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "508": {
+    "484": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -2278,20 +1965,20 @@
         "maybe_exists%0#0"
       ]
     },
-    "509": {
+    "485": {
       "op": "bury 1",
       "stack_out": [
         "ref#0",
         "maybe_exists%0#0"
       ]
     },
-    "511": {
+    "487": {
       "op": "bnz flagPost_after_assert@3",
       "stack_out": [
         "ref#0"
       ]
     },
-    "514": {
+    "490": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
@@ -2302,31 +1989,21 @@
         "\"ERR:NMOD\""
       ]
     },
-    "516": {
+    "492": {
       "op": "log",
       "stack_out": [
         "ref#0"
       ]
     },
-    "517": {
+    "493": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "518": {
+    "494": {
       "block": "flagPost_after_assert@3",
       "stack_in": [
         "ref#0"
       ],
-      "op": "dup",
-      "defined_out": [
-        "ref#0"
-      ],
-      "stack_out": [
-        "ref#0",
-        "ref#0"
-      ]
-    },
-    "519": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -2334,20 +2011,18 @@
       ],
       "stack_out": [
         "ref#0",
-        "ref#0",
         "1"
       ]
     },
-    "520": {
+    "495": {
       "op": "dup",
       "stack_out": [
-        "ref#0",
         "ref#0",
         "1",
         "1"
       ]
     },
-    "521": {
+    "496": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2356,16 +2031,14 @@
       ],
       "stack_out": [
         "ref#0",
-        "ref#0",
         "1",
         "1",
         "0"
       ]
     },
-    "522": {
+    "497": {
       "op": "dup",
       "stack_out": [
-        "ref#0",
         "ref#0",
         "1",
         "1",
@@ -2373,34 +2046,29 @@
         "0"
       ]
     },
-    "523": {
+    "498": {
       "callsub": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.applyModeration",
       "op": "callsub applyModeration",
-      "stack_out": [
-        "ref#0"
-      ]
+      "stack_out": []
     },
-    "526": {
+    "501": {
       "op": "intc_1 // 1",
       "stack_out": [
-        "ref#0",
         "1"
       ]
     },
-    "527": {
+    "502": {
       "op": "return",
-      "stack_out": [
-        "ref#0"
-      ]
+      "stack_out": []
     },
-    "528": {
+    "503": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.unflagPost[routing]",
       "params": {},
       "block": "unflagPost",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "531": {
+    "506": {
       "op": "dup",
       "defined_out": [
         "ref#0"
@@ -2410,7 +2078,7 @@
         "ref#0"
       ]
     },
-    "532": {
+    "507": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -2421,7 +2089,7 @@
         "len%0#0"
       ]
     },
-    "533": {
+    "508": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -2434,7 +2102,7 @@
         "32"
       ]
     },
-    "534": {
+    "509": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2445,14 +2113,14 @@
         "eq%0#0"
       ]
     },
-    "535": {
+    "510": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "ref#0"
       ]
     },
-    "536": {
+    "511": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -2463,7 +2131,7 @@
         "\"d\""
       ]
     },
-    "537": {
+    "512": {
       "op": "txn Sender",
       "defined_out": [
         "\"d\"",
@@ -2476,7 +2144,7 @@
         "materialized_values%0#0"
       ]
     },
-    "539": {
+    "514": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -2487,7 +2155,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "540": {
+    "515": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -2500,20 +2168,20 @@
         "maybe_exists%0#0"
       ]
     },
-    "541": {
+    "516": {
       "op": "bury 1",
       "stack_out": [
         "ref#0",
         "maybe_exists%0#0"
       ]
     },
-    "543": {
+    "518": {
       "op": "bnz unflagPost_after_assert@3",
       "stack_out": [
         "ref#0"
       ]
     },
-    "546": {
+    "521": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
@@ -2524,31 +2192,21 @@
         "\"ERR:NMOD\""
       ]
     },
-    "548": {
+    "523": {
       "op": "log",
       "stack_out": [
         "ref#0"
       ]
     },
-    "549": {
+    "524": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "550": {
+    "525": {
       "block": "unflagPost_after_assert@3",
       "stack_in": [
         "ref#0"
       ],
-      "op": "dup",
-      "defined_out": [
-        "ref#0"
-      ],
-      "stack_out": [
-        "ref#0",
-        "ref#0"
-      ]
-    },
-    "551": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1",
@@ -2556,11 +2214,10 @@
       ],
       "stack_out": [
         "ref#0",
-        "ref#0",
         "1"
       ]
     },
-    "552": {
+    "526": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -2569,50 +2226,43 @@
       ],
       "stack_out": [
         "ref#0",
-        "ref#0",
         "1",
         "0"
       ]
     },
-    "553": {
+    "527": {
       "op": "dupn 2",
       "stack_out": [
         "ref#0",
-        "ref#0",
         "1",
         "0",
         "0",
         "0"
       ]
     },
-    "555": {
+    "529": {
       "callsub": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.applyModeration",
       "op": "callsub applyModeration",
-      "stack_out": [
-        "ref#0"
-      ]
+      "stack_out": []
     },
-    "558": {
+    "532": {
       "op": "intc_1 // 1",
       "stack_out": [
-        "ref#0",
         "1"
       ]
     },
-    "559": {
+    "533": {
       "op": "return",
-      "stack_out": [
-        "ref#0"
-      ]
+      "stack_out": []
     },
-    "560": {
+    "534": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.setModeratorContentFlags[routing]",
       "params": {},
       "block": "setModeratorContentFlags",
       "stack_in": [],
       "op": "txna ApplicationArgs 1"
     },
-    "563": {
+    "537": {
       "op": "dup",
       "defined_out": [
         "ref#0"
@@ -2622,7 +2272,7 @@
         "ref#0"
       ]
     },
-    "564": {
+    "538": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -2633,7 +2283,7 @@
         "len%0#0"
       ]
     },
-    "565": {
+    "539": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -2646,7 +2296,7 @@
         "32"
       ]
     },
-    "566": {
+    "540": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -2657,14 +2307,14 @@
         "eq%0#0"
       ]
     },
-    "567": {
+    "541": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "ref#0"
       ]
     },
-    "568": {
+    "542": {
       "op": "txna ApplicationArgs 2",
       "defined_out": [
         "ref#0",
@@ -2675,7 +2325,7 @@
         "tmp%2#0"
       ]
     },
-    "571": {
+    "545": {
       "op": "dup",
       "defined_out": [
         "ref#0",
@@ -2688,7 +2338,7 @@
         "tmp%2#0 (copy)"
       ]
     },
-    "572": {
+    "546": {
       "op": "len",
       "defined_out": [
         "len%1#0",
@@ -2701,7 +2351,7 @@
         "len%1#0"
       ]
     },
-    "573": {
+    "547": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -2716,7 +2366,7 @@
         "8"
       ]
     },
-    "574": {
+    "548": {
       "op": "==",
       "defined_out": [
         "eq%1#0",
@@ -2729,7 +2379,7 @@
         "eq%1#0"
       ]
     },
-    "575": {
+    "549": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
@@ -2737,7 +2387,7 @@
         "tmp%2#0"
       ]
     },
-    "576": {
+    "550": {
       "op": "btoi",
       "defined_out": [
         "flags#0",
@@ -2748,7 +2398,7 @@
         "flags#0"
       ]
     },
-    "577": {
+    "551": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -2761,7 +2411,7 @@
         "\"d\""
       ]
     },
-    "578": {
+    "552": {
       "op": "txn Sender",
       "defined_out": [
         "\"d\"",
@@ -2776,7 +2426,7 @@
         "materialized_values%0#0"
       ]
     },
-    "580": {
+    "554": {
       "op": "concat",
       "defined_out": [
         "flags#0",
@@ -2789,7 +2439,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "581": {
+    "555": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -2804,7 +2454,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "582": {
+    "556": {
       "op": "bury 1",
       "stack_out": [
         "ref#0",
@@ -2812,14 +2462,14 @@
         "maybe_exists%0#0"
       ]
     },
-    "584": {
+    "558": {
       "op": "bnz setModeratorContentFlags_after_assert@3",
       "stack_out": [
         "ref#0",
         "flags#0"
       ]
     },
-    "587": {
+    "561": {
       "op": "bytec 4 // \"ERR:NMOD\"",
       "defined_out": [
         "\"ERR:NMOD\"",
@@ -2832,58 +2482,55 @@
         "\"ERR:NMOD\""
       ]
     },
-    "589": {
+    "563": {
       "op": "log",
       "stack_out": [
         "ref#0",
         "flags#0"
       ]
     },
-    "590": {
+    "564": {
       "error": "ERR:NMOD",
       "op": "err // ERR:NMOD"
     },
-    "591": {
+    "565": {
       "block": "setModeratorContentFlags_after_assert@3",
       "stack_in": [
         "ref#0",
         "flags#0"
       ],
-      "op": "dig 1",
+      "op": "swap",
       "defined_out": [
         "ref#0"
       ],
       "stack_out": [
-        "ref#0",
         "flags#0",
         "ref#0"
       ]
     },
-    "593": {
+    "566": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
         "ref#0"
       ],
       "stack_out": [
-        "ref#0",
         "flags#0",
         "ref#0",
         "0"
       ]
     },
-    "594": {
+    "567": {
       "op": "dup",
       "stack_out": [
-        "ref#0",
         "flags#0",
         "ref#0",
         "0",
         "0"
       ]
     },
-    "595": {
-      "op": "dig 3",
+    "568": {
+      "op": "uncover 3",
       "defined_out": [
         "0",
         "flags#0",
@@ -2891,14 +2538,12 @@
       ],
       "stack_out": [
         "ref#0",
-        "flags#0",
-        "ref#0",
         "0",
         "0",
         "flags#0"
       ]
     },
-    "597": {
+    "570": {
       "op": "intc_1 // 1",
       "defined_out": [
         "0",
@@ -2908,82 +2553,63 @@
       ],
       "stack_out": [
         "ref#0",
-        "flags#0",
-        "ref#0",
         "0",
         "0",
         "flags#0",
         "1"
       ]
     },
-    "598": {
+    "571": {
       "callsub": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.applyModeration",
       "op": "callsub applyModeration",
-      "stack_out": [
-        "ref#0",
-        "flags#0"
-      ]
+      "stack_out": []
     },
-    "601": {
+    "574": {
       "op": "intc_1 // 1",
       "stack_out": [
-        "ref#0",
-        "flags#0",
         "1"
       ]
     },
-    "602": {
+    "575": {
       "op": "return",
-      "stack_out": [
-        "ref#0",
-        "flags#0"
-      ]
+      "stack_out": []
     },
-    "603": {
+    "576": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.addAction[routing]",
       "params": {},
       "block": "addAction",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "604": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0"
       ]
     },
-    "607": {
+    "579": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ]
     },
-    "608": {
+    "580": {
       "op": "len",
       "defined_out": [
         "len%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "len%0#0"
       ]
     },
-    "609": {
+    "581": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -2991,59 +2617,54 @@
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "len%0#0",
         "8"
       ]
     },
-    "610": {
+    "582": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "eq%0#0"
       ]
     },
-    "611": {
+    "583": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0"
       ]
     },
-    "612": {
+    "584": {
       "op": "btoi",
       "defined_out": [
         "actionAppID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0"
       ]
     },
-    "613": {
+    "585": {
       "op": "txna ApplicationArgs 2"
     },
-    "616": {
+    "588": {
       "op": "dup",
       "defined_out": [
         "actionAppID#0",
         "content#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "content#0"
       ]
     },
-    "617": {
+    "589": {
       "op": "len",
       "defined_out": [
         "actionAppID#0",
@@ -3051,13 +2672,12 @@
         "len%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "len%1#0"
       ]
     },
-    "618": {
+    "590": {
       "op": "pushint 36",
       "defined_out": [
         "36",
@@ -3066,14 +2686,13 @@
         "len%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "len%1#0",
         "36"
       ]
     },
-    "620": {
+    "592": {
       "op": "==",
       "defined_out": [
         "actionAppID#0",
@@ -3081,22 +2700,20 @@
         "eq%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "eq%1#0"
       ]
     },
-    "621": {
+    "593": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 36>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0"
       ]
     },
-    "622": {
+    "594": {
       "op": "txn Sender",
       "defined_out": [
         "actionAppID#0",
@@ -3104,23 +2721,21 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1"
       ]
     },
-    "624": {
+    "596": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "625": {
+    "597": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -3130,7 +2745,6 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
@@ -3138,7 +2752,7 @@
         "\"akita_dao\""
       ]
     },
-    "626": {
+    "598": {
       "op": "app_global_get_ex",
       "defined_out": [
         "actionAppID#0",
@@ -3148,7 +2762,6 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
@@ -3156,18 +2769,17 @@
         "maybe_exists%0#0"
       ]
     },
-    "627": {
+    "599": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
         "maybe_value%0#0"
       ]
     },
-    "628": {
+    "600": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -3177,7 +2789,6 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
@@ -3185,7 +2796,7 @@
         "\"wallet\""
       ]
     },
-    "629": {
+    "601": {
       "op": "app_global_get_ex",
       "defined_out": [
         "actionAppID#0",
@@ -3195,7 +2806,6 @@
         "walletID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
@@ -3203,17 +2813,16 @@
         "awst_tmp%1#0"
       ]
     },
-    "630": {
+    "602": {
       "op": "pop",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
         "walletID#0"
       ]
     },
-    "631": {
+    "603": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "actionAppID#0",
@@ -3223,7 +2832,6 @@
         "value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
@@ -3231,18 +2839,17 @@
         "check%0#0"
       ]
     },
-    "633": {
+    "605": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%0#1",
         "value%0#0"
       ]
     },
-    "634": {
+    "606": {
       "op": "==",
       "defined_out": [
         "actionAppID#0",
@@ -3250,21 +2857,19 @@
         "tmp%2#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "tmp%2#1"
       ]
     },
-    "635": {
+    "607": {
       "op": "bnz addAction_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0"
       ]
     },
-    "638": {
+    "610": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
@@ -3272,282 +2877,209 @@
         "content#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0",
         "\"ERR:NDAO\""
       ]
     },
-    "639": {
+    "611": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0"
       ]
     },
-    "640": {
+    "612": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "641": {
+    "613": {
       "block": "addAction_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "content#0"
       ],
-      "op": "dig 1",
+      "op": "swap",
       "defined_out": [
         "actionAppID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "actionAppID#0"
       ]
     },
-    "643": {
+    "614": {
       "op": "itob",
       "defined_out": [
-        "actionAppID#0",
         "encoded_value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "encoded_value%0#0"
       ]
     },
-    "644": {
+    "615": {
       "op": "pushbytes \"a\"",
       "defined_out": [
         "\"a\"",
-        "actionAppID#0",
         "encoded_value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "encoded_value%0#0",
         "\"a\""
       ]
     },
-    "647": {
+    "618": {
       "op": "swap",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "\"a\"",
         "encoded_value%0#0"
       ]
     },
-    "648": {
+    "619": {
       "op": "concat",
       "defined_out": [
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "649": {
+    "620": {
       "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0",
-        "map_prefixed_key%0#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "650": {
-      "op": "bury 4",
       "defined_out": [
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
+        "map_prefixed_key%0#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "652": {
+    "621": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
-        "actionAppID#0",
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
+        "map_prefixed_key%0#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "653": {
+    "622": {
       "op": "bury 1",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
+        "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "655": {
+    "624": {
       "op": "bz addAction_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0"
+        "content#0",
+        "map_prefixed_key%0#0"
       ]
     },
-    "658": {
+    "627": {
       "op": "bytec 9 // \"ERR:EACT\"",
       "defined_out": [
         "\"ERR:EACT\"",
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
+        "map_prefixed_key%0#0",
         "\"ERR:EACT\""
       ]
     },
-    "660": {
+    "629": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0"
+        "content#0",
+        "map_prefixed_key%0#0"
       ]
     },
-    "661": {
+    "630": {
       "error": "ERR:EACT",
       "op": "err // ERR:EACT"
     },
-    "662": {
+    "631": {
       "block": "addAction_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0"
-      ],
-      "op": "dig 2",
-      "defined_out": [
-        "map_prefixed_key%0#0"
-      ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "content#0",
         "map_prefixed_key%0#0"
-      ]
-    },
-    "664": {
-      "op": "dig 1",
+      ],
+      "op": "swap",
       "defined_out": [
         "content#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0",
-        "map_prefixed_key%0#0",
         "content#0"
       ]
     },
-    "666": {
+    "632": {
       "op": "box_put",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0"
-      ]
+      "stack_out": []
     },
-    "667": {
+    "633": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "content#0",
-        "map_prefixed_key%0#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0",
         "1"
       ]
     },
-    "668": {
+    "634": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "content#0"
-      ]
+      "stack_out": []
     },
-    "669": {
+    "635": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.removeAction[routing]",
       "params": {},
       "block": "removeAction",
       "stack_in": [],
-      "op": "intc_0 // 0",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "670": {
       "op": "txna ApplicationArgs 1",
       "defined_out": [
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0"
       ]
     },
-    "673": {
+    "638": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "tmp%0#0 (copy)"
       ]
     },
-    "674": {
+    "639": {
       "op": "len",
       "defined_out": [
         "len%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "len%0#0"
       ]
     },
-    "675": {
+    "640": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -3555,64 +3087,58 @@
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "len%0#0",
         "8"
       ]
     },
-    "676": {
+    "641": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
         "tmp%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0",
         "eq%0#0"
       ]
     },
-    "677": {
+    "642": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%0#0"
       ]
     },
-    "678": {
+    "643": {
       "op": "btoi",
       "defined_out": [
         "actionAppID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0"
       ]
     },
-    "679": {
+    "644": {
       "op": "txn Sender",
       "defined_out": [
         "actionAppID#0",
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1"
       ]
     },
-    "681": {
+    "646": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "0"
       ]
     },
-    "682": {
+    "647": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -3621,14 +3147,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "0",
         "\"akita_dao\""
       ]
     },
-    "683": {
+    "648": {
       "op": "app_global_get_ex",
       "defined_out": [
         "actionAppID#0",
@@ -3637,24 +3162,22 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "684": {
+    "649": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "maybe_value%0#0"
       ]
     },
-    "685": {
+    "650": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -3663,14 +3186,13 @@
         "tmp%0#1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "maybe_value%0#0",
         "\"wallet\""
       ]
     },
-    "686": {
+    "651": {
       "op": "app_global_get_ex",
       "defined_out": [
         "actionAppID#0",
@@ -3679,23 +3201,21 @@
         "walletID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "walletID#0",
         "awst_tmp%1#0"
       ]
     },
-    "687": {
+    "652": {
       "op": "pop",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "walletID#0"
       ]
     },
-    "688": {
+    "653": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "actionAppID#0",
@@ -3704,258 +3224,187 @@
         "value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "value%0#0",
         "check%0#0"
       ]
     },
-    "690": {
+    "655": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%0#1",
         "value%0#0"
       ]
     },
-    "691": {
+    "656": {
       "op": "==",
       "defined_out": [
         "actionAppID#0",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "tmp%2#0"
       ]
     },
-    "692": {
+    "657": {
       "op": "bnz removeAction_after_assert@3",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0"
       ]
     },
-    "695": {
+    "660": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
         "actionAppID#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0",
         "\"ERR:NDAO\""
       ]
     },
-    "696": {
+    "661": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "actionAppID#0"
       ]
     },
-    "697": {
+    "662": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "698": {
+    "663": {
       "block": "removeAction_after_assert@3",
       "stack_in": [
-        "map_prefixed_key%0#0",
         "actionAppID#0"
       ],
-      "op": "dup",
-      "defined_out": [
-        "actionAppID#0"
-      ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "actionAppID#0"
-      ]
-    },
-    "699": {
       "op": "itob",
       "defined_out": [
-        "actionAppID#0",
         "encoded_value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "encoded_value%0#0"
       ]
     },
-    "700": {
+    "664": {
       "op": "pushbytes \"a\"",
       "defined_out": [
         "\"a\"",
-        "actionAppID#0",
         "encoded_value%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "encoded_value%0#0",
         "\"a\""
       ]
     },
-    "703": {
+    "667": {
       "op": "swap",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "\"a\"",
         "encoded_value%0#0"
       ]
     },
-    "704": {
+    "668": {
       "op": "concat",
       "defined_out": [
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "705": {
+    "669": {
       "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "map_prefixed_key%0#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "706": {
-      "op": "bury 3",
       "defined_out": [
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "708": {
+    "670": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
-        "actionAppID#0",
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "actionAppID#0",
         "_%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "709": {
+    "671": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%0#0",
-        "actionAppID#0",
         "maybe_exists%0#0"
       ]
     },
-    "711": {
+    "673": {
       "op": "bnz removeAction_after_assert@5",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "714": {
+    "676": {
       "op": "bytec 9 // \"ERR:EACT\"",
       "defined_out": [
         "\"ERR:EACT\"",
-        "actionAppID#0",
         "map_prefixed_key%0#0"
       ],
       "stack_out": [
         "map_prefixed_key%0#0",
-        "actionAppID#0",
         "\"ERR:EACT\""
       ]
     },
-    "716": {
+    "678": {
       "op": "log",
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0"
+        "map_prefixed_key%0#0"
       ]
     },
-    "717": {
+    "679": {
       "error": "ERR:EACT",
       "op": "err // ERR:EACT"
     },
-    "718": {
+    "680": {
       "block": "removeAction_after_assert@5",
       "stack_in": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0"
-      ],
-      "op": "dig 1",
-      "defined_out": [
         "map_prefixed_key%0#0"
       ],
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "720": {
       "op": "box_del",
       "defined_out": [
-        "map_prefixed_key%0#0",
         "{box_del}"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "{box_del}"
       ]
     },
-    "721": {
+    "681": {
       "op": "pop",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0"
-      ]
+      "stack_out": []
     },
-    "722": {
+    "682": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "map_prefixed_key%0#0"
+        "1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0",
         "1"
       ]
     },
-    "723": {
+    "683": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "actionAppID#0"
-      ]
+      "stack_out": []
     },
-    "724": {
+    "684": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.isBanned[routing]",
       "params": {},
       "block": "isBanned",
@@ -3968,7 +3417,7 @@
         "account#0"
       ]
     },
-    "727": {
+    "687": {
       "op": "dup",
       "defined_out": [
         "account#0",
@@ -3979,7 +3428,7 @@
         "account#0 (copy)"
       ]
     },
-    "728": {
+    "688": {
       "op": "len",
       "defined_out": [
         "account#0",
@@ -3990,7 +3439,7 @@
         "len%0#0"
       ]
     },
-    "729": {
+    "689": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -4003,7 +3452,7 @@
         "32"
       ]
     },
-    "730": {
+    "690": {
       "op": "==",
       "defined_out": [
         "account#0",
@@ -4014,14 +3463,14 @@
         "eq%0#0"
       ]
     },
-    "731": {
+    "691": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "account#0"
       ]
     },
-    "732": {
+    "692": {
       "op": "bytec 6 // \"n\"",
       "defined_out": [
         "\"n\"",
@@ -4032,14 +3481,14 @@
         "\"n\""
       ]
     },
-    "734": {
+    "694": {
       "op": "swap",
       "stack_out": [
         "\"n\"",
         "account#0"
       ]
     },
-    "735": {
+    "695": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -4048,7 +3497,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "736": {
+    "696": {
       "op": "dup",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -4058,7 +3507,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "737": {
+    "697": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -4071,27 +3520,27 @@
         "maybe_exists%0#0"
       ]
     },
-    "738": {
+    "698": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "740": {
+    "700": {
       "op": "bz isBanned_bool_false@4",
       "stack_out": [
         "map_prefixed_key%0#0"
       ]
     },
-    "743": {
+    "703": {
       "op": "dup",
       "stack_out": [
         "map_prefixed_key%0#0",
         "map_prefixed_key%0#0"
       ]
     },
-    "744": {
+    "704": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
@@ -4104,7 +3553,7 @@
         "aggregate%box_get%1#0"
       ]
     },
-    "745": {
+    "705": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
@@ -4112,7 +3561,7 @@
         "aggregate%box_get%0#0"
       ]
     },
-    "746": {
+    "706": {
       "op": "btoi",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -4123,7 +3572,7 @@
         "maybe_value_converted%0#0"
       ]
     },
-    "747": {
+    "707": {
       "op": "global LatestTimestamp",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -4136,7 +3585,7 @@
         "tmp%0#1"
       ]
     },
-    "749": {
+    "709": {
       "op": ">",
       "defined_out": [
         "map_prefixed_key%0#0",
@@ -4147,13 +3596,13 @@
         "tmp%1#1"
       ]
     },
-    "750": {
+    "710": {
       "op": "bz isBanned_bool_false@4",
       "stack_out": [
         "map_prefixed_key%0#0"
       ]
     },
-    "753": {
+    "713": {
       "op": "intc_1 // 1",
       "defined_out": [
         "and_result%0#0",
@@ -4164,7 +3613,7 @@
         "and_result%0#0"
       ]
     },
-    "754": {
+    "714": {
       "block": "isBanned_bool_merge@5",
       "stack_in": [
         "map_prefixed_key%0#0",
@@ -4180,7 +3629,7 @@
         "0x00"
       ]
     },
-    "756": {
+    "716": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4193,7 +3642,7 @@
         "0"
       ]
     },
-    "757": {
+    "717": {
       "op": "uncover 2",
       "defined_out": [
         "0",
@@ -4207,7 +3656,7 @@
         "and_result%0#0"
       ]
     },
-    "759": {
+    "719": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0"
@@ -4217,7 +3666,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "760": {
+    "720": {
       "op": "bytec 5 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4229,7 +3678,7 @@
         "0x151f7c75"
       ]
     },
-    "762": {
+    "722": {
       "op": "swap",
       "stack_out": [
         "map_prefixed_key%0#0",
@@ -4237,7 +3686,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "763": {
+    "723": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -4247,13 +3696,13 @@
         "tmp%4#0"
       ]
     },
-    "764": {
+    "724": {
       "op": "log",
       "stack_out": [
         "map_prefixed_key%0#0"
       ]
     },
-    "765": {
+    "725": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4263,13 +3712,13 @@
         "1"
       ]
     },
-    "766": {
+    "726": {
       "op": "return",
       "stack_out": [
         "map_prefixed_key%0#0"
       ]
     },
-    "767": {
+    "727": {
       "block": "isBanned_bool_false@4",
       "stack_in": [
         "map_prefixed_key%0#0"
@@ -4283,10 +3732,10 @@
         "and_result%0#0"
       ]
     },
-    "768": {
+    "728": {
       "op": "b isBanned_bool_merge@5"
     },
-    "771": {
+    "731": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.isModerator[routing]",
       "params": {},
       "block": "isModerator",
@@ -4299,7 +3748,7 @@
         "account#0"
       ]
     },
-    "774": {
+    "734": {
       "op": "dup",
       "defined_out": [
         "account#0",
@@ -4310,7 +3759,7 @@
         "account#0 (copy)"
       ]
     },
-    "775": {
+    "735": {
       "op": "len",
       "defined_out": [
         "account#0",
@@ -4321,7 +3770,7 @@
         "len%0#0"
       ]
     },
-    "776": {
+    "736": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -4334,7 +3783,7 @@
         "32"
       ]
     },
-    "777": {
+    "737": {
       "op": "==",
       "defined_out": [
         "account#0",
@@ -4345,14 +3794,14 @@
         "eq%0#0"
       ]
     },
-    "778": {
+    "738": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "account#0"
       ]
     },
-    "779": {
+    "739": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -4363,14 +3812,14 @@
         "\"d\""
       ]
     },
-    "780": {
+    "740": {
       "op": "swap",
       "stack_out": [
         "\"d\"",
         "account#0"
       ]
     },
-    "781": {
+    "741": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -4379,7 +3828,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "782": {
+    "742": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -4390,13 +3839,13 @@
         "maybe_exists%0#0"
       ]
     },
-    "783": {
+    "743": {
       "op": "bury 1",
       "stack_out": [
         "maybe_exists%0#0"
       ]
     },
-    "785": {
+    "745": {
       "op": "bytec 7 // 0x00",
       "defined_out": [
         "0x00",
@@ -4407,7 +3856,7 @@
         "0x00"
       ]
     },
-    "787": {
+    "747": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4420,7 +3869,7 @@
         "0"
       ]
     },
-    "788": {
+    "748": {
       "op": "uncover 2",
       "stack_out": [
         "0x00",
@@ -4428,7 +3877,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "790": {
+    "750": {
       "op": "setbit",
       "defined_out": [
         "aggregate%encoded_bool%0#0"
@@ -4437,7 +3886,7 @@
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "791": {
+    "751": {
       "op": "bytec 5 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -4448,14 +3897,14 @@
         "0x151f7c75"
       ]
     },
-    "793": {
+    "753": {
       "op": "swap",
       "stack_out": [
         "0x151f7c75",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "794": {
+    "754": {
       "op": "concat",
       "defined_out": [
         "tmp%4#0"
@@ -4464,11 +3913,11 @@
         "tmp%4#0"
       ]
     },
-    "795": {
+    "755": {
       "op": "log",
       "stack_out": []
     },
-    "796": {
+    "756": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
@@ -4477,11 +3926,11 @@
         "1"
       ]
     },
-    "797": {
+    "757": {
       "op": "return",
       "stack_out": []
     },
-    "798": {
+    "758": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.moderatorMeta[routing]",
       "params": {},
       "block": "moderatorMeta",
@@ -4494,7 +3943,7 @@
         "user#0"
       ]
     },
-    "801": {
+    "761": {
       "op": "dup",
       "defined_out": [
         "user#0",
@@ -4505,7 +3954,7 @@
         "user#0 (copy)"
       ]
     },
-    "802": {
+    "762": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -4516,7 +3965,7 @@
         "len%0#0"
       ]
     },
-    "803": {
+    "763": {
       "op": "intc_2 // 32",
       "defined_out": [
         "32",
@@ -4529,7 +3978,7 @@
         "32"
       ]
     },
-    "804": {
+    "764": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4540,14 +3989,14 @@
         "eq%0#0"
       ]
     },
-    "805": {
+    "765": {
       "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
       "stack_out": [
         "user#0"
       ]
     },
-    "806": {
+    "766": {
       "op": "bytec_1 // \"d\"",
       "defined_out": [
         "\"d\"",
@@ -4558,14 +4007,14 @@
         "\"d\""
       ]
     },
-    "807": {
+    "767": {
       "op": "swap",
       "stack_out": [
         "\"d\"",
         "user#0"
       ]
     },
-    "808": {
+    "768": {
       "op": "concat",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -4574,7 +4023,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "809": {
+    "769": {
       "op": "dup",
       "defined_out": [
         "map_prefixed_key%0#0"
@@ -4584,7 +4033,7 @@
         "map_prefixed_key%0#0"
       ]
     },
-    "810": {
+    "770": {
       "op": "box_len",
       "defined_out": [
         "_%0#0",
@@ -4597,105 +4046,85 @@
         "maybe_exists%0#0"
       ]
     },
-    "811": {
+    "771": {
       "op": "bury 1",
       "stack_out": [
         "map_prefixed_key%0#0",
         "maybe_exists%0#0"
       ]
     },
-    "813": {
+    "773": {
       "op": "bz moderatorMeta_after_if_else@3",
       "stack_out": [
         "map_prefixed_key%0#0"
       ]
     },
-    "816": {
-      "op": "dup",
-      "stack_out": [
-        "map_prefixed_key%0#0",
-        "map_prefixed_key%0#0"
-      ]
-    },
-    "817": {
+    "776": {
       "op": "box_get",
       "defined_out": [
         "aggregate%box_get%0#0",
-        "aggregate%box_get%1#0",
-        "map_prefixed_key%0#0"
+        "aggregate%box_get%1#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "aggregate%box_get%0#0",
         "aggregate%box_get%1#0"
       ]
     },
-    "818": {
+    "777": {
       "error": "Box must have value",
       "op": "assert // Box must have value",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "aggregate%box_get%0#0"
       ]
     },
-    "819": {
+    "778": {
       "op": "btoi",
       "defined_out": [
-        "map_prefixed_key%0#0",
         "maybe_value_converted%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "maybe_value_converted%0#0"
       ]
     },
-    "820": {
+    "779": {
       "op": "itob",
       "defined_out": [
-        "aggregate%val_as_bytes%0#0",
-        "map_prefixed_key%0#0"
+        "aggregate%val_as_bytes%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "821": {
+    "780": {
       "op": "pushbytes 0x80",
       "defined_out": [
         "0x80",
-        "aggregate%val_as_bytes%0#0",
-        "map_prefixed_key%0#0"
+        "aggregate%val_as_bytes%0#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "aggregate%val_as_bytes%0#0",
         "0x80"
       ]
     },
-    "824": {
+    "783": {
       "op": "swap",
       "stack_out": [
-        "map_prefixed_key%0#0",
         "0x80",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "825": {
+    "784": {
       "op": "concat",
       "defined_out": [
-        "map_prefixed_key%0#0",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%2#0"
       ]
     },
-    "826": {
+    "785": {
       "block": "moderatorMeta_after_inlined_smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.moderatorMeta@4",
       "stack_in": [
-        "map_prefixed_key%0#0",
         "tmp%2#0"
       ],
       "op": "bytec 5 // 0x151f7c75",
@@ -4703,73 +4132,69 @@
         "0x151f7c75"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%2#0",
         "0x151f7c75"
       ]
     },
-    "828": {
+    "787": {
       "op": "swap",
       "defined_out": [
         "0x151f7c75",
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "0x151f7c75",
         "tmp%2#0"
       ]
     },
-    "829": {
+    "788": {
       "op": "concat",
       "defined_out": [
         "tmp%3#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%3#0"
       ]
     },
-    "830": {
+    "789": {
       "op": "log",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
+      "stack_out": []
     },
-    "831": {
+    "790": {
       "op": "intc_1 // 1",
       "defined_out": [
         "1"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "1"
       ]
     },
-    "832": {
+    "791": {
       "op": "return",
-      "stack_out": [
-        "map_prefixed_key%0#0"
-      ]
+      "stack_out": []
     },
-    "833": {
+    "792": {
       "block": "moderatorMeta_after_if_else@3",
       "stack_in": [
         "map_prefixed_key%0#0"
       ],
+      "op": "pop",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "793": {
       "op": "pushbytes 0x000000000000000000",
       "defined_out": [
         "tmp%2#0"
       ],
       "stack_out": [
-        "map_prefixed_key%0#0",
         "tmp%2#0"
       ]
     },
-    "844": {
+    "804": {
       "op": "b moderatorMeta_after_inlined_smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.moderatorMeta@4"
     },
-    "847": {
+    "807": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::UpgradeableAkitaBaseContract.update[routing]",
       "params": {},
       "block": "update",
@@ -4782,7 +4207,7 @@
         "tmp%0#0"
       ]
     },
-    "850": {
+    "810": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -4793,7 +4218,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "851": {
+    "811": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
@@ -4806,7 +4231,7 @@
         "0"
       ]
     },
-    "852": {
+    "812": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -4818,7 +4243,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "853": {
+    "813": {
       "op": "pushint 2",
       "defined_out": [
         "2",
@@ -4831,7 +4256,7 @@
         "2"
       ]
     },
-    "855": {
+    "815": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -4842,7 +4267,7 @@
         "add%0#0"
       ]
     },
-    "856": {
+    "816": {
       "op": "dig 1",
       "stack_out": [
         "tmp%0#0",
@@ -4850,7 +4275,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "858": {
+    "818": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -4863,7 +4288,7 @@
         "len%0#0"
       ]
     },
-    "859": {
+    "819": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -4874,14 +4299,14 @@
         "eq%0#0"
       ]
     },
-    "860": {
+    "820": {
       "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "861": {
+    "821": {
       "op": "extract 2 0",
       "defined_out": [
         "newVersion#0"
@@ -4890,7 +4315,7 @@
         "newVersion#0"
       ]
     },
-    "864": {
+    "824": {
       "op": "txn Sender",
       "defined_out": [
         "newVersion#0",
@@ -4901,7 +4326,7 @@
         "tmp%0#1"
       ]
     },
-    "866": {
+    "826": {
       "op": "intc_0 // 0",
       "stack_out": [
         "newVersion#0",
@@ -4909,7 +4334,7 @@
         "0"
       ]
     },
-    "867": {
+    "827": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -4924,7 +4349,7 @@
         "\"akita_dao\""
       ]
     },
-    "868": {
+    "828": {
       "op": "app_global_get_ex",
       "defined_out": [
         "maybe_exists%0#0",
@@ -4939,7 +4364,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "869": {
+    "829": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -4948,7 +4373,7 @@
         "maybe_value%0#0"
       ]
     },
-    "870": {
+    "830": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -4963,7 +4388,7 @@
         "\"wallet\""
       ]
     },
-    "871": {
+    "831": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -4978,7 +4403,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "872": {
+    "832": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
@@ -4986,7 +4411,7 @@
         "walletID#0"
       ]
     },
-    "873": {
+    "833": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "check%0#0",
@@ -5001,7 +4426,7 @@
         "check%0#0"
       ]
     },
-    "875": {
+    "835": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -5010,7 +4435,7 @@
         "value%0#0"
       ]
     },
-    "876": {
+    "836": {
       "op": "==",
       "defined_out": [
         "newVersion#0",
@@ -5021,13 +4446,13 @@
         "tmp%2#0"
       ]
     },
-    "877": {
+    "837": {
       "op": "bnz update_after_assert@3",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "880": {
+    "840": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
@@ -5038,17 +4463,17 @@
         "\"ERR:NDAO\""
       ]
     },
-    "881": {
+    "841": {
       "op": "log",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "882": {
+    "842": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "883": {
+    "843": {
       "block": "update_after_assert@3",
       "stack_in": [
         "newVersion#0"
@@ -5062,7 +4487,7 @@
         "0"
       ]
     },
-    "884": {
+    "844": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -5074,7 +4499,7 @@
         "\"akita_dao\""
       ]
     },
-    "885": {
+    "845": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -5086,7 +4511,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "886": {
+    "846": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -5094,7 +4519,7 @@
         "akitaDAO#0"
       ]
     },
-    "887": {
+    "847": {
       "op": "pushbytes \"pal\"",
       "defined_out": [
         "\"pal\"",
@@ -5106,7 +4531,7 @@
         "\"pal\""
       ]
     },
-    "892": {
+    "852": {
       "op": "app_global_get_ex",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5118,14 +4543,14 @@
         "awst_tmp%1#0"
       ]
     },
-    "893": {
+    "853": {
       "op": "pop",
       "stack_out": [
         "newVersion#0",
         "pluginAppListBytes#0"
       ]
     },
-    "894": {
+    "854": {
       "op": "pushint 16",
       "defined_out": [
         "16",
@@ -5137,7 +4562,7 @@
         "16"
       ]
     },
-    "896": {
+    "856": {
       "op": "extract_uint64",
       "defined_out": [
         "updatePlugin#0"
@@ -5147,7 +4572,7 @@
         "updatePlugin#0"
       ]
     },
-    "897": {
+    "857": {
       "op": "global CallerApplicationID",
       "defined_out": [
         "tmp%5#0",
@@ -5159,7 +4584,7 @@
         "tmp%5#0"
       ]
     },
-    "899": {
+    "859": {
       "op": "==",
       "defined_out": [
         "tmp%6#0"
@@ -5169,13 +4594,13 @@
         "tmp%6#0"
       ]
     },
-    "900": {
+    "860": {
       "op": "bnz update_after_assert@5",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "903": {
+    "863": {
       "op": "pushbytes \"ERR:IUPG\"",
       "defined_out": [
         "\"ERR:IUPG\""
@@ -5185,17 +4610,17 @@
         "\"ERR:IUPG\""
       ]
     },
-    "913": {
+    "873": {
       "op": "log",
       "stack_out": [
         "newVersion#0"
       ]
     },
-    "914": {
+    "874": {
       "error": "ERR:IUPG",
       "op": "err // ERR:IUPG"
     },
-    "915": {
+    "875": {
       "block": "update_after_assert@5",
       "stack_in": [
         "newVersion#0"
@@ -5209,42 +4634,35 @@
         "\"version\""
       ]
     },
-    "917": {
-      "op": "dig 1",
+    "877": {
+      "op": "swap",
       "defined_out": [
         "\"version\"",
         "newVersion#0"
       ],
       "stack_out": [
-        "newVersion#0",
         "\"version\"",
         "newVersion#0"
       ]
     },
-    "919": {
+    "878": {
       "op": "app_global_put",
-      "stack_out": [
-        "newVersion#0"
-      ]
+      "stack_out": []
     },
-    "920": {
+    "879": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "newVersion#0"
+        "1"
       ],
       "stack_out": [
-        "newVersion#0",
         "1"
       ]
     },
-    "921": {
+    "880": {
       "op": "return",
-      "stack_out": [
-        "newVersion#0"
-      ]
+      "stack_out": []
     },
-    "922": {
+    "881": {
       "subroutine": "smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]",
       "params": {},
       "block": "updateAkitaDAO",
@@ -5257,7 +4675,7 @@
         "tmp%0#0"
       ]
     },
-    "925": {
+    "884": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -5268,7 +4686,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "926": {
+    "885": {
       "op": "len",
       "defined_out": [
         "len%0#0",
@@ -5279,7 +4697,7 @@
         "len%0#0"
       ]
     },
-    "927": {
+    "886": {
       "op": "intc_3 // 8",
       "defined_out": [
         "8",
@@ -5292,7 +4710,7 @@
         "8"
       ]
     },
-    "928": {
+    "887": {
       "op": "==",
       "defined_out": [
         "eq%0#0",
@@ -5303,14 +4721,14 @@
         "eq%0#0"
       ]
     },
-    "929": {
+    "888": {
       "error": "invalid number of bytes for arc4.uint64",
       "op": "assert // invalid number of bytes for arc4.uint64",
       "stack_out": [
         "tmp%0#0"
       ]
     },
-    "930": {
+    "889": {
       "op": "btoi",
       "defined_out": [
         "akitaDAO#0"
@@ -5319,7 +4737,7 @@
         "akitaDAO#0"
       ]
     },
-    "931": {
+    "890": {
       "op": "txn Sender",
       "defined_out": [
         "akitaDAO#0",
@@ -5330,7 +4748,7 @@
         "tmp%0#1"
       ]
     },
-    "933": {
+    "892": {
       "op": "intc_0 // 0",
       "stack_out": [
         "akitaDAO#0",
@@ -5338,7 +4756,7 @@
         "0"
       ]
     },
-    "934": {
+    "893": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
@@ -5353,7 +4771,7 @@
         "\"akita_dao\""
       ]
     },
-    "935": {
+    "894": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -5368,7 +4786,7 @@
         "maybe_exists%0#0"
       ]
     },
-    "936": {
+    "895": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
@@ -5377,7 +4795,7 @@
         "maybe_value%0#0"
       ]
     },
-    "937": {
+    "896": {
       "op": "bytec_2 // \"wallet\"",
       "defined_out": [
         "\"wallet\"",
@@ -5392,7 +4810,7 @@
         "\"wallet\""
       ]
     },
-    "938": {
+    "897": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
@@ -5407,7 +4825,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "939": {
+    "898": {
       "op": "pop",
       "stack_out": [
         "akitaDAO#0",
@@ -5415,7 +4833,7 @@
         "walletID#0"
       ]
     },
-    "940": {
+    "899": {
       "op": "app_params_get AppAddress",
       "defined_out": [
         "akitaDAO#0",
@@ -5430,7 +4848,7 @@
         "check%0#0"
       ]
     },
-    "942": {
+    "901": {
       "error": "application exists",
       "op": "assert // application exists",
       "stack_out": [
@@ -5439,7 +4857,7 @@
         "value%0#0"
       ]
     },
-    "943": {
+    "902": {
       "op": "==",
       "defined_out": [
         "akitaDAO#0",
@@ -5450,13 +4868,13 @@
         "tmp%2#0"
       ]
     },
-    "944": {
+    "903": {
       "op": "bnz updateAkitaDAO_after_assert@3",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "947": {
+    "906": {
       "op": "bytec_3 // \"ERR:NDAO\"",
       "defined_out": [
         "\"ERR:NDAO\"",
@@ -5467,17 +4885,17 @@
         "\"ERR:NDAO\""
       ]
     },
-    "948": {
+    "907": {
       "op": "log",
       "stack_out": [
         "akitaDAO#0"
       ]
     },
-    "949": {
+    "908": {
       "error": "ERR:NDAO",
       "op": "err // ERR:NDAO"
     },
-    "950": {
+    "909": {
       "block": "updateAkitaDAO_after_assert@3",
       "stack_in": [
         "akitaDAO#0"
@@ -5491,42 +4909,35 @@
         "\"akita_dao\""
       ]
     },
-    "951": {
-      "op": "dig 1",
+    "910": {
+      "op": "swap",
       "defined_out": [
         "\"akita_dao\"",
         "akitaDAO#0"
       ],
       "stack_out": [
-        "akitaDAO#0",
         "\"akita_dao\"",
         "akitaDAO#0"
       ]
     },
-    "953": {
+    "911": {
       "op": "app_global_put",
-      "stack_out": [
-        "akitaDAO#0"
-      ]
+      "stack_out": []
     },
-    "954": {
+    "912": {
       "op": "intc_1 // 1",
       "defined_out": [
-        "1",
-        "akitaDAO#0"
+        "1"
       ],
       "stack_out": [
-        "akitaDAO#0",
         "1"
       ]
     },
-    "955": {
+    "913": {
       "op": "return",
-      "stack_out": [
-        "akitaDAO#0"
-      ]
+      "stack_out": []
     },
-    "956": {
+    "914": {
       "subroutine": "smart_contracts/social/moderation.algo.ts::AkitaSocialModeration.applyModeration",
       "params": {
         "ref#0": "bytes",
@@ -5539,203 +4950,178 @@
       "stack_in": [],
       "op": "proto 5 0"
     },
-    "959": {
-      "op": "pushbytes \"\"",
-      "stack_out": [
-        "nextFlagged#0"
-      ]
-    },
-    "961": {
+    "917": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "0"
       ]
     },
-    "962": {
+    "918": {
       "op": "bytec_0 // \"akita_dao\"",
       "defined_out": [
         "\"akita_dao\"",
         "0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "0",
         "\"akita_dao\""
       ]
     },
-    "963": {
+    "919": {
       "op": "app_global_get_ex",
       "defined_out": [
         "akitaDAO#0",
         "maybe_exists%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "akitaDAO#0",
         "maybe_exists%0#0"
       ]
     },
-    "964": {
+    "920": {
       "error": "check GlobalState exists",
       "op": "assert // check GlobalState exists",
       "stack_out": [
-        "nextFlagged#0",
         "akitaDAO#0"
       ]
     },
-    "965": {
+    "921": {
       "op": "pushbytes \"sal\"",
       "defined_out": [
         "\"sal\"",
         "akitaDAO#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "akitaDAO#0",
         "\"sal\""
       ]
     },
-    "970": {
+    "926": {
       "op": "app_global_get_ex",
       "defined_out": [
         "appListBytes#0",
         "awst_tmp%1#1"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "appListBytes#0",
         "awst_tmp%1#1"
       ]
     },
-    "971": {
+    "927": {
       "op": "pop",
       "stack_out": [
-        "nextFlagged#0",
         "appListBytes#0"
       ]
     },
-    "972": {
+    "928": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "nextFlagged#0",
         "appListBytes#0",
         "0"
       ]
     },
-    "973": {
+    "929": {
       "op": "extract_uint64",
       "defined_out": [
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "974": {
+    "930": {
       "op": "dup",
       "defined_out": [
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "social#0"
       ]
     },
-    "975": {
+    "931": {
       "op": "itxn_begin"
     },
-    "976": {
+    "932": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "978": {
+    "934": {
       "op": "pushbytes 0x98b81f78 // method \"getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[])\"",
       "defined_out": [
         "Method(getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[]))",
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "Method(getPost(byte[32])(address,uint64,uint64,bool,uint64,bool,uint8,uint64,uint64,byte[]))"
       ]
     },
-    "984": {
+    "940": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "986": {
+    "942": {
       "op": "frame_dig -5",
       "defined_out": [
         "ref#0 (copy)",
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "ref#0 (copy)"
       ]
     },
-    "988": {
+    "944": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "990": {
+    "946": {
       "op": "pushint 6 // appl",
       "defined_out": [
         "appl",
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "appl"
       ]
     },
-    "992": {
+    "948": {
       "op": "itxn_field TypeEnum",
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "994": {
+    "950": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "0"
       ]
     },
-    "995": {
+    "951": {
       "op": "itxn_field Fee",
       "stack_out": [
-        "nextFlagged#0",
         "social#0"
       ]
     },
-    "997": {
+    "953": {
       "op": "itxn_submit"
     },
-    "998": {
+    "954": {
       "op": "itxn LastLog"
     },
-    "1000": {
+    "956": {
       "op": "dupn 2",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5743,14 +5129,13 @@
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "awst_tmp%1#0",
         "awst_tmp%1#0 (copy)"
       ]
     },
-    "1002": {
+    "958": {
       "op": "extract 4 0",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5758,17 +5143,15 @@
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "awst_tmp%1#0",
         "post#0"
       ]
     },
-    "1005": {
+    "961": {
       "op": "dup",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "awst_tmp%1#0",
@@ -5776,10 +5159,9 @@
         "post#0 (copy)"
       ]
     },
-    "1006": {
+    "962": {
       "op": "uncover 2",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5787,7 +5169,7 @@
         "awst_tmp%1#0"
       ]
     },
-    "1008": {
+    "964": {
       "op": "extract 0 4",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5796,7 +5178,6 @@
         "tmp%3#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5804,7 +5185,7 @@
         "tmp%3#0"
       ]
     },
-    "1011": {
+    "967": {
       "op": "bytec 5 // 0x151f7c75",
       "defined_out": [
         "0x151f7c75",
@@ -5814,7 +5195,6 @@
         "tmp%3#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5823,7 +5203,7 @@
         "0x151f7c75"
       ]
     },
-    "1013": {
+    "969": {
       "op": "==",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5832,7 +5212,6 @@
         "tmp%4#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5840,18 +5219,17 @@
         "tmp%4#0"
       ]
     },
-    "1014": {
+    "970": {
       "error": "Bytes has valid prefix",
       "op": "assert // Bytes has valid prefix",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
         "post#0"
       ]
     },
-    "1015": {
+    "971": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5860,7 +5238,6 @@
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5868,7 +5245,7 @@
         "post#0 (copy)"
       ]
     },
-    "1016": {
+    "972": {
       "op": "len",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5877,7 +5254,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5885,10 +5261,9 @@
         "tuple_len%0#0"
       ]
     },
-    "1017": {
+    "973": {
       "op": "dig 1",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5897,7 +5272,7 @@
         "post#0 (copy)"
       ]
     },
-    "1019": {
+    "975": {
       "op": "pushint 75",
       "defined_out": [
         "75",
@@ -5908,7 +5283,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5918,7 +5292,7 @@
         "75"
       ]
     },
-    "1021": {
+    "977": {
       "error": "invalid tuple encoding",
       "op": "extract_uint16 // on error: invalid tuple encoding",
       "defined_out": [
@@ -5929,7 +5303,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5938,7 +5311,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "1022": {
+    "978": {
       "op": "dup",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5949,7 +5322,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5959,7 +5331,7 @@
         "extract_uint16%0#0 (copy)"
       ]
     },
-    "1023": {
+    "979": {
       "op": "pushint 77",
       "defined_out": [
         "77",
@@ -5971,7 +5343,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -5982,7 +5353,7 @@
         "77"
       ]
     },
-    "1025": {
+    "981": {
       "op": "==",
       "defined_out": [
         "awst_tmp%1#0",
@@ -5993,7 +5364,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6003,11 +5373,10 @@
         "eq%0#0"
       ]
     },
-    "1026": {
+    "982": {
       "error": "invalid tail pointer at index 9 of (uint8[32],uint64,uint64,bool1,uint64,bool1,uint8,uint64,uint64,(len+uint8[]))",
       "op": "assert // invalid tail pointer at index 9 of (uint8[32],uint64,uint64,bool1,uint64,bool1,uint8,uint64,uint64,(len+uint8[]))",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6016,10 +5385,9 @@
         "extract_uint16%0#0"
       ]
     },
-    "1027": {
+    "983": {
       "op": "uncover 2",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6028,10 +5396,9 @@
         "post#0"
       ]
     },
-    "1029": {
+    "985": {
       "op": "swap",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6040,7 +5407,7 @@
         "extract_uint16%0#0"
       ]
     },
-    "1030": {
+    "986": {
       "op": "dig 2",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6051,7 +5418,6 @@
         "tuple_len%0#0 (copy)"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6061,7 +5427,7 @@
         "tuple_len%0#0 (copy)"
       ]
     },
-    "1032": {
+    "988": {
       "op": "substring3",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6071,7 +5437,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6079,10 +5444,9 @@
         "substring3%0#0"
       ]
     },
-    "1033": {
+    "989": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6091,7 +5455,7 @@
         "0"
       ]
     },
-    "1034": {
+    "990": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -6102,7 +5466,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6110,7 +5473,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "1035": {
+    "991": {
       "op": "pushint 79",
       "defined_out": [
         "79",
@@ -6121,7 +5484,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6130,7 +5492,7 @@
         "79"
       ]
     },
-    "1037": {
+    "993": {
       "op": "+",
       "defined_out": [
         "add%1#0",
@@ -6140,7 +5502,6 @@
         "tuple_len%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
@@ -6148,7 +5509,7 @@
         "add%1#0"
       ]
     },
-    "1038": {
+    "994": {
       "op": "==",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6157,24 +5518,22 @@
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
         "eq%1#0"
       ]
     },
-    "1039": {
+    "995": {
       "error": "invalid number of bytes for smart_contracts/social/types.ts::PostValue",
       "op": "assert // invalid number of bytes for smart_contracts/social/types.ts::PostValue",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0"
       ]
     },
-    "1040": {
+    "996": {
       "op": "frame_dig -4",
       "defined_out": [
         "awst_tmp%1#0",
@@ -6183,485 +5542,352 @@
         "updateFlagged#0 (copy)"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0",
         "updateFlagged#0 (copy)"
       ]
     },
-    "1042": {
+    "998": {
       "op": "bz applyModeration_ternary_false@3",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0"
       ]
     },
-    "1045": {
+    "1001": {
+      "op": "pop",
+      "stack_out": [
+        "social#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "1002": {
       "op": "frame_dig -3",
       "defined_out": [
         "awst_tmp%1#0",
         "nextFlagged#0",
-        "post#0",
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0",
         "nextFlagged#0"
       ]
     },
-    "1047": {
-      "op": "frame_bury 0",
-      "defined_out": [
-        "awst_tmp%1#0",
-        "nextFlagged#0",
-        "post#0",
-        "social#0"
-      ],
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0"
-      ]
-    },
-    "1049": {
+    "1004": {
       "block": "applyModeration_ternary_merge@4",
       "stack_in": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0"
+        "nextFlagged#0"
       ],
       "op": "frame_dig -1",
       "defined_out": [
         "updateFlags#0 (copy)"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "updateFlags#0 (copy)"
       ]
     },
-    "1051": {
+    "1006": {
       "op": "bz applyModeration_ternary_false@6",
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0"
+        "nextFlagged#0"
       ]
     },
-    "1054": {
+    "1009": {
+      "op": "bury 1",
+      "defined_out": [],
+      "stack_out": [
+        "social#0",
+        "nextFlagged#0"
+      ]
+    },
+    "1011": {
       "op": "frame_dig -2",
       "defined_out": [
         "nextFlags#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "nextFlags#0"
       ]
     },
-    "1056": {
+    "1013": {
       "block": "applyModeration_ternary_merge@7",
       "stack_in": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "nextFlags#0"
       ],
       "op": "itxn_begin"
     },
-    "1057": {
+    "1014": {
       "op": "bytec 7 // 0x00",
       "defined_out": [
         "0x00"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "nextFlags#0",
         "0x00"
       ]
     },
-    "1059": {
+    "1016": {
       "op": "intc_0 // 0",
       "defined_out": [
         "0",
         "0x00"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "nextFlags#0",
         "0x00",
         "0"
       ]
     },
-    "1060": {
-      "op": "frame_dig 0",
+    "1017": {
+      "op": "uncover 3",
       "defined_out": [
         "0",
         "0x00",
         "nextFlagged#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "nextFlags#0",
         "0x00",
         "0",
         "nextFlagged#0"
       ]
     },
-    "1062": {
+    "1019": {
       "op": "setbit",
       "defined_out": [
-        "aggregate%encoded_bool%0#0",
-        "nextFlagged#0"
+        "aggregate%encoded_bool%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "nextFlags#0",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "1063": {
+    "1020": {
       "op": "swap",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
-        "nextFlagged#0",
         "nextFlags#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "nextFlags#0"
       ]
     },
-    "1064": {
+    "1021": {
       "op": "itob",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
-        "aggregate%val_as_bytes%0#0",
-        "nextFlagged#0"
+        "aggregate%val_as_bytes%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1065": {
-      "op": "frame_dig 1",
+    "1022": {
+      "op": "uncover 2",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0",
-        "nextFlagged#0",
         "social#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0",
         "social#0"
       ]
     },
-    "1067": {
+    "1024": {
       "op": "itxn_field ApplicationID",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1069": {
+    "1026": {
       "op": "pushbytes 0x510edeb6 // method \"setPostModeration(byte[32],bool,uint64)void\"",
       "defined_out": [
         "Method(setPostModeration(byte[32],bool,uint64)void)",
         "aggregate%encoded_bool%0#0",
-        "aggregate%val_as_bytes%0#0",
-        "nextFlagged#0",
-        "social#0"
+        "aggregate%val_as_bytes%0#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0",
         "Method(setPostModeration(byte[32],bool,uint64)void)"
       ]
     },
-    "1075": {
+    "1032": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1077": {
+    "1034": {
       "op": "frame_dig -5",
       "defined_out": [
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0",
-        "nextFlagged#0",
-        "ref#0 (copy)",
-        "social#0"
+        "ref#0 (copy)"
       ],
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0",
         "ref#0 (copy)"
       ]
     },
-    "1079": {
+    "1036": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%encoded_bool%0#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1081": {
+    "1038": {
       "op": "swap",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%val_as_bytes%0#0",
         "aggregate%encoded_bool%0#0"
       ]
     },
-    "1082": {
+    "1039": {
       "op": "itxn_field ApplicationArgs",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "aggregate%val_as_bytes%0#0"
       ]
     },
-    "1084": {
+    "1041": {
       "op": "itxn_field ApplicationArgs",
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0"
-      ]
+      "stack_out": []
     },
-    "1086": {
+    "1043": {
       "op": "pushint 6 // appl",
       "defined_out": [
-        "appl",
-        "nextFlagged#0",
-        "social#0"
+        "appl"
       ],
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "appl"
       ]
     },
-    "1088": {
+    "1045": {
       "op": "itxn_field TypeEnum",
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0"
-      ]
+      "stack_out": []
     },
-    "1090": {
+    "1047": {
       "op": "intc_0 // 0",
       "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
         "0"
       ]
     },
-    "1091": {
+    "1048": {
       "op": "itxn_field Fee",
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0"
-      ]
+      "stack_out": []
     },
-    "1093": {
+    "1050": {
       "op": "itxn_submit"
     },
-    "1094": {
+    "1051": {
       "retsub": true,
       "op": "retsub"
     },
-    "1095": {
+    "1052": {
       "block": "applyModeration_ternary_false@6",
       "stack_in": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0"
+        "nextFlagged#0"
       ],
-      "op": "frame_dig 2",
+      "op": "swap",
       "defined_out": [
         "awst_tmp%1#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "awst_tmp%1#0"
       ]
     },
-    "1097": {
+    "1053": {
       "op": "pushint 71",
       "defined_out": [
         "71",
         "awst_tmp%1#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "awst_tmp%1#0",
         "71"
       ]
     },
-    "1099": {
+    "1055": {
       "op": "extract_uint64",
       "defined_out": [
-        "awst_tmp%1#0",
         "nextFlags#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
-        "awst_tmp%1#0",
-        "post#0",
+        "nextFlagged#0",
         "nextFlags#0"
       ]
     },
-    "1100": {
+    "1056": {
       "op": "b applyModeration_ternary_merge@7"
     },
-    "1103": {
+    "1059": {
       "block": "applyModeration_ternary_false@3",
       "stack_in": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
         "post#0"
       ],
-      "op": "frame_dig 3",
-      "defined_out": [
-        "post#0"
-      ],
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0",
-        "post#0"
-      ]
-    },
-    "1105": {
       "op": "pushint 456",
       "defined_out": [
         "456",
         "post#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0",
         "post#0",
         "456"
       ]
     },
-    "1108": {
+    "1062": {
       "op": "getbit",
       "defined_out": [
-        "nextFlagged#0",
-        "post#0"
+        "nextFlagged#0"
       ],
       "stack_out": [
-        "nextFlagged#0",
         "social#0",
         "awst_tmp%1#0",
-        "post#0",
         "nextFlagged#0"
       ]
     },
-    "1109": {
-      "op": "frame_bury 0",
-      "defined_out": [
-        "nextFlagged#0",
-        "post#0"
-      ],
-      "stack_out": [
-        "nextFlagged#0",
-        "social#0",
-        "awst_tmp%1#0",
-        "post#0"
-      ]
-    },
-    "1111": {
+    "1063": {
       "op": "b applyModeration_ternary_merge@4"
     }
   }

@@ -165,7 +165,7 @@ register_after_assert@3:
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:69
     // loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     dig 1
     callsub smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.cost
@@ -205,7 +205,7 @@ register_after_assert@7:
     box_del
     pop
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:66
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -219,9 +219,7 @@ register_after_assert@7:
 
 // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.check[routing]() -> void:
 check:
-    intc_1 // 0
     pushbytes ""
-    dup
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:76
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
@@ -263,32 +261,32 @@ check:
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:78
     // const { asset, proof } = decodeArc4<MerkleAssetGateCheckParams>(args)
-    dig 2
+    uncover 2
     intc_2 // 2
     extract_uint64
     dup
-    bury 8
-    dig 2
+    uncover 3
     dup
     intc_3 // 8
     extract_uint16
-    dig 3
+    uncover 4
     substring3
-    bury 9
+    swap
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:80
     // const [holdings, optedIn] = AssetHolding.assetBalance(caller, asset)
-    dig 5
+    uncover 4
     swap
     asset_holding_get AssetBalance
     swap
-    bury 7
+    bury 5
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:81
     // if (!optedIn || holdings === 0) {
     bz check_if_body@5
-    dig 5
+    dig 3
     bnz check_after_if_else@6
 
 check_if_body@5:
+    popn 3
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:82
     // return false
     intc_1 // 0
@@ -310,7 +308,7 @@ check_after_inlined_smart_contracts/gates/sub-gates/merkle-asset/contract.algo.t
 check_after_if_else@6:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:85
     // const { creator, name } = clone(this.registry(registryID).value)
-    dig 3
+    uncover 2
     itob
     dup
     intc_1 // 0
@@ -341,7 +339,7 @@ check_after_if_else@6:
     itxn_begin
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:92
     // sha256(sha256(itob(asset))),
-    dig 8
+    uncover 3
     itob
     sha256
     sha256
@@ -388,7 +386,7 @@ check_after_if_else@6:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 8
+    swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -557,7 +555,7 @@ updateAkitaDAO_after_assert@3:
     bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {
@@ -585,12 +583,10 @@ smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.c
 smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.cost_after_assert@2:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:63
     // return MinMetaMerkleRegistryMBR + (BoxCostPerBox * (args.length - 32))
-    frame_dig 0
     pushint 32
     -
     pushint 2500
     *
     pushint 18500
     +
-    swap
     retsub

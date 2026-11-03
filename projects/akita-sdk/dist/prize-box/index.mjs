@@ -4,7 +4,7 @@ import {
   PrizeBoxSDK,
   newPrizeBox,
   translatePrizeBoxError
-} from "../chunk-BXRXZO7H.mjs";
+} from "../chunk-E3MPH3MK.mjs";
 import "../chunk-2AEP6DTX.mjs";
 import "../chunk-S34CQKA6.mjs";
 import "../chunk-W2PKBBWA.mjs";

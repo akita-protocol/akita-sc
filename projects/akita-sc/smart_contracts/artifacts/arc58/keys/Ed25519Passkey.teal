@@ -1,5 +1,6 @@
 #pragma version 11
 #pragma typetrack false
+#pragma autosalt true
 
 // smart_contracts/arc58/keys/ed25519_passkey.algo.ts::program() -> uint64:
 main:
@@ -38,7 +39,6 @@ main:
     sha256
     concat
     sha256
-    swap
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:17
     // if (Global.groupSize > 1) {
     global GroupSize
@@ -48,7 +48,7 @@ main:
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:18
     // assert(Global.groupId === base64Decode(op.Base64.URLEncoding, cdTwo))
     global GroupID
-    swap
+    uncover 2
     base64_decode URLEncoding
     ==
     assert
@@ -56,8 +56,7 @@ main:
 main_after_if_else@3:
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:23
     // return ed25519verify(h, sig, PK)
-    dup
-    dig 2
+    swap
     bytec_0 // TMPL_PK
     ed25519verify
     return
@@ -66,7 +65,7 @@ main_else_body@2:
     // smart_contracts/arc58/keys/ed25519_passkey.algo.ts:20
     // assert(Txn.txId === base64Decode(op.Base64.URLEncoding, cdTwo))
     txn TxID
-    swap
+    uncover 2
     base64_decode URLEncoding
     ==
     assert

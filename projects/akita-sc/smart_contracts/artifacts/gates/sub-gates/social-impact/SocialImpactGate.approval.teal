@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1 0 8 2
-    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "" "ERR:IARG" "ERR:IPAY"
+    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "ERR:IARG" "ERR:IPAY"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:24
@@ -18,8 +18,7 @@ main:
     app_global_put
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:28
     // checkShape = GlobalState<string>({ initialValue: '', key: GateGlobalStateKeyCheckShape })
-    pushbytes "check_shape"
-    bytec_3 // ""
+    pushbytess "check_shape" ""
     app_global_put
 
 main_after_if_else@2:
@@ -142,7 +141,7 @@ register:
     pushint 9
     ==
     bnz register_after_assert@3
-    bytec 4 // "ERR:IARG"
+    bytec_3 // "ERR:IARG"
     log
     err // ERR:IARG
 
@@ -154,19 +153,19 @@ register_after_assert@3:
     global CurrentApplicationAddress
     ==
     bnz register_after_assert@5
-    bytec 5 // "ERR:IPAY"
+    bytec 4 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:77
     // loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     pushint 9300
     ==
     bnz register_after_assert@7
-    bytec 5 // "ERR:IPAY"
+    bytec 4 // "ERR:IPAY"
     log
     err // ERR:IPAY
 
@@ -197,7 +196,7 @@ register_after_assert@7:
     // this.registry(id).value = decodeArc4<OperatorAndValue>(args)
     itob
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:74
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -211,9 +210,6 @@ register_after_assert@7:
 
 // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.check[routing]() -> void:
 check:
-    intc_1 // 0
-    bytec_3 // ""
-    dup
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:84
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
@@ -244,25 +240,23 @@ check:
     // loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
     len
     bz check_after_assert@3
-    bytec 4 // "ERR:IARG"
+    bytec_3 // "ERR:IARG"
     log
     err // ERR:IARG
 
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:86
     // const { op, value } = clone(this.registry(registryID).value)
-    dup
     itob
     box_get
     assert // Box must have value
     dup
     extract 0 1
     dup
-    cover 2
-    bury 7
+    uncover 2
     intc_0 // 1
     extract_uint64
-    bury 4
+    cover 2
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:44-47
     // const impact = abiCall<typeof AkitaSocialImpact.prototype.getUserImpact>({
     //   appId: getAkitaSocialAppList(this.akitaDAO.value).impact,
@@ -296,7 +290,7 @@ check_after_assert@3:
     // }).returnValue
     pushbytes 0xd574bb10 // method "getUserImpact(address)uint64"
     itxn_field ApplicationArgs
-    dig 2
+    uncover 3
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -317,14 +311,13 @@ check_after_assert@3:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    bury 5
+    swap
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:50
     // case Equal: return impact === value
     pushbytes 0x0a
     ==
     bz check_after_if_else@6
-    dig 3
-    dig 3
+    bury 1
     ==
 
 check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.impactGate@17:
@@ -344,12 +337,11 @@ check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.
 check_after_if_else@6:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:51
     // case NotEqual: return impact !== value
-    dig 4
+    dig 1
     pushbytes 0x14
     ==
     bz check_after_if_else@8
-    dig 3
-    dig 3
+    bury 1
     !=
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:87
     // return this.impactGate(caller, op, value)
@@ -358,13 +350,12 @@ check_after_if_else@6:
 check_after_if_else@8:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:52
     // case LessThan: return impact < value
-    dig 4
+    dig 1
     pushbytes 0x1e
     ==
     bz check_after_if_else@10
-    dig 3
-    dig 3
-    <
+    bury 1
+    >
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:87
     // return this.impactGate(caller, op, value)
     b check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.impactGate@17
@@ -372,13 +363,12 @@ check_after_if_else@8:
 check_after_if_else@10:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:53
     // case LessThanOrEqualTo: return impact <= value
-    dig 4
+    dig 1
     pushbytes 0x28
     ==
     bz check_after_if_else@12
-    dig 3
-    dig 3
-    <=
+    bury 1
+    >=
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:87
     // return this.impactGate(caller, op, value)
     b check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.impactGate@17
@@ -386,13 +376,12 @@ check_after_if_else@10:
 check_after_if_else@12:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:54
     // case GreaterThan: return impact > value
-    dig 4
+    dig 1
     pushbytes 0x32
     ==
     bz check_after_if_else@14
-    dig 3
-    dig 3
-    >
+    bury 1
+    <
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:87
     // return this.impactGate(caller, op, value)
     b check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.impactGate@17
@@ -400,18 +389,17 @@ check_after_if_else@12:
 check_after_if_else@14:
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:55
     // case GreaterThanOrEqualTo: return impact >= value
-    dig 4
+    swap
     pushbytes 0x3c
     ==
     bz check_after_if_else@16
-    dig 3
-    dig 3
-    >=
+    <=
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:87
     // return this.impactGate(caller, op, value)
     b check_after_inlined_smart_contracts/gates/sub-gates/social-impact/contract.algo.ts::SocialImpactGate.impactGate@17
 
 check_after_if_else@16:
+    popn 2
     // smart_contracts/gates/sub-gates/social-impact/contract.algo.ts:56
     // default: return false
     intc_1 // 0
@@ -513,7 +501,7 @@ updateAkitaDAO_after_assert@3:
     bytec_1 // "akita_dao"
     // smart_contracts/utils/base-contracts/base.ts:38
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
     // smart_contracts/utils/base-contracts/base.ts:36
     // updateAkitaDAO(akitaDAO: Application): void {

@@ -83,10 +83,7 @@ create:
 
 // smart_contracts/plugin-dex/contract.algo.ts::PluginDex.createPool[routing]() -> void:
 createPool:
-    intc_0 // 0
-    dupn 4
     pushbytes ""
-    dupn 3
     // smart_contracts/plugin-dex/contract.algo.ts:203-210
     // createPool(
     //   mbrPayment: gtxn.PaymentTxn,
@@ -112,6 +109,7 @@ createPool:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
+    cover 2
     txna ApplicationArgs 2
     dup
     len
@@ -120,7 +118,7 @@ createPool:
     assert // invalid number of bytes for arc4.uint64
     btoi
     dup
-    cover 2
+    cover 3
     txna ApplicationArgs 3
     dup
     len
@@ -128,10 +126,10 @@ createPool:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 2
+    cover 3
     txna ApplicationArgs 4
     dup
-    cover 3
+    cover 7
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -147,7 +145,7 @@ createPool:
     assert // invalid number of bytes for arc4.dynamic_array<uint64>
     txna ApplicationArgs 5
     dup
-    cover 3
+    cover 8
     dup
     intc_0 // 0
     extract_uint16 // on error: invalid array length header
@@ -172,7 +170,7 @@ createPool:
 createPool_after_assert@23:
     // smart_contracts/plugin-dex/contract.algo.ts:212
     // loggedAssert(hookPoints.length === hookPlugins.length, ERR_INVALID_HOOK_CONFIG)
-    dig 2
+    swap
     dig 1
     ==
     bnz createPool_after_assert@3
@@ -188,10 +186,9 @@ createPool_after_assert@3:
     *
     intc_3 // 70000
     +
-    bury 10
     // smart_contracts/plugin-dex/contract.algo.ts:215
     // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    dig 7
+    dig 2
     gtxns Receiver
     global CurrentApplicationAddress
     ==
@@ -203,12 +200,11 @@ createPool_after_assert@3:
 createPool_after_assert@5:
     // smart_contracts/plugin-dex/contract.algo.ts:216
     // loggedAssert(mbrPayment.amount >= requiredMbr, ERR_INVALID_PAYMENT)
-    dig 7
+    dig 2
     gtxns Amount
     dup
-    bury 10
-    dig 10
-    >=
+    cover 3
+    <=
     bnz createPool_after_assert@7
     bytec 10 // "ERR:PDIP"
     log
@@ -241,14 +237,14 @@ createPool_after_assert@7:
     // loggedAssert(!this.pools(poolId).exists, ERR_INVALID_POOL)
     itob
     dup
-    bury 16
+    cover 2
     // smart_contracts/plugin-dex/contract.algo.ts:61
     // pools = BoxMap<uint64, PoolInfo>({ keyPrefix: PluginDexBoxPrefixPools })
     bytec_2 // "p"
     swap
     concat
     dup
-    bury 15
+    cover 3
     // smart_contracts/plugin-dex/contract.algo.ts:219
     // loggedAssert(!this.pools(poolId).exists, ERR_INVALID_POOL)
     box_len
@@ -264,7 +260,7 @@ createPool_after_assert@9:
     txn Sender
     // smart_contracts/plugin-dex/contract.algo.ts:227
     // mbrPayor: mbrPayment.sender,
-    dig 8
+    uncover 5
     gtxns Sender
     // smart_contracts/plugin-dex/contract.algo.ts:221-229
     // this.pools(poolId).value = {
@@ -276,12 +272,12 @@ createPool_after_assert@9:
     //   mbrPayor: mbrPayment.sender,
     //   mbrAmount: mbrPayment.amount,
     // }
-    dig 8
+    uncover 8
     itob
-    dig 8
+    uncover 8
     itob
     concat
-    dig 7
+    uncover 7
     itob
     concat
     uncover 2
@@ -290,40 +286,39 @@ createPool_after_assert@9:
     concat
     swap
     concat
-    dig 9
+    uncover 4
     itob
     concat
-    dig 14
+    uncover 3
     swap
     box_put
     // smart_contracts/plugin-dex/contract.algo.ts:231
     // for (let i: uint64 = 0; i < hookPlugins.length; i += 1) {
     intc_0 // 0
-    bury 12
+    swap
 
 createPool_while_top@10:
     // smart_contracts/plugin-dex/contract.algo.ts:231
     // for (let i: uint64 = 0; i < hookPlugins.length; i += 1) {
-    dig 11
-    dig 1
+    dup2
     <
     bz createPool_after_while@12
     // smart_contracts/plugin-dex/contract.algo.ts:232
     // this.installHook(poolId, hookPoints[i], hookPlugins[i])
-    dig 3
+    dig 4
     extract 2 0
-    dig 12
+    dig 2
     intc_1 // 8
     *
     swap
     dig 1
     extract_uint64
-    dig 3
+    dig 5
     extract 2 0
     uncover 2
     intc_1 // 8
     extract3 // on error: index access is out of bounds
-    bury 18
+    cover 4
     // smart_contracts/plugin-dex/contract.algo.ts:141
     // this.validateHookPoint(hookPoint)
     dup
@@ -331,22 +326,22 @@ createPool_while_top@10:
     // smart_contracts/plugin-dex/contract.algo.ts:143
     // const countKey: PoolHookCountKey = { poolId, hookPoint }
     itob
-    dig 15
+    dig 3
     swap
     concat
     dup
-    bury 17
+    cover 4
     // smart_contracts/plugin-dex/contract.algo.ts:144
     // let index: uint64 = 0
     intc_0 // 0
-    bury 12
+    bury 9
     // smart_contracts/plugin-dex/contract.algo.ts:62
     // hookCounts = BoxMap<PoolHookCountKey, uint64>({ keyPrefix: PluginDexBoxPrefixHookCounts })
     bytec 6 // "c"
     swap
     concat
     dup
-    bury 15
+    cover 6
     // smart_contracts/plugin-dex/contract.algo.ts:146
     // if (this.hookCounts(countKey).exists) {
     box_len
@@ -354,18 +349,18 @@ createPool_while_top@10:
     bz createPool_after_if_else@15
     // smart_contracts/plugin-dex/contract.algo.ts:147
     // index = this.hookCounts(countKey).value
-    dig 13
+    dig 5
     box_get
     assert // Box must have value
     btoi
-    bury 11
+    bury 9
 
 createPool_after_if_else@15:
     // smart_contracts/plugin-dex/contract.algo.ts:150
     // const hookKey: PoolHookKey = { poolId, hookPoint, index }
-    dig 10
+    dig 8
     itob
-    dig 16
+    uncover 4
     swap
     concat
     // smart_contracts/plugin-dex/contract.algo.ts:63
@@ -374,7 +369,6 @@ createPool_after_if_else@15:
     swap
     concat
     dup
-    bury 14
     // smart_contracts/plugin-dex/contract.algo.ts:151
     // loggedAssert(!this.poolHooks(hookKey).exists, ERR_INVALID_HOOK_CONFIG)
     box_len
@@ -391,7 +385,7 @@ createPool_after_assert@17:
     //   enabled: true,
     //   flags: 0,
     // }
-    dig 16
+    uncover 4
     bytec 5 // 0x80
     concat
     // smart_contracts/plugin-dex/contract.algo.ts:156
@@ -405,27 +399,26 @@ createPool_after_assert@17:
     // }
     itob
     concat
-    dig 13
-    swap
     box_put
     // smart_contracts/plugin-dex/contract.algo.ts:158
     // this.hookCounts(countKey).value = index + 1
-    dig 10
+    dig 6
     intc_2 // 1
     +
     itob
-    dig 14
+    uncover 4
     swap
     box_put
     // smart_contracts/plugin-dex/contract.algo.ts:231
     // for (let i: uint64 = 0; i < hookPlugins.length; i += 1) {
-    dig 11
+    swap
     intc_2 // 1
     +
-    bury 12
+    swap
     b createPool_while_top@10
 
 createPool_after_while@12:
+    popn 2
     // smart_contracts/plugin-dex/contract.algo.ts:59
     // lastChange = GlobalState<uint64>({ key: PluginDexGlobalStateKeyLastChange })
     bytec_1 // "last_change"
@@ -443,7 +436,7 @@ createPool_after_while@12:
     //   hookPlugins: Application[],
     // ): uint64 {
     bytec_0 // 0x151f7c75
-    dig 15
+    swap
     concat
     log
     intc_2 // 1
@@ -494,12 +487,12 @@ setPoolActive:
 setPoolActive_after_assert@3:
     // smart_contracts/plugin-dex/contract.algo.ts:242
     // this.pools(poolId).value.active = active
-    dupn 2
+    dup
     pushint 56
     intc_2 // 1
     box_extract
     intc_0 // 0
-    dig 4
+    uncover 3
     setbit
     pushint 56
     swap
@@ -586,12 +579,12 @@ setHookEnabled:
 setHookEnabled_after_assert@3:
     // smart_contracts/plugin-dex/contract.algo.ts:252
     // this.poolHooks(hookKey).value.enabled = enabled
-    dupn 2
+    dup
     intc_1 // 8
     intc_2 // 1
     box_extract
     intc_0 // 0
-    dig 4
+    uncover 3
     setbit
     intc_1 // 8
     swap
@@ -612,9 +605,6 @@ setHookEnabled_after_assert@3:
 // smart_contracts/plugin-dex/contract.algo.ts::PluginDex.adminRunHook[routing]() -> void:
 adminRunHook:
     intc_0 // 0
-    dupn 6
-    pushbytes ""
-    dupn 2
     // smart_contracts/plugin-dex/contract.algo.ts:260
     // adminRunHook(poolId: uint64, hookPoint: uint64, input: DexHookInput): DexHookOutput {
     txna ApplicationArgs 1
@@ -666,7 +656,6 @@ adminRunHook:
 adminRunHook_after_assert@3:
     // smart_contracts/plugin-dex/contract.algo.ts:263
     // loggedAssert(this.pools(poolId).value.active, ERR_POOL_INACTIVE)
-    dup
     box_get
     assert // Box must have value
     pushint 448
@@ -679,32 +668,29 @@ adminRunHook_after_assert@3:
 adminRunHook_after_assert@5:
     // smart_contracts/plugin-dex/contract.algo.ts:162
     // this.validateHookPoint(hookPoint)
-    dig 3
+    uncover 2
     dup
     callsub validateHookPoint
     // smart_contracts/plugin-dex/contract.algo.ts:164
     // const countKey: PoolHookCountKey = { poolId, hookPoint }
     itob
-    dig 2
-    swap
     concat
     dup
-    bury 15
+    bury 5
     // smart_contracts/plugin-dex/contract.algo.ts:62
     // hookCounts = BoxMap<PoolHookCountKey, uint64>({ keyPrefix: PluginDexBoxPrefixHookCounts })
     bytec 6 // "c"
     swap
     concat
     dup
-    bury 2
     // smart_contracts/plugin-dex/contract.algo.ts:165
     // if (!this.hookCounts(countKey).exists) {
     box_len
     bury 1
     bnz adminRunHook_after_if_else@8
+    pop
     // smart_contracts/plugin-dex/contract.algo.ts:166
     // return this.outputFromInput(input)
-    dig 2
     callsub outputFromInput
     pop
 
@@ -721,36 +707,34 @@ adminRunHook_after_inlined_smart_contracts/plugin-dex/contract.algo.ts::PluginDe
 adminRunHook_after_if_else@8:
     // smart_contracts/plugin-dex/contract.algo.ts:169
     // const count = this.hookCounts(countKey).value
-    dup
     box_get
     assert // Box must have value
     btoi
-    bury 9
     // smart_contracts/plugin-dex/contract.algo.ts:171
     // let output = this.outputFromInput(current)
-    dig 2
+    swap
     callsub outputFromInput
-    bury 14
-    bury 10
+    swap
     // smart_contracts/plugin-dex/contract.algo.ts:173
     // for (let index: uint64 = 0; index < count; index += 1) {
     intc_0 // 0
-    bury 8
+    swap
 
 adminRunHook_while_top@9:
     // smart_contracts/plugin-dex/contract.algo.ts:173
     // for (let index: uint64 = 0; index < count; index += 1) {
-    dig 7
-    dig 9
+    dig 1
+    dig 4
     <
     bz adminRunHook_after_while@19
+    pop
     // smart_contracts/plugin-dex/contract.algo.ts:174
     // const hookKey: PoolHookKey = { poolId, hookPoint, index }
-    dig 7
+    dup
     itob
     dup
-    bury 17
-    dig 14
+    cover 3
+    dig 7
     swap
     concat
     // smart_contracts/plugin-dex/contract.algo.ts:63
@@ -759,7 +743,6 @@ adminRunHook_while_top@9:
     swap
     concat
     dup
-    bury 12
     // smart_contracts/plugin-dex/contract.algo.ts:175
     // loggedAssert(this.poolHooks(hookKey).exists, ERR_HOOK_NOT_FOUND)
     box_len
@@ -772,12 +755,10 @@ adminRunHook_while_top@9:
 adminRunHook_after_assert@12:
     // smart_contracts/plugin-dex/contract.algo.ts:177
     // const hook = clone(this.poolHooks(hookKey).value)
-    dig 10
     box_get
     swap
     dup
-    cover 2
-    bury 14
+    uncover 2
     assert // Box must have value
     // smart_contracts/plugin-dex/contract.algo.ts:178
     // loggedAssert(hook.enabled, ERR_HOOK_DISABLED)
@@ -791,10 +772,8 @@ adminRunHook_after_assert@12:
 adminRunHook_after_assert@14:
     // smart_contracts/plugin-dex/contract.algo.ts:180
     // const plugin = Application(hook.app)
-    dig 11
     intc_0 // 0
     extract_uint64
-    bury 7
     // smart_contracts/plugin-dex/contract.algo.ts:125
     // loggedAssert(Global.currentApplicationAddress.authAddress === Global.currentApplicationAddress, ERR_AUTH_ADDR_MISMATCH)
     global CurrentApplicationAddress
@@ -822,9 +801,7 @@ adminRunHook_after_assert@16:
     global CurrentApplicationAddress
     // smart_contracts/plugin-dex/contract.algo.ts:131
     // rekeyTo: plugin.address,
-    dig 7
-    dup
-    cover 2
+    dig 1
     app_params_get AppAddress
     assert // application exists
     itxn_field RekeyTo
@@ -897,10 +874,10 @@ adminRunHook_after_assert@16:
     itxn_field ApplicationArgs
     dig 5
     itxn_field ApplicationArgs
-    dig 16
+    uncover 3
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    dig 12
+    dig 1
     itxn_field ApplicationArgs
     // smart_contracts/plugin-dex/contract.algo.ts:192
     // true,
@@ -926,12 +903,11 @@ adminRunHook_after_assert@16:
     itxn_submit
     itxn LastLog
     dup
-    bury 16
+    cover 2
     dup
     extract 4 0
     dup
-    cover 2
-    bury 12
+    uncover 2
     extract 0 4
     bytec_0 // 0x151f7c75
     ==
@@ -955,7 +931,7 @@ adminRunHook_after_assert@16:
 adminRunHook_after_assert@18:
     // smart_contracts/plugin-dex/contract.algo.ts:113
     // assetIn: input.assetIn,
-    dig 12
+    uncover 3
     dup
     extract 0 8
     // smart_contracts/plugin-dex/contract.algo.ts:114
@@ -964,7 +940,7 @@ adminRunHook_after_assert@18:
     extract 8 8
     // smart_contracts/plugin-dex/contract.algo.ts:115
     // amountIn: output.amountIn,
-    dig 16
+    uncover 4
     dup
     extract 4 8
     // smart_contracts/plugin-dex/contract.algo.ts:116
@@ -1013,17 +989,19 @@ adminRunHook_after_assert@18:
     concat
     swap
     concat
-    bury 13
+    cover 2
     // smart_contracts/plugin-dex/contract.algo.ts:173
     // for (let index: uint64 = 0; index < count; index += 1) {
-    dig 7
+    swap
     intc_2 // 1
     +
-    bury 8
+    swap
     b adminRunHook_while_top@9
 
 adminRunHook_after_while@19:
-    dig 9
+    bury 1
+    bury 1
+    bury 1
     // smart_contracts/plugin-dex/contract.algo.ts:265
     // return this.executeHooks(poolId, hookPoint, input)
     b adminRunHook_after_inlined_smart_contracts/plugin-dex/contract.algo.ts::PluginDex.executeHooks@20
@@ -1056,7 +1034,6 @@ getPool:
     bz getPool_after_if_else@3
     // smart_contracts/plugin-dex/contract.algo.ts:271
     // return this.pools(poolId).value
-    dup
     box_get
     assert // Box must have value
 
@@ -1071,6 +1048,7 @@ getPool_after_inlined_smart_contracts/plugin-dex/contract.algo.ts::PluginDex.get
     return
 
 getPool_after_if_else@3:
+    pop
     // smart_contracts/plugin-dex/contract.algo.ts:274-282
     // return {
     //   assetA: 0,
@@ -1129,7 +1107,6 @@ getHookCount:
     bz getHookCount_after_if_else@3
     // smart_contracts/plugin-dex/contract.algo.ts:291
     // return this.hookCounts(countKey).value
-    dup
     box_get
     assert // Box must have value
     btoi
@@ -1146,6 +1123,7 @@ getHookCount_after_inlined_smart_contracts/plugin-dex/contract.algo.ts::PluginDe
     return
 
 getHookCount_after_if_else@3:
+    pop
     // smart_contracts/plugin-dex/contract.algo.ts:294
     // return 0
     intc_0 // 0
@@ -1206,7 +1184,6 @@ getHook:
     bz getHook_after_if_else@3
     // smart_contracts/plugin-dex/contract.algo.ts:303
     // return this.poolHooks(hookKey).value
-    dup
     box_get
     assert // Box must have value
 
@@ -1221,6 +1198,7 @@ getHook_after_inlined_smart_contracts/plugin-dex/contract.algo.ts::PluginDex.get
     return
 
 getHook_after_if_else@3:
+    pop
     // smart_contracts/plugin-dex/contract.algo.ts:306-310
     // return {
     //   app: 0,

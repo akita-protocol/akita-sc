@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1 0 2 32 150000
-    bytecblock 0x151f7c75 "ERR:IPAY" "" 0x0000 "ERR:FORB" "ERR:NACT"
+    bytecblock 0x151f7c75 "ERR:IPAY" 0x0000 "" "ERR:FORB" "ERR:NACT"
     // smart_contracts/escrow/factory.algo.ts:25
     // export class EscrowFactory extends Contract {
     txn NumAppArgs
@@ -80,38 +80,34 @@ dynamic_array_concat_byte_length_head:
     intc_1 // 0
 
 dynamic_array_concat_byte_length_head_for_header@4:
-    frame_dig 4
-    frame_dig 2
+    dup
+    dig 3
     <
     bz dynamic_array_concat_byte_length_head_after_for@7
-    frame_dig 3
+    swap
     dup
     itob
     extract 6 0
-    frame_dig 0
-    frame_dig 4
-    dup
-    cover 4
+    uncover 5
+    dig 3
     uncover 2
     replace3
     dup
-    frame_bury 0
+    cover 5
     dig 1
     extract_uint16
     intc_2 // 2
     +
     +
-    frame_bury 3
+    swap
     intc_2 // 2
     +
-    frame_bury 4
     b dynamic_array_concat_byte_length_head_for_header@4
 
 dynamic_array_concat_byte_length_head_after_for@7:
-    frame_dig 1
-    frame_dig 0
+    popn 3
+    swap
     concat
-    frame_bury 0
     retsub
 
 
@@ -134,8 +130,6 @@ bytes16:
 
 // smart_contracts/escrow/factory.algo.ts::EscrowFactory.new[routing]() -> void:
 new:
-    intc_1 // 0
-    bytec_2 // ""
     // smart_contracts/escrow/factory.algo.ts:41
     // new(payment: gtxn.PaymentTxn): uint64 {
     txn GroupIndex
@@ -149,9 +143,10 @@ new:
     // smart_contracts/escrow/factory.algo.ts:42
     // const nonAppCaller = Global.callerApplicationId === 0
     global CallerApplicationID
+    swap
     // smart_contracts/escrow/factory.algo.ts:35
     // const nonAppCaller = Global.callerApplicationId === 0
-    dup
+    global CallerApplicationID
     // smart_contracts/escrow/factory.algo.ts:36-38
     // return nonAppCaller
     //   ? Bytes(bytes16(Txn.sender))
@@ -161,7 +156,6 @@ new:
     // ? Bytes(bytes16(Txn.sender))
     txn Sender
     callsub bytes16
-    bury 4
 
 new_ternary_merge@14:
     // smart_contracts/escrow/factory.algo.ts:52
@@ -178,7 +172,7 @@ new_ternary_merge@14:
 new_after_assert@3:
     // smart_contracts/escrow/factory.algo.ts:53
     // loggedAssert(payment.amount === childAppMBR + Global.minBalance, ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
     intc 4 // 150000
     global MinBalance
@@ -199,7 +193,6 @@ new_after_assert@5:
     itxn_begin
     // smart_contracts/escrow/factory.algo.ts:57
     // args: [creator],
-    dig 3
     dup
     len
     itob
@@ -212,7 +205,7 @@ new_after_assert@5:
     itxn_field GlobalNumByteSlice
     pushbytes base64(C4EBQw==)
     itxn_field ClearStateProgramPages
-    pushbytes base64(CyACAQCABCQ3jTw2GgCOAQAlMRkURDEYQQAOgARlqXvMNhoAjgEAOQCABI55NY02GgCOAQANADEZgQUSMRgQREIAUDYaAUkjWYECCEsBFRJEVwIAgAdjcmVhdG9yTGciQzYaAUkVgSASRDEAMgkSQAAMgAhFUlI6T0NDUrAAsTIKSwGyILIHI7IIIrIQI7IBsyJDMQAyCRJAAAyACEVSUjpPRkNEsACxMgmyCSKyECOyAbMiQw==)
+    pushbytes base64(CyACAQCABCQ3jTw2GgCOAQAlMRkURDEYQQAOgARlqXvMNhoAjgEAOQCABI55NY02GgCOAQANADEZgQUSMRgQREIATjYaAUkjWYECCEsBFRJEVwIAgAdjcmVhdG9yTGciQzYaAUkVgSASRDEAMgkSQAAMgAhFUlI6T0NDUrAAsTIKsgeyICOyCCKyECOyAbMiQzEAMgkSQAAMgAhFUlI6T0ZDRLAAsTIJsgkishAjsgGzIkM=)
     itxn_field ApprovalProgramPages
     // smart_contracts/escrow/factory.algo.ts:55-59
     // const newEscrow = escrow.call.create(
@@ -232,7 +225,6 @@ new_after_assert@5:
     itxn_submit
     gitxn 0 CreatedApplicationID
     dup
-    bury 4
     // smart_contracts/escrow/factory.algo.ts:61-66
     // itxn
     //   .payment({
@@ -278,7 +270,7 @@ new_after_assert@5:
     itxn_begin
     // smart_contracts/escrow/factory.algo.ts:71
     // nonAppCaller ? Txn.sender : Global.callerApplicationAddress
-    dup
+    swap
     bnz new_ternary_false@9
     txn Sender
 
@@ -292,7 +284,7 @@ new_ternary_merge@10:
     // })
     intc_1 // 0
     itxn_field OnCompletion
-    dig 3
+    swap
     dup
     itxn_field ApplicationID
     pushbytes 0x65a97bcc // method "rekey(address)void"
@@ -325,14 +317,11 @@ new_ternary_false@13:
     // : Bytes(itob(Global.callerApplicationId))
     global CallerApplicationID
     itob
-    bury 4
     b new_ternary_merge@14
 
 
 // smart_contracts/escrow/factory.algo.ts::EscrowFactory.register[routing]() -> void:
 register:
-    intc_1 // 0
-    dup
     // smart_contracts/escrow/factory.algo.ts:78
     // register(payment: gtxn.PaymentTxn, app: uint64): void {
     txn GroupIndex
@@ -350,6 +339,7 @@ register:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
+    swap
     // smart_contracts/escrow/factory.algo.ts:80
     // loggedAssert(Global.callerApplicationId !== 0, ERR_ONLY_APPS)
     global CallerApplicationID
@@ -361,9 +351,9 @@ register:
 register_after_assert@3:
     // smart_contracts/escrow/factory.algo.ts:83
     // loggedAssert(app === 0 || Application(app).creator === Global.currentApplicationAddress, ERR_INVALID_APP)
-    dup
+    dig 1
     bz register_bool_true@5
-    dup
+    dig 1
     app_params_get AppCreator
     assert // application exists
     global CurrentApplicationAddress
@@ -384,7 +374,7 @@ register_bool_merge@7:
 register_after_assert@9:
     // smart_contracts/escrow/factory.algo.ts:86
     // if (Application(app).creator === Global.currentApplicationAddress) {
-    dup
+    dig 1
     app_params_get AppCreator
     assert // application exists
     global CurrentApplicationAddress
@@ -392,12 +382,12 @@ register_after_assert@9:
     bz register_else_body@13
     // smart_contracts/escrow/factory.algo.ts:87
     // creator = op.AppGlobal.getExBytes(app, Bytes(EscrowGlobalStateKeysCreator))[0]
-    dup
+    dig 1
     pushbytes "creator"
     app_global_get_ex
     pop
     dup
-    bury 4
+    cover 2
     // smart_contracts/escrow/factory.algo.ts:88
     // loggedAssert(btoi(creator) === Global.callerApplicationId, ERR_INVALID_CREATOR)
     btoi
@@ -411,12 +401,11 @@ register_after_assert@9:
 register_after_if_else@14:
     // smart_contracts/escrow/factory.algo.ts:94
     // const appAddress = bytes16(Application(app).address)
-    dup
+    dig 2
     app_params_get AppAddress
     assert // application exists
     callsub bytes16
     dup
-    bury 5
     // smart_contracts/escrow/factory.algo.ts:95
     // loggedAssert(!this.walletIDsByAccounts(appAddress).exists, ERR_ALREADY_REGISTERED)
     box_len
@@ -441,9 +430,9 @@ register_after_assert@16:
 register_after_assert@18:
     // smart_contracts/escrow/factory.algo.ts:98
     // loggedAssert(payment.amount === this.mbr(creator.length), ERR_INVALID_PAYMENT)
-    dig 1
+    swap
     gtxns Amount
-    dig 3
+    dig 2
     len
     // smart_contracts/escrow/factory.algo.ts:31
     // return MinWalletIDsByAccountsMbr + (length * BoxCostPerByte)
@@ -462,11 +451,10 @@ register_after_assert@18:
 register_after_assert@20:
     // smart_contracts/escrow/factory.algo.ts:100
     // this.walletIDsByAccounts(appAddress).value = creator
-    dig 3
     dup
     box_del
     pop
-    dig 3
+    swap
     box_put
     // smart_contracts/escrow/factory.algo.ts:78
     // register(payment: gtxn.PaymentTxn, app: uint64): void {
@@ -478,11 +466,11 @@ register_else_body@13:
     // creator = Bytes(itob(Global.callerApplicationId))
     global CallerApplicationID
     itob
-    bury 3
+    swap
     // smart_contracts/escrow/factory.algo.ts:91
     // app = Global.callerApplicationId
     global CallerApplicationID
-    bury 1
+    bury 3
     b register_after_if_else@14
 
 register_bool_false@6:
@@ -492,8 +480,8 @@ register_bool_false@6:
 
 // smart_contracts/escrow/factory.algo.ts::EscrowFactory.delete[routing]() -> void:
 delete:
-    bytec_2 // ""
-    dupn 2
+    bytec_3 // ""
+    dup
     // smart_contracts/escrow/factory.algo.ts:103
     // delete(id: uint64): void {
     txna ApplicationArgs 1
@@ -514,6 +502,7 @@ delete:
     assert // application exists
     callsub bytes16
     dup
+    cover 2
     // smart_contracts/escrow/factory.algo.ts:106
     // loggedAssert(this.walletIDsByAccounts(key).exists, ERR_DOESNT_EXIST)
     box_len
@@ -526,7 +515,8 @@ delete:
 delete_after_assert@3:
     // smart_contracts/escrow/factory.algo.ts:108
     // const creator = this.walletIDsByAccounts(key).value
-    dupn 2
+    dig 1
+    dup
     box_get
     swap
     cover 2
@@ -537,7 +527,7 @@ delete_after_assert@3:
     box_len
     pop
     dup
-    bury 8
+    bury 7
     // smart_contracts/escrow/factory.algo.ts:109
     // if (creator.length === 8) {
     pushint 8
@@ -548,7 +538,6 @@ delete_after_assert@3:
     // smart_contracts/escrow/factory.algo.ts:110
     // loggedAssert(caller === btoi(creator), ERR_FORBIDDEN);
     btoi
-    dig 2
     ==
     bnz delete_after_if_else@10
     bytec 4 // "ERR:FORB"
@@ -558,7 +547,7 @@ delete_after_assert@3:
 delete_after_if_else@10:
     // smart_contracts/escrow/factory.algo.ts:31
     // return MinWalletIDsByAccountsMbr + (length * BoxCostPerByte)
-    dig 5
+    dig 3
     pushint 400
     *
     // smart_contracts/escrow/factory.algo.ts:118-120
@@ -567,7 +556,6 @@ delete_after_if_else@10:
     // this.mbr(creator.length)
     pushint 158900
     +
-    bury 5
     // smart_contracts/escrow/factory.algo.ts:123
     // spendingAccount.call.delete({ appId: id })
     itxn_begin
@@ -584,7 +572,7 @@ delete_after_if_else@10:
     itxn_submit
     // smart_contracts/escrow/factory.algo.ts:125
     // this.walletIDsByAccounts(key).delete()
-    dup
+    dig 1
     box_del
     pop
     // smart_contracts/escrow/factory.algo.ts:127-132
@@ -602,9 +590,8 @@ delete_after_if_else@10:
     global CallerApplicationAddress
 
 delete_ternary_merge@14:
-    dig 5
-    itxn_field Amount
     itxn_field Receiver
+    itxn_field Amount
     // smart_contracts/escrow/factory.algo.ts:127-131
     // itxn
     //   .payment({
@@ -635,6 +622,7 @@ delete_ternary_false@13:
     b delete_ternary_merge@14
 
 delete_else_body@7:
+    bury 1
     // smart_contracts/escrow/factory.algo.ts:112
     // loggedAssert(Bytes(bytes16(Txn.sender)) === creator, ERR_FORBIDDEN);
     txn Sender
@@ -716,9 +704,10 @@ get:
     box_len
     bury 1
     bnz get_after_if_else@3
+    pop
     // smart_contracts/escrow/factory.algo.ts:157
     // return Bytes('')
-    bytec_2 // ""
+    bytec_3 // ""
 
 get_after_inlined_smart_contracts/escrow/factory.algo.ts::EscrowFactory.get@4:
     // smart_contracts/escrow/factory.algo.ts:154
@@ -739,7 +728,6 @@ get_after_inlined_smart_contracts/escrow/factory.algo.ts::EscrowFactory.get@4:
 get_after_if_else@3:
     // smart_contracts/escrow/factory.algo.ts:159
     // return this.walletIDsByAccounts(bytes16(address)).value
-    dup
     callsub bytes16
     box_get
     assert // Box must have value
@@ -771,7 +759,6 @@ mustGet:
 mustGet_after_assert@3:
     // smart_contracts/escrow/factory.algo.ts:165
     // return this.walletIDsByAccounts(bytes16(address)).value
-    dup
     callsub bytes16
     box_get
     assert // Box must have value
@@ -793,7 +780,6 @@ mustGet_after_assert@3:
 
 // smart_contracts/escrow/factory.algo.ts::EscrowFactory.getList[routing]() -> void:
 getList:
-    intc_1 // 0
     // smart_contracts/escrow/factory.algo.ts:168
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -812,7 +798,7 @@ getList:
     assert // invalid number of bytes for arc4.dynamic_array<account>
     // smart_contracts/escrow/factory.algo.ts:170
     // const apps: bytes[] = []
-    bytec_3 // 0x0000
+    bytec_2 // 0x0000
     // smart_contracts/escrow/factory.algo.ts:171
     // for (let i: uint64 = 0; i < addresses.length; i++) {
     intc_1 // 0
@@ -834,7 +820,6 @@ getList_while_top@2:
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     dup
-    bury 6
     // smart_contracts/escrow/factory.algo.ts:173
     // if (this.walletIDsByAccounts(bytes16(address)).exists) {
     callsub bytes16
@@ -843,7 +828,6 @@ getList_while_top@2:
     bz getList_else_body@5
     // smart_contracts/escrow/factory.algo.ts:174
     // apps.push(this.walletIDsByAccounts(bytes16(address)).value)
-    dig 4
     callsub bytes16
     box_get
     assert // Box must have value
@@ -853,36 +837,36 @@ getList_while_top@2:
     extract 6 2
     swap
     concat
-    dig 2
+    uncover 2
     swap
     intc_0 // 1
     callsub dynamic_array_concat_byte_length_head
-    bury 2
+    swap
 
 getList_after_if_else@6:
     // smart_contracts/escrow/factory.algo.ts:171
     // for (let i: uint64 = 0; i < addresses.length; i++) {
-    dup
     intc_0 // 1
     +
-    bury 1
     b getList_while_top@2
 
 getList_else_body@5:
+    pop
     // smart_contracts/escrow/factory.algo.ts:176
     // apps.push(Bytes(''))
-    dig 1
-    bytec_3 // 0x0000
+    swap
+    bytec_2 // 0x0000
     intc_0 // 1
     callsub dynamic_array_concat_byte_length_head
-    bury 2
+    swap
     b getList_after_if_else@6
 
 getList_after_while@7:
+    pop
     // smart_contracts/escrow/factory.algo.ts:168
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_0 // 1
@@ -891,7 +875,6 @@ getList_after_while@7:
 
 // smart_contracts/escrow/factory.algo.ts::EscrowFactory.mustGetList[routing]() -> void:
 mustGetList:
-    intc_1 // 0
     // smart_contracts/escrow/factory.algo.ts:182
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
@@ -910,7 +893,7 @@ mustGetList:
     assert // invalid number of bytes for arc4.dynamic_array<account>
     // smart_contracts/escrow/factory.algo.ts:184
     // const apps: bytes[] = []
-    bytec_3 // 0x0000
+    bytec_2 // 0x0000
     // smart_contracts/escrow/factory.algo.ts:185
     // for (let i: uint64 = 0; i < addresses.length; i++) {
     intc_1 // 0
@@ -932,7 +915,6 @@ mustGetList_while_top@2:
     intc_3 // 32
     extract3 // on error: index access is out of bounds
     dup
-    bury 6
     // smart_contracts/escrow/factory.algo.ts:187
     // loggedAssert(this.walletIDsByAccounts(bytes16(address)).exists, ERR_ACCOUNT_NOT_FOUND)
     callsub bytes16
@@ -946,7 +928,6 @@ mustGetList_while_top@2:
 mustGetList_after_assert@5:
     // smart_contracts/escrow/factory.algo.ts:188
     // apps.push(this.walletIDsByAccounts(bytes16(address)).value)
-    dig 4
     callsub bytes16
     box_get
     assert // Box must have value
@@ -956,24 +937,23 @@ mustGetList_after_assert@5:
     extract 6 2
     swap
     concat
-    dig 2
+    uncover 2
     swap
     intc_0 // 1
     callsub dynamic_array_concat_byte_length_head
-    bury 2
+    swap
     // smart_contracts/escrow/factory.algo.ts:185
     // for (let i: uint64 = 0; i < addresses.length; i++) {
-    dup
     intc_0 // 1
     +
-    bury 1
     b mustGetList_while_top@2
 
 mustGetList_after_while@6:
+    pop
     // smart_contracts/escrow/factory.algo.ts:182
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
-    dig 2
+    swap
     concat
     log
     intc_0 // 1

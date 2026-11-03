@@ -199,7 +199,7 @@ deleteBoxes:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -215,15 +215,15 @@ deleteBoxes_for_header@1:
     dig 5
     <
     bz deleteBoxes_after_for@4
-    dupn 2
+    dup
     intc_3 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -236,13 +236,15 @@ deleteBoxes_for_header@1:
     intc_3 // 2
     +
     +
-    bury 5
+    cover 2
     intc_2 // 1
     +
-    bury 1
     b deleteBoxes_for_header@1
 
 deleteBoxes_after_for@4:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:25-30
     // deleteBoxes(
     //   wallet: Application,
@@ -250,10 +252,8 @@ deleteBoxes_after_for@4:
     //   appId: Application,
     //   boxes: bytes[]
     // ) {
-    dig 3
     intc_3 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
     // smart_contracts/utils/functions.ts:286-289
@@ -261,7 +261,7 @@ deleteBoxes_after_for@4:
     //   wallet,
     //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
     // )
-    dig 8
+    uncover 3
     dup
     // smart_contracts/utils/functions.ts:288
     // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
@@ -284,11 +284,11 @@ deleteBoxes_after_for@4:
     itxn_begin
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:36
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
+    uncover 4
     swap
     callsub rekeyAddress
     itxn_field RekeyTo
-    dig 7
+    uncover 2
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:32-37
@@ -300,7 +300,6 @@ deleteBoxes_after_for@4:
     // })
     pushbytes 0x98fd65a7 // method "deleteBoxes(byte[][])void"
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
