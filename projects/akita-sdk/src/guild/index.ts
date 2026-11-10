@@ -186,9 +186,42 @@ const settingsTuple = (settings: GuildProposalSettingsInput): bigint[] => [
 /** Encode the membership interval start returned by the consensus member/history boxes. */
 export const fixedSignerVoteEvidence = (since: bigint): Uint8Array => ABIType.from("uint64").encode(since);
 
+/** The payment history the subscriptions app records for a subscription (`getSubscription`). */
+export type SubscriptionPaymentHistory = {
+  startDate: bigint;
+  lastPayment: bigint;
+  streak: bigint;
+  interval: bigint;
+};
+
+/**
+ * The earliest ballot opening time a subscription can vote on under subscription consensus, or
+ * `undefined` when its record grants nothing. Mirrors `SubscriptionGuildConsensus.seasoned`:
+ * a subscription votes only on ballots that opened after it had been paid, without a gap, for one
+ * full payment interval. A run of payments that began with the subscription is counted from
+ * `startDate`; a run that began after a missed window is counted from the end of its first window.
+ *
+ * Show this to a new subscriber: they can propose at once, but can only vote on proposals opened
+ * at or after this time. The subscription must also still be paid up when the vote is cast.
+ */
+export const subscriptionVotingOpensAt = ({ startDate, lastPayment, streak, interval }: SubscriptionPaymentHistory): bigint | undefined => {
+  if (interval <= 0n || streak <= 0n || lastPayment < startDate) return undefined;
+  const lastWindow = (lastPayment - startDate) / interval;
+  const firstWindow = streak > lastWindow ? 0n : lastWindow + 1n - streak;
+  const runStart = firstWindow === 0n ? startDate : startDate + (firstWindow + 1n) * interval;
+  return runStart + interval;
+};
+
+/** Whether a subscription was seasoned for a ballot that opened at `openedAt` (chain seconds). */
+export const isSubscriptionSeasoned = (history: SubscriptionPaymentHistory, openedAt: bigint): boolean => {
+  const opensAt = subscriptionVotingOpensAt(history);
+  return opensAt !== undefined && opensAt <= openedAt;
+};
+
 /**
  * Encode the subscription a subscriber votes with. The subscription grants power only while it is paid up
- * (`lastPayment + interval >= now`) at the moment of the vote or proposal.
+ * (`lastPayment + interval >= now`) at the moment of the vote or proposal, and votes only on ballots it
+ * was seasoned for when they opened (see `subscriptionVotingOpensAt`).
  * Pass the offering's `since` epoch when its weight changed after the ballot opened (see `SubscriptionGuildConsensusSDK.voteEvidence`).
  */
 export const subscriptionVoteEvidence = (subscriptionId: bigint, since?: bigint): Uint8Array =>
@@ -499,8 +532,9 @@ export class SubscriptionGuildConsensusSDK extends BaseSDK<SubscriptionGuildCons
 
   /** Build vote evidence for a subscription to `serviceId`, adding `since` if the offering changed after the ballot opened. */
   async voteEvidence(subscriptionId: bigint, serviceId: bigint, proposalId: bigint): Promise<Uint8Array> {
-    const epoch = await this.client.state.box.snapshots.value(proposalId);
-    if (epoch === undefined) throw new Error("Ballot snapshot does not exist");
+    const snapshot = await this.client.state.box.snapshots.value(proposalId);
+    if (snapshot === undefined) throw new Error("Ballot snapshot does not exist");
+    const { epoch } = snapshot;
     const offering = await this.client.state.box.offerings.value(serviceId).catch((error: unknown) => {
       if (typeof error === 'object' && error !== null && 'status' in error && error.status === 404) return undefined;
       throw error;

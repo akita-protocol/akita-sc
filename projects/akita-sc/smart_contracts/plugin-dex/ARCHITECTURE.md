@@ -134,8 +134,17 @@ pool, unknown asset, no liquidity, uninitialized launch).
 errPdil). `revalue` re-marks external slots. `poke(poolId, i, data)` runs one Poke hook on an unpaused pool.
 `graduate` finishes a launch.
 
-**Admin (DAO wallet).** `setAdmin`, `setProtocolFee`, `setHookApproval`, `setCurveApproval`,
+**Admin (DAO wallet).** `proposeAdmin`, `setProtocolFee`, `setHookApproval`, `setCurveApproval`,
 `setValuatorApproval`, `setPoolPaused`, and `writeDownExternal` (paused pools only).
+
+**Admin handover is two steps** on every app with an admin (Vault, LaunchManager, BackrunArbHook,
+ConsensusKeyregHook): the admin calls `proposeAdmin(account)`, which only records the
+account under `pending_admin`, and that account then calls `acceptAdmin()` itself. Until it does, the old
+admin keeps every admin right, a new `proposeAdmin` replaces the pending account and the zero address
+cancels. An account that cannot call the app can therefore never become its admin. `create(…, admin)` is
+the one place an admin is set directly, so deploy with the deployer as admin and hand over afterwards.
+The DAO wallet acts only through its plugins: it needs a plugin that makes these calls before it can
+accept, and before any later admin call (pause, approvals, fees).
 
 ## 4. Curve slot and Vault checks
 
@@ -207,6 +216,16 @@ should start with `requireDexCaller`.
   hook with any pricing permission that subscribes to BeforeSwap must also subscribe to Quote. LazyCustody and
   External need Custody.
 - **Fee fields** are honoured only at BeforeSwap and Quote (errPdhm elsewhere) and ignored at Poke.
+  At AfterInitialize `hookFee` and `hookFeeOutBps` are a **declaration**: the most the hook will ever charge
+  this pool, in bps, on the input and on the output side. The Vault charges nothing there and refuses the
+  pool unless the install has the matching permission (errPdhm). A hook's worst case in one swap is the
+  larger of the two values (a hook that can charge both sides in one swap declares their sum in both).
+  All hook fees of a swap count against the one `pool.maxHookFeeBps`, so when any hook declares, every
+  hook installed with HookFee or HookFeeOut must declare too (errPdhm) and the cap must cover the worst
+  cases added up (errPdhf). A hook cannot see its own install or the rest of the stack, so this is how a
+  fee hook makes sure it is never installed in a way that would revert every taxed swap, or every swap in
+  one direction. LaunchTaxHook declares; SwapTaxHook does not, so the two cannot share a pool. A hook that
+  returns 0 declares nothing, and a pool where no hook declares is checked only at swap time, as before.
 - **Lazy custody** (`HookFlagLazyCustody`): the hook is first called without custody and is rekeyed and
   called again only if it returns `HookResultRequestCustody`. The skip path costs 1 inner transaction. A lazy
   hook that requests custody adds at least 2 inners (the escrow rekey and the custody call) plus whatever its
@@ -322,7 +341,7 @@ known before the group that references its pair-index box.
 | Method | Who | What |
 |---|---|---|
 | `create(vault, admin, antiSnipeHook, launchTaxHook)` | deployer | treasury = admin, fee and bounty 0, dev buys off |
-| `setAdmin`, `setFees(launchFee, bounty, treasury)`, `setHooks(antiSnipe, launchTax, gated, gatedFunding)` | admin | future launches only |
+| `proposeAdmin` (then the new admin's `acceptAdmin`), `setFees(launchFee, bounty, treasury)`, `setHooks(antiSnipe, launchTax, gated, gatedFunding)` | admin | future launches only |
 | `setDevBuy(rewards, maxBps, minVestSeconds, maxVestSeconds)` | admin | dev-buy policy for future launches: the Rewards app, the cap on tokens out in bps of S (≤ 1,000, immutable; 0 = off), the vesting bounds (errLmpr if `maxBps > 1,000` or `min > max`) |
 | `createToken(payment, TokenParams) → launchId` | anyone | mints a fair-launch ASA (no manager, reserve, freeze or clawback; whole supply held by the manager) and records a pending launch |
 | `launch(payment, launchId, LaunchParams, maxLaunchFee, maxBounty) → {launchId, asset, poolId}` | the token's creator, once | **fails errLmcp if the current launch fee or bounty exceeds the caller's caps**. Validates `0 < S < T`, offsets > 0, `M ≥ ceil(S·vB/(S+vB))`, `0 < G ≤ vA·S/vB`, `feeBps ≤ 1,000`, `startFeeBps ≤ 9,000`. Pays the fee to the treasury, creates the ALGO-quoted pool, `initializeLaunch`es it, runs the optional dev buy, escrows the bounty and refunds the rest |
@@ -357,7 +376,7 @@ cannot cover it), so a dev buy never draws on Rewards' own ALGO (OPEN-DECISIONS 
 | **BackrunArbHook** | AfterSwap, Poke | Custody, LazyCustody | Arbitrages the pool against the Tinyman v2 pool of its pair (inlined `hooks/shared/tinyman-v2.ts`). Admin `registerPool(poolId, minSurplusA, minSurplusB, maxTradeBps)` for native, non-launch, slotless pools. Trades only when `surplus ≥ guardFee + minSurplus`. **No keeper tip, no gas tank, no rebate** (OPEN-DECISIONS #19, A42): every inner it issues is fee 0, op-ups included (group credit), so the swapper's or poker's group pays for the whole arbitrage path and all of the surplus above the guard fee stays with LPs. Callers add a fee buffer of `BackrunMaxExtraInners` (11) × min fee per backrun pool (§12.1). Never reverts the user's swap |
 | **GatedFeeHook** | AfterInitialize, BeforeSwap, Quote | DynamicFee | Per-pool immutable FeeSchedule from F6 `initData` (or the DAO default); funding = schedule box MBR. Hot path reads two boxes (`p‖ctx.caller`, `s‖poolId`) and only lowers the fee (floor, max discount ≤ 90%). FeePass (power, impact, gate bits, TTL 1 h-7 d, default 1 d) keyed by **principal** (§6.12): `ctx.caller` without a hint; with `ctx.wallet` the verified principal at BeforeSwap (`resolvePrincipalFromDexCtx`, strict: an invalid hint reverts the swap, except that inside an app call a hint that is not a wallet of the hook's factory is priced as hint 0, i.e. `ctx.caller`, so plugin swaps of non-Akita ARC-58 wallets pay the full fee instead of reverting) and the at-rest `thirdPartyPrincipal` at Quote. Wallet users manage their pass through **GatedFeePassPlugin** (`arc58/plugins/gated-fee-pass`, pinned to one hook; key = the window's principal; forwards `windowHint(wallet)`). Only the principal opens its pass (`openPass(mbr, key, measure, gateArgs, wallet)`, `key == principalOf(F, wallet).principal`, errGfau); refresh/close of a live pass by the key, the funder or the key's principal by hint; `refreshFromGate` asserts `Gate.mustCheckFor(gateCtx(p))` (`gateCheckCtx`). Gate bits are measured with `Gate.checkFor(ctx)`. No EscrowFactory registry read (`hooks/shared/origin.ts` deleted). **Daily cap** (OPEN-DECISIONS #18, A41): at most `maxDiscountedSwapsPerDay` (default 500, DAO-settable, 0 = unlimited) discounted swaps per pass per UTC day; past the cap it prices at the incoming fee (never reverts). Only a BeforeSwap that actually lowers the fee counts; Quote reads the same counter without writing (quote == swap). The count survives refresh, and `closePass` fails with errGfdy on a day the pass took a discount, so close-and-reopen cannot reset it. Per principal (one pass and one count across a wallet's escrows); a route counts once per gated hop, so `quoteRoute` can overstate the discount when the cap is hit mid-route. `PassMbr` 47,700 µALGO (80-byte pass); `getDiscountedSwapsToday(key)` |
 | **AntiSnipeFeeHook** | AfterInitialize, BeforeSwap, Quote (+ AfterAddLiquidity for FirstLiquidity) | DynamicFee | Linear or halving decay from `startFeeBps` (≤ 9,000) to `endFeeBps` (≤ 1,000) over ≤ 100,000 rounds; returns `max(running, decay)`. An unstarted clock starts at the first BeforeSwap. `exempt` (the creator) pays the running fee at e = 0. Funding = config box MBR. Pools need `maxFeeBps ≥ startFeeBps` |
-| **LaunchTaxHook** | AfterInitialize, BeforeSwap, Quote (+ AfterSwap when sell tax > 0) | HookFee (buy tax) and/or HookFeeOut (sell tax) | Multi-tenant; taxes ≤ 500 bps each, paid in the quote asset; `untilRound` sunset; owner `claim`, and `close` after the sunset. Funding = box MBR + quote opt-in. Pools need `maxHookFeeBps ≥ max(buy, sell)` |
+| **LaunchTaxHook** | AfterInitialize, BeforeSwap, Quote (+ AfterSwap when sell tax > 0) | HookFee (buy tax) and/or HookFeeOut (sell tax) | Multi-tenant; taxes ≤ 500 bps each, paid in the quote asset; `untilRound` sunset; owner `claim`, and `close` after the sunset. Funding = box MBR + quote opt-in. Pools need `maxHookFeeBps ≥ max(buy, sell)`; the hook declares both taxes at AfterInitialize, so `createPool` fails (errPdhm / errPdhf) when the install lacks HookFee / HookFeeOut for a non-zero tax, the cap is below a tax, or another fee-charging hook in the pool does not declare (SwapTaxHook) |
 | **ConsensusKeyregHook** | Poke | Custody, LazyCustody | Admin sets per-pool keys and an operator. The operator's `poke(poolId, i, [1])` / `[0]` takes the escrow online / offline; anyone else's poke is a no-op (1 inner). The 2 ALGO incentive fee is pre-donated from the hook's tank only when the escrow is not yet eligible. Rewards arrive as surplus and `sync` books them |
 
 The approval must grant at least the perms listed. The SDK and LaunchManager build the installs.
@@ -488,7 +507,10 @@ Hooks, curves and valuators can never call back into an app already on the stack
   - Per-deploy inputs with no catalog default: the Tinyman v2 validator app id (BackrunArbHook, via
     `--config`), ImpactFeeHook min/max/slope, VolatilityFeeHook parameters and
     SwapTaxHook owner/taxBps.
-  - On MainNet pass the DAO wallet as `admin` (Vault, BackrunArbHook, ConsensusKeyregHook, LaunchManager); the default admin is the sender.
+  - Deploy with the sender as `admin` (the default) on every network (Vault, BackrunArbHook,
+    ConsensusKeyregHook, LaunchManager). The DAO wallet becomes admin through the two-step handover
+    (`proposeAdmin` by the deployer, `acceptAdmin` by the DAO wallet; §3 "Admin handover"). Do not pass the
+    DAO wallet at create: create sets the admin directly, with no proof that it can call the app.
   - The printed admin steps go through DAO proposals: `setHookApproval` (perms ImpactFee 2, SwapTax 4,
     Volatility 2, Backrun 1, Gated 2, AntiSnipe 2, LaunchTax 12, ConsensusKeyreg 1), `setCurveApproval
     (BinEngine, lpMode 1)`, LaunchManager `setFees`/`setHooks`/`setDevBuy`.
@@ -565,11 +587,14 @@ default in a type that wraps silently.
   pool creation and adds.
 - **Bins dust bins** can push a swap past `maxBinsPerSwap` (128). Each one ties up at least `minBinShares`
   of value (≥ 2^32, one Y base unit) for as long as it stays occupied, plus refundable chunk MBR: no
-  position can keep a stake below the floor through a partial Remove or a co-add. The SDK pool draft
-  defaults `minBinShares` to one whole Y token per new bin (`defaultMinBinShares`), which makes each dust bin
-  cost a whole token. A swap that needs more moves than `maxBinsPerSwap` quotes 0 (reverts in `quote`); the
-  app then splits it into 2-4 equal chunks, sent as consecutive PluginDexPlugin swaps in one group (§10).
-  This costs liveness, not funds.
+  position can keep a stake below the floor through a partial Remove or a co-add. The SDK defaults
+  `minBinShares` to one whole Y token per new bin (`defaultMinBinShares`), which makes each dust bin cost a
+  whole token: `defaultBinPoolParams` takes the Y token's decimals as a required argument, so neither the
+  pool draft nor a direct caller gets the one-base-unit floor by leaving it out (readiness audit C10). A
+  creator can still pass a lower `minBinShares` on purpose; the app should show the floor of a pool it lists.
+  A swap that needs more moves than `maxBinsPerSwap` quotes 0 (reverts in `quote`); the app then splits it
+  into 2-4 equal chunks, sent as consecutive PluginDexPlugin swaps in one group (§10). This costs liveness,
+  not funds.
 - **Fee caps, and how they stack** (decided 2026-10-31: keep the bins cap). A swapper pays, in order: hook
   fees taken from the input at BeforeSwap (with any HookFeeOut, at most `maxHookFeeBps` ≤ 10% of the input,
   checked by the Vault); then the LP fee on what is left, at most the pool's `maxFeeBps`. Bins pools cap

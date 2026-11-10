@@ -72,12 +72,10 @@ export type ValidateOfferParams = {
 };
 
 /**
- * Checks an on-chain offer against the full leaf and participant lists and returns the terms
- * commitment to pass to `accept`. Throws if the offer under-declares leaves or participants,
- * repeats a leaf or participant, lists a funder who is not a participant, or does not match
- * the lists' roots.
+ * Checks the lists on their own: both non-empty, no repeated leaf or participant, and every leaf
+ * funded by a participant. Throws otherwise.
  */
-export function validateOffer({ id, offer, leaves, participants, now }: ValidateOfferParams): Uint8Array {
+function assertOfferLists(leaves: HyperSwapLeaf[], participants: string[]): void {
   if (leaves.length === 0) throw new Error("HyperSwap offer has no trade leaves");
   if (participants.length === 0) throw new Error("HyperSwap offer has no participants");
 
@@ -87,6 +85,16 @@ export function validateOffer({ id, offer, leaves, participants, now }: Validate
   for (const { from } of leaves) {
     if (!participants.includes(from)) throw new Error(`HyperSwap leaf funder ${from} is not a participant`);
   }
+}
+
+/**
+ * Checks an on-chain offer against the full leaf and participant lists and returns the terms
+ * commitment to pass to `accept`. Throws if the offer under-declares leaves or participants,
+ * repeats a leaf or participant, lists a funder who is not a participant, or does not match
+ * the lists' roots.
+ */
+export function validateOffer({ id, offer, leaves, participants, now }: ValidateOfferParams): Uint8Array {
+  assertOfferLists(leaves, participants);
 
   if (offer.leaves !== BigInt(leaves.length)) {
     throw new Error(`HyperSwap offer declares ${offer.leaves} leaves but the list has ${leaves.length}`);
@@ -103,4 +111,34 @@ export function validateOffer({ id, offer, leaves, participants, now }: Validate
   }
 
   return computeOfferTerms(id, offer);
+}
+
+export type OfferTermsFromListsParams = {
+  id: bigint | number;
+  /** The complete, ordered trade leaf list shared by the offeror. */
+  leaves: HyperSwapLeaf[];
+  /** The complete, ordered participant list shared by the offeror. */
+  participants: string[];
+  /** The expiration the participant agreed to, in chain seconds. */
+  expiration: bigint | number;
+};
+
+/**
+ * The terms commitment of the offer the lists describe. Roots and counts come from the lists and
+ * nothing is read from the chain, so the contract refuses the `accept` (terms mismatch) unless the
+ * offer on chain declares exactly these leaves, these participants and this expiration. An offer
+ * that under-declares its leaves can therefore never be accepted with terms built here.
+ *
+ * Throws if a list is empty, repeats a leaf or participant, or lists a funder who is not a
+ * participant. Use `validateOffer` when the offer has been read and a precise reason is wanted.
+ */
+export function offerTermsFromLists({ id, leaves, participants, expiration }: OfferTermsFromListsParams): Uint8Array {
+  assertOfferLists(leaves, participants);
+  return computeOfferTerms(id, {
+    root: hyperSwapTradeTree(leaves).root,
+    leaves: BigInt(leaves.length),
+    participantsRoot: hyperSwapParticipantTree(participants).root,
+    participantsLeaves: BigInt(participants.length),
+    expiration: BigInt(expiration),
+  });
 }

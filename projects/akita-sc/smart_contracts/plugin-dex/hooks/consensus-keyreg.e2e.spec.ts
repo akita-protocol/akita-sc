@@ -126,7 +126,7 @@ describe('ConsensusKeyregHook (FINAL-SPEC §4.14)', () => {
         'errCkad',
       )
       await expectContractError(
-        hook.send.setAdmin({ sender: stranger.addr, signer: stranger.signer, args: { admin: stranger.addr.toString() }, ...send }),
+        hook.send.proposeAdmin({ sender: stranger.addr, signer: stranger.signer, args: { admin: stranger.addr.toString() }, ...send }),
         'errCkad',
       )
     })

@@ -5,6 +5,7 @@ import {
   binAddMbr,
   BINS_CHUNK_BOX_MBR,
   BINS_DIST_SCALE,
+  BINS_MIN_BIN_SHARES_FLOOR,
   binsPositionBoxMbr,
   catalogueInstall,
   defaultMinBinShares,
@@ -158,7 +159,7 @@ describe('validateHookStack mirrors PluginDex.validateHooks', () => {
 
 describe('bins encoders', () => {
   test('init args are 10 × u64; add args 16 B + 12 B per bin; remove args 24 B', () => {
-    expect(encodeBinInitArgs(defaultBinPoolParams(1n << 23n)).length).toBe(80);
+    expect(encodeBinInitArgs(defaultBinPoolParams(1n << 23n, 6)).length).toBe(80);
     const dist = spotDistribution(2n);
     const add = encodeBinAddArgs(1n << 23n, 3n, dist);
     expect(add.length).toBe(16 + 12 * dist.length);
@@ -183,6 +184,36 @@ describe('bins encoders', () => {
   test('minBinShares clamps to u64 for tokens with 10+ decimals (§12.1 rule 5)', () => {
     expect(defaultMinBinShares(6)).toBe(10n ** 6n * 2n ** 32n);
     expect(defaultMinBinShares(18)).toBe(2n ** 64n - 1n);
+  });
+
+  // Readiness audit 2026-11-09, C10: the default dust floor is one whole Y token, never the engine's
+  // one-base-unit floor, which lets a pool be seeded with near-free dust bins.
+  test('AUD-C10 the default pool params need the Y decimals and carry one whole Y token per bin', () => {
+    const u64 = (b: Uint8Array, at: number) => new DataView(b.buffer, b.byteOffset).getBigUint64(at);
+    for (const decimals of [0, 6, 8, 9]) {
+      const params = defaultBinPoolParams(1n << 23n, decimals);
+      expect(params.minBinShares).toBe(10n ** BigInt(decimals) * BINS_MIN_BIN_SHARES_FLOOR);
+      // minBinShares is the ninth u64 of the init args
+      expect(u64(encodeBinInitArgs(params), 64)).toBe(params.minBinShares);
+    }
+    expect(defaultBinPoolParams(1n << 23n, 6).minBinShares).toBeGreaterThan(BINS_MIN_BIN_SHARES_FLOOR);
+    expect(defaultBinPoolParams(1n << 23n, 19).minBinShares).toBe(2n ** 64n - 1n);
+    // an explicit override still wins, for a pool whose creator wants another floor
+    expect(defaultBinPoolParams(1n << 23n, 6, { minBinShares: 5n * BINS_MIN_BIN_SHARES_FLOOR }).minBinShares).toBe(5n * BINS_MIN_BIN_SHARES_FLOOR);
+
+    // @ts-expect-error decimalsY is required: the floor is never chosen by leaving it out
+    expect(() => defaultBinPoolParams(1n << 23n)).toThrow(/decimals/);
+    expect(() => defaultBinPoolParams(1n << 23n, 6.5)).toThrow(/decimals/);
+    expect(() => defaultBinPoolParams(1n << 23n, -1)).toThrow(/decimals/);
+    expect(() => defaultBinPoolParams(1n << 23n, 20)).toThrow(/decimals/);
+  });
+
+  test('AUD-C10 init args below the engine floor are refused before they reach the chain', () => {
+    const params = defaultBinPoolParams(1n << 23n, 6);
+    expect(() => encodeBinInitArgs({ ...params, minBinShares: BINS_MIN_BIN_SHARES_FLOOR - 1n })).toThrow(/minBinShares/);
+    expect(() => encodeBinInitArgs({ ...params, minBinShares: 0n })).toThrow(/minBinShares/);
+    expect(() => encodeBinInitArgs({ ...params, minBinShares: 2n ** 64n })).toThrow(/minBinShares/);
+    expect(encodeBinInitArgs({ ...params, minBinShares: BINS_MIN_BIN_SHARES_FLOOR }).length).toBe(80);
   });
 });
 

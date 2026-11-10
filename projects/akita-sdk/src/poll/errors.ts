@@ -29,6 +29,7 @@ export const POLL_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases(
   NAPL: 'App is not a poll created by this factory',
   SHVB: 'Poll still has vote boxes',
   MCFF: 'Method must be called from poll factory',
+  NCRE: 'Only the poll creator can delete its vote boxes',
 
   // --- Voting -------------------------------------------------------------
   AVOT: 'User has already voted',

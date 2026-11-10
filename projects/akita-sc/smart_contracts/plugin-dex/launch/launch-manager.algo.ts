@@ -212,6 +212,8 @@ const errDevBuy = 'errLmdv'
 export class LaunchManager extends Contract {
   vault = GlobalState<Application>({ key: 'vault' })
   admin = GlobalState<Account>({ key: 'admin' })
+  /** account named by `proposeAdmin`; set only while a handover is pending */
+  pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
   treasury = GlobalState<Account>({ key: 'treasury' })
   /** µALGO paid to the treasury per launch */
   launchFee = GlobalState<uint64>({ key: 'launch_fee' })
@@ -263,9 +265,22 @@ export class LaunchManager extends Contract {
     loggedAssert(Txn.sender === this.admin.value, errAdmin)
   }
 
-  setAdmin(admin: Account): void {
+  /**
+   * Step 1 of an admin handover (admin only): name the account that may take over. The admin does not
+   * change until that account calls `acceptAdmin`, so an address that cannot call this app (a typo, or
+   * a wallet with no way to make the call) can never end up as admin. Proposing again replaces the
+   * pending account; proposing the zero address cancels (readiness audit 2026-11-09, C10).
+   */
+  proposeAdmin(admin: Account): void {
     this.requireAdmin()
-    this.admin.value = admin
+    this.pendingAdmin.value = admin
+  }
+
+  /** Step 2 of an admin handover: the proposed account takes over by calling this itself. */
+  acceptAdmin(): void {
+    loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdmin)
+    this.admin.value = Txn.sender
+    this.pendingAdmin.delete()
   }
 
   /** Fees for future launches. Existing launches keep the bounty they escrowed. */

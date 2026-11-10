@@ -50,6 +50,7 @@ import {
   errInvalidVoteCount,
   errInvalidVoteOption,
   errMustBeCalledFromFactory,
+  errNotCreator,
   errNotVoted,
   errPollActive,
   errPollEnded,
@@ -207,8 +208,17 @@ export class Poll extends AkitaBaseContract {
     }
   }
 
+  /**
+   * Remove vote boxes after the poll has ended and return each voter's deposit.
+   *
+   * Only the poll's creator (the account that funded it) may do this. The vote boxes are what
+   * `hasVoted` reads, and PollGate passes or fails people on it, so when a poll's record of who
+   * voted disappears is the creator's decision and nobody else's (readiness audit 2026-11-09,
+   * C17). Deposits always go back to the voters, never to the caller.
+   */
   deleteBoxes(addresses: Account[]): void {
     loggedAssert(Global.latestTimestamp > this.endTime.value, errPollActive)
+    loggedAssert(Txn.sender === this.funder.value.account, errNotCreator)
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
 

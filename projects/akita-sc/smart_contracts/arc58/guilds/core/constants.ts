@@ -97,8 +97,8 @@ export const MAX_FIXED_SIGNER_MEMBERS: uint64 = 256
 export const SubscriptionOfferingMBR: uint64 = 12_500
 // prefix + (uint64 service ID, uint64 since) = 17 key bytes; weight + until = 16 value bytes.
 export const SubscriptionOfferingHistoryMBR: uint64 = 15_700
-// prefix + uint64 proposal ID = 9 key bytes; uint64 offering epoch = 8 value bytes.
-export const SubscriptionSnapshotMBR: uint64 = 9_300
+// prefix + uint64 proposal ID = 9 key bytes; offering epoch + opening time = 16 value bytes.
+export const SubscriptionSnapshotMBR: uint64 = 12_500
 // one 8-byte offering weight slot; the slot box itself costs 2_500 + 400 * 1-byte key.
 export const SubscriptionWeightSlotMBR: uint64 = 3_200
 export const SubscriptionWeightsBoxMBR: uint64 = 2_900

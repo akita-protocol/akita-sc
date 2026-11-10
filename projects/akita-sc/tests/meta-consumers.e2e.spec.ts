@@ -16,7 +16,7 @@ import { errClawbackForbidden, errInvalidPaymentSender } from '../smart_contract
 import { errFailedToVerifyInclusion } from '../smart_contracts/meta/errors'
 import { TimeWarp } from './utils/time'
 import {
-  HyperSwapSDK, hyperSwapRootBoxName, computeOfferTerms, validateOffer, hyperSwapTradeTree, hyperSwapParticipantTree,
+  HyperSwapSDK, hyperSwapRootBoxName, computeOfferTerms, validateOffer, offerTermsFromLists, hyperSwapTradeTree, hyperSwapParticipantTree,
   HYPER_SWAP_MAX_OFFER_DURATION,
 } from 'akita-sdk'
 import { MockHyperSwapFactory } from '../smart_contracts/artifacts/mocks/hyper-swap/MockHyperSwapClient'
@@ -195,16 +195,13 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     const participants = hyperSwapParticipantTree(participantList)
     const trades = hyperSwapTradeTree(leafList)
     const expiration = (await chainNow()) + 3600n
-    /** Terms a careful participant derives from the full lists, never from the chain. */
-    const terms = async (id: bigint) =>
-      validateOffer({ id, offer: await swap.getOffer({ id }), leaves: leafList, participants: participantList })
-    return { swap, partner, to, participants, trades, expiration, leafList, participantList, terms }
+    return { swap, partner, to, participants, trades, expiration, leafList, participantList }
   }
 
   test.each([0n, 127n, 128n, 0x0123456789abcdefn, 0xfedcba9876543210n, 0xfffffffffffffffdn])(
     'HyperSwap completes repeated-root offers and refunds every deposit (first ID: %s)', async (startingId) => {
       const { algorand } = fixture.context
-      const { swap, partner, to, participants, trades, expiration, terms } = await createSwap(startingId)
+      const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap(startingId)
       const ids = [startingId, startingId + 1n]
       const before = await algorand.account.getInformation(sdk.client.appAddress)
       // Two concurrent offers may use identical roots; their Meta names must remain distinct.
@@ -222,7 +219,7 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
       for (const id of ids) {
         await expect(swap.client.send.cleanupParticipant({ args: { id, participant: owner }, extraFee: microAlgo(10_000) }))
           .rejects.toThrow(new RegExp(errInvalidState))
-        await swap.accept({ sender: partner.addr, signer: partner.signer, id, proof: participants.getProof(1), terms: await terms(id) })
+        await swap.accept({ sender: partner.addr, signer: partner.signer, id, leaves: leafList, participants: participantList })
         await expect(swap.escrow({ id, receiver: to, amount: 10_000n, proof: trades.getProof(1) }))
           .rejects.toThrow(new RegExp(errCantVerifyLeaf))
         await swap.escrow({ id, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
@@ -280,9 +277,9 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
 
   test('HyperSwap preserves expired escrow until cancellation and withdrawal', async () => {
     const { algorand } = fixture.context
-    const { swap, partner, to, participants, trades, expiration, terms } = await createSwap()
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = await createSwap()
     await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
-    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), terms: await terms(0n) })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
     await swap.escrow({ id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
     await new TimeWarp(algorand).timeWarp(3601n)
     await expect(swap.client.send.cleanupParticipant({ args: { id: 0n, participant: owner }, extraFee: microAlgo(10_000) }))
@@ -305,9 +302,9 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
 
   async function fundedSwap() {
     const created = await createSwap()
-    const { swap, partner, to, participants, trades, expiration, terms } = created
+    const { swap, partner, to, participants, trades, expiration, leafList, participantList } = created
     await swap.offer({ root: trades.root, leaves: 2, participantsRoot: participants.root, participantsLeaves: 2, expiration })
-    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), terms: await terms(0n) })
+    await swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), leaves: leafList, participants: participantList })
     await swap.escrow({ id: 0n, receiver: to, amount: 10_000n, proof: trades.getProof(0) })
     await swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) })
     expect((await swap.getOffer({ id: 0n })).state).toBe(30)
@@ -380,10 +377,23 @@ describe('HyperSwap consumers against Meta (LocalNet)', () => {
     const offer = await swap.getOffer({ id: 0n })
     expect(await swap.offerTerms({ id: 0n })).toEqual(computeOfferTerms(0n, offer))
     expect(() => validateOffer({ id: 0n, offer, leaves: leafList, participants: participantList })).toThrow(/declares 1 leaves/)
-    // Terms derived from the real list do not match what the offer committed to.
-    const honest = computeOfferTerms(0n, { ...offer, leaves: BigInt(leafList.length) })
-    await expect(swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, proof: participants.getProof(1), terms: honest }))
-      .rejects.toThrow(new RegExp(errTermsMismatch))
+    // AUD-C11: the SDK's accept takes the full lists and refuses the offer before anything is signed.
+    await expect(swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, leaves: leafList, participants: participantList }))
+      .rejects.toThrow(/declares 1 leaves/)
+    // It cannot be talked into it with a shortened list either: the root no longer matches.
+    await expect(swap.accept({ sender: partner.addr, signer: partner.signer, id: 0n, leaves: [leafList[1]], participants: participantList }))
+      .rejects.toThrow(/trade root does not match/)
+    // The contract is the backstop for a client that skips the SDK. Terms derived from the real
+    // lists (what the wallet plugin SDK sends) do not match what the offer committed to.
+    const honest = offerTermsFromLists({ id: 0n, leaves: leafList, participants: participantList, expiration: offer.expiration })
+    expect(honest).toEqual(computeOfferTerms(0n, { ...offer, leaves: BigInt(leafList.length) }))
+    const mbrPayment = await fixture.context.algorand.createTransaction.payment({
+      sender: partner.addr, receiver: swap.client.appAddress, amount: microAlgo((await swap.mbr()).participants),
+    })
+    await expect(swap.client.send.accept({
+      sender: partner.addr, signer: partner.signer,
+      args: { mbrPayment, id: 0n, proof: participants.getProof(1), terms: honest },
+    })).rejects.toThrow(new RegExp(errTermsMismatch))
     // The partner never joins, so it can never be made to fund the offer.
     await expect(swap.escrow({ sender: partner.addr, signer: partner.signer, id: 0n, receiver: owner, amount: 20_000n, proof: trades.getProof(1) }))
       .rejects.toThrow(new RegExp(errInvalidState))

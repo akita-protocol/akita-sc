@@ -17,6 +17,7 @@ export const errBadDeployer = 'errBdep'
 export const errInvalidPayment = 'errIpay'
 export const errPluginNotAuthAddr = 'errNath'
 export const errFailedGate = 'errFgte'
+export const errNotCreator = 'errNcre'
 
 // --- Poll configuration -----------------------------------------------------
 

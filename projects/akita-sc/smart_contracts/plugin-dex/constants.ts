@@ -4,6 +4,7 @@ import { Uint64, uint64 } from '@algorandfoundation/algorand-typescript'
 
 export const PluginDexGlobalStateKeyVersion = 'version'
 export const PluginDexGlobalStateKeyAdmin = 'admin'
+export const PluginDexGlobalStateKeyPendingAdmin = 'pending_admin'
 export const PluginDexGlobalStateKeyPoolCursor = 'pool_cursor'
 export const PluginDexGlobalStateKeyProtocolFeeBps = 'protocol_fee_bps'
 export const PluginDexGlobalStateKeyTreasury = 'treasury'

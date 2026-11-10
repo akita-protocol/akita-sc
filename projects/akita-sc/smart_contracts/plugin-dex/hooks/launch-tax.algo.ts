@@ -63,6 +63,10 @@ const errInsolvent = 'errLxsv'
  * encode(TaxInit)`, `funding ≥ launchTaxFunding(quoteAsset)`: the config box MBR, plus for an ASA the
  * quote-asset opt-in and total box (paid only by the first pool of that asset). An install whose funding
  * does not cover the MBR it adds fails (errLxfd). The pool needs `maxHookFeeBps ≥ max(buy, sell)`.
+ * The hook declares both taxes to the Vault at AfterInitialize, so a pool whose install lacks a needed
+ * permission (errPdhm) or whose cap is below a tax (errPdhf) is refused when it is created. For the same
+ * reason the pool cannot also install a fee-charging hook that does not declare, such as SwapTaxHook
+ * (errPdhm): the two would share one cap and could exceed it on sells only.
  *
  * `Quote` returns the same fees as BeforeSwap and writes nothing. After `untilRound` the hook passes.
  *
@@ -90,8 +94,7 @@ export class LaunchTaxHook extends Contract {
     requireDexCaller(this.dex.value)
 
     if (ctx.point === HookPointAfterInitialize) {
-      this.initialize(ctx)
-      return passResult()
+      return this.initialize(ctx)
     }
 
     if (!this.configs(ctx.poolId).exists) {
@@ -146,8 +149,16 @@ export class LaunchTaxHook extends Contract {
     }
   }
 
-  /** F6: validate and store this pool's config from its initData; opt into an ASA quote asset */
-  private initialize(ctx: HookContext): void {
+  /**
+   * F6: validate and store this pool's config from its initData; opt into an ASA quote asset.
+   *
+   * Returns the two taxes as the hook's declared maximum fees. The Vault then refuses the pool unless
+   * the install carries HookFee for a buy tax and HookFeeOut for a sell tax, and `pool.maxHookFeeBps`
+   * covers both. Without that a pool made directly on the Vault could take a sell tax it has no
+   * permission for: buys would work and every sell and sell quote would revert (readiness audit
+   * 2026-11-09, C15).
+   */
+  private initialize(ctx: HookContext): HookResult {
     loggedAssert(!this.configs(ctx.poolId).exists, errInitialized)
     loggedAssert(ctx.data.length === sizeOf<TaxInit>(), errBadInitData)
     const init = decodeArc4<TaxInit>(ctx.data)
@@ -181,6 +192,8 @@ export class LaunchTaxHook extends Contract {
     // ALGO is other owners' unclaimed tax
     const app = Global.currentApplicationAddress
     loggedAssert(app.balance >= app.minBalance + this.algoAccrued.value, errUnderfunded)
+
+    return { flags: 0, feeBps: 0, hookFee: init.buyTaxBps, hookFeeOutBps: init.sellTaxBps }
   }
 
   /** Pays `config.accrued` out of the pool's quote-asset bookings; the holding must cover every booking */

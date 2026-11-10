@@ -32,13 +32,23 @@ type Step = {
   args: unknown[]
   /** sent by the target app's admin; false = permissionless */
   admin: boolean
+  /**
+   * The only account that can send this call, when that is neither the app's admin nor anyone:
+   * `acceptAdmin` must come from the proposed admin itself. The script sends it only if that is the
+   * sender; otherwise it reports the call as awaiting that account.
+   */
+  onlyFrom?: string
   isDone: () => Promise<boolean>
   requires?: () => Promise<void>
   /** µALGO the target app must hold above its minimum balance before the call (box MBR) */
   fund?: bigint
 }
 
-export type StepReport = { label: string; status: 'done' | 'sent' | 'pending'; signer?: string }
+/**
+ * `awaiting`: the call is not this sender's to make (the proposed admin's `acceptAdmin`). It is left
+ * for `signer` and is not an error.
+ */
+export type StepReport = { label: string; status: 'done' | 'sent' | 'pending' | 'awaiting'; signer?: string }
 
 /** Matches LaunchManager's MaxDevBuyBps, checked here so a bad policy fails before any write */
 const MaxDevBuyBps = 1_000n
@@ -132,8 +142,13 @@ export async function daoWalletAddress(ctx: ScriptContext): Promise<string> {
 
 /**
  * The activation calls in send order: the catalog's post-deploy approvals (curve, hooks),
- * LaunchManager policy, then every admin handed to `finalAdmin`. Admin handoff comes last,
- * so a rerun after a partial handoff finds all configuration done and only handoffs pending.
+ * LaunchManager policy, then the admin handover of every app that has an admin.
+ *
+ * The handover is two calls per app (readiness audit 2026-11-09, C10). `proposeAdmin(finalAdmin)` is
+ * sent by the current admin and changes nothing yet. `acceptAdmin()` must be sent by `finalAdmin`
+ * itself, which proves it can call the app before it becomes the only account that may. Until then
+ * the deployer stays admin and can still correct the configuration. The handover comes last, so a
+ * rerun finds all configuration done and only handover calls open.
  */
 export function planActivation(ctx: ScriptContext, stack: DexStack, policy: ActivationPolicy,
   { finalAdmin, rewards }: { finalAdmin: string; rewards: bigint }): Step[] {
@@ -178,9 +193,13 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
   steps.push(launchManager('setDevBuy', [rewards, maxBps, minVestSeconds, maxVestSeconds],
     { rewards, devBuyMaxBps: maxBps, devVestMin: minVestSeconds, devVestMax: maxVestSeconds }))
 
-  for (const name of pluginDexDeployOrder) {
-    if (!client(name).appSpec.methods.some(m => m.name === 'setAdmin')) continue
-    steps.push({ label: `${name}.setAdmin(${finalAdmin})`, app: name, method: 'setAdmin', args: [finalAdmin], admin: true,
+  const handover = pluginDexDeployOrder.filter(name => client(name).appSpec.methods.some(m => m.name === 'proposeAdmin'))
+  for (const name of handover) {
+    steps.push({ label: `${name}.proposeAdmin(${finalAdmin})`, app: name, method: 'proposeAdmin', args: [finalAdmin], admin: true,
+      isDone: async () => { const state = await globals(name); return state.admin === finalAdmin || state.pendingAdmin === finalAdmin } })
+  }
+  for (const name of handover) {
+    steps.push({ label: `${name}.acceptAdmin()`, app: name, method: 'acceptAdmin', args: [], admin: false, onlyFrom: finalAdmin,
       isDone: async () => (await globals(name)).admin === finalAdmin })
   }
   return steps
@@ -190,10 +209,18 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
  * Sends every pending activation call as `ctx.sender`, which must be the admin of each app a pending
  * call targets. When that admin is already the DAO wallet, nothing is sent and the error lists the calls
  * a DAO proposal must make. A dry run reports the plan and sends nothing.
+ *
+ * The run ends with the handover proposed, not finished: each `acceptAdmin()` is reported as `awaiting`
+ * the DAO wallet and printed with its app id, because only the DAO wallet can send it. Rerun after the
+ * DAO has accepted to confirm every admin.
+ *
+ * `overrides.finalAdmin` replaces the DAO wallet as the account the admin is handed to. It exists for
+ * tests and LocalNet rehearsals, where a plain account can stand in and accept; the CLI never sets it.
  */
-export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string, policy: ActivationPolicy): Promise<StepReport[]> {
+export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string, policy: ActivationPolicy,
+  overrides: { finalAdmin?: string } = {}): Promise<StepReport[]> {
   const stack = await loadDexStack(ctx, receiptsDir)
-  const finalAdmin = await daoWalletAddress(ctx)
+  const finalAdmin = overrides.finalAdmin ?? await daoWalletAddress(ctx)
   const steps = planActivation(ctx, stack, policy, { finalAdmin, rewards: await rewardsV2(ctx) })
   const client = dexClients(ctx, stack)
 
@@ -202,18 +229,27 @@ export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string,
   for (const step of steps) {
     if (await step.isDone()) { report.push({ label: step.label, status: 'done' }); continue }
     if (step.admin && !admins.has(step.app)) admins.set(step.app, (await client(step.app).state.global.getAll()).admin)
-    report.push({ label: step.label, status: 'pending', signer: step.admin ? admins.get(step.app) : ctx.sender })
+    // A call only another account can send is not this run's to make: it waits for that account.
+    const awaiting = step.onlyFrom !== undefined && step.onlyFrom !== ctx.sender
+    report.push({ label: step.label, status: awaiting ? 'awaiting' : 'pending',
+      signer: step.onlyFrom ?? (step.admin ? admins.get(step.app) : ctx.sender) })
   }
-  console.log(`PluginDex v2 activation on ${ctx.options.network}; final admin ${finalAdmin} (DAO wallet)`)
+  console.log(`PluginDex v2 activation on ${ctx.options.network}; final admin ${finalAdmin}${overrides.finalAdmin ? ' (override)' : ' (DAO wallet)'}`)
   for (const r of report) console.log(`  [${r.status}] ${r.label}${r.signer ? ` (signer ${r.signer})` : ''}`)
+  const signatureOf = (s: Step) => { const m = client(s.app).appSpec.methods.find(m => m.name === s.method)!
+    return `${m.name}(${m.args.map(a => a.type).join(',')})${m.returns.type}` }
+  const printAwaiting = () => {
+    const awaiting = steps.filter((_, i) => report[i].status === 'awaiting')
+    if (!awaiting.length) return
+    console.log(`\nThe admin handover is proposed, not finished. ${finalAdmin} must send these calls itself; until it does, the current admin stays in charge:`)
+    for (const s of awaiting) console.log(`  ${json({ appId: stack[s.app], app: s.app, method: signatureOf(s), args: s.args, signer: s.onlyFrom })}`)
+  }
   const pending = steps.filter((_, i) => report[i].status === 'pending')
-  if (ctx.options.dryRun || !pending.length) return report
+  if (ctx.options.dryRun || !pending.length) { printAwaiting(); return report }
 
   const foreign = pending.filter(s => s.admin && admins.get(s.app) !== ctx.sender)
   if (foreign.length) {
-    const signature = (s: Step) => { const m = client(s.app).appSpec.methods.find(m => m.name === s.method)!
-      return `${m.name}(${m.args.map(a => a.type).join(',')})${m.returns.type}` }
-    const calls = foreign.map(s => ({ appId: stack[s.app], app: s.app, method: signature(s), args: s.args, signer: admins.get(s.app) }))
+    const calls = foreign.map(s => ({ appId: stack[s.app], app: s.app, method: signatureOf(s), args: s.args, signer: admins.get(s.app) }))
     const toDao = foreign.every(s => admins.get(s.app) === finalAdmin)
     throw new Error(`${toDao ? 'The admin is already the DAO wallet; submit these calls through a DAO proposal' : 'Pending calls need an admin other than the sender'} (nothing was sent):\n${
       calls.map(c => `  ${json(c)}`).join('\n')}`)
@@ -229,5 +265,6 @@ export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string,
     report[i].status = 'sent'
     console.log(`  sent ${step.label}`)
   }
+  printAwaiting()
   return report
 }

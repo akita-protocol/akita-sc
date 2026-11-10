@@ -140,6 +140,23 @@ does the same for adds and removes. A swap through a pool with a custody hook al
 `CustodyEvent(uint64 poolId, uint64 hook, uint64 point, uint64 deltaA, bool negA, uint64 deltaB, bool negB)`
 once per custody call. It carries no reserves, so read them from the `SwapEvent` of the same call.
 
+Every event the Vault logs, with its ARC-28 selector (the first 4 bytes of the log entry, hex; the rest is
+the ABI-encoded tuple of the arguments):
+
+| Event | Selector |
+|---|---|
+| `SwapEvent(uint64 poolId, address caller, uint64 assetIn, uint64 amountIn, uint64 assetOut, uint64 amountOut, uint64 feeBps, uint64 hookFees, uint64 reserveA, uint64 reserveB)` | `740dc533` |
+| `LiquidityEvent(uint64 poolId, address caller, uint64 amountA, uint64 amountB, uint64 lpAmount, uint64 reserveA, uint64 reserveB)` | `cf13cd1c` |
+| `CustodyEvent(uint64 poolId, uint64 hook, uint64 point, uint64 deltaA, bool negA, uint64 deltaB, bool negB)` | `d08df122` |
+| `ExternalMarkEvent(uint64 poolId, uint64 slot, uint64 units, uint64 rate, uint64 bookValue)` | `0519b6b5` |
+| `ExternalExitEvent(uint64 poolId, uint64 slot, uint64 receipt, address recipient, uint64 units, uint64 value)` | `348d2f8f` |
+| `GraduationEvent(uint64 poolId, uint64 tokenIn, uint64 tokenRetained, uint64 quoteToTreasury, byte[16] priceX64)` | `c2d2b0be` |
+
+A change to any argument changes the selector, and a decoder built for the old shape then drops or misreads
+the event. `CustodyEvent` changed this way before release: it lost `reserveA` and `reserveB`. The test
+`smart_contracts/plugin-dex/events.test.ts` pins this table to the compiled Vault, so the two cannot drift
+apart unnoticed. An indexer should pin the selectors above and fail loudly on a Vault log it cannot decode.
+
 ## 5. Errors an aggregator can hit
 
 | Code | Meaning |

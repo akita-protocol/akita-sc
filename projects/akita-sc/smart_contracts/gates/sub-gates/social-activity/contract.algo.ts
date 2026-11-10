@@ -44,8 +44,21 @@ export class SocialActivityGate extends AkitaBaseContract {
   }
 
   private activityGate(user: Account, op: Operator, value: uint64): boolean {
+    // Readiness audit 2026-11-09, C14: `getMeta` fails for an account with no profile, and a
+    // gate that fails takes the whole group with it (and every gate layered with this one).
+    // An account with no profile has no activity, so it does not pass. Same shape as the
+    // follower-count gate (SG-13).
+    const social = getAkitaSocialAppList(this.akitaDAO.value).social
+    const hasMeta = abiCall<typeof AkitaSocial.prototype.getMetaExists>({
+      appId: social,
+      args: [user],
+    }).returnValue
+    if (!hasMeta) {
+      return false
+    }
+
     const { lastActive } = abiCall<typeof AkitaSocial.prototype.getMeta>({
-      appId: getAkitaSocialAppList(this.akitaDAO.value).social,
+      appId: social,
       args: [user],
     }).returnValue
 

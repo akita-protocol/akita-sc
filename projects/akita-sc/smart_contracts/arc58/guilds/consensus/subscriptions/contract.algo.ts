@@ -75,6 +75,8 @@ import { GuildConsensusBase } from '../base'
 type SubscriptionOfferingState = { weight: uint64; since: uint64 }
 type SubscriptionOfferingHistoryKey = { serviceID: uint64; since: uint64 }
 type SubscriptionOfferingCheckpoint = { weight: uint64; until: uint64 }
+/** What a ballot freezes when it opens: the offering epoch, and the time that seasoning is measured against. */
+type SubscriptionBallotSnapshot = { epoch: uint64; openedAt: uint64 }
 
 /**
  * One subscription vote weighted by the offering it pays for.
@@ -87,6 +89,13 @@ type SubscriptionOfferingCheckpoint = { weight: uint64; until: uint64 }
  *
  * Offering weights are versioned by epoch and every ballot freezes the epoch it opened at, so
  * offering changes never alter the weight of a ballot that is already open.
+ *
+ * A subscription votes only on ballots that opened after it had been paid, without a gap, for one
+ * full payment interval (readiness audit 2026-11-09, C13). Dues are paid into the Guild's own
+ * treasury, so without this a proposal that pays out of the treasury could be carried by accounts
+ * that subscribed for the occasion and took their dues back out with it. With it, new voting
+ * weight is visible to the existing members for a whole interval before it can be used, and it
+ * cannot vote on anything they open in that time. Proposing is not seasoned, only voting.
  */
 @contract({
   avmVersion: 13,
@@ -116,8 +125,8 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
   offeringHistory = BoxMap<SubscriptionOfferingHistoryKey, SubscriptionOfferingCheckpoint>({
     keyPrefix: SubscriptionConsensusBoxPrefixOfferingHistory,
   })
-  /** offering epoch frozen when each ballot opened */
-  snapshots = BoxMap<uint64, uint64>({ keyPrefix: SubscriptionConsensusBoxPrefixSnapshots })
+  /** offering epoch and opening time frozen when each ballot opened */
+  snapshots = BoxMap<uint64, SubscriptionBallotSnapshot>({ keyPrefix: SubscriptionConsensusBoxPrefixSnapshots })
   /** Multiset of live offering weights (8 bytes per slot, 0 = free) that bounds maximum-weight recalculation. */
   offeringWeights = Box<bytes>({ key: SubscriptionConsensusBoxKeyOfferingWeights })
 
@@ -246,11 +255,32 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
   }
 
   /**
+   * Whether a subscription had been paid without a gap for one full interval when a ballot opened.
+   *
+   * Payment windows are `interval` long and counted from `startDate`. `streak` is the number of
+   * consecutive windows paid, ending with the window of `lastPayment`, so the unbroken run began in
+   * window `last + 1 - streak`. A run that began with the subscription began at `startDate` exactly.
+   * A run that began later (after a missed window) began somewhere inside its first window, so it is
+   * counted from the end of that window. The run must be one interval old at `openedAt`.
+   */
+  private seasoned(startDate: uint64, lastPayment: uint64, streak: uint64, interval: uint64, openedAt: uint64): boolean {
+    if (interval === 0 || streak === 0 || lastPayment < startDate) {
+      return false
+    }
+    const lastWindow: uint64 = (lastPayment - startDate) / interval
+    // The subscriptions app grows a streak by at most one per window, so it never exceeds lastWindow + 1.
+    const firstWindow: uint64 = streak > lastWindow ? 0 : lastWindow + 1 - streak
+    const runStart: uint64 = firstWindow === 0 ? startDate : startDate + (firstWindow + 1) * interval
+    return runStart + interval <= openedAt
+  }
+
+  /**
    * The owned service an account's subscription pays for, provided it is paid up at this moment. Power is
    * independent of ballot duration, so no proposal setting can outlast every offering's payment interval.
+   * A non-zero `openedAt` also requires the subscription to be seasoned for a ballot opened then.
    * Returns zero when the subscription grants nothing; real service IDs start at one.
    */
-  private paidService(account: Account, subscriptionID: uint64): uint64 {
+  private paidService(account: Account, subscriptionID: uint64, openedAt: uint64): uint64 {
     const sub = abiCall<typeof Subscriptions.prototype.getSubscription>({
       appId: this.subscriptions.value,
       args: [{ address: account, id: subscriptionID }],
@@ -261,6 +291,9 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
       sub.lastPayment === 0 ||
       sub.lastPayment + sub.interval < Global.latestTimestamp
     ) {
+      return 0
+    }
+    if (openedAt !== 0 && !this.seasoned(sub.startDate, sub.lastPayment, sub.streak, sub.interval, openedAt)) {
       return 0
     }
     return sub.serviceID
@@ -401,12 +434,16 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
     return super.ballotMbr() + SubscriptionSnapshotMBR
   }
 
-  /** Voting weight a subscription grants on an open ballot; `evidence` matches `vote`. */
+  /**
+   * Voting weight a subscription grants on an open ballot; `evidence` matches `vote`.
+   * Zero when the subscription is not paid up now, or was not yet seasoned when the ballot opened.
+   */
   @abimethod({ readonly: true })
   subscriberPowerAt(account: Account, proposalID: uint64, evidence: bytes): uint64 {
     loggedAssert(this.ballots(proposalID).exists && this.snapshots(proposalID).exists, errGuildInvalidProposal)
-    const serviceID = this.paidService(account, this.evidenceSubscription(evidence))
-    return serviceID === 0 ? 0 : this.weightAt(serviceID, this.snapshots(proposalID).value, this.evidenceSince(evidence))
+    const { epoch, openedAt } = this.snapshots(proposalID).value
+    const serviceID = this.paidService(account, this.evidenceSubscription(evidence), openedAt)
+    return serviceID === 0 ? 0 : this.weightAt(serviceID, epoch, this.evidenceSince(evidence))
   }
 
   cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
@@ -434,7 +471,8 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
   ): void {
     const proposalRequirements = this.requirementsForProposal(requirements)
     this.openBallot(mbrPayment, proposalID, votingEnd, proposalRequirements, 0, this.ballotMbr())
-    this.snapshots(proposalID).value = this.offeringEpoch.value
+    // A block timestamp is never zero, so `openedAt` always switches seasoning on for the ballot.
+    this.snapshots(proposalID).value = { epoch: this.offeringEpoch.value, openedAt: Global.latestTimestamp }
     this.activeBallots.value += 1
   }
 
@@ -449,11 +487,11 @@ export class SubscriptionGuildConsensus extends GuildConsensusBase
     this.voteWithPower(mbrPayment, voter, proposalID, vote, this.subscriberPowerAt(voter, proposalID, evidence))
   }
 
-  /** Proposers need a subscription paid up now, weighted by the current offering. */
+  /** Proposers need a subscription paid up now, weighted by the current offering. Proposing is not seasoned. */
   /* eslint-disable @typescript-eslint/no-unused-vars -- power does not depend on the ballot deadline */
   @abimethod({ readonly: true })
   proposalPower(account: Account, evidence: bytes, requiredThrough: uint64): uint64 {
-    const serviceID = this.paidService(account, this.evidenceSubscription(evidence))
+    const serviceID = this.paidService(account, this.evidenceSubscription(evidence), 0)
     return serviceID === 0 ? 0 : this.currentWeight(serviceID)
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */

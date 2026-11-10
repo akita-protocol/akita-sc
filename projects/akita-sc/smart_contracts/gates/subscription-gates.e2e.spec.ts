@@ -337,6 +337,38 @@ describe('Subscription and social gates (audit fixes)', () => {
     })
   })
 
+  describe('AUD-C14 SocialActivityGate', () => {
+    test('an account with no profile fails the gate instead of failing the group', async () => {
+      const activityGate = new GateSDK({
+        algorand: localnet.context.algorand,
+        factoryParams: { appId: universe.gate.appId, defaultSender: deployer, defaultSigner: deployerSigner },
+        gateRegistry: { social_activity: universe.subgates.socialActivityGate.appId },
+      })
+      // "active within the last day"
+      const gateId = (await activityGate.register({
+        sender: deployer,
+        signer: deployerSigner,
+        args: [{
+          type: 'social_activity',
+          appId: universe.subgates.socialActivityGate.appId,
+          layer: 0n,
+          logicalOperator: LogicalOperator.None,
+          op: Operator.GreaterThanOrEqualTo,
+          value: 86_400n,
+        }],
+      })).return!
+
+      const member = await localnet.context.generateAccount({ initialFunds: (20).algos() })
+      // No profile: the gate answers false. Before the fix the inner getMeta call failed, so this
+      // check (and any group that carried it) was rejected.
+      expect(await check(member.addr.toString(), gateId, new Uint8Array())).toBe(false)
+
+      // A profile created just now counts as active.
+      await universe.social.initMeta({ sender: member.addr.toString(), signer: member.signer, user: member.addr.toString() })
+      expect(await check(member.addr.toString(), gateId, new Uint8Array())).toBe(true)
+    })
+  })
+
   describe('GateSDK social_* registrations (OperatorAndValue shape)', () => {
     test('registers and decodes social_activity / follower_count / impact / moderator filters', async () => {
       const socialGate = new GateSDK({

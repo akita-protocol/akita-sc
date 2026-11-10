@@ -63,14 +63,39 @@ export type BinPoolParams = {
   /** bps, ≤ 10,000 */
   reductionFactor: bigint;
   maxVa: bigint;
-  /** dust floor per new bin; use `defaultMinBinShares` */
+  /**
+   * Dust floor: the least value (in Y base units × 2^32) a position may keep in one bin. Use
+   * `defaultMinBinShares(decimalsY)`, one whole Y token. The engine accepts anything from
+   * `BINS_MIN_BIN_SHARES_FLOOR` (one Y base unit) up, but at that floor a bin costs next to nothing to
+   * occupy, so a pool can be seeded with dust bins that force large swaps to be split.
+   */
   minBinShares: bigint;
   /** 1..128 */
   maxBinsPerSwap: bigint;
 };
 
-/** Defaults the engine tests use: 25 bps steps, variable fee off, 64 bins per swap */
-export const defaultBinPoolParams = (activeId: bigint, overrides: Partial<BinPoolParams> = {}): BinPoolParams => ({
+/**
+ * ARCHITECTURE §12.1 rule 5: one whole Y token per new bin (10^decimals · 2^32), clamped to u64 for
+ * tokens with ≥ 10 decimals, and never below the engine floor.
+ */
+export function defaultMinBinShares(decimalsY: number): bigint {
+  if (!Number.isInteger(decimalsY) || decimalsY < 0 || decimalsY > 19) {
+    throw new Error(`decimalsY must be the Y token's decimals, a whole number from 0 to 19 (got ${decimalsY})`);
+  }
+  const v = 10n ** BigInt(decimalsY) * BINS_MIN_BIN_SHARES_FLOOR;
+  return v > U64_MAX ? U64_MAX : v;
+}
+
+/**
+ * Defaults for a bins pool: 25 bps steps, variable fee off, 64 bins per swap, and a dust floor of one
+ * whole Y token per bin.
+ *
+ * `decimalsY` is the decimals of the pool's B side in Vault order (the higher asset id; 6 when that is
+ * ALGO's pair such as USDC). It is required so that no pool gets the engine's one-base-unit floor by
+ * leaving it out (readiness audit 2026-11-09, C10). To choose another floor, pass `minBinShares` in
+ * `overrides`.
+ */
+export const defaultBinPoolParams = (activeId: bigint, decimalsY: number, overrides: Partial<BinPoolParams> = {}): BinPoolParams => ({
   binStep: 25n,
   activeId,
   baseFactor: 10_000n,
@@ -79,19 +104,10 @@ export const defaultBinPoolParams = (activeId: bigint, overrides: Partial<BinPoo
   decayPeriod: 600n,
   reductionFactor: 5_000n,
   maxVa: 350_000n,
-  minBinShares: BINS_MIN_BIN_SHARES_FLOOR,
+  minBinShares: defaultMinBinShares(decimalsY),
   maxBinsPerSwap: 64n,
   ...overrides,
 });
-
-/**
- * ARCHITECTURE §12.1 rule 5: one whole Y token per new bin (10^decimals · 2^32), clamped to u64 for
- * tokens with ≥ 10 decimals, and never below the engine floor.
- */
-export function defaultMinBinShares(decimalsY: number): bigint {
-  const v = 10n ** BigInt(decimalsY) * BINS_MIN_BIN_SHARES_FLOOR;
-  return v > U64_MAX ? U64_MAX : v;
-}
 
 /** The nearest bin id to a price p (units of B per unit of A, base units) */
 export const binIdForPrice = (binStep: bigint, price: number): bigint =>
@@ -100,9 +116,12 @@ export const binIdForPrice = (binStep: bigint, price: number): bigint =>
 /** Approximate price of a bin (B per A, base units), for display */
 export const binPrice = (binStep: bigint, id: bigint): number => Math.pow(1 + Number(binStep) / 10_000, Number(id - BINS_ID_CENTER));
 
-/** PoolConfig.curveArgs of a bins pool */
-export const encodeBinInitArgs = (p: BinPoolParams): Uint8Array =>
-  concat(
+/** PoolConfig.curveArgs of a bins pool. Throws below the engine's floor, which `init` would reject (errBnMs). */
+export const encodeBinInitArgs = (p: BinPoolParams): Uint8Array => {
+  if (p.minBinShares < BINS_MIN_BIN_SHARES_FLOOR || p.minBinShares > U64_MAX) {
+    throw new Error(`minBinShares must be between 2^32 and 2^64 - 1 (got ${p.minBinShares}); use defaultMinBinShares(decimalsY)`);
+  }
+  return concat(
     ...[
       p.binStep,
       p.activeId,
@@ -116,6 +135,7 @@ export const encodeBinInitArgs = (p: BinPoolParams): Uint8Array =>
       p.maxBinsPerSwap,
     ].map(u64be),
   );
+};
 
 /** One bin of an add: `delta` from the active bin, and the share of each side it takes (ppb) */
 export type BinDistEntry = { delta: bigint; distX: bigint; distY: bigint };

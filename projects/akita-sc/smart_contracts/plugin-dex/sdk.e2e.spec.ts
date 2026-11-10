@@ -173,7 +173,9 @@ describe('akita-sdk PluginDexSDK', () => {
     ).assetId
     const sdk = sdkFor(lp)
     const activeId = BINS_ID_CENTER + 16n
-    const params = defaultBinPoolParams(activeId)
+    // both tokens have 6 decimals: the default dust floor is one whole token per bin (AUD-C10)
+    const params = defaultBinPoolParams(activeId, 6)
+    expect(params.minBinShares).toBe(10n ** 6n * 2n ** 32n)
     const { poolId, pool } = await sdk.createPool({
       assetA: token,
       assetB: other,

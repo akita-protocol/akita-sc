@@ -1,7 +1,7 @@
 import { sha256 } from "@noble/hashes/sha2.js";
 import { encodeAddress, encodeUint64 } from "algosdk";
 import { describe, expect, test } from "vitest";
-import { computeOfferTerms, hyperSwapParticipantTree, hyperSwapTradeTree, validateOffer, HYPER_SWAP_MAX_OFFER_DURATION } from "./terms";
+import { computeOfferTerms, hyperSwapParticipantTree, hyperSwapTradeTree, offerTermsFromLists, validateOffer, HYPER_SWAP_MAX_OFFER_DURATION } from "./terms";
 import { HyperSwapLeaf, OfferValue } from "./types";
 
 const a = encodeAddress(new Uint8Array(32).fill(1));
@@ -44,6 +44,34 @@ describe("HyperSwap offer terms", () => {
     expect(() => validateOffer({ id: 0n, offer: offerFor(), leaves, participants: [a, a] })).toThrow(/repeats a participant/);
     expect(() => validateOffer({ id: 0n, offer: offerFor(), leaves: [{ ...leaves[0], from: c }, leaves[1]], participants }))
       .toThrow(/not a participant/);
+  });
+
+  test("AUD-C11: terms built from the lists alone equal the honest offer's and never an under-declared one's", () => {
+    const fromLists = offerTermsFromLists({ id: 5n, leaves, participants, expiration: 1_000n });
+    // The honest offer commits to the same value, so the contract accepts.
+    expect(fromLists).toEqual(computeOfferTerms(5n, offerFor()));
+    expect(fromLists).toEqual(validateOffer({ id: 5n, offer: offerFor(), leaves, participants }));
+    // An offer that declares fewer leaves or participants, another root, expiration or id commits to
+    // something else, so the contract refuses the accept with a terms mismatch.
+    for (const dishonest of [
+      offerFor({ leaves: 1n }),
+      offerFor({ participantsLeaves: 1n }),
+      offerFor({ root: new Uint8Array(32).fill(9) }),
+      offerFor({ participantsRoot: new Uint8Array(32).fill(9) }),
+      offerFor({ expiration: 1_001n }),
+    ]) {
+      expect(fromLists).not.toEqual(computeOfferTerms(5n, dishonest));
+    }
+    expect(fromLists).not.toEqual(computeOfferTerms(6n, offerFor()));
+  });
+
+  test("AUD-C11: terms cannot be built from bad lists", () => {
+    const build = (l: HyperSwapLeaf[], p: string[]) => () => offerTermsFromLists({ id: 0n, leaves: l, participants: p, expiration: 1_000n });
+    expect(build([], participants)).toThrow(/no trade leaves/);
+    expect(build(leaves, [])).toThrow(/no participants/);
+    expect(build([leaves[0], leaves[0]], participants)).toThrow(/repeats a trade leaf/);
+    expect(build(leaves, [a, a])).toThrow(/repeats a participant/);
+    expect(build([{ ...leaves[0], from: c }, leaves[1]], participants)).toThrow(/not a participant/);
   });
 
   test("checks the expiration window when the chain time is given", () => {

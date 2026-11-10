@@ -2,6 +2,7 @@ import { Config, microAlgos } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { PollSDK, PollTypeEnum } from 'akita-sdk/poll'
+import { GateSDK, LogicalOperator } from 'akita-sdk/gates'
 import algosdk from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
@@ -347,6 +348,104 @@ describe('Poll SDK', () => {
       expect((await algorand.account.getInformation(pollAddress)).balance.microAlgos).toBe(0n)
       // The deposit that could not be returned leaves with the poll's account and stays in the factory.
       expect(await spendable(factory) - factoryBefore).toBe(15_300n)
+    })
+  })
+
+  describe('AUD-C17: the poll creator holds the cleanup', () => {
+    const newShortPoll = async () =>
+      akitaUniverse.pollFactory.new({
+        sender: creator.addr,
+        signer: creator.signer,
+        type: PollTypeEnum.SingleChoice,
+        endTime: (await getBlockTimestamp(algorand)) + 60n,
+        maxSelected: 1n,
+        question: 'Who cleans up?',
+        options: ['Creator', 'Anyone'],
+        gateId: 0n,
+      })
+
+    const gateCheck = async (caller: string, gateId: bigint): Promise<boolean> => {
+      const { return: passed } = await akitaUniverse.gate.client.send.check({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { caller, gateId, args: [new Uint8Array()] },
+        extraFee: microAlgos(10_000),
+      })
+      return passed!
+    }
+
+    test('nobody but the creator can delete vote boxes, and a poll gate holds until the creator does', async () => {
+      const poll = await newShortPoll()
+      await poll.vote({ sender: voter1.addr, signer: voter1.signer, votes: [0n] })
+
+      const gates = new GateSDK({
+        algorand,
+        factoryParams: { appId: akitaUniverse.gate.appId, defaultSender: deployer.addr.toString(), defaultSigner: deployer.signer },
+        gateRegistry: { poll: akitaUniverse.subgates.pollGate.appId },
+      })
+      const gateId = (await gates.register({
+        sender: deployer.addr.toString(),
+        signer: deployer.signer,
+        args: [{
+          type: 'poll',
+          appId: akitaUniverse.subgates.pollGate.appId,
+          layer: 0n,
+          logicalOperator: LogicalOperator.None,
+          poll: poll.client.appId,
+        }],
+      })).return!
+
+      expect(await gateCheck(voter1.addr.toString(), gateId)).toBe(true)
+      expect(await gateCheck(voter2.addr.toString(), gateId)).toBe(false)
+
+      await timeWarp.timeWarp(61n)
+
+      // After the poll ends: a stranger cannot remove a voter's box, and neither can the voter.
+      for (const outsider of [voter2, voter1]) {
+        await expect(poll.deleteBoxes({
+          sender: outsider.addr, signer: outsider.signer, addresses: [voter1.addr.toString()],
+        })).rejects.toThrow(/errNcre/)
+      }
+      // The poll cannot be deleted from under the gate either while a box remains.
+      await expect(akitaUniverse.pollFactory.deletePoll({
+        sender: voter2.addr, signer: voter2.signer, appId: poll.client.appId,
+      })).rejects.toThrow(/errShvb/)
+      // So the gate still passes the voter after the poll has ended.
+      expect(await poll.hasVoted({ user: voter1.addr.toString() })).toBe(true)
+      expect(await gateCheck(voter1.addr.toString(), gateId)).toBe(true)
+
+      // The creator cleans up; the voter gets the deposit back.
+      const voterBefore = await getAccountBalance(algorand, voter1.addr.toString())
+      await poll.deleteBoxes({ sender: creator.addr, signer: creator.signer, addresses: [voter1.addr.toString()] })
+      expect(await getAccountBalance(algorand, voter1.addr.toString()) - voterBefore).toBe(15_300n)
+      expect(await gateCheck(voter1.addr.toString(), gateId)).toBe(false)
+
+      // Once the poll itself is deleted the gate answers false. It used to fail the whole call.
+      await akitaUniverse.pollFactory.deletePoll({ sender: voter2.addr, signer: voter2.signer, appId: poll.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(Number(poll.client.appId)).do()).rejects.toThrow()
+      expect(await gateCheck(voter1.addr.toString(), gateId)).toBe(false)
+      expect(await gateCheck(voter2.addr.toString(), gateId)).toBe(false)
+    })
+
+    test('a poll gate on an app that is not a poll answers false', async () => {
+      const gates = new GateSDK({
+        algorand,
+        factoryParams: { appId: akitaUniverse.gate.appId, defaultSender: deployer.addr.toString(), defaultSigner: deployer.signer },
+        gateRegistry: { poll: akitaUniverse.subgates.pollGate.appId },
+      })
+      const gateId = (await gates.register({
+        sender: deployer.addr.toString(),
+        signer: deployer.signer,
+        args: [{
+          type: 'poll',
+          appId: akitaUniverse.subgates.pollGate.appId,
+          layer: 0n,
+          logicalOperator: LogicalOperator.None,
+          // the poll factory is a real app, but no poll
+          poll: akitaUniverse.pollFactory.client.appId,
+        }],
+      })).return!
+      expect(await gateCheck(voter1.addr.toString(), gateId)).toBe(false)
     })
   })
 

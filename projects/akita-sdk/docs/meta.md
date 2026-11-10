@@ -242,16 +242,24 @@ open offers.
 
 ### HyperSwap offer terms and settlement
 
-- `accept` takes a `terms` commitment:
+- The contract's `accept` takes a `terms` commitment:
   `sha256(id ‖ root ‖ leaves ‖ participantsRoot ‖ participantsLeaves ‖ expiration)`.
   Integers are uint64 big-endian.
-- Participants must derive `terms` with `validateOffer({ id, offer, leaves, participants })`
-  from the complete, ordered leaf and participant lists the offeror shares, never from
-  `offerTerms(id)`. `validateOffer` rejects:
+- The SDK does not take `terms` from the caller. Both accept paths take the complete, ordered
+  leaf and participant lists the offeror shares and derive the commitment from them:
+  - `HyperSwapSDK.accept({ id, leaves, participants })` reads the offer, runs
+    `validateOffer({ id, offer, leaves, participants })` and sends the result. The participant
+    proof is derived from `participants` unless `proof` is passed.
+  - `HyperSwapPluginSDK.accept({ id, proof, leaves, participants, expiration })` builds the
+    commitment with `offerTermsFromLists` and reads nothing; the contract refuses the accept
+    unless the offer on chain declares exactly those lists and that expiration.
+- `validateOffer` rejects (and `offerTermsFromLists` produces terms that cannot match):
   - an offer that under-declares its leaves or participants;
   - an offer that repeats a leaf or participant;
   - an offer that lists a funder who is not a participant;
   - an offer whose roots do not match the lists.
+- Never build `terms` from `offerTerms(id)`. A client that calls the generated contract client
+  directly must do the same check itself.
 - Offers may expire at most 30 days after creation (`HYPER_SWAP_MAX_OFFER_DURATION`).
 - Once every leaf is escrowed, anyone can settle any leaf with `disburseFrom`. The legacy
   `disburse` still releases the caller's own leaf.

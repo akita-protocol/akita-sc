@@ -86,7 +86,7 @@ export const FIXED_SIGNER_HISTORY_MBR = 25_300n
 export const FIXED_SIGNER_WEIGHT_SLOT_MBR = 3_200n
 export const SUBSCRIPTION_OFFERING_MBR = 12_500n
 export const SUBSCRIPTION_HISTORY_MBR = 15_700n
-export const SUBSCRIPTION_SNAPSHOT_MBR = 9_300n
+export const SUBSCRIPTION_SNAPSHOT_MBR = 12_500n
 /** One offering weight slot, quoted per new offering. */
 export const SUBSCRIPTION_WEIGHT_SLOT_MBR = 3_200n
 /** The offering weight slot box, quoted with the first offering. */

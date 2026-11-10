@@ -233,9 +233,22 @@ export type HookResult = {
   flags: uint64
   /** DynamicFee (≤ pool.maxFeeBps) */
   feeBps: uint64
-  /** HookFee: units of assetIn taken at BeforeSwap/Quote */
+  /**
+   * HookFee: units of assetIn taken at BeforeSwap/Quote.
+   * At AfterInitialize: the most the hook will ever take from the input side of this pool, in bps
+   * (0 = none). The Vault refuses the pool unless the install has HookFee. Nothing is charged.
+   */
   hookFee: uint64
-  /** HookFeeOut: bps of amountOut paid to this hook in assetOut */
+  /**
+   * HookFeeOut: bps of amountOut paid to this hook in assetOut.
+   * At AfterInitialize: the most the hook will ever take from the output side of this pool, in bps
+   * (0 = none). The Vault refuses the pool unless the install has HookFeeOut. Nothing is charged.
+   *
+   * The two declarations are read as alternatives: a hook's worst case in one swap is the larger of the
+   * two, so a hook that can charge both sides in the same swap must declare their sum in both fields.
+   * When any hook of a pool declares, every hook installed with HookFee or HookFeeOut must declare
+   * (errPdhm), and `pool.maxHookFeeBps` must cover the worst cases of all of them added up (errPdhf).
+   */
   hookFeeOutBps: uint64
 }
 

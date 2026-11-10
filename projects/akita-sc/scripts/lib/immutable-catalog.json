@@ -195,7 +195,7 @@
     "daoField": null,
     "notes": [
       "v2 Vault: replaces v1 under this key (never side by side); not an ARC-58 plugin.",
-      "Pass --config {\"admin\": \"<DAO wallet address>\"} for MainNet, or call setAdmin after the approvals below.",
+      "Deploy with the deployer as admin (the default). Hand over with activate-plugin-dex: it sends proposeAdmin(DAO wallet) and the DAO wallet finishes with acceptAdmin(). Do not pass an admin at create that cannot call this app: create sets it directly and there is no second step there.",
       "Fund the Vault account for approval box MBR before the admin approves hooks and curves."
     ]
   },
@@ -398,7 +398,7 @@
       "dex": "PluginDex"
     },
     "notes": [
-      "Install points Poke, flags LazyCustody; admin = DAO wallet."
+      "Install points Poke, flags LazyCustody; admin = DAO wallet after the two-step handover (proposeAdmin, then the DAO wallet's acceptAdmin)."
     ],
     "postDeploy": [
       {
@@ -435,7 +435,7 @@
       "launchTaxHook": "LaunchTaxHook"
     },
     "notes": [
-      "admin = DAO wallet on MainNet; DAO: setFees, and setHooks to add the GatedFeeHook.",
+      "admin = DAO wallet on MainNet after the two-step handover (proposeAdmin, then the DAO wallet's acceptAdmin); DAO: setFees, and setHooks to add the GatedFeeHook.",
       "DAO: setDevBuy(rewards, maxBps, minVestSeconds, maxVestSeconds) to enable vested dev buys (off until then; maxBps <= 1,000)."
     ]
   },

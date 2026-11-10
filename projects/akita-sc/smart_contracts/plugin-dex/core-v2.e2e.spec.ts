@@ -1123,6 +1123,54 @@ describe('PluginDex v2 core', () => {
         'errPdhc',
       )
     })
+
+    // Readiness audit 2026-11-09, C15. A hook that returns fee fields at AfterInitialize declares the
+    // most it will charge. The mock returns the same result at every point, so in hookFeeOut mode it
+    // declares hookFee = value2 on the input side and hookFeeOutBps = value on the output side whenever
+    // its install includes AfterInitialize.
+    test('AUD-C15 declared hook fees must fit the cap together, and no undeclared fee hook may sit beside them', async () => {
+      // approved for both fee permissions, so an install's own choice of permissions is what is tested
+      const input = await deployMockHook(HOOK_FEE | HOOK_FEE_OUT)
+      const DECLARES = AFTER_INITIALIZE | BEFORE_SWAP | QUOTE
+      const create = (maxHookFeeBps: bigint, hooks: ReturnType<typeof hookInstall>[]) =>
+        createPool({ algorand, dex, sender: admin, assetA: 0n, assetB: tka, config: poolConfig(30n, { maxHookFeeBps }), hooks })
+      const out = (perms = HOOK_FEE_OUT, points = DECLARES) => hookInstall({ app: feeOut.appId, points, perms })
+      const inn = (perms = HOOK_FEE, points = DECLARES) => hookInstall({ app: input.appId, points, perms })
+
+      await configure(feeOut, MODE.hookFeeOut, 300n, 0n) // declares 300 bps on the output side
+      await configure(input, MODE.hookFeeOut, 0n, 200n) // declares 200 bps on the input side
+
+      // Each fits a 300 bps cap on its own. Together a swap can owe 500, so 300 and 499 are refused:
+      // otherwise the pool would trade in one direction and revert in the other.
+      await create(300n, [out()])
+      await create(200n, [inn()])
+      await expectContractError(create(300n, [out(), inn()]), 'errPdhf')
+      await expectContractError(create(499n, [inn(), out()]), 'errPdhf')
+      await create(500n, [out(), inn()])
+
+      // A fee hook that does not declare (here: installed without AfterInitialize) cannot share the pool
+      // with one that does, whatever the cap: the Vault has no bound for it.
+      await expectContractError(create(1_000n, [out(), inn(HOOK_FEE, BEFORE_SWAP | QUOTE)]), 'errPdhm')
+      await expectContractError(create(1_000n, [inn(HOOK_FEE, BEFORE_SWAP | QUOTE), out()]), 'errPdhm')
+      // Without a hook-fee permission the other hook cannot charge, so it does not count.
+      await create(300n, [out(), inn(0n, BEFORE_SWAP | QUOTE)])
+
+      // A declaration needs the matching permission on each side.
+      await expectContractError(create(1_000n, [out(HOOK_FEE)]), 'errPdhm')
+      await expectContractError(create(1_000n, [inn(HOOK_FEE_OUT)]), 'errPdhm')
+
+      // One hook that declares both sides: its worst case is the larger of the two.
+      await configure(feeOut, MODE.hookFeeOut, 300n, 200n)
+      await expectContractError(create(299n, [out(HOOK_FEE | HOOK_FEE_OUT)]), 'errPdhf')
+      await create(300n, [out(HOOK_FEE | HOOK_FEE_OUT)])
+      await expectContractError(create(1_000n, [out(HOOK_FEE_OUT)]), 'errPdhm')
+
+      // Where nobody declares, nothing changes: fee hooks without AfterInitialize are checked per swap.
+      await create(100n, [out(HOOK_FEE_OUT, BEFORE_SWAP | QUOTE), inn(HOOK_FEE, BEFORE_SWAP | QUOTE)])
+
+      await configure(feeOut, MODE.pass)
+      await configure(input, MODE.pass)
+    })
   })
 
   describe('§4.12 (8) per-pool fee cap', () => {

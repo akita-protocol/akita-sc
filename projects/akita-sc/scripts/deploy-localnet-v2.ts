@@ -261,7 +261,8 @@ async function main() {
       config: defaultPoolConfig(25n, {
         curve: id('BIN_ENGINE_APP_ID'),
         curveMbr: BINS_CREATE_CURVE_MBR,
-        curveArgs: encodeBinInitArgs(defaultBinPoolParams(activeId)),
+        // B is USDC (6 decimals): the dust floor is one whole USDC per bin
+        curveArgs: encodeBinInitArgs(defaultBinPoolParams(activeId, 6)),
       }),
     })
     const dist = spotDistribution(5n)

@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { AntiSnipe, HookPoint } from './constants';
-import { availableHooks, buildPoolDraft, lifecycleSlots, permissionLabels, type PoolDraft } from './draft';
+import { availableHooks, buildPoolDraft, lifecycleSlots, permissionLabels, validateDeclaredHookFees, type PoolDraft } from './draft';
 
 const appIds = { binEngine: 50n, antiSnipeFeeHook: 10n, launchTaxHook: 11n, impactFeeHook: 12n };
 const owner = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ';
@@ -33,6 +33,29 @@ describe('buildPoolDraft', () => {
     const built = buildPoolDraft(launchDraft({ hooks: [{ kind: 'swapTax' }, { kind: 'impactFee' }] }), appIds, new Map());
     expect(built.issues.some((i) => i.index === 0 && /not deployed/.test(i.message))).toBe(true);
     expect(built.issues.some((i) => /not approved/.test(i.message))).toBe(true);
+  });
+
+  // Readiness audit 2026-11-09, C15: the Vault refuses a pool where a declared launch tax shares the
+  // hook fee cap with a fee-charging hook that does not declare.
+  it('AUD-C15 flags a fee-charging hook beside a launch tax, and leaves either one alone', () => {
+    const ids = { ...appIds, swapTaxHook: 13n };
+    const together = buildPoolDraft(launchDraft({ maxFeeBps: 9_000n, hooks: [...launchDraft().hooks, { kind: 'swapTax' }] }), ids);
+    expect(together.issues.filter((i) => /cannot share a pool with a launch tax/.test(i.message))).toEqual([
+      { index: 2, message: 'Swap tax cannot share a pool with a launch tax: both charge a hook fee against the same cap' },
+    ]);
+    // the order does not matter
+    const first = buildPoolDraft(launchDraft({ maxFeeBps: 9_000n, hooks: [{ kind: 'swapTax' }, ...launchDraft().hooks] }), ids);
+    expect(first.issues.filter((i) => /launch tax/.test(i.message)).map((i) => i.index)).toEqual([0]);
+
+    // hooks that set the LP fee (anti-snipe, impact fee) are not hook fees and stay allowed beside the tax
+    expect(buildPoolDraft(launchDraft({ maxFeeBps: 9_000n, hooks: [...launchDraft().hooks, { kind: 'impactFee' }] }), ids).issues).toEqual([]);
+    // the swap tax without a launch tax is fine
+    expect(buildPoolDraft(launchDraft({ hooks: [{ kind: 'swapTax' }] }), ids).issues.some((i) => /launch tax/.test(i.message))).toBe(false);
+
+    expect(validateDeclaredHookFees(launchDraft().hooks)).toEqual([]);
+    expect(validateDeclaredHookFees([{ kind: 'swapTax' }, launchDraft().hooks[1]]).map((i) => i.index)).toEqual([0]);
+    // a launch tax of zero declares nothing
+    expect(validateDeclaredHookFees([{ kind: 'swapTax' }, { kind: 'launchTax', init: { owner, quoteAsset: 0n, buyTaxBps: 0n, sellTaxBps: 0n, untilRound: 0n } }])).toEqual([]);
   });
 
   it('carries hook-specific validation with the hook index', () => {

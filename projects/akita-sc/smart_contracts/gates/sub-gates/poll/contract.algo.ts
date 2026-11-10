@@ -1,6 +1,6 @@
 import { Account, Application, BoxMap, bytes, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { Global } from '@algorandfoundation/algorand-typescript/op'
+import { AppParams, Global } from '@algorandfoundation/algorand-typescript/op'
 
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
@@ -41,15 +41,19 @@ export class PollGate extends AkitaBaseContract {
   private pollGate(user: Account, appId: Application): boolean {
     const { poll } = getOtherAppList(this.akitaDAO.value)
 
-    const voted = abiCall<typeof Poll.prototype.hasVoted>({
-        appId,
-        args: [user],
-    }).returnValue
+    // Readiness audit 2026-11-09, C17: answer false, never fail, when the poll is gone or is not
+    // one of ours. A deleted poll has no creator, and calling `hasVoted` on it (or on an app that
+    // is not a poll) would fail the whole group and every gate layered with this one.
+    // A poll's vote boxes can only be removed by its creator, after it ends.
+    const [creator, exists] = AppParams.appCreator(appId)
+    if (!exists || creator !== Application(poll).address) {
+      return false
+    }
 
-    return (
-      appId.creator === Application(poll).address &&
-      voted
-    )
+    return abiCall<typeof Poll.prototype.hasVoted>({
+      appId,
+      args: [user],
+    }).returnValue
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------  

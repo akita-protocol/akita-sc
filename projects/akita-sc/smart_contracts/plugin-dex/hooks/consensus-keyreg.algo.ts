@@ -66,6 +66,8 @@ export type KeyregEvent = {
 export class ConsensusKeyregHook extends Contract {
   dex = GlobalState<Application>({ key: 'dex' })
   admin = GlobalState<Account>({ key: 'admin' })
+  /** account named by `proposeAdmin`; set only while a handover is pending */
+  pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
   keys = BoxMap<uint64, PoolKeys>({ keyPrefix: 'k' })
 
   @abimethod({ onCreate: 'require' })
@@ -78,9 +80,22 @@ export class ConsensusKeyregHook extends Contract {
     loggedAssert(Txn.sender === this.admin.value, 'errCkad')
   }
 
-  setAdmin(admin: Account): void {
+  /**
+   * Step 1 of an admin handover (admin only): name the account that may take over. The admin does not
+   * change until that account calls `acceptAdmin`, so an address that cannot call this app (a typo, or
+   * a wallet with no way to make the call) can never end up as admin. Proposing again replaces the
+   * pending account; proposing the zero address cancels (readiness audit 2026-11-09, C10).
+   */
+  proposeAdmin(admin: Account): void {
     this.onlyAdmin()
-    this.admin.value = admin
+    this.pendingAdmin.value = admin
+  }
+
+  /** Step 2 of an admin handover: the proposed account takes over by calling this itself. */
+  acceptAdmin(): void {
+    loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, 'errCkad')
+    this.admin.value = Txn.sender
+    this.pendingAdmin.delete()
   }
 
   /** set (or rotate) a pool's operator and participation keys; the box MBR comes from the tank */

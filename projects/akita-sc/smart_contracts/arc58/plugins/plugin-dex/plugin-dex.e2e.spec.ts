@@ -161,7 +161,7 @@ describe('PluginDexPlugin', () => {
     await engine.initBinStep({ binStep: 25n })
 
     const activeId = BINS_ID_CENTER + 16n
-    const config = defaultPoolConfig(25n, { curve: engine.appId, curveMbr: BINS_CREATE_CURVE_MBR, curveArgs: encodeBinInitArgs(defaultBinPoolParams(activeId)) })
+    const config = defaultPoolConfig(25n, { curve: engine.appId, curveMbr: BINS_CREATE_CURVE_MBR, curveArgs: encodeBinInitArgs(defaultBinPoolParams(activeId, 6)) })
     const before = (await reader.listPools()).size
     await use(plugin.createPool({ assetA: token, assetB: quoteToken, config, payment: 2_000_000n + BINS_CREATE_CURVE_MBR }))
     const poolId = BigInt(before)

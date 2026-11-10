@@ -70,10 +70,13 @@ export {
   removeFixedSignerMemberAction,
   setFixedSignerMemberWeightAction,
   SubscriptionGuildConsensusSDK,
+  subscriptionVotingOpensAt,
+  isSubscriptionSeasoned,
   type FixedSignerMemberInput,
   type GuildProposalAction,
+  type SubscriptionPaymentHistory,
 } from './guild';
-export { HyperSwapSDK, hyperSwapRootName, hyperSwapRootBoxName, computeOfferTerms, validateOffer, hyperSwapTradeTree, hyperSwapParticipantTree, HYPER_SWAP_MAX_OFFER_DURATION } from './hyper-swap';
+export { HyperSwapSDK, hyperSwapRootName, hyperSwapRootBoxName, computeOfferTerms, validateOffer, offerTermsFromLists, hyperSwapTradeTree, hyperSwapParticipantTree, HYPER_SWAP_MAX_OFFER_DURATION } from './hyper-swap';
 export { MarketplaceSDK, ListingSDK } from './marketplace';
 export { PluginDexSDK, HOOK_CATALOGUE, validateHookStack, defaultPoolConfig } from './plugin-dex';
 export { MetaMerklesSDK } from './meta-merkles';

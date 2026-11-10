@@ -14,6 +14,7 @@ import { PluginDexClient } from '../../artifacts/plugin-dex/PluginDexClient'
 import { AntiSnipeFeeHookClient, AntiSnipeFeeHookFactory, APP_SPEC as AntiSnipeSpec } from '../../artifacts/plugin-dex/hooks/AntiSnipeFeeHookClient'
 import { GatedFeeHookClient, GatedFeeHookFactory } from '../../artifacts/plugin-dex/hooks/GatedFeeHookClient'
 import { APP_SPEC as LaunchTaxSpec, LaunchTaxHookClient, LaunchTaxHookFactory } from '../../artifacts/plugin-dex/hooks/LaunchTaxHookClient'
+import { SwapTaxHookFactory } from '../../artifacts/plugin-dex/hooks/SwapTaxHookClient'
 import { APP_SPEC as LaunchManagerSpec, LaunchManagerClient, LaunchManagerFactory, LaunchParams, LaunchResult, TokenParams } from '../../artifacts/plugin-dex/launch/LaunchManagerClient'
 import { RewardsClient } from '../../artifacts/rewards/RewardsClient'
 import { deployRewards } from '../../../tests/fixtures/rewards'
@@ -710,10 +711,78 @@ describe('WP5b launch hooks and LaunchManager', () => {
       ]) {
         await expectContractError(hookedPool([raw(encodeTax(bad))]), 'errLxcf')
       }
-      // a tax above the pool's maxHookFeeBps fails the swap (errPdhf), not the hook
-      const { poolId } = await hookedPool([taxInstall({ ...ok, buy: 300n })], 30n, { maxHookFeeBps: 200n })
+      // AUD-C15: a tax above the pool's maxHookFeeBps is refused when the pool is created (it used to
+      // create the pool and fail every taxed swap with errPdhf)
+      await expectContractError(hookedPool([taxInstall({ ...ok, buy: 300n })], 30n, { maxHookFeeBps: 200n }), 'errPdhf')
+      await expectContractError(hookedPool([taxInstall({ ...ok, sell: 300n })], 30n, { maxHookFeeBps: 200n }), 'errPdhf')
+    })
+
+    test('AUD-C15 a pool cannot install the hook with a tax it has no permission or no room for', async () => {
+      const install = (t: Tax, perms: bigint, points = AFTER_INITIALIZE | BEFORE_SWAP | QUOTE | AFTER_SWAP) =>
+        hookInstall({ app: tax.appId, points, perms, funding: TAX_FUNDING, initData: encodeTax(t) })
+      const who = owner.addr.toString()
+      const sellOnly: Tax = { owner: who, quote: 0n, buy: 0n, sell: 300n }
+      const buyOnly: Tax = { owner: who, quote: 0n, buy: 300n, sell: 0n }
+      const both: Tax = { owner: who, quote: 0n, buy: 300n, sell: 300n }
+
+      // The honeypot shape: a sell tax without HookFeeOut. Buys would work and every sell and sell
+      // quote would revert, so the Vault refuses the pool.
+      await expectContractError(hookedPool([install(sellOnly, 0n)]), 'errPdhm')
+      await expectContractError(hookedPool([install(sellOnly, HOOK_FEE)]), 'errPdhm')
+      await expectContractError(hookedPool([install(both, HOOK_FEE)]), 'errPdhm')
+      // The same for a buy tax without HookFee (every buy would revert).
+      await expectContractError(hookedPool([install(buyOnly, 0n)]), 'errPdhm')
+      await expectContractError(hookedPool([install(both, HOOK_FEE_OUT)]), 'errPdhm')
+      // A cap below either tax: every swap on that side would revert with errPdhf.
+      await expectContractError(hookedPool([install(both, HOOK_FEE | HOOK_FEE_OUT)], 30n, { maxHookFeeBps: 299n }), 'errPdhf')
+      await expectContractError(hookedPool([install(sellOnly, HOOK_FEE_OUT)], 30n, { maxHookFeeBps: 100n }), 'errPdhf')
+
+      // The right install at the exact cap is accepted, and both directions trade and quote.
+      const { poolId } = await hookedPool([install(both, HOOK_FEE | HOOK_FEE_OUT)], 30n, { maxHookFeeBps: 300n })
       await addLiquidity(trader, poolId, 20_000_000n, 20_000_000n)
-      await expectContractError(quoteAndSwap(trader, poolId, 0n, 1_000_000n), 'errPdhf')
+      const buy = await quoteAndSwap(trader, poolId, 0n, 1_000_000n)
+      expect(buy.quoted).toBe(buy.out)
+      const sell = await quoteAndSwap(trader, poolId, tka, 1_000_000n)
+      expect(sell.quoted).toBe(sell.out)
+      expect((await tax.getConfig({ args: { poolId } })).accrued).toBeGreaterThan(0n)
+
+      // A zero tax declares nothing, so an install with no fee permission and no taxes is still fine.
+      const idle = await hookedPool([install({ owner: who, quote: 0n, buy: 0n, sell: 0n }, 0n, AFTER_INITIALIZE)], 30n, { maxHookFeeBps: 0n })
+      expect((await tax.getConfig({ args: { poolId: idle.poolId } })).sellTaxBps).toBe(0n)
+    })
+
+    test('AUD-C15 a launch tax cannot share the fee cap with a fee hook that does not declare (SwapTaxHook)', async () => {
+      const swapTax = (
+        await algorand.client
+          .getTypedAppFactory(SwapTaxHookFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
+          .send.create.create({ args: { dex: dex.appId, owner: admin.addr.toString(), taxBps: 100n } })
+      ).appClient
+      await swapTax.appClient.fundAppAccount({ amount: microAlgo(1_000_000) })
+      await swapTax.send.optIn({ args: { asset: tka }, ...send })
+      await dex.send.setHookApproval({ args: { hook: swapTax.appId, perms: HOOK_FEE }, ...send })
+      const flat = (perms = HOOK_FEE) => hookInstall({ app: swapTax.appId, points: BEFORE_SWAP | QUOTE, perms, funding: 0n, initData: new Uint8Array() })
+      const who = owner.addr.toString()
+      const sellOnly: Tax = { owner: who, quote: 0n, buy: 0n, sell: 500n }
+
+      // SwapTaxHook takes a flat 1% of every swap input and declares nothing. Beside a 5% sell tax under
+      // a 5% cap, buys traded (1%) and every sell and sell quote reverted with errPdhf (1% + 5%): the
+      // same honeypot, built from two approved hooks that each fit the cap. Reproduced on the build
+      // before this check. The Vault now refuses the pool, in either order and whatever the cap.
+      await expectContractError(hookedPool([flat(), taxInstall(sellOnly)], 30n, { maxHookFeeBps: 500n }), 'errPdhm')
+      await expectContractError(hookedPool([taxInstall(sellOnly), flat()], 30n, { maxHookFeeBps: 1_000n }), 'errPdhm')
+      await expectContractError(hookedPool([flat(), taxInstall({ ...sellOnly, buy: 100n, sell: 0n })], 30n, { maxHookFeeBps: 1_000n }), 'errPdhm')
+
+      // The swap tax on its own is untouched, and so is a launch tax of zero beside it (it declares
+      // nothing and charges nothing): both directions trade and quote.
+      for (const hooks of [[flat()], [flat(), taxInstall({ owner: who, quote: 0n, buy: 0n, sell: 0n })]]) {
+        const { poolId } = await hookedPool(hooks, 30n, { maxHookFeeBps: 100n })
+        await addLiquidity(trader, poolId, 20_000_000n, 20_000_000n)
+        const buy = await quoteAndSwap(trader, poolId, 0n, 1_000_000n)
+        expect(buy.quoted).toBe(buy.out)
+        const sell = await quoteAndSwap(trader, poolId, tka, 1_000_000n)
+        expect(sell.quoted).toBe(sell.out)
+        expect(sell.out).toBeGreaterThan(0n)
+      }
     })
 
     test('DEXEXT-1 a direct install at AfterInitialize|AfterSwap with perms 0 accrues no unpaid sell tax and cannot drain another pool', async () => {
@@ -725,10 +794,18 @@ describe('WP5b launch hooks and LaunchManager', () => {
       const victimAccrued = (await tax.getConfig({ args: { poolId: victim.poolId } })).accrued
       expect(victimAccrued).toBe(300_000n)
 
-      // the attacker: no BeforeSwap, no HookFeeOut, so the Vault never pays the hook a sell tax
+      // the attacker: no BeforeSwap, so the Vault never asks the hook for a sell tax and never pays one.
+      // (Since AUD-C15 the install must carry HookFeeOut for its declared sell tax, or createPool fails.)
       const attackerTax: Tax = { owner: plain.addr.toString(), quote: 0n, buy: 0n, sell: 500n }
+      await expectContractError(
+        hookedPool(
+          [hookInstall({ app: tax.appId, points: AFTER_INITIALIZE | AFTER_SWAP, perms: 0n, funding: TAX_FUNDING, initData: encodeTax(attackerTax) })],
+          0n,
+        ),
+        'errPdhm',
+      )
       const attack = await hookedPool(
-        [hookInstall({ app: tax.appId, points: AFTER_INITIALIZE | AFTER_SWAP, perms: 0n, funding: TAX_FUNDING, initData: encodeTax(attackerTax) })],
+        [hookInstall({ app: tax.appId, points: AFTER_INITIALIZE | AFTER_SWAP, perms: HOOK_FEE_OUT, funding: TAX_FUNDING, initData: encodeTax(attackerTax) })],
         0n,
       )
       await addLiquidity(trader, attack.poolId, 50_000_000n, 50_000_000n)
@@ -745,14 +822,15 @@ describe('WP5b launch hooks and LaunchManager', () => {
       expect(await hookBalance(tax.appId)).toBe(hookBefore)
       expect((await tax.getConfig({ args: { poolId: victim.poolId } })).accrued).toBe(victimAccrued)
 
-      // the buy side has no such gap: a HookFee without the HookFee permission reverts the swap in the Vault
-      const buyOnly = await hookedPool(
-        [hookInstall({ app: tax.appId, points: AFTER_INITIALIZE | BEFORE_SWAP | QUOTE, perms: 0n, funding: TAX_FUNDING, initData: encodeTax({ ...attackerTax, buy: 300n, sell: 0n }) })],
-        0n,
+      // the buy side has no such gap either: a buy tax without the HookFee permission is refused at
+      // createPool (AUD-C15; before, the pool was created and every buy reverted in the Vault)
+      await expectContractError(
+        hookedPool(
+          [hookInstall({ app: tax.appId, points: AFTER_INITIALIZE | BEFORE_SWAP | QUOTE, perms: 0n, funding: TAX_FUNDING, initData: encodeTax({ ...attackerTax, buy: 300n, sell: 0n }) })],
+          0n,
+        ),
+        'errPdhm',
       )
-      await addLiquidity(trader, buyOnly.poolId, 20_000_000n, 20_000_000n)
-      await expectContractError(quoteAndSwap(trader, buyOnly.poolId, 0n, 1_000_000n), 'errPdhm')
-      expect((await tax.getConfig({ args: { poolId: buyOnly.poolId } })).accrued).toBe(0n)
     })
 
     test('DEXEXT-2 an underfunded install cannot lock accrued ALGO tax as MBR', async () => {
@@ -907,7 +985,7 @@ describe('WP5b launch hooks and LaunchManager', () => {
     test('admin: only the admin sets fees and hooks', async () => {
       await expectContractError(manager.send.setFees({ sender: trader.addr, args: { launchFee: 0n, bounty: 0n, treasury: trader.addr.toString() }, ...send }), 'errLmad')
       await expectContractError(manager.send.setHooks({ sender: trader.addr, args: { antiSnipeHook: 0n, launchTaxHook: 0n, gatedHook: 0n, gatedFunding: 0n }, ...send }), 'errLmad')
-      await expectContractError(manager.send.setAdmin({ sender: trader.addr, args: { admin: trader.addr.toString() }, ...send }), 'errLmad')
+      await expectContractError(manager.send.proposeAdmin({ sender: trader.addr, args: { admin: trader.addr.toString() }, ...send }), 'errLmad')
       expect(await manager.state.global.launchFee()).toBe(LAUNCH_FEE)
       expect(await manager.state.global.bounty()).toBe(BOUNTY)
     })

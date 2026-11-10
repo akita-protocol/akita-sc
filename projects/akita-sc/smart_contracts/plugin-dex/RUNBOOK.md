@@ -25,13 +25,22 @@ network and sender. These scripts have no extra MainNet guard: check `-n` before
    GatedFeeHook, AntiSnipeFeeHook, LaunchTaxHook, ConsensusKeyregHook, PluginDexPlugin, LaunchManager,
    GatedFeePassPlugin. A failed step is resumed by rerunning it with the same `--manifest`.
 4. **Activate.** `scripts/activate-plugin-dex.ts -n <network> --receipts receipts/dex-<network> --policy
-   <policy.json>` makes the curve and hook approvals, configures LaunchManager, then hands every admin to
-   the DAO wallet. Rerunning skips what is done. Once the DAO wallet is admin, any remaining call is printed for a DAO proposal instead of sent.
-5. **Verify on chain.** Every receipt's program hash matches the build; `getHookApproval` and the curve
-   approval are set; every app's admin is the DAO wallet.
-6. **Publish the IDs.** Rerun step 3 with `--register` (or edit `akita-sdk/src/networks.ts`) so `pluginDex`,
+   <policy.json>` makes the curve and hook approvals, configures LaunchManager, then sends
+   `proposeAdmin(DAO wallet)` to every app with an admin. Rerunning skips what is done. The handover is two
+   steps: the script only proposes, and lists each `acceptAdmin()` as awaiting the DAO wallet. The deployer
+   stays admin, and can still correct the configuration, until the DAO wallet has accepted.
+5. **Finish the handover.** The DAO wallet calls `acceptAdmin()` on PluginDex, LaunchManager,
+   BackrunArbHook and ConsensusKeyregHook (the script prints the app ids). The DAO wallet acts only through
+   its plugins, so this needs a plugin that can make these calls, installed by proposal. Do it on TestNet
+   first: an accepted handover is the proof that the DAO can also pause a pool and change approvals later.
+   Rerun the activation script afterwards; it reports every call done. Once the DAO wallet is admin, any
+   later call is printed for a DAO proposal instead of sent. Keep the deployer key safe until then: it is
+   still the admin.
+6. **Verify on chain.** Every receipt's program hash matches the build; `getHookApproval` and the curve
+   approval are set; every app's admin is the DAO wallet and no app has a `pending_admin`.
+7. **Publish the IDs.** Rerun step 3 with `--register` (or edit `akita-sdk/src/networks.ts`) so `pluginDex`,
    `pluginDexPlugin` and the rest are in the network map; release the SDK; ship the apps.
-7. **Smoke test with small amounts**: create a pool, add liquidity, swap direct, from an Akita wallet
+8. **Smoke test with small amounts**: create a pool, add liquidity, swap direct, from an Akita wallet
    (PluginDexPlugin) and through Haystack, remove liquidity. Then tell aggregators the Vault id
    (INTEGRATION.md).
 

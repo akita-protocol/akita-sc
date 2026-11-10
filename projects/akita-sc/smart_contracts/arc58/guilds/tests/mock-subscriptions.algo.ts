@@ -84,6 +84,11 @@ export class MockGuildSubscriptions extends Contract {
     this.services({ owner, id }).value = status
   }
 
+  /**
+   * An established subscription: paid in each of its first three windows, the last time at
+   * `lastPayment`. It started two intervals before that, so it is seasoned for any ballot opened
+   * from one interval before `lastPayment` onwards. Use `setSubscriptionRun` to choose the history.
+   */
   setSubscription(
     account: Account,
     id: uint64,
@@ -92,17 +97,32 @@ export class MockGuildSubscriptions extends Contract {
     interval: uint64,
     lastPayment: uint64,
   ): void {
+    const age: uint64 = interval * 2
+    this.setSubscriptionRun(account, id, recipient, serviceID, interval, lastPayment > age ? lastPayment - age : 0, lastPayment, 3)
+  }
+
+  /** A subscription with an explicit payment history (`startDate`, `lastPayment`, `streak`), as the real app records it. */
+  setSubscriptionRun(
+    account: Account,
+    id: uint64,
+    recipient: Account,
+    serviceID: uint64,
+    interval: uint64,
+    startDate: uint64,
+    lastPayment: uint64,
+    streak: uint64,
+  ): void {
     this.subscriptions({ address: account, id }).value = {
       exists: true,
       recipient,
       serviceID,
-      startDate: lastPayment,
+      startDate,
       amount: 1,
       interval,
       asset: 0,
       gateID: 0,
       lastPayment,
-      streak: 1,
+      streak,
       escrowed: 0,
     }
   }

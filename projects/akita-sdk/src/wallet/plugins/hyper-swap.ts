@@ -6,6 +6,8 @@ import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { getTxns } from "../utils";
+import { offerTermsFromLists } from "../../hyper-swap/terms";
+import { HyperSwapLeaf } from "../../hyper-swap/types";
 
 type ContractArgs = HyperSwapPluginArgs["obj"];
 
@@ -15,10 +17,24 @@ type OfferArgs = (
   & { rekeyBack?: boolean }
 );
 
+/**
+ * Accepting takes the full, ordered lists and the agreed expiration instead of a `terms` value.
+ * The commitment is derived from them (`offerTermsFromLists`), so the contract refuses the accept
+ * unless the offer on chain declares exactly these leaves and participants (readiness audit
+ * 2026-11-09, C11).
+ */
 type AcceptArgs = (
-  Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][],byte[32])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][],byte[32])void'], 'wallet' | 'rekeyBack' | 'terms'>
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & {
+    rekeyBack?: boolean;
+    /** The complete, ordered trade leaf list shared by the offeror. */
+    leaves: HyperSwapLeaf[];
+    /** The complete, ordered participant list shared by the offeror. */
+    participants: string[];
+    /** The expiration the participant agreed to, in chain seconds. */
+    expiration: bigint | number;
+  }
 );
 
 type EscrowArgs = (
@@ -106,9 +122,12 @@ export class HyperSwapPluginSDK extends BaseSDK<HyperSwapPluginClient> {
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
 
+        const { id, proof, leaves, participants, expiration } = args;
+        const terms = offerTermsFromLists({ id, leaves, participants, expiration });
+
         const params = await this.client.params.accept({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, id, proof, terms },
         });
 
         return [{

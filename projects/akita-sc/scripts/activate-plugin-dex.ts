@@ -15,9 +15,15 @@ runScript(async () => {
 
 Sends the PluginDex v2 admin calls as the deployer (the admin given at deploy): Vault curve and hook
 approvals (GatedFeeHook only once GatedFeePassPlugin is pinned to it), LaunchManager setFees /
-setHooks (GatedFeeHook) / setDevBuy (DAO aal.rewards, which must run Rewards v2), then setAdmin(DAO wallet) on every app with an admin. Calls whose state
-already matches are skipped and each sent call is verified on chain. If a pending call's admin is
-already the DAO wallet, nothing is sent and the calls for a DAO proposal are printed.`)
+setHooks (GatedFeeHook) / setDevBuy (DAO aal.rewards, which must run Rewards v2), then proposeAdmin(DAO
+wallet) on every app with an admin. Calls whose state already matches are skipped and each sent call is
+verified on chain.
+
+The handover is two steps. This script only proposes. The DAO wallet must then call acceptAdmin() on
+each app itself; those calls are listed as awaiting and printed. The deployer stays admin until the
+DAO wallet has accepted, so nothing is locked if the DAO wallet cannot make the call yet.
+If a pending call's admin is already the DAO wallet, nothing is sent and the calls for a DAO proposal
+are printed.`)
   if (!args.includes('--network') && !args.includes('-n')) throw new Error('An explicit --network is required')
   const receipts = value('--receipts')
   const policyFile = value('--policy')
@@ -25,5 +31,5 @@ already the DAO wallet, nothing is sent and the calls for a DAO proposal are pri
   const policy = parseActivationPolicy(JSON.parse(fs.readFileSync(policyFile, 'utf8')))
   const report = await activatePluginDex(await setupContext(options), receipts, policy)
   const count = (status: string) => report.filter(r => r.status === status).length
-  console.log(`\n${count('done')} already done, ${count('sent')} sent, ${count('pending')} pending${options.dryRun ? ' (dry run: nothing sent)' : ''}`)
+  console.log(`\n${count('done')} already done, ${count('sent')} sent, ${count('pending')} pending, ${count('awaiting')} awaiting the DAO wallet${options.dryRun ? ' (dry run: nothing sent)' : ''}`)
 })

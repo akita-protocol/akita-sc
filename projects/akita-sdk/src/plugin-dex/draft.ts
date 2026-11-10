@@ -4,7 +4,6 @@ import {
   BINS_CREATE_CURVE_MBR,
   binIdForPrice,
   defaultBinPoolParams,
-  defaultMinBinShares,
   encodeBinInitArgs,
 } from './bins';
 import { HOOK_POINT_ORDER, HookPerm, HookPoint, type HookPointName } from './constants';
@@ -35,6 +34,32 @@ import {
 export type PoolCurveKind = 'constantProduct' | 'bins';
 
 type PlainHookKind = Exclude<HookKind, 'antiSnipeFee' | 'launchTax' | 'gatedFee'>;
+
+const HOOK_FEE_PERMS = HookPerm.HookFee | HookPerm.HookFeeOut;
+
+/**
+ * Mirrors the Vault's createPool check (readiness audit 2026-11-09, C15). A launch tax above zero is
+ * declared to the Vault when the pool is created. Every hook fee of a swap counts against the pool's one
+ * hook fee cap, so the Vault then refuses the pool if another hook installed with a hook-fee permission
+ * does not declare its own maximum (errPdhm). Of the catalogue hooks only the launch tax declares, so
+ * a taxed launch pool cannot also carry another fee-charging hook such as the swap tax.
+ *
+ * `installs` are the built installs in the same order as `hooks` (the permissions as they will be
+ * sent); without them the catalogue's default permissions are used.
+ */
+export function validateDeclaredHookFees(hooks: HookDraft[], installs?: HookInstall[]): HookStackIssue[] {
+  const declares = (hook: HookDraft) => hook.kind === 'launchTax' && (hook.init.buyTaxBps > 0n || hook.init.sellTaxBps > 0n);
+  if (!hooks.some(declares)) return [];
+  const issues: HookStackIssue[] = [];
+  hooks.forEach((hook, index) => {
+    if (declares(hook)) return;
+    const perms = installs ? installs[index].perms : HOOK_CATALOGUE[hook.kind].perms;
+    if ((perms & HOOK_FEE_PERMS) !== 0n) {
+      issues.push({ index, message: `${HOOK_CATALOGUE[hook.kind].name} cannot share a pool with a launch tax: both charge a hook fee against the same cap` });
+    }
+  });
+  return issues;
+}
 
 export type HookDraft =
   | { kind: 'antiSnipeFee'; init: AntiSnipeInit }
@@ -142,9 +167,8 @@ export function buildPoolDraft(
     else {
       // the engine prices B per A in Vault order (A < B); invert when the user's order is flipped
       const price = draft.assetA < draft.assetB ? draft.bins.price : 1 / draft.bins.price;
-      const params = defaultBinPoolParams(binIdForPrice(draft.bins.binStep, price), {
+      const params = defaultBinPoolParams(binIdForPrice(draft.bins.binStep, price), draft.bins.decimalsB, {
         binStep: draft.bins.binStep,
-        minBinShares: defaultMinBinShares(draft.bins.decimalsB),
       });
       config = { ...config, curve: engine, curveMbr: BINS_CREATE_CURVE_MBR, curveArgs: encodeBinInitArgs(params) };
     }
@@ -176,6 +200,7 @@ export function buildPoolDraft(
     issues.push(...own.map((issue) => ({ ...issue, index })));
   });
   issues.push(...validateHookStack(hooks, { feeBps: draft.feeBps, maxFeeBps, maxHookFeeBps, custodyFeeBps: draft.feeBps }, approvals));
+  issues.push(...validateDeclaredHookFees(draft.hooks, hooks.length === draft.hooks.length ? hooks : undefined));
 
   const afterCreate = draft.hooks.flatMap((hook) => {
     const step = HOOK_CATALOGUE[hook.kind].afterCreate;

@@ -23,6 +23,8 @@ import {
   SubscriptionConsensusAction,
   subscriptionConsensusAction,
   subscriptionVoteEvidence,
+  subscriptionVotingOpensAt,
+  isSubscriptionSeasoned,
 } from ".";
 
 const member = algosdk.encodeAddress(new Uint8Array(32).fill(1));
@@ -141,6 +143,43 @@ describe("Guild treasury and settings action builders", () => {
       ABIType.from("(uint64,(uint64,uint64,uint64,uint64,uint64,uint64))").encode([4n, [0n, 1n, 60n, 0n, 50_000n, 1n]]),
     ]);
     expect(() => reclaimAction("ops", [])).toThrow("At least one reclaim is required");
+  });
+});
+
+describe("subscription seasoning (readiness audit 2026-11-09, C13)", () => {
+  const interval = 100n;
+  const startDate = 1_000n;
+
+  it("a new subscription votes on ballots opened one interval after it started", () => {
+    const fresh = { startDate, lastPayment: startDate, streak: 1n, interval };
+    expect(subscriptionVotingOpensAt(fresh)).toBe(1_100n);
+    expect(isSubscriptionSeasoned(fresh, 1_000n)).toBe(false);
+    expect(isSubscriptionSeasoned(fresh, 1_099n)).toBe(false);
+    expect(isSubscriptionSeasoned(fresh, 1_100n)).toBe(true);
+  });
+
+  it("renewing does not move the date: the run still began with the subscription", () => {
+    for (const [lastPayment, streak] of [[1_100n, 2n], [1_250n, 3n], [1_999n, 10n]] as const) {
+      expect(subscriptionVotingOpensAt({ startDate, lastPayment, streak, interval })).toBe(1_100n);
+    }
+  });
+
+  it("a run that restarted after a missed window is counted from the end of its first window", () => {
+    // Paid window 0, missed windows 1 to 3, paid again at 1,420 (window 4): streak 1.
+    const resumed = { startDate, lastPayment: 1_420n, streak: 1n, interval };
+    // Window 4 ends at 1,500; one more interval is 1,600.
+    expect(subscriptionVotingOpensAt(resumed)).toBe(1_600n);
+    expect(isSubscriptionSeasoned(resumed, 1_599n)).toBe(false);
+    expect(isSubscriptionSeasoned(resumed, 1_600n)).toBe(true);
+    // Paying window 5 as well extends the run but not its start.
+    expect(subscriptionVotingOpensAt({ ...resumed, lastPayment: 1_510n, streak: 2n })).toBe(1_600n);
+  });
+
+  it("a record with no payment run grants nothing", () => {
+    expect(subscriptionVotingOpensAt({ startDate, lastPayment: 1_420n, streak: 0n, interval })).toBeUndefined();
+    expect(subscriptionVotingOpensAt({ startDate, lastPayment: 1_420n, streak: 1n, interval: 0n })).toBeUndefined();
+    expect(subscriptionVotingOpensAt({ startDate, lastPayment: 900n, streak: 1n, interval })).toBeUndefined();
+    expect(isSubscriptionSeasoned({ startDate, lastPayment: 1_420n, streak: 0n, interval }, 9_999n)).toBe(false);
   });
 });
 

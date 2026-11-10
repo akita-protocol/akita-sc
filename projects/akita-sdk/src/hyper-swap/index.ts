@@ -26,6 +26,7 @@ export * from "./errors";
 export * from "./types";
 export * from "./roots";
 export * from "./terms";
+import { hyperSwapParticipantTree, validateOffer } from "./terms";
 
 export type HyperSwapContractArgs = HyperSwapArgs["obj"];
 
@@ -82,7 +83,7 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
 
   /**
    * The terms commitment the contract expects for an offer. Use it only to cross-check:
-   * participants must derive `terms` themselves with `validateOffer`.
+   * `accept` derives the commitment from the full lists and never takes it from here.
    */
   async offerTerms({ id }: GetOfferParams): Promise<Uint8Array> {
     const result = await this.client.offerTerms({ args: { id } });
@@ -150,11 +151,26 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
   }
 
   /**
-   * Accepts an offer as a participant. `terms` must come from `validateOffer`, computed against
-   * the full leaf and participant lists, so an offer that under-declares its leaves is refused.
+   * Accepts an offer as a participant.
+   *
+   * Takes the full, ordered leaf and participant lists the offeror shared. The offer is read from
+   * the chain and checked against them (`validateOffer`), and the terms commitment sent to the
+   * contract is derived here. An offer that under-declares its leaves or participants, repeats
+   * one, or does not match the lists is refused before anything is signed. There is no way to pass
+   * a ready-made `terms` value through this method.
    */
-  async accept({ sender, signer, id, proof, terms }: AcceptParams): Promise<void> {
+  async accept({ sender, signer, id, leaves, participants, proof }: AcceptParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const terms = validateOffer({ id, offer: await this.getOffer({ id }), leaves, participants });
+
+    let participantProof = proof;
+    if (participantProof === undefined) {
+      const acceptor = sendParams.sender.toString();
+      const index = participants.indexOf(acceptor);
+      if (index < 0) throw new Error(`HyperSwap acceptor ${acceptor} is not in the participant list`);
+      participantProof = hyperSwapParticipantTree(participants).getProof(index);
+    }
 
     const mbrData = await this.mbr();
 
@@ -169,7 +185,7 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
       args: {
         mbrPayment,
         id,
-        proof,
+        proof: participantProof,
         terms,
       },
     });

@@ -12,13 +12,21 @@ export type OfferParams = MaybeSigner & Omit<
 >;
 
 /**
- * `terms` is the offer-terms commitment computed by the participant from the full leaf and
- * participant lists (see `validateOffer` / `computeOfferTerms`); never copy it from the chain.
+ * Accepting takes the full, ordered leaf and participant lists the offeror shared, not a `terms`
+ * value. The SDK checks the offer on chain against the lists and derives the commitment itself
+ * (readiness audit 2026-11-09, C11): the declared leaf count decides when escrow completes, so an
+ * offer must never be accepted on the strength of a commitment someone else computed.
  */
-export type AcceptParams = MaybeSigner & Omit<
-  ContractArgs['accept(pay,uint64,byte[32][],byte[32])void'],
-  'mbrPayment'
->;
+export type AcceptParams = MaybeSigner & {
+  /** The offer ID */
+  id: bigint | number;
+  /** The complete, ordered trade leaf list. */
+  leaves: HyperSwapLeaf[];
+  /** The complete, ordered participant list. */
+  participants: string[];
+  /** Merkle proof that the sender is a participant. Derived from `participants` when omitted. */
+  proof?: Uint8Array[];
+};
 
 type BaseEscrowParams = MaybeSigner & {
   /** The offer ID */

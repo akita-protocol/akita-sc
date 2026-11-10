@@ -79,6 +79,7 @@ import {
   PluginDexBoxPrefixPools,
   PluginDexBoxPrefixValuatorApprovals,
   PluginDexGlobalStateKeyAdmin,
+  PluginDexGlobalStateKeyPendingAdmin,
   PluginDexGlobalStateKeyPoolCursor,
   PluginDexGlobalStateKeyProtocolFeeBps,
   PluginDexGlobalStateKeyTreasury,
@@ -275,6 +276,8 @@ function clipBand(rate: uint64, bps: uint64, dt: uint64): uint64 {
 export class PluginDex extends Contract {
   version = GlobalState<string>({ key: PluginDexGlobalStateKeyVersion })
   admin = GlobalState<Account>({ key: PluginDexGlobalStateKeyAdmin })
+  /** account named by `proposeAdmin`; set only while a handover is pending */
+  pendingAdmin = GlobalState<Account>({ key: PluginDexGlobalStateKeyPendingAdmin })
   poolCursor = GlobalState<uint64>({ key: PluginDexGlobalStateKeyPoolCursor })
   /** share of the LP fee routed to the treasury, in bps of the LP fee */
   protocolFeeBps = GlobalState<uint64>({ key: PluginDexGlobalStateKeyProtocolFeeBps })
@@ -832,7 +835,8 @@ export class PluginDex extends Contract {
   /**
    * Run the pool's hook stack (or only hook `only`; MaxHooksPerPool = all) for one point. Custody
    * hooks book their balance changes straight into `pool`. Hook fees are paid out of the escrow
-   * immediately at BeforeSwap and only accumulated at Quote. Fee fields are ignored at Poke.
+   * immediately at BeforeSwap and only accumulated at Quote. Fee fields are ignored at Poke. At
+   * AfterInitialize they declare the hook's maximum fees, which must fit the install (see below).
    */
   private runHooks(
     poolId: uint64,
@@ -895,6 +899,23 @@ export class PluginDex extends Contract {
       }
 
       if (result.hookFee > 0 || result.hookFeeOutBps > 0) {
+        if (point === HookPointAfterInitialize) {
+          // At AfterInitialize the two fee fields are a declaration: the most this hook will ever charge
+          // this pool, in bps, on the input side (hookFee) and on the output side (hookFeeOutBps). A hook
+          // cannot see its own install, so the Vault checks the declaration against it here and the pool is
+          // refused if the hook could never be paid: without that, every taxed swap and quote would
+          // revert later, and a sell-only failure is a honeypot (readiness audit 2026-11-09, C15).
+          // Nothing is charged at this point. The larger of the two goes back to createPool in
+          // `run.hookFeeOutBps` as this hook's worst case per swap, where it is added up across the pool.
+          loggedAssert(
+            (result.hookFee === 0 || (hook.perms & HookPermHookFee) !== 0) &&
+              (result.hookFeeOutBps === 0 || (hook.perms & HookPermHookFeeOut) !== 0),
+            errHookPermission,
+          )
+          run.hookFeeOutBps = result.hookFee > result.hookFeeOutBps ? result.hookFee : result.hookFeeOutBps
+          loggedAssert(run.hookFeeOutBps <= pool.maxHookFeeBps, errHookFeeTooHigh)
+          continue
+        }
         loggedAssert(pricingPoint, errHookPermission)
         if (result.hookFee > 0) {
           loggedAssert((hook.perms & HookPermHookFee) !== 0, errHookPermission)
@@ -1547,9 +1568,22 @@ export class PluginDex extends Contract {
 
   // ADMIN ----------------------------------------------------------------------------------------
 
-  setAdmin(admin: Account): void {
+  /**
+   * Step 1 of an admin handover (admin only): name the account that may take over. The admin does not
+   * change until that account calls `acceptAdmin`, so an address that cannot call this app (a typo, or
+   * a wallet with no way to make the call) can never end up as admin. Proposing again replaces the
+   * pending account; proposing the zero address cancels (readiness audit 2026-11-09, C10).
+   */
+  proposeAdmin(admin: Account): void {
     this.requireAdmin()
-    this.admin.value = admin
+    this.pendingAdmin.value = admin
+  }
+
+  /** Step 2 of an admin handover: the proposed account takes over by calling this itself. */
+  acceptAdmin(): void {
+    loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdminOnly)
+    this.admin.value = Txn.sender
+    this.pendingAdmin.delete()
   }
 
   setProtocolFee(protocolFeeBps: uint64, treasury: Account): void {
@@ -1795,16 +1829,36 @@ export class PluginDex extends Contract {
 
     // F6: fund each hook, then run its AfterInitialize with its own initData
     let funding: uint64 = 0
+    // C15: hooks installed with a hook-fee permission, the ones among them that declared a maximum fee
+    // at AfterInitialize, and the declared worst case per swap added up (bps)
+    let feeHooks: uint64 = 0
+    let declaring: uint64 = 0
+    let declaredBps: uint64 = 0
     for (let i: uint64 = 0; i < hooks.length; i += 1) {
       const install = clone(hooks[i])
       if (install.funding > 0) {
         itxn.payment({ receiver: Application(install.app).address, amount: install.funding }).submit()
         funding += install.funding
       }
+      if ((install.perms & (HookPermHookFee | HookPermHookFeeOut)) !== 0) {
+        feeHooks += 1
+      }
       if ((install.points & HookPointAfterInitialize) !== 0) {
         const ctx = this.context(poolId, pool, Txn.sender, 0, Txn.sender, assetA, assetB, 0, 0, 0, install.initData)
-        this.runHooks(poolId, pool, HookPointAfterInitialize, ctx, true, i)
+        const declared = this.runHooks(poolId, pool, HookPointAfterInitialize, ctx, true, i).hookFeeOutBps
+        if (declared > 0) {
+          declaring += 1
+          declaredBps += declared
+        }
       }
+    }
+    // Every hook fee of a swap counts against the one `maxHookFeeBps`. A hook that declares is only
+    // known to fit if every other fee-charging hook of the pool declares too and the declarations fit
+    // together: otherwise two approved hooks that each fit can exceed the cap on one side only (a flat
+    // input tax plus a sell tax reverts every sell while buys trade), which is the same honeypot.
+    if (declaring > 0) {
+      loggedAssert(feeHooks === declaring, errHookPermission)
+      loggedAssert(declaredBps <= pool.maxHookFeeBps, errHookFeeTooHigh)
     }
     if (pool.reserveA !== 0 || pool.reserveB !== 0) {
       this.pools(poolId).value = clone(pool)

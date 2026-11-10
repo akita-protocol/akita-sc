@@ -6,7 +6,7 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { HyperSwapPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
 import { MerkleTree, SchemaPart } from 'akita-sdk/meta';
-import { HyperSwapSDK, hyperSwapParticipantTree, hyperSwapTradeTree, validateOffer } from 'akita-sdk/hyper-swap';
+import { HyperSwapSDK, hyperSwapParticipantTree, hyperSwapTradeTree, offerTermsFromLists, validateOffer } from 'akita-sdk/hyper-swap';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 
 algokit.Config.configure({ populateAppCallResources: true });
@@ -105,13 +105,21 @@ describe('HyperSwap plugin contract', () => {
         const info = await algorand.account.getInformation(address);
         expect(info.authAddr?.toString() ?? address).toBe(address);
       };
+      const expiration = BigInt(block.block.header.timestamp) + 3600n;
       await execute(wallet, hyperSwapPluginSdk.offer({
         root: trades.root, leaves: 2, participantsRoot: participants.root, participantLeaves: 2,
-        expiration: BigInt(block.block.header.timestamp) + 3600n,
+        expiration,
       }));
-      // The partner derives the terms from the full lists, never from the chain.
-      const terms = validateOffer({ id, offer: await swapSdk.getOffer({ id }), leaves: leafList, participants: participantList });
-      await execute(partner, hyperSwapPluginSdk.accept({ id, proof: participants.getProof(1), terms }));
+      // AUD-C11: the plugin SDK takes the full lists and the agreed expiration and derives the terms
+      // itself. They equal what a careful participant gets from checking the offer on chain.
+      expect(offerTermsFromLists({ id, leaves: leafList, participants: participantList, expiration }))
+        .toEqual(validateOffer({ id, offer: await swapSdk.getOffer({ id }), leaves: leafList, participants: participantList }));
+      // A list that does not match the offer on chain (one leaf left out) is refused by the contract.
+      await expect(partner.usePlugin({
+        callerType: CallerType.Global,
+        calls: [hyperSwapPluginSdk.accept({ id, proof: participants.getProof(1), leaves: [leafList[1]], participants: participantList, expiration })],
+      })).rejects.toThrow(/errTmis|terms/i);
+      await execute(partner, hyperSwapPluginSdk.accept({ id, proof: participants.getProof(1), leaves: leafList, participants: participantList, expiration }));
       await execute(wallet, hyperSwapPluginSdk.escrow({ id, receiver: taker, asset: 0n, amount: 10_000n, proof: trades.getProof(0) }));
       if (cancel) {
         await execute(wallet, hyperSwapPluginSdk.cancel({ id, proof: participants.getProof(0) }));

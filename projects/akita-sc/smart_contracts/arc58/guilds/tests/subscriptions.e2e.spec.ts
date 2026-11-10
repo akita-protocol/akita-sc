@@ -25,6 +25,7 @@ import {
   SUBSCRIPTIONS,
   SUBSCRIPTION_HISTORY_MBR,
   SUBSCRIPTION_OFFERING_MBR,
+  SUBSCRIPTION_SNAPSHOT_MBR,
   SUBSCRIPTION_WEIGHT_SLOT_MBR,
   SUBSCRIPTION_WEIGHTS_BOX_MBR,
   VOTING_DURATION,
@@ -57,6 +58,14 @@ describe('Subscription Guild consensus', () => {
   beforeAll(fixture.newScope, 120_000)
   beforeAll(async () => {
     environment = await deployGuildTestEnvironment(fixture.context.algorand, fixture.context.testAccount)
+    // The AUD-C13 tests deploy two more consensus hosts (20 ALGO each) than the creator was funded for.
+    const dispenser = await environment.algorand.account.dispenserFromEnvironment()
+    await environment.algorand.send.payment({
+      sender: dispenser.addr,
+      signer: dispenser.signer,
+      receiver: environment.creator.addr,
+      amount: microAlgo(100_000_000n),
+    })
     timeWarp = new TimeWarp(environment.algorand)
   }, 180_000)
   afterAll(async () => timeWarp?.resetTimeWarp())
@@ -205,6 +214,122 @@ describe('Subscription Guild consensus', () => {
       ...send,
     })
     expect(await consensus.subscriberPowerAt({ args: { account: owner, proposalId: 2n, evidence: subscriptionEvidence(101n) }, staticFee: MAX_APP_CALL_FEE })).toBe(9n)
+  }, 180_000)
+
+  test('AUD-C13: a subscription votes only on ballots opened after one full interval of unbroken payment', async () => {
+    const INTERVAL = 1_000n
+    const newcomer = await fixture.context.generateAccount({ initialFunds: microAlgo(3_000_000n) })
+    const sleeper = await fixture.context.generateAccount({ initialFunds: microAlgo(3_000_000n) })
+    const subscriptions = await deployMockSubscriptions(environment)
+    const member = environment.creator.addr.toString()
+
+    const { host, consensus } = await deploySubscriptionConsensus(environment, subscriptions.appId, 1n)
+    const policy = consensus.appAddress.toString()
+    await host.send.consensusAction({ args: { proposalId: 0n, data: subscription.addOfferings([{ weight: 3n }]) }, ...send })
+    await host.send.validateActivation({ args: {}, ...send })
+
+    /** The record the real subscriptions app would hold for this payment history. */
+    const record = (account: string, id: bigint, startDate: bigint, lastPayment: bigint, streak: bigint) =>
+      subscriptions.send.setSubscriptionRun({
+        args: { account, id, recipient: policy, serviceId: 1n, interval: INTERVAL, startDate, lastPayment, streak },
+      })
+    const open = async (proposalId: bigint, duration: bigint) =>
+      host.send.openProposal({
+        args: {
+          proposalId,
+          votingEnd: (await latestTimestamp(environment.algorand)) + duration,
+          requirements: { participation: 0n, approval: 50_000n, minimumApprovals: 0n },
+        },
+        ...send,
+      })
+    const powerAt = (account: string, proposalId: bigint, subscriptionId: bigint) =>
+      consensus.subscriberPowerAt({
+        args: { account, proposalId, evidence: subscriptionEvidence(subscriptionId) },
+        staticFee: MAX_APP_CALL_FEE,
+      })
+    const cast = (voter: string, proposalId: bigint, subscriptionId: bigint) =>
+      host.send.vote({ args: { voter, proposalId, vote: APPROVE, evidence: subscriptionEvidence(subscriptionId) }, ...send })
+    const canPropose = async (account: string, subscriptionId: bigint) =>
+      (await host.send.proposalPower({ args: { account, evidence: subscriptionEvidence(subscriptionId), requiredThrough: 0n }, ...send })).return
+
+    // An established member, an account that subscribes now, and an old subscription that lapsed
+    // after one payment ten intervals ago and is paid again now (its run restarts: streak 1).
+    const t0 = await latestTimestamp(environment.algorand)
+    await subscribe(subscriptions, member, 101n, policy, 1n, INTERVAL)
+    await record(newcomer.addr.toString(), 102n, t0, t0, 1n)
+    await record(sleeper.addr.toString(), 103n, t0 - 10n * INTERVAL, t0, 1n)
+
+    // Proposing is not seasoned: all three hold a paid-up subscription.
+    expect(await canPropose(member, 101n)).toBe(3n)
+    expect(await canPropose(newcomer.addr.toString(), 102n)).toBe(3n)
+    expect(await canPropose(sleeper.addr.toString(), 103n)).toBe(3n)
+
+    // Ballot 1 opens now and stays open for five intervals.
+    await open(1n, 5n * INTERVAL)
+    expect((await consensus.state.box.snapshots.value(1n))!.openedAt).toBeGreaterThanOrEqual(t0)
+    expect(await powerAt(member, 1n, 101n)).toBe(3n)
+    expect(await powerAt(newcomer.addr.toString(), 1n, 102n)).toBe(0n)
+    expect(await powerAt(sleeper.addr.toString(), 1n, 103n)).toBe(0n)
+    await cast(member, 1n, 101n)
+    await expectContractError(cast(newcomer.addr.toString(), 1n, 102n), 'ERR:errGpwr')
+    await expectContractError(cast(sleeper.addr.toString(), 1n, 103n), 'ERR:errGpwr')
+
+    // One interval later everyone has renewed.
+    await timeWarp.timeWarp(INTERVAL + 10n)
+    const t1 = await latestTimestamp(environment.algorand)
+    await subscribe(subscriptions, member, 101n, policy, 1n, INTERVAL)
+    await record(newcomer.addr.toString(), 102n, t0, t1, 2n)
+    await record(sleeper.addr.toString(), 103n, t0 - 10n * INTERVAL, t1, 2n)
+
+    // Renewing never buys a vote on a ballot that opened before the subscription was seasoned.
+    expect(await powerAt(newcomer.addr.toString(), 1n, 102n)).toBe(0n)
+    await expectContractError(cast(newcomer.addr.toString(), 1n, 102n), 'ERR:errGpwr')
+
+    // Ballot 2 opens a full interval after the newcomer subscribed: the newcomer votes on it.
+    // The resumed subscription does not yet: its run is counted from the end of the window it resumed in.
+    await open(2n, 5n * INTERVAL)
+    expect(await powerAt(newcomer.addr.toString(), 2n, 102n)).toBe(3n)
+    expect(await powerAt(sleeper.addr.toString(), 2n, 103n)).toBe(0n)
+    await cast(newcomer.addr.toString(), 2n, 102n)
+    await expectContractError(cast(sleeper.addr.toString(), 2n, 103n), 'ERR:errGpwr')
+    expect((await consensus.getBallot({ args: { proposalId: 2n } })).votes.approvals).toBe(3n)
+
+    // Another interval later the resumed subscription has renewed again and is seasoned for ballot 3.
+    // The newcomer did not renew this time, and an unpaid subscription still grants nothing.
+    await timeWarp.timeWarp(INTERVAL + 10n)
+    const t2 = await latestTimestamp(environment.algorand)
+    await record(sleeper.addr.toString(), 103n, t0 - 10n * INTERVAL, t2, 3n)
+    await open(3n, 5n * INTERVAL)
+    expect(await powerAt(sleeper.addr.toString(), 3n, 103n)).toBe(3n)
+    expect(await powerAt(newcomer.addr.toString(), 3n, 102n)).toBe(0n)
+    await cast(sleeper.addr.toString(), 3n, 103n)
+
+    // A record with no payment run (streak reset to 0 by the subscriptions app) grants no vote.
+    await record(sleeper.addr.toString(), 103n, t0 - 10n * INTERVAL, t2, 0n)
+    expect(await powerAt(sleeper.addr.toString(), 3n, 103n)).toBe(0n)
+  }, 300_000)
+
+  test('the ballot quote covers the snapshot box, and cleanup returns it', async () => {
+    const subscriptions = await deployMockSubscriptions(environment)
+    const { host, consensus } = await deploySubscriptionConsensus(environment, subscriptions.appId, 1n)
+    await host.send.consensusAction({ args: { proposalId: 0n, data: subscription.addOfferings([{ weight: 1n }]) }, ...send })
+    await host.send.validateActivation({ args: {}, ...send })
+    // ballot box 35,300 + snapshot box 12,500 (9-byte key, 16-byte value)
+    expect(await consensus.ballotMbr({ args: {}, staticFee: MAX_APP_CALL_FEE })).toBe(35_300n + SUBSCRIPTION_SNAPSHOT_MBR)
+
+    const before = await environment.algorand.account.getInformation(consensus.appAddress)
+    await host.send.openProposal({
+      args: {
+        proposalId: 1n,
+        votingEnd: (await latestTimestamp(environment.algorand)) + VOTING_DURATION,
+        requirements: { participation: 0n, approval: 50_000n, minimumApprovals: 0n },
+      },
+      ...send,
+    })
+    const opened = await environment.algorand.account.getInformation(consensus.appAddress)
+    // The quote is exactly the storage the two boxes take.
+    expect(opened.minBalance.microAlgos - before.minBalance.microAlgos).toBe(35_300n + SUBSCRIPTION_SNAPSHOT_MBR)
+    expect(opened.balance.microAlgos - before.balance.microAlgos).toBe(35_300n + SUBSCRIPTION_SNAPSHOT_MBR)
   }, 180_000)
 
   test('rejects a vote that would overflow aggregate power while leaving the ballot resolvable', async () => {
