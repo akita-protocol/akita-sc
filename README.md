@@ -10,6 +10,28 @@ For the contract-by-contract lifecycle, trust boundaries, interaction map,
 verification strategy, and migration notes, see
 [CONTRACT_AUDIT.md](./CONTRACT_AUDIT.md).
 
+## Toolchain and checks
+
+Use Node.js 24 or newer. PuyaTs and Algorand TypeScript are pinned together to
+`1.2.0-beta.28` for the AVM 13 contracts in this project. The application SDK
+uses AlgoKit Utils 9.2.2 and algosdk 3.7.0; PuyaTs retains its own nested
+AlgoKit Utils 10 dependency. `@akta/plugin` depends on the contract type
+definitions directly; it does not install its own compiler.
+
+```bash
+npm install
+vibekit localnet start
+npm run build --workspace smart_contracts
+npm run build --workspace @akta/sdk
+npm run check-types --workspace smart_contracts
+npm test --workspaces --if-present
+```
+
+The contract workspace type check includes deployment scripts and test helpers.
+The legacy escrow migration script uses the wallet's admin-only `migrateEscrow`
+method to expand old escrow records while preserving their app ID and lock state.
+It calculates the required box funding and leaves current records unchanged.
+
 ---
 
 ## Architecture
@@ -103,7 +125,7 @@ Bundle assets for sale, auction, or raffle as a single package.
 
 ### Gates
 
-Composable access control system with 16 sub-gates:
+Composable access control system with 18 sub-gates:
 
 | Sub-Gate | Purpose |
 |----------|---------|
@@ -120,6 +142,8 @@ Composable access control system with 16 sub-gates:
 | `socialImpactGate` | Social impact score thresholds |
 | `socialModeratorGate` | Moderator role verification |
 | `stakingAmountGate` | Staking amount requirements |
+| `governanceParticipationGate` | Recent DAO voting participation |
+| `moderatorActivityGate` | Counted moderation actions per 7-day epoch |
 | `stakingPowerGate` | Staking power thresholds |
 | `subscriptionGate` | Active subscription verification |
 | `subscriptionStreakGate` | Subscription streak requirements |
@@ -128,9 +152,9 @@ Composable access control system with 16 sub-gates:
 
 Peer-to-peer swap engine supporting practically limitless unique assets and parties in a simulated atomic transaction group.
 
-### Meta Merkles
+### Meta
 
-On-chain metadata contract using merkle roots as namespaces for efficient metadata about sets of assets, addresses, apps, and more. Ingestible by other contracts for composable data verification.
+Merkle roots and proof verification with one shared store for arbitrary and Merkle-attached records. A reusable ARC-58 Meta plugin keeps per-wallet, per-caller namespace policies in plugin-owned Meta records. Includes public QR-style/account-image schemas. See [Meta documentation](projects/akita-sdk/docs/meta.md). New Meta deployments use a new app ID; existing MetaMerkles deployments remain accessible through the legacy SDK.
 
 ---
 
@@ -211,6 +235,38 @@ Mainnet last updated from manual NFD/staking plugin deployment on 2026-05-25.
 |----------|---------|---------|
 | `gate` | [`763128492`](https://lora.algokit.io/testnet/application/763128492) | [`3569558504`](https://lora.algokit.io/mainnet/application/3569558504) |
 | `metaMerkles` | [`763128435`](https://lora.algokit.io/testnet/application/763128435) | [`3569558010`](https://lora.algokit.io/mainnet/application/3569558010) |
+
+### 2026-10 Release Contracts
+
+A dash means not deployed on that network yet. Each deployment script's receipt
+`--register` step fills its row and the matching optional key in `networks.ts`.
+
+| Contract | Testnet | Mainnet |
+|----------|---------|---------|
+| `meta` | — | — |
+| `metaPlugin` | — | — |
+| `guildFactory` | — | — |
+| `guildConsensusFactory` | — | — |
+| `guildPlugin` | — | — |
+| `welcomePlugin` | — | — |
+| `assetInboxPlugin` | — | — |
+| `walletBalanceReader` | — | — |
+| `pluginDex` | — | — |
+| `binEngine` | — | — |
+| `impactFeeHook` | — | — |
+| `swapTaxHook` | — | — |
+| `volatilityFeeHook` | — | — |
+| `backrunArbHook` | — | — |
+| `gatedFeeHook` | — | — |
+| `antiSnipeFeeHook` | — | — |
+| `launchTaxHook` | — | — |
+| `consensusKeyregHook` | — | — |
+| `pluginDexPlugin` | — | — |
+| `launchManager` | — | — |
+| `gatedFeePassPlugin` | — | — |
+| `governanceParticipationGate` | — | — |
+| `moderatorActivityGate` | — | — |
+| `rewardsV1` | [`763128244`](https://lora.algokit.io/testnet/application/763128244) | [`3569556095`](https://lora.algokit.io/mainnet/application/3569556095) |
 
 ### Plugins (Latest Deployments)
 
@@ -314,7 +370,8 @@ The `akita-sdk` package provides modular TypeScript bindings — import only wha
 | Gates | `akita-sdk/gates` |
 | HyperSwap | `akita-sdk/hyper-swap` |
 | Marketplace | `akita-sdk/marketplace` |
-| Meta Merkles | `akita-sdk/meta-merkles` |
+| Meta | `akita-sdk/meta` |
+| MetaMerkles (legacy deployments) | `akita-sdk/meta-merkles` |
 | Poll | `akita-sdk/poll` |
 | Prize Box | `akita-sdk/prize-box` |
 | Raffle | `akita-sdk/raffle` |

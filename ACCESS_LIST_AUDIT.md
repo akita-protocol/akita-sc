@@ -644,6 +644,27 @@ Boxes: `escrows[wallet,name]`, `receiveAssets[escrowAddress,asset]`, `managedAss
 
 ## PluginDex
 
+> **Superseded (2026-10-03): this section describes PluginDex v1, which was rewritten as PluginDex v2 before
+> any deployment.** v2's resource shape, measured on LocalNet:
+> - **Boxes:** `p:` pool, `h:` hook stack, `e:` external slots, `x:` pair index, and `a:`/`t:`/`v:` hook,
+>   curve and valuator approvals. A hookless native swap reads only `p:`. `h:` is read only when the pool has
+>   hooks, and `e:` only when it has external slots.
+> - **Bounded hook graph:** at most 8 hooks per pool (`MaxHooksPerPool`), fixed at creation and
+>   version-pinned (`rejectVersion`). This closes the "unbounded hook graph" gap below.
+> - **Bounded routes:** at most 4 hops.
+> - **Hook callees:** each hook's own inner calls (for example BackrunArbHook → Tinyman) still need their
+>   references from the caller.
+> - **Read quota:** the Vault approval is 13,999 B. Every call to it consumes box read quota for the program
+>   bytes above 8 KB, which is 3 empty box references today (FINAL-SPEC §10 A11).
+> - **Opcode budget:** the Vault tops up its own budget with GroupCredit op-ups around hooks, so callers need
+>   reference carriers (`opUp()`), never budget carriers.
+> - **Reference packing:** algokit's `populateAppCallResources` mis-groups `swapRoute`, so that call needs
+>   explicit references.
+>
+> Details: `projects/akita-sc/smart_contracts/plugin-dex/ARCHITECTURE.md` and `research/FINAL-SPEC.md` §10.
+> The v1 table, the row in the dynamic-graph table and the method list near the end of this file are kept
+> for the record.
+
 Boxes: `pools[id]`, `hookCounts[id,point]`, and `poolHooks[id,point,index]`.
 
 | Methods          | Resource/variant map                                                                                                                                                                                                                                   |
@@ -705,7 +726,7 @@ The following methods explicitly call `ensureBudget` and therefore require fee/b
 - `Auction.findWinner`, `refundMBR`, and `clearWeightsBoxes`.
 - `Raffle.findWinner` and `refundMBR`.
 
-Many other methods have dynamic loops without explicit `ensureBudget`: Poll bulk deletion, Staking list operations, StakingPool entry/disbursement loops, Subscriptions list/pass/trigger loops, Rewards allocation/claim/reclaim loops, DAO action/vote loops, AbstractedAccount plugin/allowance/asset/getter loops, RevenueManager assets-by-splits, PluginDex hooks, pay/opt-in/ASA arrays, and Sunset cleanup arrays.
+Many other methods have dynamic loops without explicit `ensureBudget`: Poll bulk deletion, Staking list operations, StakingPool entry/disbursement loops, Subscriptions list/pass/trigger loops, Rewards allocation/claim/reclaim loops, DAO action/vote loops, AbstractedAccount plugin/allowance/asset/getter loops, RevenueManager assets-by-splits, PluginDex hooks (v1 only; v2 calls `ensureBudget` around every hook), pay/opt-in/ASA arrays, and Sunset cleanup arrays.
 
 The discovery simulation must use a large `extraOpcodeBudget`; then the preparer must add enough application calls to satisfy both:
 
@@ -728,7 +749,7 @@ The exact formula must account for existing app calls, non-app group slots, fore
 | Gate register/check/get of large filter list                | Each filter adds a sub-gate app and arbitrary transitive graph; no safe filter cap.                                                                             | Cap filters/resources or implement cursorized gate evaluation/registration.                                                                                    |
 | RevenueManager allocation of many assets across ten splits  | Assets x splits x opt-in fallbacks expands faster than the group.                                                                                               | SDK simulation-sized asset batches; contract already has phase/counter semantics.                                                                              |
 | DAO proposal execution                                      | Stored action list can expand into many wallet boxes/plugins/allowances/executions/apps.                                                                        | Cap proposal action complexity or execute with an action cursor and explicit atomicity semantics.                                                              |
-| PluginDex hooks                                             | Stored unbounded arbitrary hooks have unknown transitive resources. Its `PluginDex.opUp()` carrier helps only while the graph remains within group capacity.    | Cap hooks per execution or cursorize hook execution; reject over-cap executions before signing.                                                                |
+| PluginDex hooks (v1; v2 caps at 8, see PluginDex section)   | Stored unbounded arbitrary hooks have unknown transitive resources. Its `PluginDex.opUp()` carrier helps only while the graph remains within group capacity.    | Cap hooks per execution or cursorize hook execution; reject over-cap executions before signing.                                                                |
 | `AbstractedAccount` direct bulk getters                     | The readonly admin getter supplies safe in-wallet carriers, but one getter can still name more wallet boxes/quota than the entire 16-transaction group can encode. | Build the full simulator-sized carrier group; page each list or reject before signing only when that group exceeds consensus capacity.                         |
 | Other bulk readonly/mutation lists                          | Subscriptions, Staking, EscrowFactory and Sunset can name more boxes than a group.                                                                              | Page readonly methods; chunk independent mutations; reject atomic batches that cannot be split.                                                                |
 
@@ -782,7 +803,7 @@ The original 93-artifact/889-entry snapshot predated the carrier expansion and a
 - `StakingPool`: `create`, `init`, `delete`, `optIn`, `addReward`, `addRewardAsa`, `finalize`, `gatedEnter`, `enter`, `startDisbursement`, `raffle`, `disburseRewards`, `finalizeDistribution`, `check`, `gateCheck`, `enterCost`, `optInCost`, `signUpsOpen`, `isLive`, `isEntered`, `getState`, `mbr`, `updateAkitaDAOEscrow`, `update`, `updateAkitaDAO`, `opUp`.
 - `StakingPoolFactory`: `create`, `newPool`, `deletePool`, `newPoolCost`, `mbr`, `initBoxedContract`, `loadBoxedContract`, `deleteBoxedContract`, `optIn`, `optInCost`, `updateAkitaDAOEscrow`, `update`, `updateAkitaDAO`, `opUp`.
 - `Subscriptions`: `create`, `newService`, `setServiceDescription`, `updateServiceTitle`, `activateService`, `pauseService`, `unpauseService`, `shutdownService`, `block`, `unblock`, `gatedSubscribe`, `subscribe`, `gatedSubscribeAsa`, `subscribeAsa`, `deposit`, `depositAsa`, `withdraw`, `unsubscribe`, `gatedTriggerPayment`, `triggerPayment`, `streakCheck`, `setPasses`, `triggerList`, `isBlocked`, `isShutdown`, `newServiceCost`, `newSubscriptionCost`, `blockCost`, `getService`, `getServicesByAddress`, `getSubscription`, `mustGetSubscription`, `getSubscriptionWithDetails`, `isFirstSubscription`, `getServiceList`, `getSubscriptionList`, `optIn`, `optInCost`, `updateAkitaDAOEscrow`, `update`, `updateAkitaDAO`, `opUp`.
-- `PluginDex`: `create`, `createPool`, `setPoolActive`, `setHookEnabled`, `adminRunHook`, `getPool`, `getHookCount`, `getHook`, `mbr`, `opUp`.
+- `PluginDex`: `create`, `createPool`, `setPoolActive`, `setHookEnabled`, `adminRunHook`, `getPool`, `getHookCount`, `getHook`, `mbr`, `opUp`. *(v1; superseded by PluginDex v2, see the PluginDex section.)*
 
 ### Social applications
 

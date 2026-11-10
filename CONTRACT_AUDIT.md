@@ -63,7 +63,10 @@ flowchart LR
   only. Funds cannot be claimed before finalization or left behind after the
   terminal cleanup path.
 - Empty plugin batches are invalid. A batch that creates no final inner
-  transaction must never leave a spending account rekeyed to a plugin.
+  transaction must never leave a spending account rekeyed to a plugin. This is
+  enforced by the wallet (`arc58_verifyAuthAddress` reverts the whole group);
+  the Pay / Pay Silo / Opt-In / Self Opt-In / ASA Manager plugins do not
+  themselves reject empty arrays (add the check when they are next redeployed).
 - Time windows use chain time. `0` has an explicit meaning (for example,
   perpetual/no-expiration) and is not accidentally treated as Unix epoch.
 - Upgrades and registry changes are DAO-authorized. Factory child bytecode is
@@ -112,7 +115,7 @@ back on the last inner transaction. The wallet then verifies its auth address.
 | Plugin | Intended operation and core dependency |
 | --- | --- |
 | ASA Manager | Create or delete a non-empty batch of wallet-managed ASAs; collect one ASA-creation MBR per mint. |
-| Opt-In / Self Opt-In | Opt a non-empty batch into or out of ASAs; external-payment and wallet-funded variants respectively; reject duplicates, nonzero close-out balances, and empty batches. |
+| Opt-In / Self Opt-In | Opt a non-empty batch into or out of ASAs; external-payment and wallet-funded variants respectively; reject duplicates and nonzero close-out balances (empty batches are rejected by the wallet's rekey verification, not the plugin). |
 | Pay / Pay Silo / Pay Silo Factory | Send a non-empty mixed ALGO/ASA batch to arbitrary recipients or a fixed silo recipient; factory creates fixed-recipient silo plugins. |
 | Auction | Create/fund auctions, bid, draw/find the loser-raffle winner, claim/refund, clear weights, and delete through Auction Factory/Auction. |
 | DAO | Create/edit/submit/vote/finalize/execute DAO proposals with the wallet as the authenticated participant. |
@@ -324,6 +327,20 @@ and lets only the pool administrator run configured hook calls or change pool
 state. Pool/hook boxes are paid exactly and IDs cannot be confused across
 pools.
 
+> **Superseded (2026-10-03):** the paragraph above describes PluginDex v1, which was rewritten as
+> PluginDex v2 before any deployment. v2 is an immutable Vault:
+> - Each pool keeps its reserves in its own child escrow, rekeyed to the Vault. The Vault's own account is
+>   never rekeyed.
+> - Hook stacks of up to 8 admin-approved, version-pinned hooks are frozen at pool creation.
+> - Custody hooks get a flash rekey of only their pool's escrow. A guard then requires the rekey back and a
+>   change in reserves at least as good for LPs as a fee-paying trade.
+> - Approved curve apps (bins), external positions with clipped valuations, launch pools, and pause plus a
+>   hook-free emergency exit are included.
+> - `createPool` measures the real cost and refunds any overpayment.
+>
+> Audit items PD-01 and PD-02 are resolved (`projects/akita-sc/audits/full-2026-10-02/fix-marketplace.md`).
+> Design and tests: `projects/akita-sc/smart_contracts/plugin-dex/ARCHITECTURE.md`.
+
 `SunsetContract`, `SunsetPlugin`, and `WalletFactorySunsetContract` implement a
 strictly authorized teardown: close wallet escrows, assets, boxes, wallet apps,
 factory boxes/assets, and finally ALGO/apps in the dependency order encoded by
@@ -343,7 +360,7 @@ not separately governed production modules.
 | Severity | Area | Finding | Remediation and regression |
 | --- | --- | --- | --- |
 | Critical | Sunset | Destructive calls could be reached without a teardown authority check. | Require creator/deployer on every destructive entry and test hostile callers. |
-| Critical | Wallet plugins | Empty batches could emit no final rekey transaction. | Reject empty batches on-chain and assert failed groups preserve auth address. |
+| Critical | Wallet plugins | Empty batches could emit no final rekey transaction. | The wallet's `arc58_verifyAuthAddress` rejects any group that leaves the spending account rekeyed; failed groups preserve the auth address. (The batch plugins themselves still accept empty arrays — not exploitable; add an on-chain length check on their next redeploy.) |
 | Critical | Child factories | Several factories recorded the caller's whole creation payment as refundable factory MBR even after forwarding portions to child apps, Rewards, or escrows. Deleting one child could therefore refund value retained for other users. | Separate factory-retained MBR from every forwarded cost, record each resource's actual funder, refund only released minimum balance, and assert isolated and pooled-factory balances before and after deletion. |
 | Critical | Marketplace ASA settlement | The ASA purchase ABI method used an unrecognized decorator property, so it compiled as `NoOp` while its logic assumed terminal `DeleteApplication` cleanup. A successful purchase could leave the listing app and its MBR stranded. | Declare the allowed `DeleteApplication` action correctly, have both factory purchase routes call the child with that action explicitly, and assert prize/payment settlement, child deletion, and exact factory balance. |
 | High | HyperSwap | A 32-byte root was used as a MetaMerkles name (maximum 31), offer/participant/root MBR lacked symmetric cleanup, and an ASA trade leaf could be funded by a different sender or clawback source. | Deterministic short namespaces, explicit MBR payor, actor-bound non-clawback ASA principal, exact MBR ownership, and full cancel/disburse/cleanup tests. |

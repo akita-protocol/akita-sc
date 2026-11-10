@@ -154,7 +154,7 @@ The original recommendations, for reference:
 ### Vault: hook stacks and custody (complete)
 
 - Hooks are admin-approved with a permission ceiling, pinned to their version (`rejectVersion`), and
-  limited to 4 per pool and one HookFeeOut hook. A hook that can change what a swap pays must also answer
+  limited to 8 per pool and one HookFeeOut hook. A hook that can change what a swap pays must also answer
   quotes.
 - A fee set by a hook is capped at the pool's `maxFeeBps`. Hook fees are capped at `maxHookFeeBps` of the
   input (at most 10%), and only at BeforeSwap or Quote.
