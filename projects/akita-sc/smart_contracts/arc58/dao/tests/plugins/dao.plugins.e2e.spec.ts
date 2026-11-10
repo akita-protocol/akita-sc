@@ -2,12 +2,17 @@ import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { ProposalActionEnum } from 'akita-sdk/dao';
-import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
+import { ABIType, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
+import { AkitaDaoProposalValidatorFactory } from '../../../../artifacts/arc58/dao/AkitaDAOProposalValidatorClient';
+import { expectContractError } from '../../../../../tests/utils/errors';
 import { deployOptInPlugin } from '../../../../../tests/fixtures/plugins/optin';
 import { logger } from '../../../../../tests/utils/logger';
 import { CallerType } from 'akita-sdk/wallet';
+import { sendPrepared } from 'akita-sdk';
+import { deployPayPlugin } from '../../../../../tests/fixtures/plugins/pay';
 import {
   bootstrapDaoTestContext,
+  buildAddPluginAction,
   proposeAndExecute,
   type DaoTestContext,
 } from '../utils';
@@ -40,10 +45,109 @@ describe('ARC58 DAO Plugins', () => {
     const dispenser = await algorand.account.dispenserFromEnvironment();
     // Each proposal can cost 7+ ALGO in MBR, ensure we have plenty of funds
     // Fund the sender from context (not the new testAccount from fixture.newScope)
-    await algorand.account.ensureFunded(context.sender, dispenser, microAlgo(100_000_000n));
+    await algorand.account.ensureFunded(context.sender, dispenser.addr, microAlgo(100_000_000n));
   });
 
   describe('Plugin Installation', () => {
+    test('preserves global policy across caller-specific changes and authenticates named removal', async () => {
+      const { fixture, dao, sender, signer } = context;
+      const { algorand } = fixture.context;
+      const deployer = await fixture.context.generateAccount({ initialFunds: (5).algos() });
+      const plugin = await deployPayPlugin({ fixture, sender: deployer.toString(), signer: deployer.signer });
+      const name = getUniqueName('policy');
+      const escrow = getUniqueName('scope');
+      const key = { plugin: plugin.appId, escrow: '' };
+      const mbr = await dao.wallet.getMbr({ escrow, methodCount: 0n, plugin: name, groups: 0n });
+      await dao.wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.newEscrowMintCost + 3_000_000n) });
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING }]);
+      await proposeAndExecute(dao, [buildAddPluginAction({
+        name, client: plugin, callerType: CallerType.Global, useExecutionKey: true,
+        escrow, defaultToEscrow: true,
+        governance: { power: 1n, duration: 60n, participation: 10_000n, approval: 50_000n },
+      })]);
+      const policy = await dao.client.state.box.plugins.value(key);
+      expect(policy).toBeDefined();
+      expect(Array.from((await dao.client.state.box.plugins.getMap()).keys()).some(entry => entry.plugin === plugin.appId && entry.escrow === escrow)).toBe(false);
+
+      await proposeAndExecute(dao, [buildAddPluginAction({
+        client: plugin, callerType: CallerType.Other, caller: sender, useExecutionKey: false,
+      })]);
+      expect(await dao.client.state.box.plugins.value(key)).toEqual(policy);
+
+      const validatorFactory = new AkitaDaoProposalValidatorFactory({ algorand, defaultSender: sender, defaultSigner: signer });
+      const { appClient: validator } = await validatorFactory.send.create.create({ args: {} });
+      for (const tuple of [
+        [name, dao.appId, ALGORAND_ZERO_ADDRESS_STRING, ''],
+        [name, plugin.appId, sender, ''],
+        [name, plugin.appId, ALGORAND_ZERO_ADDRESS_STRING, escrow],
+      ]) {
+        const mismatch = ABIType.from('(string,uint64,address,string)').encode(tuple);
+        await expectContractError(validator.send.validateActions({
+          args: { wallet: dao.wallet.appId, actions: [[41, mismatch]] },
+          maxFee: microAlgo(100_000n), populateAppCallResources: true, coverAppCallInnerTransactionFees: true,
+        }), 'errIact');
+      }
+      expect(await dao.client.state.box.plugins.value(key)).toEqual(policy);
+
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.RemovePlugin, ...key, caller: sender }]);
+      expect(await dao.client.state.box.plugins.value(key)).toEqual(policy);
+      expect(await dao.wallet.client.arc58GetNamedPluginKey({ args: { name } })).toEqual({ ...key, caller: ALGORAND_ZERO_ADDRESS_STRING });
+
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.RemoveNamedPlugin, name }]);
+      expect(Array.from((await dao.client.state.box.plugins.getMap()).keys()).some(entry => entry.plugin === plugin.appId)).toBe(false);
+      expect((await dao.wallet.client.state.box.namedPlugins.getMap()).has(name)).toBe(false);
+    });
+
+    test('validates named plugin governance settings on chain even when SDK validation is bypassed', async () => {
+      const { fixture, dao, sender, signer } = context;
+      const validatorFactory = new AkitaDaoProposalValidatorFactory({ algorand: fixture.context.algorand, defaultSender: sender, defaultSigner: signer });
+      const { appClient } = await validatorFactory.send.create.create({ args: {} });
+      const data = ABIType.from('(string,uint64,address,string,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,uint64,uint64,uint64,uint64,uint64,string,(uint64,uint8,uint64,uint64,uint64,bool)[])').encode([
+        'invalid_policy', dao.appId, ALGORAND_ZERO_ADDRESS_STRING, '', 0,
+        18_446_744_073_709_551_615n, 0n, [], false, true, false, false,
+        0n, 1n, 60n, 10_000n, 0n, '', [],
+      ]);
+      await expectContractError(appClient.send.validateActions({
+        args: { wallet: dao.wallet.appId, actions: [[21, data]] },
+        maxFee: microAlgo(100_000n), populateAppCallResources: true, coverAppCallInnerTransactionFees: true,
+      }), 'ERR:errImna');
+    });
+
+    test('authorizes approved group hashes, rejects other groups, and prevents replay', async () => {
+      const { dao, fixture, sender, signer } = context;
+      const { algorand } = fixture.context;
+      const deployerB = await fixture.context.generateAccount({ initialFunds: microAlgo(5_000_000n) });
+      const actual = await deployPayPlugin({ fixture, sender: deployerB.toString(), signer: deployerB.signer });
+      await dao.wallet.client.appClient.fundAppAccount({ amount: microAlgo(3_000_000n) });
+      await proposeAndExecute(dao, [actual].map(client => buildAddPluginAction({
+        client, callerType: CallerType.Global, useExecutionKey: true,
+        governance: { power: 1n, duration: 60n, participation: 10_000n, approval: 50_000n },
+      })));
+
+      const execution = await dao.wallet.build.usePlugin({
+        sender, signer, lease: 'dao_execution_regression', windowSize: 1000n,
+        callerType: CallerType.Global,
+        calls: [actual.pay({ payments: [{ receiver: sender, amount: 1n, asset: 0n }] })],
+      });
+      const authorization = {
+        type: ProposalActionEnum.ExecutePlugin as const,
+        plugin: actual.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '',
+        executionKey: execution.lease, groups: [new Uint8Array(32).fill(123)],
+        firstValid: execution.firstValid, lastValid: execution.lastValid,
+      };
+      await proposeAndExecute(dao, [authorization]);
+      const before = await algorand.account.getInformation(dao.wallet.client.appAddress);
+      await expectContractError(sendPrepared(execution.windows[0], algorand.client.algod), 'errNgrp');
+      expect((await algorand.account.getInformation(dao.wallet.client.appAddress)).balance.microAlgos).toBe(before.balance.microAlgos);
+      expect((await dao.wallet.getExecution(execution.lease)).groups).toEqual(authorization.groups);
+
+      await proposeAndExecute(dao, [{ type: ProposalActionEnum.RemoveExecutePlugin, executionKey: execution.lease }]);
+      await proposeAndExecute(dao, [{ ...authorization, groups: execution.ids }]);
+      await sendPrepared(execution.windows[0], algorand.client.algod);
+      expect((await dao.wallet.client.state.box.executions.getMap()).size).toBe(0);
+      await expect(sendPrepared(execution.windows[0], algorand.client.algod)).rejects.toThrow();
+    }, 120_000);
+
     test('should install a global plugin without execution key', async () => {
       const { fixture, dao, sender, signer } = context;
 

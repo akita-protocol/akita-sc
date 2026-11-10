@@ -4,8 +4,10 @@ import {
   ProposalAddAllowances,
   ProposalAddNamedPlugin,
   ProposalAddPlugin,
+  ProposalChangeAdmin,
   ProposalExecutePlugin,
   ProposalNewEscrow,
+  ProposalReclaim,
   ProposalRemoveAllowances,
   ProposalRemoveExecutePlugin,
   ProposalRemoveNamedPlugin,
@@ -19,7 +21,8 @@ import { ENV_VAR_NAMES } from "../config";
 import { GroupReturn, isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, TxnReturn } from "../types";
 import { CallerType, WalletSDK } from "../wallet";
 import { AkitaDaoGlobalState, DecodedProposal, DecodedProposalAction, EditProposalParams, NewProposalParams, ProposalAction, ProposalAddPluginArgs, SplitsToTuples } from "./types";
-import { DAOProposalVotesMBR, ProposalActionEnum } from "./constants";
+import { DAOBootstrapKeyBoxPrefix, ProposalActionEnum } from "./constants";
+import { decodeVoteReceipt, DecodedVoteReceipt, voteCost, voteReceiptBoxName } from "./votes";
 import { ABIStructValue, assertByteArrayLength, decodeABIValue as getABIDecodedValue, encodeABIValue as getABIEncodedValue, randomByteArray } from "../utils";
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, encodeUint64 } from "algosdk";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
@@ -36,6 +39,7 @@ export * from './constants';
 export * from "./errors";
 export * from "./types";
 export * from './legacy';
+export * from './votes';
 
 type ContractArgs = AkitaDaoArgs["obj"]
 type SetupArgs = (
@@ -288,18 +292,10 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
           break;
         }
         case ProposalActionEnum.RemoveNamedPlugin: {
-          const { type, ...action } = typedAction
-          const { name } = action;
-
-          if (!wallet!.namedPlugins.has(name)) {
-            try {
-              await wallet!.getPluginByName(name)
-            } catch (e) {
-              throw new Error(`Plugin named: ${name} not found`);
-            }
-          }
-
-          abiAction = action
+          const { name } = typedAction;
+          // Resolve the current alias so the voted payload commits the exact registration.
+          const key = await wallet!.client.arc58GetNamedPluginKey({ args: { name } });
+          abiAction = { name, plugin: key.plugin, caller: key.caller, escrow: key.escrow };
           structType = 'ProposalRemoveNamedPlugin';
           break;
         }
@@ -329,6 +325,20 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
           abiAction = action;
           structType = 'ProposalToggleEscrowLock';
+          break;
+        }
+        case ProposalActionEnum.Reclaim: {
+          const { escrow, reclaims } = typedAction
+
+          abiAction = { escrow, reclaims: reclaims.map(({ asset, amount, closeOut }) => [asset, amount, closeOut]) };
+          structType = 'ProposalReclaim';
+          break;
+        }
+        case ProposalActionEnum.ChangeAdmin: {
+          const { type, ...action } = typedAction
+
+          abiAction = action;
+          structType = 'ProposalChangeAdmin';
           break;
         }
         case ProposalActionEnum.UpdateFields: {
@@ -450,6 +460,12 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
 
               data = getABIEncodedValue({ createFee, referrerPercentage }, 'WalletFees', this.client.appClient.appSpec.structs)
               break;
+            }
+            case 'guild_fees': {
+              const currentFees = await this.client.state.global.guildFees()
+              const { createFee = currentFees?.createFee ?? 0n } = action.value
+              data = getABIEncodedValue({ createFee }, 'GuildFees', this.client.appClient.appSpec.structs)
+              break
             }
             case 'social_fees': {
               const currentFees = await this.client.state.global.socialFees()
@@ -582,6 +598,8 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
             case 'add_allowance_ps':
             case 'remove_allowance_ps':
             case 'new_escrow_ps':
+            case 'remove_execute_plugin_ps':
+            case 'toggle_escrow_lock_ps':
             case 'update_fields_ps': {
               data = getABIEncodedValue(action.value, "ProposalSettings", this.client.appClient.appSpec.structs)
               break;
@@ -638,7 +656,6 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
     group.setup({
       ...sendParams,
       args: { nickname, salt },
-      maxFee: microAlgo(6_000n)
     })
 
     const result = await group.send({ ...sendParams })
@@ -698,7 +715,7 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       maxFee: microAlgo(257_000n)
     })
 
-    // Single simulate via utils10's `prepareGroup` populates resources and
+    // Single simulate via AlgoKit's `prepareGroup` populates resources and
     // distributes inner-txn fees; optional fee consolidation onto txn[0] is
     // an in-memory mutation after simulate (no extra roundtrip).
     const prepared = await prepareGroup(
@@ -792,11 +809,12 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
   async voteProposal({ proposalId, vote, sender, signer }: ContractArgs['voteProposal(pay,uint64,uint8)void'] & MaybeSigner): Promise<TxnReturn<void>> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const { payment } = await this.voteCost({ proposalId: BigInt(proposalId), voter: sendParams.sender.toString() })
 
     const mbrPayment = this.client.algorand.createTransaction.payment({
       ...sendParams,
       receiver: this.client.appAddress.toString(),
-      amount: microAlgo(DAOProposalVotesMBR),
+      amount: microAlgo(payment),
     });
 
     return await this.client.send.voteProposal({
@@ -823,6 +841,96 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       ...sendParams,
       args: { proposalId }
     })
+  }
+
+  /**
+   * Delete one of your proposals (draft, rejected, executed, cancelled, or a leftover bootstrap proposal).
+   * Voted proposals require every vote receipt to be cleared first (`deleteProposalVotes`).
+   */
+  async deleteProposal({ sender, signer, proposalId }: ContractArgs['deleteProposal(uint64)void'] & MaybeSigner): Promise<TxnReturn<void>> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return await this.client.send.deleteProposal({ ...sendParams, args: { proposalId } })
+  }
+
+  /** Delete vote receipts of a finished proposal; each voter is refunded their receipt deposit. */
+  async deleteProposalVotes({ sender, signer, proposalId, voters }: ContractArgs['deleteProposalVotes(uint64,address[])void'] & MaybeSigner): Promise<TxnReturn<void>> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return await this.client.send.deleteProposalVotes({ ...sendParams, args: { proposalId, voters } })
+  }
+
+  /** Proposer-only: abandon an approved proposal that has not executed. */
+  async cancelProposal({ sender, signer, proposalId }: ContractArgs['cancelProposal(uint64)void'] & MaybeSigner): Promise<TxnReturn<void>> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return await this.client.send.cancelProposal({ ...sendParams, args: { proposalId } })
+  }
+
+  /**
+   * Voting-rule snapshot of a submitted proposal: duration, participation, approval, outstanding vote
+   * receipts, base units locked at submit (the quorum denominator) and locked base units that voted.
+   */
+  async getProposalTally(proposalId: bigint) {
+    return await this.client.getProposalTally({ ...this.getReaderSendParams(), args: { proposalId } })
+  }
+
+  /** `account`'s governance participation (last vote time and proposal, distinct proposals voted on); zeros if it never voted. */
+  async getGovernanceParticipation(account: string) {
+    return await this.client.getGovernanceParticipation({ ...this.getReaderSendParams(), args: { account } })
+  }
+
+  /** `voter`'s receipt on a proposal ('w', or a legacy 'v' receipt with weight 0), or undefined. */
+  async getVoteReceipt({ proposalId, voter }: { proposalId: bigint; voter: string }): Promise<DecodedVoteReceipt | undefined> {
+    for (const legacy of [false, true]) {
+      const value = await this.readBox(voteReceiptBoxName(proposalId, voter, legacy))
+      if (value) return decodeVoteReceipt(value, legacy)
+    }
+    return undefined
+  }
+
+  /** The exact deposit `voteProposal` requires from `voter`, and what the DAO refunds in the same call. */
+  async voteCost({ proposalId, voter }: { proposalId: bigint; voter: string }): Promise<{ payment: bigint; refund: bigint }> {
+    const [receipt, legacyReceipt, participation] = await Promise.all([
+      this.readBox(voteReceiptBoxName(proposalId, voter)),
+      this.readBox(voteReceiptBoxName(proposalId, voter, true)),
+      this.getGovernanceParticipation(voter),
+    ])
+    return voteCost({ receipt: receipt !== undefined, legacyReceipt: legacyReceipt !== undefined, participation: participation.votes > 0n })
+  }
+
+  private async readBox(name: Uint8Array): Promise<Uint8Array | undefined> {
+    try {
+      return await this.algorand.app.getBoxValue(this.client.appId, name)
+    } catch (error) {
+      if (error instanceof Error && error.message.toLowerCase().includes('box not found')) return undefined
+      throw error
+    }
+  }
+
+  /** Leases of bootstrap execution keys the DAO still tracks (must be cleared before `initialize`). */
+  async getBootstrapKeys(): Promise<Uint8Array[]> {
+    const names = await this.algorand.app.getBoxNames(this.client.appId)
+    return names
+      .filter(({ nameRaw }) => nameRaw.length === 33 && nameRaw[0] === DAOBootstrapKeyBoxPrefix.charCodeAt(0))
+      .map(({ nameRaw }) => nameRaw.slice(1))
+  }
+
+  /**
+   * Caller-scoped plugin grants added by bootstrap proposals that are still installed: the pre-launch
+   * automation the DAO starts with. They survive `initialize`; a RemovePlugin proposal removes one.
+   */
+  async getBootstrapGrants(): Promise<{ plugin: bigint; caller: string; escrow: string }[]> {
+    return Array.from((await this.client.state.box.bootstrapGrants.getMap()).keys())
+  }
+
+  /**
+   * Stop tracking bootstrap execution keys, revoking any that are still live in the DAO wallet.
+   * Anyone may clear used or expired keys; only the creator may revoke an unexpired one.
+   * Defaults to every tracked key.
+   */
+  async clearBootstrapKeys({ sender, signer, leases }: { leases?: Uint8Array[] } & MaybeSigner = {}): Promise<TxnReturn<void> | undefined> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    const toClear = leases ?? await this.getBootstrapKeys()
+    if (toClear.length === 0) return undefined
+    return await this.client.send.clearBootstrapKeys({ ...sendParams, args: { leases: toClear } })
   }
 
   async getGlobalState(): Promise<AkitaDaoGlobalState> {
@@ -887,10 +995,14 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
         return 'ProposalNewEscrow';
       case ProposalActionEnum.ToggleEscrowLock:
         return 'ProposalToggleEscrowLock';
+      case ProposalActionEnum.Reclaim:
+        return 'ProposalReclaim';
       case ProposalActionEnum.UpdateFields:
         return 'ProposalUpdateField';
       case ProposalActionEnum.UpdateWallet:
         return '';  // No struct — empty data
+      case ProposalActionEnum.ChangeAdmin:
+        return 'ProposalChangeAdmin';
       default:
         throw new Error(`Unknown proposal action type: ${actionType}`);
     }
@@ -956,6 +1068,14 @@ export class AkitaDaoSDK extends BaseSDK<AkitaDaoClient> {
       case ProposalActionEnum.ToggleEscrowLock: {
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalToggleEscrowLock;
         return { type: ProposalActionEnum.ToggleEscrowLock, ...decoded };
+      }
+      case ProposalActionEnum.Reclaim: {
+        const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalReclaim;
+        return { type: ProposalActionEnum.Reclaim, ...decoded };
+      }
+      case ProposalActionEnum.ChangeAdmin: {
+        const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalChangeAdmin;
+        return { type: ProposalActionEnum.ChangeAdmin, ...decoded };
       }
       case ProposalActionEnum.UpdateFields: {
         const decoded = getABIDecodedValue(actionData, structType, structs) as ProposalUpdateField;

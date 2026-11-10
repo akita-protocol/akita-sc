@@ -1,7 +1,7 @@
 import { Account, arc4, bytes, uint64 } from '@algorandfoundation/algorand-typescript';
 import { Struct, Uint8 } from '@algorandfoundation/algorand-typescript/arc4';
 import { CID } from '../../utils/types/base';
-import { AddAllowanceInfo, MethodRestriction } from '../account/types';
+import { AddAllowanceInfo, EscrowReclaim, MethodRestriction } from '../account/types';
 
 export type DaoState = Uint8
 export type ProposalStatus = Uint8
@@ -119,6 +119,17 @@ export type ProposalToggleEscrowLock = {
   escrow: string
 }
 
+/** Move escrowed funds back to the DAO wallet's controlled address. */
+export type ProposalReclaim = {
+  escrow: string
+  reclaims: EscrowReclaim[]
+}
+
+/** Hand administration of the DAO wallet to another account. */
+export type ProposalChangeAdmin = {
+  admin: Account
+}
+
 export type ProposalUpdateField = {
   field: string
   value: bytes
@@ -161,11 +172,59 @@ export type ProposalVoteKey = {
   voter: Account
 }
 
+/** Legacy vote receipt ('v' box): power only, written before participation was counted in tokens. */
 export type ProposalVoteInfo = {
   type: ProposalVoteType
   power: uint64
 }
 
+/** Vote receipt ('w' box). */
+export type ProposalVoteReceipt = {
+  type: ProposalVoteType
+  /** power added to the approve / reject / abstain tally */
+  power: uint64
+  /** locked amount added to the proposal's participation */
+  weight: uint64
+}
+
+/** A voter's governance weight for one vote. */
+export type GovernanceWeight = {
+  /** min over AKTA/BONES of amount x remaining lock days (capped at 365) / 365, in base units */
+  power: uint64
+  /** min(locked AKTA, locked BONES), in base units */
+  weight: uint64
+}
+
+/** A voter's governance participation record ('r' box). Deleting vote receipts keeps it. */
+export type GovernanceParticipation = {
+  lastVotedTs: uint64
+  lastProposalID: uint64
+  /** number of distinct proposals voted on */
+  votes: uint64
+}
+
+
+/**
+ * Per-proposal tally, created when a proposal is submitted to voting.
+ * Snapshots the voting rules so later settings changes cannot alter (or brick) an in-flight vote,
+ * and counts outstanding vote receipts so the proposal cannot be deleted while voters are still owed refunds.
+ */
+export type ProposalTally = {
+  duration: uint64
+  participation: uint64
+  approval: uint64
+  voteCount: uint64
+  /** base units locked when voting started: the participation denominator */
+  locked: uint64
+  /** locked base units that voted: the participation numerator */
+  weight: uint64
+}
+
+/** An UpgradeApp execution key recorded for its target app (pruned once `lastValid` has passed). */
+export type UpgradeLease = {
+  lease: bytes<32>
+  lastValid: uint64
+}
 
 export type ExecutionMetadata = {
   proposalID: uint64
@@ -210,7 +269,7 @@ export type AkitaAppList = {
   auction: uint64 // Akita Auctions
   hyperSwap: uint64 // Akita HyperSwap
   raffle: uint64 // Akita Raffle
-  metaMerkles: uint64 // Akita MetaMerkles
+  metaMerkles: uint64 // Akita Meta
   marketplace: uint64 // Akita Marketplace
   wallet: uint64 // abstracted account factory
 }
@@ -268,7 +327,7 @@ export type AkitaDAOApps = {
   auction: uint64 // Akita Auctions
   hyperSwap: uint64 // Akita HyperSwap
   raffle: uint64 // Akita Raffle
-  metaMerkles: uint64 // Akita MetaMerkles
+  metaMerkles: uint64 // Akita Meta
   marketplace: uint64 // Akita Marketplace
   akitaNfd: uint64 // akita.algo NFD
   optin: uint64 // optin plugin
@@ -292,6 +351,11 @@ export type WalletFees = {
   createFee: uint64
   /** the percentage referrers receive on other fees */
   referrerPercentage: uint64
+}
+
+export type GuildFees = {
+  /** the fee the DAO charges for guild creation */
+  createFee: uint64
 }
 
 export type SocialFees = {

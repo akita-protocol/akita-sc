@@ -120,7 +120,7 @@ describe('ARC58 DAO Setup', () => {
     test('should fund DAO reader account', async () => {
       const { algorand } = fixture.context;
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(dao.readerAccount, dispenser, algo(1));
+      await algorand.account.ensureFunded(dao.readerAccount, dispenser.addr, algo(1));
 
       const info = await algorand.account.getInformation(dao.readerAccount);
       expect(info.balance.microAlgo).toBeGreaterThanOrEqual(1_000_000n);
@@ -237,7 +237,7 @@ describe('ARC58 DAO Setup', () => {
       const dispenser = await fixture.algorand.account.dispenserFromEnvironment();
       await fixture.algorand.account.ensureFunded(
         revenueManagerPlugin.client.appAddress,
-        dispenser,
+        dispenser.addr,
         algo(2)
       );
     });
@@ -344,10 +344,9 @@ describe('ARC58 DAO Setup', () => {
       // Propose and execute
       const proposalId = await proposeAndExecute(dao, [
         {
-          type: ProposalActionEnum.ExecutePlugin,
-          plugin: updatePlugin.appId,
-          caller: sender,
-          escrow: '',
+          // Update-plugin executions must come from an UpgradeApp action naming the target (DAO-03).
+          type: ProposalActionEnum.UpgradeApp,
+          app: walletFactory.appId,
           executionKey: execution.lease,
           groups: execution.ids,
           firstValid: execution.firstValid,
@@ -456,8 +455,19 @@ describe('ARC58 DAO Setup', () => {
       expect(updatePlugin.appId).toBeGreaterThan(0n);
     });
 
-    test('should initialize DAO', async () => {
+    test('should initialize DAO only after every bootstrap execution key is cleared', async () => {
+      // The bootstrap phase registered execution keys (UpgradeApp / ExecutePlugin). They are tracked
+      // so no creator-approved execution can outlive creator control (DAO-01).
+      const keys = await dao.getBootstrapKeys();
+      expect(keys.length).toBeGreaterThan(0);
+      await expect(dao.initialize()).rejects.toThrow(/errBsko/);
+
+      await dao.clearBootstrapKeys();
+      expect(await dao.getBootstrapKeys()).toHaveLength(0);
+
       await dao.initialize();
+      const { state } = await dao.getGlobalState();
+      expect(state).toBe(2);
     });
   });
 });

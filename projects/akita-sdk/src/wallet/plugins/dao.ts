@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { AkitaDaoPluginArgs, AkitaDaoPluginClient, AkitaDaoPluginFactory } from "../../generated/AkitaDAOPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -40,6 +40,32 @@ type ExecuteProposalArgs = (
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
+
+type EditProposalArgs = (
+  Omit<ContractArgs['editProposal(uint64,bool,uint64,byte[36],(uint8,byte[])[])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type SubmitProposalArgs = (
+  Omit<ContractArgs['submitProposal(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type DeleteProposalArgs = (
+  Omit<ContractArgs['deleteProposal(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type CancelProposalArgs = (
+  Omit<ContractArgs['cancelProposal(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type SimpleMethod = 'editProposal' | 'submitProposal' | 'deleteProposal' | 'cancelProposal';
 
 export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
 
@@ -217,5 +243,61 @@ export class DAOPluginSDK extends BaseSDK<AkitaDaoPluginClient> {
         }];
       }
     });
+  }
+
+  /** Shared hook builder for the single-call DAO plugin methods. */
+  private simpleHook(methodName: SimpleMethod, args?: (MaybeSigner & { rekeyBack?: boolean } & Record<string, unknown>)): PluginSDKReturn {
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack: maybeRekeyBack, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = maybeRekeyBack ?? true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const params = await (this.client.params[methodName] as any)({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+        });
+        return [{ type: 'methodCall', ...params }];
+      }
+    });
+  }
+
+  /** Edit one of this wallet's draft proposals (the plugin tops up or the DAO refunds the cost difference). */
+  editProposal(): PluginSDKReturn;
+  editProposal(args: EditProposalArgs): PluginSDKReturn;
+  editProposal(args?: EditProposalArgs): PluginSDKReturn {
+    return this.simpleHook('editProposal', args);
+  }
+
+  /** Submit one of this wallet's draft proposals to voting. */
+  submitProposal(): PluginSDKReturn;
+  submitProposal(args: SubmitProposalArgs): PluginSDKReturn;
+  submitProposal(args?: SubmitProposalArgs): PluginSDKReturn {
+    return this.simpleHook('submitProposal', args);
+  }
+
+  /** Delete one of this wallet's proposals; the released prepayment returns to the wallet. */
+  deleteProposal(): PluginSDKReturn;
+  deleteProposal(args: DeleteProposalArgs): PluginSDKReturn;
+  deleteProposal(args?: DeleteProposalArgs): PluginSDKReturn {
+    return this.simpleHook('deleteProposal', args);
+  }
+
+  /** Abandon one of this wallet's approved, unexecuted proposals. */
+  cancelProposal(): PluginSDKReturn;
+  cancelProposal(args: CancelProposalArgs): PluginSDKReturn;
+  cancelProposal(args?: CancelProposalArgs): PluginSDKReturn {
+    return this.simpleHook('cancelProposal', args);
   }
 }

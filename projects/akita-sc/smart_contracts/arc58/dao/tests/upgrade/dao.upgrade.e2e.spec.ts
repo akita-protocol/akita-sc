@@ -167,6 +167,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: walletFactory!.appId,
             version: '1.0.0-mock',
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -233,6 +234,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: walletFactory!.appId,
             version: '1.0.0-restored',
             data: compiledOriginal.approvalProgram,
+            clearProgram: compiledOriginal.clearStateProgram,
           }),
         ],
       });
@@ -307,6 +309,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: auctionFactory!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -388,6 +391,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: marketplace!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -469,6 +473,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: raffleFactory!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -550,6 +555,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: pollFactory!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -631,6 +637,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: prizeBoxFactory!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -712,6 +719,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: stakingPoolFactory!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -793,6 +801,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: subscriptions!.appId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -874,6 +883,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: social!.socialAppId,
             version: upgradeVersion,
             data: compiledMock.approvalProgram,
+            clearProgram: compiledMock.clearStateProgram,
           }),
         ],
       });
@@ -957,6 +967,13 @@ describe('ARC58 DAO Upgrade', () => {
       await wallet.client.appClient.fundAppAccount({
         amount: microAlgo(preFundMbr.plugins + preFundMbr.executions + 5_000_000n),
       });
+      // Execution builds simulate with the DAO (the wallet admin) as sender; it needs fee headroom
+      // above its minimum balance, which now also covers bootstrap-key / upgrade-lease boxes.
+      await dao.client.appClient.fundAppAccount({ amount: microAlgo(3_000_000n) });
+      // The Update plugin's staging box must fit the (now > 8 KB) DAO program for the restore.
+      const stagingMbr = 2_500n + 400n * (2n + BigInt(compiledOriginalDao.approvalProgram.length));
+      const dispenserAccount = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(daoUpdateSdk.client.appAddress, dispenserAccount.addr, microAlgo(stagingMbr + 200_000n));
 
       // Build upgrade execution (DAO → mock)
       const shortTimestamp = Date.now() % 1_000_000;
@@ -973,6 +990,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: dao.appId,
             version: '1.0.0-mock',
             data: compiledMockDao.approvalProgram,
+            clearProgram: compiledMockDao.clearStateProgram,
           }),
         ],
       });
@@ -992,6 +1010,7 @@ describe('ARC58 DAO Upgrade', () => {
             appId: dao.appId,
             version: '1.0.0-restored',
             data: compiledOriginalDao.approvalProgram,
+            clearProgram: compiledOriginalDao.clearStateProgram,
           }),
         ],
       });

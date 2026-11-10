@@ -12,6 +12,9 @@
 // the wire format with the top-level `errors.ts` / `utils/errors.ts`. PuyaTs
 // doesn't support `export { X } from` re-export syntax, so the constants are
 // redeclared here with identical values.
-export const ERR_NOT_AKITA_DAO = 'NDAO'
-export const ERR_CONTRACT_NOT_SET = 'CNST'
-export const ERR_INVALID_CALL_ORDER = 'ICOR'
+export const errNotAkitaDao = 'errNdao'
+export const errContractNotSet = 'errCnst'
+export const errInvalidCallOrder = 'errIcor'
+
+/** the group was not authorized by a DAO UpgradeApp execution key for this target */
+export const errNotUpgradeExecution = 'errNupx'

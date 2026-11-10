@@ -12,4 +12,7 @@
 // previous names but share the wire format with the DAO contract. PuyaTs
 // doesn't support `export { X } from` re-export syntax, so the constant is
 // redeclared here with an identical value.
-export const ERR_PROPOSAL_DOES_NOT_EXIST = 'NPRP'
+export const errProposalDoesNotExist = 'errNprp'
+
+/** editProposal only applies to Draft proposals (mirrors the DAO's errInvalidProposalState) */
+export const errProposalNotDraft = 'errIpst'

@@ -10,11 +10,13 @@
  * message for display in a UI or log.
  */
 
+import { withErrorCodeAliases } from '../errors'
+
 /**
  * Short code → human-readable message for every error the DAO contracts can
  * emit. Ordered roughly the same way as the contract-side file.
  */
-export const DAO_ERROR_MESSAGES: Record<string, string> = {
+export const DAO_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Top-level aliases ---------------------------------------------------
   NDAO: 'Not the Akita DAO',
   IPAY: 'Invalid payment',
@@ -71,7 +73,21 @@ export const DAO_ERROR_MESSAGES: Record<string, string> = {
   IFV: 'First valid round must be greater than zero',
   ILV: 'Last valid round must be greater than first valid',
   UFLD: 'Unknown field in update fields proposal action',
-}
+  REMP: 'Reclaim list cannot be empty',
+  IADM: 'Invalid administrator',
+
+  // --- Audit 2026-10 remediation --------------------------------------------
+  BSFB: 'Not allowed in a bootstrap (creator-approved) proposal',
+  BSEX: 'Bootstrap proposals cannot execute after the DAO is fully initialized',
+  BSKO: 'Bootstrap execution keys are still outstanding; clear them before initializing',
+  BSKA: 'Only the creator can revoke a live, unexpired bootstrap execution key',
+  EXKR: 'Execution key already registered',
+  VOUT: 'Vote receipts are still outstanding for this proposal',
+  CANL: 'ChangeAdmin must be the last action of a proposal',
+  CFCD: 'A fee-covering plugin grant needs a cooldown and a named caller or an execution key',
+  NUPX: 'Group is not authorized by a DAO UpgradeApp execution for this target',
+  NPOW: 'No voting power: voting needs a lock that outlasts the vote with at least a week of it left',
+})
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */
 const ARC65_PREFIX = 'ERR:'

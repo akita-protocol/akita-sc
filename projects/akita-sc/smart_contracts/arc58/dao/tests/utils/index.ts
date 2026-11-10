@@ -13,7 +13,7 @@ import { StakingPoolFactorySDK } from 'akita-sdk/staking-pool';
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 import { SDKClient } from 'akita-sdk/types';
 import { type UpdateAkitaDAOPluginSDK, type WalletAddPluginParams, type WalletFactorySDK } from 'akita-sdk/wallet';
-import type { TransactionSigner } from '@algorandfoundation/algokit-utils/packages/transact/src/signer';
+import type { TransactionSigner } from 'algosdk';
 import { buildAkitaUniverse, deployAkitaDAO } from '../../../../../tests/fixtures/dao';
 import type { AkitaDaoApps } from '../../../../artifacts/arc58/dao/AkitaDAOClient';
 
@@ -68,7 +68,7 @@ export const bootstrapDaoTestContext = async (options: BootstrapDaoTestContextOp
   const signer = testAccount.signer;
 
   const dispenser = await algorand.account.dispenserFromEnvironment();
-  await algorand.account.ensureFunded(sender, dispenser, algo(options.fundAmount ?? 200));
+  await algorand.account.ensureFunded(sender, dispenser.addr, algo(options.fundAmount ?? 200));
 
   if (options.useFullSetup) {
     const {

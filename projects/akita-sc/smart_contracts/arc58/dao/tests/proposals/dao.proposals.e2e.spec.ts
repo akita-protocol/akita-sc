@@ -35,7 +35,7 @@ describe('ARC58 DAO Proposals', () => {
     const dispenser = await algorand.account.dispenserFromEnvironment();
     // Each proposal can cost 7+ ALGO in MBR, ensure we have plenty of funds
     // Fund the sender from context (not the new testAccount from fixture.newScope)
-    await algorand.account.ensureFunded(context.sender, dispenser, microAlgo(100_000_000n));
+    await algorand.account.ensureFunded(context.sender, dispenser.addr, microAlgo(100_000_000n));
   });
 
   describe('Proposal Creation', () => {
@@ -128,7 +128,7 @@ describe('ARC58 DAO Proposals', () => {
       const { dao } = context;
 
       // ARC-65 short code: NPRP = 'Proposal does not exist'
-      await expect(dao.getProposal(999999n)).rejects.toThrow('ERR:NPRP');
+      await expect(dao.getProposal(999999n)).rejects.toThrow('ERR:errNprp');
     });
   });
 
@@ -348,6 +348,67 @@ describe('ARC58 DAO Proposals', () => {
       // Verify locked
       const escrowAfter = await dao.wallet.getEscrow(escrowName);
       expect(escrowAfter.locked).toBe(true);
+    });
+  });
+
+  describe('Treasury Management via Proposals', () => {
+    test('should reclaim escrowed funds back to the DAO wallet', async () => {
+      const { dao } = context;
+      const { algorand } = fixture;
+      const escrowName = `rec_${Date.now() % 100000}`;
+      const mbr = await dao.wallet.getMbr({ escrow: escrowName, methodCount: 0n, plugin: '', groups: 0n });
+      await dao.wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.newEscrowMintCost) });
+      await proposeAndExecute(dao, [
+        { type: ProposalActionEnum.NewEscrow, escrow: escrowName, address: ALGORAND_ZERO_ADDRESS_STRING },
+      ]);
+      const escrow = await dao.wallet.getEscrow(escrowName);
+      await algorand.send.payment({
+        sender: context.sender,
+        signer: context.signer,
+        receiver: escrow.address,
+        amount: microAlgo(500_000n),
+      });
+      const escrowFunded = (await algorand.account.getInformation(escrow.address)).balance.microAlgos;
+
+      const controlled = (await dao.wallet.client.state.global.controlledAddress())!;
+      const before = (await algorand.account.getInformation(controlled)).balance.microAlgos;
+      await proposeAndExecute(dao, [
+        {
+          type: ProposalActionEnum.Reclaim,
+          escrow: escrowName,
+          reclaims: [{ asset: 0n, amount: 400_000n, closeOut: false }],
+        },
+      ]);
+      expect((await algorand.account.getInformation(controlled)).balance.microAlgos - before).toBe(400_000n);
+      expect((await algorand.account.getInformation(escrow.address)).balance.microAlgos).toBe(escrowFunded - 400_000n);
+    });
+
+    test('should reject reclaims from unknown escrows or with no entries', async () => {
+      const { dao } = context;
+      await expect(
+        proposeAndExecute(dao, [
+          { type: ProposalActionEnum.Reclaim, escrow: 'does-not-exist', reclaims: [{ asset: 0n, amount: 1n, closeOut: false }] },
+        ]),
+      ).rejects.toThrow();
+      await expect(
+        proposeAndExecute(dao, [{ type: ProposalActionEnum.Reclaim, escrow: 'does-not-exist', reclaims: [] }]),
+      ).rejects.toThrow();
+    });
+
+    test('should never hand the wallet to another administrator through a bootstrap proposal', async () => {
+      // DAO-01: ChangeAdmin is upgrade-class governance; creator-approved (bootstrap) proposals may not
+      // carry it. The voted path is covered in dao.voting.e2e.spec.ts.
+      const { dao } = context;
+      const daoAddress = dao.client.appAddress.toString();
+      expect(await dao.wallet.client.arc58GetAdmin()).toBe(daoAddress);
+
+      await expect(
+        proposeAndExecute(dao, [{ type: ProposalActionEnum.ChangeAdmin, admin: ALGORAND_ZERO_ADDRESS_STRING }]),
+      ).rejects.toThrow();
+      await expect(
+        proposeAndExecute(dao, [{ type: ProposalActionEnum.ChangeAdmin, admin: context.sender }]),
+      ).rejects.toThrow(/errBsfb/);
+      expect(await dao.wallet.client.arc58GetAdmin()).toBe(daoAddress);
     });
   });
 

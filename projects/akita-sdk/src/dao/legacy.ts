@@ -1,4 +1,4 @@
-import type { StructField } from '@algorandfoundation/algokit-utils/abi';
+import type { StructField } from '@algorandfoundation/algokit-utils/types/app-arc56';
 import { decodeABIValue } from '../utils';
 
 /** Historical NewEscrow payload used before the DAO added an address field. */

@@ -15,6 +15,7 @@ export const AkitaDAOGlobalStateKeysAkitaSocialAppList = 'sal'
 export const AkitaDAOGlobalStateKeysPluginAppList = 'pal'
 export const AkitaDAOGlobalStateKeysOtherAppList = 'oal'
 export const AkitaDAOGlobalStateKeysWalletFees = 'wallet_fees'
+export const AkitaDAOGlobalStateKeysGuildFees = 'guild_fees'
 export const AkitaDAOGlobalStateKeysSocialFees = 'social_fees'
 export const AkitaDAOGlobalStateKeysStakingFees = 'staking_fees'
 export const AkitaDAOGlobalStateKeysSubscriptionFees = 'subscription_fees'
@@ -35,11 +36,26 @@ export const AkitaDAOGlobalStateKeysUpdateFieldsProposalSettings = 'update_field
 
 export const AkitaDAOGlobalStateKeysRevocationAddress = 'revocation_address'
 export const AkitaDAOGlobalStateKeysProposalID = 'proposal_id'
+/** number of bootstrap execution keys that are still tracked (must be 0 before `initialize`) */
+export const AkitaDAOGlobalStateKeysBootstrapKeyCount = 'bootstrap_key_count'
 export const AkitaDAOGlobalStateKeysDisbursementCursor = 'disbursement_cursor'
 
 export const AkitaDAOBoxPrefixProposals = 'l'
+/** legacy vote receipts (power only) */
 export const AkitaDAOBoxPrefixProposalVotes = 'v'
+/** vote receipts: power and weight */
+export const AkitaDAOBoxPrefixVoteReceipts = 'w'
+/** governance participation record per voter, kept after vote receipts are deleted */
+export const AkitaDAOBoxPrefixParticipation = 'r'
 export const AkitaDAOBoxPrefixExecutions = 'x'
+/** per-proposal tally: settings snapshot + outstanding vote receipts (created at submit) */
+export const AkitaDAOBoxPrefixTallies = 't'
+/** execution keys registered by bootstrap (creator-approved) proposals: lease -> lastValid */
+export const AkitaDAOBoxPrefixBootstrapKeys = 'b'
+/** live UpgradeApp execution keys per target app: app id -> (lease, lastValid)[] (read by the Update plugin) */
+export const AkitaDAOBoxPrefixUpgradeLeases = 'u'
+/** caller-scoped plugin grants added by bootstrap proposals (a public record; they survive initialize): wallet plugin key -> round added */
+export const AkitaDAOBoxPrefixBootstrapGrants = 'g'
 
 // escrows - for payouts
 export const AkitaDAOEscrowAccountKrby = 'krby'
@@ -67,8 +83,25 @@ export const MethodRestrictionByteLength: uint64 = 20
 export const MinDAOPluginMBR: uint64 = 23_700
 export const MinDAOProposalMBR: uint64 = 54_500
 export const MinDAOProposalActionMbr: uint64 = 7
-export const DAOProposalVotesMBR: uint64 = 22_500
+/** 'w' + ProposalVoteKey (40 bytes) + ProposalVoteReceipt (17 bytes) */
+export const DAOProposalVotesMBR: uint64 = 2_500 + (400 * (41 + 17))
+/** 'v' + ProposalVoteKey (40 bytes) + ProposalVoteInfo (9 bytes): refunded when a legacy receipt goes */
+export const DAOLegacyProposalVotesMBR: uint64 = 2_500 + (400 * (41 + 9))
+/** 'r' + address (33 bytes) + GovernanceParticipation (24 bytes): paid with the voter's first vote */
+export const DAOParticipationMBR: uint64 = 2_500 + (400 * (33 + 24))
 export const DAOExecutionMBR: uint64 = 22_100
+/** 't' + uint64 key (9 bytes) + ProposalTally (6 x uint64 = 48 bytes) */
+export const DAOProposalTallyMBR: uint64 = 2_500 + (400 * (9 + 48))
+/** 'b' + 32 byte lease key (33 bytes) + uint64 lastValid (8 bytes) */
+export const DAOBootstrapKeyMBR: uint64 = 2_500 + (400 * (33 + 8))
+/** 'u' + uint64 app id (9 bytes) + array header (2) + one (lease, lastValid) entry (40); charged per UpgradeApp */
+export const DAOUpgradeLeaseMBR: uint64 = 2_500 + (400 * (9 + 2 + 40))
+/** bootstrap execution keys may not stay valid longer than this many rounds after execution (~8h) */
+export const MaxBootstrapKeyRounds: uint64 = 10_000
+/** governance power counts at most this many days of remaining lock time (DAO-05) */
+export const MaxGovernanceLockDays: uint64 = 365
+/** upper bound on the proposal-creation power setting, in base units (power never exceeds the locked amount) */
+export const MaxProposalPower: uint64 = 1_000_000_000_000_000
 
 // export const DAOExecutionsMBR: uint64 = 0
 
@@ -102,8 +135,10 @@ export const ProposalActionTypeAddAllowances: ProposalActionType = new Uint8(50)
 export const ProposalActionTypeRemoveAllowances: ProposalActionType = new Uint8(60)
 export const ProposalActionTypeNewEscrow: ProposalActionType = new Uint8(70)
 export const ProposalActionTypeToggleEscrowLock: ProposalActionType = new Uint8(71)
+export const ProposalActionTypeReclaim: ProposalActionType = new Uint8(72)
 export const ProposalActionTypeUpdateFields: ProposalActionType = new Uint8(80)
 export const ProposalActionTypeUpdateWallet: ProposalActionType = new Uint8(90)
+export const ProposalActionTypeChangeAdmin: ProposalActionType = new Uint8(91)
 
 // proposal vote types
 export const ProposalVoteTypeApprove: ProposalVoteType = new Uint8(10)

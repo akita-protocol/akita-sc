@@ -1,12 +1,28 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { UpdateAkitaDaoPluginArgs, UpdateAkitaDaoPluginClient, UpdateAkitaDaoPluginFactory } from "../../generated/UpdateAkitaDAOPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { Address } from "algosdk";
 import { getTxns } from "../utils";
-import { microAlgo } from "@algorandfoundation/algokit-utils";
+import { encodeLease, microAlgo } from "@algorandfoundation/algokit-utils";
 import { PluginTxn } from "../../types";
+
+/**
+ * Note that makes the Update plugin bind an execution-key upgrade by reading the proposal
+ * (`DAO.mustGetExecution` + `DAO.getProposal`) instead of `DAO.isUpgradeLease`. Needed for a DAO
+ * without `isUpgradeLease` (the deployed MainNet DAO). Mirrors `UpgradeBindingNoteProposal` in
+ * `smart_contracts/arc58/plugins/update-akita-dao/contract.algo.ts`.
+ */
+export const UPGRADE_BINDING_NOTE_PROPOSAL = 'akita:upgrade-binding:proposal';
+
+/**
+ * Select the proposal read for an execution-key upgrade. The plugin then reads the DAO boxes
+ * `'x' + lease` and `'l' + itob(proposalId)`, so both must be known when the group is built: the lease
+ * passed to `usePlugin` (string or the 32 encoded bytes) and the id of the UpgradeApp proposal that
+ * will carry the group (for a new proposal: the DAO's `proposal_id` before `newProposal`).
+ */
+export type UpgradeDaoBinding = { lease: string | Uint8Array; proposalId: bigint | number };
 
 type ContractArgs = UpdateAkitaDaoPluginArgs["obj"];
 
@@ -18,33 +34,89 @@ type DeleteBoxedContractArgs = (
 
 type UpdateAppArgs = (
   Omit<ContractArgs['updateApp(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
-  & { version: string, data: Uint8Array; }
+  & { version: string, data: Uint8Array; clearProgram?: Uint8Array; }
+  /**
+   * Grow the target's global schema to at least these sizes (never shrinks). When either is set the
+   * plugin's `updateAppWithSchema` is used. The DAO wallet becomes the target's size sponsor on growth.
+   */
+  & { globalNumUint?: bigint | number; globalNumBytes?: bigint | number; }
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
 
 type UpdateAkitaDaoAppIDForAppArgs = (
   Omit<ContractArgs['updateAkitaDaoAppIDForApp(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
-  & { rekeyBack?: boolean } 
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
 
 type UpdateAkitaDaoEscrowForAppArgs = (
   Omit<ContractArgs['updateAkitaDaoEscrowForApp(uint64,bool,uint64,(string,uint64))void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
 
 type UpdateFactoryChildContractArgs = (
   { factoryAppId: bigint | number; version: string; data: Uint8Array; }
   & MaybeSigner
-  & { rekeyBack?: boolean }
+  & { rekeyBack?: boolean; daoBinding?: UpgradeDaoBinding }
 )
 
 export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient> {
 
   constructor(params: NewContractSDKParams) {
     super({ factory: UpdateAkitaDaoPluginFactory, ...params });
+  }
+
+  /**
+   * References the plugin needs on a call that changes `target`: the DAO app and its box
+   * `'u' + itob(target)` (the UpgradeApp execution keys recorded for that app). The plugin checks the
+   * group's execution key against it, so execution groups must carry the reference before approval.
+   * With `daoBinding`, the call also carries `UPGRADE_BINDING_NOTE_PROPOSAL` and references the DAO's
+   * execution box `'x' + lease` and proposal box `'l' + itob(proposalId)` (see `UpgradeDaoBinding`).
+   */
+  private async upgradeReferences(target: bigint | number, daoBinding?: UpgradeDaoBinding): Promise<{ appReferences?: bigint[]; boxReferences?: { appId: bigint; name: Uint8Array }[]; note?: Uint8Array }> {
+    const dao = await this.client.state.global.akitaDao();
+    if (!dao) {
+      if (daoBinding) throw new Error('daoBinding needs the plugin\'s akita_dao');
+      return {};
+    }
+    const name = new Uint8Array(9);
+    name[0] = 'u'.charCodeAt(0);
+    new DataView(name.buffer).setBigUint64(1, BigInt(target));
+    // Execution groups are simulated as the wallet admin before the proposal executes, so the DAO boxes the
+    // execution-key path reads ('u', 'x', 'l') and the wallet grant it checks are not yet sized into the
+    // group's box read budget. One empty box reference adds 1 KB of read quota for them.
+    const readHeadroom = { appId: 0n, name: new Uint8Array(0) };
+    if (!daoBinding) return { appReferences: [dao], boxReferences: [{ appId: dao, name }, readHeadroom] };
+    const lease = typeof daoBinding.lease === 'string' ? encodeLease(daoBinding.lease)! : daoBinding.lease;
+    if (lease.length !== 32) throw new Error('daoBinding.lease must encode to 32 bytes');
+    const execution = new Uint8Array(33);
+    execution[0] = 'x'.charCodeAt(0);
+    execution.set(lease, 1);
+    const proposal = new Uint8Array(9);
+    proposal[0] = 'l'.charCodeAt(0);
+    new DataView(proposal.buffer).setBigUint64(1, BigInt(daoBinding.proposalId));
+    return {
+      appReferences: [dao],
+      boxReferences: [{ appId: dao, name }, { appId: dao, name: execution }, { appId: dao, name: proposal }, readHeadroom],
+      note: new TextEncoder().encode(UPGRADE_BINDING_NOTE_PROPOSAL),
+    };
+  }
+
+  /**
+   * Explicit references for the resources an upload group shares across its calls: this plugin's
+   * staging box `'bc'`, the target app, and for a factory child push the factory's box `'bc'`. Named
+   * on the initBoxedContract call so they are available to the whole group. Without them the
+   * simulate-based resource population places these group-level resources in an order that varies
+   * between builds (algod reports them unordered), so a rebuilt execution group (resuming an approved
+   * UpgradeApp proposal) would not reproduce the group id the proposal recorded.
+   */
+  private stagingReferences(target: bigint | number, factory = false): { appReferences: bigint[]; boxReferences: { appId: bigint; name: Uint8Array }[] } {
+    const boxedContract = new TextEncoder().encode('bc');
+    const boxReferences = [{ appId: this.client.appId, name: boxedContract }];
+    if (factory) boxReferences.push({ appId: BigInt(target), name: boxedContract });
+    return { appReferences: [BigInt(target)], boxReferences };
   }
 
   deleteBoxedContract(): PluginSDKReturn
@@ -86,10 +158,13 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
     });
   }
 
+  /** Pass a matching clearProgram for AVM-version changes; restricted installs must also allow setClearProgram. */
   updateApp(): PluginSDKReturn
   updateApp(args: UpdateAppArgs): PluginSDKReturn
   updateApp(args?: UpdateAppArgs): PluginSDKReturn {
-    const methodNames = ['initBoxedContract', 'loadBoxedContract', 'updateApp'];
+    const growSchema = args?.globalNumUint !== undefined || args?.globalNumBytes !== undefined;
+    const methodNames = ['initBoxedContract', 'loadBoxedContract', growSchema ? 'updateAppWithSchema' : 'updateApp'];
+    if (args?.clearProgram !== undefined) methodNames.unshift('setClearProgram');
     if (args === undefined) {
       // Called without arguments - return selector for method restrictions
       return (spendingAddress?: ReadableAddress) => ({
@@ -99,7 +174,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
       });
     }
 
-    const { sender, signer, appId, version, data } = args;
+    const { sender, signer, appId, version, data, clearProgram } = args;
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -112,9 +187,21 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
 
         const txns: PluginTxn[] = [];
 
+        // Commit the matching clear program in the same authorized group, before the contiguous upload.
+        if (clearProgram !== undefined) {
+          txns.push({
+            type: 'methodCall',
+            ...await this.client.params.setClearProgram({
+              ...sendParams,
+              args: { wallet, rekeyBack: false, clearProgram },
+            }),
+          });
+        }
+
         const initParams = (
           await this.client.params.initBoxedContract({
             ...sendParams,
+            ...this.stagingReferences(appId),
             args: { wallet, version, size: data.length }
           })
         )
@@ -143,12 +230,24 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
           })
         }
 
-        const updateParams = (
-          await this.client.params.updateApp({
+        const refs = await this.upgradeReferences(appId, args.daoBinding);
+        const updateParams = growSchema
+          ? await this.client.params.updateAppWithSchema({
             ...sendParams,
+            ...refs,
+            args: {
+              wallet,
+              rekeyBack,
+              appId,
+              globalNumUint: BigInt(args.globalNumUint ?? 0),
+              globalNumBytes: BigInt(args.globalNumBytes ?? 0),
+            }
+          })
+          : await this.client.params.updateApp({
+            ...sendParams,
+            ...refs,
             args: { wallet, rekeyBack, appId }
           })
-        )
 
         txns.push({
           type: 'methodCall',
@@ -187,6 +286,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
         const params = (
           await this.client.params.updateAkitaDaoAppIdForApp({
             ...sendParams,
+            ...(await this.upgradeReferences(appId, args.daoBinding)),
             args: { wallet, rekeyBack, appId, newAkitaDaoAppId }
           })
         )
@@ -226,6 +326,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
         const params = (
           await this.client.params.updateAkitaDaoEscrowForApp({
             ...sendParams,
+            ...(await this.upgradeReferences(appId, args.daoBinding)),
             args: { wallet, rekeyBack, appId, newEscrow },
           })
         )
@@ -292,6 +393,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
         const initParams = (
           await this.client.params.initBoxedContract({
             ...sendParams,
+            ...this.stagingReferences(factoryAppId, true),
             args: { wallet, version, size: data.length }
           })
         )
@@ -324,6 +426,7 @@ export class UpdateAkitaDAOPluginSDK extends BaseSDK<UpdateAkitaDaoPluginClient>
         const updateFactoryParams = (
           await this.client.params.updateFactoryChildContract({
             ...sendParams,
+            ...(await this.upgradeReferences(factoryAppId, args.daoBinding)),
             args: { wallet, rekeyBack, factoryAppId }
           })
         )

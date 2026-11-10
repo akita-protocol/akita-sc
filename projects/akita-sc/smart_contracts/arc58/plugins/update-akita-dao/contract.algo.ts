@@ -1,17 +1,27 @@
-import { Application, Box, Bytes, bytes, Global, GlobalState, gtxn, itxnCompose, loggedAssert, OnCompleteAction, op, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
-import { abiCall, abimethod, Contract, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
+import { Account, Application, Box, Bytes, bytes, clone, Global, GlobalState, gtxn, itxnCompose, loggedAssert, OnCompleteAction, op, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abiCall, abimethod, Contract, decodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
+import { getAkitaAppList, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions"
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyChildContractVersion, GlobalStateKeyClearProgram, GlobalStateKeyVersion } from "../../../constants"
 import { BoxKeyBoxedContract, FactoryContract } from "../../../utils/base-contracts/factory"
-import { getAkitaAppList, getSpendingAccount, rekeyAddress, rekeyBackIfNecessary } from "../../../utils/functions"
-import { AkitaDAOGlobalStateKeysWallet } from "../../dao/constants"
-import { ERR_CONTRACT_NOT_SET, ERR_INVALID_CALL_ORDER, ERR_NOT_AKITA_DAO } from "./errors"
+import { AkitaDAOGlobalStateKeysWallet, ProposalActionTypeUpgradeApp } from "../../dao/constants"
+import { ProposalUpgradeApp } from "../../dao/types"
+import { AbstractAccountGlobalStateKeysAdmin } from "../../account/constants"
+import { CallerTypeGlobal } from "../../account/types"
+import { errContractNotSet, errInvalidCallOrder, errNotAkitaDao, errNotUpgradeExecution } from "./errors"
 
 // CONTRACT IMPORTS
 import { type AkitaBaseFeeGeneratorContract, EscrowConfig } from "../../../utils/base-contracts/base"
-import { MAX_AVM_BYTE_ARRAY_LENGTH } from "../../../utils/constants"
+import { appGlobalSchema, boxedProgramChunk, boxedProgramSize, extraPagesToGrow } from "../../../utils/programs"
 import { AbstractedAccountFactory } from "../../account/factory.algo"
+import type { AkitaDAOExecutionReaderStub } from "./stubs"
+import type { AbstractedAccount } from "../../account/contract.algo"
 /** Maximum chunk size for loading boxed contract data (2048 - ABI overhead) */
 const FACTORY_LOAD_CHUNK_SIZE: uint64 = 2032
+/**
+ * Note on an update call that selects the proposal read of `requireUpgradeExecution` (for a DAO
+ * without `isUpgradeLease`, i.e. the deployed MainNet DAO). Mirrored by the SDK's `daoBinding` option.
+ */
+const UpgradeBindingNoteProposal = 'akita:upgrade-binding:proposal'
 
 export class UpdateAkitaDAOPlugin extends Contract {
 
@@ -31,6 +41,215 @@ export class UpdateAkitaDAOPlugin extends Contract {
     return Application(walletID)
   }
 
+  /**
+   * Authenticate a call that changes `target`: the plugin is acting for the DAO wallet, and the
+   * execution key (lease) that authorized this group is the one the DAO recorded for `target` when it
+   * executed an `UpgradeApp` action naming it. ExecutePlugin keys of other (weaker-class) plugins and
+   * UpgradeApp keys approved for a different app are rejected.
+   *
+   * The lease is read from the wallet's `arc58_rekeyToPlugin` call earlier in the group. The wallet
+   * checks and consumes it as an execution key only for a grant with `useExecutionKey`; on any other
+   * grant the caller picks the lease freely. So the rekey must go through this plugin's global grant
+   * (no escrow), and that grant must use execution keys. Two equivalent ways to read the DAO record:
+   *
+   * - default: `DAO.isUpgradeLease(target, lease)` (this tree's DAO; box `'u' + itob(target)`, which
+   *   the SDK references from the target alone);
+   * - `Txn.note == UpgradeBindingNoteProposal`: `DAO.mustGetExecution(lease)` gives the (proposal,
+   *   action index) that registered the lease, and `DAO.getProposal` gives that action, which must be
+   *   an UpgradeApp naming `target` and this lease. These two methods also exist on the deployed
+   *   MainNet DAO, which has no `isUpgradeLease`; the client must reference box `'x' + lease` and the
+   *   proposal box `'l' + itob(proposalID)` (SDK `daoBinding`). Both DAOs write `executions(lease)`
+   *   for UpgradeApp actions only.
+   *
+   * The note only selects how the record is read; both reads bind the lease to an UpgradeApp action
+   * for `target`, so a caller gains nothing by picking one. On a DAO without `isUpgradeLease` the
+   * default read reverts.
+   */
+  private requireUpgradeExecution(wallet: Application, target: uint64): Account {
+    const sender = getSpendingAccount(wallet)
+    const daoWallet = this.getAkitaDAOWallet()
+    loggedAssert(wallet === daoWallet, errNotAkitaDao)
+    loggedAssert(sender === daoWallet.address, errNotAkitaDao)
+
+    let lease = Txn.lease
+    let rekeySender = Txn.sender
+    let rekeyType: uint64 = 0
+    let rekeyEscrow = Bytes()
+    let found = false
+    for (let i: uint64 = 0; i < Txn.groupIndex; i++) {
+      const txn = gtxn.Transaction(i)
+      if (
+        txn.type === TransactionType.ApplicationCall
+        && txn.appId === daoWallet
+        && txn.numAppArgs > 1
+        && txn.appArgs(0) === methodSelector('arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void')
+        && op.btoi(txn.appArgs(1)) === Global.currentApplicationId.id
+      ) {
+        lease = txn.lease
+        rekeySender = txn.sender
+        rekeyType = op.btoi(txn.appArgs(2))
+        rekeyEscrow = txn.appArgs(3)
+        found = true
+      }
+    }
+    loggedAssert(found, errNotUpgradeExecution)
+
+    const readProposal = Txn.note === Bytes(UpgradeBindingNoteProposal)
+
+    // The wallet admin is not bound by execution keys (it can rekey the account directly), so its
+    // groups need no UpgradeApp lease. Execution groups are also simulated as the admin before approval.
+    const [admin] = op.AppGlobal.getExBytes(daoWallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
+    if (rekeySender.bytes === admin) {
+      // Same number of inner calls as the checked path, so the admin-simulated fee budget is exact.
+      // `opUp` is a no-op present on every DAO version.
+      abiCall<typeof AkitaDAOExecutionReaderStub.prototype.opUp>({ appId: this.akitaDAO.value })
+      abiCall<typeof AkitaDAOExecutionReaderStub.prototype.opUp>({ appId: this.akitaDAO.value })
+      if (readProposal) {
+        abiCall<typeof AkitaDAOExecutionReaderStub.prototype.opUp>({ appId: this.akitaDAO.value })
+      }
+      return sender
+    }
+
+    loggedAssert(lease !== op.bzero(32).toFixed({ length: 32 }), errNotUpgradeExecution)
+    // An ABI-encoded empty string is its 2-byte zero length prefix.
+    loggedAssert(rekeyType === CallerTypeGlobal && rekeyEscrow === Bytes.fromHex('0000'), errNotUpgradeExecution)
+    const grant = abiCall<typeof AbstractedAccount.prototype.arc58_getPlugins>({
+      appId: daoWallet,
+      args: [[{ plugin: Global.currentApplicationId.id, caller: Global.zeroAddress, escrow: '' }]],
+    }).returnValue[0]
+    loggedAssert(grant.useExecutionKey, errNotUpgradeExecution)
+    if (readProposal) {
+      const execution = abiCall<typeof AkitaDAOExecutionReaderStub.prototype.mustGetExecution>({
+        appId: this.akitaDAO.value,
+        args: [lease],
+      }).returnValue
+      const proposal = abiCall<typeof AkitaDAOExecutionReaderStub.prototype.getProposal>({
+        appId: this.akitaDAO.value,
+        args: [execution.proposalID],
+      }).returnValue
+      loggedAssert(execution.index < proposal.actions.length, errNotUpgradeExecution)
+      const action = clone(proposal.actions[execution.index])
+      loggedAssert(action.type === ProposalActionTypeUpgradeApp, errNotUpgradeExecution)
+      const upgrade = decodeArc4<ProposalUpgradeApp>(action.data)
+      loggedAssert(
+        upgrade.app === target && upgrade.executionKey === lease && upgrade.lastValid >= Global.round,
+        errNotUpgradeExecution
+      )
+    } else {
+      const authorized = abiCall<typeof AkitaDAOExecutionReaderStub.prototype.isUpgradeLease>({
+        appId: this.akitaDAO.value,
+        args: [target, lease],
+      }).returnValue
+      loggedAssert(authorized, errNotUpgradeExecution)
+    }
+
+    return sender
+  }
+
+  /**
+   * Staging calls (clear program, boxed program) only run in a group whose terminal call on this
+   * plugin is an authenticated update, so they cannot be used on their own to stage state for a later
+   * legitimate upgrade.
+   */
+  private requireTerminalUpdate(wallet: Application): void {
+    const sender = getSpendingAccount(wallet)
+    const daoWallet = this.getAkitaDAOWallet()
+    loggedAssert(wallet === daoWallet, errNotAkitaDao)
+    loggedAssert(sender === daoWallet.address, errNotAkitaDao)
+
+    let found = false
+    for (let i: uint64 = Txn.groupIndex + 1; i < Global.groupSize; i++) {
+      const txn = gtxn.Transaction(i)
+      if (
+        txn.type === TransactionType.ApplicationCall
+        && txn.appId === Global.currentApplicationId
+        && txn.sender === Txn.sender
+        && txn.numAppArgs > 0
+        && (
+          txn.appArgs(0) === methodSelector(this.updateApp)
+          || txn.appArgs(0) === methodSelector(this.updateAppWithSchema)
+          || txn.appArgs(0) === methodSelector(this.updateFactoryChildContract)
+        )
+      ) {
+        found = true
+      }
+    }
+    loggedAssert(found, errNotUpgradeExecution)
+  }
+
+  /** Push the boxed program into `appId`, growing program pages and/or the global schema when needed. */
+  private pushUpdate(
+    sender: Account,
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    globalNumUint: uint64,
+    globalNumBytes: uint64,
+  ): void {
+    const key = Bytes(BoxKeyBoxedContract)
+    const clearProgram = this.clearProgram.value
+    // Grow the target's program pages only when the new program no longer fits. The DAO wallet
+    // sends the update, so on growth it becomes the app's size sponsor and must hold its MBR.
+    const growTo = extraPagesToGrow(appId, boxedProgramSize(key), clearProgram.length)
+
+    const [currentUints, currentBytes] = appGlobalSchema(appId)
+    // The schema is never shrunk: each kind grows to the requested size or keeps its current size.
+    // An update that sets extraProgramPages also sets the global schema (0 when omitted), so every
+    // growing update passes the full schema; otherwise apps with global state fail to update.
+    const uints: uint64 = globalNumUint > currentUints ? globalNumUint : currentUints
+    const byteSlices: uint64 = globalNumBytes > currentBytes ? globalNumBytes : currentBytes
+    const growSchema = uints > currentUints || byteSlices > currentBytes
+
+    if (growSchema || growTo > 0) {
+      const [currentPages] = op.AppParams.appExtraProgramPages(appId)
+      abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.update>({
+        sender,
+        appId,
+        args: [this.childContractVersion.value],
+        onCompletion: OnCompleteAction.UpdateApplication,
+        approvalProgram: [
+          boxedProgramChunk(key, 0),
+          boxedProgramChunk(key, 1),
+          boxedProgramChunk(key, 2),
+          boxedProgramChunk(key, 3),
+        ],
+        clearStateProgram: clearProgram,
+        extraProgramPages: growTo > 0 ? growTo : currentPages,
+        globalNumUint: uints,
+        globalNumBytes: byteSlices,
+        rekeyTo: rekeyAddress(rekeyBack, wallet)
+      })
+    } else {
+      abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.update>({
+        sender,
+        appId,
+        args: [this.childContractVersion.value],
+        onCompletion: OnCompleteAction.UpdateApplication,
+        approvalProgram: [
+          boxedProgramChunk(key, 0),
+          boxedProgramChunk(key, 1),
+          boxedProgramChunk(key, 2),
+          boxedProgramChunk(key, 3),
+        ],
+        clearStateProgram: clearProgram,
+        rekeyTo: rekeyAddress(rekeyBack, wallet)
+      })
+    }
+  }
+
+  /** The call immediately before must be this plugin's loadBoxedContract from the same sender. */
+  private requirePrecedingLoad(): void {
+    const txn = gtxn.Transaction(Txn.groupIndex - 1)
+    loggedAssert((
+      txn.type === TransactionType.ApplicationCall
+      && txn.appId === Global.currentApplicationId
+      && txn.numAppArgs === 4
+      && txn.onCompletion === OnCompleteAction.NoOp
+      && txn.appArgs(0) === methodSelector(this.loadBoxedContract)
+      && txn.sender === Txn.sender
+    ), errInvalidCallOrder)
+  }
+
   @abimethod({ onCreate: 'require' })
   create(version: string, akitaDAO: Application, clearProgram: bytes): void {
     this.version.value = version
@@ -39,10 +258,7 @@ export class UpdateAkitaDAOPlugin extends Contract {
   }
 
   setClearProgram(wallet: Application, rekeyBack: boolean, clearProgram: bytes): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    this.requireTerminalUpdate(wallet)
 
     this.clearProgram.value = clearProgram
 
@@ -50,10 +266,7 @@ export class UpdateAkitaDAOPlugin extends Contract {
   }
 
   initBoxedContract(wallet: Application, version: string, size: uint64): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    this.requireTerminalUpdate(wallet)
 
     this.childContractVersion.value = version
 
@@ -67,8 +280,8 @@ export class UpdateAkitaDAOPlugin extends Contract {
   loadBoxedContract(wallet: Application, offset: uint64, data: bytes): void {
     const sender = getSpendingAccount(wallet)
     const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    loggedAssert(wallet === daoWallet, errNotAkitaDao)
+    loggedAssert(sender === daoWallet.address, errNotAkitaDao)
 
     // max chunk size is 2026 bytes
     // ABI encoding overhead: [selector:4][wallet:8][offset:8][data_length:2] = 22 bytes
@@ -82,16 +295,16 @@ export class UpdateAkitaDAOPlugin extends Contract {
       && txn.onCompletion === OnCompleteAction.NoOp
       && txn.appArgs(0) === methodSelector(this.initBoxedContract)
       && txn.sender === Txn.sender
-    ), ERR_INVALID_CALL_ORDER)
-    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    ), errInvalidCallOrder)
+    loggedAssert(this.boxedContract.exists, errContractNotSet)
     this.boxedContract.replace(offset, data)
   }
 
   deleteBoxedContract(wallet: Application, rekeyBack: boolean): void {
     const sender = getSpendingAccount(wallet)
     const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    loggedAssert(wallet === daoWallet, errNotAkitaDao)
+    loggedAssert(sender === daoWallet.address, errNotAkitaDao)
 
     this.boxedContract.delete()
 
@@ -99,43 +312,27 @@ export class UpdateAkitaDAOPlugin extends Contract {
   }
 
   updateApp(wallet: Application, rekeyBack: boolean, appId: Application): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    const sender = this.requireUpgradeExecution(wallet, appId.id)
     // require the new contract to be uploaded in the same txn group
-    // the call before must be a call to loadBoxedContract
-    const txn = gtxn.Transaction(Txn.groupIndex - 1)
-    loggedAssert((
-      txn.type === TransactionType.ApplicationCall
-      && txn.appId === Global.currentApplicationId
-      && txn.numAppArgs === 4
-      && txn.onCompletion === OnCompleteAction.NoOp
-      && txn.appArgs(0) === methodSelector(this.loadBoxedContract)
-      && txn.sender === Txn.sender
-    ), ERR_INVALID_CALL_ORDER)
+    this.requirePrecedingLoad()
+    this.pushUpdate(sender, wallet, rekeyBack, appId, 0, 0)
+  }
 
-    const approvalSize: uint64 = this.boxedContract.length
-
-    let chunk1: bytes
-    let chunk2: bytes
-    if (approvalSize > MAX_AVM_BYTE_ARRAY_LENGTH) {
-      chunk1 = this.boxedContract.extract(0, MAX_AVM_BYTE_ARRAY_LENGTH)
-      chunk2 = this.boxedContract.extract(MAX_AVM_BYTE_ARRAY_LENGTH, approvalSize - MAX_AVM_BYTE_ARRAY_LENGTH)
-    } else {
-      chunk1 = this.boxedContract.extract(0, approvalSize)
-      chunk2 = Bytes('')
-    }
-
-    abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.update>({
-      sender,
-      appId,
-      args: [this.childContractVersion.value],
-      onCompletion: OnCompleteAction.UpdateApplication,
-      approvalProgram: [chunk1, chunk2],
-      clearStateProgram: this.clearProgram.value,
-      rekeyTo: rekeyAddress(rekeyBack, wallet)
-    })
+  /**
+   * Same as `updateApp`, but also grows the target's global state schema to at least
+   * `globalNumUint` / `globalNumBytes` (never shrinks). On growth the DAO wallet becomes the target's
+   * size sponsor and must hold its full app MBR.
+   */
+  updateAppWithSchema(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    globalNumUint: uint64,
+    globalNumBytes: uint64,
+  ): void {
+    const sender = this.requireUpgradeExecution(wallet, appId.id)
+    this.requirePrecedingLoad()
+    this.pushUpdate(sender, wallet, rekeyBack, appId, globalNumUint, globalNumBytes)
   }
 
   updateAkitaDaoAppIDForApp(
@@ -144,10 +341,7 @@ export class UpdateAkitaDAOPlugin extends Contract {
     appId: Application,
     newAkitaDAOAppID: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    const sender = this.requireUpgradeExecution(wallet, appId.id)
 
     abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.updateAkitaDAO>({
       sender,
@@ -163,10 +357,7 @@ export class UpdateAkitaDAOPlugin extends Contract {
     appId: Application,
     newEscrow: EscrowConfig
   ): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    const sender = this.requireUpgradeExecution(wallet, appId.id)
 
     abiCall<typeof AkitaBaseFeeGeneratorContract.prototype.updateAkitaDAOEscrow>({
       sender,
@@ -181,12 +372,8 @@ export class UpdateAkitaDAOPlugin extends Contract {
     rekeyBack: boolean,
     app: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
-
     const appId = getAkitaAppList(this.akitaDAO.value).wallet
+    const sender = this.requireUpgradeExecution(wallet, appId)
 
     abiCall<typeof AbstractedAccountFactory.prototype.updateRevocation>({
       sender,
@@ -215,24 +402,13 @@ export class UpdateAkitaDAOPlugin extends Contract {
     rekeyBack: boolean,
     factoryAppId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-    const daoWallet = this.getAkitaDAOWallet()
-    loggedAssert(wallet === daoWallet, ERR_NOT_AKITA_DAO)
-    loggedAssert(sender === daoWallet.address, ERR_NOT_AKITA_DAO)
+    const sender = this.requireUpgradeExecution(wallet, factoryAppId.id)
 
     // Require the contract to be uploaded in the same txn group
     // The call before must be a call to loadBoxedContract on this plugin
-    const txn = gtxn.Transaction(Txn.groupIndex - 1)
-    loggedAssert((
-      txn.type === TransactionType.ApplicationCall
-      && txn.appId === Global.currentApplicationId
-      && txn.numAppArgs === 4
-      && txn.onCompletion === OnCompleteAction.NoOp
-      && txn.appArgs(0) === methodSelector(this.loadBoxedContract)
-      && txn.sender === Txn.sender
-    ), ERR_INVALID_CALL_ORDER)
+    this.requirePrecedingLoad()
 
-    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(this.boxedContract.exists, errContractNotSet)
 
     const contractSize: uint64 = this.boxedContract.length
     const version = this.childContractVersion.value
