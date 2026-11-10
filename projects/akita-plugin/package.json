@@ -1,5 +1,5 @@
 {
-  "name": "@akta/plugin",
+  "name": "@akita-protocol/plugin",
   "version": "1.0.0",
   "description": "Utility library for building ARC-58 abstract account plugins with PuyaTs",
   "main": "index.ts",
@@ -9,5 +9,10 @@
   },
   "publishConfig": {
     "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akita-protocol/akita-sc.git",
+    "directory": "projects/akita-plugin"
   }
 }

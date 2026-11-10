@@ -1,5 +1,5 @@
 {
-  "name": "@akta/sdk",
+  "name": "@akita-protocol/sdk",
   "version": "1.4.12",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -189,5 +189,10 @@
     "@types/node": "^24.1.0",
     "tsup": "^8.5.1",
     "vitest": "^2.1.8"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/akita-protocol/akita-sc.git",
+    "directory": "projects/akita-sdk"
   }
 }

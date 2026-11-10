@@ -249,7 +249,7 @@ Applications can identify an installed historical plugin and offer its newest
 replacement through the SDK:
 
 ```ts
-import { resolvePluginDeployment, getPluginUpdate } from '@akta/sdk'
+import { resolvePluginDeployment, getPluginUpdate } from '@akita-protocol/sdk'
 
 const plugin = resolvePluginDeployment('mainnet', installedPluginAppId)
 const update = getPluginUpdate('mainnet', installedPluginAppId)
@@ -338,7 +338,7 @@ See [`projects/akita-sdk`](./projects/akita-sdk) for full documentation.
 
 ## Plugin Development Kit
 
-The `@akta/plugin` package (`akita-plugin`) provides a utility library for building ARC-58 abstract account plugins with PuyaTs. It includes the base contract, types, constants, and helper functions needed to develop custom plugins that extend abstracted account functionality.
+The `@akita-protocol/plugin` package (`akita-plugin`) provides a utility library for building ARC-58 abstract account plugins with PuyaTs. It includes the base contract, types, constants, and helper functions needed to develop custom plugins that extend abstracted account functionality.
 
 See [`projects/akita-plugin`](./projects/akita-plugin) for details.
 
