@@ -39,7 +39,9 @@ export declare class PollSDK extends BaseSDK<PollClient> {
     vote({ sender, signer, votes, gateTxn }: VoteParams): Promise<void>;
     /**
      * Deletes vote boxes and refunds MBR to voters.
-     * Can only be called after the poll has ended.
+     * Can only be called after the poll has ended, and only by the poll's creator
+     * (the account that funded it). `hasVoted`, and so any poll gate on this poll,
+     * stops reporting a voter once their box is deleted.
      * @param addresses - Array of addresses to refund
      */
     deleteBoxes({ sender, signer, addresses }: DeleteBoxesParams): Promise<void>;

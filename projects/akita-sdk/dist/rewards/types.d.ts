@@ -55,6 +55,8 @@ export type OptInAssetParams = MaybeSigner & Omit<ContractArgs['optIn(pay,uint64
 export type CreateDisbursementParams = MaybeSigner & Omit<ContractArgs['createDisbursement(pay,string,uint64,uint64,string)uint64'], 'mbrPayment'> & {
     /** Optional MBR credits to allocate to this disbursement at creation */
     mbrCredits?: bigint | number;
+    /** v2 only: where anyone may sweep what is unclaimed after `expiration` (omit for none, the old selector) */
+    reclaimTo?: string;
 };
 export type EditDisbursementParams = MaybeSigner & ContractArgs['editDisbursement(uint64,string,uint64,uint64,string)void'];
 export type FundMbrCreditsParams = MaybeSigner & {
@@ -89,6 +91,8 @@ export type CreateInstantDisbursementParams = MaybeSigner & {
     timeToUnlock: bigint | number;
     /** Unix timestamp when rewards expire */
     expiration: bigint | number;
+    /** v2 only: where anyone may sweep what is unclaimed after `expiration` (omit for none, the old selector) */
+    reclaimTo?: string;
     /** Array of user allocations */
     allocations: UserAllocation[];
 };
@@ -97,6 +101,8 @@ export type CreateInstantAsaDisbursementParams = MaybeSigner & {
     timeToUnlock: bigint | number;
     /** Unix timestamp when rewards expire */
     expiration: bigint | number;
+    /** v2 only: where anyone may sweep what is unclaimed after `expiration` (omit for none, the old selector) */
+    reclaimTo?: string;
     /** The asset ID for the disbursement */
     asset: bigint | number;
     /** Array of user allocations */
@@ -125,5 +131,15 @@ export type ReclaimRewardsParams = MaybeSigner & {
     id: bigint | number;
     /** Array of allocations to reclaim */
     reclaims: AllocationReclaim[];
+};
+export type SweepableAllocation = AllocationReclaim & {
+    /** The amount still allocated */
+    amount: bigint;
+};
+export type SweepExpiredParams = MaybeSigner & {
+    /** The disbursement ID */
+    id: bigint | number;
+    /** Allocations to sweep; defaults to every open allocation of the disbursement */
+    reclaims?: AllocationReclaim[];
 };
 export type UpdateAkitaDaoParams = MaybeSigner & ContractArgs['updateAkitaDAO(uint64)void'];

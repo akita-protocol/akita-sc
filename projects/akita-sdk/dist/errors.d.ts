@@ -5,6 +5,7 @@
  * failing, where `code` is one of the short alphanumeric tags in this file.
  * Keep this in sync with `akita-sc/smart_contracts/errors.ts` — the short
  * codes are the shared wire format between contract and SDK.
+ * Tables include both current camelCase codes and legacy uppercase aliases.
  *
  * Domain-specific codes live alongside each SDK domain (e.g.
  * `akita-sdk/src/auction/errors.ts`). Every domain translator falls back to
@@ -14,6 +15,12 @@
  * Use `translateCommonError(code)` to turn a code back into a human-readable
  * message for display in a UI or log.
  */
+/**
+ * Add current camelCase codes alongside the legacy uppercase codes.
+ * The `err` prefix keeps short codes away from 8-byte ARC-65 log messages.
+ * Existing table keys and explicit aliases are preserved for older deployments.
+ */
+export declare function withErrorCodeAliases(messages: Record<string, string>): Record<string, string>;
 /**
  * Short code → human-readable message for errors that can be emitted from
  * multiple contract domains. Kept stable so cross-domain errors decode the

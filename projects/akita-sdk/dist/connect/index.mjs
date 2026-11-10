@@ -1,9 +1,50 @@
 import {
+  authenticateConnectMessage,
+  compileP256PasskeyLogicSig,
+  createConnectNonce,
+  createConnectSecret,
+  createNonceTracker,
+  createP256PasskeyLogicSigArgs,
   decodeConnectUri,
-  encodeConnectUri
-} from "../chunk-X37WDNTN.mjs";
+  encodeConnectUri,
+  extractP256PublicKeyCoordinates,
+  getP256PasskeyCaller,
+  getP256PasskeyTeal,
+  getPasskeyTransactionChallenge,
+  getSessionKeyMultisig,
+  parseP256DerSignature,
+  signTransactionsWithP256Passkey,
+  validateConnectPayload,
+  validateSessionKeyConnectRequest,
+  validateSessionKeySession,
+  validateWalletConnectFinalizeRequest,
+  validateWalletConnectRequest,
+  validateWalletConnectSession,
+  verifyConnectMessage
+} from "../chunk-BGTKWMIA.mjs";
+import "../chunk-J5LGTIGS.mjs";
 export {
+  authenticateConnectMessage,
+  compileP256PasskeyLogicSig,
+  createConnectNonce,
+  createConnectSecret,
+  createNonceTracker,
+  createP256PasskeyLogicSigArgs,
   decodeConnectUri,
-  encodeConnectUri
+  encodeConnectUri,
+  extractP256PublicKeyCoordinates,
+  getP256PasskeyCaller,
+  getP256PasskeyTeal,
+  getPasskeyTransactionChallenge,
+  getSessionKeyMultisig,
+  parseP256DerSignature,
+  signTransactionsWithP256Passkey,
+  validateConnectPayload,
+  validateSessionKeyConnectRequest,
+  validateSessionKeySession,
+  validateWalletConnectFinalizeRequest,
+  validateWalletConnectRequest,
+  validateWalletConnectSession,
+  verifyConnectMessage
 };
 //# sourceMappingURL=index.mjs.map

@@ -1,4 +1,4 @@
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 import { MaybeSigner } from "../types";
 import { RaffleArgs, RaffleState, EntryData, FunderInfo } from '../generated/RaffleClient';
 import { RaffleFactoryArgs } from '../generated/RaffleFactoryClient';
@@ -13,8 +13,16 @@ export type EntryWithTickets = EntryData & {
     /** The number of tickets (weight) this entry has */
     ticketCount: bigint;
 };
+/**
+ * Principal-resolution wallet hint (docs/principal-resolution/PHASE-0-SPEC.md §2): the ARC-58 wallet the
+ * call acts for, or 0 (default) to act as the sender itself. A direct (top-level) call can only pass 0:
+ * any other value reverts with `errHtop`; plugins pass their own window (`windowHint`).
+ */
+export type WalletHint = {
+    wallet?: bigint | number;
+};
 type FactoryContractArgs = RaffleFactoryArgs["obj"];
-type BaseNewRaffleParams = MaybeSigner & {
+type BaseNewRaffleParams = MaybeSigner & WalletHint & {
     /** The ticket asset ID (0 for ALGO) */
     ticketAsset: bigint | number;
     /** Start timestamp for the raffle */
@@ -25,6 +33,11 @@ type BaseNewRaffleParams = MaybeSigner & {
     minTickets: bigint | number;
     /** Maximum number of tickets per entry */
     maxTickets: bigint | number;
+    /**
+     * Minimum number of entries for the raffle to be drawn (0 = at least one).
+     * Below it the raffle fails: the prize returns to the seller and entrants are refunded.
+     */
+    minEntries?: bigint | number;
     /** Gate app ID for gated raffles (0 for none) */
     gateId: bigint | number;
     /** Marketplace address for royalties */
@@ -52,12 +65,18 @@ export type NewRaffleParams = BaseNewRaffleParams & ({
 export type DeleteRaffleParams = MaybeSigner & FactoryContractArgs['deleteRaffle(uint64)void'];
 type RaffleContractArgs = RaffleArgs["obj"];
 export type InitRaffleParams = MaybeSigner & Omit<RaffleContractArgs['init(pay,uint64)void'], 'payment'>;
-type BaseEnterParams = MaybeSigner & {
+type BaseEnterParams = MaybeSigner & WalletHint & {
     /** The amount of tickets to enter with */
     amount: bigint | number;
     /** Marketplace address for referrals */
     marketplace: string;
-    /** Optional gate transaction for gated raffles */
+    /**
+     * Optional gate transaction for gated raffles. On a raffle with the principal ABI
+     * (`RaffleSDK.usesPrincipalAbi()`), build it with `GateSDK.build.mustCheckFor` and the context the
+     * raffle verifies (a direct caller: `directGateCtx(sender)`); on older raffles with
+     * `GateSDK.build.mustCheck` and the sender as caller. A `mustCheck` gate txn always takes the
+     * legacy (registry-subject) overload, also on principal-ABI children.
+     */
     gateTxn?: AppCallMethodCall;
 };
 export type EnterParams = BaseEnterParams & ({
@@ -69,10 +88,16 @@ export type EnterParams = BaseEnterParams & ({
     /** The ticket asset ID (required when isAsa is true) */
     ticketAsset: bigint | number;
 });
-type BaseAddParams = MaybeSigner & {
+type BaseAddParams = MaybeSigner & WalletHint & {
     /** Additional tickets to add */
     amount: bigint | number;
-    /** Optional gate transaction for gated raffles */
+    /**
+     * Optional gate transaction for gated raffles. On a raffle with the principal ABI
+     * (`RaffleSDK.usesPrincipalAbi()`), build it with `GateSDK.build.mustCheckFor` and the context the
+     * raffle verifies (a direct caller: `directGateCtx(sender)`); on older raffles with
+     * `GateSDK.build.mustCheck` and the sender as caller. A `mustCheck` gate txn always takes the
+     * legacy (registry-subject) overload, also on principal-ABI children.
+     */
     gateTxn?: AppCallMethodCall;
 };
 export type AddParams = BaseAddParams & ({
@@ -117,4 +142,17 @@ export type RaffleMbrData = {
 export type OptInParams = MaybeSigner & {
     /** The asset ID to opt the raffle factory into (so it can receive rewards of this asset) */
     asset: bigint | number;
+};
+export type RaffleCostParams = {
+    /** Whether the prize is a PrizeBox */
+    isPrizeBox?: boolean;
+    /** Prize asset ID (or PrizeBox app ID); used for the rewards opt-in quote */
+    prizeId?: bigint | number;
+    /** Ticket asset ID (0 for ALGO) */
+    ticketAsset?: bigint | number;
+    /** Number of weights boxes */
+    weightsListCount?: bigint | number;
+};
+export type SetMinEntriesParams = MaybeSigner & {
+    minEntries: bigint | number;
 };

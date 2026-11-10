@@ -14,7 +14,7 @@ export declare class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
      * Creates a new auction with an ASA prize and returns an AuctionSDK instance.
      * @returns AuctionSDK for the newly created auction
      */
-    newAuction({ sender, signer, isPrizeBox, name, proof, bidAssetId, bidFee, startingBid, bidMinimumIncrease, startTimestamp, endTimestamp, gateId, marketplace, weightsListCount, ...rest }: NewAuctionParams): Promise<AuctionSDK>;
+    newAuction({ sender, signer, isPrizeBox, name, proof, bidAssetId, bidFee, startingBid, bidMinimumIncrease, startTimestamp, endTimestamp, gateId, marketplace, weightsListCount, wallet, ...rest }: NewAuctionParams): Promise<AuctionSDK>;
     /**
      * Gets an AuctionSDK instance for an existing auction.
      * @param appId - The app ID of the auction

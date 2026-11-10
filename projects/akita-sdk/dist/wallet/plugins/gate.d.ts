@@ -3,7 +3,7 @@ import { GatePluginArgs, GatePluginClient } from "../../generated/GatePluginClie
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
 type ContractArgs = GatePluginArgs["obj"];
-type RegisterArgs = (Omit<ContractArgs['register(uint64,bool,(uint64,uint64,uint8)[],byte[][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type RegisterArgs = (Omit<ContractArgs['register(uint64,bool,(uint64,uint64,uint8)[],byte[][])uint64'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 export declare class GatePluginSDK extends BaseSDK<GatePluginClient> {

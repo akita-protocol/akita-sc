@@ -11,7 +11,7 @@ import type { AkitaConnectUri } from './types';
  * encodeConnectUri({ origin: "signal.akita.community", requestId: "abc-123" })
  * // => "liquid://signal.akita.community?requestId=abc-123"
  */
-export declare function encodeConnectUri({ origin, requestId }: AkitaConnectUri): string;
+export declare function encodeConnectUri({ origin, requestId, v, secret }: AkitaConnectUri): string;
 /**
  * Decode a liquid:// connect URI into its components.
  *

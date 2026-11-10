@@ -1,5 +1,5 @@
-import { AkitaAppList, AkitaAssets, AkitaDaoArgs, AkitaSocialAppList, GlobalKeysState, NftFees, OtherAppList, PluginAppList, ProposalSettings, ProposalVoteTotals, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../generated/AkitaDAOClient";
-import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalExecutePlugin, ProposalNewEscrow, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "../generated/AkitaDAOTypesClient";
+import { AkitaAppList, AkitaAssets, AkitaDaoArgs, AkitaSocialAppList, GlobalKeysState, GuildFees, NftFees, OtherAppList, PluginAppList, ProposalSettings, ProposalVoteTotals, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../generated/AkitaDAOClient";
+import { ProposalAddAllowances, ProposalAddNamedPlugin, ProposalAddPlugin, ProposalChangeAdmin, ProposalExecutePlugin, ProposalNewEscrow, ProposalReclaim, ProposalRemoveAllowances, ProposalRemoveExecutePlugin, ProposalRemoveNamedPlugin, ProposalRemovePlugin, ProposalToggleEscrowLock, ProposalUpdateField, ProposalUpgradeApp } from "../generated/AkitaDAOTypesClient";
 import { ProposalActionEnum } from "./constants";
 import { AddAllowanceArgs, AddPluginArgs, WalletAddPluginParams } from "../wallet";
 import { MaybeSigner, SDKClient } from "../types";
@@ -58,10 +58,23 @@ export type ProposalAction<TClient extends SDKClient> = ({
 } & ProposalNewEscrow) | {
     type: ProposalActionEnum.ToggleEscrowLock;
     escrow: string;
+} | {
+    /** Move escrowed funds back to the DAO wallet. */
+    type: ProposalActionEnum.Reclaim;
+    escrow: string;
+    reclaims: {
+        asset: bigint;
+        amount: bigint;
+        closeOut: boolean;
+    }[];
 } | FieldUpdate & {
     type: ProposalActionEnum.UpdateFields;
 } | {
     type: ProposalActionEnum.UpdateWallet;
+} | {
+    /** Hand administration of the DAO wallet to another account. */
+    type: ProposalActionEnum.ChangeAdmin;
+    admin: string;
 });
 export declare enum SplitDistributionType {
     Flat = 10,
@@ -99,6 +112,9 @@ export type FieldUpdate = ({
     field: 'wallet_fees';
     value: WalletFees;
 } | {
+    field: 'guild_fees';
+    value: GuildFees;
+} | {
     field: 'social_fees';
     value: Partial<SocialFees>;
 } | {
@@ -117,7 +133,7 @@ export type FieldUpdate = ({
     field: 'akita_assets';
     value: Partial<AkitaAssets>;
 } | {
-    field: 'upgrade_app_ps' | 'add_plugin_ps' | 'remove_plugin_ps' | 'add_allowance_ps' | 'remove_allowance_ps' | 'new_escrow_ps' | 'update_fields_ps';
+    field: 'upgrade_app_ps' | 'add_plugin_ps' | 'remove_plugin_ps' | 'remove_execute_plugin_ps' | 'add_allowance_ps' | 'remove_allowance_ps' | 'new_escrow_ps' | 'toggle_escrow_lock_ps' | 'update_fields_ps';
     value: Partial<ProposalSettings>;
 } | {
     field: 'revenue_splits';
@@ -166,10 +182,14 @@ export type DecodedProposalAction = (({
 } & (ProposalNewEscrow | LegacyProposalNewEscrow)) | ({
     type: ProposalActionEnum.ToggleEscrowLock;
 } & ProposalToggleEscrowLock) | ({
+    type: ProposalActionEnum.Reclaim;
+} & ProposalReclaim) | ({
     type: ProposalActionEnum.UpdateFields;
 } & ProposalUpdateField) | {
     type: ProposalActionEnum.UpdateWallet;
-});
+} | ({
+    type: ProposalActionEnum.ChangeAdmin;
+} & ProposalChangeAdmin));
 /**
  * Decoded proposal with typed actions
  */

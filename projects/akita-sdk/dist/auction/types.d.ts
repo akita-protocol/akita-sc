@@ -1,10 +1,18 @@
 import { MaybeSigner } from "../types";
 import { AuctionArgs, BidInfo, FindWinnerCursors, FunderInfo } from '../generated/AuctionClient';
 import { AuctionFactoryArgs } from '../generated/AuctionFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 export { BidInfo, FindWinnerCursors, FunderInfo };
 type FactoryContractArgs = AuctionFactoryArgs["obj"];
-export type NewAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment' | 'assetXfer'> & ({
+/**
+ * Principal-resolution wallet hint (docs/principal-resolution/PHASE-0-SPEC.md §2): the ARC-58 wallet the
+ * call acts for, or 0 (default) to act as the sender itself. A direct (top-level) call can only pass 0:
+ * any other value reverts with `errHtop`; plugins pass their own window (`windowHint`).
+ */
+export type WalletHint = {
+    wallet?: bigint | number;
+};
+export type NewAuctionParams = MaybeSigner & WalletHint & Omit<FactoryContractArgs['newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment' | 'assetXfer'> & ({
     isPrizeBox: true;
     prizeBoxId: bigint | number;
 } | {
@@ -12,17 +20,23 @@ export type NewAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newAuctio
     prizeAsset: bigint | number;
     prizeAmount: bigint | number;
 });
-export type NewPrizeBoxAuctionParams = MaybeSigner & Omit<FactoryContractArgs['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment'>;
+export type NewPrizeBoxAuctionParams = MaybeSigner & WalletHint & Omit<FactoryContractArgs['newPrizeBoxAuction(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'payment'>;
 export type DeleteAuctionParams = MaybeSigner & FactoryContractArgs['deleteAuctionApp(uint64)void'];
 export type CancelAuctionParams = MaybeSigner & FactoryContractArgs['cancelAuction(uint64)void'];
 type AuctionContractArgs = AuctionArgs["obj"];
 export type InitAuctionParams = MaybeSigner & Omit<AuctionContractArgs['init(pay,uint64)void'], 'payment'>;
-type BaseBidParams = MaybeSigner & {
+type BaseBidParams = MaybeSigner & WalletHint & {
     /** The amount to bid */
     amount: bigint | number;
     /** Marketplace address for referrals */
     marketplace: string;
-    /** Optional gate transaction for gated auctions */
+    /**
+     * Optional gate transaction for gated auctions. On an auction with the principal ABI
+     * (`AuctionSDK.usesPrincipalAbi()`), build it with `GateSDK.build.mustCheckFor` and the context the
+     * auction verifies (a direct caller: `directGateCtx(sender)`); on older auctions with
+     * `GateSDK.build.mustCheck` and the sender as caller. A `mustCheck` gate txn always takes the
+     * legacy (registry-subject) overload, also on principal-ABI children.
+     */
     gateTxn?: AppCallMethodCall;
 };
 export type BidParams = BaseBidParams & ({
@@ -77,6 +91,11 @@ export type AuctionState = {
     winningTicket: bigint;
     raffleWinner: string;
     raffleRound: bigint;
+    /**
+     * Creation-time referrer of the seller's verified wallet, paid at settlement ('' on auctions created
+     * before the principal ABI, which still pay the seller's registry referrer).
+     */
+    sellerReferrer: string;
 };
 export type AuctionMbrData = {
     bids: bigint;

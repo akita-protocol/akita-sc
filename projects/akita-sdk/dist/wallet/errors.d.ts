@@ -5,6 +5,7 @@
  * failing, where `code` is one of the short alphanumeric tags in this file.
  * Keep this in sync with `akita-sc/smart_contracts/arc58/account/errors.ts` —
  * the short codes are the shared wire format between contract and SDK.
+ * Tables include both current camelCase codes and legacy uppercase aliases.
  *
  * Use `translateWalletError(code)` to turn a code back into a human-readable
  * message for display in a UI or log.

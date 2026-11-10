@@ -82,6 +82,39 @@ export interface NetworkAppIds {
     nfdRegistry: bigint;
     assetInbox: bigint;
     akitaNfd: bigint;
+    /** Meta (replaces the immutable MetaMerkles; aal.metaMerkles moves only after the roots migrate) */
+    meta?: bigint;
+    metaPlugin?: bigint;
+    guildFactory?: bigint;
+    guildConsensusFactory?: bigint;
+    /** creation-only GuildPlugin (guild = 0) */
+    guildPlugin?: bigint;
+    welcomePlugin?: bigint;
+    /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
+    socialClaim?: bigint;
+    /** AbstractedAccountBalanceReader */
+    walletBalanceReader?: bigint;
+    /** PluginDex v2 Vault */
+    pluginDex?: bigint;
+    binEngine?: bigint;
+    impactFeeHook?: bigint;
+    swapTaxHook?: bigint;
+    volatilityFeeHook?: bigint;
+    backrunArbHook?: bigint;
+    gatedFeeHook?: bigint;
+    antiSnipeFeeHook?: bigint;
+    launchTaxHook?: bigint;
+    consensusKeyregHook?: bigint;
+    /** PluginDexPlugin: the ARC-58 plugin wallets trade and provide liquidity through */
+    pluginDexPlugin?: bigint;
+    launchManager?: bigint;
+    gatedFeePassPlugin?: bigint;
+    /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */
+    rewardsV1?: bigint;
+    /** ModeratorActivityGate (context-aware sub-gate over AkitaSocialModeration.moderatorActivity) */
+    moderatorActivityGate?: bigint;
+    /** GovernanceParticipationGate (context-aware sub-gate over AkitaDAO.getGovernanceParticipation) */
+    governanceParticipationGate?: bigint;
 }
 export declare const PLUGIN_APP_ID_KEYS: readonly ["revenueManagerPlugin", "updatePlugin", "optinPlugin", "selfOptinPlugin", "asaManagerPlugin", "payPlugin", "haystackRouterPlugin", "hyperSwapPlugin", "subscriptionsPlugin", "auctionPlugin", "daoPlugin", "dualStakePlugin", "gatePlugin", "marketplacePlugin", "nfdPlugin", "paySiloPlugin", "paySiloFactoryPlugin", "pollPlugin", "rafflePlugin", "rewardsPlugin", "socialPlugin", "stakingPlugin", "stakingPoolPlugin"];
 export type PluginAppIdKey = (typeof PLUGIN_APP_ID_KEYS)[number];
@@ -143,6 +176,48 @@ export interface DaoEscrowActionV2Cutover {
 }
 export declare const DAO_ESCROW_ACTION_V2_ROUNDS: Partial<Record<AkitaNetwork, DaoEscrowActionV2Cutover>>;
 export declare function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoEscrowActionV2Cutover | undefined;
+/**
+ * Principal resolution Phase 3 switch (docs/principal-resolution/PHASE-0-SPEC.md §6.10, §7.1).
+ *
+ * `true` means the SDK stops writing the EscrowFactory reverse registry by default on that network:
+ * `newWallet` skips `register('')` and `addPlugin` skips registering a new escrow. Callers can still
+ * force either behaviour with `register` / `registerEscrow`.
+ *
+ * Rollout order (§7.1): registry writes stop only after the Phase 2 singleton/child upgrades and the
+ * Phase 3 plugin proposal have EXECUTED on that network. Before then every deployed consumer
+ * (legacy plugin referrals, legacy sub-gates such as AkitaReferrerGate, deployed children) still reads
+ * the registry, so a wallet or escrow missing from it silently loses referral payouts and gate eligibility.
+ * Flip testnet/mainnet to `true` in the same release that records the executed Phase 3 proposal.
+ *
+ * LocalNet is `true`: every LocalNet universe is deployed from the current tree (Phases 0-3 applied).
+ */
+export declare const REGISTRY_WRITES_STOPPED: Record<AkitaNetwork, boolean>;
+/** Whether the SDK's default is to skip EscrowFactory registry writes on `network` (see REGISTRY_WRITES_STOPPED). */
+export declare function registryWritesStopped(network: AkitaNetwork): boolean;
+/**
+ * Resolve the effective registry-write choice: an explicit `register` / `registerEscrow` flag wins,
+ * otherwise write the registry until Phase 3 has executed on `network`.
+ */
+export declare function shouldWriteRegistry(network: AkitaNetwork, explicit?: boolean): boolean;
+/**
+ * Principal resolution Phase 2 switch for the social targets (docs/principal-resolution/PHASE-0-SPEC.md
+ * §6.2, §6.3, §7.1).
+ *
+ * `true` means AkitaSocial and AkitaSocialGraph on that network run the principal-resolution upgrade:
+ * `SocialSDK` writes call the hinted overloads (trailing `wallet` hint), quote the corrected box MBR,
+ * and gated writes expect a `Gate.mustCheckFor` txn (Gate v2). `false` means the deployed programs:
+ * `SocialSDK` calls the legacy selectors with the deployed MBR terms, gated writes expect a
+ * `Gate.mustCheck` txn, a non-zero `wallet` hint is refused locally, and `setMetaWallet` is unavailable.
+ *
+ * Rollout order (§7.1): flip testnet/mainnet to `true` in the release that records the EXECUTED Phase 2
+ * AkitaSocial/AkitaSocialGraph upgrade on that network. Until then the deployed programs have no hinted
+ * selectors, and after it a top-level call of an old selector must pay the corrected MBR.
+ *
+ * LocalNet is `true`: every LocalNet universe is deployed from the current tree.
+ */
+export declare const SOCIAL_HINTED_TARGETS: Record<AkitaNetwork, boolean>;
+/** Whether `SocialSDK` targets the upgraded (hinted) social programs on `network`; an explicit choice wins. */
+export declare function socialHintedTargets(network: AkitaNetwork, explicit?: boolean): boolean;
 /**
  * Create an empty NetworkAppIds object (all 0n).
  * Used as the base for localnet — consumers must overlay with real IDs.

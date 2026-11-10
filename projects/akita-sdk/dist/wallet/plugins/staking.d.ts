@@ -30,6 +30,15 @@ type CheckpointAppSoftStakeArgs = (Omit<ContractArgs['checkpointAppSoftStake(uin
 type UpdateSettingsArgs = (Omit<ContractArgs['updateSettings(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+type SetHeartbeatManagerArgs = (Omit<ContractArgs['setHeartbeatManager(uint64,bool,address)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type CloseStakeArgs = (Omit<ContractArgs['closeSoftStake(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
+type ReleaseAppStakeArgs = (Omit<ContractArgs['releaseAppStake(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
 export declare class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
     constructor(params: NewContractSDKParams);
     stake(): PluginSDKReturn;
@@ -44,5 +53,15 @@ export declare class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
     checkpointAppSoftStake(args: CheckpointAppSoftStakeArgs): PluginSDKReturn;
     updateSettings(): PluginSDKReturn;
     updateSettings(args: UpdateSettingsArgs): PluginSDKReturn;
+    setHeartbeatManager(): PluginSDKReturn;
+    setHeartbeatManager(args: SetHeartbeatManagerArgs): PluginSDKReturn;
+    closeSoftStake(): PluginSDKReturn;
+    closeSoftStake(args: CloseStakeArgs): PluginSDKReturn;
+    closeHeartbeat(): PluginSDKReturn;
+    closeHeartbeat(args: CloseStakeArgs): PluginSDKReturn;
+    releaseAppStake(): PluginSDKReturn;
+    releaseAppStake(args: ReleaseAppStakeArgs): PluginSDKReturn;
+    /** Shared hook shape for single-call plugin methods. */
+    private simpleHook;
 }
 export {};

@@ -1,9 +1,11 @@
 import { BaseSDK } from "../base";
 import { HyperSwapClient, HyperSwapArgs } from '../generated/HyperSwapClient';
 import { NewContractSDKParams } from "../types";
-import { OfferParams, AcceptParams, EscrowParams, DisburseParams, CancelParams, WithdrawParams, OptInParams, GetOfferParams, OfferValue, HyperSwapMbrData } from "./types";
+import { OfferParams, AcceptParams, EscrowParams, DisburseParams, DisburseFromParams, DisburseAllParams, CancelParams, WithdrawParams, OptInParams, GetOfferParams, OfferValue, HyperSwapMbrData } from "./types";
 export * from "./errors";
 export * from "./types";
+export * from "./roots";
+export * from "./terms";
 export type HyperSwapContractArgs = HyperSwapArgs["obj"];
 /**
  * SDK for interacting with the HyperSwap contract.
@@ -20,6 +22,11 @@ export declare class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
      */
     getOffer({ id }: GetOfferParams): Promise<OfferValue>;
     /**
+     * The terms commitment the contract expects for an offer. Use it only to cross-check:
+     * `accept` derives the commitment from the full lists and never takes it from here.
+     */
+    offerTerms({ id }: GetOfferParams): Promise<Uint8Array>;
+    /**
      * Opts the HyperSwap contract into an asset.
      */
     optIn({ sender, signer, asset }: OptInParams): Promise<void>;
@@ -29,8 +36,14 @@ export declare class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
     offer({ sender, signer, root, leaves, participantsRoot, participantsLeaves, expiration, }: OfferParams): Promise<void>;
     /**
      * Accepts an offer as a participant.
+     *
+     * Takes the full, ordered leaf and participant lists the offeror shared. The offer is read from
+     * the chain and checked against them (`validateOffer`), and the terms commitment sent to the
+     * contract is derived here. An offer that under-declares its leaves or participants, repeats
+     * one, or does not match the lists is refused before anything is signed. There is no way to pass
+     * a ready-made `terms` value through this method.
      */
-    accept({ sender, signer, id, proof }: AcceptParams): Promise<void>;
+    accept({ sender, signer, id, leaves, participants, proof }: AcceptParams): Promise<void>;
     /**
      * Escrows assets for a trade leaf.
      * Use `isAsa: true` and `asset` for ASA escrows, otherwise ALGO is used.
@@ -41,6 +54,15 @@ export declare class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
      * @param receiverWallet - The receiver's ARC58 wallet app ID (0 if not an ARC58 wallet)
      */
     disburse({ sender, signer, id, receiverWallet, receiver, asset, amount }: DisburseParams): Promise<void>;
+    /**
+     * Disburses any escrowed leaf. Anyone may call this once the offer is DISBURSING.
+     */
+    disburseFrom({ sender, signer, id, from, receiverWallet, receiver, asset, amount }: DisburseFromParams): Promise<void>;
+    /**
+     * Disburses every given leaf in one atomic group (at most 16), so either the whole swap
+     * settles or nothing moves and a stuck leaf leaves the offer cancellable.
+     */
+    disburseAll({ sender, signer, id, leaves }: DisburseAllParams): Promise<void>;
     /**
      * Cancels an offer.
      */

@@ -2,33 +2,73 @@ import { BaseSDK } from "../base";
 import { ServicesKey, SubscriptionInfo, SubscriptionsArgs, SubscriptionsClient } from '../generated/SubscriptionsClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ValueMap } from "../wallet/utils";
-import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionInfoWithDetails, SubscriptionStatus } from "./types";
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionGateCtx, SubscriptionGateTxn, SubscriptionInfoWithDetails, SubscriptionStatus } from "./types";
 export { ServicesKey } from '../generated/SubscriptionsClient';
 type ContractArgs = SubscriptionsArgs["obj"];
 export * from './constants';
 export * from './errors';
 export * from './types';
 export * from './utils';
+/**
+ * The gate context a top-level (direct) caller acting as itself presents: `(sender, 0, sender)`. This is
+ * what `principalOf(dao, 0)` resolves to on chain. A non-zero hint is never valid at top level (`errHtop`).
+ */
+export declare const directGateCtx: (sender: string) => SubscriptionGateCtx;
 export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     private serviceMapKeyGenerator;
     services: ValueMap<ServicesKey, Service>;
     constructor(params: NewContractSDKParams);
     /**
-     * Get the cost to create a new service from the contract
+     * Get the cost to create a new service from the contract (the hinted `newServiceCost(asset, wallet)`;
+     * `legacy` quotes the pre-hint selector, which uses the registry referrer).
      */
-    newServiceCost({ sender, signer, asset }?: MaybeSigner & {
+    newServiceCost({ sender, signer, asset, wallet, legacy }?: MaybeSigner & {
         asset?: bigint | number;
+        wallet?: bigint;
+        legacy?: boolean;
     }): Promise<bigint>;
     blockCost({ sender, signer }?: MaybeSigner): Promise<bigint>;
     /**
-     * Get the cost to create a new subscription from the contract
+     * Get the cost to create a new subscription from the contract (box MBR + referral MBR, plus
+     * `SUBSCRIPTION_PRINCIPAL_MBR` when `wallet != 0` and the service is gated). `legacy` quotes the
+     * pre-hint selector (registry referrer, no stored principal).
      */
-    newSubscriptionCost({ sender, signer, recipient, asset, serviceId }: MaybeSigner & {
+    newSubscriptionCost({ sender, signer, recipient, asset, serviceId, wallet, legacy }: MaybeSigner & {
         recipient: string;
         asset?: bigint | number;
         serviceId?: bigint | number;
+        wallet?: bigint;
+        legacy?: boolean;
     }): Promise<bigint>;
+    /**
+     * The `GateCtx` a hinted `gatedTriggerPayment(gateTxn, key, wallet)` sent by `sender` will assert
+     * (readonly; the contract runs the same code). `wallet` is the CALLER's own hint, never the subscriber's.
+     */
+    triggerGateCtx({ sender, address, id, wallet }: {
+        sender?: string;
+        address: string;
+        id: bigint | number;
+        wallet?: bigint;
+    }): Promise<SubscriptionGateCtx>;
+    /**
+     * The stored principal pair `(wallet, principal)` of a gated subscription, or undefined if it has none
+     * (a legacy subscription, a plain subscriber, or an ungated service).
+     */
+    getStoredPrincipal({ address, id }: {
+        address: string;
+        id: bigint | number;
+    }): Promise<{
+        wallet: bigint;
+        principal: string;
+    } | undefined>;
+    /**
+     * Backfill (Q13) the stored principal of a legacy gated subscription from the escrow-factory registry.
+     * Permissionless; the caller pays `SUBSCRIPTION_PRINCIPAL_MBR` (refunded to the subscriber on unsubscribe).
+     */
+    adoptPrincipal({ sender, signer, address, id }: MaybeSigner & {
+        address: string;
+        id: bigint | number;
+    }): Promise<void>;
     /**
      * Get the cost to opt the contract into an asset
      */
@@ -113,7 +153,7 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     } & {
         address: string;
     }): Promise<bigint>;
-    newService({ sender, signer, asset, passes, gateId, ...rest }: NewServiceArgs): Promise<bigint>;
+    newService({ sender, signer, asset, passes, gateId, wallet, legacy, ...rest }: NewServiceArgs): Promise<bigint>;
     pauseService({ sender, signer, id }: MaybeSigner & ContractArgs['pauseService(uint64)void']): Promise<void>;
     updateServiceTitle({ sender, signer, id, title }: MaybeSigner & {
         id: bigint | number;
@@ -133,7 +173,7 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
         block: string;
     }): Promise<void>;
     unblock({ sender, signer, blocked }: MaybeSigner & ContractArgs['unblock(address)void']): Promise<void>;
-    subscribe({ sender, signer, asset, serviceId, initialDepositAmount, amount, interval, recipient, gateTxn }: MaybeSigner & SubscribeArgs): Promise<bigint>;
+    subscribe({ sender, signer, asset, serviceId, initialDepositAmount, amount, interval, recipient, gateTxn, wallet, legacy, }: MaybeSigner & SubscribeArgs): Promise<bigint>;
     unsubscribe({ sender, signer, id }: MaybeSigner & ContractArgs['unsubscribe(uint64)void']): Promise<void>;
     deposit({ sender, signer, asset, amount, id }: MaybeSigner & {
         asset?: bigint | number;
@@ -145,13 +185,32 @@ export declare class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
         amount: bigint | number;
         id: bigint | number;
     }): Promise<void>;
-    triggerPayment({ sender, signer, address, id, gateTxn }: MaybeSigner & {
+    /**
+     * Trigger the payment for subscription `{ address, id }`.
+     *
+     * For a gated service pass `gateTxn`. Eligibility is always re-checked for the SUBSCRIBER, never the
+     * keeper. Hinted (default): `Gate.mustCheckFor(ctx, gateId, args)` with `ctx = triggerGateCtx(...)`;
+     * pass a builder `(ctx) => gate.build.mustCheckFor({ ctx, gateId, args })` and the SDK fetches `ctx`.
+     * `wallet` is the keeper's OWN hint (0n for a keeper acting as itself). `legacy`: the pre-hint selector,
+     * whose `Gate.mustCheck` caller is the subscriber's registry origin.
+     */
+    triggerPayment({ sender, signer, address, id, gateTxn, wallet, legacy }: MaybeSigner & {
         address: string;
         id: bigint;
-        gateTxn?: AppCallMethodCall;
+        gateTxn?: SubscriptionGateTxn;
+        wallet?: bigint;
+        legacy?: boolean;
     }): Promise<void>;
     setPasses({ sender, signer, id, passes }: MaybeSigner & {
         id: bigint | number;
         passes: string[];
+    }): Promise<void>;
+    /**
+     * Delete a pass box orphaned by a subscription cancelled before the pass-key fix. Anyone may
+     * call it; the freed MBR stays in the contract.
+     */
+    clearOrphanPasses({ sender, signer, address, id }: MaybeSigner & {
+        address: string;
+        id: bigint | number;
     }): Promise<void>;
 }

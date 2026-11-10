@@ -4,9 +4,7 @@ import { AddAllowanceArgs, AllowanceInfo } from "./types";
 import { PluginHookParams, PluginTxn } from "../types";
 type ComposerTransactionWithMaxFee<TFee> = {
     type: string;
-    data: {
-        maxFee?: TFee;
-    };
+    maxFee?: TFee;
 };
 /**
  * Applies a default max fee to composer inputs that resolve to app calls.

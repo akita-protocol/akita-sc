@@ -2,7 +2,7 @@ import type { WalletSDK } from './index';
 import { AbstractedAccountArgs } from '../generated/AbstractedAccountClient';
 import { AddAllowanceArgs, WalletAddPluginParams, WalletUsePluginParams } from './types';
 import { MaybeSigner, SDKClient, GroupReturn } from '../types';
-import { SendParams } from '@algorandfoundation/algokit-utils/transaction';
+import { SendParams } from '@algorandfoundation/algokit-utils/types/transaction';
 type ContractArgs = AbstractedAccountArgs["obj"];
 /**
  * Fluent composer returned by `wallet.group()` that queues wallet operations
@@ -23,6 +23,11 @@ export declare class WalletGroupComposer {
     private getSendParams;
     addPlugin<TClient extends SDKClient>(params: WalletAddPluginParams<TClient>): this;
     usePlugin(params: WalletUsePluginParams): this;
+    /**
+     * @deprecated LEGACY registry write (EscrowFactory reverse registry). The SDK no longer registers
+     * wallets or escrows on its own (principal-resolution Phase 3); use this only to keep legacy registry
+     * semantics working. Removed in Phase 4.
+     */
     register({ sender, signer, ...args }: ContractArgs['register(string)void'] & MaybeSigner): this;
     changeRevocationApp({ sender, signer, app }: MaybeSigner & {
         app: bigint;
@@ -45,6 +50,11 @@ export declare class WalletGroupComposer {
     verifyAuthAddress(params?: MaybeSigner): this;
     rekeyTo({ sender, signer, ...args }: MaybeSigner & ContractArgs['arc58_rekeyTo(address,bool)void']): this;
     canCall({ sender, signer, ...args }: ContractArgs['arc58_canCall(uint64,uint64,address,string,byte[4])bool'] & MaybeSigner): this;
+    assignDomain({ sender, signer, ...args }: ContractArgs['assignDomain(address,string)void'] & MaybeSigner): this;
+    /** ACC-06: revoke a co-admin key (on-chain `assignDomain(address, '')`). */
+    removeDomainKey({ sender, signer, address }: MaybeSigner & {
+        address: string;
+    }): this;
     removePlugin({ sender, signer, ...args }: ContractArgs['arc58_removePlugin(uint64,address,string)void'] & MaybeSigner): this;
     newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): this;
     toggleEscrowLock({ sender, signer, ...args }: ContractArgs['arc58_toggleEscrowLock(string)(uint64,address,bool)'] & MaybeSigner): this;

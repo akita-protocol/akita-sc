@@ -1,12 +1,57 @@
+import algosdk from "algosdk";
 import { BaseSDK } from "../base";
 import { MarketplaceClient, MarketplaceArgs } from '../generated/MarketplaceClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ListingSDK } from "./listing";
 import { ListParams, PurchaseParams, DelistParams, OptInParams } from "./types";
+import type { GateCtx } from "../principal";
+import type { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 export * from "./errors";
 export * from "./listing";
 export * from "./types";
 export type MarketplaceContractArgs = MarketplaceArgs["obj"];
+/**
+ * Full ARC-4 signatures of the Marketplace methods that exist twice during the principal-resolution
+ * compatibility window (PHASE-0-SPEC §7.2, P2-ABI-01). The hinted method (trailing `wallet: uint64`)
+ * keeps the canonical name; the legacy shim keeps the deployed selector. The generated client exposes
+ * each overload under a suffixed name (no shared `client.send.list`); this SDK always sends the hinted one,
+ * except `purchase` with a legacy `Gate.mustCheck` gate txn.
+ */
+export declare const MARKETPLACE_HINTED_METHODS: {
+    readonly list: "list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64";
+    readonly listPrizeBox: "listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64";
+    readonly gatedPurchase: "gatedPurchase(pay,appl,uint64,address,uint64)void";
+    readonly gatedPurchaseAsa: "gatedPurchaseAsa(axfer,appl,uint64,address,uint64)void";
+};
+/** Deployed (pre-principal-resolution) selectors, served by the legacy shims until Phase 4. */
+export declare const MARKETPLACE_LEGACY_METHODS: {
+    readonly list: "list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64";
+    readonly listPrizeBox: "listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64";
+    readonly gatedPurchase: "gatedPurchase(pay,appl,uint64,address)void";
+    readonly gatedPurchaseAsa: "gatedPurchaseAsa(axfer,appl,uint64,address)void";
+};
+/**
+ * Creator MBR of a rev-3 Listing child: 2 program pages + 13 global uints + 7 global byte slices
+ * = 200_000 + 13 * 28_500 + 7 * 50_000. Mirrors the on-chain `listCost`; prefer `quoteListCost()`.
+ * (`seller_referrer` +50,000 and `factory_float` +28,500 over the rev-2 842,000.)
+ */
+export declare const LISTING_CREATE_MBR = 920500n;
+/**
+ * Creator MBR the deployed MarketplacePlugin (MainNet 3569561455) and pre-audit SDKs bake into their
+ * listing payment (pre-audit Listing: 2 pages, 9 uints, 6 bytes). The legacy `list`/`listPrizeBox`
+ * shims still accept it for ALGO-priced listings; the hinted methods never do. The factory floats
+ * `LISTING_CREATE_MBR - LEGACY_LISTING_CREATE_MBR` (164,000) plus the v2 disbursement MBR increase
+ * (12,800) per quoted disbursement per open legacy-paid listing (189,600 for an ASA listing, 176,800
+ * for a prize box), records it on the child (`factoryFloat`) and takes it back at settlement or delist before refunding the seller.
+ */
+export declare const LEGACY_LISTING_CREATE_MBR = 756500n;
+/**
+ * The gate context a DIRECT (top-level, wallet hint 0) buyer must pin in `Gate.mustCheckFor`:
+ * the hinted `gatedPurchase` resolves `(principal, wallet, spender) = (sender, 0, sender)`.
+ */
+export declare function directGateCtx(sender: string | algosdk.Address): GateCtx;
+/** A `Gate.mustCheck(caller, ...)` txn (legacy subject) rather than `Gate.mustCheckFor(ctx, ...)`. */
+export declare function isLegacyGateTxn(gateTxn: AppCallMethodCall): boolean;
 /**
  * SDK for interacting with the Marketplace contract.
  * Use this to create listings, purchase items, and delist items.
@@ -18,7 +63,7 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
      * Can list either an ASA or a PrizeBox based on the `isPrizeBox` flag.
      * @returns ListingSDK for the newly created listing
      */
-    list({ sender, signer, isPrizeBox, price, paymentAsset, expiration, reservedFor, gateId, marketplace, ...rest }: ListParams): Promise<ListingSDK>;
+    list({ sender, signer, isPrizeBox, price, paymentAsset, expiration, reservedFor, gateId, marketplace, wallet, ...rest }: ListParams): Promise<ListingSDK>;
     /**
      * Gets a ListingSDK instance for an existing listing.
      * @param appId - The app ID of the listing
@@ -56,11 +101,21 @@ export declare class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         escrowOptInCost?: bigint;
     }): bigint;
     /**
+     * Exact listing payment from the factory's readonly `listCost(prize, paymentAsset, isPrizeBox)`, as
+     * the chain computes it right now (includes the rewards and DAO-escrow opt-in terms). Pass `prize = 0`
+     * for a prize box. Quote after any factory opt-ins the listing group adds, or use `listCost` offline.
+     */
+    quoteListCost({ prize, paymentAsset, isPrizeBox }?: {
+        prize?: bigint | number;
+        paymentAsset?: bigint | number;
+        isPrizeBox?: boolean;
+    }): Promise<bigint>;
+    /**
      * Purchases a listing.
      * Use `isAsa: true` with `paymentAsset` and `paymentAmount` for ASA payments, otherwise ALGO is used.
      * Provide `gateTxn` for gated listings.
      */
-    purchase({ sender, signer, listingAppId, marketplace, isAsa, gateTxn, ...rest }: PurchaseParams): Promise<void>;
+    purchase({ sender, signer, listingAppId, marketplace, isAsa, gateTxn, wallet, ...rest }: PurchaseParams): Promise<void>;
     /**
      * Opts the marketplace into an asset so listings using it as the payment
      * asset can be fulfilled. When the marketplace has a named DAO escrow

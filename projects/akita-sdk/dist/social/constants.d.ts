@@ -10,22 +10,36 @@ export declare const BOX_COST_PER_BYTE = 400n;
 export declare const FOLLOWS_MBR = 31700n;
 /** Blocks box MBR: 15,700 microAlgo */
 export declare const BLOCKS_MBR = 15700n;
-/** Minimum posts box MBR: 46,500 microAlgo (add 400 * ref.length for total) — includes creatorFlags + moderatorFlags */
-export declare const MIN_POSTS_MBR = 46500n;
-/** Minimum paywall MBR: 5,200 microAlgo */
-export declare const MIN_PAYWALL_MBR = 5200n;
+/** Minimum posts box MBR: 47,300 microAlgo (add 400 * ref.length for total): key 33 + value head 77 + ref length prefix 2 */
+export declare const MIN_POSTS_MBR = 47300n;
+/** Minimum paywall MBR: 9,300 microAlgo (key 9 + value 8, before pay options) */
+export declare const MIN_PAYWALL_MBR = 9300n;
+/**
+ * Deployed (pre-Phase-2) AkitaSocial terms, used while `SOCIAL_HINTED_TARGETS[network]` is false:
+ * posts box base 46,500 (no reply parent-ref, no votes box for a materialized ref, 18,900 reaction
+ * list per reaction) and paywall base 5,200.
+ */
+export declare const LEGACY_MIN_POSTS_MBR = 46500n;
+/** Deployed (pre-Phase-2) AkitaSocial paywall base MBR: 5,200 microAlgo */
+export declare const LEGACY_MIN_PAYWALL_MBR = 5200n;
 /** Votes box MBR: 19,300 microAlgo */
 export declare const VOTES_MBR = 19300n;
 /** Vote list box MBR: 19,300 microAlgo */
 export declare const VOTELIST_MBR = 19300n;
 /** Reactions box MBR: 22,100 microAlgo */
 export declare const REACTIONS_MBR = 22100n;
-/** Reaction list box MBR: 18,900 microAlgo */
+/** Legacy reaction list box MBR ('e' + 16 + 16 + 8 key): 18,900 microAlgo. Refunded when a legacy reaction is deleted. */
 export declare const REACTIONLIST_MBR = 18900n;
+/** Reaction record box MBR ('y' + sha256(user || ref || nft) key, empty value): 15,700 microAlgo */
+export declare const REACTION_RECORD_MBR = 15700n;
+/** Parent-ref MBR carried by every reply ref (400 * 32): 12,800 microAlgo */
+export declare const REPLY_PARENT_REF_MBR = 12800n;
 /** Meta box MBR: 45,300 microAlgo */
 export declare const META_MBR = 45300n;
 /** Moderators box MBR: 18,900 microAlgo */
 export declare const MODERATORS_MBR = 18900n;
+/** Moderator activity box ('k') MBR, created with the moderators box: 25,300 microAlgo */
+export declare const MODERATOR_ACTIVITY_MBR = 25300n;
 /** Banned box MBR: 18,900 microAlgo */
 export declare const BANNED_MBR = 18900n;
 /** Actions box MBR: 29,700 microAlgo */
@@ -42,11 +56,11 @@ export declare const IMPACT_META_MBR = 31700n;
 export declare const SUBSCRIPTION_STATE_MODIFIER_MBR = 9300n;
 /**
  * Post MBR: posts + votes + votelist
- * = 40,100 + (400 * 36) + 19,300 + 19,300 = 93,100 microAlgo (for 36-byte CID)
+ * = 47,300 + (400 * 36) + 19,300 + 19,300 = 100,300 microAlgo (for 36-byte CID)
  */
 export declare const POST_BASE_MBR: bigint;
 /**
- * Reply MBR: Same as post (may need extra for empty post creation)
+ * Reply MBR: post MBR + the 32-byte parent ref the reply stores
  */
 export declare const REPLY_BASE_MBR: bigint;
 /**
@@ -57,7 +71,7 @@ export declare const VOTE_BASE_MBR = 19300n;
 /**
  * React MBR: reactionlist (+ reactions if first reaction with this NFT)
  */
-export declare const REACT_BASE_MBR = 18900n;
+export declare const REACT_BASE_MBR = 15700n;
 export declare const REACT_NEW_NFT_MBR: bigint;
 export declare const ONE_DAY_SECONDS = 86400n;
 export declare const ONE_WEEK_SECONDS = 604800n;

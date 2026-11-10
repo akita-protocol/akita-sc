@@ -1,4 +1,5 @@
-import { SimulateResponse } from "@algorandfoundation/algokit-utils/algod-client";
+import type { modelsv2 } from 'algosdk';
+type SimulateResponse = modelsv2.SimulateResponse;
 /**
  * An itemized outflow from the tracked address, one entry per contributing
  * transaction (top-level or inner). `isFee` distinguishes fee outflows from
@@ -32,7 +33,7 @@ export type AssetSubtotal = {
  * Aggregated cost prediction for a built transaction group from the
  * perspective of a single tracked address.
  *
- * Populated by `computeExpectedCost` using the simulate response that utils10
+ * Populated by `computeExpectedCost` using the simulate response that AlgoKit
  * already runs during `composer.build()` — no additional simulate roundtrip
  * is performed.
  */
@@ -73,10 +74,10 @@ export type ExpectedCost = {
  * I need to cover" number, not a net P&L view.
  *
  * Fees are counted per-txn where the tracked address is the sender. Because
- * utils10 distributes inner-txn fees up to the calling app-call's fee field
+ * AlgoKit distributes inner-txn fees up to the calling app-call's fee field
  * during `coverAppCallInnerTransactionFees`, inner transactions themselves
  * typically have fee=0 in the simulate response — the tracked address only
- * "sees" fees when it is the top-level sender of a txn that the utils10 pass
+ * "sees" fees when it is the top-level sender of a txn that the AlgoKit pass
  * pooled fees onto. This matches real-world execution semantics.
  *
  * @param simulateResponse - The response from the simulate call that was
@@ -88,3 +89,4 @@ export type ExpectedCost = {
  *   `ExecutionBuildGroup.expectedCost`.
  */
 export declare function computeExpectedCost(simulateResponse: SimulateResponse, trackedAddress: string): ExpectedCost;
+export {};

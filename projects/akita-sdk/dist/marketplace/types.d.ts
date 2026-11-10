@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { MarketplaceArgs } from '../generated/MarketplaceClient';
 import { ListingArgs, FunderInfo } from '../generated/ListingClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 export { FunderInfo };
 type MarketplaceContractArgs = MarketplaceArgs["obj"];
 type BaseListParams = MaybeSigner & {
@@ -17,6 +17,13 @@ type BaseListParams = MaybeSigner & {
     gateId: bigint | number;
     /** Marketplace address for royalties */
     marketplace: string;
+    /**
+     * Wallet hint (principal resolution, PHASE-0-SPEC §2): the ARC-58 wallet app id this call acts
+     * for, or 0 (default) for a plain account. The verified principal's referrer becomes the listing's
+     * `seller_referrer`. A direct (top-level) call must pass 0: any other hint reverts with `errHtop`,
+     * because only an app call from inside the wallet's window can prove the binding.
+     */
+    wallet?: bigint | number;
 };
 export type ListParams = BaseListParams & ({
     /** Whether listing a PrizeBox */
@@ -40,8 +47,15 @@ type BasePurchaseParams = MaybeSigner & {
     listingAppId: bigint | number;
     /** Marketplace address for referrals */
     marketplace: string;
-    /** Optional gate transaction for gated listings */
+    /**
+     * Gate transaction for gated listings. Build it with `GateSDK.build.mustCheckFor({ ctx, gateId, args })`
+     * where `ctx` is the buyer's verified context: `{ principal: sender, wallet: 0n, spender: sender }` for a
+     * direct call (see `directGateCtx`). The hinted `gatedPurchase` asserts exactly that ctx. A legacy
+     * `Gate.mustCheck(caller, ...)` txn is routed to the legacy selector (registry-origin subject) instead.
+     */
     gateTxn?: AppCallMethodCall;
+    /** Wallet hint for the hinted gated purchase (default 0; see `BaseListParams.wallet`). */
+    wallet?: bigint | number;
 };
 export type PurchaseParams = BasePurchaseParams & ({
     /** Whether paying with ASA (true) or ALGO (false/undefined) */
@@ -73,4 +87,18 @@ export type ListingState = {
     gateId: bigint;
     marketplace: string;
     marketplaceRoyalties: bigint;
+    /** program revision (0 = pre-audit listing with no `rev` global) */
+    rev: bigint;
+    /**
+     * rev 3+: the referrer fixed at creation, paid the referral cut at settlement (zero address = none).
+     * Undefined for rev-absent (deployed) listings. Those never pay a seller referral: their registry
+     * lookup at settlement keys on `Txn.sender`, which is always the Marketplace factory.
+     */
+    sellerReferrer?: string;
+    /**
+     * rev 3+: creation MBR the factory advanced because the listing was paid with the deployed plugin's
+     * pre-audit amount (legacy shim); 0 otherwise. Repaid to the factory before the seller's refund.
+     * Undefined for rev-absent listings.
+     */
+    factoryFloat?: bigint;
 };

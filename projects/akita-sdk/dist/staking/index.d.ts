@@ -1,7 +1,7 @@
 import { BaseSDK } from "../base";
 import { StakingClient, Stake, Escrow, StakeCheck, TotalsInfo, WeightedStake } from '../generated/StakingClient';
 import { NewContractSDKParams } from "../types";
-import { StakeArgs, WithdrawArgs, CreateHeartbeatArgs, UpdateSettingsArgs, SoftCheckArgs, CheckpointSoftStakeArgs, CheckpointExpiredLockArgs, GetTimeLeftArgs, GetInfoArgs, GetWeightedStakeArgs, GetAppWeightedStakeArgs, GetEscrowInfoArgs, GetHeartbeatArgs, GetHeartbeatAverageArgs, GetInfoListArgs, HeartbeatEntry, StakingType, AssetCheck, OptInArgs } from "./types";
+import { StakeArgs, WithdrawArgs, CreateHeartbeatArgs, SetHeartbeatManagerArgs, CloseStakeArgs, ReleaseAppStakeArgs, UpdateSettingsArgs, SoftCheckArgs, CheckpointSoftStakeArgs, CheckpointExpiredLockArgs, GetTimeLeftArgs, GetInfoArgs, GetWeightedStakeArgs, GetAppWeightedStakeArgs, GetEscrowInfoArgs, GetHeartbeatArgs, GetHeartbeatAverageArgs, GetInfoListArgs, HeartbeatEntry, StakingType, AssetCheck, OptInArgs } from "./types";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
 export * from './errors';
 export * from './types';
@@ -81,6 +81,17 @@ export declare class StakingSDK extends BaseSDK<StakingClient> {
      * @param type - The staking type
      */
     withdraw({ sender, signer, asset, type }: WithdrawArgs): Promise<AppReturn<void>>;
+    /** Sets the heartbeat manager. Staking only accepts this from the DAO wallet. */
+    setHeartbeatManager({ sender, signer, manager }: SetHeartbeatManagerArgs): Promise<AppReturn<void>>;
+    /** Closes the sender's SOFT stake for `asset` and refunds its box MBR. */
+    closeSoftStake({ sender, signer, asset }: CloseStakeArgs): Promise<AppReturn<void>>;
+    /** Closes the sender's heartbeat stake and history for `asset` and refunds both boxes' MBR. */
+    closeHeartbeat({ sender, signer, asset }: CloseStakeArgs): Promise<AppReturn<void>>;
+    /**
+     * Releases an app-scoped commitment and refunds its MBR to `address`. Callable by the owner
+     * once the consuming app has been deleted (the app itself releases otherwise).
+     */
+    releaseAppStake({ sender, signer, app, address, asset }: ReleaseAppStakeArgs): Promise<AppReturn<void>>;
     /**
      * Creates a heartbeat entry for tracking stake history.
      * @param address - The address to create heartbeat for
@@ -95,6 +106,7 @@ export declare class StakingSDK extends BaseSDK<StakingClient> {
     updateSettings({ sender, signer, asset, value }: UpdateSettingsArgs): Promise<void>;
     optIn({ sender, signer, asset }: OptInArgs): Promise<void>;
     optInCost(): Promise<bigint>;
-    stakeCost(asset: bigint | number, type: StakingType): Promise<bigint>;
+    /** MBR `staker` pays for a new stake of this kind; 0 when it already has one (a top-up). */
+    stakeCost(asset: bigint | number, type: StakingType, staker?: string): Promise<bigint>;
     getTotals(assets: bigint[]): Promise<TotalsInfo[]>;
 }

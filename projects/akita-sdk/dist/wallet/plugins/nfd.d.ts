@@ -33,7 +33,7 @@ type CancelSaleArgs = (Omit<ContractArgs['cancelSale(uint64,bool,uint64)void'], 
 type PostOfferArgs = (Omit<ContractArgs['postOffer(uint64,bool,uint64,uint64,string)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type PurchaseArgs = (Omit<ContractArgs['purchase(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type PurchaseArgs = (Omit<ContractArgs['purchase(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type UpdateHashArgs = (Omit<ContractArgs['updateHash(uint64,bool,uint64,byte[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
@@ -54,10 +54,10 @@ type VaultOptInArgs = (Omit<ContractArgs['vaultOptIn(uint64,bool,uint64,uint64[]
 type VaultSendArgs = (Omit<ContractArgs['vaultSend(uint64,bool,uint64,uint64,address,string,uint64,uint64[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type RenewArgs = (Omit<ContractArgs['renew(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type RenewArgs = (Omit<ContractArgs['renew(uint64,bool,uint64,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type AutoRenewArgs = (Omit<ContractArgs['autoRenew(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+type AutoRenewArgs = (Omit<ContractArgs['autoRenew(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
 type SetPrimaryAddressArgs = (Omit<ContractArgs['setPrimaryAddress(uint64,bool,uint64,string,address)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {

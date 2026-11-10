@@ -45,6 +45,14 @@ type GatedFollowArgs = (Omit<ContractArgs['gatedFollow(uint64,bool,address,byte[
 type UnfollowArgs = (Omit<ContractArgs['unfollow(uint64,bool,address)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
+/**
+ * `setMetaWallet(uint64,bool)void` (principal resolution, spec §6.11): rebinds the caller's
+ * `meta.wallet` to this wallet. The plugin forwards `windowHint(wallet)`; there is no hint argument.
+ * Only the principal-resolution social plugin version has this method. Deployed versions do not.
+ */
+type SetMetaWalletArgs = (MaybeSigner & {
+    rekeyBack?: boolean;
+});
 type BlockArgs = (Omit<ContractArgs['block(uint64,bool,address)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
@@ -121,6 +129,13 @@ export declare class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
     gatedFollow(args: GatedFollowArgs): PluginSDKReturn;
     unfollow(): PluginSDKReturn;
     unfollow(args: UnfollowArgs): PluginSDKReturn;
+    /**
+     * Rebinds the spending account's social `meta.wallet` to this wallet, after AkitaSocial verifies the
+     * window (spec §6.2 `setMetaWallet`, P2-SOC-03). Method-restricted social grants must add this method
+     * explicitly at reinstall (spec §7.3). The deployed social plugin versions do not route it.
+     */
+    setMetaWallet(): PluginSDKReturn;
+    setMetaWallet(args: SetMetaWalletArgs): PluginSDKReturn;
     block(): PluginSDKReturn;
     block(args: BlockArgs): PluginSDKReturn;
     unblock(): PluginSDKReturn;

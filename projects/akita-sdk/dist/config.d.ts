@@ -3,7 +3,7 @@
  * Handles network detection and environment-based app ID resolution
  */
 import { AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client';
-export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from './networks';
+export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, REGISTRY_WRITES_STOPPED, registryWritesStopped, shouldWriteRegistry, SOCIAL_HINTED_TARGETS, socialHintedTargets } from './networks';
 export type AkitaNetwork = 'localnet' | 'testnet' | 'mainnet';
 /**
  * Environment variable names for each SDK/contract
@@ -53,6 +53,19 @@ export declare const ENV_VAR_NAMES: {
     readonly GATE_APP_ID: "GATE_APP_ID";
     readonly HYPER_SWAP_APP_ID: "HYPER_SWAP_APP_ID";
     readonly META_MERKLES_APP_ID: "META_MERKLES_APP_ID";
+    readonly META_APP_ID: "META_APP_ID";
+    readonly PLUGIN_DEX_APP_ID: "PLUGIN_DEX_APP_ID";
+    readonly BIN_ENGINE_APP_ID: "BIN_ENGINE_APP_ID";
+    readonly IMPACT_FEE_HOOK_APP_ID: "IMPACT_FEE_HOOK_APP_ID";
+    readonly SWAP_TAX_HOOK_APP_ID: "SWAP_TAX_HOOK_APP_ID";
+    readonly VOLATILITY_FEE_HOOK_APP_ID: "VOLATILITY_FEE_HOOK_APP_ID";
+    readonly BACKRUN_ARB_HOOK_APP_ID: "BACKRUN_ARB_HOOK_APP_ID";
+    readonly GATED_FEE_HOOK_APP_ID: "GATED_FEE_HOOK_APP_ID";
+    readonly ANTI_SNIPE_FEE_HOOK_APP_ID: "ANTI_SNIPE_FEE_HOOK_APP_ID";
+    readonly LAUNCH_TAX_HOOK_APP_ID: "LAUNCH_TAX_HOOK_APP_ID";
+    readonly CONSENSUS_KEYREG_HOOK_APP_ID: "CONSENSUS_KEYREG_HOOK_APP_ID";
+    readonly PLUGIN_DEX_PLUGIN_APP_ID: "PLUGIN_DEX_PLUGIN_APP_ID";
+    readonly LAUNCH_MANAGER_APP_ID: "LAUNCH_MANAGER_APP_ID";
     readonly AKITA_REFERRER_GATE_APP_ID: "AKITA_REFERRER_GATE_APP_ID";
     readonly ASSET_GATE_APP_ID: "ASSET_GATE_APP_ID";
     readonly MERKLE_ADDRESS_GATE_APP_ID: "MERKLE_ADDRESS_GATE_APP_ID";
@@ -102,6 +115,7 @@ export interface AkitaConfig {
     prizeBoxFactoryAppId?: bigint;
     gateAppId?: bigint;
     hyperSwapAppId?: bigint;
+    metaAppId?: bigint;
     metaMerklesAppId?: bigint;
     aktaAssetId?: bigint;
     bonesAssetId?: bigint;

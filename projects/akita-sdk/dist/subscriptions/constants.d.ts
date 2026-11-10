@@ -26,3 +26,9 @@ export declare enum HighlightMessage {
 export declare const MAX_DESCRIPTION_LENGTH = 3151;
 export declare const MAX_DESCRIPTION_CHUNK_SIZE = 2034;
 export declare const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2026;
+/**
+ * MBR of the stored principal pair `(W, principal)` (box 'i') that a gated subscription made through a
+ * verified wallet keeps (principal resolution §6.4): 2_500 + 400 * (41 + 40). Included in
+ * `newSubscriptionCost(..., wallet)` and refunded by `unsubscribe`; `adoptPrincipal` pays exactly this.
+ */
+export declare const SUBSCRIPTION_PRINCIPAL_MBR = 34900n;

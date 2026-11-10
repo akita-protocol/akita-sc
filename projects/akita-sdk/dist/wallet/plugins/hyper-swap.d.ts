@@ -2,12 +2,25 @@ import { BaseSDK } from "../../base";
 import { HyperSwapPluginArgs, HyperSwapPluginClient } from "../../generated/HyperSwapPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginSDKReturn } from "../../types";
+import { HyperSwapLeaf } from "../../hyper-swap/types";
 type ContractArgs = HyperSwapPluginArgs["obj"];
 type OfferArgs = (Omit<ContractArgs['offer(uint64,bool,byte[32],uint64,byte[32],uint64,uint64)void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;
 });
-type AcceptArgs = (Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+/**
+ * Accepting takes the full, ordered lists and the agreed expiration instead of a `terms` value.
+ * The commitment is derived from them (`offerTermsFromLists`), so the contract refuses the accept
+ * unless the offer on chain declares exactly these leaves and participants (readiness audit
+ * 2026-11-09, C11).
+ */
+type AcceptArgs = (Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][],byte[32])void'], 'wallet' | 'rekeyBack' | 'terms'> & MaybeSigner & {
     rekeyBack?: boolean;
+    /** The complete, ordered trade leaf list shared by the offeror. */
+    leaves: HyperSwapLeaf[];
+    /** The complete, ordered participant list shared by the offeror. */
+    participants: string[];
+    /** The expiration the participant agreed to, in chain seconds. */
+    expiration: bigint | number;
 });
 type EscrowArgs = (Omit<ContractArgs['escrow(uint64,bool,uint64,address,uint64,uint64,byte[32][])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
     rekeyBack?: boolean;

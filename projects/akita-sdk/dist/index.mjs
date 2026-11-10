@@ -1,81 +1,178 @@
 import {
+  SocialSDK
+} from "./chunk-RIF2K5Y3.mjs";
+import {
+  StakingSDK
+} from "./chunk-NGSF5NDH.mjs";
+import {
+  StakingPoolFactorySDK,
+  StakingPoolSDK
+} from "./chunk-XYTGTV3E.mjs";
+import {
   HighlightMessage,
   ServiceStatus,
   SubscriptionsSDK,
   bytesToHexColor,
   hexColorToBytes
-} from "./chunk-5MFDNBI6.mjs";
+} from "./chunk-AIJYRAPT.mjs";
+import {
+  ListingSDK,
+  MarketplaceSDK
+} from "./chunk-XKQMZFT7.mjs";
 import {
   MetaMerklesSDK
-} from "./chunk-U6NK3RUI.mjs";
+} from "./chunk-SUSAHG7G.mjs";
 import {
   PollFactorySDK,
   PollSDK
-} from "./chunk-6IKCUIJR.mjs";
+} from "./chunk-UEG36BQM.mjs";
 import {
   RaffleFactorySDK,
   RaffleSDK
-} from "./chunk-NQKY3QLG.mjs";
+} from "./chunk-WMOWEBEW.mjs";
 import {
   RewardsSDK
-} from "./chunk-5JHOF5EW.mjs";
-import {
-  SocialSDK
-} from "./chunk-JWHQI357.mjs";
-import {
-  StakingSDK
-} from "./chunk-VB24EFFR.mjs";
-import {
-  StakingPoolFactorySDK,
-  StakingPoolSDK
-} from "./chunk-Q6TZP6NK.mjs";
+} from "./chunk-ALZOBS2C.mjs";
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-VTIHR5J5.mjs";
+} from "./chunk-QCZ6HNJ5.mjs";
 import {
+  PrizeBoxFactorySDK,
+  PrizeBoxSDK
+} from "./chunk-K26TJYFC.mjs";
+import {
+  authenticateConnectMessage,
+  compileP256PasskeyLogicSig,
+  createConnectNonce,
+  createConnectSecret,
+  createNonceTracker,
+  createP256PasskeyLogicSigArgs,
   decodeConnectUri,
-  encodeConnectUri
-} from "./chunk-X37WDNTN.mjs";
+  encodeConnectUri,
+  extractP256PublicKeyCoordinates,
+  getP256PasskeyCaller,
+  getP256PasskeyTeal,
+  getPasskeyTransactionChallenge,
+  getSessionKeyMultisig,
+  parseP256DerSignature,
+  signTransactionsWithP256Passkey,
+  validateConnectPayload,
+  validateSessionKeyConnectRequest,
+  validateSessionKeySession,
+  validateWalletConnectFinalizeRequest,
+  validateWalletConnectRequest,
+  validateWalletConnectSession,
+  verifyConnectMessage
+} from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-RBRGKQV6.mjs";
+} from "./chunk-LMVRSEUE.mjs";
+import "./chunk-YCLGNRHI.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-3VQYA2BJ.mjs";
-import "./chunk-AIZK2AZU.mjs";
-import "./chunk-NJUJQAIN.mjs";
+} from "./chunk-D7WK2LF2.mjs";
+import "./chunk-55IOSZE5.mjs";
+import {
+  principal_exports
+} from "./chunk-TWVKGIBP.mjs";
+import {
+  ACCOUNT_IMAGE_RECORD,
+  METADATA_CHUNK_BYTES,
+  METADATA_FINAL_PART_BYTES,
+  METADATA_INLINE_BYTES,
+  METADATA_MAX_APP_ARGS_BYTES,
+  METADATA_MAX_KEY_BYTES,
+  METADATA_MAX_NAME_BYTES,
+  METADATA_MAX_VALUE_BYTES,
+  METADATA_PART_BYTES,
+  METADATA_RECORD_HEADER_BYTES,
+  MetaFactory,
+  MetaSDK,
+  RECEIVE_QR_RECORD,
+  decodeMetadataBoxName,
+  decodeMetadataRecord,
+  encodeAccountImageReference,
+  encodeMetadataJson,
+  encodeReceiveQrStyle,
+  isAccountImageReferenceV1,
+  isReceiveQrStyleV1,
+  metadataBoxName,
+  metadataDataKey,
+  metadataDataParts,
+  metadataKeyBytes,
+  metadataOwnerKey,
+  metadataPluginValueLimit,
+  metadataStorageCost,
+  metadataValueLimit,
+  parseAccountImageReference,
+  parseReceiveQrStyle,
+  validateMetadataName,
+  validateMetadataRecordKey,
+  validateMetadataValueSize
+} from "./chunk-QYBP7Q6H.mjs";
+import {
+  HOOK_CATALOGUE,
+  PluginDexSDK,
+  defaultPoolConfig,
+  validateHookStack
+} from "./chunk-57WHMLC4.mjs";
 import {
   EscrowFactorySDK,
   EscrowSDK
-} from "./chunk-US2YCWR4.mjs";
+} from "./chunk-3D7BOYOP.mjs";
 import {
   GateSDK
-} from "./chunk-P2JOIPYY.mjs";
-import "./chunk-GTMXTPOL.mjs";
+} from "./chunk-45C5XCCG.mjs";
+import "./chunk-XN5GRW52.mjs";
 import {
-  HyperSwapSDK
-} from "./chunk-XJAKFT76.mjs";
+  FIXED_SIGNER_MEMBER_MBR,
+  FixedSignerGuildConsensusSDK,
+  FixedSignerWeightMode,
+  GuildActionType,
+  GuildFactorySDK,
+  GuildSDK,
+  LockedTokenGuildConsensusSDK,
+  SubscriptionGuildConsensusSDK,
+  addFixedSignerMembersAction,
+  isSubscriptionSeasoned,
+  removeFixedSignerMemberAction,
+  setFixedSignerMemberWeightAction,
+  subscriptionVotingOpensAt
+} from "./chunk-D7M3KCEG.mjs";
+import "./chunk-NBCCOE5T.mjs";
 import {
-  ListingSDK,
-  MarketplaceSDK
-} from "./chunk-OFVTCMTW.mjs";
+  HyperSwapSDK,
+  hyperSwapRootBoxName,
+  hyperSwapRootName
+} from "./chunk-KYV456M7.mjs";
 import {
-  PrizeBoxFactorySDK,
-  PrizeBoxSDK
-} from "./chunk-BXRXZO7H.mjs";
+  HYPER_SWAP_MAX_OFFER_DURATION,
+  computeOfferTerms,
+  hyperSwapParticipantTree,
+  hyperSwapTradeTree,
+  offerTermsFromLists,
+  validateOffer
+} from "./chunk-C5XM3R7G.mjs";
+import "./chunk-RUHR54B7.mjs";
 import {
   ARC65_ALT_PREFIX,
   ARC65_PREFIX,
   COMMON_ERROR_MESSAGES,
   makeErrorTranslator,
   parseArc65Code,
-  translateCommonError
-} from "./chunk-2AEP6DTX.mjs";
-import "./chunk-S34CQKA6.mjs";
+  translateCommonError,
+  withErrorCodeAliases
+} from "./chunk-74RCU6FN.mjs";
+import {
+  installAccessListResourcePopulator,
+  registerAccessListResourceCarrier,
+  seedAccessResources,
+  seededAccessResources
+} from "./chunk-OKV24U62.mjs";
 import {
   DAO_ESCROW_ACTION_V2_ROUNDS,
   ENV_TO_NETWORK_KEY,
@@ -86,6 +183,8 @@ import {
   NETWORK_PLUGIN_DEPLOYMENTS,
   PLUGIN_APP_ID_KEYS,
   PLUGIN_DEFINITIONS,
+  REGISTRY_WRITES_STOPPED,
+  SOCIAL_HINTED_TARGETS,
   TESTNET_APP_IDS,
   TESTNET_PLUGIN_DEPLOYMENTS,
   buildAppIdsFromEnv,
@@ -103,17 +202,22 @@ import {
   getNetworkFromEnv,
   getPluginDeployments,
   getPluginUpdate,
+  registryWritesStopped,
   resolveAppId,
   resolveAppIdWithClient,
   resolvePluginDeployment,
-  setCurrentNetwork
-} from "./chunk-W2PKBBWA.mjs";
+  setCurrentNetwork,
+  shouldWriteRegistry,
+  socialHintedTargets
+} from "./chunk-X2EYE656.mjs";
 import {
   hasSenderSigner,
   isPluginSDKReturn,
   normalizeSigner
-} from "./chunk-F33UFLKV.mjs";
+} from "./chunk-JZMSW77U.mjs";
+import "./chunk-J5LGTIGS.mjs";
 export {
+  ACCOUNT_IMAGE_RECORD,
   ARC65_ALT_PREFIX,
   ARC65_PREFIX,
   AkitaDaoSDK,
@@ -125,41 +229,81 @@ export {
   ENV_VAR_NAMES,
   EscrowFactorySDK,
   EscrowSDK,
+  FIXED_SIGNER_MEMBER_MBR,
+  FixedSignerGuildConsensusSDK,
+  FixedSignerWeightMode,
   GateSDK,
+  GuildActionType,
+  GuildFactorySDK,
+  GuildSDK,
+  HOOK_CATALOGUE,
+  HYPER_SWAP_MAX_OFFER_DURATION,
   HighlightMessage,
   HyperSwapSDK,
   ListingSDK,
+  LockedTokenGuildConsensusSDK,
   MAINNET_APP_IDS,
   MAINNET_PLUGIN_DEPLOYMENTS,
+  METADATA_CHUNK_BYTES,
+  METADATA_FINAL_PART_BYTES,
+  METADATA_INLINE_BYTES,
+  METADATA_MAX_APP_ARGS_BYTES,
+  METADATA_MAX_KEY_BYTES,
+  METADATA_MAX_NAME_BYTES,
+  METADATA_MAX_VALUE_BYTES,
+  METADATA_PART_BYTES,
+  METADATA_RECORD_HEADER_BYTES,
   MarketplaceSDK,
+  MetaFactory,
   MetaMerklesSDK,
+  MetaSDK,
   NETWORK_APP_IDS,
   NETWORK_PLUGIN_DEPLOYMENTS,
   PLUGIN_APP_ID_KEYS,
   PLUGIN_DEFINITIONS,
+  PluginDexSDK,
   PollFactorySDK,
   PollSDK,
   PrizeBoxFactorySDK,
   PrizeBoxSDK,
+  RECEIVE_QR_RECORD,
+  REGISTRY_WRITES_STOPPED,
   RaffleFactorySDK,
   RaffleSDK,
   RewardsSDK,
+  SOCIAL_HINTED_TARGETS,
   ServiceStatus,
   SocialSDK,
   StakingPoolFactorySDK,
   StakingPoolSDK,
   StakingSDK,
+  SubscriptionGuildConsensusSDK,
   SubscriptionsSDK,
   TESTNET_APP_IDS,
   TESTNET_PLUGIN_DEPLOYMENTS,
   WalletFactorySDK,
   WalletSDK,
+  addFixedSignerMembersAction,
+  authenticateConnectMessage,
   buildAppIdsFromEnv,
   bytesToHexColor,
+  compileP256PasskeyLogicSig,
+  computeOfferTerms,
+  createConnectNonce,
+  createConnectSecret,
   createEmptyAppIds,
+  createNonceTracker,
+  createP256PasskeyLogicSigArgs,
   decodeConnectUri,
+  decodeMetadataBoxName,
+  decodeMetadataRecord,
+  defaultPoolConfig,
   detectNetworkFromClient,
+  encodeAccountImageReference,
   encodeConnectUri,
+  encodeMetadataJson,
+  encodeReceiveQrStyle,
+  extractP256PublicKeyCoordinates,
   getAppIdForSDK,
   getAppIdFromEnv,
   getConfigFromEnv,
@@ -170,20 +314,68 @@ export {
   getLatestPluginDeployment,
   getNetworkAppIds,
   getNetworkFromEnv,
+  getP256PasskeyCaller,
+  getP256PasskeyTeal,
+  getPasskeyTransactionChallenge,
   getPluginDeployments,
   getPluginUpdate,
+  getSessionKeyMultisig,
   hasSenderSigner,
   hexColorToBytes,
+  hyperSwapParticipantTree,
+  hyperSwapRootBoxName,
+  hyperSwapRootName,
+  hyperSwapTradeTree,
+  installAccessListResourcePopulator,
+  isAccountImageReferenceV1,
   isPluginSDKReturn,
+  isReceiveQrStyleV1,
+  isSubscriptionSeasoned,
   makeErrorTranslator,
+  metadataBoxName,
+  metadataDataKey,
+  metadataDataParts,
+  metadataKeyBytes,
+  metadataOwnerKey,
+  metadataPluginValueLimit,
+  metadataStorageCost,
+  metadataValueLimit,
   normalizeSigner,
+  offerTermsFromLists,
+  parseAccountImageReference,
   parseArc65Code,
+  parseP256DerSignature,
+  parseReceiveQrStyle,
   prepareGroup,
+  principal_exports as principal,
+  registerAccessListResourceCarrier,
+  registryWritesStopped,
+  removeFixedSignerMemberAction,
   resolveAppId,
   resolveAppIdWithClient,
   resolvePluginDeployment,
+  seedAccessResources,
+  seededAccessResources,
   sendPrepared,
   setCurrentNetwork,
-  translateCommonError
+  setFixedSignerMemberWeightAction,
+  shouldWriteRegistry,
+  signTransactionsWithP256Passkey,
+  socialHintedTargets,
+  subscriptionVotingOpensAt,
+  translateCommonError,
+  validateConnectPayload,
+  validateHookStack,
+  validateMetadataName,
+  validateMetadataRecordKey,
+  validateMetadataValueSize,
+  validateOffer,
+  validateSessionKeyConnectRequest,
+  validateSessionKeySession,
+  validateWalletConnectFinalizeRequest,
+  validateWalletConnectRequest,
+  validateWalletConnectSession,
+  verifyConnectMessage,
+  withErrorCodeAliases
 };
 //# sourceMappingURL=index.mjs.map

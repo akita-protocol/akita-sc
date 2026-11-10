@@ -1,13 +1,19 @@
 export * from './types';
 export * from './errors';
-export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, } from './config';
+export { type AkitaNetwork, type AkitaConfig, type EnvVarName, type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, ENV_VAR_NAMES, getNetworkFromEnv, getEnvVar, getAppIdFromEnv, getConfigFromEnv, detectNetworkFromClient, getAppIdForSDK, resolveAppId, resolveAppIdWithClient, getCurrentNetwork, setCurrentNetwork, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, REGISTRY_WRITES_STOPPED, registryWritesStopped, shouldWriteRegistry, SOCIAL_HINTED_TARGETS, socialHintedTargets, } from './config';
 export { AuctionSDK, AuctionFactorySDK } from './auction';
 export { AkitaDaoSDK } from './dao';
 export { EscrowSDK, EscrowFactorySDK } from './escrow';
 export { GateSDK } from './gates';
-export { HyperSwapSDK } from './hyper-swap';
+export { addFixedSignerMembersAction, FixedSignerWeightMode, FixedSignerGuildConsensusSDK, FIXED_SIGNER_MEMBER_MBR, GuildActionType, GuildSDK, GuildFactorySDK, LockedTokenGuildConsensusSDK, removeFixedSignerMemberAction, setFixedSignerMemberWeightAction, SubscriptionGuildConsensusSDK, subscriptionVotingOpensAt, isSubscriptionSeasoned, type FixedSignerMemberInput, type GuildProposalAction, type SubscriptionPaymentHistory, } from './guild';
+export { HyperSwapSDK, hyperSwapRootName, hyperSwapRootBoxName, computeOfferTerms, validateOffer, offerTermsFromLists, hyperSwapTradeTree, hyperSwapParticipantTree, HYPER_SWAP_MAX_OFFER_DURATION } from './hyper-swap';
 export { MarketplaceSDK, ListingSDK } from './marketplace';
+export { PluginDexSDK, HOOK_CATALOGUE, validateHookStack, defaultPoolConfig } from './plugin-dex';
 export { MetaMerklesSDK } from './meta-merkles';
+export { MetaSDK, MetaFactory } from './meta';
+export type { SetMetadataArgs, RemoveMetadataArgs } from './meta';
+export * from './meta/records';
+export * from './meta/schemas';
 export { PollSDK, PollFactorySDK } from './poll';
 export { PrizeBoxSDK, PrizeBoxFactorySDK } from './prize-box';
 export { RaffleSDK, RaffleFactorySDK } from './raffle';
@@ -19,3 +25,5 @@ export { SubscriptionsSDK, bytesToHexColor, hexColorToBytes, ServicesKey, type S
 export { WalletSDK, WalletFactorySDK } from './wallet';
 export * from './connect';
 export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';
+export { installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
+export * as principal from './principal';

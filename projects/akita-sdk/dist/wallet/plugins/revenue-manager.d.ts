@@ -34,6 +34,14 @@ type FinalizeEscrowDisbursementContractArgs = (Omit<ContractArgs['finalizeEscrow
 } & {
     ids: bigint[];
 });
+type SkipEscrowAllocationContractArgs = (Omit<ContractArgs['skipEscrowAllocation(uint64,bool,string,uint64[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+} & {
+    ids: bigint[];
+});
+type UpdateSplitsContractArgs = (Omit<ContractArgs['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'], 'wallet' | 'rekeyBack'> & MaybeSigner & {
+    rekeyBack?: boolean;
+});
 export declare class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient> {
     constructor(params: NewContractSDKParams);
     optIn(): PluginSDKReturn;
@@ -50,5 +58,15 @@ export declare class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPlugi
     processEscrowAllocation(args: ProcessEscrowAllocationContractArgs): PluginSDKReturn;
     finalizeEscrowDisbursement(): PluginSDKReturn;
     finalizeEscrowDisbursement(args: FinalizeEscrowDisbursementContractArgs): PluginSDKReturn;
+    /**
+     * DAO-only escape hatch: mark assets of `escrow` as handled for the current cycle
+     * without transferring (balances roll over). Must be called through the DAO wallet's
+     * main-account (execution-key) grant.
+     */
+    skipEscrowAllocation(): PluginSDKReturn;
+    skipEscrowAllocation(args: SkipEscrowAllocationContractArgs): PluginSDKReturn;
+    /** DAO-wallet only: replace the splits of an idle receive escrow (drops any split reference). */
+    updateSplits(): PluginSDKReturn;
+    updateSplits(args: UpdateSplitsContractArgs): PluginSDKReturn;
 }
 export {};

@@ -10,7 +10,11 @@ export * from "./types";
  * PrizeBoxes hold multiple assets that can be transferred as a bundle.
  */
 export declare class PrizeBoxSDK extends BaseSDK<PrizeBoxClient> {
-    constructor(params: NewContractSDKParams);
+    /** The PrizeBoxFactory that created this box (set by PrizeBoxFactorySDK.get / mint). */
+    factoryAppId?: bigint;
+    constructor(params: NewContractSDKParams & {
+        factoryAppId?: bigint;
+    });
     /**
      * Gets the current state of the prize box.
      */
@@ -35,10 +39,17 @@ export declare class PrizeBoxSDK extends BaseSDK<PrizeBoxClient> {
      */
     withdraw({ sender, signer, assets }: WithdrawParams): Promise<void>;
     /**
-     * Deletes the prize box and returns MBR to owner.
-     * Can only be called when the box is empty (optinCount === 0).
+     * Deletes the prize box. Can only be called by the owner when the box is empty
+     * (optinCount === 0). The box account (min balance) closes to the owner and the
+     * creation MBR is refunded to the minter.
+     *
+     * Current boxes are deleted through `PrizeBoxFactory.deletePrizeBox`; legacy boxes
+     * (minted before funder tracking, no `funder` state) still use their own
+     * owner-callable `deleteApplication()`.
      */
-    delete(params?: MaybeSigner): Promise<void>;
+    delete(params?: MaybeSigner & {
+        factoryAppId?: bigint;
+    }): Promise<void>;
 }
 export type PrizeBoxFactoryContractArgs = PrizeBoxFactoryArgs["obj"];
 /**
@@ -52,6 +63,13 @@ export declare class PrizeBoxFactorySDK extends BaseSDK<PrizeBoxFactoryClient> {
      * @returns PrizeBoxSDK for the newly created prize box
      */
     mint({ sender, signer, owner }: MintParams): Promise<PrizeBoxSDK>;
+    /**
+     * Deletes an empty prize box owned by `sender`: the box account closes to the owner and
+     * the creation MBR is refunded to the minter.
+     */
+    deletePrizeBox({ sender, signer, appId }: MaybeSigner & {
+        appId: bigint;
+    }): Promise<void>;
     /**
      * Gets a PrizeBoxSDK instance for an existing prize box.
      * @param appId - The app ID of the prize box

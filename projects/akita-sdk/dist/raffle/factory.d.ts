@@ -2,7 +2,7 @@ import { BaseSDK } from "../base";
 import { RaffleFactoryClient, RaffleFactoryArgs } from '../generated/RaffleFactoryClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { RaffleSDK } from "./index";
-import { NewRaffleParams, DeleteRaffleParams, OptInParams } from "./types";
+import { NewRaffleParams, DeleteRaffleParams, OptInParams, RaffleCostParams } from "./types";
 export type RaffleFactoryContractArgs = RaffleFactoryArgs["obj"];
 /**
  * SDK for interacting with the Raffle Factory contract.
@@ -14,9 +14,16 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
      * Creates a new raffle and returns a RaffleSDK instance.
      * Use `isPrizeBox: true` with `prizeBoxId` for PrizeBox prizes,
      * or omit/set `isPrizeBox: false` with `prizeAsset` and `prizeAmount` for ASA prizes.
+     *
+     * Sends only the principal-ABI (hinted) creation methods and pays the on-chain `newRaffleCost` quote.
+     * The upgraded factory does not route the DEPLOYED creation selectors (no `minEntries`, no hint;
+     * Kyle decision K6, 2026-10-04), and this SDK never sends them. Deployed-era behaviour: the
+     * pre-upgrade MainNet factory (3569557743) has neither `newRaffleCost` nor the hinted methods, so
+     * this SDK cannot create raffles there, and an older SDK cannot create raffles on the upgraded
+     * factory. Ship this SDK in lockstep with the Phase 2 RaffleFactory upgrade.
      * @returns RaffleSDK for the newly created raffle
      */
-    newRaffle({ sender, signer, isPrizeBox, ticketAsset, startTimestamp, endTimestamp, minTickets, maxTickets, gateId, marketplace, weightsListCount, ...rest }: NewRaffleParams): Promise<RaffleSDK>;
+    newRaffle({ sender, signer, isPrizeBox, ticketAsset, startTimestamp, endTimestamp, minTickets, maxTickets, minEntries, gateId, marketplace, weightsListCount, wallet, ...rest }: NewRaffleParams): Promise<RaffleSDK>;
     /**
      * Gets a RaffleSDK instance for an existing raffle.
      * @param appId - The app ID of the raffle
@@ -26,27 +33,10 @@ export declare class RaffleFactorySDK extends BaseSDK<RaffleFactoryClient> {
         appId: bigint;
     }): RaffleSDK;
     /**
-     * Checks if the rewards app is already opted into the given asset.
-     * Returns 0n if opted in (no cost needed), 100_000n if not.
+     * Gets the exact ALGO payment `newRaffle` requires, quoted on-chain by the factory
+     * (`newRaffleCost`): creation fee + child program/state MBR + child funding + weights boxes.
      */
-    private getRewardsOptInCost;
-    /**
-     * Gets the cost to create a new raffle.
-     * @param isPrizeBox - Whether the prize is a PrizeBox
-     * @param isAlgoTicket - Whether tickets are paid in ALGO (ticketAsset === 0)
-     * @param weightsListCount - Number of weights boxes
-     * @param raffleCreationFee - Optional: the raffle creation fee from the DAO (default: 10 ALGO)
-     * @param prizeRewardsOptInCost - Rewards app opt-in cost for the prize asset (default: 100,000, pass 0 if already opted in)
-     * @param ticketRewardsOptInCost - Rewards app opt-in cost for the ticket asset (default: 100,000, pass 0 if already opted in)
-     */
-    cost({ isPrizeBox, isAlgoTicket, weightsListCount, raffleCreationFee, prizeRewardsOptInCost, ticketRewardsOptInCost }?: {
-        isPrizeBox?: boolean;
-        isAlgoTicket?: boolean;
-        weightsListCount?: bigint | number;
-        raffleCreationFee?: bigint;
-        prizeRewardsOptInCost?: bigint;
-        ticketRewardsOptInCost?: bigint;
-    }): bigint;
+    cost({ isPrizeBox, prizeId, ticketAsset, weightsListCount }?: RaffleCostParams): Promise<bigint>;
     /**
      * Opts the raffle factory into an asset so it can receive/forward that
      * asset as a rewards referral or prize. When the factory has a named DAO

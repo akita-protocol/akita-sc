@@ -1,7 +1,7 @@
 import { MaybeSigner } from "../types";
 import { PollArgs } from '../generated/PollClient';
 import { PollFactoryArgs } from '../generated/PollFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 type FactoryContractArgs = PollFactoryArgs["obj"];
 export type NewPollParams = MaybeSigner & Omit<FactoryContractArgs['new(pay,uint8,uint64,uint64,string,string[],uint64)uint64'], 'payment'>;
 export type DeletePollParams = MaybeSigner & {
@@ -35,6 +35,15 @@ export type PollState = {
     votesFour: bigint;
     votesFive: bigint;
 };
+/**
+ * Poll type constants. The contract accepts exactly these four values.
+ *
+ * Impact polls weight each vote by the voter's Akita impact score at the moment it votes.
+ * Parts of that score, such as held AKTA, come from transferable balances, and every address
+ * (including each ARC-58 escrow) votes separately. The same AKTA can therefore be moved
+ * between addresses to vote again with the same weight. Treat impact poll results as
+ * advisory signals, not as inputs to decisions that move funds.
+ */
 export declare enum PollTypeEnum {
     SingleChoice = 10,
     MultipleChoice = 20,

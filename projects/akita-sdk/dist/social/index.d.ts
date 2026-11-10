@@ -7,7 +7,7 @@ import { AkitaSocialGraphClient } from '../generated/AkitaSocialGraphClient';
 import { AkitaSocialImpactClient, ImpactMetaValue, StakeCheck as ImpactStakeCheck } from '../generated/AkitaSocialImpactClient';
 import { AkitaSocialModerationClient } from '../generated/AkitaSocialModerationClient';
 import { ExpandedSendParams, GroupReturn, MaybeSigner } from "../types";
-import { BlockArgs, CommitStakingImpactArgs, CreatePayWallArgs, DeleteVoteArgs, EditPostArgs, FollowArgs, InvertVoteArgs, InitMetaArgs, PostArgs, PostRef, ReactArgs, RefType, ReplyArgs, UnfollowArgs, UpdateMetaArgs, VoteArgs } from "./types";
+import { BlockArgs, CommitStakingImpactArgs, CreatePayWallArgs, DeleteVoteArgs, EditPostArgs, FollowArgs, InvertVoteArgs, InitMetaArgs, PostArgs, PostRef, ReactArgs, RefType, ReplyArgs, SetMetaWalletArgs, UnfollowArgs, UpdateMetaArgs, VoteArgs } from "./types";
 export type { SocialFees, AkitaAssets };
 export * from './types';
 export * from './constants';
@@ -24,6 +24,12 @@ export type SocialSDKConstructorParams = {
     readerAccount?: string;
     sendParams?: ExpandedSendParams;
     ipfsUrl?: string;
+    /**
+     * Whether AkitaSocial / AkitaSocialGraph run the principal-resolution upgrade (hinted overloads,
+     * corrected MBR, `Gate.mustCheckFor` gate txns). Default: `SOCIAL_HINTED_TARGETS[network]`
+     * (networks.ts), which stays `false` on TestNet/MainNet until the Phase 2 upgrade has executed.
+     */
+    hintedTargets?: boolean;
 };
 export declare class SocialSDK {
     socialClient: AkitaSocialClient;
@@ -42,9 +48,16 @@ export declare class SocialSDK {
     ipfsUrl: string;
     /** The detected network for this SDK instance */
     network: AkitaNetwork;
+    /**
+     * `true`: writes call the hinted overloads and quote the upgraded contract's MBR (gated writes take a
+     * `Gate.mustCheckFor` txn). `false`: writes call the deployed legacy selectors with the deployed MBR
+     * terms (gated writes take a `Gate.mustCheck` txn), and a non-zero `wallet` hint is refused locally.
+     * See `SOCIAL_HINTED_TARGETS` in networks.ts.
+     */
+    hintedTargets: boolean;
     private _socialFees;
     private _akitaAssets;
-    constructor({ algorand, daoAppId, socialFactoryParams, graphFactoryParams, impactFactoryParams, moderationFactoryParams, readerAccount, sendParams, ipfsUrl, }: SocialSDKConstructorParams);
+    constructor({ algorand, daoAppId, socialFactoryParams, graphFactoryParams, impactFactoryParams, moderationFactoryParams, readerAccount, sendParams, ipfsUrl, hintedTargets, }: SocialSDKConstructorParams);
     /**
      * Get the latest timestamp from the blockchain.
      * This is useful when creating posts/replies since the contract validates
@@ -145,6 +158,13 @@ export declare class SocialSDK {
      * @returns Extra MBR amount in microAlgos
      */
     calculateTipExtraMbr(tipMbrInfo: TipMbrInfo): bigint;
+    /** Whether this instance quotes and calls the DEPLOYED (pre-Phase-2) social programs. */
+    private get legacyTargets();
+    /**
+     * Picks the overload for a write: `true` = hinted (trailing `wallet`), `false` = legacy selector.
+     * The deployed programs have no hinted selectors, so a non-zero hint is refused before anything is sent.
+     */
+    private useHintedOverload;
     /**
      * Calculate the MBR required for a post
      * Formula: posts + votes + votelist
@@ -165,6 +185,10 @@ export declare class SocialSDK {
      * @returns MBR in microAlgos
      */
     calculateReplyMBR(cidLength?: number, isAmendment?: boolean, needsEmptyPost?: boolean): bigint;
+    /** MBR of the empty post the upgraded contract creates for a non-post parent on its first reply or reaction. */
+    private emptyPostMBR;
+    /** Whether replying to or reacting on `ref` first creates its empty post (only non-post refs do). */
+    private needsEmptyPost;
     /**
      * Calculate the MBR required for a vote
      * Formula: votelist (+ extra if creating empty post for reference)
@@ -208,7 +232,7 @@ export declare class SocialSDK {
      */
     calculatePayWallMBR(userOptionsCount: number, agentOptionsCount: number): bigint;
     /**
-     * Calculate the MBR required for adding a moderator
+     * Calculate the MBR the moderation app needs for adding a moderator (moderators + activity boxes)
      * @returns MBR in microAlgos
      */
     calculateModeratorMBR(): bigint;
@@ -247,6 +271,19 @@ export declare class SocialSDK {
     }): Promise<{
         exists: boolean;
         lastActive: bigint;
+    }>;
+    /**
+     * Get a moderator's counted (state-changing) actions in the current 7-day epoch (`actions`) and the
+     * epoch before it (`previousActions`). Repeats that change nothing are not counted.
+     */
+    getModeratorActivity({ sender, signer, user }: MaybeSigner & {
+        user: string;
+    }): Promise<{
+        exists: boolean;
+        lastActive: bigint;
+        epoch: bigint;
+        actions: bigint;
+        previousActions: bigint;
     }>;
     /**
      * Get user metadata from the Social contract
@@ -346,7 +383,24 @@ export declare class SocialSDK {
     /**
      * Initialize meta for a user (required before using social features)
      */
-    initMeta({ sender, signer, user, automated, subscriptionIndex, nfd, akitaNFT, }: InitMetaArgs): Promise<bigint>;
+    initMeta({ sender, signer, user, automated, subscriptionIndex, nfd, akitaNFT, wallet, }: InitMetaArgs): Promise<bigint>;
+    /**
+     * Rebind the sender's meta wallet to the verified wallet hint (`0n` unbinds). The hint is verified
+     * on chain, so a non-zero hint only passes from inside that wallet (use the social plugin's
+     * `setMetaWallet` for ARC-58 wallets); a top-level send with a non-zero hint reverts (`errHtop`).
+     */
+    setMetaWallet({ sender, signer, wallet }?: SetMetaWalletArgs): Promise<void>;
+    /**
+     * The verified gate context of a plain direct call by `sender` (wallet hint 0):
+     * `{ principal: sender, wallet: 0n, spender: sender }`. Hinted gated methods (`gatedReply`,
+     * `gatedEditReply`, `gatedReact`, `gatedFollow`) require their gate txn to be
+     * `Gate.mustCheckFor(ctx, gateId, args)` with exactly this context.
+     */
+    static directGateCtx(sender: string): {
+        principal: string;
+        wallet: bigint;
+        spender: string;
+    };
     /**
      * Update meta settings for the sender
      */
@@ -364,7 +418,7 @@ export declare class SocialSDK {
      * The post key is derived as sha256(creator + timestamp + nonce).
      * The timestamp is validated by the contract to be within 60 seconds of chain time.
      */
-    post({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, gateId, usePayWall, payWallId, creatorFlags, }: PostArgs): Promise<{
+    post({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, gateId, usePayWall, payWallId, creatorFlags, wallet, }: PostArgs): Promise<{
         postKey: Uint8Array;
         timestamp: bigint;
         nonce: Uint8Array;
@@ -382,7 +436,7 @@ export declare class SocialSDK {
      * The edit key is derived as sha256(creator + originalPostKey + newCID), making edits
      * cryptographically linked to their original and idempotent (same edit = same key).
      */
-    editPost({ sender, signer, cid, amendment, creatorFlags, }: EditPostArgs): Promise<Uint8Array>;
+    editPost({ sender, signer, cid, amendment, creatorFlags, wallet, }: EditPostArgs): Promise<Uint8Array>;
     /**
      * Reply to a post or comment
      *
@@ -395,7 +449,7 @@ export declare class SocialSDK {
      *
      * Note: Replies validate tips using TipActionReact (reactFee), not postFee
      */
-    reply({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, ref, refType, gateId, usePayWall, payWallId, gateTxn, creatorFlags, }: ReplyArgs): Promise<{
+    reply({ sender, signer, timestamp: providedTimestamp, nonce: providedNonce, cid, ref, refType, gateId, usePayWall, payWallId, gateTxn, creatorFlags, wallet, }: ReplyArgs): Promise<{
         replyKey: Uint8Array;
         timestamp: bigint;
         nonce: Uint8Array;
@@ -409,7 +463,7 @@ export declare class SocialSDK {
      * - MBR: votelist + potential tip delivery MBR (ARC-58/ARC-59) for upvotes
      * - Tip: reactFee in AKTA from DAO social fees
      */
-    vote({ sender, signer, ref, refType, isUp, }: VoteArgs): Promise<void>;
+    vote({ sender, signer, ref, refType, isUp, wallet, }: VoteArgs): Promise<void>;
     /**
      * Edit an existing vote (undo or flip)
      *
@@ -425,7 +479,7 @@ export declare class SocialSDK {
      *
      * Automatically calculates tip fee from DAO social fees.
      */
-    invertVote({ sender, signer, ref, }: InvertVoteArgs): Promise<void>;
+    invertVote({ sender, signer, ref, wallet, }: InvertVoteArgs): Promise<void>;
     /**
      * Delete an existing vote (undo the vote entirely)
      *
@@ -433,7 +487,7 @@ export declare class SocialSDK {
      *
      * Refunds the MBR for the vote box storage.
      */
-    deleteVote({ sender, signer, ref, }: DeleteVoteArgs): Promise<void>;
+    deleteVote({ sender, signer, ref, wallet, }: DeleteVoteArgs): Promise<void>;
     /**
      * React to a post with an NFT
      *
@@ -445,7 +499,7 @@ export declare class SocialSDK {
      *
      * Note: MBR is higher if this is the first reaction with this specific NFT on the post
      */
-    react({ sender, signer, ref, refType, nft, gateTxn, }: ReactArgs): Promise<void>;
+    react({ sender, signer, ref, refType, nft, gateTxn, wallet, }: ReactArgs): Promise<void>;
     /**
      * Delete a reaction from a post
      */
@@ -489,7 +543,7 @@ export declare class SocialSDK {
      *
      * Required MBR: Use calculateFollowMBR() to get the exact amount
      */
-    follow({ sender, signer, address, gateTxn, }: FollowArgs): Promise<void>;
+    follow({ sender, signer, address, gateTxn, wallet, }: FollowArgs): Promise<void>;
     /**
      * Unfollow a user
      */
