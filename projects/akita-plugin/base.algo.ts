@@ -21,7 +21,7 @@ import { Contract } from '@algorandfoundation/algorand-typescript/arc4'
  * @example
  * ```ts
  * import { Application, itxn, uint64 } from '@algorandfoundation/algorand-typescript'
- * import { Plugin, getSpendingAccount, rekeyAddress } from '@akta/plugin'
+ * import { Plugin, getSpendingAccount, rekeyAddress } from '@akita-protocol/plugin'
  *
  * export class MyPlugin extends Plugin {
  *   doSomething(wallet: Application, rekeyBack: boolean, amount: uint64): void {

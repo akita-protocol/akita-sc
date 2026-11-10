@@ -1,13 +1,13 @@
-# @akta/sdk
+# @akita-protocol/sdk
 
 TypeScript SDK for the Akita protocol on Algorand. Provides high-level interfaces for ARC58 abstracted account wallets, social features, rewards, auctions, staking, subscriptions, and more.
 
 ## Installation
 
 ```bash
-npm install @akta/sdk
+npm install @akita-protocol/sdk
 # or
-pnpm add @akta/sdk
+pnpm add @akita-protocol/sdk
 ```
 
 **Peer dependencies:**
@@ -21,35 +21,35 @@ npm install algosdk @algorandfoundation/algokit-utils
 The SDK is organized into sub-path exports. Import only what you need:
 
 ```typescript
-import { WalletSDK, WalletFactorySDK, PayPluginSDK } from '@akta/sdk/wallet'
-import { SocialSDK } from '@akta/sdk/social'
-import { RewardsSDK } from '@akta/sdk/rewards'
-import { AuctionSDK, AuctionFactorySDK } from '@akta/sdk/auction'
-import { AkitaDaoSDK } from '@akta/sdk/dao'
-import { StakingSDK } from '@akta/sdk/staking'
-import { StakingPoolSDK, StakingPoolFactorySDK } from '@akta/sdk/staking-pool'
-import { SubscriptionsSDK } from '@akta/sdk/subscriptions'
-import { MarketplaceSDK } from '@akta/sdk/marketplace'
-import { EscrowSDK, EscrowFactorySDK } from '@akta/sdk/escrow'
-import { PollSDK, PollFactorySDK } from '@akta/sdk/poll'
-import { RaffleSDK, RaffleFactorySDK } from '@akta/sdk/raffle'
-import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akta/sdk/prize-box'
-import { GateSDK } from '@akta/sdk/gates'
-import { HyperSwapSDK } from '@akta/sdk/hyper-swap'
-import { MetaMerklesSDK } from '@akta/sdk/meta-merkles'
+import { WalletSDK, WalletFactorySDK, PayPluginSDK } from '@akita-protocol/sdk/wallet'
+import { SocialSDK } from '@akita-protocol/sdk/social'
+import { RewardsSDK } from '@akita-protocol/sdk/rewards'
+import { AuctionSDK, AuctionFactorySDK } from '@akita-protocol/sdk/auction'
+import { AkitaDaoSDK } from '@akita-protocol/sdk/dao'
+import { StakingSDK } from '@akita-protocol/sdk/staking'
+import { StakingPoolSDK, StakingPoolFactorySDK } from '@akita-protocol/sdk/staking-pool'
+import { SubscriptionsSDK } from '@akita-protocol/sdk/subscriptions'
+import { MarketplaceSDK } from '@akita-protocol/sdk/marketplace'
+import { EscrowSDK, EscrowFactorySDK } from '@akita-protocol/sdk/escrow'
+import { PollSDK, PollFactorySDK } from '@akita-protocol/sdk/poll'
+import { RaffleSDK, RaffleFactorySDK } from '@akita-protocol/sdk/raffle'
+import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akita-protocol/sdk/prize-box'
+import { GateSDK } from '@akita-protocol/sdk/gates'
+import { HyperSwapSDK } from '@akita-protocol/sdk/hyper-swap'
+import { MetaMerklesSDK } from '@akita-protocol/sdk/meta-merkles'
 ```
 
 Or import everything from the root:
 
 ```typescript
-import { WalletSDK, SocialSDK, RewardsSDK, getNetworkAppIds } from '@akta/sdk'
+import { WalletSDK, SocialSDK, RewardsSDK, getNetworkAppIds } from '@akita-protocol/sdk'
 ```
 
 ## Quick Start
 
 ```typescript
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
-import { newWallet, PayPluginSDK } from '@akta/sdk/wallet'
+import { newWallet, PayPluginSDK } from '@akita-protocol/sdk/wallet'
 
 const algorand = AlgorandClient.fromEnvironment()
 
@@ -85,7 +85,7 @@ await wallet.usePlugin({
 The SDK automatically detects the network from the AlgorandClient URL, environment variables, or explicit configuration:
 
 ```typescript
-import { setCurrentNetwork, getCurrentNetwork, getNetworkAppIds } from '@akta/sdk'
+import { setCurrentNetwork, getCurrentNetwork, getNetworkAppIds } from '@akita-protocol/sdk'
 
 setCurrentNetwork('mainnet')
 const network = getCurrentNetwork() // 'mainnet' | 'testnet' | 'localnet'
@@ -99,7 +99,7 @@ Plugin deployment history is retained separately so installed legacy plugins
 remain identifiable and upgradeable:
 
 ```typescript
-import { resolvePluginDeployment, getPluginUpdate } from '@akta/sdk'
+import { resolvePluginDeployment, getPluginUpdate } from '@akita-protocol/sdk'
 
 const plugin = resolvePluginDeployment('mainnet', installedPluginAppId)
 const update = getPluginUpdate('mainnet', installedPluginAppId)
@@ -145,7 +145,7 @@ The wallet module is the core of the SDK. ARC58 wallets are smart contract accou
 ### Creating Wallets
 
 ```typescript
-import { newWallet, WalletFactorySDK } from '@akta/sdk/wallet'
+import { newWallet, WalletFactorySDK } from '@akita-protocol/sdk/wallet'
 
 // Recommended: newWallet helper (creates + registers in one call)
 const wallet = await newWallet({
@@ -169,7 +169,7 @@ const existing = await factory.get({ appId: existingWalletAppId })
 ### Managing Plugins
 
 ```typescript
-import { PayPluginSDK, OptInPluginSDK, AsaMintPluginSDK } from '@akta/sdk/wallet'
+import { PayPluginSDK, OptInPluginSDK, AsaMintPluginSDK } from '@akita-protocol/sdk/wallet'
 
 const payPlugin = new PayPluginSDK({ factoryParams: { appId: PAY_PLUGIN_APP_ID }, algorand })
 
@@ -271,22 +271,22 @@ await wallet.usePlugin({
 
 | Plugin | Import | Description |
 |--------|--------|-------------|
-| `PayPluginSDK` | `@akta/sdk/wallet` | ALGO and ASA payments |
-| `OptInPluginSDK` | `@akta/sdk/wallet` | Asset opt-ins |
-| `AsaMintPluginSDK` | `@akta/sdk/wallet` | ASA creation and configuration |
-| `DAOPluginSDK` | `@akta/sdk/wallet` | DAO governance operations |
-| `SocialPluginSDK` | `@akta/sdk/wallet` | Social features (posts, follows, votes) |
-| `StakingPluginSDK` | `@akta/sdk/wallet` | Staking operations |
-| `StakingPoolPluginSDK` | `@akta/sdk/wallet` | Staking pool interactions |
-| `MarketplacePluginSDK` | `@akta/sdk/wallet` | NFT marketplace operations |
-| `AuctionPluginSDK` | `@akta/sdk/wallet` | Auction operations |
-| `RafflePluginSDK` | `@akta/sdk/wallet` | Raffle participation |
-| `PollPluginSDK` | `@akta/sdk/wallet` | Voting and polls |
-| `RewardsPluginSDK` | `@akta/sdk/wallet` | Rewards distribution and claiming |
-| `SubscriptionsPluginSDK` | `@akta/sdk/wallet` | Subscription management |
-| `HyperSwapPluginSDK` | `@akta/sdk/wallet` | Token swaps |
-| `GatePluginSDK` | `@akta/sdk/wallet` | Access control gates |
-| `NFDPluginSDK` | `@akta/sdk/wallet` | NFD (NFDomains) integration |
+| `PayPluginSDK` | `@akita-protocol/sdk/wallet` | ALGO and ASA payments |
+| `OptInPluginSDK` | `@akita-protocol/sdk/wallet` | Asset opt-ins |
+| `AsaMintPluginSDK` | `@akita-protocol/sdk/wallet` | ASA creation and configuration |
+| `DAOPluginSDK` | `@akita-protocol/sdk/wallet` | DAO governance operations |
+| `SocialPluginSDK` | `@akita-protocol/sdk/wallet` | Social features (posts, follows, votes) |
+| `StakingPluginSDK` | `@akita-protocol/sdk/wallet` | Staking operations |
+| `StakingPoolPluginSDK` | `@akita-protocol/sdk/wallet` | Staking pool interactions |
+| `MarketplacePluginSDK` | `@akita-protocol/sdk/wallet` | NFT marketplace operations |
+| `AuctionPluginSDK` | `@akita-protocol/sdk/wallet` | Auction operations |
+| `RafflePluginSDK` | `@akita-protocol/sdk/wallet` | Raffle participation |
+| `PollPluginSDK` | `@akita-protocol/sdk/wallet` | Voting and polls |
+| `RewardsPluginSDK` | `@akita-protocol/sdk/wallet` | Rewards distribution and claiming |
+| `SubscriptionsPluginSDK` | `@akita-protocol/sdk/wallet` | Subscription management |
+| `HyperSwapPluginSDK` | `@akita-protocol/sdk/wallet` | Token swaps |
+| `GatePluginSDK` | `@akita-protocol/sdk/wallet` | Access control gates |
+| `NFDPluginSDK` | `@akita-protocol/sdk/wallet` | NFD (NFDomains) integration |
 
 ### Escrow Management
 
@@ -311,7 +311,7 @@ await wallet.reclaimFunds({ name: 'savings', funds: [[0n, 1_000_000n, false]] })
 Fine-grained spending limits for escrow-based plugins:
 
 ```typescript
-import { isFlatAllowance, isWindowAllowance, isDripAllowance } from '@akta/sdk/wallet'
+import { isFlatAllowance, isWindowAllowance, isDripAllowance } from '@akita-protocol/sdk/wallet'
 
 // Flat: one-time spending limit
 await wallet.addPlugin({
@@ -390,7 +390,7 @@ await wallet.changeAdmin({ newAdmin: newAdminAddress })
 On-chain social features including posts, votes, follows, reactions, and user profiles.
 
 ```typescript
-import { SocialSDK } from '@akta/sdk/social'
+import { SocialSDK } from '@akita-protocol/sdk/social'
 
 const social = new SocialSDK({ factoryParams: { appId: SOCIAL_APP_ID }, algorand })
 
@@ -418,7 +418,7 @@ Social actions (post, vote, follow, react) are typically performed through the w
 Create and manage reward disbursements with on-chain allocation tracking.
 
 ```typescript
-import { RewardsSDK } from '@akta/sdk/rewards'
+import { RewardsSDK } from '@akita-protocol/sdk/rewards'
 
 const rewards = new RewardsSDK({ factoryParams: { appId: REWARDS_APP_ID }, algorand })
 
@@ -445,7 +445,7 @@ await rewards.finalizeDisbursement({ disbursementId: id })
 Create and manage auctions with bidding, raffle, and prize claiming.
 
 ```typescript
-import { AuctionSDK, AuctionFactorySDK } from '@akta/sdk/auction'
+import { AuctionSDK, AuctionFactorySDK } from '@akita-protocol/sdk/auction'
 
 const factory = new AuctionFactorySDK({ factoryParams: { appId: AUCTION_FACTORY_APP_ID }, algorand })
 
@@ -470,7 +470,7 @@ await auction.claimPrize()
 Governance proposals with voting and execution.
 
 ```typescript
-import { AkitaDaoSDK } from '@akta/sdk/dao'
+import { AkitaDaoSDK } from '@akita-protocol/sdk/dao'
 
 const dao = new AkitaDaoSDK({ factoryParams: { appId: DAO_APP_ID }, algorand })
 
@@ -491,8 +491,8 @@ await dao.executeProposal(proposalId)
 Asset staking with escrow-based reward tracking.
 
 ```typescript
-import { StakingSDK } from '@akta/sdk/staking'
-import { StakingPoolSDK, StakingPoolFactorySDK } from '@akta/sdk/staking-pool'
+import { StakingSDK } from '@akita-protocol/sdk/staking'
+import { StakingPoolSDK, StakingPoolFactorySDK } from '@akita-protocol/sdk/staking-pool'
 
 const staking = new StakingSDK({ factoryParams: { appId: STAKING_APP_ID }, algorand })
 
@@ -508,7 +508,7 @@ const stakeInfo = await staking.getInfo({ address, stake: stakeId })
 On-chain subscription services with recurring payment support.
 
 ```typescript
-import { SubscriptionsSDK } from '@akta/sdk/subscriptions'
+import { SubscriptionsSDK } from '@akita-protocol/sdk/subscriptions'
 
 const subs = new SubscriptionsSDK({ factoryParams: { appId: SUBS_APP_ID }, algorand })
 
@@ -526,7 +526,7 @@ const isBlocked = await subs.isBlocked(address, blockedAddress)
 NFT marketplace listings and sales.
 
 ```typescript
-import { MarketplaceSDK } from '@akta/sdk/marketplace'
+import { MarketplaceSDK } from '@akita-protocol/sdk/marketplace'
 ```
 
 ### Polls
@@ -534,7 +534,7 @@ import { MarketplaceSDK } from '@akta/sdk/marketplace'
 On-chain voting polls.
 
 ```typescript
-import { PollSDK, PollFactorySDK } from '@akta/sdk/poll'
+import { PollSDK, PollFactorySDK } from '@akita-protocol/sdk/poll'
 ```
 
 ### Raffles
@@ -542,7 +542,7 @@ import { PollSDK, PollFactorySDK } from '@akta/sdk/poll'
 Weighted raffle drawings.
 
 ```typescript
-import { RaffleSDK, RaffleFactorySDK } from '@akta/sdk/raffle'
+import { RaffleSDK, RaffleFactorySDK } from '@akita-protocol/sdk/raffle'
 ```
 
 ### Prize Boxes
@@ -550,7 +550,7 @@ import { RaffleSDK, RaffleFactorySDK } from '@akta/sdk/raffle'
 Prize storage and distribution containers.
 
 ```typescript
-import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akta/sdk/prize-box'
+import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akita-protocol/sdk/prize-box'
 ```
 
 ### Gates
@@ -558,7 +558,7 @@ import { PrizeBoxSDK, PrizeBoxFactorySDK } from '@akta/sdk/prize-box'
 Access control and token gating.
 
 ```typescript
-import { GateSDK } from '@akta/sdk/gates'
+import { GateSDK } from '@akita-protocol/sdk/gates'
 ```
 
 ### HyperSwap
@@ -566,7 +566,7 @@ import { GateSDK } from '@akta/sdk/gates'
 Atomic asset swaps.
 
 ```typescript
-import { HyperSwapSDK } from '@akta/sdk/hyper-swap'
+import { HyperSwapSDK } from '@akita-protocol/sdk/hyper-swap'
 ```
 
 ### Meta Merkles
@@ -574,7 +574,7 @@ import { HyperSwapSDK } from '@akta/sdk/hyper-swap'
 Merkle proof verification for airdrops and allowlists.
 
 ```typescript
-import { MetaMerklesSDK } from '@akta/sdk/meta-merkles'
+import { MetaMerklesSDK } from '@akita-protocol/sdk/meta-merkles'
 ```
 
 ---
@@ -584,8 +584,8 @@ import { MetaMerklesSDK } from '@akta/sdk/meta-merkles'
 Protocol for cross-device agent installation and wallet connection.
 
 ```typescript
-import { encodeConnectUri, decodeConnectUri } from '@akta/sdk/connect'
-import type { AkitaConnectUri, AgentInstallRequest, ConnectRequest, ConnectResponse } from '@akta/sdk/connect'
+import { encodeConnectUri, decodeConnectUri } from '@akita-protocol/sdk/connect'
+import type { AkitaConnectUri, AgentInstallRequest, ConnectRequest, ConnectResponse } from '@akita-protocol/sdk/connect'
 
 // Encode a connect URI for QR codes
 const uri = encodeConnectUri({ origin: 'https://signal.akita.community', requestId: 'uuid-here' })
