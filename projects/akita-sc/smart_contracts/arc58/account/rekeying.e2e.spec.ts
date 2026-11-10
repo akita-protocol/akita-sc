@@ -3,13 +3,14 @@ import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-de
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
-import algosdk from 'algosdk';
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
 import { deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { TimeWarp } from '../../../tests/utils/time';
-import { ERR_ADMIN_ONLY, ERR_MISSING_REKEY_BACK } from './errors';
+import { expectContractError } from '../../../tests/utils/errors';
+import { errAdminOnly, errMissingRekeyBack } from './errors';
 
 describe('ARC58 Rekeying', () => {
   const localnet = algorandFixture();
@@ -36,7 +37,7 @@ describe('ARC58 Rekeying', () => {
     const signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
     timeWarp = new TimeWarp(algorand);
 
@@ -76,7 +77,7 @@ describe('ARC58 Rekeying', () => {
     timeWarp = new TimeWarp(algorand);
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
     wallet = await newWallet({
       factoryParams: {
@@ -166,7 +167,7 @@ describe('ARC58 Rekeying', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_MISSING_REKEY_BACK);
+      expect(error).toContain(errMissingRekeyBack);
     });
 
     test('admin can permanent rekey to EOA (non-flash)', async () => {
@@ -196,21 +197,14 @@ describe('ARC58 Rekeying', () => {
       // Create a non-admin account
       const nonAdmin = await generateAccount({ initialFunds: (10).algos() });
 
-      let error = 'no error thrown';
-      try {
-        await wallet.client.send.arc58RekeyTo({
-          sender: nonAdmin.toString(),
-          signer: nonAdmin.signer,
-          args: {
-            address: nonAdmin.toString(),
-            flash: false,
-          },
-        });
-      } catch (e: any) {
-        error = e.message;
-      }
-
-      expect(error).toContain(ERR_ADMIN_ONLY);
+      await expectContractError(wallet.client.send.arc58RekeyTo({
+        sender: nonAdmin.toString(),
+        signer: nonAdmin.signer,
+        args: {
+          address: nonAdmin.toString(),
+          flash: false,
+        },
+      }), errAdminOnly);
     });
   });
 
@@ -276,31 +270,20 @@ describe('ARC58 Rekeying', () => {
 
       // Try to rekey to plugin without verifying auth address after
       // This should fail because the verification call is missing
-      let error = 'no error thrown';
-      try {
-        // Manually build the transaction without the verification
-        const group = wallet.client.newGroup();
+      const group = wallet.client.newGroup();
+      group.arc58RekeyToPlugin({
+        args: {
+          plugin: payPluginSdk.appId,
+          type: CallerType.Global,
+          escrow: '',
+          methodOffsets: [],
+          fundsRequest: [],
+        },
+        extraFee: microAlgo(1_000),
+      });
 
-        group.arc58RekeyToPlugin({
-          args: {
-            plugin: payPluginSdk.appId,
-            type: CallerType.Global,
-            escrow: '',
-            methodOffsets: [],
-            fundsRequest: [],
-          },
-          extraFee: microAlgo(1_000),
-        });
-
-        // Missing: plugin call
-        // Missing: arc58VerifyAuthAddress
-
-        await group.send();
-      } catch (e: any) {
-        error = e.message;
-      }
-
-      expect(error).toContain(ERR_MISSING_REKEY_BACK);
+      // Missing: plugin call and arc58VerifyAuthAddress.
+      await expectContractError(group.send(), errMissingRekeyBack);
     });
   });
 
@@ -356,4 +339,156 @@ describe('ARC58 Rekeying', () => {
       expect(lastInteractionAfter).toBeGreaterThan(lastInteractionBefore);
     });
   });
+  // Q2 / R-STALE (principal-resolution spec §4.3, §8 Q2, T25/T13/T44). A plugin window closes ONLY
+  // through this wallet's arc58_verifyAuthAddress (which clears spending_address/current_plugin). The
+  // old shortcut, "the controlled address rekeys itself back", left both stale, so the plugin kept
+  // passing as the window holder (and could spend the escrow) in later groups.
+  describe('Q2: windows close only through arc58_verifyAuthAddress', () => {
+    const ESCROW = 'q2'
+
+    /** install the pay plugin on escrow ESCROW (global caller) and return the escrow address */
+    const installEscrowPlugin = async () => {
+      const mbr = await wallet.getMbr({ escrow: ESCROW, methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost + 1_000_000n) });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow: ESCROW });
+      const escrow = await wallet.getEscrow(ESCROW)
+      // keep the escrow above its min balance for the 0-amount plugin payment
+      await localnet.algorand.send.payment({
+        sender: localnet.context.testAccount.toString(),
+        signer: localnet.context.testAccount.signer,
+        receiver: escrow.address,
+        amount: microAlgo(200_000),
+      })
+      return escrow.address.toString()
+    }
+
+    /** [W.arc58_rekeyToPlugin(pay, Global, ESCROW)] queued on a fresh wallet group */
+    const rekeyToEscrowPlugin = (group: ReturnType<typeof wallet.client.newGroup>, sender: string) =>
+      group.arc58RekeyToPlugin({
+        sender,
+        args: { plugin: payPluginSdk.appId, type: CallerType.Global, escrow: ESCROW, methodOffsets: [], fundsRequest: [] },
+        extraFee: microAlgo(1_000),
+      })
+
+    const payCall = async (sender: string, rekeyBack: boolean) => payPluginSdk.client.params.pay({
+      sender,
+      args: { wallet: wallet.appId, rekeyBack, payments: [[sender, 0n, 0n]] },
+      extraFee: microAlgo(1_000),
+    })
+
+    test('positive control: an escrow window closed by verifyAuthAddress passes and clears spending_address', async () => {
+      const sender = localnet.context.testAccount.toString()
+      const escrowAddress = await installEscrowPlugin()
+
+      const group = wallet.client.newGroup()
+      rekeyToEscrowPlugin(group, sender)
+      const composer = await group.composer()
+      composer.addAppCallMethodCall(await payCall(sender, true))
+      composer.addAppCallMethodCall(await wallet.client.params.arc58VerifyAuthAddress({ sender, args: {} }))
+      await composer.send({ populateAppCallResources: true })
+
+      expect(await wallet.client.state.global.spendingAddress()).toBe(ALGORAND_ZERO_ADDRESS_STRING)
+      const escrowInfo = await localnet.algorand.account.getInformation(escrowAddress)
+      expect(escrowInfo.authAddr?.toString()).toBe(wallet.client.appAddress.toString())
+    })
+
+    test('construction (a): an escrow window ended by the controlled-address shortcut fails (errNrkb)', async () => {
+      const sender = localnet.context.testAccount.toString()
+      const signer = localnet.context.testAccount.signer
+      const escrowAddress = await installEscrowPlugin()
+
+      // the admin hands the controlled address (W.address) to an EOA it holds
+      await wallet.client.send.arc58RekeyTo({ sender, extraFee: microAlgo(1_000), args: { address: sender, flash: false } })
+
+      const shortcut = await localnet.algorand.createTransaction.payment({
+        sender: wallet.client.appAddress.toString(),
+        receiver: wallet.client.appAddress.toString(),
+        amount: microAlgo(0),
+        staticFee: microAlgo(1_000),
+        rekeyTo: wallet.client.appAddress.toString(),
+      })
+
+      const group = wallet.client.newGroup()
+      rekeyToEscrowPlugin(group, sender)
+      const composer = await group.composer()
+      composer.addAppCallMethodCall(await payCall(sender, false))
+      composer.addTransaction(shortcut, signer)
+      await expectContractError(composer.send({ populateAppCallResources: true }), errMissingRekeyBack)
+
+      // nothing stuck: the escrow is still with the wallet and no window state was written
+      const escrowInfo = await localnet.algorand.account.getInformation(escrowAddress)
+      expect(escrowInfo.authAddr?.toString()).toBe(wallet.client.appAddress.toString())
+      expect(await wallet.client.state.global.spendingAddress()).toBe(ALGORAND_ZERO_ADDRESS_STRING)
+
+      // E7: escrow windows still work while W.address is rekeyed away, when closed properly
+      const ok = wallet.client.newGroup()
+      rekeyToEscrowPlugin(ok, sender)
+      const okComposer = await ok.composer()
+      okComposer.addAppCallMethodCall(await payCall(sender, true))
+      okComposer.addAppCallMethodCall(await wallet.client.params.arc58VerifyAuthAddress({ sender, args: {} }))
+      await okComposer.send({ populateAppCallResources: true })
+      expect(await wallet.client.state.global.spendingAddress()).toBe(ALGORAND_ZERO_ADDRESS_STRING)
+    })
+
+    test('construction (b): one admin group [flash rekeyTo, escrow window, shortcut return] fails (errNrkb)', async () => {
+      const sender = localnet.context.testAccount.toString()
+      const signer = localnet.context.testAccount.signer
+      await installEscrowPlugin()
+
+      // the last txn satisfies the flash return; before Q2 it also closed the escrow window (stale state)
+      const flashReturn = await localnet.algorand.createTransaction.payment({
+        sender: wallet.client.appAddress.toString(),
+        receiver: wallet.client.appAddress.toString(),
+        amount: microAlgo(0),
+        staticFee: microAlgo(1_000),
+        rekeyTo: wallet.client.appAddress.toString(),
+      })
+
+      const group = wallet.client.newGroup()
+      group.arc58RekeyTo({ sender, extraFee: microAlgo(1_000), args: { address: sender, flash: true } })
+      rekeyToEscrowPlugin(group, sender)
+      const composer = await group.composer()
+      composer.addAppCallMethodCall(await payCall(sender, false))
+      composer.addTransaction(flashReturn, signer)
+      await expectContractError(composer.send({ populateAppCallResources: true }), errMissingRekeyBack)
+
+      expect((await localnet.algorand.account.getInformation(wallet.client.appAddress)).authAddr).toBeUndefined()
+    })
+
+    test('a verifyAuthAddress that closes an escrow window is not a flash return (errNrkb)', async () => {
+      const sender = localnet.context.testAccount.toString()
+      await installEscrowPlugin()
+
+      // before Q2 this passed with flash=true and left the controlled address with the EOA
+      const group = wallet.client.newGroup()
+      group.arc58RekeyTo({ sender, extraFee: microAlgo(1_000), args: { address: sender, flash: true } })
+      rekeyToEscrowPlugin(group, sender)
+      const composer = await group.composer()
+      composer.addAppCallMethodCall(await payCall(sender, true))
+      composer.addAppCallMethodCall(await wallet.client.params.arc58VerifyAuthAddress({ sender, args: {} }))
+      await expectContractError(composer.send({ populateAppCallResources: true }), errMissingRekeyBack)
+
+      expect((await localnet.algorand.account.getInformation(wallet.client.appAddress)).authAddr).toBeUndefined()
+    })
+
+    test('T13/T44 regression: a flash rekey returned by the controlled address still passes', async () => {
+      const sender = localnet.context.testAccount.toString()
+      const signer = localnet.context.testAccount.signer
+
+      const flashReturn = await localnet.algorand.createTransaction.payment({
+        sender: wallet.client.appAddress.toString(),
+        receiver: wallet.client.appAddress.toString(),
+        amount: microAlgo(0),
+        staticFee: microAlgo(1_000),
+        rekeyTo: wallet.client.appAddress.toString(),
+      })
+      await wallet.client
+        .newGroup()
+        .arc58RekeyTo({ sender, extraFee: microAlgo(1_000), args: { address: sender, flash: true } })
+        .addTransaction(flashReturn, signer)
+        .send()
+
+      expect((await localnet.algorand.account.getInformation(wallet.client.appAddress)).authAddr).toBeUndefined()
+    })
+  })
 });

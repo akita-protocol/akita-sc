@@ -30,9 +30,6 @@ import type { Staking } from '../../staking/contract.algo'
  * the underlying AkitaDAO + Staking apps it queries — do not use it as
  * a security-critical balance source for an adversarial wallet.
  */
-@contract({
-  stateTotals: { globalBytes: 1, globalUints: 0 }
-})
 export class AbstractedAccountBalanceReader extends Contract {
   /** The app ID of the Akita DAO used to resolve the Staking app */
   akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })

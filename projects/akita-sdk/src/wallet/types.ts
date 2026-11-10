@@ -1,7 +1,7 @@
 import { GlobalKeysState, PluginInfo as ClientPluginInfo, AbstractedAccountArgs, AbstractedAccountReturns } from "../generated/AbstractedAccountClient";
 import { MaybeSigner, SDKClient, AkitaSDK, PluginMethodSpecifier, PluginSDKReturn, GroupReturn } from "../types";
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
-import { ABIReturn } from "@algorandfoundation/algokit-utils/abi";
+import { ABIReturn } from '@algorandfoundation/algokit-utils/types/app';
 import { ExpectedCost } from "../simulate/cost";
 import { PreparedGroup } from "../simulate/prepare";
 import algosdk from "algosdk";
@@ -60,6 +60,15 @@ export type WalletUsePluginParams = (
     calls: PluginSDKReturn[]
     lease?: string
     consolidateFees?: boolean
+    /**
+     * Seed the resources a principal-resolving target reads for this window (spec §3.6: `P(W)`,
+     * plus `A(W.address)` or `A(controlled)` when the spending account is an escrow) into the
+     * Access-list preparer before simulation. Default false: simulation already discovers them.
+     * Use it for tight groups where a fixed placement matters.
+     */
+    seedPrincipalResources?: boolean
+    /** transactions placed at the start of the group (e.g. a payment the same signer approves) */
+    preTransactions?: { txn: algosdk.Transaction; signer: algosdk.TransactionSigner }[]
   }
 ) & MaybeSigner;
 
@@ -69,7 +78,13 @@ export type BuildWalletUsePluginParams = (
     lease: string,
     firstValid?: bigint,
     windowSize?: bigint,
-    skipSignatures?: boolean
+    skipSignatures?: boolean,
+    /**
+     * Simulate only the rekey as the wallet's admin, with this max fee in microALGO, and the rest of the group
+     * as the real sender (who also pays when it runs). For Global and Admin grants on a wallet whose admin
+     * holds little spare ALGO, e.g. a Guild, since a simulate charges each transaction's max fee to its sender.
+     */
+    adminRekeyMaxFee?: bigint
   }
 )
 
@@ -113,7 +128,7 @@ export const AddPluginDefaults = {
   admin: false,
   delegationType: 0n,
   coverFees: false,
-  canReclaim: true,
+  canReclaim: false,
 }
 
 export type CanCallParams = (
@@ -204,6 +219,14 @@ type BaseWalletAddPluginParams<TClient extends SDKClient> =
      * set at the escrow level, not per-plugin.
      */
     allowances?: AddAllowanceArgs[]
+    /**
+     * LEGACY. Also write a NEWLY created escrow into the EscrowFactory reverse registry
+     * (`register(escrow)`) after the install. Default: `!registryWritesStopped(network)`
+     * (networks.ts `REGISTRY_WRITES_STOPPED`): writes continue until the Phase 3 proposal has executed on
+     * that network (spec §7.1), and stop by default on LocalNet. Pass `true` / `false` to force either
+     * behaviour (tests of legacy registry semantics pass `true`). Removed in Phase 4.
+     */
+    registerEscrow?: boolean
   }
 
 export type WalletAddPluginParams<TClient extends SDKClient> =

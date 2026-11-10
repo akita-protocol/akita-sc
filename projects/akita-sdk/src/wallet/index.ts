@@ -3,18 +3,19 @@ import { AbstractAccountBoxMbrData, AbstractedAccountMbrClient } from '../genera
 import { AddAllowanceArgs, AddPluginArgs, AllowanceInfo, BuildWalletUsePluginParams, CallerType, CanCallParams, ExecutionBuildGroup, FundsRequest, MbrParams, MethodOffset, PluginInfo, RekeyArgs, WalletAddPluginParams, WalletGlobalState, WalletUsePluginParams } from './types';
 import { isPluginSDKReturn, MaybeSigner, NewContractSDKParams, SDKClient, GroupReturn, TxnReturn, hasSenderSigner, ExpandedSendParamsWithSigner, PluginTxn } from '../types';
 import { BaseSDK } from '../base';
-import { ENV_VAR_NAMES, resolveAppIdWithClient } from '../config';
+import { ENV_VAR_NAMES, resolveAppIdWithClient, shouldWriteRegistry } from '../config';
 import algosdk, { Address, ALGORAND_ZERO_ADDRESS_STRING, makeEmptyTransactionSigner } from 'algosdk';
 import { MAX_UINT64 } from '../constants';
 import { AllowanceInfoTranslate, AllowancesToTuple, applyDefaultAppCallMaxFees, domainBoxKey, executionBoxKey, ValueMap } from './utils';
-import { wrapUtils10Signer } from '../utils';
-import { NewEscrowFeeAmount } from './constants';
+import { addPluginExtraFee, controlledMbrFee, newEscrowExtraFee } from './constants';
 import { encodeLease, microAlgo } from '@algorandfoundation/algokit-utils';
 import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
 import { BoxIdentifier, BoxReference } from '@algorandfoundation/algokit-utils/types/app-manager';
 import { prepareGroup, PreparedGroup, sendPrepared } from '../simulate/prepare';
 import { computeExpectedCost, ExpectedCost } from '../simulate/cost';
 import { WalletGroupComposer } from './group';
+import { algodPrincipalReader, predictWindowPrincipal, windowPrincipalResources, type Principal, type PrincipalResourceReference } from '../principal';
+import { seedAccessResources } from '../simulate/access-list';
 
 export * from './constants';
 export * from './errors';
@@ -116,7 +117,9 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     escrow = '',
     fundsRequest = [],
     calls,
-    lease = ''
+    lease = '',
+    seedPrincipalResources = false,
+    preTransactions = [],
   }: WalletUsePluginParams): Promise<{ plugins: bigint[], caller: string, useRounds: boolean, length: number, group: AbstractedAccountComposer<[]>, sendParams: ExpandedSendParamsWithSigner }> {
 
     const sendParams = this.getSendParams({ sender, signer });
@@ -163,6 +166,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     }
 
     const group = this.client.newGroup()
+    for (const { txn, signer: txnSigner } of preTransactions) group.addTransaction(txn, txnSigner)
     let lastUseRounds = false;
 
     for (let segIdx = 0; segIdx < segments.length; segIdx++) {
@@ -176,6 +180,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       let useExecutionKey = false;
       if (this.plugins.has(key)) {
         ({ methods, useRounds, useExecutionKey } = this.plugins.get(key)!);
+      } else if (preTransactions.length > 0) {
+        // the plugin may be installed by `preTransactions` in this same group: an unrestricted grant
+        const installed = await this.getPluginByKey(key).catch(() => undefined)
+        if (installed) ({ methods, useRounds, useExecutionKey } = installed)
       } else {
         ({ methods, useRounds, useExecutionKey } = await this.getPluginByKey(key))
       }
@@ -333,12 +341,78 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     }
 
+    if (seedPrincipalResources && segments.length > 0) {
+      const spender = await this.windowSpender({ plugin: segments[0].appId, caller, escrow, spendingAddress })
+      seedAccessResources(await group.composer(), await this.principalResources({ spender }))
+    }
+
     const length = await (await group.composer()).count()
     const plugins = [...new Set(segments.map(s => s.appId))];
 
     return { plugins, caller, useRounds: lastUseRounds, length, group, sendParams: sendParams as ExpandedSendParamsWithSigner }
   }
 
+  // PRINCIPAL RESOLUTION (docs/principal-resolution) ---------------------------------------------
+
+  /**
+   * The wallet hint a plugin forwards to a principal-resolving target from inside this wallet's window:
+   * exactly this wallet's app id (`windowHint(wallet)`, spec §3.8 rule 6). Akita plugins add it
+   * themselves; the SDK never passes a caller-chosen hint. A direct (top-level) call passes `0n`, because
+   * a non-zero hint on a top-level call reverts with `errHtop`.
+   */
+  get windowHint(): bigint {
+    return this.client.appId
+  }
+
+  /** The spending account of a window for (`plugin`, `caller`, `escrow`), including `defaultToEscrow` grants. */
+  private async windowSpender({ plugin, caller, escrow, spendingAddress }: {
+    plugin: bigint, caller: string, escrow: string, spendingAddress: string
+  }): Promise<string> {
+    if (escrow !== '') return spendingAddress
+    const key: PluginKey = { plugin, caller, escrow }
+    const info = this.plugins.get(key) ?? await this.getPluginByKey(key)
+    return info.escrow !== 0n ? algosdk.getApplicationAddress(info.escrow).toString() : spendingAddress
+  }
+
+  /**
+   * Resources a hinted target reads for a window whose spending account is `spender` (spec §3.6):
+   * `P(W)`, plus `A(W.address)` or `A(controlled)` when the spending account is an escrow. Feed them to
+   * `seedAccessResources` (or pass `seedPrincipalResources: true` to `usePlugin`).
+   */
+  async principalResources({ spender }: { spender: string | Address }): Promise<PrincipalResourceReference[]> {
+    return windowPrincipalResources(algodPrincipalReader(this.client.algorand.client.algod), this.client.appId, spender)
+  }
+
+  /**
+   * PREDICTION ONLY (never authorization): the principal a hinted target computes when `plugin` calls it
+   * from this wallet's window on `escrow` ('' = the main account, or the grant's `defaultToEscrow` escrow).
+   * Gates see `principal`; referrals pay `referrer`.
+   *
+   * @param walletFactory the pinned wallet factory (`AkitaAppList.wallet`). When omitted, the wallet's own
+   * `factory_app` global is used, which is fine for predicting your own wallet but must never be a trust
+   * anchor (spec §3.8 rule 4).
+   */
+  async predictPrincipal({ plugin, caller, escrow = '', walletFactory }: {
+    plugin: bigint
+    /** the grant's caller (zero address for a global grant, the wallet address for an admin grant) */
+    caller: string
+    escrow?: string
+    walletFactory?: bigint
+  }): Promise<Principal> {
+    const controlled = (await this.client.state.global.controlledAddress())!
+    const spendingAddress = escrow === '' ? controlled : (this.escrows.get(escrow) ?? await this.getEscrow(escrow)).address
+    const spender = await this.windowSpender({ plugin, caller, escrow, spendingAddress })
+    const factory = walletFactory ?? (await this.client.state.global.factoryApp())
+    if (!factory) throw new Error('walletFactory is required: the wallet has no factory_app global')
+    return predictWindowPrincipal(algodPrincipalReader(this.client.algorand.client.algod), factory, this.client.appId, spender, plugin)
+  }
+
+  /**
+   * @deprecated LEGACY registry write (EscrowFactory reverse registry). Principal resolution uses
+   * wallet hints, so the SDK no longer calls this on its own (principal-resolution Phase 3). Call it
+   * only to keep legacy registry semantics (old plugin ids, legacy shims, old sub-gates) working for
+   * this wallet or one of its escrows. Removed with `register` itself in Phase 4.
+   */
   async register({ sender, signer, escrow }: ContractArgs['register(string)void'] & MaybeSigner): Promise<void> {
 
     const sendParams = this.getSendParams({ sender, signer });
@@ -420,6 +494,12 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     });
   }
 
+  /**
+   * Admin rekey of the controlled account to `address`. With `flash: true` the same group must return it
+   * with a transaction from the controlled account that rekeys it back to the wallet app (Q2: a later
+   * `arc58_verifyAuthAddress` only counts while it verifies the controlled account itself). Plugin windows
+   * close only through `arc58_verifyAuthAddress`, which `usePlugin` always appends.
+   */
   async rekeyTo({ sender, signer, ...args }: MaybeSigner & ContractArgs['arc58_rekeyTo(address,bool)void']): Promise<void> {
 
     const sendParams = this.getSendParams({ sender, signer });
@@ -439,7 +519,40 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       return this.client.send.arc58CanCall({ ...sendParams, args: { ...args, method } }) as unknown as Promise<boolean>;
     }))
 
-    return result.map(x => x.status === 'fulfilled' ? x.value : false)
+    // ACC-10c: arc58_canCall does not check `lastValid`; treat expired grants as not callable.
+    const expired = await this.isPluginExpired(args.plugin, args.type, args.address, args.escrow).catch(() => false)
+
+    return result.map(x => x.status === 'fulfilled' && !expired ? x.value : false)
+  }
+
+  /** Whether the grant resolved from (plugin, caller type, address, escrow) is past its lastValid. */
+  private async isPluginExpired(plugin: bigint | number, type: bigint | number, address: string, escrow: string): Promise<boolean> {
+    const caller = BigInt(type) === CallerType.Global
+      ? ALGORAND_ZERO_ADDRESS_STRING
+      : BigInt(type) === CallerType.Admin
+        ? algosdk.getApplicationAddress(this.appId).toString()
+        : address
+    const info = await this.getPluginByKey({ plugin: BigInt(plugin), caller, escrow })
+    if (info.start === 0n) return false
+    const status = await this.client.algorand.client.algod.status().do()
+    if (info.useRounds) {
+      return BigInt(status.lastRound) > info.lastValid
+    }
+    const block = await this.client.algorand.client.algod.block(status.lastRound).do()
+    return BigInt(block.block.header.timestamp) > info.lastValid
+  }
+
+  /**
+   * ACC-06: remove a co-admin / domain passkey and refund its MBR to the controlled address.
+   * (On-chain this is `assignDomain(address, '')`.)
+   */
+  async removeDomainKey({ sender, signer, address }: MaybeSigner & { address: string }): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+    await this.client.send.assignDomain({
+      ...sendParams,
+      args: { caller: address, domain: '' },
+      extraFee: await this.domainKeyExtraFee(address, 'remove'),
+    });
   }
 
   async usePlugin(params: WalletUsePluginParams): Promise<GroupReturn> {
@@ -460,7 +573,14 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       : callerType === CallerType.Admin
         ? algosdk.getApplicationAddress(this.appId).toString()
         : (typeof sendParams.sender === 'string' ? sendParams.sender : (sendParams.sender as { toString(): string }).toString());
-    const hasCoverFees = this.plugins.get({ plugin: firstPluginAppId, caller: callerAddr, escrow })?.coverFees ?? false;
+    const pluginInfo = this.plugins.get({ plugin: firstPluginAppId, caller: callerAddr, escrow });
+    const hasCoverFees = pluginInfo?.coverFees ?? false;
+
+    // ACC-10d: a defaultToEscrow grant is keyed by escrow '' but spends from an escrow app; no
+    // allowance can exist for escrow '', so any funds request would fail on-chain.
+    if (escrow === '' && pluginInfo !== undefined && pluginInfo.escrow !== 0n && fundsRequest.length > 0) {
+      throw new Error('fundsRequest is not supported for defaultToEscrow plugins; fund the escrow directly');
+    }
 
     const suggestedParams = await this.client.algorand.getSuggestedParams();
     const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
@@ -482,7 +602,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       // simulate-only inflated value to the real fee. No extra simulate.
       const composer = await group.composer();
       const internalTxns = (composer as unknown as {
-        txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
+        txns: Array<{ type: string; maxFee?: AlgoAmount }>
       }).txns;
       applyDefaultAppCallMaxFees(internalTxns, microAlgo(MAX_SIM_FEE));
 
@@ -490,7 +610,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       // calls, so no override is needed for the validated build.
       const prepared = await prepareGroup(composer);
 
-      // Sum the fees utils10 just distributed — that's our totalFees cap.
+      // Sum the fees AlgoKit just distributed — that's our totalFees cap.
       const totalFees = prepared.transactions.reduce(
         (acc, t) => acc + BigInt(t.fee ?? 0n),
         0n
@@ -589,15 +709,22 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     useRounds = false,
     useExecutionKey = false,
     coverFees = false,
-    canReclaim = true,
+    // A-3: reclaim permission is opt-in
+    canReclaim = false,
     defaultToEscrow = false,
-    allowances = []
+    allowances = [],
+    registerEscrow,
   }: WalletAddPluginParams<TClient>): Promise<GroupReturn> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
     // Get the plugin app ID from the SDK client
     const plugin = client.appId;
+
+    // ACC-02: the wallet refuses fee cover on a grant anyone can call (callers choose their own fee)
+    if (callerType === CallerType.Global && coverFees) {
+      throw new Error('A plugin anyone can call cannot cover fees; give fee cover to a specific caller');
+    }
 
     if (callerType === CallerType.Global) {
       caller = ALGORAND_ZERO_ADDRESS_STRING
@@ -624,13 +751,11 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     const newEscrow = escrow !== '' && !this.escrows.get(escrow);
 
     // Check if controlled address differs from app address - requires extra fee for MBR transfer inner txn
-    const controlledAddress = await this.client.state.global.controlledAddress();
-    const hasExternalControlledAddress = controlledAddress !== this.client.appAddress.toString();
+    const hasExternalControlledAddress = await this.hasExternalControlledAddress();
 
-    // Calculate extra fee:
-    // - NewEscrowFeeAmount (6000) if creating a new escrow
-    // - 1000 if controlled address is external (for MBR transfer inner txn)
-    const extraFee = microAlgo((newEscrow ? NewEscrowFeeAmount : 0n) + (hasExternalControlledAddress ? 1000n : 0n));
+    // Extra fee: NewEscrowFeeAmount for a new escrow, plus one min fee per MBR payment the wallet
+    // makes from an external controlled address (plugin boxes, and the escrow box when new).
+    const extraFee = microAlgo(addPluginExtraFee(newEscrow, hasExternalControlledAddress));
 
     const args: AddPluginArgs = {
       plugin,
@@ -675,7 +800,9 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         args: {
           escrow,
           allowances: AllowancesToTuple(allowances)
-        }
+        },
+        // its own MBR payment from an external controlled address
+        extraFee: microAlgo(controlledMbrFee(hasExternalControlledAddress))
       });
     }
 
@@ -686,7 +813,8 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     const result = await group.send();
 
     const postProcess: any[] = []
-    if (newEscrow) {
+    // Phase 3: registry writes stop per network once Phase 3 has executed there (spec §7.1).
+    if (newEscrow && shouldWriteRegistry(this.network, registerEscrow)) {
       postProcess.push(this.register({ escrow }))
     }
 
@@ -706,10 +834,70 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
+    // ACC-05: the wallet now refunds the grant's MBR to an external controlled address
     return await this.client.send.arc58RemovePlugin({
       ...sendParams,
-      args
+      args,
+      extraFee: await this.controlledMbrExtraFee(),
     });
+  }
+
+  /** ACC-05: remove a named plugin alias (and its grant, if still installed), refunding their MBR. */
+  async removeNamedPlugin({ sender, signer, name }: MaybeSigner & { name: string }): Promise<TxnReturn<void>> {
+    const sendParams = this.getSendParams({ sender, signer });
+    return await this.client.send.arc58RemoveNamedPlugin({
+      ...sendParams,
+      args: { name },
+      extraFee: await this.controlledMbrExtraFee(),
+    });
+  }
+
+  /**
+   * @internal True when the controlled address is not the wallet app address. The wallet then moves
+   * every box MBR with an inner payment from (adds) or to (removes) the controlled address.
+   */
+  async hasExternalControlledAddress(): Promise<boolean> {
+    const controlledAddress = await this.client.state.global.controlledAddress();
+    return controlledAddress !== this.client.appAddress.toString();
+  }
+
+  /** @internal Extra fee for a call that makes one MBR payment or refund (see `controlledMbrFee`). */
+  async controlledMbrExtraFee(): Promise<AlgoAmount> {
+    return microAlgo(controlledMbrFee(await this.hasExternalControlledAddress()));
+  }
+
+  /**
+   * Assign a domain to a passkey address. A key whose domain equals the wallet domain is a
+   * co-admin (while the wallet domain is non-empty). Reassigning refunds the old key's MBR
+   * before charging the new one. An empty `domain` revokes the key (see `removeDomainKey`).
+   */
+  async assignDomain({ sender, signer, ...args }: ContractArgs['assignDomain(address,string)void'] & MaybeSigner): Promise<TxnReturn<void>> {
+
+    const sendParams = this.getSendParams({ sender, signer });
+
+    return await this.client.send.assignDomain({
+      ...sendParams,
+      args,
+      extraFee: await this.domainKeyExtraFee(args.caller.toString(), args.domain === '' ? 'remove' : 'assign')
+    });
+  }
+
+  /**
+   * @internal Extra fee for the MBR payments a domain key change makes. These inner payments
+   * only happen when the controlled address is not the wallet app address: assigning pays for
+   * the new box (and refunds the old one when reassigning), revoking refunds the box.
+   */
+  async domainKeyExtraFee(caller: string, action: 'assign' | 'remove'): Promise<AlgoAmount> {
+    if (!(await this.hasExternalControlledAddress())) {
+      return microAlgo(0);
+    }
+
+    let payments = action === 'remove' ? 0n : 1n;
+    if ((await this.getDomainKey(caller)) !== undefined) {
+      payments += 1n;
+    }
+
+    return microAlgo(payments * 1_000n);
   }
 
   async newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): Promise<TxnReturn<bigint>> {
@@ -718,7 +906,8 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     return await this.client.send.arc58NewEscrow({
       ...sendParams,
-      args
+      args,
+      extraFee: microAlgo(newEscrowExtraFee(args.address.toString() === ALGORAND_ZERO_ADDRESS_STRING, await this.hasExternalControlledAddress()))
     });
   }
 
@@ -758,7 +947,8 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       args: {
         escrow,
         allowances: AllowancesToTuple(allowances)
-      }
+      },
+      extraFee: await this.controlledMbrExtraFee()
     });
   }
 
@@ -768,17 +958,19 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     return await this.client.send.arc58RemoveAllowances({
       ...sendParams,
-      args
+      args,
+      extraFee: await this.controlledMbrExtraFee()
     });
   }
 
-  async addExecutionKey({ sender, signer, lease, groups, firstValid, lastValid }: ContractArgs['arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void'] & MaybeSigner): Promise<TxnReturn<void>> {
+  async addExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void'] & MaybeSigner): Promise<TxnReturn<void>> {
 
     const sendParams = this.getSendParams({ sender, signer });
 
     return await this.client.send.arc58AddExecutionKey({
       ...sendParams,
-      args: { lease, groups, firstValid, lastValid }
+      args,
+      extraFee: await this.controlledMbrExtraFee()
     });
   }
 
@@ -788,15 +980,32 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
     return await this.client.send.arc58RemoveExecutionKey({
       ...sendParams,
-      args
+      args,
+      extraFee: await this.controlledMbrExtraFee()
     });
   }
 
   readonly build = {
 
-    usePlugin: async ({ firstValid = 0n, windowSize = 0n, consolidateFees = true, skipSignatures = false, ...args }: BuildWalletUsePluginParams): Promise<ExecutionBuildGroup> => {
+    usePlugin: async ({ firstValid = 0n, windowSize = 0n, consolidateFees = true, skipSignatures = false, adminRekeyMaxFee, ...args }: BuildWalletUsePluginParams): Promise<ExecutionBuildGroup> => {
 
       const { lease } = args;
+
+      // A wallet administered by an app (e.g. a Guild) may hold no spare ALGO for the rekey's fee while the
+      // rekey simulates as its admin: the real sender funds it inside the simulation only, and that payment
+      // is dropped from the built group.
+      const fundsAdmin = adminRekeyMaxFee !== undefined && !!args.sender;
+      const adminFunding = fundsAdmin
+        ? [{
+          txn: await this.client.algorand.createTransaction.payment({
+            sender: args.sender!,
+            receiver: (await this.client.state.global.admin())!,
+            amount: microAlgo(adminRekeyMaxFee!),
+          }),
+          signer: makeEmptyTransactionSigner(),
+        }]
+        : [];
+      const rekeyIndex = adminFunding.length;
 
       const [
         suggestedParams,
@@ -804,7 +1013,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         admin
       ] = await Promise.all([
         this.client.algorand.getSuggestedParams(),
-        this.prepareUsePlugin(args),
+        this.prepareUsePlugin({ ...args, preTransactions: [...adminFunding, ...(args.preTransactions ?? [])] }),
         this.client.state.global.admin()
       ]);
 
@@ -815,12 +1024,12 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         windowSize = BigInt(suggestedParams.lastValid) - BigInt(suggestedParams.firstValid);
       }
 
-      // Cap per-app-call maxFee so the utils10 simulate can distribute inner-txn
+      // Cap per-app-call maxFee so the AlgoKit simulate can distribute inner-txn
       // fees up to this limit. 272 × minFee matches the legacy maxFees map and
       // leaves headroom for a fan-out of inner txns during fee pooling.
       //
-      // Note: utils10 distinguishes `appCall` (raw) from `methodCall` (ABI)
-      // at the composer-input level, but both resolve to `TransactionType.AppCall`
+      // Note: AlgoKit distinguishes `appCall` (raw) from `methodCall` (ABI)
+      // at the composer-input level, but both resolve to `TransactionType.appl`
       // transactions and both are subject to the `coverAppCallInnerTransactionFees`
       // maxFee requirement. Cover both input types here or the simulate inside
       // `prepareGroup` will reject with "Please provide a maxFee for each app
@@ -828,18 +1037,29 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       const MAX_SIM_FEE = BigInt(suggestedParams.minFee) * 272n;
       const composer = await group.composer();
       const internalTxns = (composer as unknown as {
-        txns: Array<{ type: string; data: { maxFee?: AlgoAmount } }>
+        txns: Array<{ type: string; maxFee?: AlgoAmount }>
       }).txns;
       applyDefaultAppCallMaxFees(internalTxns, microAlgo(MAX_SIM_FEE));
+      if (adminRekeyMaxFee !== undefined && internalTxns[rekeyIndex]) internalTxns[rekeyIndex].maxFee = microAlgo(adminRekeyMaxFee);
 
       // Execution handoff: simulate with admin as sender + empty signer so
       // resources populate as-if admin submitted the group. The real sender
       // is swapped back in per-window below, after the simulate completes.
       // This is the only simulate roundtrip in the whole build.
+      // A grant scoped to one caller is keyed by that caller (the rekey's sender), so it simulates as
+      // itself; Global and Admin grants resolve their key without the sender.
+      const simulateSender = (args.callerType ?? CallerType.Other) === CallerType.Other ? sendParams.sender : admin;
       const prepared = await prepareGroup(composer, {
-        sender: admin as string,
+        sender: simulateSender as string,
         signer: makeEmptyTransactionSigner(),
+        ...(adminRekeyMaxFee !== undefined ? { senderIndexes: new Set([rekeyIndex]) } : {}),
       });
+      if (fundsAdmin) {
+        // the simulation-only funding payment leaves the group; method calls shift down with it
+        prepared.transactions = prepared.transactions.slice(rekeyIndex);
+        prepared.signers = prepared.signers.slice(rekeyIndex);
+        prepared.methodCalls = new Map([...prepared.methodCalls].map(([index, method]) => [index - rekeyIndex, method] as const).filter(([index]) => index >= 0));
+      }
 
       let numGroupsToBuild: number;
       let endTarget: bigint;
@@ -887,13 +1107,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
       // `options.signer` when send() fires.
       const windowSigner: algosdk.TransactionSigner = skipSignatures
         ? makeEmptyTransactionSigner()
-        : wrapUtils10Signer(sendParams.signer);
+        : (sendParams.signer);
 
       // Real sender address the per-window transactions are swapped to.
-      // Accept: algosdk.Address, string, or v10 `Address & AddressWithSigners`
-      // (an Address instance from @algorandfoundation/algokit-common, which is
-      // a different class than algosdk's Address so `instanceof` fails). We
-      // fall back to .toString() which works for all shapes.
+      // Normalize the sender to the native algosdk Address type.
       const realSenderAddr = sendParams.sender instanceof Address
         ? sendParams.sender
         : typeof sendParams.sender === 'string'
@@ -910,7 +1127,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
         expectedCost,
         send: async (options) => {
           // Pick the window whose validity range contains the current round.
-          const status = await this.client.algorand.client.algod.status();
+          const status = await this.client.algorand.client.algod.status().do();
           const currentRound = BigInt(status.lastRound);
 
           let selectedIndex = -1;
@@ -946,10 +1163,10 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
             if (!providedSigner) {
               throw new Error('signer is required when skipSignatures is true');
             }
-            const wrapped = wrapUtils10Signer(providedSigner);
+            const wrapped = (providedSigner);
             signers = window.transactions.map(() => wrapped);
           } else if (providedSigner) {
-            const wrapped = wrapUtils10Signer(providedSigner);
+            const wrapped = (providedSigner);
             signers = window.transactions.map(() => wrapped);
           } else {
             signers = window.signers;
@@ -962,7 +1179,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
 
           return {
             ...result,
-            returns: result.returns.filter(({ method }) => method.returns.type !== 'void'),
+            returns: result.returns.filter(({ method }) => method?.returns.type !== 'void'),
           } as unknown as GroupReturn;
         }
       };
@@ -1111,11 +1328,7 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
   }
 
   async getAllowance(key: AllowanceKey): Promise<AllowanceInfo> {
-    // Reorder keys to match the struct's declared field order (escrow, asset).
-    // utils10's struct-value → tuple conversion walks `Object.values(value)`
-    // positionally, so mismatched property order in the source object produces
-    // "Cannot encode value as string: 0" when the bigint `asset` ends up in the
-    // slot reserved for the `escrow` string.
+    // Keep the box key in its declared struct order.
     const orderedKey: AllowanceKey = { escrow: key.escrow, asset: key.asset };
     return AllowanceInfoTranslate((await this.client.state.box.allowances.value(orderedKey))!);
   }
@@ -1129,10 +1342,19 @@ export class WalletSDK extends BaseSDK<AbstractedAccountClient> {
     return await this.client.state.box.executions.value(lease)! as unknown as ExecutionInfo;
   }
 
-  async getMbr(args: MbrParams): Promise<AbstractAccountBoxMbrData> {
+  /** @returns the domain assigned to a passkey address, or undefined if it has none */
+  async getDomainKey(address: string): Promise<string | undefined> {
+    try {
+      return await this.client.state.box.domainKeys.value(address);
+    } catch {
+      return undefined;
+    }
+  }
+
+    async getMbr(args: MbrParams): Promise<AbstractAccountBoxMbrData> {
     return await this.mbrClient.mbr({
       args: { appId: this.client.appId, ...args },
       staticFee: microAlgo(2_000),
-    })
+    });
   }
 }

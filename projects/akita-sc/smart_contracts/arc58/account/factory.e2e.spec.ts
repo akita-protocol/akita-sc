@@ -1,14 +1,20 @@
 import { Config } from '@algorandfoundation/algokit-utils';
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
 import { newWallet, WalletFactorySDK, CallerType, PayPluginSDK } from 'akita-sdk/wallet';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
-import { buildAkitaUniverse, deployAkitaDAO } from '../../../tests/fixtures/dao';
+import { AkitaUniverse, buildAkitaUniverse, deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
+import { ProposalActionEnum } from 'akita-sdk/dao';
+import { ALGORAND_ZERO_ADDRESS_STRING, generateAccount as randomAccount, getApplicationAddress } from 'algosdk';
+import { proposeAndExecute } from '../../../scripts/utils';
+import { assertUnregistered } from '../../../tests/fixtures/unregistered-wallet';
+import { RewardsSDK } from 'akita-sdk/rewards';
+import { TimeWarp } from '../../../tests/utils/time';
 
 describe('ARC58 Factory', () => {
   const localnet = algorandFixture();
@@ -16,6 +22,8 @@ describe('ARC58 Factory', () => {
   let dao: AkitaDaoSDK;
   /** the wallet factory contract sdk */
   let walletFactory: WalletFactorySDK;
+  /** the whole universe (rewards app, escrow factory) */
+  let universe: AkitaUniverse;
 
   beforeAll(async () => {
     Config.configure({
@@ -30,14 +38,15 @@ describe('ARC58 Factory', () => {
     const signer = testAccount.signer
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
-    ({ dao, walletFactory } = await buildAkitaUniverse({
+    universe = await buildAkitaUniverse({
       fixture: localnet,
       sender,
       signer,
       apps: {}
-    }));
+    });
+    ({ dao, walletFactory } = universe);
   })
 
   beforeEach(localnet.newScope)
@@ -64,7 +73,7 @@ describe('ARC58 Factory', () => {
       // Three factory deployments in one test exceed the default 10 ALGO
       // scope funding — top up from the dispenser.
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Deploy a new escrow factory
       const escrowFactory = await deployEscrowFactory({
@@ -111,7 +120,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet = await newWallet({
         factoryParams: {
@@ -140,7 +149,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Create a custom admin account
       const customAdmin = await generateAccount({ initialFunds: (1).algos() })
@@ -169,7 +178,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Create a referrer account
       const referrer = await generateAccount({ initialFunds: (1).algos() })
@@ -198,7 +207,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet1 = await newWallet({
         factoryParams: {
@@ -262,7 +271,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const cost = await walletFactory.cost()
 
@@ -307,15 +316,43 @@ describe('ARC58 Factory', () => {
   })
 
   describe('Wallet Registration', () => {
-    test('wallet can register with escrow factory', async () => {
+    // Principal resolution Phase 3 (spec §6.10): the SDK no longer writes the EscrowFactory reverse
+    // registry. Registration stays available as an explicit legacy opt-in until Phase 4.
+    test('newWallet does not register the wallet by default', async () => {
       const { algorand, context: { testAccount } } = localnet
       const sender = testAccount.toString()
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
-      // newWallet automatically calls register
+      const wallet = await newWallet({
+        factoryParams: {
+          appId: walletFactory.appId,
+          defaultSender: sender,
+          defaultSigner: signer
+        },
+        readerAccount: sender,
+        algorand,
+        nickname: 'unregistered_wallet',
+      })
+
+      expect(wallet.client.appId).toBeGreaterThan(0n)
+      await assertUnregistered(universe.escrowFactory, [wallet.client.appAddress])
+
+      // the factory still pre-funds the registration MBR (removed in Phase 4)
+      const info = await algorand.account.getInformation(wallet.client.appAddress)
+      expect(info.balance.microAlgos - info.minBalance.microAlgos).toBe(12_100n)
+    })
+
+    test('wallet can still register with the escrow factory when the caller opts in (legacy)', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const signer = testAccount.signer
+
+      const dispenser = await algorand.account.dispenserFromEnvironment();
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
       const wallet = await newWallet({
         factoryParams: {
           appId: walletFactory.appId,
@@ -325,11 +362,10 @@ describe('ARC58 Factory', () => {
         readerAccount: sender,
         algorand,
         nickname: 'registered_wallet',
+        register: true,
       })
 
-      expect(wallet.client.appId).toBeGreaterThan(0n)
-
-      // The wallet should be usable (implicitly tests registration worked)
+      expect(await universe.escrowFactory.exists({ args: { address: wallet.client.appAddress.toString() } })).toBe(true)
       const walletState = await wallet.client.state.global.getAll()
       expect(walletState.escrowFactory).toBeGreaterThan(0n)
     })
@@ -342,7 +378,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet = await newWallet({
         factoryParams: {
@@ -368,7 +404,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet = await newWallet({
         factoryParams: {
@@ -393,7 +429,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet = await newWallet({
         factoryParams: {
@@ -421,7 +457,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const wallet = await newWallet({
         factoryParams: {
@@ -446,7 +482,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const extraFunding = 5_000_000n // 5 ALGO
 
@@ -475,7 +511,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       const payPlugin = await deployPayPlugin({ fixture: localnet, sender, signer })
 
@@ -492,6 +528,8 @@ describe('ARC58 Factory', () => {
           plugin: payPlugin.appId,
           caller: sender,
           delegationType: 1n,
+          // ACC-02: fee cover needs a specific caller (a grant anyone can call cannot have it)
+          cooldown: 1n,
           coverFees: true,
           lastValid: BigInt('18446744073709551615'),
           canReclaim: true,
@@ -508,7 +546,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Create test assets
       const asset1 = await algorand.send.assetCreate({
@@ -554,21 +592,15 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Create an external account that will be controlled by the smart wallet
       const externalAccount = await generateAccount({ initialFunds: (1).algos() })
       const externalAddr = externalAccount.toString()
       const externalSigner = externalAccount.signer
 
-      // Rekey external account to the factory
-      await algorand.send.payment({
-        sender: externalAddr,
-        signer: externalSigner,
-        receiver: externalAddr,
-        amount: microAlgo(0n),
-        rekeyTo: walletFactory.client.appAddress,
-      })
+      // SG-04: the SDK rekeys the external account to the factory inside the creation group
+      // (a rekey made in an earlier group is rejected with errCnap)
 
       // Create wallet with external controlled address — factory handles rekey to wallet
       const wallet = await newWallet({
@@ -581,6 +613,7 @@ describe('ARC58 Factory', () => {
         algorand,
         nickname: 'external_wallet',
         controlledAddress: externalAddr,
+        controlledSigner: externalSigner,
       })
 
       expect(wallet.client.appId).toBeGreaterThan(0n)
@@ -599,7 +632,7 @@ describe('ARC58 Factory', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
       // Create test asset
       const assetResult = await algorand.send.assetCreate({
@@ -616,14 +649,8 @@ describe('ARC58 Factory', () => {
       const externalAddr = externalAccount.toString()
       const externalSigner = externalAccount.signer
 
-      // Rekey external account to the factory
-      await algorand.send.payment({
-        sender: externalAddr,
-        signer: externalSigner,
-        receiver: externalAddr,
-        amount: microAlgo(0n),
-        rekeyTo: walletFactory.client.appAddress,
-      })
+      // SG-04: the SDK rekeys the external account to the factory inside the creation group
+      // (a rekey made in an earlier group is rejected with errCnap)
 
       // Create wallet with external controlled address + asset opt-in
       const wallet = await newWallet({
@@ -636,6 +663,7 @@ describe('ARC58 Factory', () => {
         algorand,
         nickname: 'external_asset_wallet',
         controlledAddress: externalAddr,
+        controlledSigner: externalSigner,
         assets: [assetId],
       })
 
@@ -649,6 +677,175 @@ describe('ARC58 Factory', () => {
 
       // External account should be rekeyed to wallet
       expect(externalInfo.authAddr?.toString()).toBe(wallet.client.appAddress.toString())
+    })
+  })
+  // P2-ACC-01 (principal-resolution spec §6.1, Q1-A2): the creation referral pays the `referrer`
+  // ARGUMENT from the creation fee (DAO share). The payer pays exactly cost(), with no referral MBR;
+  // the cut is skipped when the fee cannot cover cut + disbursement MBR.
+  describe('Creation referral (Q1-A2)', () => {
+    /** MinDisbursementsMBR (v2, with the reclaimTo field) + UserAllocationMBR: one single-allocation ALGO referral disbursement */
+    const DISBURSEMENT_MBR = 54_500n + 25_300n
+    const REFERRER_PERCENTAGE = 20_000n // 20%
+
+    const setWalletFees = async (createFee: bigint) => {
+      await proposeAndExecute(localnet.algorand, dao, [{
+        type: ProposalActionEnum.UpdateFields,
+        field: 'wallet_fees', value: { createFee, referrerPercentage: REFERRER_PERCENTAGE },
+      }])
+    }
+
+    const balanceOf = async (address: string) => (await localnet.algorand.account.getInformation(address)).balance.microAlgos
+
+    const daoEscrowAddress = async () => {
+      const escrow = await walletFactory.client.state.global.akitaDaoEscrow()
+      expect(escrow).toBeDefined()
+      return getApplicationAddress(escrow!.app).toString()
+    }
+
+    /** create a wallet and return the balance deltas of the payer, the rewards app and the DAO escrow */
+    const createAndMeasure = async (referrer: string) => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      const dispenser = await algorand.account.dispenserFromEnvironment()
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
+      const rewardsAddress = getApplicationAddress(universe.rewards.appId).toString()
+      const escrowAddress = await daoEscrowAddress()
+      const cost = await walletFactory.cost()
+
+      const rewardsBefore = await balanceOf(rewardsAddress)
+      const escrowBefore = await balanceOf(escrowAddress)
+
+      // WalletFactorySDK.new pays exactly cost() (+ no extras here): the contract's payment equality
+      // has no referral MBR term any more (Q1-A2), so this succeeds only if cost() is the full price
+      const wallet = await walletFactory.new({ sender, signer: testAccount.signer, nickname: 'a2', referrer })
+      const created = await algorand.client.algod.getApplicationByID(wallet.client.appId).do()
+      expect(created.params?.creator?.toString()).toBe(walletFactory.client.appAddress.toString())
+
+      return {
+        wallet,
+        cost,
+        rewardsDelta: (await balanceOf(rewardsAddress)) - rewardsBefore,
+        escrowDelta: (await balanceOf(escrowAddress)) - escrowBefore,
+      }
+    }
+
+    afterAll(async () => {
+      await setWalletFees(0n)
+    })
+
+    test('cost() is caller-independent and has no referral term', async () => {
+      const createFee = 100_000n
+      await setWalletFees(0n)
+      const base = await walletFactory.cost()
+      await setWalletFees(createFee)
+      const asDeployer = await walletFactory.cost()
+      const stranger = (await localnet.context.generateAccount({ initialFunds: (1).algos() })).toString()
+      const asStranger = await walletFactory.cost({ sender: stranger })
+      expect(asDeployer).toBe(base + createFee)
+      expect(asStranger).toBe(asDeployer)
+    })
+
+    test('a referrer argument (any address, not a wallet) is paid its cut out of the creation fee', async () => {
+      const createFee = 200_000n // 40,000 cut + 79,800 referral MBR fit
+      await setWalletFees(createFee)
+      const referrer = randomAccount().addr.toString()
+      const cut = (createFee * REFERRER_PERCENTAGE) / 100_000n
+
+      const { wallet, rewardsDelta, escrowDelta } = await createAndMeasure(referrer)
+
+      // cut + its disbursement MBR land in the rewards app; the DAO keeps the rest of the fee
+      expect(rewardsDelta).toBe(cut + DISBURSEMENT_MBR)
+      expect(escrowDelta).toBe(createFee - cut - DISBURSEMENT_MBR)
+      expect(await wallet.client.state.global.referrer()).toBe(referrer)
+    })
+
+    test('no cut when the fee cannot cover cut + disbursement MBR (no underflow)', async () => {
+      // one below the threshold: 19,949 cut + 79,800 MBR = 99,749 > 99,748 (the v1 MBR would have paid the cut)
+      const createFee = 99_748n
+      await setWalletFees(createFee)
+      const referrer = randomAccount().addr.toString()
+
+      const { rewardsDelta, escrowDelta } = await createAndMeasure(referrer)
+
+      expect(rewardsDelta).toBe(0n)
+      expect(escrowDelta).toBe(createFee)
+    })
+
+    test('boundary: a fee exactly equal to cut + disbursement MBR pays the cut and leaves the DAO nothing', async () => {
+      // fee = 0.2 * fee + 79,800  =>  fee = 99,750
+      const createFee = 99_750n
+      await setWalletFees(createFee)
+      const referrer = randomAccount().addr.toString()
+
+      const { rewardsDelta, escrowDelta } = await createAndMeasure(referrer)
+
+      expect(rewardsDelta).toBe(createFee)
+      expect(escrowDelta).toBe(0n)
+    })
+
+    test('an unclaimed creation referral is swept to the factory\'s DAO escrow after 30 days; a claimed one only returns its MBR', async () => {
+      const { algorand } = localnet
+      const createFee = 1_000_000n
+      await setWalletFees(createFee)
+      const cut = (createFee * REFERRER_PERCENTAGE) / 100_000n
+      const rewards = new RewardsSDK({ algorand, factoryParams: { appId: universe.rewards.appId, defaultSender: localnet.context.testAccount.toString(), defaultSigner: localnet.context.testAccount.signer } })
+      const claimer = await localnet.context.generateAccount({ initialFunds: (1).algos() })
+      const keeper = await localnet.context.generateAccount({ initialFunds: (1).algos() })
+      const escrowAddress = await daoEscrowAddress()
+
+      const { disbursementId: claimed } = await rewards.getState()
+      await createAndMeasure(claimer.addr.toString())
+      const unclaimed = claimed + 1n
+      await createAndMeasure(randomAccount().addr.toString())
+      for (const id of [claimed, unclaimed]) {
+        expect(await rewards.getReclaimTarget({ id })).toBe(escrowAddress)
+        expect((await rewards.getDisbursement({ id })).creator).toBe(walletFactory.client.appAddress.toString())
+      }
+
+      const timeWarp = new TimeWarp(algorand)
+      await timeWarp.timeWarp(29n * 86_400n)
+      await rewards.claimRewards({ sender: claimer.addr, signer: claimer.signer, rewards: [{ id: claimed, asset: 0n }] })
+      await timeWarp.timeWarp(2n * 86_400n)
+
+      let before = await balanceOf(escrowAddress)
+      await rewards.sweepExpired({ sender: keeper.addr, signer: keeper.signer, id: unclaimed })
+      expect(await balanceOf(escrowAddress) - before).toBe(cut + DISBURSEMENT_MBR)
+
+      before = await balanceOf(escrowAddress)
+      await rewards.sweepExpired({ sender: keeper.addr, signer: keeper.signer, id: claimed })
+      expect(await balanceOf(escrowAddress) - before).toBe(DISBURSEMENT_MBR)
+    })
+
+    test('the zero referrer pays no cut; the whole fee goes to the DAO escrow', async () => {
+      const createFee = 100_000n
+      await setWalletFees(createFee)
+
+      const { rewardsDelta, escrowDelta } = await createAndMeasure(ALGORAND_ZERO_ADDRESS_STRING)
+
+      expect(rewardsDelta).toBe(0n)
+      expect(escrowDelta).toBe(createFee)
+    })
+
+    test('cost() ignores the payer\'s registered wallet referrer (no registry lookup)', async () => {
+      const createFee = 100_000n
+      await setWalletFees(0n)
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+      // a REGISTERED wallet with a referrer: legacy cost() added a disbursement MBR for this caller
+      const payer = await newWallet({
+        factoryParams: { appId: walletFactory.appId, defaultSender: sender, defaultSigner: testAccount.signer },
+        readerAccount: sender,
+        algorand,
+        nickname: 'registered_payer',
+        referrer: randomAccount().addr.toString(),
+        register: true,
+      })
+      expect(await universe.escrowFactory.exists({ args: { address: payer.client.appAddress.toString() } })).toBe(true)
+      // the simulated cost() call is sent from the payer's app account: give it fee headroom
+      await payer.client.appClient.fundAppAccount({ amount: (1).algos() })
+      await setWalletFees(createFee)
+
+      expect(await walletFactory.cost({ sender: payer.client.appAddress.toString() })).toBe(await walletFactory.cost())
     })
   })
 })

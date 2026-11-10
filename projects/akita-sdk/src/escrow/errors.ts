@@ -10,13 +10,13 @@
  * message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Escrow contracts
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const ESCROW_ERROR_MESSAGES: Record<string, string> = {
+export const ESCROW_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Escrow lifecycle ---------------------------------------------------
   OCCR: 'Only the creator can rekey a spend contract',
   OAPP: 'Only applications can create spending accounts',
@@ -28,7 +28,7 @@ export const ESCROW_ERROR_MESSAGES: Record<string, string> = {
   EREG: 'Escrow is already registered',
   ICRE: 'Invalid creator',
   NACT: 'Account not found',
-}
+})
 
 /**
  * Translates a short Escrow error code (or raw ARC-65 log entry) into a

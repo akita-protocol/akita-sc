@@ -5,16 +5,19 @@
  * failing, where `code` is one of the short alphanumeric tags in this file.
  * Keep this in sync with `akita-sc/smart_contracts/arc58/account/errors.ts` —
  * the short codes are the shared wire format between contract and SDK.
+ * Tables include both current camelCase codes and legacy uppercase aliases.
  *
  * Use `translateWalletError(code)` to turn a code back into a human-readable
  * message for display in a UI or log.
  */
 
+import { withErrorCodeAliases } from '../errors'
+
 /**
  * Short code → human-readable message for every error the AbstractedAccount
  * contracts can emit. Ordered roughly the same way as the contract-side file.
  */
-export const WALLET_ERROR_MESSAGES: Record<string, string> = {
+export const WALLET_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Admin / authorization ---------------------------------------------
   ADMN: 'Admin only',
   FORB: 'Forbidden',
@@ -50,6 +53,9 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = {
   ENPL: 'A plugin with this name already exists',
   PEXP: 'Plugin has expired',
   PCLD: 'Plugin is on cooldown',
+  CFCD: 'Fee-covering plugins need a cooldown and a specific caller (or an execution key)',
+  CNAP: 'An external controlled address must rekey itself to the factory in the same group',
+  NWAL: 'Not a wallet created by this factory',
   IPCL: 'Invalid plugin call',
   SNAP: 'This sender is not allowed to trigger this plugin',
   PDCW: 'This plugin is not in control of the account',
@@ -57,6 +63,7 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = {
   APNE: 'Admin plugins cannot use escrows',
   ZADT: 'Delegation type must not be self for global plugins',
   UEKG: 'Using an execution key requires a global plugin',
+  CFGL: 'A plugin anyone can call cannot cover fees; give fee cover to a specific caller',
 
   // --- Methods ------------------------------------------------------------
   NMTH: 'Method does not exist',
@@ -140,7 +147,8 @@ export const WALLET_ERROR_MESSAGES: Record<string, string> = {
   IMMD: 'Migrated receive-escrow metadata is invalid',
   OVAL: 'Revenue split over-allocates the available balance',
   CAME: 'Controlled address does not match the named receive escrow',
-}
+  NNOW: 'NFD is not owned by the wallet spending account',
+})
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */
 const ARC65_PREFIX = 'ERR:'

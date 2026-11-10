@@ -19,7 +19,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, Contract, decodeArc4, methodSelector, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { btoi, Global, len, Txn, Box } from '@algorandfoundation/algorand-typescript/op'
+import { btoi, Global, len, Txn } from '@algorandfoundation/algorand-typescript/op'
 import {
   AbstractAccountBoxPrefixAllowances,
   AbstractAccountBoxPrefixDomainKeys,
@@ -57,60 +57,65 @@ import {
   MinPluginMBR
 } from './constants'
 import {
-  ERR_ADMIN_CANNOT_BE_CONTROLLED,
-  ERR_ADMIN_ONLY,
-  ERR_ADMIN_PLUGINS_CANNOT_USE_ESCROWS,
-  ERR_ALLOWANCE_ALREADY_EXISTS,
-  ERR_ALLOWANCE_DOES_NOT_EXIST,
-  ERR_ALLOWANCE_EXCEEDED,
-  ERR_AUTH_ADDR_MISMATCH,
-  ERR_BAD_DEPLOYER,
-  ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY,
-  ERR_ESCROW_ALREADY_EXISTS,
-  ERR_ESCROW_DOES_NOT_EXIST,
-  ERR_ESCROW_LOCKED,
-  ERR_ESCROW_NAME_REQUIRED,
-  ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT,
-  ERR_EXECUTION_EXPIRED,
-  ERR_EXECUTION_KEY_NOT_FOUND,
-  ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_FIRST_VALID,
-  ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_LAST_VALID,
-  ERR_EXECUTION_NOT_READY,
-  ERR_FORBIDDEN,
-  ERR_GROUP_NOT_FOUND,
-  ERR_INVALID_METHOD_SIGNATURE_LENGTH,
-  ERR_INVALID_ONCOMPLETE,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_SENDER_ARG,
-  ERR_INVALID_SENDER_VALUE,
-  ERR_MALFORMED_OFFSETS,
-  ERR_METHOD_ON_COOLDOWN,
-  ERR_MISSING_REKEY_BACK,
-  ERR_ONLY_ADMIN_CAN_ADD_PLUGIN,
-  ERR_ONLY_ADMIN_CAN_UPDATE,
-  ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_METHOD_RESTRICTION,
-  ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN,
-  ERR_PLUGIN_ALREADY_EXISTS,
-  ERR_PLUGIN_DOES_NOT_EXIST,
-  ERR_PLUGIN_DOES_NOT_CONTROL_WALLET,
-  ERR_PLUGIN_DOES_NOT_HAVE_ADMIN_PRIVILEGES,
-  ERR_PLUGIN_EXPIRED,
-  ERR_PLUGIN_ON_COOLDOWN,
-  ERR_SENDER_MUST_BE_ADMIN_PLUGIN,
-  ERR_USING_EXECUTION_KEY_REQUIRES_GLOBAL,
-  ERR_ZERO_ADDRESS_DELEGATION_TYPE,
+  errAdminCannotBeControlled,
+  errAdminOnly,
+  errAdminPluginsCannotUseEscrows,
+  errAllowanceAlreadyExists,
+  errAllowanceDoesNotExist,
+  errAllowanceExceeded,
+  errAuthAddrMismatch,
+  errBadDeployer,
+  errCannotCallOtherAppsDuringRekey,
+  errEscrowAlreadyExists,
+  errEscrowDoesNotExist,
+  errEscrowLocked,
+  errEscrowNameRequired,
+  errEscrowRequiredToBeSetAsDefault,
+  errExecutionExpired,
+  errExecutionKeyNotFound,
+  errExecutionKeyUpdateMustMatchFirstValid,
+  errExecutionKeyUpdateMustMatchLastValid,
+  errExecutionNotReady,
+  errForbidden,
+  errGroupNotFound,
+  errInvalidMethodSignatureLength,
+  errInvalidOncomplete,
+  errInvalidPayment,
+  errInvalidSenderArg,
+  errInvalidSenderValue,
+  errMalformedOffsets,
+  errMethodOnCooldown,
+  errMissingRekeyBack,
+  errOnlyAdminCanAddPlugin,
+  errOnlyAdminCanUpdate,
+  errOnlyAdminOrRevocationAppCanRemoveMethodRestriction,
+  errOnlyAdminOrRevocationAppCanRemovePlugin,
+  errPluginAlreadyExists,
+  errPluginDoesNotExist,
+  errPluginDoesNotControlWallet,
+  errPluginDoesNotHaveAdminPrivileges,
+  errPluginExpired,
+  errPluginOnCooldown,
+  errSenderMustBeAdminPlugin,
+  errUsingExecutionKeyRequiresGlobal,
+  errCoverFeesRequiresCaller,
+  errZeroAddressDelegationType,
+  errInvalidPluginVersion,
 } from './errors'
 
 import { GlobalStateKeyAkitaDAO, GlobalStateKeyRevocation, GlobalStateKeyVersion } from '../../constants'
 import { ARC58WalletIDsByAccountsMbr, NewCostForARC58 } from '../../escrow/constants'
 import { BoxCostPerByte } from '../../utils/constants'
-import { AddAllowanceInfo, AllowanceInfo, AllowanceKey, CallerTypeAdmin, CallerTypeGlobal, DelegationTypeSelf, EscrowInfo, EscrowReclaim, ExecutionInfo, FactoryUpdateSettings, FundsRequest, MethodInfo, MethodRestriction, MethodValidation, OldEscrowInfo, PluginInfo, PluginKey, PluginValidation, SpendAllowanceTypeDrip, SpendAllowanceTypeFlat, SpendAllowanceTypeWindow } from './types'
+import { AddAllowanceInfo, AllowanceInfo, AllowanceKey, CallerTypeAdmin, CallerTypeGlobal, DelegationTypeSelf, EscrowInfo, EscrowReclaim, ExecutionInfo, FactoryUpdateSettings, FundsRequest, MethodInfo, MethodRestriction, MethodValidation, PluginInfo, PluginKey, PluginValidation, SpendAllowanceTypeDrip, SpendAllowanceTypeFlat, SpendAllowanceTypeWindow } from './types'
 import { emptyAllowanceInfo, emptyEscrowInfo, emptyExecutionInfo, emptyPluginInfo } from './utils'
 
 // CONTRACT IMPORTS
 import type { EscrowFactory } from '../../escrow/factory.algo'
 
+// A-7 / ACC-10e: reserve 30 bytes + 12 uints of global state (as on mainnet wallets) so future
+// wallet upgrades can add state without a schema change.
 @contract({
+  avmVersion: 13,
   stateTotals: {
     globalBytes: AbstractAccountNumGlobalBytes,
     globalUints: AbstractAccountNumGlobalUints
@@ -209,57 +214,64 @@ export class AbstractedAccount extends Contract {
 
   /** Admin-only gate used at ~6 call sites. */
   private _requireAdmin(): void {
-    loggedAssert(this.isAdmin(), ERR_ADMIN_ONLY)
+    loggedAssert(this.isAdmin(), errAdminOnly)
   }
 
   /** Gate used by the plugin and named-plugin remove paths. */
   private _requireAdminOrRevoke(): void {
-    loggedAssert(this.isAdmin() || this.canRevoke(), ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_PLUGIN)
+    loggedAssert(this.isAdmin() || this.canRevoke(), errOnlyAdminOrRevocationAppCanRemovePlugin)
   }
 
   /** Box existence check for an escrow, used at ~8 call sites. */
   private _requireEscrow(escrow: string): void {
-    loggedAssert(this.escrows(escrow).exists, ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(this.escrows(escrow).exists, errEscrowDoesNotExist)
   }
 
   /** "Not locked" guard on an escrow, used at 4 call sites. */
   private _requireUnlockedEscrow(escrow: string): void {
-    loggedAssert(!this.escrows(escrow).value.locked, ERR_ESCROW_LOCKED)
+    loggedAssert(!this.escrows(escrow).value.locked, errEscrowLocked)
   }
 
   /** Plugin-box existence check, used at ~5 call sites. */
   private _requirePlugin(key: PluginKey): void {
-    loggedAssert(this.plugins(key).exists, ERR_PLUGIN_DOES_NOT_EXIST)
+    loggedAssert(this.plugins(key).exists, errPluginDoesNotExist)
   }
 
   private _requireExecution(lease: bytes<32>): void {
-    loggedAssert(this.executions(lease).exists, ERR_EXECUTION_KEY_NOT_FOUND)
+    loggedAssert(this.executions(lease).exists, errExecutionKeyNotFound)
   }
 
   private _requireAllowance(key: AllowanceKey): void {
-    loggedAssert(this.allowances(key).exists, ERR_ALLOWANCE_DOES_NOT_EXIST)
+    loggedAssert(this.allowances(key).exists, errAllowanceDoesNotExist)
   }
 
   private _requireAllowanceAmount(available: uint64, requested: uint64): void {
-    loggedAssert(available >= requested, ERR_ALLOWANCE_EXCEEDED)
+    loggedAssert(available >= requested, errAllowanceExceeded)
   }
 
   private _requirePluginReady(expired: boolean, onCooldown: boolean): void {
-    loggedAssert(!expired, ERR_PLUGIN_EXPIRED)
-    loggedAssert(!onCooldown, ERR_PLUGIN_ON_COOLDOWN)
+    loggedAssert(!expired, errPluginExpired)
+    loggedAssert(!onCooldown, errPluginOnCooldown)
   }
 
   private _requireForbiddenAdmin(): void {
-    loggedAssert(this.isAdmin(), ERR_FORBIDDEN)
+    loggedAssert(this.isAdmin(), errForbidden)
   }
 
-  private _requirePluginCaller(plugin: uint64, caller: Account): void {
+  /**
+   * ACC-04: plugin-scoped escrow operations outside a rekey window.
+   * Allowed for the plugin app itself or the grant's specific caller. A global (zero-caller)
+   * grant is usable by any sender only when `allowGlobal` (sponsored opt-ins); reclaims never.
+   * Expired grants are rejected.
+   */
+  private _requirePluginCaller(key: PluginKey, allowGlobal: boolean): void {
     loggedAssert(
-      Txn.sender === Application(plugin).address ||
-      Txn.sender === caller ||
-      caller === Global.zeroAddress,
-      ERR_FORBIDDEN
+      Txn.sender === Application(key.plugin).address ||
+      (key.caller !== Global.zeroAddress && Txn.sender === key.caller) ||
+      (allowGlobal && key.caller === Global.zeroAddress),
+      errForbidden
     )
+    loggedAssert(!this.pluginCheck(key).expired, errPluginExpired)
   }
 
   /** MBR payment from the controlled address to the contract (plugin/allowance/escrow/domain adds). */
@@ -318,9 +330,8 @@ export class AbstractedAccount extends Contract {
   }
 
   private deleteExecution(lease: bytes<32>, groups: uint64): void {
-    const executionMbr = this.executionsMbr(groups)
     this.executions(lease).delete()
-    this._refundMbrToControlled(executionMbr)
+    this._refundMbrToControlled(this.executionsMbr(groups))
   }
 
   private domainKeysMbr(domain: string): uint64 {
@@ -355,7 +366,7 @@ export class AbstractedAccount extends Contract {
       }).returnValue
       address = Application(id).address
     } else {
-      loggedAssert(address.authAddress === Global.currentApplicationAddress, ERR_AUTH_ADDR_MISMATCH)
+      loggedAssert(address.authAddress === Global.currentApplicationAddress, errAuthAddrMismatch)
       id = 0
     }
 
@@ -366,10 +377,12 @@ export class AbstractedAccount extends Contract {
 
   /** @returns whether or not the caller is an admin on the wallet */
   private isAdmin(): boolean {
-    return (
-      Txn.sender === this.admin.value ||
-      (this.domainKeys(Txn.sender).exists && this.domainKeys(Txn.sender).value === this.domain.value)
-    )
+    if (Txn.sender === this.admin.value) {
+      return true
+    }
+    // ACC-06: an empty wallet domain disables every co-admin key (set by admin-plugin recovery).
+    const domain = this.domain.value
+    return domain !== '' && this.domainKeys(Txn.sender).exists && this.domainKeys(Txn.sender).value === domain
   }
 
   /** @returns whether the caller is the revocation app address */
@@ -379,49 +392,39 @@ export class AbstractedAccount extends Contract {
 
   /** Resolve the plugin caller address from a CallerType enum value */
   private resolveCallerType(type: uint64, address: Account): Account {
+    assert(type <= CallerTypeAdmin)
     if (type === CallerTypeGlobal) return Global.zeroAddress
-    if (type === CallerTypeAdmin) return Global.currentApplicationAddress
+    if (type === CallerTypeAdmin) {
+      this._requireAdmin()
+      return Global.currentApplicationAddress
+    }
     return address
   }
 
   private pluginCallAllowed(plugin: uint64, caller: Account, escrow: string, method: bytes<4>): boolean {
     const key: PluginKey = { plugin, caller, escrow }
+    const { exists, expired, onCooldown } = this.pluginCheck(key)
 
-    if (!this.plugins(key).exists) {
-      return false;
-    }
-
-    const { methods, useRounds, lastCalled, cooldown, useExecutionKey } = this.plugins(key).value as Readonly<PluginInfo>
-
-    if (useExecutionKey) {
+    if (!exists || expired || onCooldown) {
       return false
     }
 
-    let methodAllowed = methods.length > 0 ? false : true;
+    const { methods, useRounds, useExecutionKey } = this.plugins(key).value as Readonly<PluginInfo>
+
+    const epochRef = useRounds ? Global.round : Global.latestTimestamp
+    let methodAllowed = methods.length === 0
     for (let i: uint64 = 0; i < methods.length; i += 1) {
       if (methods[i].selector === method) {
-        methodAllowed = true;
-        break;
+        methodAllowed = !this.isOnCooldown(epochRef, methods[i].lastCalled, methods[i].cooldown)
+        break
       }
     }
 
-    const epochRef = useRounds ? Global.round : Global.latestTimestamp;
-
-    return (
-      !this.isOnCooldown(epochRef, lastCalled, cooldown) &&
-      methodAllowed
-    )
+    return !useExecutionKey && methodAllowed
   }
 
-  private txnRekeysBack(txn: gtxn.Transaction): boolean {
-    // this check is for manual rekeyTo calls, it only ever uses the controlled address so its okay to hardcode it here
-    if (
-      txn.sender === this.controlledAddress.value &&
-      txn.rekeyTo === Global.currentApplicationAddress
-    ) {
-      return true;
-    }
-
+  /** whether `txn` is this wallet's own `arc58_verifyAuthAddress()` call */
+  private isVerifyAuthCall(txn: gtxn.Transaction): boolean {
     return (
       txn.type === TransactionType.ApplicationCall
       && txn.appId === Global.currentApplicationId
@@ -431,18 +434,27 @@ export class AbstractedAccount extends Contract {
     )
   }
 
+  /**
+   * Flash `arc58_rekeyTo` return (Q2 / R-STALE). Accepted: the controlled address rekeying itself
+   * back to this app, or `arc58_verifyAuthAddress` while it verifies the controlled address
+   * (spending == controlled). A verifyAuthAddress that closes an escrow window leaves the controlled
+   * address with the flash target, so it no longer counts as a flash return.
+   */
   private assertRekeysBack(): void {
     let rekeysBack = false;
     for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
       const txn = gtxn.Transaction(i)
 
-      if (this.txnRekeysBack(txn)) {
+      if (
+        (txn.sender === this.controlledAddress.value && txn.rekeyTo === Global.currentApplicationAddress)
+        || (this.spendingAddress.value === this.controlledAddress.value && this.isVerifyAuthCall(txn))
+      ) {
         rekeysBack = true;
         break;
       }
     }
 
-    loggedAssert(rekeysBack, ERR_MISSING_REKEY_BACK);
+    loggedAssert(rekeysBack, errMissingRekeyBack);
   }
 
   private isOnCooldown(epochRef: uint64, lastCalled: uint64, cooldown: uint64): boolean {
@@ -493,8 +505,8 @@ export class AbstractedAccount extends Contract {
     if (useExecutionKey && !this.isAdmin()) {
       this._requireExecution(Txn.lease)
       const execution = clone(this.executions(Txn.lease).value)
-      loggedAssert(execution.firstValid <= Global.round, ERR_EXECUTION_NOT_READY);
-      loggedAssert(execution.lastValid >= Global.round, ERR_EXECUTION_EXPIRED);
+      loggedAssert(execution.firstValid <= Global.round, errExecutionNotReady);
+      loggedAssert(execution.lastValid >= Global.round, errExecutionExpired);
 
       const groups = clone(execution.groups) as Readonly<bytes<32>[]>;
 
@@ -505,7 +517,7 @@ export class AbstractedAccount extends Contract {
         }
       }
 
-      loggedAssert(foundGroup, ERR_GROUP_NOT_FOUND);
+      loggedAssert(foundGroup, errGroupNotFound);
       this.deleteExecution(Txn.lease, groups.length)
     }
 
@@ -524,7 +536,10 @@ export class AbstractedAccount extends Contract {
     for (let i: uint64 = (Txn.groupIndex + 1); i < Global.groupSize; i += 1) {
       const txn = gtxn.Transaction(i)
 
-      if (this.txnRekeysBack(txn)) {
+      // Q2 (R-STALE): only arc58_verifyAuthAddress closes a window. It clears spending_address and
+      // current_plugin; the old controlled-address shortcut (an outer txn from the controlled address
+      // rekeying it back) left both stale, so the plugin kept passing as the window holder later.
+      if (this.isVerifyAuthCall(txn)) {
         rekeysBack = true;
         break;
       }
@@ -533,28 +548,30 @@ export class AbstractedAccount extends Contract {
         continue;
       }
 
-      loggedAssert(txn.appId.id === key.plugin, ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY);
-      loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_ONCOMPLETE);
+      loggedAssert(txn.appId.id === key.plugin, errCannotCallOtherAppsDuringRekey);
+      // AppVersion counts updates: a newly created plugin has version 0.
+      loggedAssert(txn.appId.version === 0, errInvalidPluginVersion);
+      loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, errInvalidOncomplete);
       // ensure the first arg to a method call is the app id itself
       // index 1 is used because arg[0] is the method selector
-      loggedAssert(txn.numAppArgs > 1, ERR_INVALID_SENDER_ARG);
-      loggedAssert(Application(btoi(txn.appArgs(1))) === Global.currentApplicationId, ERR_INVALID_SENDER_VALUE);
+      loggedAssert(txn.numAppArgs > 1, errInvalidSenderArg);
+      loggedAssert(Application(btoi(txn.appArgs(1))) === Global.currentApplicationId, errInvalidSenderValue);
 
       const { expired, onCooldown, hasMethodRestrictions } = this.pluginCheck(key);
 
       this._requirePluginReady(expired, onCooldown)
 
       if (hasMethodRestrictions) {
-        loggedAssert(methodIndex < methodOffsets.length, ERR_MALFORMED_OFFSETS);
+        loggedAssert(methodIndex < methodOffsets.length, errMalformedOffsets);
         const { methodAllowed, methodOnCooldown } = this.methodCheck(key, txn, methodOffsets[methodIndex]);
-        loggedAssert(methodAllowed && !methodOnCooldown, ERR_METHOD_ON_COOLDOWN);
+        loggedAssert(methodAllowed && !methodOnCooldown, errMethodOnCooldown);
       }
 
       this.plugins(key).value.lastCalled = epochRef
       methodIndex += 1;
     }
 
-    loggedAssert(rekeysBack, ERR_MISSING_REKEY_BACK);
+    loggedAssert(rekeysBack, errMissingRekeyBack);
   }
 
   /**
@@ -567,7 +584,7 @@ export class AbstractedAccount extends Contract {
   */
   private methodCheck(key: PluginKey, txn: gtxn.ApplicationCallTxn, offset: uint64): MethodValidation {
 
-    loggedAssert(len(txn.appArgs(0)) === 4, ERR_INVALID_METHOD_SIGNATURE_LENGTH)
+    loggedAssert(len(txn.appArgs(0)) === 4, errInvalidMethodSignatureLength)
     const selectorArg = txn.appArgs(0).toFixed({ length: 4 })
 
     const { useRounds } = this.plugins(key).value
@@ -699,19 +716,31 @@ export class AbstractedAccount extends Contract {
         this.allowances(key).value.spent += fundRequest.amount
       }
     } else if (type === SpendAllowanceTypeDrip) {
-      const epochRef = useRounds ? Global.round : Global.latestTimestamp;
       // Legacy allowance boxes used `last = 0`. Anchor those at their recorded
       // creation epoch instead of treating the chain epoch as accrued time.
       const accrualStart: uint64 = last === 0 ? start : last
-      const passed: uint64 = epochRef - accrualStart
       // in this context:
-      // amount represents our accrual rate
-      // spent represents the last leftover amount available
-      const accrued: uint64 = spent + ((passed / interval) * amount)
-      const available: uint64 = accrued > max ? max : accrued
+      // amount represents our accrual rate (per interval)
+      // spent represents the leftover bucket at `last`
+      const intervals: uint64 = (newLast - accrualStart) / interval
+      let available: uint64 = spent < max ? spent : max
+      if (amount > 0 && intervals > 0) {
+        // ACC-03: saturate at `max` without computing intervals * amount when it would exceed
+        // the headroom (intervals * amount > headroom  <=>  intervals > headroom / amount).
+        const headroom: uint64 = max - available
+        if (intervals > headroom / amount) {
+          available = max
+        } else {
+          available += intervals * amount
+        }
+      }
 
       this._requireAllowanceAmount(available, fundRequest.amount)
       this.allowances(key).value.spent = (available - fundRequest.amount)
+      // ACC-03: advance only by whole intervals so the partial interval keeps accruing;
+      // frequent (or zero-amount) requests can no longer erase accrual.
+      this.allowances(key).value.last = accrualStart + (intervals * interval)
+      return
     }
     this.allowances(key).value.last = newLast
   }
@@ -748,6 +777,8 @@ export class AbstractedAccount extends Contract {
    * @param revocationApp The app ID of the revocation app associated with this abstracted account
    * @param nickname A user-friendly name for this abstracted account
    * @param referrer The address that referred the creation of this wallet
+   * @param salt Pseudo random function extension salt
+   * @param automaticUpdates Whether anyone may trigger factory-pushed updates (else only the admin)
   */
   @abimethod({ onCreate: 'require' })
   create(
@@ -760,10 +791,11 @@ export class AbstractedAccount extends Contract {
     revocationApp: uint64,
     nickname: string,
     referrer: Account,
-    salt: bytes<32>
+    salt: bytes<32>,
+    automaticUpdates: boolean
   ): void {
-    loggedAssert(Global.callerApplicationId !== 0, ERR_BAD_DEPLOYER)
-    loggedAssert(admin !== controlledAddress, ERR_ADMIN_CANNOT_BE_CONTROLLED)
+    loggedAssert(Global.callerApplicationId !== 0, errBadDeployer)
+    loggedAssert(admin !== controlledAddress, errAdminCannotBeControlled)
 
     this.version.value = version
     this.akitaDAO.value = Application(akitaDAO)
@@ -779,7 +811,7 @@ export class AbstractedAccount extends Contract {
     this.nickname.value = nickname
     this.factoryApp.value = Application(Global.callerApplicationId)
     this.referrer.value = referrer
-    this.factoryUpdateSettings.value = { allowed: true, automatic: true }
+    this.factoryUpdateSettings.value = { allowed: true, automatic: automaticUpdates }
     this.salt.value = salt
 
     this._touchState()
@@ -820,7 +852,7 @@ export class AbstractedAccount extends Contract {
         this.isAdmin() ||
         (this.factoryUpdateSettings.value.allowed && Txn.sender === this.factoryApp.value.address)
       ),
-      ERR_ONLY_ADMIN_CAN_UPDATE
+      errOnlyAdminCanUpdate
     )
     this.version.value = version
   }
@@ -915,6 +947,8 @@ export class AbstractedAccount extends Contract {
   */
   arc58_changeAdmin(newAdmin: Account): void {
     this._requireAdmin();
+    // ACC-10a: the controlled address is rekeyed to this app and can never sign as admin
+    loggedAssert(newAdmin !== this.controlledAddress.value, errAdminCannotBeControlled)
     this.admin.value = newAdmin;
     this._touchState()
   }
@@ -929,19 +963,23 @@ export class AbstractedAccount extends Contract {
     const key = clone(this.currentPlugin.value)
     const { plugin, escrow } = key
 
-    loggedAssert(escrow === '', ERR_ADMIN_PLUGINS_CANNOT_USE_ESCROWS);
-    loggedAssert(Txn.sender === Application(plugin).address, ERR_SENDER_MUST_BE_ADMIN_PLUGIN);
+    loggedAssert(escrow === '', errAdminPluginsCannotUseEscrows);
+    loggedAssert(Txn.sender === Application(plugin).address, errSenderMustBeAdminPlugin);
     loggedAssert(
       this.controlledAddress.value.authAddress === Application(plugin).address,
-      ERR_PLUGIN_DOES_NOT_CONTROL_WALLET
+      errPluginDoesNotControlWallet
     );
 
     loggedAssert(
       this.plugins(key).exists && this.plugins(key).value.admin,
-      ERR_PLUGIN_DOES_NOT_HAVE_ADMIN_PRIVILEGES
+      errPluginDoesNotHaveAdminPrivileges
     );
 
+    loggedAssert(newAdmin !== this.controlledAddress.value, errAdminCannotBeControlled)
     this.admin.value = newAdmin;
+    // ACC-06 / A-4: an admin-plugin admin change is a recovery path; invalidate every co-admin
+    // passkey. The new admin re-enables trusted keys with setDomain (+ assignDomain).
+    this.domain.value = ''
     if (this.plugins(key).value.delegationType === DelegationTypeSelf) {
       this.updateLastUserInteraction();
     }
@@ -952,7 +990,7 @@ export class AbstractedAccount extends Contract {
    * Verify the abstracted account is rekeyed to this app
   */
   arc58_verifyAuthAddress(): void {
-    loggedAssert(this.spendingAddress.value.authAddress === this.getAuthAddress(), ERR_AUTH_ADDR_MISMATCH);
+    loggedAssert(this.spendingAddress.value.authAddress === this.getAuthAddress(), errAuthAddrMismatch);
     this.spendingAddress.value = Global.zeroAddress
     this.currentPlugin.value = { plugin: 0, caller: Global.currentApplicationAddress, escrow: '' }
     this.rekeyIndex.value = 0
@@ -971,8 +1009,7 @@ export class AbstractedAccount extends Contract {
       .payment({
         sender: this.controlledAddress.value,
         receiver: address,
-        rekeyTo: address,
-        note: 'rekeying abstracted account'
+        rekeyTo: address
       })
       .submit();
 
@@ -1023,11 +1060,6 @@ export class AbstractedAccount extends Contract {
     const caller = this.resolveCallerType(type, Txn.sender)
     const key: PluginKey = { plugin, caller, escrow }
 
-    // Admin-scoped plugins require the caller to actually be the admin
-    if (type === CallerTypeAdmin) {
-      this._requireAdmin()
-    }
-
     this._requirePlugin(key)
     this.currentPlugin.value = clone(key)
     const { escrow: escrowID } = this.plugins(key).value
@@ -1044,8 +1076,10 @@ export class AbstractedAccount extends Contract {
 
     this.assertValidGroup(key, methodOffsets)
 
-    // Reimburse caller for fees if plugin has coverFees enabled
-    if (this.plugins(key).value.coverFees) {
+    // Reimburse caller for fees if plugin has coverFees enabled.
+    // ACC-02: Txn.fee is caller-chosen, so only reimburse a top-level call (no inner-group
+    // amplification).
+    if (this.plugins(key).value.coverFees && Global.callerApplicationId === 0) {
       // Cap at protocol max inner + outer transactions
       const maxFee: uint64 = (MAX_INNER_TXN_COUNT + MAX_OUTER_TXN_COUNT) * Global.minTxnFee
       const reimbursement = Txn.fee < maxFee ? Txn.fee : maxFee
@@ -1055,8 +1089,7 @@ export class AbstractedAccount extends Contract {
           sender: this.spendingAddress.value,
           receiver: Txn.sender,
           amount: reimbursement,
-          rekeyTo: pluginApp.address,
-          note: 'rekeying to plugin app & reimbursing caller'
+          rekeyTo: pluginApp.address
         })
         .submit()
     } else {
@@ -1064,8 +1097,7 @@ export class AbstractedAccount extends Contract {
         .payment({
           sender: this.spendingAddress.value,
           receiver: this.spendingAddress.value,
-          rekeyTo: pluginApp.address,
-          note: 'rekeying to plugin app'
+          rekeyTo: pluginApp.address
         })
         .submit();
     }
@@ -1140,7 +1172,7 @@ export class AbstractedAccount extends Contract {
 
     const isNamed = name !== ''
     if (isNamed) {
-      loggedAssert(!this.namedPlugins(name).exists, ERR_PLUGIN_ALREADY_EXISTS)
+      loggedAssert(!this.namedPlugins(name).exists, errPluginAlreadyExists)
     }
 
     loggedAssert(
@@ -1148,25 +1180,28 @@ export class AbstractedAccount extends Contract {
         delegationType === DelegationTypeSelf &&
         caller === Global.zeroAddress
       ),
-      ERR_ZERO_ADDRESS_DELEGATION_TYPE
+      errZeroAddressDelegationType
     )
     loggedAssert(
       !(
         useExecutionKey &&
         caller !== Global.zeroAddress
       ),
-      ERR_USING_EXECUTION_KEY_REQUIRES_GLOBAL
+      errUsingExecutionKeyRequiresGlobal
     )
+    // ACC-02: a grant anyone can call may not reimburse fees. The caller sets its own fee, so an open
+    // grant would let anyone drain the spending account (and grants never change caller or coverFees).
+    loggedAssert(!(coverFees && caller === Global.zeroAddress), errCoverFeesRequiresCaller)
 
     let escrowKey: string = escrow
     if (defaultToEscrow) {
-      loggedAssert(escrow !== '', ERR_ESCROW_REQUIRED_TO_BE_SET_AS_DEFAULT)
+      loggedAssert(escrow !== '', errEscrowRequiredToBeSetAsDefault)
       escrowKey = ''
     }
 
     const key: PluginKey = { plugin, caller, escrow: escrowKey }
 
-    loggedAssert(!this.plugins(key).exists, ERR_PLUGIN_ALREADY_EXISTS)
+    loggedAssert(!this.plugins(key).exists, errPluginAlreadyExists)
 
     let methodInfos: MethodInfo[] = []
     for (let i: uint64 = 0; i < methods.length; i += 1) {
@@ -1264,11 +1299,18 @@ export class AbstractedAccount extends Contract {
    * @param domain The domain to assign to the passkey
   */
   assignDomain(caller: Account, domain: string): void {
-    loggedAssert(this.isAdmin(), ERR_ONLY_ADMIN_CAN_ADD_PLUGIN)
+    loggedAssert(this.isAdmin(), errOnlyAdminCanAddPlugin)
 
-    this._payMbrFromControlled(this.domainKeysMbr(domain))
+    // ACC-06: overwriting or revoking refunds the existing key's MBR; an empty domain revokes.
+    if (this.domainKeys(caller).exists) {
+      this._refundMbrToControlled(this.domainKeysMbr(this.domainKeys(caller).value))
+      this.domainKeys(caller).delete()
+    }
 
-    this.domainKeys(caller).value = domain
+    if (domain !== '') {
+      this._payMbrFromControlled(this.domainKeysMbr(domain))
+      this.domainKeys(caller).value = domain
+    }
   }
 
   /**
@@ -1284,7 +1326,10 @@ export class AbstractedAccount extends Contract {
     const key: PluginKey = { plugin, caller: caller, escrow }
     this._requirePlugin(key)
 
+    // ACC-05: refund exactly what _addPlugin charged (pluginsMbr(key.escrow, methods)).
+    const methodsLength: uint64 = this.plugins(key).value.methods.length
     this.plugins(key).delete();
+    this._refundMbrToControlled(this.pluginsMbr(escrow, methodsLength))
     this._touchState();
   }
 
@@ -1347,16 +1392,20 @@ export class AbstractedAccount extends Contract {
     */
   arc58_removeNamedPlugin(name: string): void {
     this._requireAdminOrRevoke();
-    loggedAssert(this.namedPlugins(name).exists, ERR_PLUGIN_DOES_NOT_EXIST);
+    loggedAssert(this.namedPlugins(name).exists, errPluginDoesNotExist);
     const app = clone(this.namedPlugins(name).value)
-    this._requirePlugin(app);
 
-    const methodsLength: uint64 = this.plugins(app).value.methods.length
+    // ACC-05: tolerate an alias whose grant was already removed with arc58_removePlugin
+    // (which refunded the grant's MBR); then only the alias MBR is refunded.
+    let refund: uint64 = this.namedPluginsMbr(name)
+    if (this.plugins(app).exists) {
+      refund += this.pluginsMbr(app.escrow, this.plugins(app).value.methods.length)
+      this.plugins(app).delete();
+    }
 
     this.namedPlugins(name).delete();
-    this.plugins(app).delete();
 
-    this._refundMbrToControlled(this.namedPluginsMbr(name) + this.pluginsMbr(app.escrow, methodsLength))
+    this._refundMbrToControlled(refund)
 
     this._touchState();
   }
@@ -1368,8 +1417,8 @@ export class AbstractedAccount extends Contract {
   */
   arc58_newEscrow(escrow: string, address: Account): uint64 {
     this._requireAdmin();
-    loggedAssert(!this.escrows(escrow).exists, ERR_ESCROW_ALREADY_EXISTS);
-    loggedAssert(escrow !== '', ERR_ESCROW_NAME_REQUIRED);
+    loggedAssert(!this.escrows(escrow).exists, errEscrowAlreadyExists);
+    loggedAssert(escrow !== '', errEscrowNameRequired);
     return this.newEscrow(escrow, address);
   }
 
@@ -1419,10 +1468,11 @@ export class AbstractedAccount extends Contract {
     const key: PluginKey = { plugin, caller: caller, escrow }
 
     this._requirePlugin(key)
-    loggedAssert(this.plugins(key).value.canReclaim, ERR_FORBIDDEN)
+    loggedAssert(this.plugins(key).value.canReclaim, errForbidden)
     this._requireEscrow(escrow)
 
-    this._requirePluginCaller(plugin, caller)
+    // ACC-04 / A-3: never open to arbitrary senders, even on a global grant
+    this._requirePluginCaller(key, false)
 
     this.reclaim(escrow, reclaims, !this.escrows(escrow).value.locked);
   }
@@ -1462,7 +1512,9 @@ export class AbstractedAccount extends Contract {
     this._requireEscrow(escrow)
     this._requireUnlockedEscrow(escrow)
 
-    this._requirePluginCaller(plugin, caller)
+    // ACC-04: sponsored opt-ins stay open on global grants (the payment nets to zero for the
+    // wallet), but expired grants are rejected
+    this._requirePluginCaller(key, true)
 
     loggedAssert(
       match(
@@ -1472,7 +1524,7 @@ export class AbstractedAccount extends Contract {
           amount: Global.assetOptInMinBalance * assets.length
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
 
     this.optInEscrow(escrow, assets);
@@ -1495,7 +1547,7 @@ export class AbstractedAccount extends Contract {
       const { asset, type, amount, max, interval, useRounds } = allowances[i];
       this.validateAllowance(type, interval)
       const key: AllowanceKey = { escrow, asset }
-      loggedAssert(!this.allowances(key).exists, ERR_ALLOWANCE_ALREADY_EXISTS);
+      loggedAssert(!this.allowances(key).exists, errAllowanceAlreadyExists);
       const start = useRounds ? Global.round : Global.latestTimestamp;
       const initialAvailable: uint64 = type === SpendAllowanceTypeDrip ? max : 0
 
@@ -1521,7 +1573,7 @@ export class AbstractedAccount extends Contract {
    * @param assets The list of assets to remove the allowance for
   */
   arc58_removeAllowances(escrow: string, assets: uint64[]): void {
-    loggedAssert(this.isAdmin() || this.canRevoke(), ERR_ONLY_ADMIN_OR_REVOCATION_APP_CAN_REMOVE_METHOD_RESTRICTION);
+    loggedAssert(this.isAdmin() || this.canRevoke(), errOnlyAdminOrRevocationAppCanRemoveMethodRestriction);
     this._requireEscrow(escrow);
     this._requireUnlockedEscrow(escrow);
 
@@ -1544,11 +1596,17 @@ export class AbstractedAccount extends Contract {
    *
    * @param lease The 32-byte lease key that uniquely identifies this execution
    * @param groups The list of 32-byte group IDs that are authorized under this key
-   * @param firstValid The first round or timestamp when this key becomes valid
-   * @param lastValid The last round or timestamp when this key expires
+   * @param firstValid The first round when this key becomes valid
+   * @param lastValid The last round when this key expires
   */
-  arc58_addExecutionKey(lease: bytes<32>, groups: bytes<32>[], firstValid: uint64, lastValid: uint64): void {
+  arc58_addExecutionKey(
+    lease: bytes<32>,
+    groups: bytes<32>[],
+    firstValid: uint64,
+    lastValid: uint64,
+  ): void {
     this._requireAdmin()
+    loggedAssert(groups.length > 0 && firstValid <= lastValid, errExecutionNotReady)
     if (!this.executions(lease).exists) {
       this._payMbrFromControlled(this.executionsMbr(groups.length))
       this.executions(lease).value = {
@@ -1557,8 +1615,8 @@ export class AbstractedAccount extends Contract {
         lastValid
       }
     } else {
-      loggedAssert(this.executions(lease).value.firstValid === firstValid, ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_FIRST_VALID)
-      loggedAssert(this.executions(lease).value.lastValid === lastValid, ERR_EXECUTION_KEY_UPDATE_MUST_MATCH_LAST_VALID)
+      loggedAssert(this.executions(lease).value.firstValid === firstValid, errExecutionKeyUpdateMustMatchFirstValid)
+      loggedAssert(this.executions(lease).value.lastValid === lastValid, errExecutionKeyUpdateMustMatchLastValid)
 
       this._payMbrFromControlled(this.executionsMbr(groups.length) - MinExecutionsMBR)
       this.executions(lease).value.groups = [...clone(this.executions(lease).value.groups), ...clone(groups)]
@@ -1575,7 +1633,7 @@ export class AbstractedAccount extends Contract {
   arc58_removeExecutionKey(lease: bytes<32>): void {
     this._requireExecution(lease)
     const execution = clone(this.executions(lease).value)
-    loggedAssert(this.isAdmin() || execution.lastValid < Global.round, ERR_ADMIN_ONLY)
+    loggedAssert(this.isAdmin() || execution.lastValid < Global.round, errAdminOnly)
 
     this.deleteExecution(lease, execution.groups.length)
 
@@ -1632,6 +1690,13 @@ export class AbstractedAccount extends Contract {
       plugins.push(emptyPluginInfo())
     }
     return plugins
+  }
+
+  /** Resolve an alias to the exact registration key used by plugin authorization. */
+  @abimethod({ readonly: true })
+  arc58_getNamedPluginKey(name: string): PluginKey {
+    loggedAssert(this.namedPlugins(name).exists, errPluginDoesNotExist)
+    return this.namedPlugins(name).value
   }
 
   /**

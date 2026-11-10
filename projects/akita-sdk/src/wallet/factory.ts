@@ -3,21 +3,29 @@ import { NewContractSDKParams, MaybeSigner } from '../types';
 import { PluginInstallParams } from './types';
 import { WalletSDK } from './index';
 import { BaseSDK } from '../base';
-import { ENV_VAR_NAMES } from '../config';
+import { ENV_VAR_NAMES, shouldWriteRegistry } from '../config';
 import { emptySigner } from '../constants';
-import { ALGORAND_ZERO_ADDRESS_STRING, Address } from 'algosdk';
+import { ALGORAND_ZERO_ADDRESS_STRING, Address, TransactionSigner } from 'algosdk';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { assertByteArrayLength, randomByteArray } from '../utils';
 
 export type WalletFactoryContractArgs = AbstractedAccountFactoryArgs["obj"];
 
-type NewAccountABI = WalletFactoryContractArgs['newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64']
+type NewAccountABI = WalletFactoryContractArgs['newAccount(pay,address,address,string,address,byte[32],string,bool,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64']
 
 export type NewParams = (
-  Omit<NewAccountABI, 'payment' | 'controlledAddress' | 'admin' | 'referrer' | 'salt' | 'bio' | 'extraFunding' | 'assets' | 'plugins'> &
+  Omit<NewAccountABI, 'payment' | 'controlledAddress' | 'admin' | 'referrer' | 'salt' | 'bio' | 'automaticUpdates' | 'extraFunding' | 'assets' | 'plugins'> &
   MaybeSigner &
-  Partial<Pick<NewAccountABI, 'controlledAddress' | 'admin' | 'referrer' | 'salt' | 'bio' | 'extraFunding' | 'assets'>> &
-  { plugins?: PluginInstallParams[] }
+  Partial<Pick<NewAccountABI, 'controlledAddress' | 'admin' | 'referrer' | 'salt' | 'bio' | 'automaticUpdates' | 'extraFunding' | 'assets'>> &
+  {
+    plugins?: PluginInstallParams[]
+    /**
+     * SG-04: signer for an external `controlledAddress`. The account must hand itself to the
+     * factory (rekey) inside the creation group; the SDK adds that transaction first. If omitted,
+     * the AlgorandClient's registered signer for `controlledAddress` is used.
+     */
+    controlledSigner?: TransactionSigner
+  }
 )
 
 export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
@@ -26,6 +34,11 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
     super({ factory: AbstractedAccountFactoryFactory, ...params }, ENV_VAR_NAMES.WALLET_FACTORY_APP_ID);
   }
 
+  /**
+   * Create a wallet. `referrer` (any address, default zero) is stored as the wallet's `referrer` global and
+   * is paid its cut of the DAO creation fee by the factory (Q1-A2). The wallet is NOT written into the
+   * EscrowFactory reverse registry (principal-resolution Phase 3).
+   */
   async new({
     sender,
     signer,
@@ -35,15 +48,17 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
     referrer = ALGORAND_ZERO_ADDRESS_STRING,
     salt = randomByteArray(32),
     bio = '',
+    automaticUpdates = true,
     extraFunding = 0n,
     assets = [],
-    plugins = []
+    plugins = [],
+    controlledSigner,
   }: NewParams): Promise<WalletSDK> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
     assertByteArrayLength(salt, 'salt', 32);
 
-    const cost = await this.cost()
+    const cost = await this.cost({ sender: sendParams.sender })
 
     // Add extra funding + asset MBR + plugin MBR to the payment
     const assetMBR = BigInt(assets.length) * 100_000n
@@ -80,7 +95,7 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
       p.useRounds ?? false,
       p.useExecutionKey ?? false,
       p.coverFees ?? false,
-      p.canReclaim ?? true,
+      p.canReclaim ?? false,
       p.defaultToEscrow ?? false,
     ])
 
@@ -92,6 +107,20 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
 
     const group = this.client.newGroup()
 
+    // SG-04: an external controlled address proves control by rekeying itself to the factory
+    // earlier in the same group (the contract rejects a rekey made in any other group).
+    const controlled = controlledAddress.toString()
+    if (controlled !== ALGORAND_ZERO_ADDRESS_STRING) {
+      const rekeyTxn = await this.client.algorand.createTransaction.payment({
+        sender: controlled,
+        receiver: controlled,
+        amount: microAlgo(0),
+        rekeyTo: this.client.appAddress,
+        ...(controlledSigner ? { signer: controlledSigner } : {}),
+      })
+      group.addTransaction(rekeyTxn, controlledSigner)
+    }
+
     group.newAccount({
       ...sendParams,
       args: {
@@ -102,6 +131,7 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
         referrer,
         salt,
         bio,
+        automaticUpdates,
         extraFunding,
         assets,
         plugins: pluginTuples,
@@ -143,6 +173,11 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
     })
   }
 
+  /**
+   * The exact payment `newAccount` requires before extras (extra funding, asset opt-ins, plugin boxes).
+   * Q1-A2: the creation referral (cut + disbursement MBR) comes out of the DAO's creation fee, so the
+   * price is the same for every caller and never depends on the EscrowFactory registry.
+   */
   async cost(params?: MaybeSigner): Promise<bigint> {
 
     const sendParams = this.getSendParams({
@@ -164,6 +199,18 @@ export class WalletFactorySDK extends BaseSDK<AbstractedAccountFactoryClient> {
   }
 }
 
+export type NewWalletParams = NewContractSDKParams & NewParams & {
+  /**
+   * LEGACY. Also write the wallet into the EscrowFactory reverse registry (`register('')`).
+   * Default: `!registryWritesStopped(network)` (networks.ts `REGISTRY_WRITES_STOPPED`). Registry writes
+   * stop only after the Phase 3 proposal has executed on that network (spec §7.1); until then deployed
+   * consumers still read the registry. LocalNet already runs the Phase 3 code, so it defaults to no write.
+   * Pass `true` / `false` to force either behaviour (tests of legacy registry semantics pass `true`).
+   * Removed in Phase 4.
+   */
+  register?: boolean
+}
+
 export async function newWallet({
   factoryParams,
   algorand,
@@ -177,15 +224,20 @@ export async function newWallet({
   referrer,
   salt,
   bio,
+  automaticUpdates,
   extraFunding,
   assets,
   plugins,
-}: NewContractSDKParams & NewParams): Promise<WalletSDK> {
+  controlledSigner,
+  register,
+}: NewWalletParams): Promise<WalletSDK> {
   const factory = new WalletFactorySDK({ factoryParams, algorand, readerAccount, sendParams });
   const sdk = await factory.new({
     sender, signer, controlledAddress, admin, nickname, referrer,
-    salt, bio, extraFunding, assets, plugins,
+    salt, bio, automaticUpdates, extraFunding, assets, plugins, controlledSigner,
   });
-  await sdk.register({ escrow: '' })
+  if (shouldWriteRegistry(factory.network, register)) {
+    await sdk.register({ escrow: '' })
+  }
   return sdk;
 }

@@ -5,14 +5,17 @@ import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
 import { newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk';
-import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
+import { AkitaUniverse, buildAkitaUniverse } from '../../../tests/fixtures/dao';
+import { assertUnregistered } from '../../../tests/fixtures/unregistered-wallet';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import {
-  ERR_ESCROW_DOES_NOT_EXIST,
-  ERR_FORBIDDEN,
-  ERR_PLUGIN_DOES_NOT_EXIST,
+  errEscrowDoesNotExist,
+  errForbidden,
+  errPluginDoesNotExist,
+  errPluginExpired,
 } from './errors';
+import { expectContractError } from '../../../tests/utils/errors';
 
 describe('ARC58 Reclaim', () => {
   const localnet = algorandFixture();
@@ -22,6 +25,7 @@ describe('ARC58 Reclaim', () => {
   let wallet: WalletSDK;
   let payPluginSdk: PayPluginSDK;
   let optInPluginSdk: OptInPluginSDK;
+  let universe: AkitaUniverse;
 
   beforeAll(async () => {
     Config.configure({ debug: true });
@@ -32,12 +36,13 @@ describe('ARC58 Reclaim', () => {
     const sender = testAccount.toString();
     const signer = testAccount.signer;
 
-    ({ dao, walletFactory } = await buildAkitaUniverse({
+    universe = await buildAkitaUniverse({
       fixture: localnet,
       sender,
       signer,
       apps: {},
-    }));
+    });
+    ({ dao, walletFactory } = universe);
 
     payPluginSdk = await deployPayPlugin({ fixture: localnet, sender, signer });
     optInPluginSdk = await deployOptInPlugin({ fixture: localnet, sender, signer });
@@ -50,7 +55,7 @@ describe('ARC58 Reclaim', () => {
     const signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
     wallet = await newWallet({
       factoryParams: {
@@ -147,7 +152,7 @@ describe('ARC58 Reclaim', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_FORBIDDEN);
+      expect(error).toContain(errForbidden);
     });
 
     test('fails for non-existent escrow', async () => {
@@ -168,7 +173,7 @@ describe('ARC58 Reclaim', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_ESCROW_DOES_NOT_EXIST);
+      expect(error).toContain(errEscrowDoesNotExist);
     });
   });
 
@@ -177,7 +182,9 @@ describe('ARC58 Reclaim', () => {
   // ==================================================================================
 
   describe('arc58_pluginReclaim', () => {
-    test('global plugin with canReclaim=true can reclaim ALGO', async () => {
+    // A-3 / ACC-04: this used to assert that ANY sender could reclaim through a global grant.
+    // Reclaims are now restricted to the plugin app or the grant's specific caller.
+    test('global plugin with canReclaim=true can NOT be used to reclaim by arbitrary senders', async () => {
       const { algorand, context: { testAccount } } = localnet;
       const sender = testAccount.toString();
 
@@ -205,9 +212,9 @@ describe('ARC58 Reclaim', () => {
         amount: microAlgo(reclaimAmount),
       });
 
-      const walletBefore = await algorand.account.getInformation(wallet.client.appAddress);
+      const escrowBefore = await algorand.account.getInformation(escrowAddress);
 
-      await wallet.client.send.arc58PluginReclaim({
+      await expectContractError(wallet.client.send.arc58PluginReclaim({
         sender,
         extraFee: microAlgo(1_000n),
         args: {
@@ -216,12 +223,44 @@ describe('ARC58 Reclaim', () => {
           escrow,
           reclaims: [[0n, reclaimAmount, false]],
         },
+      }), errForbidden);
+
+      const escrowAfter = await algorand.account.getInformation(escrowAddress);
+      expect(escrowAfter.balance.microAlgos).toBe(escrowBefore.balance.microAlgos);
+    });
+
+    test('expired caller-specific grant can not reclaim', async () => {
+      const { algorand, context: { testAccount } } = localnet;
+      const sender = testAccount.toString();
+
+      const escrow = 'expired_reclaim';
+      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({
+        amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost),
       });
 
-      const walletAfter = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletAfter.balance.microAlgos).toBe(
-        walletBefore.balance.microAlgos + reclaimAmount
-      );
+      // lastValid in the past (timestamp-based grant)
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        caller: sender,
+        escrow,
+        canReclaim: true,
+        lastValid: 1n,
+      });
+
+      const escrowInfo = await wallet.getEscrow(escrow);
+      await algorand.send.payment({ sender, receiver: getApplicationAddress(escrowInfo.id).toString(), amount: microAlgo(500_000n) });
+
+      await expectContractError(wallet.client.send.arc58PluginReclaim({
+        sender,
+        extraFee: microAlgo(1_000n),
+        args: {
+          plugin: payPluginSdk.appId,
+          caller: sender,
+          escrow,
+          reclaims: [[0n, 100_000n, false]],
+        },
+      }), errPluginExpired);
     });
 
     test('caller-specific plugin can reclaim', async () => {
@@ -305,7 +344,7 @@ describe('ARC58 Reclaim', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_FORBIDDEN);
+      expect(error).toContain(errForbidden);
     });
 
     test('fails for non-existent plugin', async () => {
@@ -343,7 +382,7 @@ describe('ARC58 Reclaim', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_PLUGIN_DOES_NOT_EXIST);
+      expect(error).toContain(errPluginDoesNotExist);
     });
 
     test('fails for unauthorized sender', async () => {
@@ -385,7 +424,7 @@ describe('ARC58 Reclaim', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_FORBIDDEN);
+      expect(error).toContain(errForbidden);
     });
   });
 
@@ -534,7 +573,8 @@ describe('ARC58 Reclaim', () => {
       const sender = testAccount.toString();
 
       const escrow = 'unlocked_closeout';
-      const { testAssetId, asaAmount, escrowAddress } = await setupAsaEscrow({ escrow });
+      // A-3: plugin reclaims need a caller-specific grant
+      const { testAssetId, asaAmount, escrowAddress } = await setupAsaEscrow({ escrow, global: false, caller: sender });
 
       // Escrow is unlocked by default — closeOut should work
       await wallet.client.send.arc58PluginReclaim({
@@ -542,7 +582,7 @@ describe('ARC58 Reclaim', () => {
         extraFee: microAlgo(1_000n),
         args: {
           plugin: payPluginSdk.appId,
-          caller: ALGORAND_ZERO_ADDRESS_STRING,
+          caller: sender,
           escrow,
           reclaims: [[testAssetId, asaAmount, true]],
         },
@@ -569,7 +609,8 @@ describe('ARC58 Reclaim', () => {
       const sender = testAccount.toString();
 
       const escrow = 'locked_closeout';
-      const { testAssetId, asaAmount, escrowAddress } = await setupAsaEscrow({ escrow });
+      // A-3: plugin reclaims need a caller-specific grant
+      const { testAssetId, asaAmount, escrowAddress } = await setupAsaEscrow({ escrow, global: false, caller: sender });
 
       // Lock the escrow
       await wallet.toggleEscrowLock({ escrow });
@@ -581,7 +622,7 @@ describe('ARC58 Reclaim', () => {
         extraFee: microAlgo(1_000n),
         args: {
           plugin: payPluginSdk.appId,
-          caller: ALGORAND_ZERO_ADDRESS_STRING,
+          caller: sender,
           escrow,
           reclaims: [[testAssetId, asaAmount, true]],
         },
@@ -600,6 +641,81 @@ describe('ARC58 Reclaim', () => {
       const escrowAsset = escrowAssets.find(a => a.assetId === testAssetId);
       expect(escrowAsset).toBeDefined();
       expect(escrowAsset!.amount).toBe(0n);
+    });
+  });
+  // Principal resolution Phase 3 (spec §6.10; binding invariant: the immutable MainNet EscrowFactory
+  // keeps creating escrows, and escrow use and reclaim keep working for wallets that no longer register).
+  describe('escrows of wallets that no longer register (Phase 3)', () => {
+    test('create, use and reclaim an escrow with no EscrowFactory registry entry', async () => {
+      const { algorand, context: { testAccount, generateAccount } } = localnet;
+      const sender = testAccount.toString();
+
+      const escrow = 'unregistered';
+      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost) });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+
+      const escrowInfo = await wallet.getEscrow(escrow);
+      const escrowAddress = getApplicationAddress(escrowInfo.id).toString();
+      // the EscrowFactory still created the escrow app, but neither the wallet nor the escrow is registered
+      const created = await algorand.client.algod.getApplicationByID(escrowInfo.id).do();
+      expect(created.params?.creator?.toString()).toBe(getApplicationAddress(universe.escrowFactory.appId).toString());
+      await assertUnregistered(universe.escrowFactory, [wallet.client.appAddress, escrowAddress]);
+
+      await algorand.send.payment({ sender, receiver: escrowAddress, amount: microAlgo(2_000_000n) });
+
+      // use: the plugin pays from the escrow window
+      const receiver = await generateAccount({ initialFunds: (1).algos() });
+      const receiverBefore = (await algorand.account.getInformation(receiver.toString())).balance.microAlgos;
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        escrow,
+        calls: [payPluginSdk.pay({ payments: [{ receiver: receiver.toString(), asset: 0n, amount: 500_000n }] })],
+      });
+      expect((await algorand.account.getInformation(receiver.toString())).balance.microAlgos - receiverBefore).toBe(500_000n);
+
+      // reclaim: the admin pulls the rest back
+      const walletBefore = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
+      await wallet.client.send.arc58Reclaim({
+        sender,
+        extraFee: microAlgo(1_000n),
+        args: { escrow, reclaims: [[0n, 1_000_000n, false]] },
+      });
+      expect((await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos - walletBefore).toBe(1_000_000n);
+      await assertUnregistered(universe.escrowFactory, [wallet.client.appAddress, escrowAddress]);
+    });
+
+    // P4-ESC-01 / Q15 (accepted): EscrowFactory.delete needs the registry box, so an escrow created after
+    // registration stopped can no longer be deleted through the factory. Its funds stay reachable through
+    // the wallet (reclaim above); only the app deletion and its MBR refund are lost.
+    test('P4-ESC-01: EscrowFactory.delete rejects an unregistered escrow (errNreg, documents Q15)', async () => {
+      const { context: { testAccount } } = localnet;
+      const escrow = 'undeletable';
+      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost) });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow });
+      const escrowInfo = await wallet.getEscrow(escrow);
+
+      await expectContractError(
+        universe.escrowFactory.send.delete({
+          sender: testAccount.toString(),
+          signer: testAccount.signer,
+          args: { id: escrowInfo.id },
+          extraFee: microAlgo(3_000n),
+          populateAppCallResources: true,
+        }),
+        'errNreg',
+      );
+    });
+
+    test('registerEscrow: true still writes the legacy registry entry for a new escrow', async () => {
+      const escrow = 'legacy_registered';
+      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.plugins + mbr.newEscrowMintCost) });
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, escrow, registerEscrow: true });
+
+      const escrowAddress = getApplicationAddress((await wallet.getEscrow(escrow)).id).toString();
+      expect(await universe.escrowFactory.exists({ args: { address: escrowAddress } })).toBe(true);
     });
   });
 });

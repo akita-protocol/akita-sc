@@ -2,12 +2,13 @@ import type { WalletSDK } from './index'
 import { AbstractedAccountArgs, AbstractedAccountComposer, PluginKey } from '../generated/AbstractedAccountClient'
 import { AddAllowanceArgs, AddPluginArgs, CallerType, WalletAddPluginParams, WalletUsePluginParams } from './types'
 import { AllowancesToTuple, applyDefaultAppCallMaxFees } from './utils'
-import { NewEscrowFeeAmount } from './constants'
+import { addPluginExtraFee, controlledMbrFee, newEscrowExtraFee } from './constants'
 import { isPluginSDKReturn, MaybeSigner, SDKClient, GroupReturn, ExpandedSendParams, normalizeSigner } from '../types'
 import { MAX_UINT64 } from '../constants'
+import { shouldWriteRegistry } from '../config'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { microAlgo } from '@algorandfoundation/algokit-utils'
-import { SendParams } from '@algorandfoundation/algokit-utils/transaction'
+import { SendParams } from '@algorandfoundation/algokit-utils/types/transaction';
 
 type ContractArgs = AbstractedAccountArgs["obj"]
 
@@ -51,7 +52,7 @@ export class WalletGroupComposer {
         callerType = CallerType.Other, methods = [], escrow = '', admin = false,
         delegationType = 0n, lastValid = MAX_UINT64, cooldown = 0n,
         useRounds = false, useExecutionKey = false, coverFees = false,
-        canReclaim = true, defaultToEscrow = false, allowances = []
+        canReclaim = false, defaultToEscrow = false, allowances = [], registerEscrow
       } = params as WalletAddPluginParams<TClient> & { caller?: string; callerType?: bigint }
 
       let caller = rawCaller
@@ -91,11 +92,8 @@ export class WalletGroupComposer {
       }
 
       // Check if controlled address differs from app address — requires extra fee
-      const controlledAddress = await this.wallet.client.state.global.controlledAddress()
-      const hasExternalControlledAddress = controlledAddress !== this.wallet.client.appAddress.toString()
-      const externalControlledFee = hasExternalControlledAddress ? 1000n : 0n
-
-      const extraFee = microAlgo((isNewEscrow ? NewEscrowFeeAmount : 0n) + externalControlledFee)
+      const hasExternalControlledAddress = await this.wallet.hasExternalControlledAddress()
+      const extraFee = microAlgo(addPluginExtraFee(isNewEscrow, hasExternalControlledAddress))
 
       const args: AddPluginArgs = {
         plugin,
@@ -144,7 +142,9 @@ export class WalletGroupComposer {
             args: {
               escrow,
               allowances: AllowancesToTuple(dedupedAllowances)
-            }
+            },
+            // its own MBR payment from an external controlled address
+            extraFee: microAlgo(controlledMbrFee(hasExternalControlledAddress))
           })
         }
       }
@@ -153,7 +153,8 @@ export class WalletGroupComposer {
       const pluginKey: PluginKey = { plugin, caller: caller!, escrow }
       const allowanceAssets = allowances.map((a: AddAllowanceArgs) => a.asset)
       this.postProcessors.push(async () => {
-        if (isNewEscrow) {
+        // Phase 3: registry writes stop per network once Phase 3 has executed there (spec §7.1).
+        if (isNewEscrow && shouldWriteRegistry(this.wallet.network, registerEscrow)) {
           await this.wallet.register({ sender, signer, escrow })
         }
         await this.wallet.updateCache(pluginKey, allowanceAssets).catch(error => {
@@ -166,15 +167,13 @@ export class WalletGroupComposer {
 
   usePlugin(params: WalletUsePluginParams): this {
     this.resolvers.push(async () => {
-      // Build the plugin rekey + plugin calls in a temp group, then merge into
-      // the main group via utils10's native `addTransactionComposer`. No legacy
-      // ATC bridge needed — the temp composer's params flow straight into the
-      // main composer, which simulates once at send() time and covers inner
-      // transaction fees across the whole group.
+      // Merge the native ATC while preserving its ABI method metadata.
       const { group: tempGroup } = await this.wallet.prepareUsePlugin(params)
       const tempComposer = await tempGroup.composer()
       const mainComposer = await this.group.composer()
-      mainComposer.addTransactionComposer(tempComposer)
+      const source = tempComposer as unknown as { txns: unknown[] };
+      const target = mainComposer as unknown as { txns: unknown[] };
+      target.txns.push(...source.txns);
     })
     return this
   }
@@ -183,6 +182,11 @@ export class WalletGroupComposer {
   // Simple methods
   // ---------------------------------------------------------------------------
 
+  /**
+   * @deprecated LEGACY registry write (EscrowFactory reverse registry). The SDK no longer registers
+   * wallets or escrows on its own (principal-resolution Phase 3); use this only to keep legacy registry
+   * semantics working. Removed in Phase 4.
+   */
   register({ sender, signer, ...args }: ContractArgs['register(string)void'] & MaybeSigner): this {
     this.resolvers.push(async () => {
       this.group.register({ ...this.getSendParams({ sender, signer }), args })
@@ -253,16 +257,31 @@ export class WalletGroupComposer {
     return this
   }
 
+  assignDomain({ sender, signer, ...args }: ContractArgs['assignDomain(address,string)void'] & MaybeSigner): this {
+    this.resolvers.push(async () => {
+      const extraFee = await this.wallet.domainKeyExtraFee(args.caller.toString(), args.domain === '' ? 'remove' : 'assign')
+      this.group.assignDomain({ ...this.getSendParams({ sender, signer }), args, extraFee })
+    })
+    return this
+  }
+
+  /** ACC-06: revoke a co-admin key (on-chain `assignDomain(address, '')`). */
+  removeDomainKey({ sender, signer, address }: MaybeSigner & { address: string }): this {
+    return this.assignDomain({ sender, signer, caller: address, domain: '' })
+  }
+
   removePlugin({ sender, signer, ...args }: ContractArgs['arc58_removePlugin(uint64,address,string)void'] & MaybeSigner): this {
     this.resolvers.push(async () => {
-      this.group.arc58RemovePlugin({ ...this.getSendParams({ sender, signer }), args })
+      this.group.arc58RemovePlugin({ ...this.getSendParams({ sender, signer }), args, extraFee: await this.wallet.controlledMbrExtraFee() })
     })
     return this
   }
 
   newEscrow({ sender, signer, ...args }: ContractArgs['arc58_newEscrow(string,address)uint64'] & MaybeSigner): this {
     this.resolvers.push(async () => {
-      this.group.arc58NewEscrow({ ...this.getSendParams({ sender, signer }), args })
+      const mintsEscrow = args.address.toString() === ALGORAND_ZERO_ADDRESS_STRING
+      const extraFee = microAlgo(newEscrowExtraFee(mintsEscrow, await this.wallet.hasExternalControlledAddress()))
+      this.group.arc58NewEscrow({ ...this.getSendParams({ sender, signer }), args, extraFee })
       this.newEscrows.add(args.escrow)
     })
     return this
@@ -293,7 +312,8 @@ export class WalletGroupComposer {
     this.resolvers.push(async () => {
       this.group.arc58AddAllowances({
         ...this.getSendParams({ sender, signer }),
-        args: { escrow, allowances: AllowancesToTuple(allowances) }
+        args: { escrow, allowances: AllowancesToTuple(allowances) },
+        extraFee: await this.wallet.controlledMbrExtraFee()
       })
     })
     return this
@@ -301,21 +321,21 @@ export class WalletGroupComposer {
 
   removeAllowances({ sender, signer, ...args }: ContractArgs['arc58_removeAllowances(string,uint64[])void'] & MaybeSigner): this {
     this.resolvers.push(async () => {
-      this.group.arc58RemoveAllowances({ ...this.getSendParams({ sender, signer }), args })
+      this.group.arc58RemoveAllowances({ ...this.getSendParams({ sender, signer }), args, extraFee: await this.wallet.controlledMbrExtraFee() })
     })
     return this
   }
 
   addExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void'] & MaybeSigner): this {
     this.resolvers.push(async () => {
-      this.group.arc58AddExecutionKey({ ...this.getSendParams({ sender, signer }), args })
+      this.group.arc58AddExecutionKey({ ...this.getSendParams({ sender, signer }), args, extraFee: await this.wallet.controlledMbrExtraFee() })
     })
     return this
   }
 
   removeExecutionKey({ sender, signer, ...args }: ContractArgs['arc58_removeExecutionKey(byte[32])void'] & MaybeSigner): this {
     this.resolvers.push(async () => {
-      this.group.arc58RemoveExecutionKey({ ...this.getSendParams({ sender, signer }), args })
+      this.group.arc58RemoveExecutionKey({ ...this.getSendParams({ sender, signer }), args, extraFee: await this.wallet.controlledMbrExtraFee() })
     })
     return this
   }
@@ -330,11 +350,11 @@ export class WalletGroupComposer {
       await resolver()
     }
 
-    // Ensure every queued app call has a maxFee cap. utils10's inner-fee
+    // Ensure every queued app call has a maxFee cap. AlgoKit's inner-fee
     // distribution requires one when `coverAppCallInnerTransactionFees` is
-    // enabled; without it `analyzeGroupRequirements` throws. We mutate the
+    // enabled; without it group preparation throws. We mutate the
     // composer's internal `txns` array directly (same shape it reads in
-    // `getLogicalMaxFee`) rather than threading a maxFee default through
+    // the native composer) rather than threading a maxFee default through
     // every resolver and through `prepareUsePlugin`'s sub-group builder.
     //
     // minFee * 272 matches the factory cap — plenty of headroom for the
@@ -344,11 +364,11 @@ export class WalletGroupComposer {
     const MAX_SIM_FEE = microAlgo(BigInt(suggestedParams.minFee) * 272n)
     const composer = await this.group.composer()
     const internalTxns = (composer as unknown as {
-      txns: Array<{ type: string; data: { maxFee?: typeof MAX_SIM_FEE } }>
+      txns: Array<{ type: string; maxFee?: typeof MAX_SIM_FEE }>
     }).txns
     applyDefaultAppCallMaxFees(internalTxns, MAX_SIM_FEE)
 
-    // Single simulate + send via utils10 native path. Flags default to true
+    // Single simulate + send via AlgoKit native path. Flags default to true
     // (populate resources, cover inner fees) unless the caller explicitly
     // disables them via `params`.
     const result = await composer.send({
@@ -357,7 +377,7 @@ export class WalletGroupComposer {
       coverAppCallInnerTransactionFees: params?.coverAppCallInnerTransactionFees ?? true,
     }) as unknown as GroupReturn
 
-    // Run post-processors (register escrows, update caches)
+    // Run post-processors (update caches; register escrows only when opted in)
     for (const postProcessor of this.postProcessors) {
       await postProcessor()
     }

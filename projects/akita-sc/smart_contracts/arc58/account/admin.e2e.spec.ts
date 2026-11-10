@@ -4,11 +4,14 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK } from 'akita-sdk/dao';
 import { newWallet, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet';
+import algosdk from 'algosdk';
 import { buildAkitaUniverse } from '../../../tests/fixtures/dao';
 import { TimeWarp } from '../../../tests/utils/time';
 import {
-    ERR_ADMIN_ONLY,
-    ERR_FACTORY_UPDATES_NOT_ALLOWED,
+    errAdminOnly,
+    errFactoryUpdatesNotAllowed,
+    errOnlyAdminCanAddPlugin,
+    errPluginDoesNotExist,
 } from './errors';
 
 /**
@@ -126,7 +129,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ADMIN_ONLY);
+            expect(error).toContain(errAdminOnly);
         });
 
         test('lastChange and lastUserInteraction updated after admin change', async () => {
@@ -191,7 +194,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ADMIN_ONLY);
+            expect(error).toContain(errAdminOnly);
         });
 
         test('admin can set bio', async () => {
@@ -249,7 +252,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ADMIN_ONLY);
+            expect(error).toContain(errAdminOnly);
         });
 
         test('admin can assign domain key to passkey', async () => {
@@ -329,6 +332,298 @@ describe('ARC58 Admin & Profile', () => {
             const updatedState = await wallet.client.state.global.getAll();
             expect(updatedState.nickname).toBe(newNickname);
         });
+
+        test('admin can remove a domain key and the passkey loses admin', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const walletDomain = (await wallet.client.state.global.getAll()).domain ?? '';
+            const passkey = await generateAccount({ initialFunds: (10).algos() });
+
+            const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: walletDomain, groups: 0n });
+            await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.domainKeys) });
+
+            await wallet.assignDomain({ sender, caller: passkey.toString(), domain: walletDomain });
+            expect(await wallet.getDomainKey(passkey.toString())).toBe(walletDomain);
+
+            await wallet.removeDomainKey({ sender, address: passkey.toString() });
+            expect(await wallet.getDomainKey(passkey.toString())).toBeUndefined();
+
+            const result = await wallet.client.send.arc58GetDomainKeys({
+                sender,
+                args: { addresses: [passkey.toString()] },
+            });
+            expect(result.return?.[0]).toBe('');
+
+            let error = 'no error thrown';
+            try {
+                await wallet.client.send.setNickname({
+                    sender: passkey.toString(),
+                    signer: passkey.signer,
+                    args: { nickname: 'should_fail' },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+            expect(error).toContain(errAdminOnly);
+        });
+
+        test('non-admin cannot remove a domain key', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const passkey = await generateAccount({ initialFunds: (1).algos() });
+            const attacker = await generateAccount({ initialFunds: (10).algos() });
+
+            const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: 'akita.community', groups: 0n });
+            await wallet.client.appClient.fundAppAccount({ amount: microAlgo(mbr.domainKeys) });
+
+            await wallet.client.send.assignDomain({
+                sender,
+                extraFee: microAlgo(1_000),
+                args: { caller: passkey.toString(), domain: 'akita.community' },
+            });
+
+            let error = 'no error thrown';
+            try {
+                // ACC-06: revocation is assignDomain(key, ''), which is admin-gated
+                await wallet.client.send.assignDomain({
+                    sender: attacker.toString(),
+                    signer: attacker.signer,
+                    args: { caller: passkey.toString(), domain: '' },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+            expect(error).toContain(errOnlyAdminCanAddPlugin);
+        });
+
+        // ACC-06: revocation is assignDomain(key, ''), which is a no-op for a key that has no
+        // domain (it neither fails nor creates a box).
+        test('revoking a key without a domain is a no-op', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const passkey = await generateAccount({ initialFunds: (1).algos() });
+            const before = await localnet.algorand.account.getInformation(wallet.client.appAddress);
+
+            await wallet.client.send.assignDomain({
+                sender,
+                args: { caller: passkey.toString(), domain: '' },
+            });
+
+            expect(await wallet.getDomainKey(passkey.toString())).toBeUndefined();
+            const after = await localnet.algorand.account.getInformation(wallet.client.appAddress);
+            expect(after.minBalance.microAlgos).toBe(before.minBalance.microAlgos);
+        });
+    });
+
+    // ==================================================================================
+    // MBR Refunds (external controlled address)
+    // ==================================================================================
+
+    describe('MBR refunds to an external controlled address', () => {
+        let externalWallet: WalletSDK;
+        let controlled: string;
+
+        beforeEach(async () => {
+            const { algorand, context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+            const signer = testAccount.signer;
+
+            const externalAccount = algorand.account.random();
+            controlled = externalAccount.addr.toString();
+
+            const dispenser = await algorand.account.dispenserFromEnvironment();
+            await algorand.send.payment({
+                sender: dispenser.addr,
+                signer: dispenser.signer,
+                receiver: controlled,
+                amount: (10).algos(),
+            });
+
+            // SG-04: the SDK rekeys the external account to the factory inside the creation group;
+            // the factory then rekeys it to the new wallet during newAccount()
+            externalWallet = await walletFactory.new({
+                sender,
+                signer,
+                nickname: 'external_controlled',
+                controlledAddress: controlled,
+                controlledSigner: externalAccount.signer,
+            });
+            await externalWallet.register({ sender, signer, escrow: '' });
+        });
+
+        const balanceOf = async (address: string) =>
+            (await localnet.algorand.account.getInformation(address)).balance.microAlgos;
+
+        test('arc58_removePlugin refunds the plugin box MBR', async () => {
+            const { context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const methods: [Uint8Array, bigint][] = [
+                [new Uint8Array([1, 2, 3, 4]), 0n],
+                [new Uint8Array([5, 6, 7, 8]), 0n],
+            ];
+            const mbr = await externalWallet.getMbr({ escrow: '', methodCount: 2n, plugin: '', groups: 0n });
+
+            const before = await balanceOf(controlled);
+
+            await externalWallet.client.send.arc58AddPlugin({
+                sender,
+                signer: testAccount.signer,
+                extraFee: microAlgo(1_000),
+                args: {
+                    plugin: dao.appId,
+                    caller: sender,
+                    escrow: '',
+                    admin: false,
+                    delegationType: 0,
+                    lastValid: 2n ** 64n - 1n,
+                    cooldown: 0n,
+                    methods,
+                    useRounds: false,
+                    useExecutionKey: false,
+                    coverFees: false,
+                    canReclaim: false,
+                    defaultToEscrow: false,
+                },
+            });
+
+            expect(await balanceOf(controlled)).toBe(before - mbr.plugins);
+
+            await externalWallet.client.send.arc58RemovePlugin({
+                sender,
+                signer: testAccount.signer,
+                extraFee: microAlgo(1_000),
+                args: { plugin: dao.appId, caller: sender, escrow: '' },
+            });
+
+            expect(await balanceOf(controlled)).toBe(before);
+        });
+
+        test('revoking a domain key (assignDomain with an empty domain) refunds the domain box MBR', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const passkey = await generateAccount({ initialFunds: (1).algos() });
+            const domain = 'akita.community';
+            const mbr = await externalWallet.getMbr({ escrow: '', methodCount: 0n, plugin: domain, groups: 0n });
+
+            const before = await balanceOf(controlled);
+
+            await externalWallet.client.send.assignDomain({
+                sender,
+                signer: testAccount.signer,
+                extraFee: microAlgo(1_000),
+                args: { caller: passkey.toString(), domain },
+            });
+
+            expect(await balanceOf(controlled)).toBe(before - mbr.domainKeys);
+
+            await externalWallet.client.send.assignDomain({
+                sender,
+                signer: testAccount.signer,
+                extraFee: microAlgo(1_000),
+                args: { caller: passkey.toString(), domain: '' },
+            });
+
+            expect(await balanceOf(controlled)).toBe(before);
+        });
+
+        test('assignDomain on an existing key refunds the old box before charging the new one', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+            const signer = testAccount.signer;
+
+            const passkey = await generateAccount({ initialFunds: (1).algos() });
+            const first = 'a.co';
+            const second = 'akita.community';
+            const mbrFirst = (await externalWallet.getMbr({ escrow: '', methodCount: 0n, plugin: first, groups: 0n })).domainKeys;
+            const mbrSecond = (await externalWallet.getMbr({ escrow: '', methodCount: 0n, plugin: second, groups: 0n })).domainKeys;
+
+            const before = await balanceOf(controlled);
+
+            await externalWallet.assignDomain({ sender, signer, caller: passkey.toString(), domain: first });
+            expect(await balanceOf(controlled)).toBe(before - mbrFirst);
+
+            await externalWallet.assignDomain({ sender, signer, caller: passkey.toString(), domain: second });
+            expect(await balanceOf(controlled)).toBe(before - mbrSecond);
+
+            const result = await externalWallet.client.send.arc58GetDomainKeys({
+                sender,
+                signer,
+                args: { addresses: [passkey.toString()] },
+            });
+            expect(result.return?.[0]).toBe(second);
+
+            await externalWallet.removeDomainKey({ sender, signer, address: passkey.toString() });
+            expect(await balanceOf(controlled)).toBe(before);
+        });
+
+        test('a name orphaned by arc58_removePlugin can still be removed', async () => {
+            const { context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+            const signer = testAccount.signer;
+
+            const name = 'orphan';
+            const mbr = await externalWallet.getMbr({ escrow: '', methodCount: 0n, plugin: name, groups: 0n });
+            const pluginArgs = {
+                plugin: dao.appId,
+                caller: sender,
+                escrow: '',
+                admin: false,
+                delegationType: 0,
+                lastValid: 2n ** 64n - 1n,
+                cooldown: 0n,
+                methods: [] as [Uint8Array, bigint][],
+                useRounds: false,
+                useExecutionKey: false,
+                coverFees: false,
+                canReclaim: false,
+                defaultToEscrow: false,
+            };
+
+            const before = await balanceOf(controlled);
+
+            await externalWallet.client.send.arc58AddNamedPlugin({
+                sender,
+                signer,
+                extraFee: microAlgo(1_000),
+                args: { name, ...pluginArgs },
+            });
+            expect(await balanceOf(controlled)).toBe(before - mbr.plugins - mbr.namedPlugins);
+
+            // Removing by key leaves the name box behind
+            await externalWallet.client.send.arc58RemovePlugin({
+                sender,
+                signer,
+                extraFee: microAlgo(1_000),
+                args: { plugin: dao.appId, caller: sender, escrow: '' },
+            });
+            expect(await balanceOf(controlled)).toBe(before - mbr.namedPlugins);
+
+            // The name can still be removed, refunding only the name box
+            await externalWallet.client.send.arc58RemoveNamedPlugin({
+                sender,
+                signer,
+                extraFee: microAlgo(1_000),
+                args: { name },
+            });
+            expect(await balanceOf(controlled)).toBe(before);
+
+            let error = 'no error thrown';
+            try {
+                await externalWallet.client.send.arc58GetNamedPluginKey({
+                    sender,
+                    signer,
+                    args: { name },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+            expect(error).toContain(errPluginDoesNotExist);
+        });
     });
 
     // ==================================================================================
@@ -368,7 +663,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ADMIN_ONLY);
+            expect(error).toContain(errAdminOnly);
         });
     });
 
@@ -377,16 +672,39 @@ describe('ARC58 Admin & Profile', () => {
     // ==================================================================================
 
     describe('Get Admin', () => {
-        test('arc58_getAdmin returns correct admin', async () => {
+        test('arc58_getAdmin executes as a confirmed ungrouped NoOp from the global admin', async () => {
+            const { algorand, context: { testAccount } } = localnet;
+            const sender = testAccount.toString();
+
+            const method = algosdk.ABIMethod.fromSignature('arc58_getAdmin()address');
+            const result = await algorand.send.appCall({
+                sender,
+                signer: testAccount.signer,
+                appId: wallet.client.appId,
+                args: [method.getSelector()],
+                populateAppCallResources: false,
+            });
+
+            expect(result.txIds).toHaveLength(1);
+            expect(result.transactions).toHaveLength(1);
+            expect(result.confirmations).toHaveLength(1);
+            expect(result.groupId).toBeUndefined();
+            expect(result.transactions[0].group).toBeUndefined();
+            expect(result.confirmation.confirmedRound).toBeGreaterThan(0n);
+
+            const returnLog = result.confirmation.logs?.at(-1);
+            expect(returnLog).toHaveLength(36);
+            expect(returnLog?.slice(4)).toEqual(algosdk.decodeAddress(sender).publicKey);
+        });
+
+        test('arc58_verifyAuthAddress is rejected as a standalone controller proof', async () => {
             const { context: { testAccount } } = localnet;
             const sender = testAccount.toString();
 
-            const result = await wallet.client.send.arc58GetAdmin({
+            await expect(wallet.client.send.arc58VerifyAuthAddress({
                 sender,
                 args: {},
-            });
-
-            expect(result.return).toBe(sender);
+            })).rejects.toThrow();
         });
 
         test('arc58_getAdmin returns new admin after change', async () => {
@@ -415,6 +733,49 @@ describe('ARC58 Admin & Profile', () => {
     // ==================================================================================
 
     describe('Factory Update Settings', () => {
+        test('wallets default to automatic updates', async () => {
+            const walletState = await wallet.client.state.global.getAll();
+            expect(walletState.factoryUpdateSettings).toEqual({ allowed: true, automatic: true });
+        });
+
+        test('automaticUpdates = false at creation requires the admin to trigger updates', async () => {
+            const { context: { testAccount, generateAccount } } = localnet;
+            const sender = testAccount.toString();
+            const signer = testAccount.signer;
+
+            const manualWallet = await walletFactory.new({
+                sender,
+                signer,
+                nickname: 'manual_updates',
+                automaticUpdates: false,
+            });
+
+            const walletState = await manualWallet.client.state.global.getAll();
+            expect(walletState.factoryUpdateSettings).toEqual({ allowed: true, automatic: false });
+
+            const stranger = await generateAccount({ initialFunds: (10).algos() });
+
+            let error = 'no error thrown';
+            try {
+                await walletFactory.client.send.updateWallet({
+                    sender: stranger.toString(),
+                    signer: stranger.signer,
+                    args: { wallet: manualWallet.appId },
+                });
+            } catch (e: any) {
+                error = e.message;
+            }
+            expect(error).toContain(errAdminOnly);
+
+            // The admin can still pull the factory's code
+            await walletFactory.client.send.updateWallet({
+                sender,
+                signer,
+                extraFee: microAlgo(1_000),
+                args: { wallet: manualWallet.appId },
+            });
+        });
+
         test('admin can set factory update settings', async () => {
             const { context: { testAccount } } = localnet;
             const sender = testAccount.toString();
@@ -448,13 +809,14 @@ describe('ARC58 Admin & Profile', () => {
             try {
                 await walletFactory.client.send.updateWallet({
                     sender,
+                    signer: testAccount.signer,
                     args: { wallet: wallet.appId },
                 });
             } catch (e: any) {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_FACTORY_UPDATES_NOT_ALLOWED);
+            expect(error).toContain(errFactoryUpdatesNotAllowed);
         });
 
         test('factory cannot auto-update wallet when automatic is false and caller is not admin', async () => {
@@ -480,7 +842,7 @@ describe('ARC58 Admin & Profile', () => {
                 error = e.message;
             }
 
-            expect(error).toContain(ERR_ADMIN_ONLY);
+            expect(error).toContain(errAdminOnly);
         });
     });
 });

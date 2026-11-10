@@ -18,13 +18,14 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { GlobalStateKeyEscrowFactory, GlobalStateKeyRevocation } from '../../constants'
-import { ERR_NOT_AKITA_DAO } from '../../errors'
-import { ERR_ADMIN_ONLY, ERR_FACTORY_UPDATES_NOT_ALLOWED } from './errors'
+import { errNotAkitaDao } from '../../errors'
+import { errAdminOnly, errControlledAddressNotProven, errFactoryUpdatesNotAllowed, errNotAWallet } from './errors'
 import { ARC58WalletIDsByAccountsMbr } from '../../escrow/constants'
-import { BoxCostPerByte, FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_AVM_BYTE_ARRAY_LENGTH, MAX_PROGRAM_PAGES } from '../../utils/constants'
-import { ERR_INVALID_PAYMENT } from '../../utils/errors'
-import { costInstantDisbursement, getWalletFees, getWalletIDUsingAkitaDAO, rekeyAddress, sendReferralPayment } from '../../utils/functions'
-import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysUpdateSettings, AbstractAccountNumGlobalBytes, AbstractAccountNumGlobalUints, AbstractedAccountFactoryGlobalStateKeyDomain, MethodRestrictionByteLength, MinPluginMBR } from './constants'
+import { BoxCostPerByte, FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../../utils/constants'
+import { appGlobalSchema, extraPagesToGrow, programPagesMbr } from '../../utils/programs'
+import { errInvalidPayment } from '../../utils/errors'
+import { calcPercent, costInstantDisbursement, getWalletFees, rekeyAddress, sendReferralPaymentTo } from '../../utils/functions'
+import { AbstractAccountGlobalStateKeysAdmin, AbstractAccountGlobalStateKeysUpdateSettings, AbstractedAccountFactoryGlobalStateKeyDomain, MethodRestrictionByteLength, MinPluginMBR } from './constants'
 import { FactoryUpdateSettings, PluginInstall } from './types'
 
 // CONTRACT IMPORTS
@@ -72,7 +73,7 @@ export class AbstractedAccountFactory extends FactoryContract {
   // ABSTRACTED ACCOUNT FACTORY METHODS -----------------------------------------------------------
 
   updateRevocation(app: Application): void {
-    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
     this.revocation.value = app
   }
 
@@ -84,6 +85,7 @@ export class AbstractedAccountFactory extends FactoryContract {
     referrer: Account,
     salt: bytes<32>,
     bio: string,
+    automaticUpdates: boolean,
     extraFunding: uint64,
     assets: uint64[],
     plugins: PluginInstall[]
@@ -93,8 +95,11 @@ export class AbstractedAccountFactory extends FactoryContract {
 
     const creationFee = getWalletFees(this.akitaDAO.value).createFee
 
+    // Wave 0: derive program pages from the boxed wallet program (never below the legacy 3 extra)
+    const extraPages = this.childExtraPages(abstractedAccount.clearStateProgram.length)
+
     const childMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      programPagesMbr(extraPages) +
       (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
       Global.minBalance +
@@ -111,18 +116,27 @@ export class AbstractedAccountFactory extends FactoryContract {
       ))
     }
 
-    let leftover: uint64 = creationFee
-    let referralMbr: uint64 = 0;
-    if (creationFee > 0) {
-      ({ leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, creationFee))
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    // Q1-A2: the payer no longer funds a referral disbursement MBR (see creationFeeLeftover)
+    loggedAssert(payment.amount === childMBR + extraFunding + assetMBR + pluginMBR, errInvalidPayment)
+
+    const leftover = this.creationFeeLeftover(creationFee, referrer)
+
+    // SG-04: an external controlled address must prove, in THIS group, that its owner handed it
+    // to this factory: an earlier transaction in the group sent by that account that rekeys it
+    // here. A rekey left over from an earlier group (or made by someone else) can no longer be
+    // used to wrap a victim's account in a wallet controlled by an arbitrary admin, nor to give
+    // a fake wallet an origin it does not control.
+    if (controlledAddress !== Global.zeroAddress) {
+      let proven = false
+      for (let i: uint64 = 0; i < Txn.groupIndex; i += 1) {
+        const txn = gtxn.Transaction(i)
+        if (txn.sender === controlledAddress && txn.rekeyTo === Global.currentApplicationAddress) {
+          proven = true
+        }
+      }
+      loggedAssert(proven, errControlledAddressNotProven)
     }
-
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === childMBR + referralMbr + extraFunding + assetMBR + pluginMBR, ERR_INVALID_PAYMENT)
-
-    const approvalSize = this.boxedContract.length
-    const chunk1 = this.boxedContract.extract(0, 4096)
-    const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
 
     // Factory as temp admin for setup, then transfers to the real admin
     const useSetup = bio !== '' || plugins.length > 0 || assets.length > 0
@@ -140,11 +154,18 @@ export class AbstractedAccountFactory extends FactoryContract {
           this.revocation.value.id,
           nickname,
           referrer,
-          salt
+          salt,
+          automaticUpdates
         ],
-        approvalProgram: [chunk1, chunk2],
+        // Boxed wallet program in up to four 4 KB chunks (AVM 13: up to 16 KB)
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
         clearStateProgram: abstractedAccount.clearStateProgram,
-        extraProgramPages: 3
+        extraProgramPages: extraPages
       })
       .itxn
       .createdApp
@@ -263,25 +284,45 @@ export class AbstractedAccountFactory extends FactoryContract {
   @abimethod({ readonly: true })
   cost(): uint64 {
 
-    const creationFee = getWalletFees(this.akitaDAO.value).createFee
+    const abstractedAccount = compileArc4(AbstractedAccount)
 
-    let referralCost: uint64 = 0
-    if (creationFee > 0) {
-      const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-      if (wallet.id > 0) {
-        referralCost = costInstantDisbursement(this.akitaDAO.value, 0, 1)
-      }
-    }
-
+    // Q1-A2: no referral term. The referrer's cut and its disbursement MBR come out of the
+    // creation fee (DAO share), so the price no longer depends on who calls or on any registry.
     return (
-      MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * AbstractAccountNumGlobalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * AbstractAccountNumGlobalBytes) +
+      this.childPagesMbr(abstractedAccount.clearStateProgram.length) +
+      (GLOBAL_STATE_KEY_UINT_COST * abstractedAccount.globalUints) +
+      (GLOBAL_STATE_KEY_BYTES_COST * abstractedAccount.globalBytes) +
       Global.minBalance +
       ARC58WalletIDsByAccountsMbr +
-      creationFee +
-      referralCost
+      getWalletFees(this.akitaDAO.value).createFee
     )
+  }
+
+  /**
+   * Q1-A2 creation referral (principal-resolution spec §6.1). Pays the `referrer` ARGUMENT (any
+   * address; self-asserted, it is also stored as the new wallet's `referrer` global) its cut of the
+   * creation fee as a Rewards instant disbursement. The cut and the disbursement MBR both come out of
+   * the creation fee (DAO share), never from the payer. No registry lookup. The cut is skipped when
+   * there is no referrer, no fee, or the fee cannot cover cut + disbursement MBR (no underflow).
+   *
+   * @returns the part of the creation fee left for the DAO escrow
+   */
+  private creationFeeLeftover(creationFee: uint64, referrer: Account): uint64 {
+    if (creationFee === 0 || referrer === Global.zeroAddress) {
+      return creationFee
+    }
+
+    // same cut as sendReferralPaymentTo: percentage of the fee, at least 1
+    let cut: uint64 = calcPercent(creationFee, getWalletFees(this.akitaDAO.value).referrerPercentage)
+    if (cut === 0) {
+      cut = 1
+    }
+    if (creationFee < cut + costInstantDisbursement(this.akitaDAO.value, 0, 1)) {
+      return creationFee
+    }
+
+    const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, creationFee, this.akitaDAOEscrow.value.app.address)
+    return leftover - referralMbr
   }
 
   // WALLET UPDATE METHODS -------------------------------------------------------------------------
@@ -294,37 +335,58 @@ export class AbstractedAccountFactory extends FactoryContract {
    * @param wallet The wallet application to update
    */
   updateWallet(wallet: Application): void {
+    // ACC-08: only push wallet bytecode into apps this factory created (never into an arbitrary
+    // app that merely exposes the wallet's state keys and an update method)
+    const [creator, exists] = op.AppParams.appCreator(wallet)
+    loggedAssert(exists && creator === Global.currentApplicationAddress, errNotAWallet)
 
     const [updateSettingsBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysUpdateSettings))
     const { allowed, automatic } = decodeArc4<FactoryUpdateSettings>(updateSettingsBytes)
-    loggedAssert(allowed, ERR_FACTORY_UPDATES_NOT_ALLOWED)
+    loggedAssert(allowed, errFactoryUpdatesNotAllowed)
 
     if (!automatic) {
       const [adminBytes] = op.AppGlobal.getExBytes(wallet, Bytes(AbstractAccountGlobalStateKeysAdmin))
-      loggedAssert(Txn.sender === Account(adminBytes), ERR_ADMIN_ONLY)
-    }
-
-    const approvalSize: uint64 = this.boxedContract.length
-
-    let chunk1: bytes
-    let chunk2: bytes
-    if (approvalSize > MAX_AVM_BYTE_ARRAY_LENGTH) {
-      chunk1 = this.boxedContract.extract(0, MAX_AVM_BYTE_ARRAY_LENGTH)
-      chunk2 = this.boxedContract.extract(MAX_AVM_BYTE_ARRAY_LENGTH, approvalSize - MAX_AVM_BYTE_ARRAY_LENGTH)
-    } else {
-      chunk1 = this.boxedContract.extract(0, approvalSize)
-      chunk2 = Bytes('')
+      loggedAssert(Txn.sender === Account(adminBytes), errAdminOnly)
     }
 
     const clearProgram = compileArc4(AbstractedAccount).clearStateProgram
+    // Wave 0: grow the wallet's program pages only when the new program no longer fits. The
+    // factory sends the update, so on growth it becomes the wallet's size sponsor and must hold
+    // the wallet's full program/schema MBR (fund the factory before pushing a larger program).
+    const growTo = extraPagesToGrow(wallet, this.childApprovalSize(), clearProgram.length)
 
-    abiCall<typeof AbstractedAccount.prototype.update>({
-      appId: wallet,
-      args: [this.childContractVersion.value],
-      onCompletion: OnCompleteAction.UpdateApplication,
-      approvalProgram: [chunk1, chunk2],
-      clearStateProgram: clearProgram,
-    })
+    if (growTo > 0) {
+      // a size change also resets the global schema to the given values: keep the current one
+      const [numUint, numBytes] = appGlobalSchema(wallet)
+      abiCall<typeof AbstractedAccount.prototype.update>({
+        appId: wallet,
+        args: [this.childContractVersion.value],
+        onCompletion: OnCompleteAction.UpdateApplication,
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
+        clearStateProgram: clearProgram,
+        extraProgramPages: growTo,
+        globalNumUint: numUint,
+        globalNumBytes: numBytes,
+      })
+    } else {
+      abiCall<typeof AbstractedAccount.prototype.update>({
+        appId: wallet,
+        args: [this.childContractVersion.value],
+        onCompletion: OnCompleteAction.UpdateApplication,
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
+        clearStateProgram: clearProgram,
+      })
+    }
   }
 
   opUp(): void {

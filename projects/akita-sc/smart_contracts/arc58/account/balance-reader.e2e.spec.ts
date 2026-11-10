@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { Address, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
+import { Address } from 'algosdk';
+import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { StakingType } from 'akita-sdk/staking'
 import { buildAkitaUniverse, AkitaUniverse } from '../../../tests/fixtures/dao'
@@ -15,7 +16,7 @@ describe('AbstractedAccountBalanceReader', () => {
   const fixture = algorandFixture()
   let universe: AkitaUniverse
   let reader: AbstractedAccountBalanceReaderClient
-  let user: Address & TransactionSignerAccount
+  let user: TransactionSignerAccount
   let asset: bigint
   let unownedAsset: bigint
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -85,8 +86,8 @@ describe('AbstractedAccountBalanceReader', () => {
       asset,
     })
 
-    const status = await algorand.client.algod.status()
-    const block = await algorand.client.algod.block(status.lastRound)
+    const status = await algorand.client.algod.status().do()
+    const block = await algorand.client.algod.block(status.lastRound).do()
     const expiration = BigInt(block.block.header.timestamp) + 3_600n
     await universe.staking.stake({
       sender: user.addr,

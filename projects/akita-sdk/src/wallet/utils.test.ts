@@ -15,15 +15,15 @@ import type { AllowanceInfo as SubAllowanceInfo } from '../generated/AbstractedA
 describe('applyDefaultAppCallMaxFees', () => {
   test('sets missing caps on raw and ABI app calls without overwriting explicit caps', () => {
     const transactions = [
-      { type: 'appCall', data: {} as { maxFee?: bigint } },
-      { type: 'methodCall', data: {} as { maxFee?: bigint } },
-      { type: 'methodCall', data: { maxFee: 2_000n } },
-      { type: 'payment', data: {} as { maxFee?: bigint } },
+      { type: 'appCall', maxFee: undefined as bigint | undefined },
+      { type: 'methodCall', maxFee: undefined as bigint | undefined },
+      { type: 'methodCall', maxFee: 2_000n },
+      { type: 'payment', maxFee: undefined as bigint | undefined },
     ]
 
     applyDefaultAppCallMaxFees(transactions, 272_000n)
 
-    expect(transactions.map(({ data }) => data.maxFee)).toEqual([
+    expect(transactions.map(({ maxFee }) => maxFee)).toEqual([
       272_000n,
       272_000n,
       2_000n,

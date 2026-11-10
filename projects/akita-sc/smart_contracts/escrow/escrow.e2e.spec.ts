@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { EscrowFactorySDK, EscrowSDK } from 'akita-sdk/escrow'
 import algosdk from 'algosdk'
@@ -8,19 +9,22 @@ import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import {
   getAccountBalance
 } from '../../tests/utils/balance'
+import { expectContractError } from '../../tests/utils/errors'
+import { MockEscrowOwnerFactory } from '../artifacts/mocks/escrow-owner/MockEscrowOwnerClient'
+import { errInvalidPaymentSender } from '../utils/errors'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
 const fixture = algorandFixture()
 
 describe('Escrow SDK', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let user2: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
   let escrowFactorySDK: EscrowFactorySDK
   let escrowSDK: EscrowSDK
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
     account: SigningAccount;
   }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -35,9 +39,9 @@ describe('Escrow SDK', () => {
     user1 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
     user2 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(user1.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(user2.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(user1.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(user2.addr, dispenser.addr, (500).algo())
 
     // Build the full Akita DAO universe (includes escrow factory)
     akitaUniverse = await buildAkitaUniverse({
@@ -172,6 +176,64 @@ describe('Escrow SDK', () => {
         // The creator should be the factory
         expect(creator).toBeTruthy()
       })
+    })
+  })
+
+  describe('ACC-07 escrow deletion refund and funding binding', () => {
+    test('deleting an escrow refunds its closed balance plus released MBR; the factory nets zero', async () => {
+      const ownerFactory = algorand.client.getTypedAppFactory(MockEscrowOwnerFactory, {
+        defaultSender: user1.addr,
+        defaultSigner: user1.signer,
+      })
+      const { appClient: owner } = await ownerFactory.send.create.bare()
+      await owner.appClient.fundAppAccount({ amount: algokit.microAlgos(3_000_000) })
+
+      const factoryApp = akitaUniverse.escrowFactory
+      const factoryBefore = await getAccountBalance(algorand, factoryApp.appAddress.toString())
+      const cost = await factoryApp.cost()
+      const registerCost = await factoryApp.registerCost()
+
+      const escrowId = (await owner.send.newEscrow({
+        args: { factory: factoryApp.appId, cost },
+        extraFee: algokit.microAlgos(10_000),
+      })).return!
+      await owner.send.registerEscrow({
+        args: { factory: factoryApp.appId, escrow: escrowId, mbr: registerCost },
+        extraFee: algokit.microAlgos(2_000),
+      })
+
+      const escrowAddress = algosdk.getApplicationAddress(escrowId).toString()
+      await algorand.send.payment({ sender: user1.addr, signer: user1.signer, receiver: escrowAddress, amount: algokit.microAlgos(1_000_000) })
+      const escrowBalance = await getAccountBalance(algorand, escrowAddress)
+
+      const refund = (await owner.send.deleteEscrow({
+        args: { factory: factoryApp.appId, escrow: escrowId },
+        extraFee: algokit.microAlgos(6_000),
+      })).return!
+
+      // released app MBR (pages + 1 global bytes key) + registry box MBR + everything the escrow held
+      expect(refund).toBe(cost - 100_000n + registerCost + escrowBalance)
+      // previously the escrow's base balance and any leftovers stayed in the factory
+      expect(await getAccountBalance(algorand, factoryApp.appAddress.toString())).toBe(factoryBefore)
+    })
+
+    test('escrow creation funding must come from the caller', async () => {
+      const factoryApp = akitaUniverse.escrowFactory
+      const cost = await factoryApp.cost()
+      const payment = await algorand.createTransaction.payment({
+        sender: user2.addr,
+        receiver: factoryApp.appAddress,
+        amount: algokit.microAlgos(cost),
+      })
+      await expectContractError(
+        factoryApp.send.new({
+          sender: user1.addr,
+          signer: user1.signer,
+          args: { payment },
+          extraFee: algokit.microAlgos(4_000),
+        }),
+        errInvalidPaymentSender,
+      )
     })
   })
 })

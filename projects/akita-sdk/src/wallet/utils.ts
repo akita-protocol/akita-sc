@@ -6,7 +6,7 @@ import { PluginHookParams, PluginTxn } from "../types";
 
 type ComposerTransactionWithMaxFee<TFee> = {
   type: string;
-  data: { maxFee?: TFee };
+  maxFee?: TFee;
 };
 
 /**
@@ -24,9 +24,9 @@ export function applyDefaultAppCallMaxFees<TFee>(
   for (const transaction of transactions) {
     if (
       (transaction.type === 'appCall' || transaction.type === 'methodCall')
-      && transaction.data.maxFee === undefined
+      && transaction.maxFee === undefined
     ) {
-      transaction.data.maxFee = maxFee;
+      transaction.maxFee = maxFee;
     }
   }
 }
@@ -189,3 +189,4 @@ export class ValueMap<K extends object, V> {
 }
 
 export const getTxns = async ({ }: PluginHookParams): Promise<PluginTxn[]> => []
+

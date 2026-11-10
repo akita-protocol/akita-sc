@@ -1,3 +1,4 @@
+import { expectContractError } from '../../../tests/utils/errors';
 import { algo, Config, microAlgo } from '@algorandfoundation/algokit-utils';
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
@@ -12,7 +13,15 @@ import { deployAsaManagerPlugin } from '../../../tests/fixtures/plugins/asa-mana
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
 import { TimeWarp } from '../../../tests/utils/time';
-import { ERR_ALLOWANCE_EXCEEDED, ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY, ERR_EXECUTION_KEY_NOT_FOUND, ERR_MALFORMED_OFFSETS, ERR_METHOD_ON_COOLDOWN, ERR_PLUGIN_DOES_NOT_EXIST, ERR_PLUGIN_EXPIRED, ERR_PLUGIN_ON_COOLDOWN } from './errors';
+import { errAdminOnly, errAllowanceExceeded, errCannotCallOtherAppsDuringRekey, errExecutionKeyNotFound, errExecutionNotReady, errGroupNotFound, errMalformedOffsets, errMethodOnCooldown, errPluginDoesNotExist, errPluginExpired, errPluginOnCooldown } from './errors';
+
+// newAccount still pre-funds ARC58WalletIDsByAccountsMbr (Phase 4 removes it). Only the legacy
+// register() spends it, and newWallet no longer registers (principal resolution, Phase 3), so every
+// wallet here holds exactly this much above its minimum balance before the test funds it.
+const REGISTRATION_PREFUND = 12_100n
+// The same ARC58WalletIDsByAccountsMbr is part of mbr.newEscrowMintCost for every new escrow. addPlugin
+// no longer registers the escrow (registerEscrow defaults to false), so after a test funds
+// newEscrowMintCost and creates the escrow, the wallet keeps a second, unused REGISTRATION_PREFUND.
 
 describe('ARC58 Plugin Permissions', () => {
   const localnet = algorandFixture();
@@ -97,7 +106,7 @@ describe('ARC58 Plugin Permissions', () => {
       await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         callerType: CallerType.Global,
@@ -114,7 +123,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to be updated on the global plugin
       // const globalPluginInfo = wallet.plugins.get(`${payPluginSdk.appId}${ALGORAND_ZERO_ADDRESS_STRING}`)!;
@@ -144,7 +153,7 @@ describe('ARC58 Plugin Permissions', () => {
       await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         callerType: CallerType.Global,
@@ -161,7 +170,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to be updated on the global plugin
       const globalPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId })!;
@@ -218,7 +227,7 @@ describe('ARC58 Plugin Permissions', () => {
       await wallet.addPlugin({ client: payPluginSdk, caller: sender, callerType: CallerType.Other });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         sender,
@@ -236,7 +245,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to not be updated on the sender plugin
       const localPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, caller: sender })!;
@@ -265,7 +274,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         callerType: CallerType.Global,
@@ -282,7 +291,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to be updated on the global plugin
       const globalPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId })!;
@@ -312,7 +321,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_PLUGIN_ON_COOLDOWN);
+      expect(error).toContain(errPluginOnCooldown);
     })
 
     test('neither sender nor global plugin exists', async () => {
@@ -361,7 +370,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_PLUGIN_DOES_NOT_EXIST);
+      expect(error).toContain(errPluginDoesNotExist);
     })
 
     test('plugins expired', async () => {
@@ -384,7 +393,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.getPlugins();
       console.log(wallet.plugins.get({ plugin: payPluginSdk.appId })!);
@@ -407,7 +416,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_PLUGIN_EXPIRED);
+      expect(error).toContain(errPluginExpired);
     })
 
     test('wrong app call in sandwich', async () => {
@@ -427,7 +436,7 @@ describe('ARC58 Plugin Permissions', () => {
       await wallet.addPlugin({ client: asaManagerPluginSdk, callerType: CallerType.Global });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       // drop down below our wallet sdk
       // we need to use the direct call because
@@ -496,7 +505,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_CANNOT_CALL_OTHER_APPS_DURING_REKEY);
+      expect(error).toContain(errCannotCallOtherAppsDuringRekey);
     })
   })
 
@@ -528,7 +537,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         calls: [
@@ -544,7 +553,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to not be updated on the sender plugin
       const localPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, caller: sender })!;
@@ -580,7 +589,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       await wallet.usePlugin({
         calls: [
@@ -596,7 +605,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       // expect last used to not be updated on the sender plugin
       const localPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, caller: sender })!;
@@ -625,7 +634,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_METHOD_ON_COOLDOWN);
+      expect(error).toContain(errMethodOnCooldown);
     })
 
     test('methods on cooldown, single group', async () => {
@@ -655,7 +664,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       let error = 'no error thrown'
       try {
@@ -681,7 +690,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_METHOD_ON_COOLDOWN);
+      expect(error).toContain(errMethodOnCooldown);
     })
 
     test('malformed methodOffsets', async () => {
@@ -706,7 +715,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + paymentAmount)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + paymentAmount)
 
       // drop down below our wallet sdk
       // we need to use the direct call because
@@ -752,7 +761,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_MALFORMED_OFFSETS);
+      expect(error).toContain(errMalformedOffsets);
     })
   })
 
@@ -765,7 +774,7 @@ describe('ARC58 Plugin Permissions', () => {
       let mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n })
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       const asset = 0n
       const allowed = 10_000_000n
@@ -793,7 +802,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + allowed)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + allowed)
 
       await wallet.usePlugin({
         escrow,
@@ -808,7 +817,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (allowed - amount))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + (allowed - amount))
 
       // expect last used to be updated on the global plugin
       const globalPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, escrow })!;
@@ -840,7 +849,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_ALLOWANCE_EXCEEDED);
+      expect(error).toContain(errAllowanceExceeded);
     })
 
     test('allowance - window', async () => {
@@ -851,7 +860,7 @@ describe('ARC58 Plugin Permissions', () => {
       let mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n })
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       const asset = 0n
       const allowed = 10_000_000n
@@ -881,7 +890,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (allowed * 2n))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + (allowed * 2n))
 
       await wallet.usePlugin({
         escrow,
@@ -896,7 +905,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + ((allowed * 2n) - amount))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + ((allowed * 2n) - amount))
 
       // expect last used to be updated on the global plugin
       const globalPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, escrow })!;
@@ -928,7 +937,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_ALLOWANCE_EXCEEDED);
+      expect(error).toContain(errAllowanceExceeded);
 
       await timeWarp.warpForwardRounds(101n);
 
@@ -961,7 +970,7 @@ describe('ARC58 Plugin Permissions', () => {
       let mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n })
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND)
 
       const asset = 0n
       const max = 10_000_000n
@@ -1003,7 +1012,7 @@ describe('ARC58 Plugin Permissions', () => {
       expect(initialAllowanceInfo.last).toBeGreaterThan(0n)
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (max * 2n))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + (max * 2n))
 
       await wallet.usePlugin({
         escrow,
@@ -1018,7 +1027,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + ((max * 2n) - amount))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (2n * REGISTRATION_PREFUND) + ((max * 2n) - amount))
 
       // expect last used to be updated on the global plugin
       const globalPluginInfo = wallet.plugins.get({ plugin: payPluginSdk.appId, escrow })!;
@@ -1050,32 +1059,26 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_ALLOWANCE_EXCEEDED);
+      expect(error).toContain(errAllowanceExceeded);
+
+      // ACC-03: `last` is the accrual anchor. It only advances by whole intervals, so the
+      // partial interval before a spend keeps accruing (it used to be discarded).
+      expect((allowanceInfo.last - allowanceInfo.start) % allowanceInfo.interval).toEqual(0n)
+      const anchorAfterFirstSpend = allowanceInfo.last
 
       await timeWarp.warpForwardRounds(20n);
 
-      // calculate how much we should have available now
-      // we waited 21 rounds, with a rate of 1_000_000 every 10 rounds
-      // so we should have 2_000_000 drip back
-      // we had 4_000_000 left after our first payment
-      // so we should have 6_000_000 available now
-      allowanceInfo = wallet.allowances.get({ asset, escrow })!;
-
-      if (!isDripAllowance(allowanceInfo)) {
-        throw new Error('Expected allowance to be drip');
+      // The next spend lands in the next round. Expected availability from the anchor:
+      const nextRound = async () => BigInt((await algorand.client.algod.status().do()).lastRound) + 1n
+      const dripAvailable = (leftover: bigint, anchor: bigint, round: bigint, info: { interval: bigint; rate: bigint }) => {
+        const accrued = leftover + ((round - anchor) / info.interval) * info.rate
+        return accrued > max ? max : accrued
       }
 
-      // utils10's AlgodClient uses a flat async API (no chained `.do()`),
-      // and returns `lastRound` as a bigint directly.
-      const lastRound = BigInt((await algorand.client.algod.status()).lastRound);
-
-      expect(allowanceInfo.last).toBe(lastRound - 20n);
-      expect(
-        allowanceInfo.lastLeftover + (
-          (20n / allowanceInfo.interval) *
-          allowanceInfo.rate
-        )
-      ).toEqual(amount);
+      let round = await nextRound()
+      const availableAtSecondSpend = dripAvailable(max - amount, anchorAfterFirstSpend, round, allowanceInfo)
+      // at least the two whole intervals of the 20 warped rounds came back
+      expect(availableAtSecondSpend).toBeGreaterThanOrEqual(amount)
 
       await wallet.usePlugin({
         escrow,
@@ -1095,10 +1098,16 @@ describe('ARC58 Plugin Permissions', () => {
         throw new Error('Expected allowance to be drip');
       }
 
-      expect(allowanceInfo.lastLeftover).toEqual(0n);
+      expect(allowanceInfo.lastLeftover).toEqual(availableAtSecondSpend - amount);
+      expect(allowanceInfo.last).toEqual(
+        anchorAfterFirstSpend + ((round - anchorAfterFirstSpend) / allowanceInfo.interval) * allowanceInfo.interval
+      )
 
       await timeWarp.warpForwardRounds(40n);
 
+      // Asking for more than has accrued still fails
+      round = await nextRound()
+      const availableNow = dripAvailable(allowanceInfo.lastLeftover, allowanceInfo.last, round, allowanceInfo)
       error = 'no error thrown'
       try {
         await wallet.usePlugin({
@@ -1106,16 +1115,16 @@ describe('ARC58 Plugin Permissions', () => {
           callerType: CallerType.Global,
           calls: [
             payPluginSdk.pay({
-              payments: [{ receiver: sender, amount, asset }]
+              payments: [{ receiver: sender, amount: availableNow + 1n, asset }]
             })
           ],
-          fundsRequest: [{ amount, asset }]
+          fundsRequest: [{ amount: availableNow + 1n, asset }]
         })
       } catch (e: any) {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_ALLOWANCE_EXCEEDED);
+      expect(error).toContain(errAllowanceExceeded);
 
       await timeWarp.warpForwardRounds(60n);
 
@@ -1138,6 +1147,71 @@ describe('ARC58 Plugin Permissions', () => {
       }
 
       expect(allowanceInfo.lastLeftover).toEqual(max - 1_000_000n);
+    })
+
+    test('allowance - drip keeps partial interval progress across spends', async () => {
+      const { algorand, context: { testAccount } } = localnet
+      const sender = testAccount.toString()
+
+      const escrow = 'drip_carry'
+      const mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n })
+
+      const asset = 0n
+      const rate = 1_000_000n
+      const interval = 10n
+      const max = 10_000_000n
+
+      await wallet.client.appClient.fundAppAccount({
+        amount: microAlgo((max * 2n) + mbr.plugins + mbr.newEscrowMintCost + mbr.allowances)
+      })
+
+      await wallet.addPlugin({
+        client: payPluginSdk,
+        callerType: CallerType.Global,
+        escrow,
+        allowances: [{ type: 'drip', asset, rate, interval, max, useRounds: true }]
+      });
+
+      const spend = (amount: bigint) => wallet.usePlugin({
+        escrow,
+        callerType: CallerType.Global,
+        calls: [payPluginSdk.pay({ payments: [{ receiver: sender, amount, asset }] })],
+        fundsRequest: [{ amount, asset }]
+      })
+
+      // Drain the full bucket. ACC-03: the accrual anchor stays on the allowance's interval grid
+      // (start + k * interval); it never jumps to the spend round.
+      await spend(max)
+      let info = await wallet.getAllowance({ asset, escrow })
+      if (!isDripAllowance(info)) throw new Error('Expected allowance to be drip')
+      expect(info.lastLeftover).toEqual(0n)
+      const anchor = info.last
+      expect((anchor - info.start) % interval).toEqual(0n)
+
+      // Spend 1.5 intervals after the anchor: one interval accrued, the half interval must carry
+      // over. The next spend lands in the round after the current one.
+      const drainRound = BigInt((await algorand.client.algod.status().do()).lastRound)
+      await timeWarp.warpForwardRounds(anchor + 15n - drainRound - 1n)
+      await spend(rate)
+
+      const spendRound = BigInt((await algorand.client.algod.status().do()).lastRound)
+      const elapsed = spendRound - anchor
+      expect(elapsed % interval).not.toEqual(0n)
+
+      info = await wallet.getAllowance({ asset, escrow })
+      if (!isDripAllowance(info)) throw new Error('Expected allowance to be drip')
+      // The anchor moves by whole intervals only, not to the spend round.
+      expect(info.last).toEqual(anchor + ((elapsed / interval) * interval))
+      expect(info.lastLeftover).toEqual(((elapsed / interval) * rate) - rate)
+
+      // Less than a full interval after the last spend, but a full interval after the
+      // anchor: another drip is available. Dropping the partial interval would fail here.
+      await timeWarp.warpForwardRounds(4n)
+      await spend(rate)
+
+      info = await wallet.getAllowance({ asset, escrow })
+      if (!isDripAllowance(info)) throw new Error('Expected allowance to be drip')
+      expect(info.lastLeftover).toEqual(0n)
     })
 
     test('rejects unknown allowance types and zero-length intervals without creating boxes', async () => {
@@ -1186,6 +1260,62 @@ describe('ARC58 Plugin Permissions', () => {
   })
 
   describe('Execution Keys', () => {
+    test('execution keys enforce admin authorization, group hashes, validity, and one-time consumption', async () => {
+      const { algorand } = localnet
+      const submitter = algorand.account.random()
+      const dispenser = await algorand.account.dispenserFromEnvironment()
+      await algorand.account.ensureFunded(submitter, dispenser.addr, algo(4))
+      await wallet.client.appClient.fundAppAccount({ amount: microAlgo(2_000_000n) })
+      await wallet.addPlugin({ client: payPluginSdk, callerType: CallerType.Global, useExecutionKey: true, useRounds: true })
+      const execution = await wallet.build.usePlugin({
+        sender: submitter.toString(), signer: submitter.signer, lease: 'execution_checks', windowSize: 1000n,
+        callerType: CallerType.Global,
+        calls: [payPluginSdk.pay({ payments: [{ receiver: submitter.toString(), amount: 1n, asset: 0 }] })],
+      })
+      const { lease, ids: groups, firstValid, lastValid } = execution
+      const args = { lease, groups, firstValid, lastValid }
+      const before = await algorand.account.getInformation(wallet.client.appAddress)
+      const beforeBoxes = (await algorand.client.algod.getApplicationBoxes(wallet.appId).do()).boxes.length
+      expect(await wallet.client.arc58GetExecutions({ args: { leases: [lease] } })).toEqual([[[], 0n, 0n]])
+      const executionMbr = (await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: BigInt(groups.length) })).executions
+      expect(executionMbr).toBe(23_700n + 12_800n * BigInt(groups.length))
+      await expectContractError(wallet.addExecutionKey({
+        ...args, sender: submitter.toString(), signer: submitter.signer,
+      }), errAdminOnly)
+      await expectContractError(wallet.addExecutionKey({ ...args, groups: [] }), errExecutionNotReady)
+      await expectContractError(wallet.addExecutionKey({ ...args, firstValid: lastValid + 1n }), errExecutionNotReady)
+      expect((await wallet.client.state.box.executions.getMap()).size).toBe(0)
+
+      const wrongGroups = [new Uint8Array(32).fill(123)]
+      await wallet.addExecutionKey({ ...args, groups: wrongGroups })
+      await expectContractError(sendPrepared(execution.windows[0], algorand.client.algod), errGroupNotFound)
+      expect((await wallet.getExecution(lease)).groups).toEqual(wrongGroups)
+      await wallet.removeExecutionKey({ lease })
+
+      await wallet.addExecutionKey({ ...args, firstValid: lastValid + 1n, lastValid: lastValid + 1000n })
+      await expectContractError(sendPrepared(execution.windows[0], algorand.client.algod), errExecutionNotReady)
+      await wallet.removeExecutionKey({ lease })
+
+      await wallet.group().addExecutionKey(args).send()
+      const installed = await algorand.account.getInformation(wallet.client.appAddress)
+      expect(installed.minBalance.microAlgos - before.minBalance.microAlgos).toBe(executionMbr)
+      expect((await algorand.client.algod.getApplicationBoxes(wallet.appId).do()).boxes.length).toBe(beforeBoxes + 1)
+      const box = await algorand.client.algod.getApplicationBoxByName(wallet.appId, new Uint8Array([120, ...lease])).do()
+      expect(box.value.length).toBe(20 + 32 * groups.length)
+      expect(await wallet.getExecution(lease)).toEqual({ groups, firstValid, lastValid })
+      expect(await wallet.client.arc58GetExecutions({ args: { leases: [lease] } })).toEqual([[groups, firstValid, lastValid]])
+      await sendPrepared(execution.windows[0], algorand.client.algod)
+      expect((await wallet.client.state.box.executions.getMap()).size).toBe(0)
+      expect((await algorand.account.getInformation(wallet.client.appAddress)).minBalance.microAlgos).toBe(before.minBalance.microAlgos)
+      await expect(sendPrepared(execution.windows[0], algorand.client.algod)).rejects.toThrow()
+
+      // Anyone can clean up an expired key, releasing the complete record's MBR.
+      await wallet.client.send.arc58AddExecutionKey({ args: { ...args, firstValid: 1n, lastValid: 2n } })
+      await wallet.removeExecutionKey({ lease, sender: submitter.toString(), signer: submitter.signer })
+      expect((await wallet.client.state.box.executions.getMap()).size).toBe(0)
+      expect((await algorand.account.getInformation(wallet.client.appAddress)).minBalance.microAlgos).toBe(before.minBalance.microAlgos)
+    })
+
     test('execution key - valid', async () => {
       const { algorand } = localnet
       const dispenser = await algorand.account.dispenserFromEnvironment();
@@ -1213,7 +1343,7 @@ describe('ARC58 Plugin Permissions', () => {
       });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + (paymentAmount + mbr.executions))
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + (paymentAmount + mbr.executions))
 
       let error = 'no error thrown'
       try {
@@ -1235,7 +1365,7 @@ describe('ARC58 Plugin Permissions', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_EXECUTION_KEY_NOT_FOUND);
+      expect(error).toContain(errExecutionKeyNotFound);
 
       const { lease, firstValid, lastValid, ids: groups, windows } = await wallet.build.usePlugin({
         sender,
@@ -1262,7 +1392,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       const oneGroupMbr = (await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 1n })).executions
       const groupGrowthMbr = mbr.executions - oneGroupMbr
-      await wallet.addExecutionKey({ lease, groups: [groups[0]], firstValid, lastValid })
+      await wallet.group().addExecutionKey({ lease, groups: [groups[0]], firstValid, lastValid }).send()
       const afterExtension = await algorand.account.getInformation(wallet.client.appAddress)
       expect(afterExtension.balance.microAlgos).toEqual(afterExecution.balance.microAlgos)
       expect(afterExtension.minBalance.microAlgos - afterExecution.minBalance.microAlgos).toEqual(groupGrowthMbr)
@@ -1271,7 +1401,7 @@ describe('ARC58 Plugin Permissions', () => {
 
       // expect the payment was successful
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress)
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + mbr.executions)
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND + mbr.executions)
 
       // manually refresh our cache
       await wallet.getPlugins();
