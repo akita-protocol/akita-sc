@@ -1,36 +1,15 @@
-import { AlgorandClient } from "@algorandfoundation/algokit-utils/algorand-client";
-import { AlgoAmount } from '@algorandfoundation/algokit-utils/amount';
-import { SendParams } from "@algorandfoundation/algokit-utils/transaction";
-import {
-  AddressWithTransactionSigner,
-  Transaction,
-  TransactionSigner,
-} from "@algorandfoundation/algokit-utils/transact";
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
-import { PendingTransactionResponse } from "@algorandfoundation/algokit-utils/algod-client";
-import { AppFactoryAppClientParams } from "@algorandfoundation/algokit-utils/app-factory";
+import { AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client';
+import { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
+import { SendParams } from '@algorandfoundation/algokit-utils/types/transaction';
+import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
+import { Transaction, TransactionSigner } from 'algosdk';
+type ReadableAddress = string | import('algosdk').Address;
+import type { modelsv2 } from 'algosdk';
+type PendingTransactionResponse = modelsv2.PendingTransactionResponse;
+import { AppFactoryAppClientParams } from '@algorandfoundation/algokit-utils/types/app-factory';
 import { AppReturn } from "@algorandfoundation/algokit-utils/types/app";
-import { ABIReturn } from "@algorandfoundation/algokit-utils/abi";
-import {
-  AppCallMethodCall,
-  AppCallParams,
-  AppCreateMethodCall,
-  AppCreateParams,
-  AppDeleteMethodCall,
-  AppDeleteParams,
-  AppUpdateMethodCall,
-  AppUpdateParams,
-  AssetConfigParams,
-  AssetCreateParams,
-  AssetDestroyParams,
-  AssetFreezeParams,
-  AssetOptInParams,
-  AssetOptOutParams,
-  AssetTransferParams,
-  OfflineKeyRegistrationParams,
-  OnlineKeyRegistrationParams,
-  PaymentParams,
-} from "@algorandfoundation/algokit-utils/composer";
+import { ABIReturn } from '@algorandfoundation/algokit-utils/types/app';
+import { AppCallMethodCall, AppCallParams, AppCreateMethodCall, AppCreateParams, AppDeleteMethodCall, AppDeleteParams, AppUpdateMethodCall, AppUpdateParams, AssetConfigParams, AssetCreateParams, AssetDestroyParams, AssetFreezeParams, AssetOptInParams, AssetOptOutParams, AssetTransferParams, OfflineKeyRegistrationParams, OnlineKeyRegistrationParams, PaymentParams } from '@algorandfoundation/algokit-utils/types/composer';
 
 /**
  * Tagged discriminated union used by wallet plugins to describe the

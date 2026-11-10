@@ -1,5 +1,7 @@
-import { PendingTransactionResponse, SimulateResponse } from "@algorandfoundation/algokit-utils/algod-client";
-import { TransactionType } from "@algorandfoundation/algokit-utils/transact";
+import type { modelsv2 } from 'algosdk';
+type PendingTransactionResponse = modelsv2.PendingTransactionResponse;
+type SimulateResponse = modelsv2.SimulateResponse;
+import { TransactionType } from 'algosdk';
 
 const MIN_TXN_FEE_MICROALGOS = 1_000n;
 
@@ -7,7 +9,7 @@ const MIN_TXN_FEE_MICROALGOS = 1_000n;
 // Expected-cost extraction from a simulate response
 // -----------------------------------------------------------------------------
 //
-// Given a `SimulateResponse` (the one utils10 runs inside `composer.build()`
+// Given a `SimulateResponse` (the one AlgoKit runs inside `composer.build()`
 // for resource population + inner-fee coverage), aggregate per-asset outflows
 // attributable to a single tracked address across the entire group — top-level
 // transactions plus every inner transaction, recursively.
@@ -52,7 +54,7 @@ export type AssetSubtotal = {
  * Aggregated cost prediction for a built transaction group from the
  * perspective of a single tracked address.
  *
- * Populated by `computeExpectedCost` using the simulate response that utils10
+ * Populated by `computeExpectedCost` using the simulate response that AlgoKit
  * already runs during `composer.build()` — no additional simulate roundtrip
  * is performed.
  */
@@ -146,7 +148,7 @@ function collectOutflows(
     // Principal outflow (payment / asset transfer) first, then fee. Keeping
     // them as separate entries makes the `payments[]` breakdown legible in
     // UI: "you sent 5 ALGO to X" + "you paid 0.001 ALGO in fees".
-    if (txn.type === TransactionType.Payment && txn.payment) {
+    if (txn.type === TransactionType.pay && txn.payment) {
       const receiver = addressToString(txn.payment.receiver) ?? "";
       const closeTo = addressToString(txn.payment.closeRemainderTo);
       const principal = BigInt(txn.payment.amount ?? 0n);
@@ -174,7 +176,7 @@ function collectOutflows(
           });
         }
       }
-    } else if (txn.type === TransactionType.AssetTransfer && txn.assetTransfer) {
+    } else if (txn.type === TransactionType.axfer && txn.assetTransfer) {
       const at = txn.assetTransfer;
       // Clawback: `assetSender` is set and the *clawback admin* (sender) is
       // moving someone else's asset. In that case the principal leaves
@@ -186,7 +188,7 @@ function collectOutflows(
       const closeTo = addressToString(at.closeRemainderTo);
       if (!assetSenderStr && (principal > 0n || closeTo)) {
         payments.push({
-          asset: BigInt(at.assetId),
+          asset: BigInt(at.assetIndex),
           amount: principal,
           sender,
           receiver,
@@ -197,7 +199,7 @@ function collectOutflows(
         const closeAmount = BigInt(ptr.assetClosingAmount ?? 0n);
         if (closeAmount > 0n) {
           payments.push({
-            asset: BigInt(at.assetId),
+            asset: BigInt(at.assetIndex),
             amount: closeAmount,
             sender,
             receiver: closeTo,
@@ -264,10 +266,10 @@ function buildSubtotals(payments: AssetPayment[]): AssetSubtotal[] {
  * I need to cover" number, not a net P&L view.
  *
  * Fees are counted per-txn where the tracked address is the sender. Because
- * utils10 distributes inner-txn fees up to the calling app-call's fee field
+ * AlgoKit distributes inner-txn fees up to the calling app-call's fee field
  * during `coverAppCallInnerTransactionFees`, inner transactions themselves
  * typically have fee=0 in the simulate response — the tracked address only
- * "sees" fees when it is the top-level sender of a txn that the utils10 pass
+ * "sees" fees when it is the top-level sender of a txn that the AlgoKit pass
  * pooled fees onto. This matches real-world execution semantics.
  *
  * @param simulateResponse - The response from the simulate call that was

@@ -1,16 +1,21 @@
-import type { SimulateUnnamedResourcesAccessed } from "@algorandfoundation/algokit-utils/algod-client";
-import { TransactionComposer } from "@algorandfoundation/algokit-utils/composer";
-import { Address, getApplicationAddress } from "@algorandfoundation/algokit-utils/common";
-import {
-  type ResourceReference,
-  calculateFee,
-  OnApplicationComplete,
-  Transaction,
-  TransactionParamsMeta,
-  TransactionType,
-} from "@algorandfoundation/algokit-utils/transact";
-import { AlgorandClientTransactionSender, microAlgo } from "@algorandfoundation/algokit-utils";
-
+import algosdk, { Address, getApplicationAddress, TransactionType } from 'algosdk';
+import { TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer';
+import { AlgorandClientTransactionSender } from '@algorandfoundation/algokit-utils/types/algorand-client-transaction-sender';
+import { Config, microAlgo } from '@algorandfoundation/algokit-utils';
+import type { SendParams } from '@algorandfoundation/algokit-utils/types/transaction';
+import type { AlgoAmount } from '@algorandfoundation/algokit-utils/types/amount';
+import { simulateWithUsage, usageFeeSurcharge } from './usage';
+type Transaction = Omit<algosdk.Transaction, 'applicationCall'> & {
+  applicationCall?: { -readonly [K in keyof algosdk.ApplicationTransactionFields]: algosdk.ApplicationTransactionFields[K] };
+};
+type ResourceReference = algosdk.TransactionResourceReference;
+export type SimulateUnnamedResourcesAccessed = {
+  accounts?: Address[]; assets?: bigint[]; apps?: bigint[];
+  assetHoldings?: Array<{ address: Address; assetIndex: bigint }>;
+  appLocals?: Array<{ address: Address; appIndex: bigint }>;
+  boxes?: Array<{ appIndex: bigint; name: Uint8Array }>;
+  extraBoxRefs?: number;
+};
 /** Consensus-v41 limit for `txn.Access`. */
 export const MAX_ACCESS_LIST_ENTRIES = 16;
 
@@ -36,11 +41,12 @@ type SimulationTransactionResult = {
 };
 
 type SimulationPendingTransactionResult = {
-  appId?: bigint;
+  appIndex?: bigint;
   innerTxns?: SimulationPendingTransactionResult[];
 };
 
 type SimulationGroupResult = {
+  groupUsage?: bigint;
   txnResults?: SimulationTransactionResult[];
   unnamedResourcesAccessed?: SimulateUnnamedResourcesAccessed;
   appBudgetAdded?: number;
@@ -57,21 +63,6 @@ export type ComposerGroupAnalysis = {
   accessListFeeParams?: { feePerByte: bigint; minFee: bigint };
 };
 
-type ComposerInternals = {
-  algod: {
-    simulateTransactions(request: Record<string, unknown>): Promise<{
-      txnGroups: SimulationGroupResult[];
-    }>;
-  };
-  composerConfig: { populateAppCallResources: boolean; coverAppCallInnerTransactionFees: boolean };
-  txns: Array<{ type: string; data: Record<string, unknown> }>;
-  rawBuildTransactions?: Transaction[];
-  build(): Promise<unknown>;
-  reset(): void;
-  addAppCall(params: Record<string, unknown>): TransactionComposer;
-  analyzeGroupRequirements(transactions: Transaction[], suggestedParams: unknown, analysisParams: unknown): Promise<ComposerGroupAnalysis>;
-  populateTransactionAndGroupResources(transactions: Transaction[], groupAnalysis?: ComposerGroupAnalysis): Transaction[];
-};
 
 type PlannedAccess = {
   groupIndex: number;
@@ -80,16 +71,10 @@ type PlannedAccess = {
 };
 
 const ACCESS_LIST_PATCH = Symbol.for("@akta/sdk/access-list-resource-populator");
-const ACCESS_LIST_BUILD_PATCH = Symbol.for("@akta/sdk/access-list-build-populator");
-const ACCESS_LIST_ANALYSIS_PATCH = Symbol.for("@akta/sdk/access-list-analysis-populator");
-const ACCESS_LIST_RESET_PATCH = Symbol.for("@akta/sdk/access-list-reset-populator");
-const EMPTY_ACCESS_BOX_DECODER_PATCH = Symbol.for("@akta/sdk/empty-access-box-decoder");
 const SINGLE_SEND_RESULT_PATCH = Symbol.for("@akta/sdk/access-list-single-send-result");
 const ACCESS_CARRIER_REGISTRY = Symbol.for("@akta/sdk/access-list-carrier-registry");
-const validatedComposers = new WeakSet<object>();
 const accessListRepairs = new WeakMap<object, ComposerGroupAnalysis>();
 const accessListRepairKeys = new WeakMap<object, Set<string>>();
-const internalRetryResets = new WeakSet<object>();
 
 type CarrierRegistryHost = {
   [ACCESS_CARRIER_REGISTRY]?: Map<string, Uint8Array>;
@@ -99,107 +84,6 @@ function registeredAccessCarrierApps(algod: object): ReadonlyMap<string, Uint8Ar
   // Proxies used by prepareGroup/analyzeGroupRequirements forward symbol reads
   // to the real algod client, preserving the network-scoped registry.
   return (algod as CarrierRegistryHost)[ACCESS_CARRIER_REGISTRY] ?? new Map<string, Uint8Array>();
-}
-
-type WireObject = Record<string, unknown> | Map<unknown, unknown>;
-
-function wireKey(value: unknown): string {
-  return value instanceof Uint8Array ? new TextDecoder().decode(value) : String(value);
-}
-
-function wireValue(object: WireObject, key: string): unknown {
-  if (object instanceof Map) {
-    for (const [candidate, value] of object) {
-      if (wireKey(candidate) === key) return value;
-    }
-    return undefined;
-  }
-  return object[key];
-}
-
-function wireWithValue(object: WireObject, key: string, value: unknown): WireObject {
-  if (object instanceof Map) {
-    const copy = new Map(object);
-    const existingKey = [...copy.keys()].find((candidate) => wireKey(candidate) === key) ?? key;
-    copy.set(existingKey, value);
-    return copy;
-  }
-  return { ...object, [key]: value };
-}
-
-/**
- * AlgoKit Utils 10.0.0-beta.1 represents the consensus-v41 unnamed-box entry
- * as `b: {}` and then rejects it while decoding. The canonical go-algorand
- * wire value is an entirely empty ResourceRef (`{}`). Normalize that case so
- * transaction/group hashes match consensus and simulation responses decode.
- */
-function installEmptyAccessBoxDecoderCompatibility(): void {
-  const appCallCodec = TransactionParamsMeta.fields.find((field) => field.name === "appCall")?.codec as
-    | {
-        encodeResourceReferences?: (
-          appId: bigint,
-          references: ResourceReference[] | undefined,
-          format: unknown,
-        ) => WireObject[] | undefined;
-        decodeResourceReferences?: (references: WireObject[] | undefined, format: unknown) => ResourceReference[];
-      }
-    | undefined;
-  if (!appCallCodec) return;
-
-  const prototype = Object.getPrototypeOf(appCallCodec) as {
-    [EMPTY_ACCESS_BOX_DECODER_PATCH]?: boolean;
-    encodeResourceReferences?: (
-      appId: bigint,
-      references: ResourceReference[] | undefined,
-      format: unknown,
-    ) => WireObject[] | undefined;
-    decodeResourceReferences?: (references: WireObject[] | undefined, format: unknown) => ResourceReference[];
-  };
-  if (
-    prototype[EMPTY_ACCESS_BOX_DECODER_PATCH] ||
-    !prototype.encodeResourceReferences ||
-    !prototype.decodeResourceReferences
-  ) {
-    return;
-  }
-
-  const originalEncode = prototype.encodeResourceReferences;
-  const originalDecode = prototype.decodeResourceReferences;
-  prototype.encodeResourceReferences = function patchedEncodeResourceReferences(
-    appId: bigint,
-    references: ResourceReference[] | undefined,
-    format: unknown,
-  ): WireObject[] | undefined {
-    const encoded = originalEncode.call(this, appId, references, format)?.map((reference) => {
-      const box = wireValue(reference, "b");
-      if (!box || typeof box !== "object") return reference;
-      const boxObject = box as WireObject;
-      if (wireValue(boxObject, "i") !== undefined || wireValue(boxObject, "n") !== undefined) return reference;
-      return {};
-    }) ?? [];
-
-    return encoded.length > 0 ? encoded : undefined;
-  };
-  prototype.decodeResourceReferences = function patchedDecodeResourceReferences(
-    references: WireObject[] | undefined,
-    format: unknown,
-  ): ResourceReference[] {
-    const normalized = references?.map((reference) => {
-      const box = wireValue(reference, "b");
-      if (
-        box === undefined &&
-        ["d", "s", "p", "h", "l"].every((key) => wireValue(reference, key) === undefined)
-      ) {
-        return { b: { n: new Uint8Array(0) } };
-      }
-      if (!box || typeof box !== "object") return reference;
-      const boxObject = box as WireObject;
-      if (wireValue(boxObject, "n") !== undefined) return reference;
-      return wireWithValue(reference, "b", wireWithValue(boxObject, "n", new Uint8Array(0)));
-    });
-    return originalDecode.call(this, normalized, format);
-  };
-  prototype[EMPTY_ACCESS_BOX_DECODER_PATCH] = true;
 }
 
 type SingleSendResult = {
@@ -212,55 +96,10 @@ type SingleSendResult = {
   [key: string]: unknown;
 };
 
-type FeeDeltaLike = { type: 0 | 1; data: bigint };
-
-function algoAmountMicroAlgos(value: unknown): bigint | undefined {
-  if (typeof value === "bigint") return value;
-  if (!value || typeof value !== "object" || !("microAlgos" in value)) return undefined;
-  const microAlgos = (value as { microAlgos?: unknown }).microAlgos;
-  return typeof microAlgos === "bigint" ? microAlgos : undefined;
-}
-
-/** AlgoKit's FeeDelta uses 0 for a deficit and 1 for a surplus. */
-function addFeeDeficit(delta: unknown, additionalDeficit: bigint): FeeDeltaLike | undefined {
-  const current =
-    delta &&
-    typeof delta === "object" &&
-    "type" in delta &&
-    "data" in delta &&
-    typeof (delta as { data?: unknown }).data === "bigint"
-      ? (delta as FeeDeltaLike).type === 0
-        ? (delta as FeeDeltaLike).data
-        : -(delta as FeeDeltaLike).data
-      : 0n;
-  const combined = current + additionalDeficit;
-  if (combined > 0n) return { type: 0, data: combined };
-  if (combined < 0n) return { type: 1, data: -combined };
-  return undefined;
-}
-
-function byteFeeRequirement(
-  transaction: Transaction,
-  feeParams: { feePerByte: bigint; minFee: bigint },
-  assumedFee: bigint,
-  grouped: boolean,
-): bigint {
-  // Assuming maxFee when present is conservative if later allocation crosses a
-  // msgpack integer-width boundary. AlgoKit's original analysis uses the
-  // ungrouped transaction; the post-Access requirement includes the eventual
-  // fixed-width group field whenever the atomic group has multiple txns.
-  const atFee = new Transaction({
-    ...transaction,
-    fee: assumedFee,
-    group: grouped ? new Uint8Array(32).fill(1) : undefined,
-  });
-  return calculateFee(atFee, feeParams);
-}
-
 function isAutomaticCarrierTransaction(transaction: Transaction): boolean {
   const note = transaction.note;
   return Boolean(
-    transaction.type === TransactionType.AppCall &&
+    transaction.type === TransactionType.appl &&
       note &&
       new TextDecoder().decode(note).startsWith("akta-access-carrier-"),
   );
@@ -377,41 +216,41 @@ function effectiveAddress(address: Address, transaction: Transaction): Address {
 }
 
 function effectiveAppId(appId: bigint, transaction: Transaction): bigint {
-  return appId === 0n ? transaction.appCall!.appId : appId;
+  return appId === 0n ? transaction.applicationCall!.appIndex : appId;
 }
 
 function normalizeReference(reference: ResourceReference, transaction: Transaction): ResourceReference | undefined {
-  const appCall = transaction.appCall!;
+  const appCall = transaction.applicationCall!;
 
   if (reference.address) {
     if (reference.address.equals(transaction.sender)) return undefined;
     return { address: reference.address };
   }
-  if (reference.assetId !== undefined) return { assetId: reference.assetId };
-  if (reference.appId !== undefined) {
-    if (reference.appId === 0n || reference.appId === appCall.appId) return undefined;
-    return { appId: reference.appId };
+  if (reference.assetIndex !== undefined) return { assetIndex: reference.assetIndex };
+  if (reference.appIndex !== undefined) {
+    if (reference.appIndex === 0n || reference.appIndex === appCall.appIndex) return undefined;
+    return { appIndex: reference.appIndex };
   }
   if (reference.holding) {
     return {
       holding: {
         address: reference.holding.address.equals(transaction.sender) ? Address.zeroAddress() : reference.holding.address,
-        assetId: reference.holding.assetId,
+        assetIndex: reference.holding.assetIndex,
       },
     };
   }
   if (reference.locals) {
     const address = reference.locals.address.equals(transaction.sender) ? Address.zeroAddress() : reference.locals.address;
-    const appId = reference.locals.appId === appCall.appId ? 0n : reference.locals.appId;
+    const appId = reference.locals.appIndex === appCall.appIndex ? 0n : reference.locals.appIndex;
 
     // The sender's local state for the current app is inherently available.
     if (isZeroAddress(address) && appId === 0n) return undefined;
-    return { locals: { address, appId } };
+    return { locals: { address, appIndex: appId } };
   }
   if (reference.box) {
     return {
       box: {
-        appId: reference.box.appId === 0n || reference.box.appId === appCall.appId ? 0n : reference.box.appId,
+        appIndex: reference.box.appIndex === 0n || reference.box.appIndex === appCall.appIndex ? 0n : reference.box.appIndex,
         name: reference.box.name,
       },
     };
@@ -421,16 +260,16 @@ function normalizeReference(reference: ResourceReference, transaction: Transacti
 
 function referenceKey(reference: ResourceReference, transaction: Transaction): string | undefined {
   if (reference.address) return `d:${reference.address.toString()}`;
-  if (reference.assetId !== undefined) return `s:${reference.assetId}`;
-  if (reference.appId !== undefined) return `p:${effectiveAppId(reference.appId, transaction)}`;
+  if (reference.assetIndex !== undefined) return `s:${reference.assetIndex}`;
+  if (reference.appIndex !== undefined) return `p:${effectiveAppId(reference.appIndex, transaction)}`;
   if (reference.holding) {
-    return `h:${effectiveAddress(reference.holding.address, transaction).toString()}:${reference.holding.assetId}`;
+    return `h:${effectiveAddress(reference.holding.address, transaction).toString()}:${reference.holding.assetIndex}`;
   }
   if (reference.locals) {
-    return `l:${effectiveAddress(reference.locals.address, transaction).toString()}:${effectiveAppId(reference.locals.appId, transaction)}`;
+    return `l:${effectiveAddress(reference.locals.address, transaction).toString()}:${effectiveAppId(reference.locals.appIndex, transaction)}`;
   }
   if (reference.box) {
-    return `b:${effectiveAppId(reference.box.appId, transaction)}:${bytesKey(reference.box.name)}`;
+    return `b:${effectiveAppId(reference.box.appIndex, transaction)}:${bytesKey(reference.box.name)}`;
   }
   return undefined;
 }
@@ -454,7 +293,7 @@ export function accessListEntryCount(transaction: Transaction, references: reado
   const ensureAsset = (assetId: bigint) => primitiveEntries.add(`s:${assetId}`);
   const ensureApp = (appId: bigint) => {
     const actual = effectiveAppId(appId, transaction);
-    if (actual !== transaction.appCall!.appId) primitiveEntries.add(`p:${actual}`);
+    if (actual !== transaction.applicationCall!.appIndex) primitiveEntries.add(`p:${actual}`);
   };
 
   for (const rawReference of references) {
@@ -467,18 +306,18 @@ export function accessListEntryCount(transaction: Transaction, references: reado
     if (isLiteralZeroAddressReference(reference)) continue;
 
     if (reference.address) ensureLiteralAddress(reference.address);
-    else if (reference.assetId !== undefined) ensureAsset(reference.assetId);
-    else if (reference.appId !== undefined) ensureApp(reference.appId);
+    else if (reference.assetIndex !== undefined) ensureAsset(reference.assetIndex);
+    else if (reference.appIndex !== undefined) ensureApp(reference.appIndex);
     else if (reference.holding) {
       ensureCompositeAddress(reference.holding.address);
-      ensureAsset(reference.holding.assetId);
+      ensureAsset(reference.holding.assetIndex);
       compositeEntries += 1;
     } else if (reference.locals) {
       ensureCompositeAddress(reference.locals.address);
-      ensureApp(reference.locals.appId);
+      ensureApp(reference.locals.appIndex);
       compositeEntries += 1;
     } else if (reference.box) {
-      ensureApp(reference.box.appId);
+      ensureApp(reference.box.appIndex);
       compositeEntries += 1;
     }
   }
@@ -501,20 +340,20 @@ function providedResourceKeys(plan: PlannedAccess): Set<string> {
     if (reference.holding) {
       const address = effectiveAddress(reference.holding.address, plan.transaction);
       result.add(`d:${address.toString()}`);
-      result.add(`s:${reference.holding.assetId}`);
+      result.add(`s:${reference.holding.assetIndex}`);
     } else if (reference.locals) {
       const address = effectiveAddress(reference.locals.address, plan.transaction);
-      const appId = effectiveAppId(reference.locals.appId, plan.transaction);
+      const appId = effectiveAppId(reference.locals.appIndex, plan.transaction);
       result.add(`d:${address.toString()}`);
       result.add(`p:${appId}`);
     } else if (reference.box) {
-      result.add(`p:${effectiveAppId(reference.box.appId, plan.transaction)}`);
+      result.add(`p:${effectiveAppId(reference.box.appIndex, plan.transaction)}`);
     }
   }
 
   // These two resources are always available to an app call.
   result.add(`d:${plan.transaction.sender.toString()}`);
-  result.add(`p:${plan.transaction.appCall!.appId}`);
+  result.add(`p:${plan.transaction.applicationCall!.appIndex}`);
   return result;
 }
 
@@ -533,13 +372,13 @@ function addToTransaction(plan: PlannedAccess, reference: ResourceReference, all
   if (!normalized) return true;
 
   // Consensus v41 does not yet allow a Locals ref to use app index 0. The
-  // current JS encoders always collapse `locals.appId === called appId` to 0,
+  // current JS encoders always collapse `locals.appIndex === called appId` to 0,
   // so place that composite on a call to a different app instead. (The
   // resource remains group-shared.)
   if (
     normalized.locals &&
     !effectiveAddress(normalized.locals.address, plan.transaction).equals(plan.transaction.sender) &&
-    effectiveAppId(normalized.locals.appId, plan.transaction) === plan.transaction.appCall!.appId
+    effectiveAppId(normalized.locals.appIndex, plan.transaction) === plan.transaction.applicationCall!.appIndex
   ) {
     return false;
   }
@@ -555,21 +394,21 @@ function addToTransaction(plan: PlannedAccess, reference: ResourceReference, all
 
 function hasLegacyIndexedReferences(transaction: Transaction): boolean {
   return (
-    transaction.type === TransactionType.AppCall &&
-    transaction.appCall !== undefined &&
-    ((transaction.appCall.accountReferences?.length ?? 0) > 0 ||
-      (transaction.appCall.assetReferences?.length ?? 0) > 0 ||
-      (transaction.appCall.appReferences?.length ?? 0) > 0)
+    transaction.type === TransactionType.appl &&
+    transaction.applicationCall !== undefined &&
+    ((transaction.applicationCall.accounts?.length ?? 0) > 0 ||
+      (transaction.applicationCall.foreignAssets?.length ?? 0) > 0 ||
+      (transaction.applicationCall.foreignApps?.length ?? 0) > 0)
   );
 }
 
 function legacyReferenceCount(transaction: Transaction): number {
-  const appCall = transaction.appCall!;
+  const appCall = transaction.applicationCall!;
   return (
-    (appCall.accountReferences?.length ?? 0) +
-    (appCall.assetReferences?.length ?? 0) +
-    (appCall.appReferences?.length ?? 0) +
-    (appCall.boxReferences?.length ?? 0)
+    (appCall.accounts?.length ?? 0) +
+    (appCall.foreignAssets?.length ?? 0) +
+    (appCall.foreignApps?.length ?? 0) +
+    (appCall.boxes?.length ?? 0)
   );
 }
 
@@ -583,20 +422,20 @@ function legacyReferenceCount(transaction: Transaction): number {
 function provideLiteralZeroAddress(transactions: readonly Transaction[]): void {
   const zeroAddress = Address.zeroAddress();
   const appTransactions = transactions.filter(
-    (transaction) => transaction.type === TransactionType.AppCall && transaction.appCall !== undefined,
+    (transaction) => transaction.type === TransactionType.appl && transaction.applicationCall !== undefined,
   );
 
   for (const transaction of appTransactions) {
-    const appCall = transaction.appCall!;
-    appCall.accessReferences = appCall.accessReferences?.filter(
+    const appCall = transaction.applicationCall!;
+    appCall.access = appCall.access?.filter(
       (reference) => !isLiteralZeroAddressReference(reference),
     );
-    if (appCall.accessReferences?.length === 0) appCall.accessReferences = undefined;
+    if (appCall.access?.length === 0) appCall.access = [];
   }
 
   if (
     appTransactions.some((transaction) =>
-      transaction.appCall!.accountReferences?.some((address) => isZeroAddress(address)),
+      transaction.applicationCall!.accounts?.some((address) => isZeroAddress(address)),
     )
   ) {
     return;
@@ -604,10 +443,10 @@ function provideLiteralZeroAddress(transactions: readonly Transaction[]): void {
 
   const candidate = appTransactions
     .filter((transaction) => {
-      const appCall = transaction.appCall!;
+      const appCall = transaction.applicationCall!;
       return (
-        (appCall.accessReferences?.length ?? 0) === 0 &&
-        (appCall.accountReferences?.length ?? 0) < 4 &&
+        (appCall.access?.length ?? 0) === 0 &&
+        (appCall.accounts?.length ?? 0) < 4 &&
         legacyReferenceCount(transaction) < 8
       );
     })
@@ -626,8 +465,8 @@ function provideLiteralZeroAddress(transactions: readonly Transaction[]): void {
     );
   }
 
-  candidate.appCall!.accountReferences = [
-    ...(candidate.appCall!.accountReferences ?? []),
+  candidate.applicationCall!.accounts = [
+    ...(candidate.applicationCall!.accounts ?? []),
     zeroAddress,
   ];
 }
@@ -642,7 +481,7 @@ function addToBestTransaction(plans: readonly PlannedAccess[], reference: Resour
       if (
         normalized.locals &&
         !effectiveAddress(normalized.locals.address, plan.transaction).equals(plan.transaction.sender) &&
-        effectiveAppId(normalized.locals.appId, plan.transaction) === plan.transaction.appCall!.appId
+        effectiveAppId(normalized.locals.appIndex, plan.transaction) === plan.transaction.applicationCall!.appIndex
       ) {
         return { index, incremental: Number.POSITIVE_INFINITY, total: Number.POSITIVE_INFINITY };
       }
@@ -662,16 +501,12 @@ function virtualCarrier(template: PlannedAccess): PlannedAccess {
   return {
     groupIndex: -1,
     references: [],
-    transaction: new Transaction({
-      type: TransactionType.AppCall,
+    transaction: new algosdk.Transaction({
+      type: algosdk.TransactionType.appl,
       sender: transaction.sender,
-      firstValid: transaction.firstValid,
-      lastValid: transaction.lastValid,
-      appCall: {
-        appId: transaction.appCall!.appId,
-        onComplete: transaction.appCall!.onComplete,
-      },
-    }),
+      suggestedParams: { fee: 0, minFee: 1000, firstValid: transaction.firstValid, lastValid: transaction.lastValid },
+      appCallParams: { appIndex: transaction.applicationCall!.appIndex, onComplete: transaction.applicationCall!.onComplete },
+    }) as Transaction,
   };
 }
 
@@ -688,13 +523,13 @@ function transactionResources(
       .filter((address) => !isZeroAddress(address))
       .filter((address) => !createdAppAddresses.has(address.toString()))
       .map((address) => ({ address })),
-    ...(resources.assets ?? []).map((assetId) => ({ assetId })),
+    ...(resources.assets ?? []).map((assetId) => ({ assetIndex: assetId })),
     ...(resources.apps ?? [])
       .filter((appId) => !createdAppIds.has(appId))
-      .map((appId) => ({ appId })),
+      .map((appId) => ({ appIndex: appId })),
     ...(resources.assetHoldings ?? []).map((holding) => ({ holding })),
     ...(resources.appLocals ?? []).map((locals) => ({ locals })),
-    ...(resources.boxes ?? []).filter((box) => !createdAppIds.has(box.appId)).map((box) => ({ box })),
+    ...(resources.boxes ?? []).filter((box) => !createdAppIds.has(box.appIndex)).map((box) => ({ box })),
   ];
 }
 
@@ -712,15 +547,15 @@ function groupResources(
   return [
     ...(resources.appLocals ?? []).map((locals) => ({ locals })),
     ...(resources.assetHoldings ?? []).map((holding) => ({ holding })),
-    ...(resources.boxes ?? []).filter((box) => !createdAppIds.has(box.appId)).map((box) => ({ box })),
+    ...(resources.boxes ?? []).filter((box) => !createdAppIds.has(box.appIndex)).map((box) => ({ box })),
     ...(resources.accounts ?? [])
       .filter((address) => !isZeroAddress(address))
       .filter((address) => !createdAppAddresses.has(address.toString()))
       .map((address) => ({ address })),
-    ...(resources.assets ?? []).map((assetId) => ({ assetId })),
+    ...(resources.assets ?? []).map((assetId) => ({ assetIndex: assetId })),
     ...(resources.apps ?? [])
       .filter((appId) => !createdAppIds.has(appId))
-      .map((appId) => ({ appId })),
+      .map((appId) => ({ appIndex: appId })),
   ];
 }
 
@@ -802,20 +637,20 @@ function filterNewRepairResources(
     keys!.add(scopedKey);
     const values = (filtered[field] ?? []) as T[];
     values.push(value);
-    (filtered as Record<string, unknown>)[field] = values;
+    (filtered as unknown as Record<string, unknown>)[field] = values;
   };
 
   for (const value of resources?.accounts ?? []) add("accounts", `d:${value.toString()}`, value);
   for (const value of resources?.assets ?? []) add("assets", `s:${value}`, value);
   for (const value of resources?.apps ?? []) add("apps", `p:${value}`, value);
   for (const value of resources?.assetHoldings ?? []) {
-    add("assetHoldings", `h:${value.address.toString()}:${value.assetId}`, value);
+    add("assetHoldings", `h:${value.address.toString()}:${value.assetIndex}`, value);
   }
   for (const value of resources?.appLocals ?? []) {
-    add("appLocals", `l:${value.address.toString()}:${value.appId}`, value);
+    add("appLocals", `l:${value.address.toString()}:${value.appIndex}`, value);
   }
   for (const value of resources?.boxes ?? []) {
-    add("boxes", `b:${value.appId}:${bytesKey(value.name)}`, value);
+    add("boxes", `b:${value.appIndex}:${bytesKey(value.name)}`, value);
   }
 
   // Unlike semantic resources, each extra box ref is intentionally another
@@ -824,7 +659,25 @@ function filterNewRepairResources(
   return hasUnnamedResources(filtered) ? filtered : undefined;
 }
 
-function unavailableResourceFromFailure(message: string): SimulateUnnamedResourcesAccessed | undefined {
+export function unavailableResourceFromFailure(message: string): SimulateUnnamedResourcesAccessed | undefined {
+  // An inner app call makes the callee's local state for every account it
+  // passes "accessible", so the AVM checks the caller has that Local State at
+  // itxn_submit. Simulate does not report this pair as an unnamed resource,
+  // and Access, unlike legacy foreign arrays, has no implicit account x app
+  // cross-product, so the pair only surfaces as a strict failure.
+  const locals = /unavailable Local State (\d+)\+([A-Z2-7]{58})/.exec(message);
+  if (locals) return { appLocals: [{ appIndex: BigInt(locals[1]), address: Address.fromString(locals[2]) }] };
+
+  const holding = /unavailable Holding (?:(\d+)\+([A-Z2-7]{58})|([A-Z2-7]{58})\+(\d+))/.exec(message);
+  if (holding) {
+    return {
+      assetHoldings: [{
+        assetIndex: BigInt(holding[1] ?? holding[4]),
+        address: Address.fromString(holding[2] ?? holding[3]),
+      }],
+    };
+  }
+
   const account = /unavailable Account ([A-Z2-7]{58})/.exec(message)?.[1];
   if (account) return { accounts: [Address.fromString(account)] };
 
@@ -853,13 +706,13 @@ function providedExtraBoxReferences(transactions: readonly Transaction[]): numbe
   };
 
   for (const transaction of transactions) {
-    if (transaction.type !== TransactionType.AppCall || !transaction.appCall) continue;
-    for (const reference of transaction.appCall.accessReferences ?? []) {
+    if (transaction.type !== TransactionType.appl || !transaction.applicationCall) continue;
+    for (const reference of transaction.applicationCall.access ?? []) {
       if (!reference.box) continue;
-      count(reference.box.appId, reference.box.name, transaction);
+      count(reference.box.appIndex, reference.box.name, transaction);
     }
-    for (const box of transaction.appCall.boxReferences ?? []) {
-      count(box.appId, box.name, transaction);
+    for (const box of transaction.applicationCall.boxes ?? []) {
+      count(box.appIndex, box.name, transaction);
     }
   }
 
@@ -920,52 +773,11 @@ function recordAccessListRepairs(
   return true;
 }
 
-function resetComposerForRetry(composer: ComposerInternals): void {
-  internalRetryResets.add(composer);
-  try {
-    composer.reset();
-  } finally {
-    internalRetryResets.delete(composer);
-  }
-
-  const visited = new WeakSet<object>();
-  const clearGroup = (value: unknown): void => {
-    if (!value || typeof value !== "object" || visited.has(value)) return;
-    visited.add(value);
-
-    if (value instanceof Transaction) {
-      value.group = undefined;
-      return;
-    }
-    if (Array.isArray(value)) {
-      for (const item of value) clearGroup(item);
-      return;
-    }
-    // Signers, ABI methods, and other class instances do not contain built
-    // transaction arguments. Restrict recursion to plain composer data.
-    if (Object.getPrototypeOf(value) !== Object.prototype) return;
-    for (const item of Object.values(value as Record<string, unknown>)) clearGroup(item);
-  };
-
-  for (const transaction of composer.txns) {
-    const maybePromise = transaction.data.txn;
-    if (transaction.type === "asyncTxn" && maybePromise instanceof Promise) {
-      transaction.data.txn = maybePromise.then((resolved) => {
-        const clone = new Transaction({ ...(resolved as Transaction) });
-        clone.group = undefined;
-        return clone;
-      });
-    } else {
-      clearGroup(transaction.data);
-    }
-  }
-}
-
 function collectCreatedAppIds(group?: SimulationGroupResult): bigint[] {
   const result = new Set<bigint>();
   const visit = (pending?: SimulationPendingTransactionResult): void => {
     if (!pending) return;
-    if (pending.appId && pending.appId > 0n) result.add(pending.appId);
+    if (pending.appIndex && pending.appIndex > 0n) result.add(pending.appIndex);
     for (const inner of pending.innerTxns ?? []) visit(inner);
   };
   for (const transaction of group?.txnResults ?? []) visit(transaction.txnResult);
@@ -981,10 +793,15 @@ function collectCreatedAppIds(group?: SimulationGroupResult): bigint[] {
  * the smallest incremental encoded size, which naturally prefers placing a
  * box on a call to its owning app and reusing composite dependencies.
  */
-export function populateAccessListResources(transactions: Transaction[], groupAnalysis?: ComposerGroupAnalysis): void {
+export function populateAccessListResources(
+  input: algosdk.Transaction[],
+  groupAnalysis?: ComposerGroupAnalysis,
+  seeds: readonly ResourceReference[] = [],
+): void {
+  const transactions = input as Transaction[];
   const appTransactions = transactions
     .map((transaction, groupIndex) => ({ transaction, groupIndex }))
-    .filter(({ transaction }) => transaction.type === TransactionType.AppCall && transaction.appCall !== undefined);
+    .filter(({ transaction }) => transaction.type === TransactionType.appl && transaction.applicationCall !== undefined);
 
   if (appTransactions.length === 0) return;
   const createdAppIds = new Set(groupAnalysis?.createdAppIds ?? []);
@@ -994,7 +811,7 @@ export function populateAccessListResources(transactions: Transaction[], groupAn
         analysis.unnamedResourcesAccessed?.accounts?.some(isZeroAddress),
       ) ||
       appTransactions.some(({ transaction }) =>
-        transaction.appCall!.accessReferences?.some(isLiteralZeroAddressReference),
+        transaction.applicationCall!.access?.some(isLiteralZeroAddressReference),
       ),
   );
   if (needsLiteralZeroAddress) provideLiteralZeroAddress(transactions);
@@ -1008,14 +825,14 @@ export function populateAccessListResources(transactions: Transaction[], groupAn
   const plans = appTransactions
     .filter(({ transaction }) => !hasLegacyIndexedReferences(transaction))
     .map(({ transaction, groupIndex }) => {
-      const appCall = transaction.appCall!;
+      const appCall = transaction.applicationCall!;
       // Canonicalize explicitly supplied entries as well as migrated boxes.
       // Inherent sender/current-app refs are semantically redundant but the
       // upstream encoder would otherwise still place them on wire, causing our
       // capacity count to understate the actual Access length.
       const references = [
-        ...(appCall.accessReferences ?? []),
-        ...(appCall.boxReferences ?? []).map((box) => ({ box })),
+        ...(appCall.access ?? []),
+        ...(appCall.boxes ?? []).map((box) => ({ box })),
       ]
         .map((reference) => normalizeReference(reference, transaction))
         .filter((reference): reference is ResourceReference => reference !== undefined);
@@ -1064,12 +881,20 @@ export function populateAccessListResources(transactions: Transaction[], groupAn
     addGroupReference(reference);
   }
 
+  // Seeded resources (seedAccessResources) are group-shared like discovered ones. A seed that
+  // discovery already provided, or that is the sender / called app of some call, adds nothing.
+  for (const reference of seeds) {
+    if (isLiteralZeroAddressReference(reference)) continue;
+    if (reference.appIndex !== undefined && createdAppIds.has(reference.appIndex)) continue;
+    addGroupReference(reference);
+  }
+
   for (let index = 0; index < extraBoxReferences; index += 1) {
     // An all-zero box reference contributes 2 KiB of box IO quota and, under
     // consensus v41, also authorizes one previously unnamed box in an app
     // created by this atomic group. This is the only stable representation for
     // an inner-created app whose ID is unknowable before submission.
-    addGroupReference({ box: { appId: 0n, name: new Uint8Array(0) } }, true);
+    addGroupReference({ box: { appIndex: 0n, name: new Uint8Array(0) } }, true);
   }
 
   const requiredCarrierCount = Math.max(requiredResourceCarriers, groupAnalysis?.requiredOpcodeCarriers ?? 0);
@@ -1086,338 +911,308 @@ export function populateAccessListResources(transactions: Transaction[], groupAn
   // Commit only after the entire group fits, so a capacity error does not leave
   // a half-converted composer behind.
   for (const plan of plans) {
-    const appCall = plan.transaction.appCall!;
+    const appCall = plan.transaction.applicationCall!;
     const size = accessListEntryCount(plan.transaction, plan.references);
     if (size > MAX_ACCESS_LIST_ENTRIES) {
       throw new Error(`Access list contains ${size} entries; maximum is ${MAX_ACCESS_LIST_ENTRIES}.`);
     }
-    appCall.accessReferences = plan.references.length > 0 ? plan.references : undefined;
-    appCall.boxReferences = undefined;
+    appCall.access = plan.references;
+    appCall.boxes = [];
   }
 }
 
+
+const configuredComposers = new WeakMap<TransactionComposer, SendParams>();
+const preparedComposers = new WeakMap<TransactionComposer, Awaited<ReturnType<typeof buildAccessListGroup>>>();
+const seededComposers = new WeakMap<TransactionComposer, ResourceReference[]>();
+
 /**
- * AlgoKit Utils 10.0.0-beta.1 still auto-populates the legacy 8-entry foreign
- * arrays. Install a narrow composer patch that keeps its fee calculation and
- * signing behavior, but replaces only the resource-population phase.
+ * Seed Access-list resources that a group needs, before the preparer packs it (principal-resolution
+ * spec §3.6). Typical seeds come from `akita-sdk/principal`: `principalResources(...)` gives `P(W)`,
+ * plus `A(W.address)` when the controlled account is the wallet's own address and the spender is an
+ * escrow, or `A(C)` when an external controlled account `C` is not the spender.
+ *
+ * Seeds are merged with the simulation-discovered resources and deduplicated. A seed is placed only
+ * when `populateAppCallResources` is on (the preparer path). It costs Access capacity, so seed only
+ * resources that some call in the group reads. Calling this again appends, and it drops a cached build.
  */
+export function seedAccessResources(composer: TransactionComposer, references: readonly ResourceReference[]): TransactionComposer {
+  if (references.length === 0) return composer;
+  seededComposers.set(composer, [...(seededComposers.get(composer) ?? []), ...references]);
+  preparedComposers.delete(composer);
+  return composer;
+}
+
+/** The resources seeded on `composer` so far (empty when none). */
+export function seededAccessResources(composer: TransactionComposer): readonly ResourceReference[] {
+  return seededComposers.get(composer) ?? [];
+}
+const nativeBuild = TransactionComposer.prototype.build;
+type ComposerContext = {
+  algod: algosdk.Algodv2;
+  getSuggestedParams(): Promise<algosdk.SuggestedParams>;
+  txnMaxFees: Map<number, AlgoAmount>;
+  atc: algosdk.AtomicTransactionComposer;
+};
+
+/** Enable resource discovery when building a composer without sending it. */
+export function configureAccessListComposer(composer: TransactionComposer, options: SendParams): TransactionComposer {
+  installAccessListResourcePopulator();
+  configuredComposers.set(composer, options);
+  return composer;
+}
+
+function normalizedResources(resources?: algosdk.modelsv2.SimulateUnnamedResourcesAccessed): SimulateUnnamedResourcesAccessed | undefined {
+  if (!resources) return undefined;
+  return canonicalResources({
+    accounts: resources.accounts?.map((account) => account),
+    apps: resources.apps,
+    assets: resources.assets,
+    boxes: resources.boxes?.map(({ app, name }) => ({ appIndex: app, name })),
+    appLocals: resources.appLocals?.map(({ app, account }) => ({ appIndex: app, address: account })),
+    assetHoldings: resources.assetHoldings?.map(({ asset, account }) => ({ assetIndex: asset, address: account })),
+    extraBoxRefs: resources.extraBoxRefs,
+  });
+}
+
+const compareIds = (a: bigint, b: bigint) => (a < b ? -1 : a > b ? 1 : 0);
+const compareBytes = (a: Uint8Array, b: Uint8Array) => {
+  for (let i = 0; i < Math.min(a.length, b.length); i++) if (a[i] !== b[i]) return a[i] - b[i];
+  return a.length - b.length;
+};
+const compareAddresses = (a: Address, b: Address) => compareBytes(a.publicKey, b.publicKey);
+
+/**
+ * Sort simulate-reported resources into one canonical order. algod reports unnamed resources in Go map
+ * iteration order, which changes on every simulate of the same group (2026-10-04: six identical
+ * simulates of one call gave six box orders). The Access planner is greedy, so the order decides how
+ * the resources pack: the same reply group needed 1 or 2 resource carriers (1,000 µA each) from run to
+ * run. Sorted by app first, the boxes of one app are adjacent and pack together, and the carrier count
+ * (and so the fee) depends only on the group's resources, not on the simulate.
+ */
+export function canonicalResources(resources: SimulateUnnamedResourcesAccessed): SimulateUnnamedResourcesAccessed {
+  return {
+    ...resources,
+    accounts: resources.accounts && [...resources.accounts].sort(compareAddresses),
+    apps: resources.apps && [...resources.apps].sort(compareIds),
+    assets: resources.assets && [...resources.assets].sort(compareIds),
+    boxes: resources.boxes && [...resources.boxes].sort((a, b) => compareIds(a.appIndex, b.appIndex) || compareBytes(a.name, b.name)),
+    appLocals: resources.appLocals && [...resources.appLocals].sort((a, b) => compareAddresses(a.address, b.address) || compareIds(a.appIndex, b.appIndex)),
+    assetHoldings: resources.assetHoldings && [...resources.assetHoldings].sort((a, b) => compareAddresses(a.address, b.address) || compareIds(a.assetIndex, b.assetIndex)),
+  };
+}
+
+function normalizedGroup(group: algosdk.modelsv2.SimulateTransactionGroupResult): SimulationGroupResult {
+  const pending = (txn: algosdk.modelsv2.PendingTransactionResponse): SimulationPendingTransactionResult => ({
+    appIndex: txn.applicationIndex,
+    innerTxns: txn.innerTxns?.map(pending),
+  });
+  return {
+    ...group,
+    groupUsage: group.groupUsage === undefined ? undefined : BigInt(group.groupUsage),
+    unnamedResourcesAccessed: normalizedResources(group.unnamedResourcesAccessed),
+    txnResults: group.txnResults.map((txn) => ({ txnResult: pending(txn.txnResult), unnamedResourcesAccessed: normalizedResources(txn.unnamedResourcesAccessed) })),
+  };
+}
+
+function compose(transactions: algosdk.TransactionWithSigner[], methods: Map<number, algosdk.ABIMethod>): algosdk.AtomicTransactionComposer {
+  const atc = new algosdk.AtomicTransactionComposer();
+  for (const { txn, signer } of transactions) {
+    const copy = algosdk.decodeUnsignedTransaction(algosdk.encodeUnsignedTransaction(txn));
+    copy.group = undefined;
+    atc.addTransaction({ txn: copy, signer });
+  }
+  (atc as unknown as { methodCalls: Map<number, algosdk.ABIMethod> }).methodCalls = methods;
+  return atc;
+}
+
+/**
+ * Run resource discovery at the group's real opcode budget first, and fall
+ * back to `ACCESS_DISCOVERY_OPCODE_BUDGET` extra budget only when that fails.
+ *
+ * Contracts that op themselves up (`ensureBudget`, which checks
+ * `global OpcodeBudget`) take a different branch when the simulator grants
+ * extra budget: their op-up inner transactions never run, so neither their
+ * fees nor their resources appear in an extra-budget simulation, and the
+ * strict, real-budget validation then fails with "group fee too small".
+ * A group that runs within its own budget therefore needs no carriers, and
+ * its real-budget simulation is exactly what will execute on chain. Only a
+ * group that genuinely lacks pooled budget is discovered with extra budget,
+ * which is what sizes the pooled opcode-budget carriers it needs.
+ */
+export async function discoverGroup(
+  simulate: (extraBudget: boolean) => Promise<algosdk.modelsv2.SimulateResponse>,
+): Promise<{ discovery: algosdk.modelsv2.SimulateResponse; extraBudget: boolean }> {
+  const realBudget = await simulate(false);
+  if (!realBudget.txnGroups[0]?.failureMessage) return { discovery: realBudget, extraBudget: false };
+  return { discovery: await simulate(true), extraBudget: true };
+}
+
+/**
+ * Pooled opcode-budget carriers a discovered group still needs. A group
+ * discovered at its real budget already ran within it, and its budget added
+ * includes every op-up inner call it made itself, so it normally needs none.
+ */
+export function requiredOpcodeCarriers(
+  group: { appBudgetConsumed?: number; appBudgetAdded?: number },
+  appCount: number,
+  extraBudget: boolean,
+): number {
+  // A group that succeeded at its real budget already fits: whatever op-ups it
+  // needed ran inside it. Its consumed/added figures are not comparable (the
+  // simulator can report more consumed than added for nested op-up paths), so
+  // deriving carriers from them would demand budget the group does not need.
+  if (!extraBudget) return 0;
+  const added = group.appBudgetAdded ?? 0;
+  const available = Math.max(appCount * 700, added - ACCESS_DISCOVERY_OPCODE_BUDGET);
+  return Math.max(0, Math.ceil(((group.appBudgetConsumed ?? 0) - available) / 700));
+}
+
+/** Discover, pack Access references, cover fees, and strictly validate before signing. */
+export async function buildAccessListGroup(composer: TransactionComposer, options: SendParams = {},
+  transform?: (transactions: algosdk.TransactionWithSigner[]) => void) {
+  const context = composer as unknown as ComposerContext;
+  const raw = await nativeBuild.call(composer);
+  const methods = raw.methodCalls as Map<number, algosdk.ABIMethod>;
+  let original = raw.atc.clone().buildGroup();
+  transform?.(original);
+  const coversFees = options.coverAppCallInnerTransactionFees ?? false;
+  const populates = options.populateAppCallResources ?? false;
+  const hasApps = original.some(({ txn }) => txn.type === TransactionType.appl);
+  if (!hasApps || (!coversFees && !populates)) {
+    const atc = compose(original, methods);
+    return { atc, transactions: atc.buildGroup(), methodCalls: methods, simulateResponse: undefined as algosdk.modelsv2.SimulateResponse | undefined };
+  }
+  const suggestedParams = await context.getSuggestedParams();
+  const maxFees = new Map(context.txnMaxFees);
+  const minFee = BigInt(suggestedParams.minFee);
+  const repairs = {};
+  for (let pass = 0; pass < 32; pass++) {
+    const discoveryTxns = compose(original, methods).buildGroup();
+    for (const [i, { txn }] of discoveryTxns.entries()) {
+      if (txn.type !== TransactionType.appl) continue;
+      if (!maxFees.has(i)) maxFees.set(i, microAlgo(txn.fee));
+      if (coversFees) txn.fee = maxFees.get(i)!.microAlgo;
+    }
+    const simulate = async (txns: algosdk.TransactionWithSigner[], strict: boolean, extraBudget = !strict) => {
+      const grouped = compose(txns, methods).buildGroup();
+      return simulateWithUsage(context.algod, new algosdk.modelsv2.SimulateRequest({
+        txnGroups: [new algosdk.modelsv2.SimulateRequestTransactionGroup({
+          txns: grouped.map(({ txn }) => new algosdk.SignedTransaction({ txn })),
+        })],
+        allowEmptySignatures: true, fixSigners: true, allowMoreLogging: true,
+        allowUnnamedResources: !strict,
+        ...(extraBudget ? { extraOpcodeBudget: ACCESS_DISCOVERY_OPCODE_BUDGET } : {}),
+      }));
+    };
+    const { discovery, extraBudget } = await discoverGroup(
+      (budgeted) => simulate(discoveryTxns, false, budgeted),
+    );
+    const group = discovery.txnGroups[0];
+    if (group.failureMessage) throw new Error(`Resource discovery failed: ${group.failureMessage}`);
+    const normalized = normalizedGroup(group);
+    const candidates = compose(original, methods).buildGroup();
+    const txns = candidates.map(({ txn }) => txn) as Transaction[];
+    const appCount = txns.filter((txn) => txn.type === TransactionType.appl).length;
+    const analysis = mergeGroupAnalysis({
+      transactions: normalized.txnResults?.map((txn) => ({ unnamedResourcesAccessed: txn.unnamedResourcesAccessed })) ?? [],
+      unnamedResourcesAccessed: normalized.unnamedResourcesAccessed,
+      createdAppIds: collectCreatedAppIds(normalized),
+      requiredOpcodeCarriers: requiredOpcodeCarriers(group, appCount, extraBudget),
+    }, accessListRepairs.get(repairs), txns.length);
+    try {
+      const byteFee = (txn: algosdk.Transaction) => { const required = BigInt(txn.toByte().length + 75) * BigInt(suggestedParams.fee); return required > minFee ? required : minFee; };
+      const beforeBytes = candidates.map(({ txn }) => byteFee(txn));
+      if (populates) populateAccessListResources(candidates.map(({ txn }) => txn), analysis, seededComposers.get(composer));
+      const grew = candidates.some(({ txn }, index) => byteFee(txn) > beforeBytes[index]);
+      let atc = compose(candidates, methods);
+      if (coversFees || grew) {
+        atc.buildGroup();
+        // Utils 9 retains ownership of inner-fee allocation and maxFee enforcement.
+        // Supply the discovery result already obtained above; resource packing is complete.
+        const { prepareGroupForSending } = await import('@algorandfoundation/algokit-utils');
+        const cachedAlgod = new Proxy(context.algod, { get(target, property, receiver) {
+          if (property === 'simulateTransactions') return () => ({ do: async () => coversFees ? discovery : { ...discovery, txnGroups: discovery.txnGroups.map((group) => ({ ...group, txnResults: group.txnResults.map((result) => ({ ...result, txnResult: { ...result.txnResult, innerTxns: [] } })) })) } });
+          return Reflect.get(target, property, receiver);
+        } });
+        atc = await prepareGroupForSending(atc, cachedAlgod, { coverAppCallInnerTransactionFees: true, populateAppCallResources: false }, { maxFees, suggestedParams });
+        const extra = coversFees ? usageFeeSurcharge(group, minFee) : 0n;
+        if (extra > 0n) {
+          const index = atc.buildGroup().findIndex(({ txn }) => txn.type === TransactionType.appl);
+          const txn = atc.buildGroup()[index].txn;
+          if (txn.fee + extra > maxFees.get(index)!.microAlgo) throw new Error('Protocol usage exceeds app-call maxFee');
+          txn.fee += extra;
+          atc = compose(atc.buildGroup(), methods);
+        }
+      }
+      const transactions = atc.buildGroup();
+      const validation = await simulate(transactions, true);
+      const failure = validation.txnGroups[0]?.failureMessage;
+      if (failure) {
+        if (/(?:dynamic cost|static cost|opcode) budget exceeded|group fee .* too small \(needs? [1-9]/i.test(failure)) {
+          throw new AccessListCapacityError('Strict simulation requires another pooled opcode-budget carrier.', 1);
+        }
+        // Repair against the same execution path the strict run takes: an app
+        // that ops itself up only touches its op-up resources at real budget.
+        const { discovery: relaxed } = await discoverGroup((budgeted) => simulate(transactions, false, budgeted));
+        if (recordAccessListRepairs(repairs, normalizedGroup(relaxed.txnGroups[0]), transactions.map(({ txn }) => txn) as Transaction[], failure)) continue;
+        throw new Error(`Strict resource validation failed: ${failure}`);
+      }
+      return { atc, transactions, methodCalls: methods, simulateResponse: validation };
+    } catch (error) {
+      if (!(error instanceof AccessListCapacityError) || !populates) throw error;
+      if (original.length + error.requiredCarrierCount > 16) throw error;
+      const registry = registeredAccessCarrierApps(context.algod);
+      const deleted = new Set(original.filter(({ txn }) => txn.applicationCall?.onComplete === algosdk.OnApplicationComplete.DeleteApplicationOC).map(({ txn }) => txn.applicationCall!.appIndex.toString()));
+      const anchor = original.find(({ txn }) => txn.applicationCall && !deleted.has(txn.applicationCall.appIndex.toString()) && registry.has(txn.applicationCall.appIndex.toString())) ?? original.find(({ txn }) => txn.applicationCall);
+      const targetAppId = anchor?.txn.applicationCall && !deleted.has(anchor.txn.applicationCall.appIndex.toString()) && registry.has(anchor.txn.applicationCall.appIndex.toString()) ? anchor.txn.applicationCall.appIndex : [...registry.keys()].filter((id) => !deleted.has(id)).map(BigInt)[0];
+      if (!anchor || targetAppId === undefined) throw new Error(error.message + ' None of its usable app IDs has a registered safe resource carrier.');
+      const sender = [...original].reverse().find(({ txn }) => !isAutomaticCarrierTransaction(txn as Transaction)) ?? anchor;
+      for (let i = 0; i < error.requiredCarrierCount; i++) {
+        const index = original.length;
+        const txn = algosdk.makeApplicationNoOpTxnFromObject({
+          sender: sender.txn.sender, appIndex: targetAppId,
+          appArgs: [registry.get(targetAppId.toString())!],
+          note: new TextEncoder().encode(`akta-access-carrier-${index + 1}`),
+          suggestedParams: { ...suggestedParams, flatFee: true, fee: minFee, firstValid: anchor.txn.firstValid, lastValid: anchor.txn.lastValid },
+        });
+        original.push({ txn, signer: sender.signer });
+        maxFees.set(index, DEFAULT_CARRIER_MAX_FEE);
+      }
+    }
+  }
+  throw new Error('Access resource repair did not converge');
+}
+
+/** Apply Access planning to the Utils 9 composer send path. */
 export function installAccessListResourcePopulator(): void {
-  installEmptyAccessBoxDecoderCompatibility();
+  const prototype = TransactionComposer.prototype;
+  if ((prototype as unknown as Record<symbol, boolean>)[ACCESS_LIST_PATCH]) return;
+  (prototype as unknown as Record<symbol, boolean>)[ACCESS_LIST_PATCH] = true;
   installSingleSendResultCompatibility();
-
-  const prototype = TransactionComposer.prototype as unknown as ComposerInternals & {
-    [ACCESS_LIST_PATCH]?: boolean;
-    [ACCESS_LIST_ANALYSIS_PATCH]?: boolean;
-    [ACCESS_LIST_BUILD_PATCH]?: boolean;
-    [ACCESS_LIST_RESET_PATCH]?: boolean;
+  const nativeSend = prototype.send;
+  prototype.build = async function () {
+    const options = configuredComposers.get(this);
+    if (!options) return nativeBuild.call(this);
+    const cached = preparedComposers.get(this);
+    if (cached) return cached;
+    const result = await buildAccessListGroup(this, options);
+    (this as unknown as ComposerContext).atc = result.atc;
+    preparedComposers.set(this, result);
+    return result;
   };
-
-  if (!prototype[ACCESS_LIST_RESET_PATCH]) {
-    const originalReset = prototype.reset;
-    prototype.reset = function patchedReset(): void {
-      originalReset.call(this);
-      validatedComposers.delete(this);
-      if (!internalRetryResets.has(this)) {
-        accessListRepairs.delete(this);
-        accessListRepairKeys.delete(this);
-      }
-    };
-    prototype[ACCESS_LIST_RESET_PATCH] = true;
-  }
-
-  if (!prototype[ACCESS_LIST_ANALYSIS_PATCH]) {
-    const originalAnalyze = prototype.analyzeGroupRequirements;
-
-    prototype.analyzeGroupRequirements = async function patchedAnalyze(
-      transactions: Transaction[],
-      suggestedParams: unknown,
-      analysisParams: unknown,
-    ): Promise<ComposerGroupAnalysis> {
-      const originalAlgod = this.algod;
-      let capturedGroup: SimulationGroupResult | undefined;
-
-      this.algod = new Proxy(originalAlgod, {
-        get(target, property, receiver) {
-          if (property !== "simulateTransactions") return Reflect.get(target, property, receiver);
-
-          return async (request: Record<string, unknown>) => {
-            const response = await target.simulateTransactions({
-              ...request,
-              extraOpcodeBudget: ACCESS_DISCOVERY_OPCODE_BUDGET,
-            });
-            capturedGroup = response.txnGroups[0];
-            return response;
-          };
-        },
-      });
-
-      try {
-        const result = await originalAnalyze.call(this, transactions, suggestedParams, analysisParams);
-        const feeParams = suggestedParams as { fee?: bigint; minFee?: bigint };
-        if (feeParams.fee !== undefined && feeParams.minFee !== undefined) {
-          result.accessListFeeParams = {
-            feePerByte: feeParams.fee,
-            minFee: feeParams.minFee,
-          };
-        }
-        result.createdAppIds = collectCreatedAppIds(capturedGroup);
-        return result;
-      } finally {
-        this.algod = originalAlgod;
-      }
-    };
-
-    prototype[ACCESS_LIST_ANALYSIS_PATCH] = true;
-  }
-
-  if (!prototype[ACCESS_LIST_BUILD_PATCH]) {
-    const originalBuild = prototype.build;
-
-    prototype.build = async function patchedBuild(): Promise<unknown> {
-      let repairPasses = 0;
-      while (true) {
-        try {
-          const result = (await originalBuild.call(this)) as {
-            transactions: Array<{ txn: Transaction }>;
-          };
-
-          if (
-            !validatedComposers.has(this) &&
-            this.composerConfig.populateAppCallResources &&
-            result.transactions.some(({ txn }) => txn.type === TransactionType.AppCall)
-          ) {
-            const unsignedGroup = {
-              txnGroups: [
-                {
-                  txns: result.transactions.map(({ txn }) => ({
-                    txn,
-                    sig: new Uint8Array(64),
-                  })),
-                },
-              ],
-              allowEmptySignatures: true,
-              fixSigners: true,
-              allowMoreLogging: true,
-            };
-            const validation = await this.algod.simulateTransactions({
-              ...unsignedGroup,
-              allowUnnamedResources: false,
-            });
-            const group = validation.txnGroups[0];
-            if (group?.failureMessage) {
-              // Discovery runs with a large extra opcode budget. Contracts that
-              // use `ensureBudget()` therefore do not emit their inner budget
-              // expansion call during discovery, so AlgoKit cannot include its
-              // fee in `requiredFeeDelta`. In strict simulation that hidden
-              // inner call first surfaces as a group-fee shortfall at
-              // `itxn_submit`, rather than as an opcode-budget error. A carrier
-              // supplies another 700 pooled opcodes and prevents that inner call
-              // on the next pass.
-              if (
-                /(?:dynamic cost|static cost|opcode) budget exceeded/i.test(group.failureMessage) ||
-                /group fee .* too small \(need [1-9]/i.test(group.failureMessage)
-              ) {
-                throw new AccessListCapacityError(
-                  "Strict simulation requires another pooled opcode-budget carrier.",
-                  1,
-                );
-              }
-
-              const relaxedValidation = await this.algod.simulateTransactions({
-                ...unsignedGroup,
-                allowUnnamedResources: true,
-                extraOpcodeBudget: ACCESS_DISCOVERY_OPCODE_BUDGET,
-              });
-              const relaxedGroup = relaxedValidation.txnGroups[0] ?? {};
-              const repaired = recordAccessListRepairs(
-                this,
-                relaxedGroup,
-                result.transactions.map(({ txn }) => txn),
-                group.failureMessage,
-              );
-              if (repaired) {
-                repairPasses += 1;
-                if (repairPasses > 32) {
-                  throw new Error("Access-list repair did not converge after 32 strict simulation passes.");
-                }
-                resetComposerForRetry(this);
-                continue;
-              }
-
-              throw new Error(
-                `Final Access-list validation failed in transaction ${group.failedAt?.join(", ") ?? "unknown"}: ` +
-                  group.failureMessage,
-              );
-            }
-            validatedComposers.add(this);
-          }
-
-          return result;
-        } catch (error) {
-          if (!(error instanceof AccessListCapacityError)) throw error;
-
-          const currentCount = this.txns.length;
-          if (currentCount + error.requiredCarrierCount > 16) {
-            throw new Error(
-              `This atomic path needs ${error.requiredCarrierCount} additional Access/opcode carrier call(s), ` +
-                `but only ${16 - currentCount} group slot(s) remain. Split or batch the operation; ` +
-                `Algorand groups are limited to 16 transactions.`,
-            );
-          }
-
-          const builtTransactions = this.rawBuildTransactions ?? [];
-          const registeredApps = registeredAccessCarrierApps(this.algod);
-          const anchorIndex = builtTransactions.findIndex(
-            (transaction) =>
-              transaction.type === TransactionType.AppCall &&
-              transaction.appCall !== undefined &&
-              transaction.appCall.appId > 0n &&
-              transaction.appCall.onComplete !== OnApplicationComplete.DeleteApplication &&
-              registeredApps.has(transaction.appCall.appId.toString()),
-          );
-          const deletingRegisteredApps = new Set(
-            builtTransactions
-              .filter(
-                (transaction) =>
-                  transaction.type === TransactionType.AppCall &&
-                  transaction.appCall?.onComplete === OnApplicationComplete.DeleteApplication &&
-                  registeredApps.has(transaction.appCall.appId.toString()),
-              )
-              .map((transaction) => transaction.appCall!.appId.toString()),
-          );
-          const externalTarget = [...registeredApps.keys()].find((appId) => !deletingRegisteredApps.has(appId));
-          const targetAppId =
-            anchorIndex >= 0 ? builtTransactions[anchorIndex].appCall!.appId : externalTarget ? BigInt(externalTarget) : undefined;
-          if (targetAppId === undefined) {
-            const appIds = builtTransactions
-              .filter((transaction) => transaction.type === TransactionType.AppCall && transaction.appCall?.appId)
-              .map((transaction) => transaction.appCall!.appId.toString())
-              .join(", ");
-            throw new Error(
-              `The group needs ${error.requiredCarrierCount} additional Access/opcode carrier call(s), but none of ` +
-                `its usable app IDs (${appIds || "none"}) is registered with a safe carrier method. ` +
-                `Construct the call through an Akita SDK, upgrade the target contract, or include another ` +
-                `carrier-capable app; a carrier cannot execute after its own app is deleted.`,
-            );
-          }
-          const targetSelector = registeredApps.get(targetAppId.toString());
-          if (!targetSelector) {
-            throw new Error(`No safe Access-list carrier selector is registered for application ${targetAppId}.`);
-          }
-
-          const anchorTransaction = builtTransactions[anchorIndex >= 0 ? anchorIndex : 0];
-          // Carriers execute after the caller-authored group. Use the last
-          // caller-authored transaction's sender/signer rather than the target
-          // app call's sender: ARC-58 plugin calls may temporarily use a rekeyed
-          // controlled account, while the final verify call uses the stable
-          // external signer again.
-          let senderContextIndex = anchorIndex;
-          for (let index = builtTransactions.length - 1; index >= 0; index -= 1) {
-            if (!isAutomaticCarrierTransaction(builtTransactions[index])) {
-              senderContextIndex = index;
-              break;
-            }
-          }
-          const senderTransaction = builtTransactions[senderContextIndex];
-          const senderContext = this.txns[senderContextIndex]?.data ?? {};
-          const signer = senderContext.signer;
-          const sender = senderContext.sender ?? senderTransaction.sender;
-          const maxFee = senderContext.maxFee ?? DEFAULT_CARRIER_MAX_FEE;
-
-          // A final strict validation failure happens after AlgoKit caches its
-          // built group. Reset that cache before appending the retry carrier.
-          resetComposerForRetry(this);
-          for (let index = 0; index < error.requiredCarrierCount; index += 1) {
-            this.addAppCall({
-              appId: targetAppId,
-              sender,
-              ...(signer !== undefined ? { signer } : {}),
-              args: [targetSelector],
-              maxFee,
-              // The note is part of the transaction ID. Include the absolute
-              // group position so one-at-a-time opcode retries never append
-              // duplicate carrier transactions.
-              note: `akta-access-carrier-${currentCount + index + 1}`,
-              firstValidRound: anchorTransaction.firstValid,
-              lastValidRound: anchorTransaction.lastValid,
-            });
-
-            // Appending preserves transaction 0, ARC-4 transaction-argument
-            // adjacency, and wallet rekey/verify scans. The one-shot sender
-            // compatibility shim above keeps the caller's result selected.
-          }
-        }
-      }
-    };
-
-    prototype[ACCESS_LIST_BUILD_PATCH] = true;
-  }
-
-  if (prototype[ACCESS_LIST_PATCH]) return;
-
-  const originalPopulate = prototype.populateTransactionAndGroupResources;
-
-  prototype.populateTransactionAndGroupResources = function patchedPopulate(
-    transactions: Transaction[],
-    groupAnalysis?: ComposerGroupAnalysis,
-  ): Transaction[] {
-    const effectiveAnalysis = mergeGroupAnalysis(groupAnalysis, accessListRepairs.get(this), transactions.length);
-    const feeParams = effectiveAnalysis?.accessListFeeParams;
-    const assumedFees = transactions.map(
-      (transaction, groupIndex) =>
-        algoAmountMicroAlgos(this.txns[groupIndex]?.data.maxFee) ?? transaction.fee ?? 0n,
-    );
-    const feesBeforeAccess = feeParams
-      ? transactions.map((transaction) =>
-          byteFeeRequirement(transaction, feeParams, transaction.fee ?? 0n, false),
-        )
-      : [];
-    populateAccessListResources(transactions, effectiveAnalysis);
-
-    // Access is populated after AlgoKit computes byte and inner-transaction fee
-    // deltas. Long box names can add more than a kilobyte. Fold only that byte
-    // growth into AlgoKit's existing FeeDelta values so its normal group pooling
-    // can cover the deficit without rewriting a zero-fee prebuilt/LogicSig call.
-    const feesAfterAccess = feeParams
-      ? transactions.map((transaction, groupIndex) =>
-          byteFeeRequirement(transaction, feeParams, assumedFees[groupIndex], transactions.length > 1),
-        )
-      : [];
-    const hasAccessFeeGrowth = feesAfterAccess.some(
-      (requiredFee, groupIndex) => requiredFee > feesBeforeAccess[groupIndex],
-    );
-    const coversInnerFees = this.composerConfig?.coverAppCallInnerTransactionFees ?? false;
-
-    // Let AlgoKit retain ownership of fee deficit distribution and group-ID
-    // assignment, while withholding unnamed resources so its legacy 8-slot
-    // populator cannot run after Access has been installed.
-    const resourcesStripped = effectiveAnalysis
-      ? {
-          ...effectiveAnalysis,
-          transactions: effectiveAnalysis.transactions.map((analysis, groupIndex) => {
-            const feeAdjustment = feeParams
-              ? coversInnerFees
-                ? feesAfterAccess[groupIndex] - feesBeforeAccess[groupIndex]
-                : hasAccessFeeGrowth
-                  ? feesAfterAccess[groupIndex] - (transactions[groupIndex].fee ?? 0n)
-                  : 0n
-              : 0n;
-            const feeAdjusted = {
-              ...analysis,
-              requiredFeeDelta: addFeeDeficit(
-                coversInnerFees || !hasAccessFeeGrowth ? analysis.requiredFeeDelta : undefined,
-                feeAdjustment,
-              ),
-            };
-            if (hasLegacyIndexedReferences(transactions[groupIndex])) return feeAdjusted;
-            return { ...feeAdjusted, unnamedResourcesAccessed: undefined };
-          }),
-          unnamedResourcesAccessed: undefined,
-        }
-      : undefined;
-
-    return originalPopulate.call(this, transactions, resourcesStripped);
+  prototype.send = async function (params = {}) {
+    const options = { ...params, populateAppCallResources: params.populateAppCallResources ?? Config.populateAppCallResources };
+    if (options.populateAppCallResources || options.coverAppCallInnerTransactionFees) {
+      const result = preparedComposers.get(this) ?? await buildAccessListGroup(this, options);
+      (this as unknown as ComposerContext).atc = result.atc;
+      preparedComposers.set(this, result);
+    }
+    return nativeSend.call(this, { ...params, populateAppCallResources: false, coverAppCallInnerTransactionFees: false });
   };
-
-  prototype[ACCESS_LIST_PATCH] = true;
+  const nativeRebuild = prototype.rebuild;
+  prototype.rebuild = async function () {
+    preparedComposers.delete(this);
+    return nativeRebuild.call(this);
+  };
 }

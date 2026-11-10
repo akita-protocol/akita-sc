@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Akita account image reference v1",
+  "description": "UTF-8 JSON stored at namespace akita.account, key image. Does not assert ownership or delegated access.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "source"],
+  "properties": {
+    "version": { "const": 1 },
+    "source": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "uri"],
+          "properties": {
+            "type": { "const": "uri" },
+            "uri": { "type": "string", "pattern": "^(https://[^/?#\\s]+|ipfs://[^/?#\\s]+|ar://[^/?#\\s]+)([^\\s]*)$" },
+            "sha256": { "type": "string", "pattern": "^[0-9a-fA-F]{64}$" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "assetId"],
+          "properties": {
+            "type": { "const": "asset" },
+            "assetId": { "type": "string", "pattern": "^[1-9][0-9]{0,19}$", "description": "Must also be <= 18446744073709551615." }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "address"],
+          "properties": {
+            "type": { "const": "account" },
+            "address": {
+              "type": "string",
+              "pattern": "^[A-Z2-7]{58}$",
+              "description": "Must additionally pass the Algorand address checksum."
+            }
+          }
+        }
+      ]
+    }
+  }
+}

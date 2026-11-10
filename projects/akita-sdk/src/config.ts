@@ -6,7 +6,7 @@
 import { AlgorandClient } from '@algorandfoundation/algokit-utils/types/algorand-client';
 import { getAppIdFromNetwork, NetworkAppIds, getNetworkAppIds } from './networks';
 
-export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds } from './networks';
+export { type NetworkAppIds, type PluginAppIdKey, type PluginDefinition, type PluginDeployment, type NetworkPluginDeployments, type ResolvedPluginDeployment, type DaoEscrowActionV2Cutover, PLUGIN_APP_ID_KEYS, PLUGIN_DEFINITIONS, TESTNET_PLUGIN_DEPLOYMENTS, MAINNET_PLUGIN_DEPLOYMENTS, NETWORK_PLUGIN_DEPLOYMENTS, DAO_ESCROW_ACTION_V2_ROUNDS, getDaoEscrowActionV2Cutover, getPluginDeployments, getLatestPluginDeployment, resolvePluginDeployment, getPluginUpdate, getKnownPluginAppIds, getNetworkAppIds, TESTNET_APP_IDS, MAINNET_APP_IDS, NETWORK_APP_IDS, ENV_TO_NETWORK_KEY, buildAppIdsFromEnv, createEmptyAppIds, REGISTRY_WRITES_STOPPED, registryWritesStopped, shouldWriteRegistry, SOCIAL_HINTED_TARGETS, socialHintedTargets } from './networks';
 
 // ============================================================================
 // Types
@@ -73,6 +73,21 @@ export const ENV_VAR_NAMES = {
   GATE_APP_ID: 'GATE_APP_ID',
   HYPER_SWAP_APP_ID: 'HYPER_SWAP_APP_ID',
   META_MERKLES_APP_ID: 'META_MERKLES_APP_ID',
+  META_APP_ID: 'META_APP_ID',
+
+  // PluginDex v2
+  PLUGIN_DEX_APP_ID: 'PLUGIN_DEX_APP_ID',
+  BIN_ENGINE_APP_ID: 'BIN_ENGINE_APP_ID',
+  IMPACT_FEE_HOOK_APP_ID: 'IMPACT_FEE_HOOK_APP_ID',
+  SWAP_TAX_HOOK_APP_ID: 'SWAP_TAX_HOOK_APP_ID',
+  VOLATILITY_FEE_HOOK_APP_ID: 'VOLATILITY_FEE_HOOK_APP_ID',
+  BACKRUN_ARB_HOOK_APP_ID: 'BACKRUN_ARB_HOOK_APP_ID',
+  GATED_FEE_HOOK_APP_ID: 'GATED_FEE_HOOK_APP_ID',
+  ANTI_SNIPE_FEE_HOOK_APP_ID: 'ANTI_SNIPE_FEE_HOOK_APP_ID',
+  LAUNCH_TAX_HOOK_APP_ID: 'LAUNCH_TAX_HOOK_APP_ID',
+  CONSENSUS_KEYREG_HOOK_APP_ID: 'CONSENSUS_KEYREG_HOOK_APP_ID',
+  PLUGIN_DEX_PLUGIN_APP_ID: 'PLUGIN_DEX_PLUGIN_APP_ID',
+  LAUNCH_MANAGER_APP_ID: 'LAUNCH_MANAGER_APP_ID',
 
   // Subgates
   AKITA_REFERRER_GATE_APP_ID: 'AKITA_REFERRER_GATE_APP_ID',
@@ -138,6 +153,7 @@ export interface AkitaConfig {
   // Gates & Other
   gateAppId?: bigint;
   hyperSwapAppId?: bigint;
+  metaAppId?: bigint;
   metaMerklesAppId?: bigint;
 
   // Assets
@@ -244,6 +260,7 @@ export function getConfigFromEnv(): AkitaConfig {
     // Gates & Other
     gateAppId: getAppIdFromEnv(ENV_VAR_NAMES.GATE_APP_ID),
     hyperSwapAppId: getAppIdFromEnv(ENV_VAR_NAMES.HYPER_SWAP_APP_ID),
+    metaAppId: getAppIdFromEnv(ENV_VAR_NAMES.META_APP_ID),
     metaMerklesAppId: getAppIdFromEnv(ENV_VAR_NAMES.META_MERKLES_APP_ID),
 
     // Assets
@@ -388,6 +405,12 @@ export const SDK_TO_ENV_VAR: Record<string, string> = {
   GateSDK: ENV_VAR_NAMES.GATE_APP_ID,
   HyperSwapSDK: ENV_VAR_NAMES.HYPER_SWAP_APP_ID,
   MetaMerklesSDK: ENV_VAR_NAMES.META_MERKLES_APP_ID,
+  MetaSDK: ENV_VAR_NAMES.META_APP_ID,
+
+  // PluginDex v2
+  PluginDexSDK: ENV_VAR_NAMES.PLUGIN_DEX_APP_ID,
+  LaunchManagerSDK: ENV_VAR_NAMES.LAUNCH_MANAGER_APP_ID,
+  PluginDexPluginSDK: ENV_VAR_NAMES.PLUGIN_DEX_PLUGIN_APP_ID,
 };
 
 /**

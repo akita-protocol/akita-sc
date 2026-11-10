@@ -1,5 +1,5 @@
 import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
-import { AppFactoryAppClientParams } from "@algorandfoundation/algokit-utils/app-factory";
+import { AppFactoryAppClientParams } from '@algorandfoundation/algokit-utils/types/app-factory';
 import { beforeEach, describe, expect, test } from "vitest";
 import { BaseSDK } from "./base";
 import { setCurrentNetwork } from "./config";

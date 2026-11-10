@@ -5,6 +5,7 @@
  * failing, where `code` is one of the short alphanumeric tags in this file.
  * Keep this in sync with `akita-sc/smart_contracts/errors.ts` — the short
  * codes are the shared wire format between contract and SDK.
+ * Tables include both current camelCase codes and legacy uppercase aliases.
  *
  * Domain-specific codes live alongside each SDK domain (e.g.
  * `akita-sdk/src/auction/errors.ts`). Every domain translator falls back to
@@ -16,17 +17,34 @@
  */
 
 /**
+ * Add current camelCase codes alongside the legacy uppercase codes.
+ * The `err` prefix keeps short codes away from 8-byte ARC-65 log messages.
+ * Existing table keys and explicit aliases are preserved for older deployments.
+ */
+export function withErrorCodeAliases(messages: Record<string, string>): Record<string, string> {
+  const result = { ...messages }
+  for (const [code, message] of Object.entries(messages)) {
+    if (/^[A-Z][A-Z0-9]+$/.test(code)) {
+      const alias = `err${code[0]}${code.slice(1).toLowerCase()}`
+      result[alias] ??= message
+    }
+  }
+  return result
+}
+
+/**
  * Short code → human-readable message for errors that can be emitted from
  * multiple contract domains. Kept stable so cross-domain errors decode the
  * same way no matter which translator is asked.
  */
-export const COMMON_ERROR_MESSAGES: Record<string, string> = {
+export const COMMON_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Admin / authorization ----------------------------------------------
   NDAO: 'Not the Akita DAO',
   ICAL: 'Invalid caller',
   FORB: 'Forbidden',
   MBFF: 'Must be called from the factory',
   NCRE: 'Not the creator',
+  GNFF: 'Guild was not created by the configured factory',
 
   // --- Lifecycle -----------------------------------------------------------
   IUPG: 'Invalid upgrade',
@@ -39,6 +57,10 @@ export const COMMON_ERROR_MESSAGES: Record<string, string> = {
   IXFR: 'Invalid transfer',
   IAAM: 'Invalid asset amount',
   IARE: 'Invalid asset receiver',
+  IPMS: 'Payment or transfer was not sent by the expected account',
+  NCLW: 'Clawback transfers are not accepted',
+  NCLS: 'Transfers that close out the sender are not accepted',
+  NRKY: 'Transfers that rekey the sender are not accepted',
 
   // --- Asset / app validation --------------------------------------------
   IAST: 'Invalid asset',
@@ -48,9 +70,19 @@ export const COMMON_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Plugin / wallet ----------------------------------------------------
   NATH: 'This plugin does not have control of the account',
+  IWLT: 'Wallet app is missing a valid controlled address',
+
+  // --- Principal resolution (wallet hints) -------------------------------
+  HNWL: 'Wallet hint is not a genuine Akita wallet',
+  HTOP: 'A wallet hint cannot be used on a top-level call',
+  HNBD: 'Wallet hint is neither the calling wallet nor the wallet whose plugin window holds the sender',
+  HNOW: 'Wallet hint does not own this account',
 
   // --- Gates --------------------------------------------------------------
   FGTE: 'Gate check failed',
+
+  // --- Program loading ------------------------------------------------------
+  PTLG: 'Program exceeds the 8-page (16 KB) AVM limit',
 
   // --- Opt-in -------------------------------------------------------------
   AOPT: 'Already opted in',
@@ -64,7 +96,7 @@ export const COMMON_ERROR_MESSAGES: Record<string, string> = {
   IRLN: 'Invalid random length',
   IRBS: 'Invalid random bit size',
   IRBD: 'Invalid random bounds',
-}
+})
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */
 export const ARC65_PREFIX = 'ERR:'

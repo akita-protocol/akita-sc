@@ -99,6 +99,41 @@ export interface NetworkAppIds {
   nfdRegistry: bigint;
   assetInbox: bigint;
   akitaNfd: bigint;
+
+  // 2026-10 release. Optional: 0n (or absent) until a receipt `--register` records the deployment.
+  /** Meta (replaces the immutable MetaMerkles; aal.metaMerkles moves only after the roots migrate) */
+  meta?: bigint;
+  metaPlugin?: bigint;
+  guildFactory?: bigint;
+  guildConsensusFactory?: bigint;
+  /** creation-only GuildPlugin (guild = 0) */
+  guildPlugin?: bigint;
+  welcomePlugin?: bigint;
+  /** SocialClaim: admin for send-to-anyone wallets until a platform identity claims them */
+  socialClaim?: bigint;
+  /** AbstractedAccountBalanceReader */
+  walletBalanceReader?: bigint;
+  /** PluginDex v2 Vault */
+  pluginDex?: bigint;
+  binEngine?: bigint;
+  impactFeeHook?: bigint;
+  swapTaxHook?: bigint;
+  volatilityFeeHook?: bigint;
+  backrunArbHook?: bigint;
+  gatedFeeHook?: bigint;
+  antiSnipeFeeHook?: bigint;
+  launchTaxHook?: bigint;
+  consensusKeyregHook?: bigint;
+  /** PluginDexPlugin: the ARC-58 plugin wallets trade and provide liquidity through */
+  pluginDexPlugin?: bigint;
+  launchManager?: bigint;
+  gatedFeePassPlugin?: bigint;
+  /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */
+  rewardsV1?: bigint;
+  /** ModeratorActivityGate (context-aware sub-gate over AkitaSocialModeration.moderatorActivity) */
+  moderatorActivityGate?: bigint;
+  /** GovernanceParticipationGate (context-aware sub-gate over AkitaDAO.getGovernanceParticipation) */
+  governanceParticipationGate?: bigint;
 }
 
 export const PLUGIN_APP_ID_KEYS = ['revenueManagerPlugin', 'updatePlugin', 'optinPlugin', 'selfOptinPlugin', 'asaManagerPlugin', 'payPlugin', 'haystackRouterPlugin', 'hyperSwapPlugin', 'subscriptionsPlugin', 'auctionPlugin', 'daoPlugin', 'dualStakePlugin', 'gatePlugin', 'marketplacePlugin', 'nfdPlugin', 'paySiloPlugin', 'paySiloFactoryPlugin', 'pollPlugin', 'rafflePlugin', 'rewardsPlugin', 'socialPlugin', 'stakingPlugin', 'stakingPoolPlugin'] as const satisfies readonly (keyof NetworkAppIds)[];
@@ -440,6 +475,32 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   nfdRegistry: 84366825n,
   assetInbox: 643020148n,
   akitaNfd: 0n,
+
+  // 2026-10 release: 0n until a receipt --register records the deployment
+  meta: 0n,
+  metaPlugin: 0n,
+  guildFactory: 0n,
+  guildConsensusFactory: 0n,
+  guildPlugin: 0n,
+  welcomePlugin: 0n,
+  socialClaim: 0n,
+  walletBalanceReader: 0n,
+  pluginDex: 0n,
+  binEngine: 0n,
+  impactFeeHook: 0n,
+  swapTaxHook: 0n,
+  volatilityFeeHook: 0n,
+  backrunArbHook: 0n,
+  gatedFeeHook: 0n,
+  antiSnipeFeeHook: 0n,
+  launchTaxHook: 0n,
+  consensusKeyregHook: 0n,
+  pluginDexPlugin: 0n,
+  launchManager: 0n,
+  gatedFeePassPlugin: 0n,
+  rewardsV1: 763128244n,
+  governanceParticipationGate: 0n,
+  moderatorActivityGate: 0n,
 };
 
 /**
@@ -531,6 +592,32 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   nfdRegistry: 760937186n,
   assetInbox: 2449590623n,
   akitaNfd: 765902356n,
+
+  // 2026-10 release: 0n until a receipt --register records the deployment
+  meta: 0n,
+  metaPlugin: 0n,
+  guildFactory: 0n,
+  guildConsensusFactory: 0n,
+  guildPlugin: 0n,
+  welcomePlugin: 0n,
+  socialClaim: 0n,
+  walletBalanceReader: 0n,
+  pluginDex: 0n,
+  binEngine: 0n,
+  impactFeeHook: 0n,
+  swapTaxHook: 0n,
+  volatilityFeeHook: 0n,
+  backrunArbHook: 0n,
+  gatedFeeHook: 0n,
+  antiSnipeFeeHook: 0n,
+  launchTaxHook: 0n,
+  consensusKeyregHook: 0n,
+  pluginDexPlugin: 0n,
+  launchManager: 0n,
+  gatedFeePassPlugin: 0n,
+  rewardsV1: 3569556095n,
+  governanceParticipationGate: 0n,
+  moderatorActivityGate: 0n,
 };
 
 /**
@@ -565,6 +652,67 @@ export const DAO_ESCROW_ACTION_V2_ROUNDS: Partial<Record<AkitaNetwork, DaoEscrow
 export function getDaoEscrowActionV2Cutover(network: AkitaNetwork): DaoEscrowActionV2Cutover | undefined {
   const cutover = DAO_ESCROW_ACTION_V2_ROUNDS[network];
   return cutover && cutover.round > 0n && cutover.timestamp > 0n ? cutover : undefined;
+}
+
+/**
+ * Principal resolution Phase 3 switch (docs/principal-resolution/PHASE-0-SPEC.md §6.10, §7.1).
+ *
+ * `true` means the SDK stops writing the EscrowFactory reverse registry by default on that network:
+ * `newWallet` skips `register('')` and `addPlugin` skips registering a new escrow. Callers can still
+ * force either behaviour with `register` / `registerEscrow`.
+ *
+ * Rollout order (§7.1): registry writes stop only after the Phase 2 singleton/child upgrades and the
+ * Phase 3 plugin proposal have EXECUTED on that network. Before then every deployed consumer
+ * (legacy plugin referrals, legacy sub-gates such as AkitaReferrerGate, deployed children) still reads
+ * the registry, so a wallet or escrow missing from it silently loses referral payouts and gate eligibility.
+ * Flip testnet/mainnet to `true` in the same release that records the executed Phase 3 proposal.
+ *
+ * LocalNet is `true`: every LocalNet universe is deployed from the current tree (Phases 0-3 applied).
+ */
+export const REGISTRY_WRITES_STOPPED: Record<AkitaNetwork, boolean> = {
+  localnet: true,
+  testnet: false,
+  mainnet: false,
+};
+
+/** Whether the SDK's default is to skip EscrowFactory registry writes on `network` (see REGISTRY_WRITES_STOPPED). */
+export function registryWritesStopped(network: AkitaNetwork): boolean {
+  return REGISTRY_WRITES_STOPPED[network] ?? false;
+}
+
+/**
+ * Resolve the effective registry-write choice: an explicit `register` / `registerEscrow` flag wins,
+ * otherwise write the registry until Phase 3 has executed on `network`.
+ */
+export function shouldWriteRegistry(network: AkitaNetwork, explicit?: boolean): boolean {
+  return explicit ?? !registryWritesStopped(network);
+}
+
+/**
+ * Principal resolution Phase 2 switch for the social targets (docs/principal-resolution/PHASE-0-SPEC.md
+ * §6.2, §6.3, §7.1).
+ *
+ * `true` means AkitaSocial and AkitaSocialGraph on that network run the principal-resolution upgrade:
+ * `SocialSDK` writes call the hinted overloads (trailing `wallet` hint), quote the corrected box MBR,
+ * and gated writes expect a `Gate.mustCheckFor` txn (Gate v2). `false` means the deployed programs:
+ * `SocialSDK` calls the legacy selectors with the deployed MBR terms, gated writes expect a
+ * `Gate.mustCheck` txn, a non-zero `wallet` hint is refused locally, and `setMetaWallet` is unavailable.
+ *
+ * Rollout order (§7.1): flip testnet/mainnet to `true` in the release that records the EXECUTED Phase 2
+ * AkitaSocial/AkitaSocialGraph upgrade on that network. Until then the deployed programs have no hinted
+ * selectors, and after it a top-level call of an old selector must pay the corrected MBR.
+ *
+ * LocalNet is `true`: every LocalNet universe is deployed from the current tree.
+ */
+export const SOCIAL_HINTED_TARGETS: Record<AkitaNetwork, boolean> = {
+  localnet: true,
+  testnet: false,
+  mainnet: false,
+};
+
+/** Whether `SocialSDK` targets the upgraded (hinted) social programs on `network`; an explicit choice wins. */
+export function socialHintedTargets(network: AkitaNetwork, explicit?: boolean): boolean {
+  return explicit ?? SOCIAL_HINTED_TARGETS[network] ?? false;
 }
 
 /**
@@ -794,6 +942,30 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   NFD_REGISTRY_APP_ID: 'nfdRegistry',
   ASSET_INBOX_APP_ID: 'assetInbox',
   AKITA_NFD_APP_ID: 'akitaNfd',
+
+  // 2026-10 release
+  META_APP_ID: 'meta',
+  META_PLUGIN_APP_ID: 'metaPlugin',
+  GUILD_FACTORY_APP_ID: 'guildFactory',
+  GUILD_CONSENSUS_FACTORY_APP_ID: 'guildConsensusFactory',
+  GUILD_PLUGIN_APP_ID: 'guildPlugin',
+  WELCOME_PLUGIN_APP_ID: 'welcomePlugin',
+  SOCIAL_CLAIM_APP_ID: 'socialClaim',
+  WALLET_BALANCE_READER_APP_ID: 'walletBalanceReader',
+  PLUGIN_DEX_APP_ID: 'pluginDex',
+  BIN_ENGINE_APP_ID: 'binEngine',
+  IMPACT_FEE_HOOK_APP_ID: 'impactFeeHook',
+  SWAP_TAX_HOOK_APP_ID: 'swapTaxHook',
+  VOLATILITY_FEE_HOOK_APP_ID: 'volatilityFeeHook',
+  BACKRUN_ARB_HOOK_APP_ID: 'backrunArbHook',
+  GATED_FEE_HOOK_APP_ID: 'gatedFeeHook',
+  ANTI_SNIPE_FEE_HOOK_APP_ID: 'antiSnipeFeeHook',
+  LAUNCH_TAX_HOOK_APP_ID: 'launchTaxHook',
+  CONSENSUS_KEYREG_HOOK_APP_ID: 'consensusKeyregHook',
+  PLUGIN_DEX_PLUGIN_APP_ID: 'pluginDexPlugin',
+  LAUNCH_MANAGER_APP_ID: 'launchManager',
+  GATED_FEE_PASS_PLUGIN_APP_ID: 'gatedFeePassPlugin',
+  REWARDS_V1_APP_ID: 'rewardsV1',
 };
 
 /**
@@ -839,5 +1011,5 @@ export function getAppIdFromNetwork(network: AkitaNetwork, envVarName: string): 
   if (!key) return undefined;
 
   const appId = networkAppIds[key];
-  return appId > 0n ? appId : undefined;
+  return appId && appId > 0n ? appId : undefined;
 }

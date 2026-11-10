@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Akita receive QR style v1",
+  "description": "UTF-8 JSON stored at namespace akita.receive-qr, key style. Presentation only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "background", "foreground", "moduleRoundness", "finderRoundness", "showAvatar"],
+  "properties": {
+    "version": { "const": 1 },
+    "background": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+    "foreground": { "type": "string", "pattern": "^(auto|#[0-9a-fA-F]{6})$" },
+    "moduleRoundness": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 is circle, 1 is square." },
+    "finderRoundness": { "type": "number", "minimum": 0, "maximum": 1, "description": "0 is circle, 1 is square." },
+    "showAvatar": { "type": "boolean" }
+  }
+}

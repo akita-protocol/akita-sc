@@ -26,6 +26,15 @@ describe('encodeConnectUri', () => {
     })
     expect(uri).toBe('liquid://localhost:8080?requestId=req-1')
   })
+
+  test('encodes authenticated v3 connection data', () => {
+    expect(encodeConnectUri({
+      origin: 'signal.akita.community',
+      requestId: 'req-1',
+      v: 3,
+      secret: 'secret_value',
+    })).toBe('liquid://signal.akita.community?requestId=req-1&v=3&secret=secret_value')
+  })
 })
 
 describe('decodeConnectUri', () => {
@@ -81,6 +90,11 @@ describe('decodeConnectUri', () => {
   test('throws when requestId is missing', () => {
     expect(() => decodeConnectUri('liquid://signal.akita.community'))
       .toThrow(/missing requestId/)
+  })
+
+  test('requires a secret for v3 links', () => {
+    expect(() => decodeConnectUri('liquid://signal.akita.community?requestId=abc&v=3'))
+      .toThrow(/authentication secret/)
   })
 
   test('throws on empty string', () => {

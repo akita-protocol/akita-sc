@@ -2,7 +2,7 @@ import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand
 import { DEFAULT_READER, DEFAULT_SEND_PARAMS } from "./constants";
 import { resolveAppIdWithClient, ENV_VAR_NAMES, detectNetworkFromClient, getCurrentNetwork, AkitaNetwork } from "./config";
 import { ExpandedSendParams, ExpandedSendParamsWithSigner, hasSenderSigner, MaybeSigner, NewBaseContractSDKParams, normalizeSigner } from "./types";
-import { makeEmptyTransactionSigner } from "@algorandfoundation/algokit-utils/transact";
+import { makeEmptyTransactionSigner } from 'algosdk';
 import { installAccessListResourcePopulator, registerAccessListResourceCarrier } from './simulate/access-list';
 
 // AlgoKit Utils currently discovers resources with simulate but still writes

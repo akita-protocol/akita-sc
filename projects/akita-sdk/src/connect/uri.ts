@@ -13,8 +13,11 @@ import type { AkitaConnectUri } from './types';
  * encodeConnectUri({ origin: "signal.akita.community", requestId: "abc-123" })
  * // => "liquid://signal.akita.community?requestId=abc-123"
  */
-export function encodeConnectUri({ origin, requestId }: AkitaConnectUri): string {
-  return `liquid://${origin}?requestId=${encodeURIComponent(requestId)}`
+export function encodeConnectUri({ origin, requestId, v, secret }: AkitaConnectUri): string {
+  const params = [`requestId=${encodeURIComponent(requestId)}`]
+  if (v !== undefined) params.push(`v=${encodeURIComponent(String(v))}`)
+  if (secret !== undefined) params.push(`secret=${encodeURIComponent(secret)}`)
+  return `liquid://${origin}?${params.join('&')}`
 }
 
 /**
@@ -43,5 +46,16 @@ export function decodeConnectUri(uri: string): AkitaConnectUri {
     throw new Error(`Invalid connect URI: missing requestId parameter in "${trimmed}"`)
   }
 
-  return { origin, requestId }
+  const versionValue = parsed.searchParams.get('v')
+  const v = versionValue === null ? undefined : Number(versionValue)
+  if (v !== undefined && (!Number.isInteger(v) || v < 1)) {
+    throw new Error(`Invalid connect URI: invalid protocol version in "${trimmed}"`)
+  }
+
+  const secret = parsed.searchParams.get('secret') ?? undefined
+  if (v !== undefined && v >= 3 && !secret) {
+    throw new Error(`Invalid connect URI: v${v} requires an authentication secret`)
+  }
+
+  return { origin, requestId, ...(v !== undefined && { v }), ...(secret && { secret }) }
 }

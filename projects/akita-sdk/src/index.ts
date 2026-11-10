@@ -45,15 +45,42 @@ export {
   ENV_TO_NETWORK_KEY,
   buildAppIdsFromEnv,
   createEmptyAppIds,
+  // Principal resolution Phase 3 switch (registry writes)
+  REGISTRY_WRITES_STOPPED,
+  registryWritesStopped,
+  shouldWriteRegistry,
+  // Principal resolution Phase 2 switch (social targets)
+  SOCIAL_HINTED_TARGETS,
+  socialHintedTargets,
 } from './config';
 
 export { AuctionSDK, AuctionFactorySDK } from './auction';
 export { AkitaDaoSDK } from './dao';
 export { EscrowSDK, EscrowFactorySDK } from './escrow';
 export { GateSDK } from './gates';
-export { HyperSwapSDK } from './hyper-swap';
+export {
+  addFixedSignerMembersAction,
+  FixedSignerWeightMode,
+  FixedSignerGuildConsensusSDK,
+  FIXED_SIGNER_MEMBER_MBR,
+  GuildActionType,
+  GuildSDK,
+  GuildFactorySDK,
+  LockedTokenGuildConsensusSDK,
+  removeFixedSignerMemberAction,
+  setFixedSignerMemberWeightAction,
+  SubscriptionGuildConsensusSDK,
+  type FixedSignerMemberInput,
+  type GuildProposalAction,
+} from './guild';
+export { HyperSwapSDK, hyperSwapRootName, hyperSwapRootBoxName, computeOfferTerms, validateOffer, hyperSwapTradeTree, hyperSwapParticipantTree, HYPER_SWAP_MAX_OFFER_DURATION } from './hyper-swap';
 export { MarketplaceSDK, ListingSDK } from './marketplace';
+export { PluginDexSDK, HOOK_CATALOGUE, validateHookStack, defaultPoolConfig } from './plugin-dex';
 export { MetaMerklesSDK } from './meta-merkles';
+export { MetaSDK, MetaFactory } from './meta';
+export type { SetMetadataArgs, RemoveMetadataArgs } from './meta';
+export * from './meta/records';
+export * from './meta/schemas';
 export { PollSDK, PollFactorySDK } from './poll';
 export { PrizeBoxSDK, PrizeBoxFactorySDK } from './prize-box';
 export { RaffleSDK, RaffleFactorySDK } from './raffle';
@@ -71,3 +98,7 @@ export * from './connect';
 // returns `{ windows }` — pre-populated, pre-grouped `PreparedGroup`s that
 // can be submitted later by a different actor via `sendPrepared(window, algod)`.
 export { sendPrepared, prepareGroup, type PreparedGroup, type SendGroupResult, type ForceOptions } from './simulate/prepare';
+export { installAccessListResourcePopulator, registerAccessListResourceCarrier, seedAccessResources, seededAccessResources } from './simulate/access-list';
+
+// Off-chain mirror of the principal-resolution standard (also importable as `@akta/sdk/principal`).
+export * as principal from './principal';

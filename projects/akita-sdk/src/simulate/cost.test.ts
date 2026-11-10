@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
-import { TransactionType } from '@algorandfoundation/algokit-utils/transact'
-import type { SimulateResponse } from '@algorandfoundation/algokit-utils/algod-client'
+import { TransactionType } from 'algosdk';
+import type { modelsv2 } from 'algosdk';
+type SimulateResponse = modelsv2.SimulateResponse;
 
 import { computeExpectedCost } from './cost'
 
@@ -23,7 +24,7 @@ function txn({
           txn: {
             sender,
             fee,
-        type: payment ? TransactionType.Payment : TransactionType.AppCall,
+        type: payment ? TransactionType.pay : TransactionType.appl,
         payment: payment
           ? {
             amount: payment.amount,

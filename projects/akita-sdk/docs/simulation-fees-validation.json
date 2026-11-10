@@ -1,0 +1,387 @@
+{
+  "network": "localnet",
+  "consensusVersion": "https://github.com/algorandfoundation/specs/tree/268b63433a907455d439995bf916f6b296018f4f",
+  "walletId": "361596",
+  "payPluginId": "361662",
+  "versions": {
+    "utils": "10.0.0-beta.1",
+    "algosdk": "3.6.0"
+  },
+  "results": [
+    {
+      "name": "Utils 10: each app call at maxFee",
+      "fees": [
+        "272000",
+        "272000",
+        "272000"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "Utils 10: first pays, others zero",
+      "fees": [
+        "272000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "Utils 10: last pays, others zero",
+      "fees": [
+        "0",
+        "0",
+        "272000"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "Utils 10: actual pooled fee",
+      "fees": [
+        "5000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "Utils 10: insufficient group fee",
+      "fees": [
+        "1000",
+        "0",
+        "0"
+      ],
+      "success": false,
+      "failure": "transaction RINCSNSRDSL5JNP572ZNKAL6RHDVTOG7VJ5KOJWTEDVKWRWSTQWA: logic eval error: group fee 0.0A too small (needs 1mA more)",
+      "innerTransactions": 0,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "Only the first maxFee is nonzero: composer allocation error",
+      "failure": "Calculated transaction fee 1000 \u00b5ALGO is greater than max of 0 for transaction 1"
+    },
+    {
+      "name": "0.3 ALGO spendable: individual",
+      "fees": [
+        "1000",
+        "272000",
+        "272000",
+        "272000"
+      ],
+      "success": false,
+      "failure": "transaction 3WDYCRQTX5DTXD22D4LBOQKJ3D45I3G4WPINLQQHK2RSUDO2QGZA: account ZICXMRDWTW4DPENRXDZPYEHLABLPZTGAKJWT22XXI4EULJ24WFTXQPGTNQ balance 9103800 below min 9347800 (0 assets)",
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "0.3 ALGO spendable: pooled",
+      "fees": [
+        "1000",
+        "272000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "SDK build, final strict simulation",
+      "fees": [
+        "5000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": []
+    },
+    {
+      "name": "SDK original discovery: 16 transactions",
+      "success": false,
+      "failure": "Error resolving execution info via simulate in transaction 7: transaction A7XQ6YLAW35A3MBWWOV5JYXGA7C4EPJVSUIS6UEJZ4DXKSCXBQDQ: account ZICXMRDWTW4DPENRXDZPYEHLABLPZTGAKJWT22XXI4EULJ24WFTXQPGTNQ balance 9302728 below min 9347800 (0 assets)"
+    },
+    {
+      "name": "SDK pooled discovery: 16 transactions, final strict simulation",
+      "fees": [
+        "31000",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 15,
+      "boxes": []
+    },
+    {
+      "name": "SDK requests: original 3- and 16-transaction builds, then pooled 16-transaction build",
+      "requests": [
+        {
+          "discovery": true,
+          "fees": [
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "257000",
+            "257000",
+            "257000"
+          ]
+        },
+        {
+          "discovery": false,
+          "fees": [
+            "2000",
+            "2000",
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "2000",
+            "2000",
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "257000",
+            "257000",
+            "257000"
+          ]
+        },
+        {
+          "discovery": false,
+          "fees": [
+            "2000",
+            "2000",
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000",
+            "257000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "272000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "272000",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+          ]
+        },
+        {
+          "discovery": false,
+          "fees": [
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "1000"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "272000",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+          ]
+        },
+        {
+          "discovery": true,
+          "fees": [
+            "272000",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0",
+            "0"
+          ]
+        },
+        {
+          "discovery": false,
+          "fees": [
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "2000",
+            "1000"
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Utils 9.2.2 composer discovery fees",
+      "fees": [
+        "272000",
+        "272000",
+        "272000"
+      ]
+    },
+    {
+      "name": "installed algosdk: first pays, others zero",
+      "fees": [
+        "272000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    },
+    {
+      "name": "algosdk 3.7.0 from isolated v9 installation: first pays, others zero",
+      "fees": [
+        "272000",
+        "0",
+        "0"
+      ],
+      "success": true,
+      "innerTransactions": 2,
+      "boxes": [
+        "361596:7000000000000584be0000000000000000000000000000000000000000000000000000000000000000002a0000"
+      ]
+    }
+  ],
+  "checks": {
+    "sdk": {
+      "filesPassed": 22,
+      "testsPassed": 228
+    },
+    "smartContracts": {
+      "filesPassed": 68,
+      "testsPassed": 991,
+      "todo": 11,
+      "failures": 0
+    },
+    "existingSourceAndContractArtifactsUnchanged": true
+  }
+}

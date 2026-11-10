@@ -1,42 +1,31 @@
 import { describe, expect, test } from "vitest";
 import type algosdk from "algosdk";
-import { Address } from "@algorandfoundation/algokit-utils/common";
-import type { AlgodClient } from "@algorandfoundation/algokit-utils/algod-client";
-import { TransactionComposer } from "@algorandfoundation/algokit-utils/composer";
-import {
-  Transaction,
-  TransactionType,
-  type TransactionSigner,
-} from "@algorandfoundation/algokit-utils/transact";
+import { Address } from 'algosdk';
+import type { Algodv2 as AlgodClient } from 'algosdk';
+import { TransactionComposer } from '@algorandfoundation/algokit-utils/types/composer';
+import { Transaction, TransactionType, type TransactionSigner } from 'algosdk';
 
 import { prepareGroup, sendPrepared } from "./prepare";
 
 const address = (fill: number) => new Address(new Uint8Array(32).fill(fill));
 
 function payment(): Transaction {
-  return new Transaction({
-    type: TransactionType.Payment,
-    sender: address(1),
-    fee: 1_000n,
-    firstValid: 1n,
-    lastValid: 1_001n,
-    payment: {
+  return new Transaction({ type: TransactionType.pay, sender: address(1), paymentParams: {
       receiver: address(2),
       amount: 1n,
-    },
-  });
+    }, suggestedParams: { flatFee: true, fee: 0n, minFee: 1000n, fee: 1_000n, firstValid: 1n, lastValid: 1_001n } });
 }
 
 function groupWithSigners(signers: TransactionSigner[]): TransactionComposer {
   const composer = new TransactionComposer({
-    algod: {} as AlgodClient,
+    algod: nativeAlgod({} as AlgodClient),
     getSigner: () => signers[0],
     getSuggestedParams: async () => ({
       consensusVersion: "test",
       fee: 1n,
       minFee: 1_000n,
       genesisHash: new Uint8Array(32),
-      genesisId: "test-v1",
+      genesisID: "test-v1",
       flatFee: true,
       firstValid: 1n,
       lastValid: 1_001n,
@@ -111,3 +100,22 @@ describe("prepared signer batching", () => {
     ]);
   });
 });
+
+// Network fixtures use the same request-builder interface as Algodv2.
+function nativeAlgod(client: any): any {
+  return new Proxy(client, { get(target, key, receiver) {
+    if (key !== 'simulateTransactions') return Reflect.get(target, key, receiver);
+    return (request: any) => ({ do: async () => {
+      const response = await target.simulateTransactions(request);
+      const resources = (r: any) => r && ({ ...r, boxes: r.boxes?.map((b: any) => ({ app: b.appIndex, name: b.name })), appLocals: r.appLocals?.map((l: any) => ({ app: l.appIndex, account: l.address })), assetHoldings: r.assetHoldings?.map((h: any) => ({ asset: h.assetIndex, account: h.address })) });
+      for (const group of response.txnGroups) {
+        group.unnamedResourcesAccessed = resources(group.unnamedResourcesAccessed);
+        for (const [i, result] of group.txnResults.entries()) {
+          result.unnamedResourcesAccessed = resources(result.unnamedResourcesAccessed);
+          result.txnResult.txn ??= request.txnGroups[0].txns[i];
+        }
+      }
+      return response;
+    } });
+  } });
+}
