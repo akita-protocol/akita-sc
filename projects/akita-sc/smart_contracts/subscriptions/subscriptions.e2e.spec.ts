@@ -15,22 +15,22 @@ import {
 import { TimeWarp } from '../../tests/utils/time'
 
 import {
-  ERR_BLOCKED,
-  ERR_CANNOT_TRIGGER,
-  ERR_MAX_PASSES_IS_FIVE,
-  ERR_MIN_AMOUNT_IS_THREE,
-  ERR_MIN_INTERVAL_IS_SIXTY,
-  ERR_NO_DONATIONS,
-  ERR_NOT_ENOUGH_FUNDS,
-  ERR_PASS_COUNT_OVERFLOW,
-  ERR_SERVICE_DOES_NOT_EXIST,
-  ERR_SERVICE_IS_NOT_ACTIVE,
-  ERR_SERVICE_IS_NOT_PAUSED,
-  ERR_SERVICE_IS_SHUTDOWN,
-  ERR_SUBSCRIPTION_DOES_NOT_EXIST,
-  ERR_TITLE_TOO_LONG,
-  ERR_USER_ALREADY_BLOCKED,
-  ERR_USER_NOT_BLOCKED
+  errBlocked,
+  errCannotTrigger,
+  errMaxPassesIsFive,
+  errMinAmountIsThree,
+  errMinIntervalIsSixty,
+  errNoDonations,
+  errNotEnoughFunds,
+  errPassCountOverflow,
+  errServiceDoesNotExist,
+  errServiceIsNotActive,
+  errServiceIsNotPaused,
+  errServiceIsShutdown,
+  errSubscriptionDoesNotExist,
+  errTitleTooLong,
+  errUserAlreadyBlocked,
+  errUserNotBlocked
 } from './errors'
 
 Config.configure({
@@ -106,12 +106,14 @@ describe('Subscriptions Contract Tests', () => {
       // Account for: payment txn + newService (with 1 inner txn) + setServiceDescription + activateService
       // The newService contract has 1 inner payment transaction to the escrow
       // With coverAppCallInnerTransactionFees: fees = payment(1000) + newService(2000 with inner) + setDesc(1000) + activate(1000) = 5000
-      // Plus potential referral inner transaction
-      const expectedCost = createExpectedCost(expectedPayment, 1, MIN_TXN_FEE * 4n) // 1 inner + payment + setServiceDescription + activateService + extra
+      // No referral inner: a plain EOA has no referrer, and the hinted newService resolves the caller with
+      // principalOf (no inner call). The pre-hint contract paid one more inner fee for the EscrowFactory.get
+      // registry lookup (principal resolution §3.7).
+      const expectedCost = createExpectedCost(expectedPayment, 1, MIN_TXN_FEE * 3n) // 1 inner + payment + setServiceDescription + activateService
 
       // Fund account generously to avoid minimum balance issues
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const verification = await verifyBalanceChange(
         algorand,
@@ -164,11 +166,11 @@ describe('Subscriptions Contract Tests', () => {
       const newServiceCost = await subscriptions.newServiceCost()
       // Account for: payment txn + newService (with 1 inner txn) + setServiceDescription + activateService
       // Same as "create a new service" test
-      const expectedCost = createExpectedCost(newServiceCost, 1, MIN_TXN_FEE * 4n) // 1 inner + payment + setServiceDescription + activateService + extra
+      const expectedCost = createExpectedCost(newServiceCost, 1, MIN_TXN_FEE * 3n) // 1 inner + payment + setServiceDescription + activateService
 
       // Fund account generously to avoid minimum balance issues
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const verification = await verifyBalanceChange(
         algorand,
@@ -214,7 +216,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       let error = 'no error thrown'
       try {
@@ -237,7 +239,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_MAX_PASSES_IS_FIVE)
+      expect(error).toContain(errMaxPassesIsFive)
     })
 
     test('cannot create service with amount below minimum', async () => {
@@ -246,7 +248,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       let error = 'no error thrown'
       try {
@@ -269,7 +271,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_MIN_AMOUNT_IS_THREE)
+      expect(error).toContain(errMinAmountIsThree)
     })
 
     test('cannot create service with interval below minimum', async () => {
@@ -278,7 +280,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       let error = 'no error thrown'
       try {
@@ -301,7 +303,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_MIN_INTERVAL_IS_SIXTY)
+      expect(error).toContain(errMinIntervalIsSixty)
     })
 
     test('activate a draft service', async () => {
@@ -310,7 +312,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -338,7 +340,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -369,7 +371,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -407,7 +409,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -436,7 +438,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_PAUSED)
+      expect(error).toContain(errServiceIsNotPaused)
     })
 
     test('shutdown a service', async () => {
@@ -445,7 +447,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -478,7 +480,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -505,7 +507,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_SHUTDOWN)
+      expect(error).toContain(errServiceIsShutdown)
     })
 
     test('get service that does not exist fails', async () => {
@@ -519,7 +521,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_DOES_NOT_EXIST)
+      expect(error).toContain(errServiceDoesNotExist)
     })
 
     test('cannot create service with title too long', async () => {
@@ -528,7 +530,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Create a title that exceeds MAX_TITLE_LENGTH (256 bytes typically)
       const longTitle = 'A'.repeat(300)
@@ -554,7 +556,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_TITLE_TOO_LONG)
+      expect(error).toContain(errTitleTooLong)
     })
 
     test('creator can update service title and description after activation, pause, and shutdown', async () => {
@@ -563,7 +565,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -627,7 +629,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -646,7 +648,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       const otherAccount = algorand.account.random()
-      await algorand.account.ensureFunded(otherAccount.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(otherAccount.addr, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -660,7 +662,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_DOES_NOT_EXIST)
+      expect(error).toContain(errServiceDoesNotExist)
 
       const service = await subscriptions.getService({ sender, address: sender, id: Number(serviceId) })
       expect(service.title).toBe('Creator Owned')
@@ -672,7 +674,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -701,7 +703,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_ACTIVE)
+      expect(error).toContain(errServiceIsNotActive)
     })
 
     test('cannot pause a shutdown service', async () => {
@@ -710,7 +712,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -739,7 +741,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_ACTIVE)
+      expect(error).toContain(errServiceIsNotActive)
     })
 
     test('cannot unpause a shutdown service', async () => {
@@ -748,7 +750,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -781,7 +783,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_PAUSED)
+      expect(error).toContain(errServiceIsNotPaused)
     })
 
     test('multiple services from same merchant', async () => {
@@ -790,7 +792,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (500).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (500).algos())
 
       // Create 3 services
       const serviceIds: bigint[] = []
@@ -846,7 +848,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create another account as recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Get expected subscription cost
       const subscriptionCost = await subscriptions.newSubscriptionCost({
@@ -858,10 +860,11 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Verify expected cost before operation
-      // Account for the payment, subscribe app call, its two inner transactions,
-      // and the opcode-budget carrier selected by simulation.
+      // Account for the payment, the subscribe app call and its two inner payments. The pre-hint contract
+      // paid one more inner fee for the EscrowFactory.get registry lookup of the referrer; the hinted
+      // subscribe resolves the caller with principalOf (no inner call, principal resolution §3.7).
       const donationAmount = 100_000n
-      const expectedCost = createExpectedCost(subscriptionCost + donationAmount, 2, MIN_TXN_FEE * 2n)
+      const expectedCost = createExpectedCost(subscriptionCost + donationAmount, 2, MIN_TXN_FEE)
       const verification = await verifyBalanceChange(
         algorand,
         sender,
@@ -872,7 +875,7 @@ describe('Subscriptions Contract Tests', () => {
       // Fund subscriber with minimum needed
       const buffer = microAlgo(100_000)
       const requiredFunding = microAlgo(expectedCost.total).microAlgo + buffer.microAlgo
-      await algorand.account.ensureFunded(sender, dispenser, microAlgo(requiredFunding))
+      await algorand.account.ensureFunded(sender, dispenser.addr, microAlgo(requiredFunding))
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -913,7 +916,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Fund merchant FIRST so newServiceCost can be called
       // We'll fund with a generous amount to cover service creation
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
 
       // Get merchant service cost
       const merchantServiceCost = await subscriptions.newServiceCost({
@@ -950,12 +953,13 @@ describe('Subscriptions Contract Tests', () => {
 
       // Fund subscriber with minimum needed (subscription cost + first payment + buffer)
       const firstPayment = 500_000n
-      // Account for the payment, subscribe app call, its two inner transactions,
-      // and the opcode-budget carrier selected by simulation.
-      const subscriberExpectedCost = createExpectedCost(subscriptionCost + firstPayment, 2, MIN_TXN_FEE * 2n)
+      // Account for the payment, the subscribe app call and its two inner payments. The pre-hint contract
+      // paid one more inner fee for the EscrowFactory.get registry lookup of the referrer; the hinted
+      // subscribe resolves the caller with principalOf (no inner call, principal resolution §3.7).
+      const subscriberExpectedCost = createExpectedCost(subscriptionCost + firstPayment, 2, MIN_TXN_FEE)
       const subscriberBuffer = microAlgo(1_000_000) // 1 ALGO buffer for minimum balance
       const subscriberRequiredFunding = microAlgo(subscriberExpectedCost.total).microAlgo + subscriberBuffer.microAlgo
-      await algorand.account.ensureFunded(sender, dispenser, microAlgo(subscriberRequiredFunding))
+      await algorand.account.ensureFunded(sender, dispenser.addr, microAlgo(subscriberRequiredFunding))
 
       // Verify expected cost before subscription
       const subscriberVerification = await verifyBalanceChange(
@@ -1000,7 +1004,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
 
       // Create service
       const serviceId = await subscriptions.newService({
@@ -1027,7 +1031,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber for the subscribe attempt
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1044,7 +1048,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_ACTIVE)
+      expect(error).toContain(errServiceIsNotActive)
     })
 
     test('deposit funds into subscription', async () => {
@@ -1055,7 +1059,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1110,7 +1114,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1174,7 +1178,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1199,7 +1203,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_NOT_ENOUGH_FUNDS)
+      expect(error).toContain(errNotEnoughFunds)
     })
 
     test('unsubscribe and get refund', async () => {
@@ -1210,7 +1214,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1262,7 +1266,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
     })
 
     test('check if first subscription', async () => {
@@ -1271,7 +1275,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create a new account that has no subscriptions
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const newAcc = algorand.account.random()
-      await algorand.account.ensureFunded(newAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(newAcc.addr, dispenser.addr, (10).algos())
 
       const isFirst = await subscriptions.isFirstSubscription({ sender: newAcc.addr.toString(), address: newAcc.addr.toString() })
       expect(isFirst).toBe(true)
@@ -1285,7 +1289,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
 
       // Create service
       const serviceId = await subscriptions.newService({
@@ -1312,7 +1316,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1329,7 +1333,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_NOT_ACTIVE)
+      expect(error).toContain(errServiceIsNotActive)
     })
 
     test('subscribe with initial deposit', async () => {
@@ -1340,8 +1344,8 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 500_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -1365,7 +1369,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1380,7 +1384,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
     })
 
     test('withdraw from non-existent subscription fails', async () => {
@@ -1389,7 +1393,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1404,7 +1408,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
     })
 
     test('unsubscribe from non-existent subscription fails', async () => {
@@ -1413,7 +1417,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1426,7 +1430,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
     })
 
     test('multiple subscriptions from same address', async () => {
@@ -1435,13 +1439,13 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       // Create multiple recipients
       const recipients = []
       for (let i = 0; i < 3; i++) {
         const recipientAcc = algorand.account.random()
-        await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+        await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
         recipients.push(recipientAcc)
       }
 
@@ -1486,11 +1490,11 @@ describe('Subscriptions Contract Tests', () => {
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
       const initialRecipientFunding = (10).algos()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, initialRecipientFunding)
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, initialRecipientFunding)
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Get recipient balance before
-      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceBefore = BigInt(recipientInfoBefore.amount)
 
       const subscriptionAmount = 100_000n
@@ -1505,7 +1509,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get recipient balance after
-      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceAfter = BigInt(recipientInfoAfter.amount)
 
       // Recipient should have received something (minus fees)
@@ -1521,11 +1525,11 @@ describe('Subscriptions Contract Tests', () => {
       // Create a new account
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const newAcc = algorand.account.random()
-      await algorand.account.ensureFunded(newAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(newAcc.addr, dispenser.addr, (10).algos())
 
       // Create recipient
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Check is first subscription before
       const isFirstBefore = await subscriptions.isFirstSubscription({
@@ -1567,7 +1571,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1592,7 +1596,7 @@ describe('Subscriptions Contract Tests', () => {
       } catch (e: any) {
         error = e.message
       }
-      expect(error).toContain(ERR_CANNOT_TRIGGER)
+      expect(error).toContain(errCannotTrigger)
 
       // Warp time forward past the interval
       await timeWarp.timeWarp(BigInt(MIN_INTERVAL + 10))
@@ -1645,7 +1649,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1674,7 +1678,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_CANNOT_TRIGGER)
+      expect(error).toContain(errCannotTrigger)
     })
 
     test('streak resets when payment window is missed', async () => {
@@ -1685,7 +1689,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1741,11 +1745,11 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Create third party who will trigger the payment
       const thirdPartyAcc = algorand.account.random()
-      await algorand.account.ensureFunded(thirdPartyAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(thirdPartyAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender: subscriber,
@@ -1793,7 +1797,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionAmount = 100_000n
       const initialDeposit = 500_000n
@@ -1846,7 +1850,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -1860,7 +1864,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_CANNOT_TRIGGER)
+      expect(error).toContain(errCannotTrigger)
     })
 
     test('trigger payment updates lastPayment timestamp', async () => {
@@ -1871,7 +1875,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1922,7 +1926,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient (merchant)
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -1958,7 +1962,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_CANNOT_TRIGGER)
+      expect(error).toContain(errCannotTrigger)
     })
 
     test('donation subscription continues after service shutdown', async () => {
@@ -1969,7 +1973,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Create donation (serviceId = 0)
       const subscriptionId = await subscriptions.subscribe({
@@ -2012,7 +2016,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create user to block
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const userAcc = algorand.account.random()
-      await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
 
       await subscriptions.block({
         sender,
@@ -2037,7 +2041,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const userAcc = algorand.account.random()
-      await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
 
       await subscriptions.block({
         sender,
@@ -2056,7 +2060,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_USER_ALREADY_BLOCKED)
+      expect(error).toContain(errUserAlreadyBlocked)
     })
 
     test('unblock a user', async () => {
@@ -2066,7 +2070,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const userAcc = algorand.account.random()
-      await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
 
       await subscriptions.block({
         sender,
@@ -2097,7 +2101,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const userAcc = algorand.account.random()
-      await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
 
       let error = 'no error thrown'
       try {
@@ -2110,7 +2114,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_USER_NOT_BLOCKED)
+      expect(error).toContain(errUserNotBlocked)
     })
 
     test('blocked user cannot subscribe', async () => {
@@ -2121,7 +2125,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant who will block the user
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (10).algos())
 
       // Block the subscriber
       await subscriptions.block({
@@ -2145,7 +2149,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_BLOCKED)
+      expect(error).toContain(errBlocked)
     })
 
     test('verify block cost', async () => {
@@ -2166,13 +2170,13 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Block multiple users
       const usersToBlock = []
       for (let i = 0; i < 3; i++) {
         const userAcc = algorand.account.random()
-        await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+        await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
         usersToBlock.push(userAcc)
 
         await subscriptions.block({
@@ -2201,7 +2205,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const userAcc = algorand.account.random()
-      await algorand.account.ensureFunded(userAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(userAcc.addr, dispenser.addr, (10).algos())
 
       // Verify user is not blocked
       const isBlocked = await subscriptions.isBlocked({
@@ -2224,7 +2228,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_USER_NOT_BLOCKED)
+      expect(error).toContain(errUserNotBlocked)
     })
   })
 
@@ -2241,7 +2245,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       // Now create the actual service with passes (will have ID > 0)
       const serviceId = await subscriptions.newService({
@@ -2261,7 +2265,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber for subscription (extra for passes MBR)
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2319,7 +2323,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has 2 passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       // Create a dummy service first (serviceId 0 is reserved for donations in setPasses)
       await subscriptions.newService({
@@ -2356,7 +2360,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber for subscription cost
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2389,7 +2393,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_PASS_COUNT_OVERFLOW)
+      expect(error).toContain(errPassCountOverflow)
     })
 
     test('cannot set passes on donation', async () => {
@@ -2400,7 +2404,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2426,7 +2430,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_NO_DONATIONS)
+      expect(error).toContain(errNoDonations)
     })
 
     test('update passes on subscription', async () => {
@@ -2437,7 +2441,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -2456,7 +2460,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2512,7 +2516,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -2531,7 +2535,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2582,7 +2586,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const passHolder = algorand.account.random()
 
@@ -2598,7 +2602,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
     })
 
     test('cannot set passes on shutdown service subscription', async () => {
@@ -2609,7 +2613,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -2628,7 +2632,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2661,7 +2665,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_SERVICE_IS_SHUTDOWN)
+      expect(error).toContain(errServiceIsShutdown)
     })
 
     test('blocked pass holder cannot be added', async () => {
@@ -2672,7 +2676,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant with service that has passes
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -2691,7 +2695,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Fund subscriber
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2705,7 +2709,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create pass holder and block them
       const passHolder = algorand.account.random()
-      await algorand.account.ensureFunded(passHolder.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(passHolder.addr, dispenser.addr, (10).algos())
       await subscriptions.block({
         sender: merchantAcc.addr.toString(),
         signer: merchantAcc.signer,
@@ -2725,7 +2729,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_BLOCKED)
+      expect(error).toContain(errBlocked)
     })
   })
 
@@ -2740,7 +2744,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (500).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (500).algos())
 
       // Create multiple services and track their IDs
       const serviceIds: bigint[] = []
@@ -2784,7 +2788,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create recipient
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -2816,7 +2820,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create a new account for a fresh merchant
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (500).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (500).algos())
 
       // Check service list before creating any services
       const listBefore = await subscriptions.client.getServiceList({
@@ -2860,7 +2864,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create a new account for a fresh subscriber
       const subscriberAcc = algorand.account.random()
-      await algorand.account.ensureFunded(subscriberAcc.addr, dispenser, (20).algos())
+      await algorand.account.ensureFunded(subscriberAcc.addr, dispenser.addr, (20).algos())
 
       // Check subscription list before creating any subscriptions
       const listBefore = await subscriptions.client.getSubscriptionList({
@@ -2871,7 +2875,7 @@ describe('Subscriptions Contract Tests', () => {
       // Create subscriptions
       for (let i = 0; i < 2; i++) {
         const recipientAcc = algorand.account.random()
-        await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+        await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
         await subscriptions.subscribe({
           sender: subscriberAcc.addr.toString(),
@@ -2910,7 +2914,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       const cost = await subscriptions.newSubscriptionCost({
         sender,
@@ -2946,7 +2950,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create a new merchant for fresh services with generous funding
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (1000).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (1000).algos())
 
       // Create services
       for (let i = 0; i < 5; i++) {
@@ -3023,16 +3027,16 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       // Get escrow address for balance tracking
       const escrowAddress = await getEscrowAddress(algorand)
 
       // Get balances before
-      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceBefore = BigInt(recipientInfoBefore.amount)
-      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceBefore = BigInt(escrowInfoBefore.amount)
 
       const subscriptionAmount = 1_000_000n // 1 ALGO
@@ -3049,9 +3053,9 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get balances after
-      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceAfter = BigInt(recipientInfoAfter.amount)
-      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceAfter = BigInt(escrowInfoAfter.amount)
 
       // Recipient should receive leftOver amount (subscription amount minus fees)
@@ -3070,8 +3074,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionAmount = 500_000n // 0.5 ALGO
       const subscriptionId = await subscriptions.subscribe({
@@ -3090,11 +3094,11 @@ describe('Subscriptions Contract Tests', () => {
 
       // Get escrow address and balances before trigger
       const escrowAddress = await getEscrowAddress(algorand)
-      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceBefore = BigInt(recipientInfoBefore.amount)
-      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceBefore = BigInt(escrowInfoBefore.amount)
-      const triggerSenderInfoBefore = await algorand.client.algod.accountInformation(sender)
+      const triggerSenderInfoBefore = await algorand.client.algod.accountInformation(sender).do()
       const triggerSenderBalanceBefore = BigInt(triggerSenderInfoBefore.amount)
 
       const expectedFees = calcFees(subscriptionAmount)
@@ -3108,11 +3112,11 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get balances after
-      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceAfter = BigInt(recipientInfoAfter.amount)
-      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceAfter = BigInt(escrowInfoAfter.amount)
-      const triggerSenderInfoAfter = await algorand.client.algod.accountInformation(sender)
+      const triggerSenderInfoAfter = await algorand.client.algod.accountInformation(sender).do()
       const triggerSenderBalanceAfter = BigInt(triggerSenderInfoAfter.amount)
 
       // Recipient should receive leftOver amount
@@ -3137,11 +3141,11 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Get escrow address and balance before
       const escrowAddress = await getEscrowAddress(algorand)
-      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceBefore = BigInt(escrowInfoBefore.amount)
 
       // Service creation fee is 100 ALGO (DEFAULT_SERVICE_CREATION_FEE = 100_000_000n)
@@ -3163,7 +3167,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get escrow balance after
-      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceAfter = BigInt(escrowInfoAfter.amount)
 
       // Escrow should receive the service creation fee
@@ -3178,8 +3182,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // MIN_AMOUNT is 4 base units
       const minAmount = BigInt(MIN_AMOUNT)
@@ -3211,8 +3215,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // MIN_INTERVAL is 60 seconds
       const minInterval = BigInt(MIN_INTERVAL)
@@ -3243,16 +3247,16 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Get escrow address for balance tracking
       const escrowAddress = await getEscrowAddress(algorand)
 
       // Get balances before
-      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoBefore = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceBefore = BigInt(recipientInfoBefore.amount)
-      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoBefore = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceBefore = BigInt(escrowInfoBefore.amount)
 
       // Large subscription: 100 ALGO
@@ -3270,9 +3274,9 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get balances after
-      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString())
+      const recipientInfoAfter = await algorand.client.algod.accountInformation(recipientAcc.addr.toString()).do()
       const recipientBalanceAfter = BigInt(recipientInfoAfter.amount)
-      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress)
+      const escrowInfoAfter = await algorand.client.algod.accountInformation(escrowAddress).do()
       const escrowBalanceAfter = BigInt(escrowInfoAfter.amount)
 
       // Verify fee calculation for large amount
@@ -3295,8 +3299,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -3341,8 +3345,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 1_000_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -3390,8 +3394,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 500_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -3406,7 +3410,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get sender balance before unsubscribe
-      const senderInfoBefore = await algorand.client.algod.accountInformation(sender)
+      const senderInfoBefore = await algorand.client.algod.accountInformation(sender).do()
       const senderBalanceBefore = BigInt(senderInfoBefore.amount)
 
       await subscriptions.unsubscribe({
@@ -3416,7 +3420,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get sender balance after
-      const senderInfoAfter = await algorand.client.algod.accountInformation(sender)
+      const senderInfoAfter = await algorand.client.algod.accountInformation(sender).do()
       const senderBalanceAfter = BigInt(senderInfoAfter.amount)
 
       // Sender should receive back escrowed + MBR (minus transaction fees)
@@ -3433,8 +3437,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionAmount = 100_000n
       const initialDeposit = 500_000n
@@ -3492,7 +3496,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Create service with ALGO (asset = 0)
       const serviceId = await subscriptions.newService({
@@ -3543,7 +3547,7 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Get cost for ALGO subscription
       const cost = await subscriptions.newSubscriptionCost({
@@ -3571,8 +3575,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // MIN_AMOUNT + 1
       const amount = BigInt(MIN_AMOUNT + 1)
@@ -3603,8 +3607,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // MIN_INTERVAL + 1
       const interval = BigInt(MIN_INTERVAL + 1)
@@ -3635,8 +3639,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 500_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -3674,7 +3678,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -3708,8 +3712,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const subscriptionAmount = 100_000n
 
@@ -3789,8 +3793,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -3828,7 +3832,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const specialDesc = 'Test with émojis 🎉 and spëcial çharacters! @#$%^&*()'
 
@@ -3864,8 +3868,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -3941,11 +3945,11 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create another user who will try to steal funds
       const attackerAcc = algorand.account.random()
-      await algorand.account.ensureFunded(attackerAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(attackerAcc.addr, dispenser.addr, (10).algos())
 
       // Create recipient
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
 
       // Owner creates subscription with funds
       const subscriptionId = await subscriptions.subscribe({
@@ -3974,7 +3978,7 @@ describe('Subscriptions Contract Tests', () => {
       }
 
       // Should fail because attacker doesn't own this subscription
-      expect(error).toContain(ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+      expect(error).toContain(errSubscriptionDoesNotExist)
 
       // Verify owner's funds are still intact
       const subInfo = await subscriptions.getSubscription({
@@ -3992,8 +3996,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 1_000_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -4041,8 +4045,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -4056,7 +4060,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get sender balance before withdrawal
-      const senderInfoBefore = await algorand.client.algod.accountInformation(sender)
+      const senderInfoBefore = await algorand.client.algod.accountInformation(sender).do()
       const senderBalanceBefore = BigInt(senderInfoBefore.amount)
 
       const withdrawAmount = 300_000n
@@ -4069,7 +4073,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get sender balance after withdrawal
-      const senderInfoAfter = await algorand.client.algod.accountInformation(sender)
+      const senderInfoAfter = await algorand.client.algod.accountInformation(sender).do()
       const senderBalanceAfter = BigInt(senderInfoAfter.amount)
 
       // Sender should receive withdrawAmount minus transaction fees
@@ -4086,8 +4090,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -4102,7 +4106,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Get contract balance before withdrawal
       const contractAddress = subscriptions.client.appAddress.toString()
-      const contractInfoBefore = await algorand.client.algod.accountInformation(contractAddress)
+      const contractInfoBefore = await algorand.client.algod.accountInformation(contractAddress).do()
       const contractBalanceBefore = BigInt(contractInfoBefore.amount)
 
       const withdrawAmount = 200_000n
@@ -4115,7 +4119,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get contract balance after withdrawal
-      const contractInfoAfter = await algorand.client.algod.accountInformation(contractAddress)
+      const contractInfoAfter = await algorand.client.algod.accountInformation(contractAddress).do()
       const contractBalanceAfter = BigInt(contractInfoAfter.amount)
 
       // Contract balance should decrease by exactly the withdraw amount
@@ -4130,8 +4134,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionAmount = 100_000n
       const initialDeposit = 500_000n
@@ -4188,8 +4192,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       // Create service
       const serviceId = await subscriptions.newService({
@@ -4258,8 +4262,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -4303,8 +4307,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 1_234_567n // Odd number to test exact math
       const subscriptionId = await subscriptions.subscribe({
@@ -4345,8 +4349,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionAmount = 100_000n
       const initialDeposit = 500_000n
@@ -4388,8 +4392,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const subscriptionId = await subscriptions.subscribe({
         sender,
@@ -4443,8 +4447,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (400).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (20).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (400).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (20).algos())
 
       // Create service with passes
       const serviceId = await subscriptions.newService({
@@ -4519,8 +4523,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       const initialDeposit = 500_000n
       const subscriptionId = await subscriptions.subscribe({
@@ -4548,7 +4552,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_NOT_ENOUGH_FUNDS)
+      expect(error).toContain(errNotEnoughFunds)
 
       // Verify funds are still intact
       const subInfo = await subscriptions.getSubscription({
@@ -4585,7 +4589,7 @@ describe('Subscriptions Contract Tests', () => {
         unitName: 'TSUB',
         defaultFrozen: false,
       })
-      testAssetId = BigInt(assetCreateResult.confirmation.assetId!)
+      testAssetId = BigInt(assetCreateResult.confirmation.assetIndex!)
       assetDecimals = 6
       console.log('Test ASA created with ID:', testAssetId)
     })
@@ -4596,7 +4600,7 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Create service with the test ASA
       const serviceId = await subscriptions.newService({
@@ -4635,8 +4639,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient needs to opt into the ASA to receive it
       await algorand.send.assetOptIn({
@@ -4679,11 +4683,11 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // First create a merchant and their service
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
 
       // Merchant opts into ASA first (needed to receive payments and transfers)
       await algorand.send.assetOptIn({
@@ -4745,8 +4749,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -4802,8 +4806,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -4837,7 +4841,7 @@ describe('Subscriptions Contract Tests', () => {
 
       // Check sender's ASA balance before withdrawal
       const algod = algorand.client.algod
-      const senderInfoBefore = await algod.accountAssetInformation(sender, Number(testAssetId))
+      const senderInfoBefore = await algod.accountAssetInformation(sender, Number(testAssetId)).do()
       const balanceBefore = BigInt(senderInfoBefore.assetHolding?.amount ?? 0)
 
       // Withdraw some ASA
@@ -4859,7 +4863,7 @@ describe('Subscriptions Contract Tests', () => {
       expect(subAfter.escrowed).toBe(initialDepositAmount - withdrawAmount)
 
       // Verify sender received the ASA
-      const senderInfoAfter = await algod.accountAssetInformation(sender, Number(testAssetId))
+      const senderInfoAfter = await algod.accountAssetInformation(sender, Number(testAssetId)).do()
       expect(BigInt(senderInfoAfter.assetHolding?.amount ?? 0)).toBe(balanceBefore + withdrawAmount)
     })
 
@@ -4870,8 +4874,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -4904,7 +4908,7 @@ describe('Subscriptions Contract Tests', () => {
       const recipientInfoBefore = await algod.accountAssetInformation(
         recipientAcc.addr.toString(),
         Number(testAssetId)
-      )
+      ).do()
       const recipientBalanceBefore = BigInt(recipientInfoBefore.assetHolding?.amount ?? 0)
 
       // Wait for interval to pass
@@ -4930,7 +4934,7 @@ describe('Subscriptions Contract Tests', () => {
       const recipientInfoAfter = await algod.accountAssetInformation(
         recipientAcc.addr.toString(),
         Number(testAssetId)
-      )
+      ).do()
       const recipientBalanceAfter = BigInt(recipientInfoAfter.assetHolding?.amount ?? 0)
       expect(recipientBalanceAfter).toBeGreaterThan(recipientBalanceBefore)
     })
@@ -4942,8 +4946,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -4975,7 +4979,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Get sender ASA balance before unsubscribe
-      const senderInfoBefore = await algod.accountAssetInformation(sender, Number(testAssetId))
+      const senderInfoBefore = await algod.accountAssetInformation(sender, Number(testAssetId)).do()
       const senderBalanceBefore = BigInt(senderInfoBefore.assetHolding?.amount ?? 0)
 
       // Unsubscribe
@@ -4986,7 +4990,7 @@ describe('Subscriptions Contract Tests', () => {
       })
 
       // Verify sender received escrowed ASA back
-      const senderInfoAfter = await algod.accountAssetInformation(sender, Number(testAssetId))
+      const senderInfoAfter = await algod.accountAssetInformation(sender, Number(testAssetId)).do()
       const senderBalanceAfter = BigInt(senderInfoAfter.assetHolding?.amount ?? 0)
       expect(senderBalanceAfter).toBe(senderBalanceBefore + subBefore.escrowed)
     })
@@ -4998,8 +5002,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -5096,8 +5100,8 @@ describe('Subscriptions Contract Tests', () => {
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -5132,7 +5136,7 @@ describe('Subscriptions Contract Tests', () => {
         error = e.message
       }
 
-      expect(error).toContain(ERR_NOT_ENOUGH_FUNDS)
+      expect(error).toContain(errNotEnoughFunds)
     })
 
     test('third party can trigger ASA subscription payment', async () => {
@@ -5143,9 +5147,9 @@ describe('Subscriptions Contract Tests', () => {
       const dispenser = await algorand.account.dispenserFromEnvironment()
       const recipientAcc = algorand.account.random()
       const thirdPartyAcc = algorand.account.random()
-      await algorand.account.ensureFunded(recipientAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(thirdPartyAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (10).algos())
+      await algorand.account.ensureFunded(recipientAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(thirdPartyAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (10).algos())
 
       // Recipient opts into ASA
       await algorand.send.assetOptIn({
@@ -5208,11 +5212,11 @@ describe('Subscriptions Contract Tests', () => {
       const signer = testAccount.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Create merchant
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
 
       // Merchant opts into ASA
       await algorand.send.assetOptIn({
@@ -5266,8 +5270,8 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create a separate payout account
       const payoutAcc = algorand.account.random()
-      await algorand.account.ensureFunded(payoutAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(payoutAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender,
@@ -5299,9 +5303,9 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant and a separate payout account
       const merchantAcc = algorand.account.random()
       const payoutAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
-      await algorand.account.ensureFunded(payoutAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
+      await algorand.account.ensureFunded(payoutAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Merchant creates service with custom payout address
       const serviceId = await subscriptions.newService({
@@ -5353,9 +5357,9 @@ describe('Subscriptions Contract Tests', () => {
       // Create merchant and separate payout account
       const merchantAcc = algorand.account.random()
       const payoutAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
-      await algorand.account.ensureFunded(payoutAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
+      await algorand.account.ensureFunded(payoutAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       // Merchant creates service with custom payout address
       const serviceId = await subscriptions.newService({
@@ -5422,8 +5426,8 @@ describe('Subscriptions Contract Tests', () => {
 
       // Create merchant with no custom payout address (zero address)
       const merchantAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),
@@ -5469,9 +5473,9 @@ describe('Subscriptions Contract Tests', () => {
 
       const merchantAcc = algorand.account.random()
       const payoutAcc = algorand.account.random()
-      await algorand.account.ensureFunded(merchantAcc.addr, dispenser, (200).algos())
-      await algorand.account.ensureFunded(payoutAcc.addr, dispenser, (10).algos())
-      await algorand.account.ensureFunded(sender, dispenser, (200).algos())
+      await algorand.account.ensureFunded(merchantAcc.addr, dispenser.addr, (200).algos())
+      await algorand.account.ensureFunded(payoutAcc.addr, dispenser.addr, (10).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (200).algos())
 
       const serviceId = await subscriptions.newService({
         sender: merchantAcc.addr.toString(),

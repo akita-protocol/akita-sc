@@ -94,6 +94,22 @@ export type ReactionListKey = {
 
 export type Action = { content: CID }
 
+/** Counted (state-changing) moderation actions, stored per moderator */
+export type ModeratorActivity = {
+  epoch: uint64
+  actions: uint64
+  previousActions: uint64
+}
+
+/** `moderatorActivity` view, rolled forward to the current epoch */
+export type ModeratorActivityInfo = {
+  exists: boolean
+  lastActive: uint64
+  epoch: uint64
+  actions: uint64
+  previousActions: uint64
+}
+
 export type MetaValue = {
   // whether the user has initialised their account
   initialized: boolean

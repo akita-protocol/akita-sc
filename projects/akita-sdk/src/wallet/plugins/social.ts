@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { AkitaSocialPluginArgs, AkitaSocialPluginClient, AkitaSocialPluginFactory } from "../../generated/AkitaSocialPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -94,6 +94,16 @@ type GatedFollowArgs = (
 type UnfollowArgs = (
   Omit<ContractArgs['unfollow(uint64,bool,address)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+/**
+ * `setMetaWallet(uint64,bool)void` (principal resolution, spec §6.11): rebinds the caller's
+ * `meta.wallet` to this wallet. The plugin forwards `windowHint(wallet)`; there is no hint argument.
+ * Only the principal-resolution social plugin version has this method. Deployed versions do not.
+ */
+type SetMetaWalletArgs = (
+  MaybeSigner
   & { rekeyBack?: boolean }
 );
 
@@ -675,6 +685,47 @@ export class SocialPluginSDK extends BaseSDK<AkitaSocialPluginClient> {
         const params = await this.client.params.unfollow({
           ...sendParams,
           args: { wallet, rekeyBack, ...args },
+        });
+
+        return [{
+          type: 'methodCall',
+          ...params
+        }];
+      }
+    });
+  }
+
+  // ==================== META WALLET ====================
+
+  /**
+   * Rebinds the spending account's social `meta.wallet` to this wallet, after AkitaSocial verifies the
+   * window (spec §6.2 `setMetaWallet`, P2-SOC-03). Method-restricted social grants must add this method
+   * explicitly at reinstall (spec §7.3). The deployed social plugin versions do not route it.
+   */
+  setMetaWallet(): PluginSDKReturn;
+  setMetaWallet(args: SetMetaWalletArgs): PluginSDKReturn;
+  setMetaWallet(args?: SetMetaWalletArgs): PluginSDKReturn {
+    const methodName = 'setMetaWallet';
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+
+        const params = await this.client.params.setMetaWallet({
+          ...sendParams,
+          args: { wallet, rekeyBack },
         });
 
         return [{

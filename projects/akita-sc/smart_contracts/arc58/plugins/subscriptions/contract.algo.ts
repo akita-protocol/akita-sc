@@ -1,21 +1,30 @@
 import { Account, Application, Asset, Box, bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, TransactionType, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
-import { GateMustCheckAbiMethod } from "../../../gates/constants"
 import { GateArgs } from "../../../gates/types"
 import { ServiceID, SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
-import { getAccounts, getAkitaAppList, getSpendingAccount, getWalletIDUsingAkitaDAO, originOr, rekeyAddress } from "../../../utils/functions"
+import { GateMustCheckForAbiMethod, getAkitaAppList, getSpendingAccount, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions"
+import { gateCtx, windowHint } from "../../../utils/principal"
 import { CID } from "../../../utils/types/base"
 
 // CONTRACT IMPORTS
 import { BaseSubscriptions } from "../../../subscriptions/base"
 import { MAX_DESCRIPTION_LENGTH } from "../../../subscriptions/constants"
 import type { Subscriptions } from "../../../subscriptions/contract.algo"
-import { ERR_CANNOT_TRIGGER, ERR_SUBSCRIPTION_DOES_NOT_EXIST } from "../../../subscriptions/errors"
-import { AkitaBaseContract } from "../../../utils/base-contracts/base"
+import { errCannotTrigger, errSubscriptionDoesNotExist } from "../../../subscriptions/errors"
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable"
 import { BoxKeySubscriptionsDescription, MAX_LOAD_DESCRIPTION_CHUNK_SIZE } from "./constants"
-import { ERR_BAD_DESCRIPTION_LENGTH, ERR_DESCRIPTION_NOT_INITIALIZED, ERR_INVALID_CALL_ORDER } from "./errors"
+import { errBadDescriptionLength, errDescriptionNotInitialized, errInvalidCallOrder } from "./errors"
 
+/**
+ * ARC-58 plugin for the Subscriptions singleton.
+ *
+ * Principal resolution (docs/principal-resolution/PHASE-0-SPEC.md §6.11): every target call that
+ * resolves a principal passes `windowHint(wallet)` as its trailing hint (invariant 6, never a caller
+ * value), and gate txns are `Gate.mustCheckFor(ctx, ...)` with exactly the context the target asserts:
+ * `gateCtx(pluginPrincipalOf(dao, wallet))` for subscribe, `Subscriptions.triggerGateCtx(key, hint)` for
+ * gated triggers. No plugin method changed its ABI, so grants and method restrictions carry over.
+ */
 export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseContract) {
 
   // temporary storage for new service calls
@@ -77,7 +86,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
   }
 
   initDescription(wallet: Application, size: uint64): void {
-    loggedAssert(size <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
+    loggedAssert(size <= MAX_DESCRIPTION_LENGTH, errBadDescriptionLength)
     if (!this.description.exists) {
       this.description.create({ size })
     } else {
@@ -86,7 +95,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
   }
 
   loadDescription(wallet: Application, offset: uint64, data: bytes): void {
-    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
+    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, errBadDescriptionLength)
     const expectedPreviousCalls: uint64 = offset / MAX_LOAD_DESCRIPTION_CHUNK_SIZE
     const txn = gtxn.Transaction(Txn.groupIndex - expectedPreviousCalls - 1)
     loggedAssert((
@@ -96,8 +105,8 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       && txn.onCompletion === OnCompleteAction.NoOp
       && txn.appArgs(0) === methodSelector(this.initDescription)
       && txn.sender === Txn.sender
-    ), ERR_INVALID_CALL_ORDER)
-    loggedAssert(this.description.exists, ERR_DESCRIPTION_NOT_INITIALIZED)
+    ), errInvalidCallOrder)
+    loggedAssert(this.description.exists, errDescriptionNotInitialized)
 
     this.description.replace(offset, data)
   }
@@ -127,7 +136,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       txn.numAppArgs === 4 &&
       txn.onCompletion === OnCompleteAction.NoOp &&
       txn.appArgs(0) === methodSelector(this.loadDescription),
-      ERR_INVALID_CALL_ORDER
+      errInvalidCallOrder
     )
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
@@ -138,10 +147,11 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     }).returnValue
     const serviceId: ServiceID = currentServiceList === 0 ? 1 : currentServiceList
 
+    const hint = windowHint(wallet)
     const cost = abiCall<typeof Subscriptions.prototype.newServiceCost>({
       sender,
       appId,
-      args: [asset],
+      args: [asset, hint],
     }).returnValue
 
     itxnCompose.begin<typeof Subscriptions.prototype.newService>({
@@ -163,6 +173,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         bannerImage,
         highlightMessage,
         highlightColor,
+        hint,
       ]
     })
 
@@ -335,14 +346,16 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     index: uint64,
     args: GateArgs
   ): void {
-    const { origin, sender } = getAccounts(wallet)
+    const sender = getSpendingAccount(wallet)
+    const hint = windowHint(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
+    // includes the stored-pair MBR of a gated wallet subscription and the referral MBR
     const subscriptionCost = abiCall<typeof Subscriptions.prototype.newSubscriptionCost>({
       sender,
       appId,
-      args: [recipient, asset, index],
+      args: [recipient, asset, index, hint],
     }).returnValue
 
     const isAsa = asset !== 0
@@ -356,12 +369,13 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         args: [recipient, index],
       }).returnValue
 
+      // the same verified context the target computes with `principalOf(dao, hint)` (gateCheckCtx)
       const gateTxn = itxn.applicationCall({
         sender,
         appId: gate,
         appArgs: [
-          methodSelector(GateMustCheckAbiMethod),
-          origin,
+          methodSelector(GateMustCheckForAbiMethod),
+          encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet))),
           service.gateID,
           encodeArc4(args)
         ]
@@ -388,6 +402,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             amount,
             interval,
             index,
+            hint,
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet),
         })
@@ -406,6 +421,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             amount,
             interval,
             index,
+            hint,
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet),
         })
@@ -431,6 +447,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             amount,
             interval,
             index,
+            hint,
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet),
         })
@@ -448,6 +465,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             amount,
             interval,
             index,
+            hint,
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet),
         })
@@ -468,14 +486,23 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
 
     if (args.length > 0) {
       const gate = getAkitaAppList(this.akitaDAO.value).gate
+      const key: SubscriptionKey = { address, id }
+      // this wallet's own hint: it never names the subscriber, it only lets the subscriber's own
+      // wallet use its live context (Subscriptions.triggerCtx case 1)
+      const hint = windowHint(wallet)
 
-      const subWallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, address)
-      const subOrigin = originOr(subWallet, address)
+      // exactly the context gatedTriggerPayment(gateTxn, key, hint) asserts: same code, same sender
+      // and caller app (this window), and nothing changes in between
+      const ctx = abiCall<typeof Subscriptions.prototype.triggerGateCtx>({
+        sender,
+        appId,
+        args: [key, hint],
+      }).returnValue
 
       const sub = abiCall<typeof Subscriptions.prototype.getSubscription>({
         sender,
         appId,
-        args: [{ address, id }],
+        args: [key],
       }).returnValue
 
       abiCall<typeof Subscriptions.prototype.gatedTriggerPayment>({
@@ -486,13 +513,14 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
             sender,
             appId: gate,
             appArgs: [
-              methodSelector(GateMustCheckAbiMethod),
-              subOrigin,
+              methodSelector(GateMustCheckForAbiMethod),
+              encodeArc4(ctx),
               sub.gateID,
               encodeArc4(args)
             ]
           }),
-          { address, id }
+          key,
+          hint
         ],
         rekeyTo: rekeyAddress(rekeyBack, wallet),
       })
@@ -522,17 +550,17 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
       args: [key],
     }).returnValue
 
-    loggedAssert(sub.exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(sub.exists, errSubscriptionDoesNotExist)
 
     const latestWindowStart: uint64 = Global.latestTimestamp - ((Global.latestTimestamp - sub.startDate) % sub.interval)
-    loggedAssert(sub.lastPayment < latestWindowStart, ERR_CANNOT_TRIGGER)
+    loggedAssert(sub.lastPayment < latestWindowStart, errCannotTrigger)
 
     let fundAmount: uint64 = 0
     if (sub.amount > sub.escrowed) {
       fundAmount = sub.amount - sub.escrowed
     }
 
-    loggedAssert(fundAmount > 0, ERR_CANNOT_TRIGGER)
+    loggedAssert(fundAmount > 0, errCannotTrigger)
 
     if (fundAmount > 0) {
       if (sub.asset === 0) {
@@ -566,6 +594,80 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
         })
       }
     }
+  }
+
+  /** Add an arbitrary amount to a subscription owned by the wallet. */
+  deposit(
+    wallet: Application,
+    rekeyBack: boolean,
+    asset: uint64,
+    id: SubscriptionID,
+    amount: uint64
+  ): void {
+    const sender = getSpendingAccount(wallet)
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    if (asset === 0) {
+      abiCall<typeof Subscriptions.prototype.deposit>({
+        sender,
+        appId,
+        args: [
+          itxn.payment({ sender, receiver: appId.address, amount }),
+          id,
+        ],
+        rekeyTo: rekeyAddress(rekeyBack, wallet),
+      })
+    } else {
+      abiCall<typeof Subscriptions.prototype.depositAsa>({
+        sender,
+        appId,
+        args: [
+          itxn.assetTransfer({
+            sender,
+            assetReceiver: appId.address,
+            xferAsset: asset,
+            assetAmount: amount,
+          }),
+          id,
+        ],
+        rekeyTo: rekeyAddress(rekeyBack, wallet),
+      })
+    }
+  }
+
+  /** Withdraw escrowed funds from a subscription back to the wallet. */
+  withdraw(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: SubscriptionID,
+    amount: uint64
+  ): void {
+    const sender = getSpendingAccount(wallet)
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.withdraw>({
+      sender,
+      appId,
+      args: [id, amount],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** Cancel a subscription and return its escrow and MBR to the wallet. */
+  unsubscribe(
+    wallet: Application,
+    rekeyBack: boolean,
+    id: SubscriptionID
+  ): void {
+    const sender = getSpendingAccount(wallet)
+    const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
+
+    abiCall<typeof Subscriptions.prototype.unsubscribe>({
+      sender,
+      appId,
+      args: [id],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
   }
 
   streakCheck(

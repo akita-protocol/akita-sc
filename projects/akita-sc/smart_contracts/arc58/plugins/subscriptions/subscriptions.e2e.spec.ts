@@ -1,13 +1,13 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact';
+import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { afterEach, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, SubscriptionsPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ServiceStatus } from 'akita-sdk/subscriptions';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { TimeWarp } from '../../../../tests/utils/time';
-import { ERR_CANNOT_TRIGGER } from '../../../subscriptions/errors';
-import { ERR_INVALID_CALL_ORDER } from './errors';
+import { errCannotTrigger } from '../../../subscriptions/errors';
+import { errInvalidCallOrder } from './errors';
 import { SubscriptionsPluginClient as SubscriptionsPluginArtifactClient } from '../../../artifacts/arc58/plugins/subscriptions/SubscriptionsPluginClient';
 
 algokit.Config.configure({ populateAppCallResources: true });
@@ -284,6 +284,62 @@ describe('Subscriptions plugin contract', () => {
       expect(result.selectors[0].length).toBe(4);
     });
 
+    test('manages deposit, withdrawal, and cancellation through the plugin caller', async () => {
+      const initialAmount = 100_000n;
+      await fundWalletApp();
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          subscriptionsPluginSdk.subscribe({
+            recipient: deployer.addr.toString(),
+            amount: initialAmount,
+            interval: BigInt(MIN_INTERVAL),
+          }),
+        ],
+      });
+
+      const subscriptionId = (await akitaUniverse.subscriptions.getSubscriptionList({
+        address: walletAddress(),
+      })) - 1n;
+
+      // Subscribing pays the first interval immediately; only later deposits remain escrowed.
+      const initialSubscription = await akitaUniverse.subscriptions.getSubscription({
+        address: walletAddress(),
+        id: subscriptionId,
+      });
+      expect(initialSubscription.escrowed).toBe(0n);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.deposit({ asset: 0n, id: subscriptionId, amount: 50_000n })],
+      });
+      let subscription = await akitaUniverse.subscriptions.getSubscription({
+        address: walletAddress(),
+        id: subscriptionId,
+      });
+      expect(subscription.escrowed).toBe(50_000n);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.withdraw({ id: subscriptionId, amount: 25_000n })],
+      });
+      subscription = await akitaUniverse.subscriptions.getSubscription({
+        address: walletAddress(),
+        id: subscriptionId,
+      });
+      expect(subscription.escrowed).toBe(25_000n);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [subscriptionsPluginSdk.unsubscribe({ id: subscriptionId })],
+      });
+      const removed = await akitaUniverse.subscriptions.client.getSubscription({
+        args: { key: { address: walletAddress(), id: subscriptionId } },
+      });
+      expect(removed.exists).toBe(false);
+    });
+
     test('newServiceWithDescription creates a service and stores description chunks', async () => {
       const longDescription = `${'A'.repeat(2026)}${'B'.repeat(20)}`;
 
@@ -378,7 +434,7 @@ describe('Subscriptions plugin contract', () => {
             data: new Uint8Array([1, 2, 3]),
           }),
         ],
-      })).rejects.toThrow(ERR_INVALID_CALL_ORDER);
+      })).rejects.toThrow(errInvalidCallOrder);
     });
 
     test('pauseService and shutdownService update service status', async () => {
@@ -672,7 +728,7 @@ describe('Subscriptions plugin contract', () => {
             id: subscriptionId,
           }),
         ],
-      })).rejects.toThrow(ERR_CANNOT_TRIGGER);
+      })).rejects.toThrow(errCannotTrigger);
 
       const subAfter = await akitaUniverse.subscriptions.getSubscription({
         address: wallet.client.appAddress.toString(),
@@ -724,7 +780,7 @@ describe('Subscriptions plugin contract', () => {
             id: subscriptionId,
           }),
         ],
-      })).rejects.toThrow(ERR_CANNOT_TRIGGER);
+      })).rejects.toThrow(errCannotTrigger);
 
       const subAfter = await akitaUniverse.subscriptions.getSubscription({
         address: wallet.client.appAddress.toString(),

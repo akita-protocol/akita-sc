@@ -7,13 +7,26 @@ export const SubscriptionsBoxPrefixServices = 'o'
 export const SubscriptionsBoxPrefixServicesList = 'm'
 export const SubscriptionsBoxPrefixBlocks = 'b'
 export const SubscriptionsBoxPrefixPasses = 'p'
+/** stored principal pair `(W, principal)` of a gated wallet subscription (principal resolution §6.4, Q11) */
+export const SubscriptionsBoxPrefixPrincipals = 'i'
 
 export const SubscriptionsMBR: uint64 = 60_500
 export const SubscriptionsListMBR: uint64 = 18_900
-export const ServicesMBR: uint64 = 62_500
+// audit SG-09: reserve the box at its maximum size up front (services are never deleted and
+// title/description can grow later): key 41 ('o' + 32 + 8) + 121 bytes of fixed fields and
+// string headers + MAX_TITLE_LENGTH (128) + MAX_DESCRIPTION_LENGTH (3151) = 3441 bytes
+// → 2_500 + 400 * 3441
+export const ServicesMBR: uint64 = 1_378_900
 export const ServicesListMBR: uint64 = 18_900
 export const BlocksMBR: uint64 = 15_700
 export const MinPassesMBR: uint64 = 18_900
+/** pass MBR charged before the SG-08 repricing (BoxCostPerBox was used per byte) */
+export const LegacyPassesMBR: uint64 = 418_900
+/** 'i' box: key 'i' + 32 + 8 = 41 bytes, value wallet 8 + principal 32 = 40 bytes → 2_500 + 400 * 81 */
+export const SubscriptionPrincipalMBR: uint64 = 34_900
+
+/** timestamp from which subscriptions are charged the repriced pass MBR (lazily set) */
+export const SubscriptionsGlobalStateKeyPassesRepricedAt = 'passes_repriced_at'
 
 export const MIN_AMOUNT = 4 // base units of any asa
 export const MIN_INTERVAL = 60 // seconds

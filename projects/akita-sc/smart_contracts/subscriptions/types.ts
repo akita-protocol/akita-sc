@@ -71,6 +71,16 @@ export type SubscriptionInfo = {
   escrowed: uint64
 }
 
+/**
+ * Stored principal pair of a gated wallet subscription (principal resolution §3.8 rule 2): the verified
+ * wallet `W` and the principal resolved at subscribe time. Re-checked at trigger time with
+ * `atRestPrincipal` / `ownsAtRest`, which read no wallet globals.
+ */
+export type SubscriptionPrincipal = {
+  wallet: uint64
+  principal: Account
+}
+
 export type TriggerListRequest = {
   address: Account,
   ids: uint64[]

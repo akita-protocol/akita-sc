@@ -10,11 +10,13 @@
  * message for display in a UI or log.
  */
 
+import { withErrorCodeAliases } from '../errors'
+
 /**
  * Short code → human-readable message for every error the AkitaSocial
  * contracts can emit. Ordered roughly the same way as the contract-side file.
  */
-export const SOCIAL_ERROR_MESSAGES: Record<string, string> = {
+export const SOCIAL_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Top-level / shared aliases -----------------------------------------
   NDAO: 'Not the Akita DAO',
   IPAY: 'Invalid payment',
@@ -87,7 +89,14 @@ export const SOCIAL_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Social plugin -------------------------------------------------------
   NTDO: 'Not the DAO',
-}
+
+  // --- Remediation (2026-10 audit) -----------------------------------------
+  LREF: 'Legacy vote/reaction entry can only be used on a pre-upgrade post',
+  NSME: 'Meta can only be initialized for the sender',
+  NINI: 'Meta was not initialized by its owner',
+  EBLK: 'Already blocked',
+  IMOD: 'Invalid subscription modifier',
+})
 
 /** Prefix the contracts write to the log ahead of the code (ARC-65). */
 const ARC65_PREFIX = 'ERR:'

@@ -3,11 +3,12 @@ import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4
 import { AssetHolding, btoi, itob } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints } from '../utils/constants'
-import { akitaSocialFee, calcPercent, gateCheck, getAkitaAssets, getAkitaSocialAppList, getOriginAccount, getPluginAppList, getSocialFees, getWalletIDUsingAkitaDAO, impactRange, referralFee, sendReferralPayment } from '../utils/functions'
+import { calcPercent, gateCheck, gateCheckCtx, getAkitaAssets, getAkitaSocialAppList, getOriginAccount, getPluginAppList, getSocialFees, impactRange, legacyWalletOf, principalOf, referrerOrZeroAddress, sendReferralPaymentTo, tipWallet } from '../utils/functions'
+import { gateCtx } from '../utils/principal'
 import { CallerTypeGlobal } from '../arc58/account/types'
 import { CID } from '../utils/types/base'
-import { AkitaSocialBoxPrefixMeta, AkitaSocialboxPrefixPayWall, AkitaSocialBoxPrefixPosts, AkitaSocialBoxPrefixReactionList, AkitaSocialBoxPrefixReactions, AkitaSocialBoxPrefixRefTypes, AkitaSocialBoxPrefixVoteList, AkitaSocialBoxPrefixVotes, AkitaSocialGlobalStateKeysPaywallID, AkitaSocialGlobalStateKeysRefTypeCounter, AmendmentMBR, BuiltInRefTypeCount, EditBackRefMBR, ImpactMetaMBR, MAX_TIMESTAMP_DRIFT, ONE_DAY, PostTypeEditPost, PostTypeEditReply, PostTypePost, PostTypeReply, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, TipActionPost, TipActionReact, TipSendTypeARC58 } from './constants'
-import { ERR_ALREADY_OPTED_IN, ERR_ALREADY_REACTED, ERR_ALREADY_VOTED, ERR_AUTOMATED_ACCOUNT, ERR_BANNED, ERR_BLOCKED, ERR_FAILED_GATE, ERR_HAS_GATE, ERR_HAVENT_VOTED, ERR_INVALID_APP, ERR_INVALID_ASSET, ERR_INVALID_PAYMENT, ERR_INVALID_PAYWALL, ERR_INVALID_REF_LENGTH, ERR_INVALID_TRANSFER, ERR_IS_A_REPLY, ERR_IS_ALREADY_AMENDED, ERR_META_ALREADY_EXISTS, ERR_META_DOESNT_EXIST, ERR_NO_SELF_VOTE, ERR_NOT_A_REPLY, ERR_NOT_AKITA_DAO, ERR_NOT_GRAPH, ERR_NOT_MODERATION, ERR_NOT_YOUR_POST_TO_EDIT, ERR_PAYWALL_NOT_FOUND, ERR_POST_EXISTS, ERR_POST_NOT_FOUND, ERR_REF_TYPE_NOT_FOUND, ERR_REPLY_NOT_FOUND, ERR_TIMESTAMP_TOO_OLD, ERR_USER_DOES_NOT_OWN_NFT } from './errors'
+import { AkitaSocialBoxPrefixMeta, AkitaSocialboxPrefixPayWall, AkitaSocialBoxPrefixPosts, AkitaSocialBoxPrefixReactionList, AkitaSocialBoxPrefixReactionRecords, AkitaSocialBoxPrefixReactions, AkitaSocialBoxPrefixRefTypes, AkitaSocialBoxPrefixVoteList, AkitaSocialBoxPrefixVoteRecords, AkitaSocialBoxPrefixVotes, AkitaSocialGlobalStateKeysLegacyListCutoff, AkitaSocialGlobalStateKeysPaywallID, AkitaSocialGlobalStateKeysRefTypeCounter, AmendmentMBR, BuiltInRefTypeCount, EditBackRefMBR, ImpactMetaMBR, LegacyMinPostsMBR, LegacySocialPluginDecember, LegacySocialPluginMay, LegacySocialPluginV002, LegacySocialPluginV003, MainNetGenesisHash, MAX_TIMESTAMP_DRIFT, MinPostsMBR, ONE_DAY, PostTypeEditPost, PostTypeEditReply, PostTypePost, PostTypeReply, ReactionlistMBR, ReactionRecordMBR, RefTypeAddress, RefTypeApp, RefTypeAsset, RefTypePost, ReplyParentRefMBR, TipActionPost, TipActionReact, TipSendTypeARC58, TipSendTypeDirect, VotelistMBR, VotesMBR } from './constants'
+import { errAlreadyOptedIn, errAlreadyReacted, errAlreadyVoted, errAutomatedAccount, errBanned, errBlocked, errFailedGate, errHasGate, errHaventVoted, errInvalidApp, errInvalidAsset, errInvalidPayment, errInvalidPaywall, errInvalidRefLength, errInvalidTransfer, errIsAReply, errIsAlreadyAmended, errLegacyRef, errMetaAlreadyExists, errMetaDoesntExist, errNoSelfVote, errNotAReply, errNotAkitaDao, errNotGraph, errNotModeration, errNotSelfMeta, errNotYourPostToEdit, errPaywallNotFound, errPostExists, errPostNotFound, errRefTypeNotFound, errReplyNotFound, errTimestampTooOld, errUserDoesNotOwnNft } from './errors'
 import { MetaValue, PostType, PostValue, ReactionListKey, ReactionsKey, RefTypeValue, SocialImpactInputs, TipAction, ViewPayWallValue, VoteListKey, VoteListValue, VotesValue } from './types'
 
 // CONTRACT IMPORTS
@@ -37,6 +38,14 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   
   refTypeCounter = GlobalState<uint64>({ key: AkitaSocialGlobalStateKeysRefTypeCounter, initialValue: BuiltInRefTypeCount })
 
+  /**
+   * Timestamp of the first post box created by this version. Posts created before it may still
+   * have legacy 16-byte-keyed vote/reaction entries; posts created after it never do. Set lazily
+   * (no initial value) so an upgraded app stamps it on its first post, and a fresh app has no
+   * legacy posts at all.
+   */
+  legacyListCutoff = GlobalState<uint64>({ key: AkitaSocialGlobalStateKeysLegacyListCutoff })
+
   // BOXES ----------------------------------------------------------------------------------------
 
   /** All the posts on the network */
@@ -45,12 +54,16 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   paywall = BoxMap<uint64, ViewPayWallValue>({ keyPrefix: AkitaSocialboxPrefixPayWall })
   /** Counters for each post to track votes */
   votes = BoxMap<bytes<32>, VotesValue>({ keyPrefix: AkitaSocialBoxPrefixVotes })
-  /** User votes and their impact */
+  /** Legacy user votes keyed by 16-byte prefixes. Read and deleted only; new votes go to `voteRecords`. */
   votelist = BoxMap<VoteListKey, VoteListValue>({ keyPrefix: AkitaSocialBoxPrefixVoteList })
+  /** User votes and their impact, keyed by sha256(user || ref) */
+  voteRecords = BoxMap<bytes<32>, VoteListValue>({ keyPrefix: AkitaSocialBoxPrefixVoteRecords })
   /** Counters for each post to track reactions */
   reactions = BoxMap<ReactionsKey, uint64>({ keyPrefix: AkitaSocialBoxPrefixReactions })
-  /** Who has reacted to what */
+  /** Legacy reactions keyed by 16-byte prefixes. Read and deleted only; new reactions go to `reactionRecords`. */
   reactionlist = BoxMap<ReactionListKey, bytes<0>>({ keyPrefix: AkitaSocialBoxPrefixReactionList })
+  /** Who has reacted to what, keyed by sha256(user || ref || NFT) */
+  reactionRecords = BoxMap<bytes<32>, bytes<0>>({ keyPrefix: AkitaSocialBoxPrefixReactionRecords })
   /** The meta data for each user */
   meta = BoxMap<Account, MetaValue>({ keyPrefix: AkitaSocialBoxPrefixMeta })
   /** Registered ref types (key = uint64 ID, value = name + external flag + schema) */
@@ -60,6 +73,62 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
   private isCreator(creator: Account, sender: Account): boolean {
     return creator === sender
+  }
+
+  private voteKey(user: Account, ref: bytes<32>): bytes<32> {
+    return op.sha256(user.bytes.concat(ref))
+  }
+
+  private reactionKey(user: Account, ref: bytes<32>, NFT: uint64): bytes<32> {
+    return op.sha256(user.bytes.concat(ref).concat(itob(NFT)))
+  }
+
+  private legacyVoteKey(user: Account, ref: bytes<32>): VoteListKey {
+    return { user: b16(user.bytes), ref: b16(ref) }
+  }
+
+  private legacyReactionKey(user: Account, ref: bytes<32>, NFT: uint64): ReactionListKey {
+    return { user: b16(user.bytes), ref: b16(ref), NFT }
+  }
+
+  // Called wherever a posts box is created, so every post made by this version is at or
+  // after the cutoff and can never match a legacy 16-byte entry.
+  private stampLegacyCutoff(): void {
+    if (!this.legacyListCutoff.hasValue) {
+      this.legacyListCutoff.value = Global.latestTimestamp
+    }
+  }
+
+  // Legacy 16-byte entries may only be consumed against a ref that existed before the
+  // cutoff, so a lookalike ref (same first 16 bytes) minted after the upgrade can't match.
+  private assertLegacyRef(ref: bytes<32>): void {
+    loggedAssert(
+      this.posts(ref).exists && (
+        !this.legacyListCutoff.hasValue ||
+        this.posts(ref).value.timestamp < this.legacyListCutoff.value
+      ),
+      errLegacyRef
+    )
+  }
+
+  // A box keyed by an account's own address is that account's wall, gated by its addressGateID.
+  private wallGateID(refBytes: bytes<32>, creator: Account): uint64 {
+    if (refBytes === creator.bytes && this.meta(creator).exists) {
+      return this.meta(creator).value.addressGateID
+    }
+    return 0
+  }
+
+  private assertPayWall(usePayWall: boolean, payWallID: uint64): void {
+    loggedAssert(
+      (!usePayWall && payWallID === 0) || (
+        usePayWall && (
+          payWallID !== 0 && this.paywall(payWallID).exists ||
+          payWallID === 0 && this.paywall(this.meta(Txn.sender).value.defaultPayWallID).exists
+        )
+      ),
+      errInvalidPaywall
+    )
   }
 
   private isReply(postType: PostType): boolean {
@@ -97,35 +166,30 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     let creator: Account = Global.zeroAddress
     switch (type) {
       case RefTypePost:
-        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        loggedAssert(ref.length === 32, errInvalidRefLength)
         refBytes = ref.toFixed({ length: 32 })
         break
       case RefTypeAsset:
-        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
-        loggedAssert(Asset(btoi(ref)).total > 0, ERR_INVALID_ASSET)
+        loggedAssert(ref.length === 8, errInvalidRefLength)
+        loggedAssert(Asset(btoi(ref)).total > 0, errInvalidAsset)
         refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
         creator = Asset(btoi(ref)).creator
         break
       case RefTypeAddress:
-        loggedAssert(ref.length === 32, ERR_INVALID_REF_LENGTH)
+        loggedAssert(ref.length === 32, errInvalidRefLength)
         refBytes = ref.toFixed({ length: 32 })
         creator = Account(refBytes)
-
-        if (this.meta(creator).exists) {
-          const { addressGateID } = this.meta(creator).value
-          loggedAssert(addressGateID === 0, ERR_HAS_GATE)
-        }
-
+        // the wall's addressGateID is enforced by the callers (see wallGateID)
         break
       case RefTypeApp:
-        loggedAssert(ref.length === 8, ERR_INVALID_REF_LENGTH)
-        loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, ERR_INVALID_APP)
+        loggedAssert(ref.length === 8, errInvalidRefLength)
+        loggedAssert(Application(btoi(ref)).approvalProgram.length > 0, errInvalidApp)
         refBytes = ref.concat(op.bzero(24)).toFixed({ length: 32 })
         creator = Application(btoi(ref)).creator
         break
       default:
         // For any non-built-in type, verify it's registered
-        loggedAssert(this.refTypes(type).exists, ERR_REF_TYPE_NOT_FOUND)
+        loggedAssert(this.refTypes(type).exists, errRefTypeNotFound)
         // Derive storage key from type ID + ref to prevent collisions across types
         refBytes = op.sha256(itob(type).concat(ref))
         creator = Global.zeroAddress
@@ -146,10 +210,10 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   // caller isn't banned, the target post exists, and the post creator hasn't
   // blocked the caller. Returns the creator so callers don't re-read the box.
   private loadPostWithAccessCheck(ref: bytes<32>): Account {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
-    loggedAssert(this.posts(ref).exists, ERR_POST_NOT_FOUND)
+    loggedAssert(!this.isBanned(Txn.sender), errBanned)
+    loggedAssert(this.posts(ref).exists, errPostNotFound)
     const { creator } = this.posts(ref).value
-    loggedAssert(!this.isBlocked(creator, Txn.sender), ERR_BLOCKED)
+    loggedAssert(!this.isBlocked(creator, Txn.sender), errBlocked)
     return creator
   }
 
@@ -158,30 +222,41 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   // seconds) so each caller (`post`, `reply`, `gatedReply`) doesn't have to
   // repeat the boilerplate.
   private computePostKey(timestamp: uint64, nonce: bytes<24>): bytes<32> {
-    loggedAssert(Global.latestTimestamp - timestamp <= MAX_TIMESTAMP_DRIFT, ERR_TIMESTAMP_TOO_OLD)
+    loggedAssert(Global.latestTimestamp - timestamp <= MAX_TIMESTAMP_DRIFT, errTimestampTooOld)
     return op.sha256(Txn.sender.bytes.concat(itob(timestamp)).concat(nonce))
   }
 
   // Shared prologue for `reply` / `gatedReply` / `react` / `gatedReact`.
-  // Resolves the raw ref into its `bytes<32>` key (materializing an empty
-  // parent post if the ref is a fallback-typed ref that hasn't been posted
-  // against yet), and returns the parent's `gateID` so the caller can run
-  // whichever gate check differentiates its entrypoint (non-gated asserts
-  // `gateID === 0`; gated calls `gateCheck`). `addedMbr` is the MBR that
-  // had to be routed into the parent-post box when materializing it.
+  // Resolves the raw ref into its `bytes<32>` key and returns the gate that
+  // applies: the wall owner's addressGateID for an address wall, otherwise the
+  // parent post's gateID. The caller runs whichever gate check differentiates
+  // its entrypoint (non-gated asserts `postGateID === 0`). A post has to exist
+  // to be replied or reacted to; anything else (an asset, an address, an app,
+  // or a registered type such as a link) gets an empty post the first time
+  // someone comments or reacts, as a first vote does. `addedMbr` is that box's MBR.
   private resolveParentContext(
     type: uint64,
     ref: bytes,
   ): { refBytes: bytes<32>, addedMbr: uint64, postGateID: uint64 } {
     const { refBytes, creator: fallback } = this.toBytes32(type, ref)
 
-    loggedAssert(this.posts(refBytes).exists, ERR_POST_NOT_FOUND)
-    const { creator, gateID: postGateID } = this.posts(refBytes).value
+    if (type === RefTypePost) {
+      loggedAssert(this.posts(refBytes).exists, errPostNotFound)
+    }
+    const addedMbr = this.createEmptyPostIfNecessary(refBytes, fallback)
+    const { creator, gateID } = this.posts(refBytes).value
+    const wallGate = this.wallGateID(refBytes, creator)
 
-    const c = (fallback === Global.zeroAddress) ? creator : fallback
-    const addedMbr = this.createEmptyPostIfNecessary(refBytes, c)
+    return { refBytes, addedMbr, postGateID: wallGate !== 0 ? wallGate : gateID }
+  }
 
-    return { refBytes, addedMbr, postGateID }
+  // MBR of a parent box materialized for this call (see `resolveParentContext`). The legacy terms
+  // accept the deployed plugin's posts quote (LegacyMinPostsMBR).
+  private materializedMbr(addedMbr: uint64, legacyTerms: boolean): uint64 {
+    if (legacyTerms && addedMbr > 0) {
+      return addedMbr - (MinPostsMBR - LegacyMinPostsMBR)
+    }
+    return addedMbr
   }
 
   // Shared prologue for editPost / editReply / gatedEditReply. Given an
@@ -189,8 +264,8 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   // ownership + not-already-amended, computes the deterministic `editKey`,
   // and stamps it into the amendment's `ref` field. The existence check is
   // intentionally left to each caller so `editPost` can emit
-  // `ERR_POST_NOT_FOUND` and the reply-edit paths can emit
-  // `ERR_REPLY_NOT_FOUND`. The is-reply vs. is-post check is likewise the
+  // `errPostNotFound` and the reply-edit paths can emit
+  // `errReplyNotFound`. The is-reply vs. is-post check is likewise the
   // caller's job so each path reports the right code.
   private verifyEditAmendment(amendment: bytes<32>, cid: CID): {
     ref: bytes,
@@ -201,8 +276,8 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     editKey: bytes<32>,
   } {
     const { creator, ref, gateID, usePayWall, payWallID, postType } = this.posts(amendment).value
-    loggedAssert(this.isCreator(creator, Txn.sender), ERR_NOT_YOUR_POST_TO_EDIT)
-    loggedAssert(!this.isAmended(ref, postType), ERR_IS_ALREADY_AMENDED)
+    loggedAssert(this.isCreator(creator, Txn.sender), errNotYourPostToEdit)
+    loggedAssert(!this.isAmended(ref, postType), errIsAlreadyAmended)
 
     const editKey = op.sha256(Txn.sender.bytes.concat(amendment).concat(Bytes(cid)))
     this.posts(amendment).value.ref = ref.concat(Bytes('a').concat(editKey))
@@ -221,9 +296,9 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     payWallID: uint64,
     editKey: bytes<32>,
   } {
-    loggedAssert(this.posts(amendment).exists, ERR_REPLY_NOT_FOUND)
+    loggedAssert(this.posts(amendment).exists, errReplyNotFound)
     const { ref, gateID, usePayWall, payWallID, postType, editKey } = this.verifyEditAmendment(amendment, cid)
-    loggedAssert(this.isReply(postType), ERR_NOT_A_REPLY)
+    loggedAssert(this.isReply(postType), errNotAReply)
 
     const parentPostRef = ref.slice(36, 68).toFixed({ length: 32 })
     const { gateID: ogPostGateID } = this.posts(parentPostRef).value
@@ -269,10 +344,44 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }).returnValue
   }
 
-  private sendPostPayment() {
+  // Referrer of a fee paid by Txn.sender. Hinted entry points pass the verified principal's
+  // referrer (`principalOf(dao, wallet).referrer`). Legacy shims (`legacy`) pass the zero address and
+  // resolve the deployed registry referrer here, lazily, at the same sites the deployed contract did.
+  private feeReferrer(referrer: Account, legacy: boolean): Account {
+    if (legacy) {
+      return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
+    }
+    return referrer
+  }
+
+  // Whether an old-selector call gets the legacy payment terms (the deployed plugin's quote: 46,500
+  // posts base, no reply parent-ref or never-voted votes-box charge, 18,900 reaction record, absorbed
+  // up-vote/react referral MBR). Only callers that quote those terms get them: on MainNet the four
+  // deployed social plugin programs, on any other network (TestNet, LocalNet: their deployed-plugin
+  // copies have other ids) any app caller. A top-level sender always pays the corrected terms, so the
+  // under-charges are not open to every account. Hinted calls (`legacy` false) never get them.
+  private legacyTerms(legacy: boolean): boolean {
+    if (!legacy) {
+      return false
+    }
+    const caller = Global.callerApplicationId
+    if (caller === 0) {
+      return false
+    }
+    if (Global.genesisHash !== MainNetGenesisHash) {
+      return true
+    }
+    return caller === LegacySocialPluginV003 ||
+      caller === LegacySocialPluginV002 ||
+      caller === LegacySocialPluginMay ||
+      caller === LegacySocialPluginDecember
+  }
+
+  // Returns the referral disbursement MBR the app just spent, so the caller can charge it.
+  private sendPostPayment(referrer: Account, legacy: boolean): uint64 {
     const akta = getAkitaAssets(this.akitaDAO.value).akta
     const { postFee } = getSocialFees(this.akitaDAO.value)
-    const { leftover } = sendReferralPayment(this.akitaDAO.value, akta, postFee)
+    const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, this.feeReferrer(referrer, legacy), akta, postFee, this.akitaDAOEscrow.value.app.address)
 
     itxn
       .assetTransfer({
@@ -281,6 +390,8 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
         xferAsset: akta
       })
       .submit()
+
+    return referralMbr
   }
 
   private arc58SendReactionPayments(wallet: Application, asset: uint64, tax: uint64, remainder: uint64): void {
@@ -358,40 +469,63 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }
   }
 
-  private tipCreator(creator: Account, fee: uint64, tax: uint64): uint64 {
+  // Tips `creator` the react fee (minus the impact tax, which goes to the DAO after the cut for
+  // `referrer`, already resolved by `feeReferrer`) and returns the MBR the app spent doing so: `arc58`
+  // (the creator-wallet opt-in route) and `referralMbr` (the referral disbursement).
+  //
+  // Routing wallet (§6.2): hinted entry points route only to a wallet that still owns the creator at
+  // rest and controls its origin live (`tipWallet`), on the account that receives the remainder
+  // (`tipRoute`). Legacy shims (`legacy`) route on the RAW stored `meta(creator).wallet`, decided on
+  // `creator`, exactly as the deployed contract did and as deployed social plugins quote it
+  // (`checkTipMbrRequirements` on the raw value), so their exact payments still match.
+  private tipCreator(creator: Account, referrer: Account, legacy: boolean): { arc58: uint64, referralMbr: uint64 } {
+    const { reactFee, impactTaxMin, impactTaxMax } = getSocialFees(this.akitaDAO.value)
+
     if (creator === Global.zeroAddress) {
       const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
       itxn
         .assetTransfer({
           assetReceiver: this.akitaDAOEscrow.value.app.address,
-          assetAmount: fee,
+          assetAmount: reactFee,
           xferAsset: akta
         })
         .submit()
-      return 0
+      return { arc58: 0, referralMbr: 0 }
     }
+
+    const creatorImpact = this.getUserImpact(creator)
+    const tax = calcPercent(reactFee, impactRange(creatorImpact, impactTaxMin, impactTaxMax))
 
     let wallet: uint64 = 0
     if (this.meta(creator).exists) {
       wallet = this.meta(creator).value.wallet
     }
 
-    const { type, arc58 } = this.checkTipMbrRequirements(this.akitaDAO.value, creator, Application(wallet))
-    const akta = getAkitaAssets(this.akitaDAO.value).akta
-    const { leftover } = sendReferralPayment(this.akitaDAO.value, akta, tax)
-    const { reactFee } = getSocialFees(this.akitaDAO.value)
-    
-    if (type === TipSendTypeARC58) {
-      this.arc58SendReactionPayments(Application(wallet), akta, leftover, (reactFee - tax))
-      return arc58
+    let type = TipSendTypeDirect
+    let arc58: uint64 = 0
+    let receiver = creator
+    if (legacy) {
+      ({ type, arc58 } = this.checkTipMbrRequirements(this.akitaDAO.value, creator, Application(wallet)))
+    } else {
+      wallet = tipWallet(this.akitaDAO.value, creator, wallet)
+      ;({ type, arc58, receiver } = this.tipRoute(this.akitaDAO.value, creator, Application(wallet)))
     }
 
-    this.sendDirectReactionPayments(creator, akta, leftover, (reactFee - tax))
-    return 0
+    const akta = getAkitaAssets(this.akitaDAO.value).akta
+    const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, akta, tax, this.akitaDAOEscrow.value.app.address)
+
+    if (type === TipSendTypeARC58) {
+      this.arc58SendReactionPayments(Application(wallet), akta, leftover, (reactFee - tax))
+      return { arc58, referralMbr }
+    }
+
+    this.sendDirectReactionPayments(receiver, akta, leftover, (reactFee - tax))
+    return { arc58: 0, referralMbr }
   }
 
   private createEmptyPostIfNecessary(key: bytes<32>, creator: Account): uint64 {
     if (!this.posts(key).exists) {
+      this.stampLegacyCutoff()
       this.posts(key).value = {
         ref: op.bzero(0),
         /**
@@ -418,7 +552,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   }
 
   private updateStreak(account: Account): void {
-    loggedAssert(this.meta(account).exists, ERR_META_DOESNT_EXIST)
+    loggedAssert(this.meta(account).exists, errMetaDoesntExist)
 
     const { startDate, lastActive } = this.meta(account).value
 
@@ -478,8 +612,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   }
 
   private createVoteList(ref: bytes<32>, isUp: boolean, account: Account, impact: uint64): void {
-    const voteListKey: VoteListKey = { user: b16(account.bytes), ref: b16(ref) }
-    this.votelist(voteListKey).value = { impact, isUp }
+    this.voteRecords(this.voteKey(account, ref)).value = { impact, isUp }
   }
 
   private createPost(
@@ -496,22 +629,18 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     // `pushint 32; bzero` sequence (3 bytes) at each call site.
     amendmentOf: bytes,
     creatorFlags: uint64,
+    referrer: Account,
+    legacy: boolean,
   ): void {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
-    loggedAssert(
-      (!usePayWall && payWallID === 0) || (
-        usePayWall && (
-          payWallID !== 0 && this.paywall(payWallID).exists ||
-          payWallID === 0 && this.paywall(this.meta(Txn.sender).value.defaultPayWallID).exists
-        )
-      ),
-      ERR_INVALID_PAYWALL
-    )
+    loggedAssert(!this.isBanned(Txn.sender), errBanned)
+    this.assertPayWall(usePayWall, payWallID)
 
     const isEditPost = postType === PostTypeEditPost
     // For edits, we need extra MBR for the back-reference (originalKey)
     const editExtraMbr: uint64 = isEditPost ? EditBackRefMBR : 0
-    this.validatePostPayment(mbrPayment, cid, isEditPost, editExtraMbr)
+    // pay the post fee first so the exact referral MBR it spent can be charged
+    const referralMbr = this.sendPostPayment(referrer, legacy)
+    this.validatePostPayment(mbrPayment, cid, isEditPost, editExtraMbr + referralMbr, this.legacyTerms(legacy))
 
     // update streak before we measure impact
     // this way we guarantee the box exists
@@ -519,7 +648,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
     const impact = this.getUserImpact(Txn.sender)
 
-    loggedAssert(!this.posts(postKey).exists, ERR_POST_EXISTS)
+    loggedAssert(!this.posts(postKey).exists, errPostExists)
 
     // Ref structure based on postType:
     // Post:     CID
@@ -528,6 +657,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       ? Bytes(cid).concat(amendmentOf)
       : Bytes(cid)
 
+    this.stampLegacyCutoff()
     this.posts(postKey).value = {
       ref: postRef,
       creator: Txn.sender,
@@ -542,13 +672,12 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     }
     this.updateVotes(postKey, true, impact)
     this.createVoteList(postKey, true, Txn.sender, impact)
-    this.sendPostPayment()
   }
 
   private createReply(
     replyKey: bytes<32>,
     mbrPayment: gtxn.PaymentTxn,
-    mbrNeeded: uint64,
+    addedMbr: uint64,
     cid: CID,
     parentRef: bytes<32>,
     gateID: uint64,
@@ -559,32 +688,37 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     // non-edit callers pass `Bytes('')` — see note on `createPost`.
     amendmentOf: bytes,
     creatorFlags: uint64,
+    referrer: Account,
+    legacy: boolean,
   ): void {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
+    loggedAssert(!this.isBanned(Txn.sender), errBanned)
+    this.assertPayWall(usePayWall, payWallID)
     const { creator } = this.posts(parentRef).value
-    loggedAssert(!this.isBlocked(creator, Txn.sender), ERR_BLOCKED)
+    loggedAssert(!this.isBlocked(creator, Txn.sender), errBlocked)
 
     // update streak before we measure impact
     // this way we guarantee the box exists
     this.updateStreak(Txn.sender)
 
-    const { reactFee } = getSocialFees(this.akitaDAO.value)
-    const creatorImpact = this.getUserImpact(creator)
-    const taxPercentage = akitaSocialFee(this.akitaDAO.value, creatorImpact)
-    const tax = calcPercent(reactFee, taxPercentage)
-
     const isEditReply = postType === PostTypeEditReply
-    // For edits, we need extra MBR for the back-reference (originalKey)
-    let extra = mbrNeeded
-    extra += this.tipCreator(creator, reactFee, tax)
+    // tipCreator returns the referral (and ARC-58 opt-in) MBR it spent; replies charge both
+    const tip = this.tipCreator(creator, this.feeReferrer(referrer, legacy), legacy)
+    let extra: uint64 = tip.arc58 + tip.referralMbr
+    // every reply ref carries the 32-byte parentRef (the deployed contract did not charge it, so the
+    // legacy terms don't either: old plugins never quote it)
+    const legacyTerms = this.legacyTerms(legacy)
+    if (!legacyTerms) {
+      extra += ReplyParentRefMBR
+    }
+    extra += this.materializedMbr(addedMbr, legacyTerms)
 
     if (isEditReply) {
       extra += EditBackRefMBR
     }
     // validate after we send payments, annoying but saves us compute
-    this.validatePostPayment(mbrPayment, cid, isEditReply, extra)
+    this.validatePostPayment(mbrPayment, cid, isEditReply, extra, legacyTerms)
 
-    loggedAssert(!this.posts(replyKey).exists, ERR_POST_EXISTS)
+    loggedAssert(!this.posts(replyKey).exists, errPostExists)
 
     // Reply ref structure based on postType:
     // Reply:     CID + parentRef
@@ -593,6 +727,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       ? Bytes(cid).concat(parentRef).concat(amendmentOf)
       : Bytes(cid).concat(parentRef)
 
+    this.stampLegacyCutoff()
     this.posts(replyKey).value = {
       ref: replyRef,
       creator: Txn.sender,
@@ -615,53 +750,37 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     mbrPayment: gtxn.PaymentTxn,
     mbrNeeded: uint64,
     ref: bytes<32>,
-    isUp: boolean
+    isUp: boolean,
+    referrer: Account,
+    legacy: boolean,
   ): void {
     const creator = this.loadPostWithAccessCheck(ref)
 
-    const voteListKey: VoteListKey = { user: b16(Txn.sender.bytes), ref: b16(ref) }
-    loggedAssert(!this.votelist(voteListKey).exists, ERR_ALREADY_VOTED)
-    loggedAssert(Txn.sender !== creator, ERR_NO_SELF_VOTE)
+    loggedAssert(
+      !this.voteRecords(this.voteKey(Txn.sender, ref)).exists &&
+      !this.votelist(this.legacyVoteKey(Txn.sender, ref)).exists,
+      errAlreadyVoted
+    )
+    loggedAssert(Txn.sender !== creator, errNoSelfVote)
+    // gated walls can't be voted on
+    loggedAssert(this.wallGateID(ref, creator) === 0, errHasGate)
 
     const senderIsAutomated = this.meta(Txn.sender).value.automated
-    loggedAssert(!senderIsAutomated, ERR_AUTOMATED_ACCOUNT)
-
-    const akta = getAkitaAssets(this.akitaDAO.value).akta
+    loggedAssert(!senderIsAutomated, errAutomatedAccount)
 
     // update streak before we measure impact
     // this way we guarantee the box exists
     this.updateStreak(Txn.sender)
-    const { reactFee, impactTaxMin, impactTaxMax } = getSocialFees(this.akitaDAO.value)
+    let extra: uint64 = 0
 
     if (isUp) {
-      // calls a transaction
-      const recipientImpact = this.getUserImpact(creator)
-      const taxPercentage = impactRange(recipientImpact, impactTaxMin, impactTaxMax)
-      const tax = calcPercent(reactFee, taxPercentage)
-
-      const extra = this.tipCreator(creator, reactFee, tax)
-      // validate after we send payments, annoying but saves us compute
-      loggedAssert(
-        match(
-          mbrPayment,
-          {
-            receiver: Global.currentApplicationAddress,
-            amount: mbrNeeded + extra
-          }
-        ),
-        ERR_INVALID_PAYMENT
-      )
+      // old plugins never quote the up-vote referral MBR, so their up-votes pay no referral
+      const tipReferrer = this.legacyTerms(legacy) ? Global.zeroAddress : this.feeReferrer(referrer, legacy)
+      const tip = this.tipCreator(creator, tipReferrer, legacy)
+      extra = tip.arc58 + tip.referralMbr
     } else {
-      loggedAssert(
-        match(
-          mbrPayment,
-          {
-            receiver: Global.currentApplicationAddress,
-            amount: mbrNeeded
-          }
-        ),
-        ERR_INVALID_PAYMENT
-      )
+      const { reactFee } = getSocialFees(this.akitaDAO.value)
+      const akta = getAkitaAssets(this.akitaDAO.value).akta
 
       itxn
         .assetTransfer({
@@ -672,6 +791,19 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
         .submit()
     }
 
+    // validate after we send payments, annoying but saves us compute
+    loggedAssert(
+      match(
+        mbrPayment,
+        {
+          sender: Txn.sender,
+          receiver: Global.currentApplicationAddress,
+          amount: mbrNeeded + extra
+        }
+      ),
+      errInvalidPayment
+    )
+
     // calls a transaction
     const senderImpact = this.getUserImpact(Txn.sender)
     this.updateVotes(ref, isUp, senderImpact)
@@ -680,35 +812,37 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
   private createReaction(
     mbrPayment: gtxn.PaymentTxn,
-    mbrNeeded: uint64,
+    addedMbr: uint64,
     ref: bytes<32>,
-    NFT: uint64
+    NFT: uint64,
+    referrer: Account,
+    legacy: boolean,
   ): void {
     const creator = this.loadPostWithAccessCheck(ref)
     // sender has NFT
-    loggedAssert(AssetHolding.assetBalance(Txn.sender, NFT)[0] > 0, ERR_USER_DOES_NOT_OWN_NFT)
+    loggedAssert(AssetHolding.assetBalance(Txn.sender, NFT)[0] > 0, errUserDoesNotOwnNft)
 
-    const reactionListKey: ReactionListKey = { user: b16(Txn.sender.bytes), ref: b16(ref), NFT }
-
-    loggedAssert(!this.reactionlist(reactionListKey).exists, ERR_ALREADY_REACTED)
+    const recordKey = this.reactionKey(Txn.sender, ref, NFT)
+    loggedAssert(
+      !this.reactionRecords(recordKey).exists &&
+      !this.reactionlist(this.legacyReactionKey(Txn.sender, ref, NFT)).exists,
+      errAlreadyReacted
+    )
 
     // update streak before we measure impact
     // this way we guarantee the box exists
     this.updateStreak(Txn.sender)
 
-    const { reactFee, impactTaxMin, impactTaxMax } = getSocialFees(this.akitaDAO.value)
-    const recipientImpact = this.getUserImpact(creator)
-    const taxPercentage = impactRange(recipientImpact, impactTaxMin, impactTaxMax)
-    const tax = calcPercent(reactFee, taxPercentage)
-
     const reactionKey: ReactionsKey = { ref, NFT }
     const reactionExists = this.reactions(reactionKey).exists
 
-    let extra = mbrNeeded
-    extra += this.tipCreator(creator, reactFee, tax)
+    // old plugins never quote the react referral MBR, so their reactions pay no referral
+    const legacyTerms = this.legacyTerms(legacy)
+    const tip = this.tipCreator(creator, legacyTerms ? Global.zeroAddress : this.feeReferrer(referrer, legacy), legacy)
+    const extra: uint64 = tip.arc58 + tip.referralMbr + this.materializedMbr(addedMbr, legacyTerms)
 
     // validate after we send payments, annoying but saves us compute
-    this.validateReactPayment(mbrPayment, reactionExists, extra)
+    this.validateReactPayment(mbrPayment, reactionExists, extra, legacyTerms)
 
     if (reactionExists) {
       this.reactions(reactionKey).value += 1
@@ -716,7 +850,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       this.reactions(reactionKey).value = 1
     }
 
-    this.reactionlist(reactionListKey).create()
+    this.reactionRecords(recordKey).create()
   }
 
   private validateTip(tip: gtxn.AssetTransferTxn, action: TipAction) {
@@ -726,12 +860,15 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         tip,
         {
+          sender: Txn.sender,
+          // a clawback-sourced transfer would spend someone else's AKTA
+          assetSender: Global.zeroAddress,
           assetReceiver: Global.currentApplicationAddress,
           xferAsset: akta,
           assetAmount: (action === TipActionPost) ? postFee : reactFee
         }
       ),
-      ERR_INVALID_TRANSFER
+      errInvalidTransfer
     )
   }
 
@@ -739,30 +876,37 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     mbrPayment: gtxn.PaymentTxn,
     cid: CID,
     isAmendment: boolean,
-    extraAmount: uint64
+    extraAmount: uint64,
+    legacyTerms: boolean,
   ): void {
+    // any referral MBR is passed in through extraAmount (the exact amount spent)
     const { posts, votes, votelist } = this.mbr(cid, '', Bytes(''))
-    const akta = getAkitaAssets(this.akitaDAO.value).akta
-    const referralFeeAmount = referralFee(this.akitaDAO.value, akta)
-    let amount: uint64 = posts + votes + votelist + referralFeeAmount + extraAmount
+    let amount: uint64 = posts + votes + votelist + extraAmount
     if (isAmendment) {
       amount += AmendmentMBR
+    }
+    // the legacy terms accept the deployed plugin's posts quote (LegacyMinPostsMBR)
+    if (legacyTerms) {
+      amount -= MinPostsMBR - LegacyMinPostsMBR
     }
 
     loggedAssert(
       match(
         mbrPayment,
         {
+          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
   }
 
-  private validateReactPayment(mbrPayment: gtxn.PaymentTxn, reactionExists: boolean, extra: uint64): void {
-    const { reactionlist, reactions } = this.mbr(Bytes(''), '', Bytes(''))
+  private validateReactPayment(mbrPayment: gtxn.PaymentTxn, reactionExists: boolean, extra: uint64, legacyTerms: boolean): void {
+    const { reactions } = this.mbr(Bytes(''), '', Bytes(''))
+    // the legacy terms accept the deployed plugin's reaction-list quote (ReactionlistMBR) for the new record
+    const reactionlist: uint64 = legacyTerms ? ReactionlistMBR : ReactionRecordMBR
     const mbrAmount: uint64 = reactionExists
       ? reactionlist
       : reactions + reactionlist
@@ -771,11 +915,12 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
+          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: mbrAmount + extra
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
   }
 
@@ -806,7 +951,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
   init(): void {
     const akta = Asset(getAkitaAssets(this.akitaDAO.value).akta)
-    loggedAssert(!Global.currentApplicationAddress.isOptedIn(akta), ERR_ALREADY_OPTED_IN)
+    loggedAssert(!Global.currentApplicationAddress.isOptedIn(akta), errAlreadyOptedIn)
 
     itxn
       .assetTransfer({
@@ -818,8 +963,41 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   }
 
   // AKITA SOCIAL PLUGIN METHODS ------------------------------------------------------------------
+  //
+  // Principal resolution (docs/principal-resolution/PHASE-0-SPEC.md §6.2, §7.2). Every write method
+  // that pays a referral, tips a creator, checks a gate or stores a wallet exists twice:
+  //  - the HINTED method keeps the canonical name and takes `wallet: uint64` as its LAST argument. It
+  //    verifies the hint first (`principalOf`, strict: a wrong hint reverts, 0 = act as the sender),
+  //    pays the referral to the verified referrer, routes creator tips through `tipWallet`, and checks
+  //    gates against the verified context (`Gate.mustCheckFor`, `gateCheckCtx`; Q4).
+  //  - the LEGACY shim (`legacyX`, `@abimethod({ name: 'x' })`) keeps the old selector and the deployed
+  //    semantics: registry referrer, raw `meta.wallet` tip route, gate subject `Txn.sender`, and the
+  //    payment terms the deployed social plugin quotes, but those terms only for the deployed plugins
+  //    (`legacyTerms`: other callers pay the corrected terms). Shims are removed in Phase 4 (§7.4).
+  // Social state stays keyed by the spender (`Txn.sender`) in both (Q5).
 
   post(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    timestamp: uint64,
+    nonce: bytes<24>,
+    cid: CID,
+    gateID: uint64,
+    usePayWall: boolean,
+    payWallID: uint64,
+    creatorFlags: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    const postKey = this.computePostKey(timestamp, nonce)
+
+    this.validateTip(tip, TipActionPost)
+    this.createPost(postKey, mbrPayment, cid, gateID, usePayWall, payWallID, PostTypePost, Bytes(''), creatorFlags, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'post' })
+  legacyPost(
     mbrPayment: gtxn.PaymentTxn,
     tip: gtxn.AssetTransferTxn,
     timestamp: uint64,
@@ -833,7 +1011,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     const postKey = this.computePostKey(timestamp, nonce)
 
     this.validateTip(tip, TipActionPost)
-    this.createPost(postKey, mbrPayment, cid, gateID, usePayWall, payWallID, PostTypePost, Bytes(''), creatorFlags)
+    this.createPost(postKey, mbrPayment, cid, gateID, usePayWall, payWallID, PostTypePost, Bytes(''), creatorFlags, Global.zeroAddress, true)
   }
 
   editPost(
@@ -841,14 +1019,40 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     tip: gtxn.AssetTransferTxn,
     cid: CID,
     amendment: bytes<32>,
+    creatorFlags: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.editPostImpl(mbrPayment, tip, cid, amendment, creatorFlags, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'editPost' })
+  legacyEditPost(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    cid: CID,
+    amendment: bytes<32>,
     creatorFlags: uint64
   ): void {
-    loggedAssert(this.posts(amendment).exists, ERR_POST_NOT_FOUND)
+    this.editPostImpl(mbrPayment, tip, cid, amendment, creatorFlags, Global.zeroAddress, true)
+  }
+
+  private editPostImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    cid: CID,
+    amendment: bytes<32>,
+    creatorFlags: uint64,
+    referrer: Account,
+    legacy: boolean
+  ): void {
+    loggedAssert(this.posts(amendment).exists, errPostNotFound)
     const { gateID, usePayWall, payWallID, postType, editKey } = this.verifyEditAmendment(amendment, cid)
-    loggedAssert(!this.isReply(postType), ERR_IS_A_REPLY)
+    loggedAssert(!this.isReply(postType), errIsAReply)
 
     this.validateTip(tip, TipActionPost)
-    this.createPost(editKey, mbrPayment, cid, gateID, usePayWall, payWallID, PostTypeEditPost, amendment, creatorFlags)
+    this.createPost(editKey, mbrPayment, cid, gateID, usePayWall, payWallID, PostTypeEditPost, amendment, creatorFlags, referrer, legacy)
   }
 
   gatedReply(
@@ -863,20 +1067,26 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     gateID: uint64,
     usePayWall: boolean,
     payWallID: uint64,
-    creatorFlags: uint64
+    creatorFlags: uint64,
+    wallet: uint64
   ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
     const replyKey = this.computePostKey(timestamp, nonce)
 
     const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, postGateID), ERR_FAILED_GATE)
+    // the gate subject is the verified context (principal, wallet, spender), not the spender (Q4)
+    loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), postGateID), errFailedGate)
 
     this.validateTip(tip, TipActionReact)
-    this.createReply(replyKey, mbrPayment, addedMbr, cid, refBytes, gateID, usePayWall, payWallID, PostTypeReply, Bytes(''), creatorFlags)
+    this.createReply(replyKey, mbrPayment, addedMbr, cid, refBytes, gateID, usePayWall, payWallID, PostTypeReply, Bytes(''), creatorFlags, p.referrer, false)
   }
 
-  reply(
+  /** LEGACY shim (pre-hint selector, deployed semantics: Gate.mustCheck on Txn.sender). */
+  @abimethod({ name: 'gatedReply' })
+  legacyGatedReply(
     mbrPayment: gtxn.PaymentTxn,
     tip: gtxn.AssetTransferTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
     timestamp: uint64,
     nonce: bytes<24>,
     cid: CID,
@@ -890,10 +1100,70 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     const replyKey = this.computePostKey(timestamp, nonce)
 
     const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
-    loggedAssert(postGateID === 0, ERR_HAS_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, postGateID), errFailedGate)
 
     this.validateTip(tip, TipActionReact)
-    this.createReply(replyKey, mbrPayment, addedMbr, cid, refBytes, gateID, usePayWall, payWallID, PostTypeReply, Bytes(''), creatorFlags)
+    this.createReply(replyKey, mbrPayment, addedMbr, cid, refBytes, gateID, usePayWall, payWallID, PostTypeReply, Bytes(''), creatorFlags, Global.zeroAddress, true)
+  }
+
+  reply(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    timestamp: uint64,
+    nonce: bytes<24>,
+    cid: CID,
+    ref: bytes,
+    type: uint64,
+    gateID: uint64,
+    usePayWall: boolean,
+    payWallID: uint64,
+    creatorFlags: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.replyImpl(mbrPayment, tip, timestamp, nonce, cid, ref, type, gateID, usePayWall, payWallID, creatorFlags, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'reply' })
+  legacyReply(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    timestamp: uint64,
+    nonce: bytes<24>,
+    cid: CID,
+    ref: bytes,
+    type: uint64,
+    gateID: uint64,
+    usePayWall: boolean,
+    payWallID: uint64,
+    creatorFlags: uint64
+  ): void {
+    this.replyImpl(mbrPayment, tip, timestamp, nonce, cid, ref, type, gateID, usePayWall, payWallID, creatorFlags, Global.zeroAddress, true)
+  }
+
+  private replyImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    timestamp: uint64,
+    nonce: bytes<24>,
+    cid: CID,
+    ref: bytes,
+    type: uint64,
+    gateID: uint64,
+    usePayWall: boolean,
+    payWallID: uint64,
+    creatorFlags: uint64,
+    referrer: Account,
+    legacy: boolean
+  ): void {
+    const replyKey = this.computePostKey(timestamp, nonce)
+
+    const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
+    loggedAssert(postGateID === 0, errHasGate)
+
+    this.validateTip(tip, TipActionReact)
+    this.createReply(replyKey, mbrPayment, addedMbr, cid, refBytes, gateID, usePayWall, payWallID, PostTypeReply, Bytes(''), creatorFlags, referrer, legacy)
   }
 
   gatedEditReply(
@@ -902,13 +1172,32 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     gateTxn: gtxn.ApplicationCallTxn,
     cid: CID,
     amendment: bytes<32>,
+    creatorFlags: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    const { parentPostRef, ogPostGateID, gateID, usePayWall, payWallID, editKey } = this.prepareReplyEdit(amendment, cid)
+    loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), ogPostGateID), errFailedGate)
+
+    this.validateTip(tip, TipActionReact)
+    this.createReply(editKey, mbrPayment, 0, cid, parentPostRef, gateID, usePayWall, payWallID, PostTypeEditReply, amendment, creatorFlags, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics: Gate.mustCheck on Txn.sender). */
+  @abimethod({ name: 'gatedEditReply' })
+  legacyGatedEditReply(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    cid: CID,
+    amendment: bytes<32>,
     creatorFlags: uint64
   ): void {
     const { parentPostRef, ogPostGateID, gateID, usePayWall, payWallID, editKey } = this.prepareReplyEdit(amendment, cid)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, ogPostGateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, ogPostGateID), errFailedGate)
 
     this.validateTip(tip, TipActionReact)
-    this.createReply(editKey, mbrPayment, 0, cid, parentPostRef, gateID, usePayWall, payWallID, PostTypeEditReply, amendment, creatorFlags)
+    this.createReply(editKey, mbrPayment, 0, cid, parentPostRef, gateID, usePayWall, payWallID, PostTypeEditReply, amendment, creatorFlags, Global.zeroAddress, true)
   }
 
   editReply(
@@ -916,13 +1205,39 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     tip: gtxn.AssetTransferTxn,
     cid: CID,
     amendment: bytes<32>,
+    creatorFlags: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.editReplyImpl(mbrPayment, tip, cid, amendment, creatorFlags, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'editReply' })
+  legacyEditReply(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    cid: CID,
+    amendment: bytes<32>,
     creatorFlags: uint64
   ): void {
+    this.editReplyImpl(mbrPayment, tip, cid, amendment, creatorFlags, Global.zeroAddress, true)
+  }
+
+  private editReplyImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    cid: CID,
+    amendment: bytes<32>,
+    creatorFlags: uint64,
+    referrer: Account,
+    legacy: boolean
+  ): void {
     const { parentPostRef, ogPostGateID, gateID, usePayWall, payWallID, editKey } = this.prepareReplyEdit(amendment, cid)
-    loggedAssert(ogPostGateID === 0, ERR_HAS_GATE)
+    loggedAssert(ogPostGateID === 0, errHasGate)
 
     this.validateTip(tip, TipActionReact)
-    this.createReply(editKey, mbrPayment, 0, cid, parentPostRef, gateID, usePayWall, payWallID, PostTypeEditReply, amendment, creatorFlags)
+    this.createReply(editKey, mbrPayment, 0, cid, parentPostRef, gateID, usePayWall, payWallID, PostTypeEditReply, amendment, creatorFlags, referrer, legacy)
   }
 
   vote(
@@ -930,45 +1245,114 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     tip: gtxn.AssetTransferTxn,
     ref: bytes,
     type: uint64,
+    isUp: boolean,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.voteImpl(mbrPayment, tip, ref, type, isUp, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'vote' })
+  legacyVote(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes,
+    type: uint64,
     isUp: boolean
+  ): void {
+    this.voteImpl(mbrPayment, tip, ref, type, isUp, Global.zeroAddress, true)
+  }
+
+  private voteImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes,
+    type: uint64,
+    isUp: boolean,
+    referrer: Account,
+    legacy: boolean
   ): void {
     let { refBytes, creator } = this.toBytes32(type, ref)
     if (type === RefTypePost) {
-      loggedAssert(this.posts(refBytes).exists, ERR_POST_NOT_FOUND);
+      loggedAssert(this.posts(refBytes).exists, errPostNotFound);
       ({ creator } = this.posts(refBytes).value);
     }
 
-    const addedMbr = this.createEmptyPostIfNecessary(refBytes, creator)
+    // the votes box for a never-voted ref is created by this call, so charge it too (the deployed
+    // contract did not, so the legacy terms don't: old plugins never quote it)
+    const legacyTerms = this.legacyTerms(legacy)
+    const votesMbr: uint64 = (legacyTerms || this.votes(refBytes).exists) ? 0 : VotesMBR
+    let addedMbr = this.createEmptyPostIfNecessary(refBytes, creator)
+    // the legacy terms accept the deployed plugin's posts quote (LegacyMinPostsMBR) for a materialized ref
+    if (legacyTerms && addedMbr > 0) {
+      addedMbr -= MinPostsMBR - LegacyMinPostsMBR
+    }
 
     this.validateTip(tip, TipActionReact)
-    const mbrNeeded: uint64 = this.mbr(Bytes(''), '', Bytes('')).votelist + addedMbr
-    this.createVote(mbrPayment, mbrNeeded, refBytes, isUp)
+    const mbrNeeded: uint64 = this.mbr(Bytes(''), '', Bytes('')).votelist + addedMbr + votesMbr
+    this.createVote(mbrPayment, mbrNeeded, refBytes, isUp, referrer, legacy)
   }
 
   editVote(
     mbrPayment: gtxn.PaymentTxn,
     tip: gtxn.AssetTransferTxn,
     ref: bytes<32>,
+    flip: boolean,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.editVoteImpl(mbrPayment, tip, ref, flip, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'editVote' })
+  legacyEditVote(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes<32>,
     flip: boolean
   ): void {
-    const voteListKey: VoteListKey = { user: b16(Txn.sender.bytes), ref: b16(ref) }
-    loggedAssert(this.votelist(voteListKey).exists, ERR_HAVENT_VOTED)
+    this.editVoteImpl(mbrPayment, tip, ref, flip, Global.zeroAddress, true)
+  }
 
-    const { impact, isUp } = this.votelist(voteListKey).value
+  private editVoteImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes<32>,
+    flip: boolean,
+    referrer: Account,
+    legacy: boolean
+  ): void {
+    const key = this.voteKey(Txn.sender, ref)
+    let impact: uint64 = 0
+    let isUp = false
+    if (this.voteRecords(key).exists) {
+      const record = clone(this.voteRecords(key).value)
+      impact = record.impact
+      isUp = record.isUp
+      this.voteRecords(key).delete()
+    } else {
+      // a legacy entry can only be undone against the exact pre-cutoff ref it was cast on
+      const legacyKey = this.legacyVoteKey(Txn.sender, ref)
+      loggedAssert(this.votelist(legacyKey).exists, errHaventVoted)
+      this.assertLegacyRef(ref)
+      const record = clone(this.votelist(legacyKey).value)
+      impact = record.impact
+      isUp = record.isUp
+      this.votelist(legacyKey).delete()
+    }
 
     // undo user vote
     this.updateVotes(ref, !isUp, impact)
 
-    // delete votelist
-    this.votelist(voteListKey).delete()
-
-    // if the user doesn't want to flip their vote, delete the votelist and refund
+    // if the user doesn't want to flip their vote, refund the vote box
+    // (legacy and new vote boxes have the same MBR)
     if (!flip) {
-      // refund user
       itxn
         .payment({
           receiver: Txn.sender,
-          amount: this.mbr(Bytes(''), '', Bytes('')).votelist
+          amount: VotelistMBR
         })
         .submit()
 
@@ -977,7 +1361,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
     // if the user wants to flip their vote, vote again but the opposite way
     this.validateTip(tip, TipActionReact)
-    this.createVote(mbrPayment, 0, ref, !isUp)
+    this.createVote(mbrPayment, 0, ref, !isUp, referrer, legacy)
   }
 
   gatedReact(
@@ -986,13 +1370,32 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     gateTxn: gtxn.ApplicationCallTxn,
     ref: bytes,
     type: uint64,
+    NFT: uint64,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
+    loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), postGateID), errFailedGate)
+
+    this.validateTip(tip, TipActionReact)
+    this.createReaction(mbrPayment, addedMbr, refBytes, NFT, p.referrer, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics: Gate.mustCheck on Txn.sender). */
+  @abimethod({ name: 'gatedReact' })
+  legacyGatedReact(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    ref: bytes,
+    type: uint64,
     NFT: uint64
   ): void {
     const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, postGateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, postGateID), errFailedGate)
 
     this.validateTip(tip, TipActionReact)
-    this.createReaction(mbrPayment, addedMbr, refBytes, NFT)
+    this.createReaction(mbrPayment, addedMbr, refBytes, NFT, Global.zeroAddress, true)
   }
 
   react(
@@ -1000,30 +1403,62 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     tip: gtxn.AssetTransferTxn,
     ref: bytes,
     type: uint64,
-    NFT: uint64
+    NFT: uint64,
+    wallet: uint64
   ): void {
-    const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
-    loggedAssert(postGateID === 0, ERR_HAS_GATE)
-
-    this.validateTip(tip, TipActionReact)
-    this.createReaction(mbrPayment, addedMbr, refBytes, NFT)
+    const p = principalOf(this.akitaDAO.value, wallet)
+    this.reactImpl(mbrPayment, tip, ref, type, NFT, p.referrer, false)
   }
 
+  /** LEGACY shim (pre-hint selector, deployed semantics). */
+  @abimethod({ name: 'react' })
+  legacyReact(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes,
+    type: uint64,
+    NFT: uint64
+  ): void {
+    this.reactImpl(mbrPayment, tip, ref, type, NFT, Global.zeroAddress, true)
+  }
+
+  private reactImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    tip: gtxn.AssetTransferTxn,
+    ref: bytes,
+    type: uint64,
+    NFT: uint64,
+    referrer: Account,
+    legacy: boolean
+  ): void {
+    const { refBytes, addedMbr, postGateID } = this.resolveParentContext(type, ref)
+    loggedAssert(postGateID === 0, errHasGate)
+
+    this.validateTip(tip, TipActionReact)
+    this.createReaction(mbrPayment, addedMbr, refBytes, NFT, referrer, legacy)
+  }
+
+  // Refund path: no ban/block checks, so a reactor can always reclaim their MBR.
   deleteReaction(ref: bytes<32>, NFT: uint64): void {
-    this.loadPostWithAccessCheck(ref)
-
-    const reactionListKey: ReactionListKey = { user: b16(Txn.sender.bytes), ref: b16(ref), NFT }
-
-    loggedAssert(this.reactionlist(reactionListKey).exists, ERR_ALREADY_REACTED)
+    const recordKey = this.reactionKey(Txn.sender, ref, NFT)
+    let refund: uint64 = ReactionRecordMBR
+    if (this.reactionRecords(recordKey).exists) {
+      this.reactionRecords(recordKey).delete()
+    } else {
+      // a legacy entry can only be undone against the exact pre-cutoff ref it was made on
+      const legacyKey = this.legacyReactionKey(Txn.sender, ref, NFT)
+      loggedAssert(this.reactionlist(legacyKey).exists, errAlreadyReacted)
+      this.assertLegacyRef(ref)
+      this.reactionlist(legacyKey).delete()
+      refund = ReactionlistMBR
+    }
 
     this.reactions({ ref, NFT }).value -= 1
-    this.reactionlist(reactionListKey).delete()
 
     itxn
       .payment({
         receiver: Txn.sender,
-        amount: this.mbr(Bytes(''), '', Bytes('')).reactionlist,
-
+        amount: refund,
       })
       .submit()
   }
@@ -1036,12 +1471,17 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   // contract.
   setPostModeration(ref: bytes<32>, againstContentPolicy: boolean, moderatorFlags: uint64): void {
     // Only the moderation contract can call this
-    loggedAssert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).moderation).address, ERR_NOT_MODERATION)
-    loggedAssert(this.posts(ref).exists, ERR_POST_NOT_FOUND)
+    loggedAssert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).moderation).address, errNotModeration)
+    loggedAssert(this.posts(ref).exists, errPostNotFound)
     this.posts(ref).value.againstContentPolicy = againstContentPolicy
     this.posts(ref).value.moderatorFlags = moderatorFlags
   }
 
+  /**
+   * Create the sender's social meta. `user` must be the sender (S-02; it stays in the ABI for
+   * compatibility). The meta stores the VERIFIED wallet `principalOf(dao, wallet).wallet` (0 for a
+   * plain account), which later routes creator tips (re-checked at read time by `tipWallet`).
+   */
   initMeta(
     mbrPayment: gtxn.PaymentTxn,
     user: Account,
@@ -1049,21 +1489,63 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     subscriptionIndex: uint64,
     NFD: uint64,
     akitaNFT: uint64,
+    wallet: uint64,
   ): uint64 {
-    const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, user)
-    const userIsSender = (Txn.sender === user)
+    const p = principalOf(this.akitaDAO.value, wallet)
+    // meta can only be created for yourself; `user` stays in the ABI for compatibility
+    loggedAssert(user === Txn.sender, errNotSelfMeta)
+    return this.initMetaImpl(mbrPayment, automated, subscriptionIndex, NFD, akitaNFT, p.wallet)
+  }
 
-    loggedAssert(!this.meta(Txn.sender).exists, ERR_META_ALREADY_EXISTS)
+  /** LEGACY shim (pre-hint selector, deployed semantics: stores the registry wallet of the sender). */
+  @abimethod({ name: 'initMeta' })
+  legacyInitMeta(
+    mbrPayment: gtxn.PaymentTxn,
+    user: Account,
+    automated: boolean,
+    subscriptionIndex: uint64,
+    NFD: uint64,
+    akitaNFT: uint64,
+  ): uint64 {
+    // meta can only be created for yourself; `user` stays in the ABI for compatibility
+    loggedAssert(user === Txn.sender, errNotSelfMeta)
+    const wallet = legacyWalletOf(this.akitaDAO.value, Txn.sender)
+    return this.initMetaImpl(mbrPayment, automated, subscriptionIndex, NFD, akitaNFT, wallet.id)
+  }
+
+  /**
+   * Rebind the sender's meta wallet to the verified hint (`principalOf(dao, wallet).wallet`; 0 unbinds).
+   * Backfill for metas stored with 0 or a registry wallet. ARC-58 wallets reach it through the social
+   * plugin's `setMetaWallet(wallet, rekeyBack)` (spec §6.2, §6.11).
+   */
+  setMetaWallet(wallet: uint64): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    loggedAssert(this.meta(Txn.sender).exists, errMetaDoesntExist)
+    this.meta(Txn.sender).value.wallet = p.wallet
+  }
+
+  // Body of both initMeta entry points. The caller has already asserted `user === Txn.sender`
+  // (S-02: meta is self-only, keyed by the spender) and passes the wallet id to store in it.
+  private initMetaImpl(
+    mbrPayment: gtxn.PaymentTxn,
+    automated: boolean,
+    subscriptionIndex: uint64,
+    NFD: uint64,
+    akitaNFT: uint64,
+    wallet: uint64,
+  ): uint64 {
+    loggedAssert(!this.meta(Txn.sender).exists, errMetaAlreadyExists)
 
     loggedAssert(
       match(
         mbrPayment,
         {
+          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: this.mbr(Bytes(''), '', Bytes('')).meta + ImpactMetaMBR
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
 
     const impact = getAkitaSocialAppList(this.akitaDAO.value).impact
@@ -1076,7 +1558,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       .submit()
 
     if (automated) {
-      this.createDefaultMeta(Txn.sender, userIsSender, wallet.id, true)
+      this.createDefaultMeta(Txn.sender, true, wallet, true)
 
       abiCall<typeof AkitaSocialImpact.prototype.cacheMeta>({
         appId: impact,
@@ -1091,7 +1573,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       return 0
     }
 
-    this.createDefaultMeta(Txn.sender, userIsSender, wallet.id, false)
+    this.createDefaultMeta(Txn.sender, true, wallet, false)
 
     // Reuse the `impact` local captured above; re-calling
     // `getAkitaSocialAppList(this.akitaDAO.value).impact` here would fully
@@ -1119,13 +1601,12 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
       match(
         mbrPayment,
         {
+          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
-          amount: {
-            greaterThanEq: this.payWallMbr(payWall)
-          }
+          amount: this.payWallMbr(payWall)
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
 
     const id = this.payWallId.value
@@ -1137,6 +1618,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   }
 
   updateMeta(
+    mbrPayment: gtxn.PaymentTxn,
     followGateID: uint64,
     addressGateID: uint64,
     subscriptionIndex: uint64,
@@ -1144,8 +1626,42 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
     akitaNFT: uint64,
     defaultPayWallID: uint64
   ): void {
-    loggedAssert(this.meta(Txn.sender).exists, ERR_META_DOESNT_EXIST)
-    loggedAssert(this.paywall(defaultPayWallID).exists, ERR_PAYWALL_NOT_FOUND)
+    // a wall gate is checked against the wall's posts box, so setting one creates the box
+    let wallMbr: uint64 = 0
+    if (addressGateID !== 0) {
+      wallMbr = this.createEmptyPostIfNecessary(Txn.sender.bytes, Txn.sender)
+    }
+    loggedAssert(
+      match(mbrPayment, { sender: Txn.sender, receiver: Global.currentApplicationAddress, amount: wallMbr }),
+      errInvalidPayment
+    )
+    this.updateMetaImpl(followGateID, addressGateID, subscriptionIndex, NFD, akitaNFT, defaultPayWallID)
+  }
+
+  /** LEGACY shim (pre-payment selector, deployed semantics: setting a wall gate creates no wall box). */
+  @abimethod({ name: 'updateMeta' })
+  legacyUpdateMeta(
+    followGateID: uint64,
+    addressGateID: uint64,
+    subscriptionIndex: uint64,
+    NFD: uint64,
+    akitaNFT: uint64,
+    defaultPayWallID: uint64
+  ): void {
+    this.updateMetaImpl(followGateID, addressGateID, subscriptionIndex, NFD, akitaNFT, defaultPayWallID)
+  }
+
+  private updateMetaImpl(
+    followGateID: uint64,
+    addressGateID: uint64,
+    subscriptionIndex: uint64,
+    NFD: uint64,
+    akitaNFT: uint64,
+    defaultPayWallID: uint64
+  ): void {
+    loggedAssert(this.meta(Txn.sender).exists, errMetaDoesntExist)
+    // 0 clears the default paywall
+    loggedAssert(defaultPayWallID === 0 || this.paywall(defaultPayWallID).exists, errPaywallNotFound)
 
     // Fold the three field writes into a single read-modify-write against the
     // meta box. The previous layout issued three separate `box_replace`s, each
@@ -1171,7 +1687,7 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   }
 
   updateFollowerMeta(address: Account, newFollowerIndex: uint64, newFollowerCount: uint64): void {
-    loggedAssert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).graph).address, ERR_NOT_GRAPH)
+    loggedAssert(Txn.sender === Application(getAkitaSocialAppList(this.akitaDAO.value).graph).address, errNotGraph)
     this.meta(address).value.followerIndex = newFollowerIndex
     this.meta(address).value.followerCount = newFollowerCount
   }
@@ -1179,17 +1695,18 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
   // REF TYPE REGISTRY (DAO-GATED) -----------------------------------------------------------------
 
   registerRefType(mbrPayment: gtxn.PaymentTxn, name: string, schema: bytes): uint64 {
-    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
 
     loggedAssert(
       match(
         mbrPayment,
         {
+          sender: Txn.sender,
           receiver: Global.currentApplicationAddress,
           amount: this.mbr(Bytes(''), name, schema).refTypes
         }
       ),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
 
     this.refTypeCounter.value += 1
@@ -1244,25 +1761,32 @@ export class AkitaSocial extends classes(BaseSocial, AkitaBaseFeeGeneratorContra
 
   @abimethod({ readonly: true })
   getPost(ref: bytes<32>): PostValue {
-    loggedAssert(this.posts(ref).exists, ERR_POST_NOT_FOUND)
+    loggedAssert(this.posts(ref).exists, errPostNotFound)
     return this.posts(ref).value
   }
 
   @abimethod({ readonly: true })
   getVote(account: Account, ref: bytes<32>): VoteListValue {
-    const voteListKey: VoteListKey = { user: b16(account.bytes), ref: b16(ref) }
-    loggedAssert(this.votelist(voteListKey).exists, ERR_HAVENT_VOTED)
+    const key = this.voteKey(account, ref)
+    if (this.voteRecords(key).exists) {
+      return this.voteRecords(key).value
+    }
 
-    return this.votelist(voteListKey).value
+    const legacyKey = this.legacyVoteKey(account, ref)
+    loggedAssert(this.votelist(legacyKey).exists, errHaventVoted)
+    return this.votelist(legacyKey).value
   }
 
   @abimethod({ readonly: true })
   getVotes(keys: { user: Account, ref: bytes<32> }[]): VoteListValue[] {
     const votes: VoteListValue[] = []
     for (const { user, ref } of clone(keys)) {
-      const voteListKey: VoteListKey = { user: b16(user.bytes), ref: b16(ref) }
-      if (this.votelist(voteListKey).exists) {
-        votes.push(this.votelist(voteListKey).value)
+      const key = this.voteKey(user, ref)
+      const legacyKey = this.legacyVoteKey(user, ref)
+      if (this.voteRecords(key).exists) {
+        votes.push(this.voteRecords(key).value)
+      } else if (this.votelist(legacyKey).exists) {
+        votes.push(this.votelist(legacyKey).value)
       } else {
         votes.push({ impact: 0, isUp: false })
       }

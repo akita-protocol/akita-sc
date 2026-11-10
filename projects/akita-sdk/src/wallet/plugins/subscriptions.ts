@@ -1,5 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { SubscriptionsPluginArgs, SubscriptionsPluginClient, SubscriptionsPluginFactory } from "../../generated/SubscriptionsPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -113,6 +113,24 @@ type FundTriggerPaymentArgs = (
     id: bigint | number;
     rekeyBack?: boolean;
   }
+);
+
+type DepositArgs = (
+  Omit<ContractArgs['deposit(uint64,bool,uint64,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type WithdrawArgs = (
+  Omit<ContractArgs['withdraw(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type UnsubscribeArgs = (
+  Omit<ContractArgs['unsubscribe(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
 );
 
 type StreakCheckArgs = (
@@ -651,6 +669,90 @@ export class SubscriptionsPluginSDK extends BaseSDK<SubscriptionsPluginClient> {
           ...params
         }];
       }
+    });
+  }
+
+  deposit(): PluginSDKReturn;
+  deposit(args: DepositArgs): PluginSDKReturn;
+  deposit(args?: DepositArgs): PluginSDKReturn {
+    const methodName = 'deposit';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack = true, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{
+        type: 'methodCall',
+        ...(await this.client.params.deposit({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+          maxFee: microAlgo(10_000n),
+        })),
+      }]
+    });
+  }
+
+  withdraw(): PluginSDKReturn;
+  withdraw(args: WithdrawArgs): PluginSDKReturn;
+  withdraw(args?: WithdrawArgs): PluginSDKReturn {
+    const methodName = 'withdraw';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack = true, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{
+        type: 'methodCall',
+        ...(await this.client.params.withdraw({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+          maxFee: microAlgo(10_000n),
+        })),
+      }]
+    });
+  }
+
+  unsubscribe(): PluginSDKReturn;
+  unsubscribe(args: UnsubscribeArgs): PluginSDKReturn;
+  unsubscribe(args?: UnsubscribeArgs): PluginSDKReturn {
+    const methodName = 'unsubscribe';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, rekeyBack = true, ...rest } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => [{
+        type: 'methodCall',
+        ...(await this.client.params.unsubscribe({
+          ...sendParams,
+          args: { wallet, rekeyBack, ...rest },
+          maxFee: microAlgo(10_000n),
+        })),
+      }]
     });
   }
 

@@ -6,11 +6,10 @@ import { ENV_VAR_NAMES } from "../config";
 import { ServiceFromTuple, ServicesKey, SubscriptionInfo, SubscriptionsArgs, SubscriptionsClient, SubscriptionsFactory } from '../generated/SubscriptionsClient'
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { ValueMap } from "../wallet/utils";
-import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionInfoWithDetails, SubscriptionStatus, SubscriptionTimestampUnit } from "./types";
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionGateCtx, SubscriptionGateTxn, SubscriptionInfoWithDetails, SubscriptionStatus, SubscriptionTimestampUnit } from "./types";
 import { bytesToHexColor, hexColorToBytes, validateHexColor } from "./utils";
 import { convertToUnixTimestamp } from "../utils";
-import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH } from "./constants";
+import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH, SUBSCRIPTION_PRINCIPAL_MBR } from "./constants";
 
 // Re-export key types from generated client
 export { ServicesKey } from '../generated/SubscriptionsClient';
@@ -30,6 +29,21 @@ const toSeconds = (value: bigint | number, unit: SubscriptionTimestampUnit): big
   return unit === 'milliseconds' ? normalized / 1000n : normalized;
 };
 
+/**
+ * The gate context a top-level (direct) caller acting as itself presents: `(sender, 0, sender)`. This is
+ * what `principalOf(dao, 0)` resolves to on chain. A non-zero hint is never valid at top level (`errHtop`).
+ */
+export const directGateCtx = (sender: string): SubscriptionGateCtx => ({ principal: sender, wallet: 0n, spender: sender });
+
+const resolveGateTxn = async (gateTxn: SubscriptionGateTxn, ctx: SubscriptionGateCtx) =>
+  typeof gateTxn === 'function' ? await gateTxn(ctx) : gateTxn;
+
+const assertDirectHint = (wallet: bigint, legacy: boolean) => {
+  if (!legacy && wallet !== 0n) {
+    throw new Error('Subscriptions: a top-level call cannot carry a wallet hint (errHtop); wallets act through the subscriptions plugin');
+  }
+};
+
 export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
 
   private serviceMapKeyGenerator = ({ address, id }: ServicesKey) => (`${address}${id}`)
@@ -40,11 +54,15 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
   }
 
   /**
-   * Get the cost to create a new service from the contract
+   * Get the cost to create a new service from the contract (the hinted `newServiceCost(asset, wallet)`;
+   * `legacy` quotes the pre-hint selector, which uses the registry referrer).
    */
-  async newServiceCost({ sender, signer, asset = 0n }: MaybeSigner & { asset?: bigint | number } = {}): Promise<bigint> {
+  async newServiceCost({ sender, signer, asset = 0n, wallet = 0n, legacy = false }: MaybeSigner & { asset?: bigint | number, wallet?: bigint, legacy?: boolean } = {}): Promise<bigint> {
     const sendParams = this.getSendParams({ sender, signer });
-    return (await this.client.newServiceCost({ ...sendParams, args: { asset } }))
+    if (legacy) {
+      return (await this.client.newServiceCostUint64Uint64({ ...sendParams, args: { asset } }))
+    }
+    return (await this.client.newServiceCostUint64Uint64Uint64({ ...sendParams, args: { asset, wallet } }))
   }
 
   async blockCost({ sender, signer }: MaybeSigner = {}): Promise<bigint> {
@@ -53,11 +71,60 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
   }
 
   /**
-   * Get the cost to create a new subscription from the contract
+   * Get the cost to create a new subscription from the contract (box MBR + referral MBR, plus
+   * `SUBSCRIPTION_PRINCIPAL_MBR` when `wallet != 0` and the service is gated). `legacy` quotes the
+   * pre-hint selector (registry referrer, no stored principal).
    */
-  async newSubscriptionCost({ sender, signer, recipient, asset = 0n, serviceId = 0n }: MaybeSigner & { recipient: string, asset?: bigint | number, serviceId?: bigint | number }): Promise<bigint> {
+  async newSubscriptionCost({ sender, signer, recipient, asset = 0n, serviceId = 0n, wallet = 0n, legacy = false }: MaybeSigner & { recipient: string, asset?: bigint | number, serviceId?: bigint | number, wallet?: bigint, legacy?: boolean }): Promise<bigint> {
     const sendParams = this.getSendParams({ sender, signer });
-    return (await this.client.newSubscriptionCost({ ...sendParams, args: { recipient, asset, serviceId } }))
+    if (legacy) {
+      return (await this.client.newSubscriptionCostAddressUint64Uint64Uint64({ ...sendParams, args: { recipient, asset, serviceId } }))
+    }
+    return (await this.client.newSubscriptionCostAddressUint64Uint64Uint64Uint64({ ...sendParams, args: { recipient, asset, serviceId, wallet } }))
+  }
+
+  /**
+   * The `GateCtx` a hinted `gatedTriggerPayment(gateTxn, key, wallet)` sent by `sender` will assert
+   * (readonly; the contract runs the same code). `wallet` is the CALLER's own hint, never the subscriber's.
+   */
+  async triggerGateCtx({ sender, address, id, wallet = 0n }: { sender?: string, address: string, id: bigint | number, wallet?: bigint }): Promise<SubscriptionGateCtx> {
+    const sendParams = this.getReaderSendParams({ sender });
+    const ctx = await this.client.triggerGateCtx({ ...sendParams, args: { key: { address, id: BigInt(id) }, wallet } });
+    return { principal: ctx.principal, wallet: ctx.wallet, spender: ctx.spender };
+  }
+
+  /**
+   * The stored principal pair `(wallet, principal)` of a gated subscription, or undefined if it has none
+   * (a legacy subscription, a plain subscriber, or an ungated service).
+   */
+  async getStoredPrincipal({ address, id }: { address: string, id: bigint | number }): Promise<{ wallet: bigint, principal: string } | undefined> {
+    try {
+      const value = await this.client.state.box.principals.value({ address, id: BigInt(id) });
+      return value === undefined ? undefined : { wallet: value.wallet, principal: value.principal };
+    } catch {
+      return undefined;
+    }
+  }
+
+  /**
+   * Backfill (Q13) the stored principal of a legacy gated subscription from the escrow-factory registry.
+   * Permissionless; the caller pays `SUBSCRIPTION_PRINCIPAL_MBR` (refunded to the subscriber on unsubscribe).
+   */
+  async adoptPrincipal({ sender, signer, address, id }: MaybeSigner & { address: string, id: bigint | number }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    const payment = await this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(SUBSCRIPTION_PRINCIPAL_MBR),
+      receiver: this.client.appAddress.toString(),
+    });
+
+    await this.client.send.adoptPrincipal({
+      ...sendParams,
+      args: { payment, key: { address, id: BigInt(id) } },
+      populateAppCallResources: true,
+      coverAppCallInnerTransactionFees: true,
+      maxFee: microAlgo(10_000),
+    });
   }
 
   /**
@@ -134,7 +201,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       // Use the algod endpoint /v2/accounts/{address}/assets/{asset-id}
       const algod = this.client.algorand.client.algod;
       // If the asset-holding exists, we're opted in. If it 404s, we're not.
-      const response = await algod.accountAssetInformation(appAddress, assetId);
+      const response = await algod.accountAssetInformation(appAddress, assetId).do();
       return !!response.assetHolding;
     } catch (error: any) {
       // If not opted in, algod returns 404 for this endpoint
@@ -283,9 +350,10 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     return (await this.client.getServiceList({ ...sendParams, args: { address } }))
   }
 
-  async newService({ sender, signer, asset = 0n, passes = 0n, gateId = 0n, ...rest }: NewServiceArgs): Promise<bigint> {
+  async newService({ sender, signer, asset = 0n, passes = 0n, gateId = 0n, wallet = 0n, legacy = false, ...rest }: NewServiceArgs): Promise<bigint> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    assertDirectHint(wallet, legacy);
 
     validateHexColor(rest.highlightColor);
     const highlightColor = hexColorToBytes(rest.highlightColor);
@@ -295,7 +363,7 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     const needsOptIn = isAsaService &&!(await this.isOptedInToAsset(asset));
     
     // Use contract method to get the exact cost
-    const paymentAmount = await this.newServiceCost({ ...sendParams, asset });
+    const paymentAmount = await this.newServiceCost({ ...sendParams, asset, wallet, legacy });
 
     const payment = this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -332,17 +400,18 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       });
     }
 
-    group.newService({
-      ...sendParams,
-      args: {
-        payment,
-        asset,
-        passes,
-        gateId,
-        ...rest,
-        highlightColor
-      }
-    });
+    const { description: _description, ...serviceArgs } = rest;
+    if (legacy) {
+      group.newServicePayUint64Uint64Uint64Uint64Uint64AddressStringByte_36Uint8Byte_3Uint64({
+        ...sendParams,
+        args: { payment, asset, passes, gateId, ...serviceArgs, highlightColor }
+      });
+    } else {
+      group.newServicePayUint64Uint64Uint64Uint64Uint64AddressStringByte_36Uint8Byte_3Uint64Uint64({
+        ...sendParams,
+        args: { payment, asset, passes, gateId, ...serviceArgs, highlightColor, wallet }
+      });
+    }
 
     // chunk description, max is: 3151
     if (rest.description.length > MAX_DESCRIPTION_LENGTH) {
@@ -515,10 +584,13 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     amount,
     interval,
     recipient,
-    gateTxn
+    gateTxn,
+    wallet = 0n,
+    legacy = false,
   }: MaybeSigner & SubscribeArgs): Promise<bigint> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    assertDirectHint(wallet, legacy);
 
     const isAlgoSubscription = asset === 0n;
     const isGated = gateTxn !== undefined;
@@ -531,7 +603,9 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       ...sendParams,
       recipient,
       asset,
-      serviceId
+      serviceId,
+      wallet,
+      legacy,
     });
 
     // For algo subscriptions, payment includes the subscription amount
@@ -567,30 +641,20 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
       });
     }
 
+    // the target asserts `Gate.mustCheckFor(principalOf(dao, wallet) as ctx, ...)` (hinted) or
+    // `Gate.mustCheck(registry origin, ...)` (legacy, which needs a prebuilt txn)
+    const gate = isGated ? await resolveGateTxn(gateTxn!, directGateCtx(sendParams.sender.toString())) : undefined;
+
     if (isAlgoSubscription) {
-      if (isGated) {
-        group.gatedSubscribe({
-          ...sendParams,
-          args: {
-            payment,
-            gateTxn,
-            amount,
-            interval: BigInt(interval),
-            recipient,
-            serviceId,
-          }
-        });
+      const common = { payment, amount, interval: BigInt(interval), recipient, serviceId };
+      if (isGated && legacy) {
+        group.gatedSubscribePayApplAddressUint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, gateTxn: gate! } });
+      } else if (isGated) {
+        group.gatedSubscribePayApplAddressUint64Uint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, gateTxn: gate!, wallet } });
+      } else if (legacy) {
+        group.subscribePayAddressUint64Uint64Uint64Uint64({ ...sendParams, args: common });
       } else {
-        group.subscribe({
-          ...sendParams,
-          args: {
-            payment,
-            amount,
-            interval: BigInt(interval),
-            recipient,
-            serviceId,
-          }
-        });
+        group.subscribePayAddressUint64Uint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, wallet } });
       }
     } else {
       const assetTransfer = await this.client.algorand.createTransaction.assetTransfer({
@@ -600,36 +664,22 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
         receiver: this.client.appAddress.toString(),
       })
 
-      if (isGated) {
-        group.gatedSubscribeAsa({
-          ...sendParams,
-          args: {
-            payment,
-            gateTxn,
-            amount,
-            interval: BigInt(interval),
-            recipient,
-            serviceId,
-          }
-        });
+      const common = { payment, assetXfer: assetTransfer, amount, interval: BigInt(interval), recipient, serviceId };
+      if (isGated && legacy) {
+        group.gatedSubscribeAsaPayAxferApplAddressUint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, gateTxn: gate! } });
+      } else if (isGated) {
+        group.gatedSubscribeAsaPayAxferApplAddressUint64Uint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, gateTxn: gate!, wallet } });
+      } else if (legacy) {
+        group.subscribeAsaPayAxferAddressUint64Uint64Uint64Uint64({ ...sendParams, args: common });
       } else {
-        group.subscribeAsa({
-          ...sendParams,
-          args: {
-            payment,
-            assetXfer: assetTransfer,
-            amount,
-            interval: BigInt(interval),
-            recipient,
-            serviceId,
-          }
-        });
+        group.subscribeAsaPayAxferAddressUint64Uint64Uint64Uint64Uint64({ ...sendParams, args: { ...common, wallet } });
       }
     }
 
     const result = await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
-    // If we added an opt-in call, the subscription ID will be at index 1, otherwise index 0
-    const returnIndex = needsOptIn ? 1 : 0;
+    // The subscription ID is the return of the subscribe call: after the optional opt-in call
+    // and, for gated subscriptions, after the (void) Gate.mustCheckFor / mustCheck call.
+    const returnIndex = (needsOptIn ? 1 : 0) + (isGated ? 1 : 0);
     const subscriptionId = result.returns[returnIndex] as bigint | undefined;
 
     if (subscriptionId === undefined) {
@@ -718,18 +768,38 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
-  async triggerPayment({ sender, signer, address, id, gateTxn }: MaybeSigner & { address: string, id: bigint, gateTxn?: AppCallMethodCall }): Promise<void> {
+  /**
+   * Trigger the payment for subscription `{ address, id }`.
+   *
+   * For a gated service pass `gateTxn`. Eligibility is always re-checked for the SUBSCRIBER, never the
+   * keeper. Hinted (default): `Gate.mustCheckFor(ctx, gateId, args)` with `ctx = triggerGateCtx(...)`;
+   * pass a builder `(ctx) => gate.build.mustCheckFor({ ctx, gateId, args })` and the SDK fetches `ctx`.
+   * `wallet` is the keeper's OWN hint (0n for a keeper acting as itself). `legacy`: the pre-hint selector,
+   * whose `Gate.mustCheck` caller is the subscriber's registry origin.
+   */
+  async triggerPayment({ sender, signer, address, id, gateTxn, wallet = 0n, legacy = false }: MaybeSigner & { address: string, id: bigint, gateTxn?: SubscriptionGateTxn, wallet?: bigint, legacy?: boolean }): Promise<void> {
     const sendParams = this.getSendParams({ sender, signer });
+    assertDirectHint(wallet, legacy);
 
     const group = this.client.newGroup();
+    const key = { address, id };
 
-    if (gateTxn !== undefined) {
-      group.gatedTriggerPayment({
+    if (gateTxn !== undefined && legacy) {
+      if (typeof gateTxn === 'function') {
+        throw new Error('Subscriptions: a legacy gated trigger needs a prebuilt Gate.mustCheck txn');
+      }
+      group.gatedTriggerPaymentApplAddressUint64Void({
         ...sendParams,
-        args: {
-          gateTxn,
-          key: { address, id }
-        }
+        args: { gateTxn, key }
+      });
+    } else if (gateTxn !== undefined) {
+      // a builder receives exactly the context the contract will assert for this sender and hint
+      const gate = typeof gateTxn === 'function'
+        ? await gateTxn(await this.triggerGateCtx({ sender: sendParams.sender?.toString(), address, id, wallet }))
+        : gateTxn;
+      group.gatedTriggerPaymentApplAddressUint64Uint64Void({
+        ...sendParams,
+        args: { gateTxn: gate, key, wallet }
       });
     } else {
       group.triggerPayment({
@@ -755,5 +825,19 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     });
 
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
+  }
+
+  /**
+   * Delete a pass box orphaned by a subscription cancelled before the pass-key fix. Anyone may
+   * call it; the freed MBR stays in the contract.
+   */
+  async clearOrphanPasses({ sender, signer, address, id }: MaybeSigner & { address: string, id: bigint | number }): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    await this.client.send.clearOrphanPasses({
+      ...sendParams,
+      args: { key: { address, id: BigInt(id) } },
+      populateAppCallResources: true,
+    });
   }
 }

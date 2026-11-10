@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   AMENDMENT_MBR,
@@ -12,11 +13,15 @@ import {
   FOLLOWS_MBR,
   MIN_PAYWALL_MBR,
   MIN_POSTS_MBR,
+  MODERATOR_ACTIVITY_MBR,
+  MODERATORS_MBR,
   PAYWALL_PAY_OPTION_SIZE,
   PayWallType,
   REACTIONLIST_MBR,
+  REACTION_RECORD_MBR,
   REACTIONS_MBR,
   RefType,
+  REPLY_PARENT_REF_MBR,
   SocialSDK,
   VOTELIST_MBR,
   VOTES_MBR
@@ -43,11 +48,11 @@ const fixture = algorandFixture()
 // Test Suite: Social Contracts Deployment
 // ============================================================================
 describe('Social Contracts Deployment', () => {
-  let deployer: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
   let socialClient: AkitaSocialClient
   let graphClient: AkitaSocialGraphClient
   let impactClient: AkitaSocialImpactClient
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
     account: SigningAccount;
   }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -60,7 +65,7 @@ describe('Social Contracts Deployment', () => {
     const ctx = fixture.context
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy AkitaSocialImpact contract
     const impactFactory = algorand.client.getTypedAppFactory(
@@ -106,6 +111,8 @@ describe('Social Contracts Deployment', () => {
     )
 
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: {
         version: '0.0.1',
         akitaDao: 0n,
@@ -137,8 +144,9 @@ describe('Social Contracts Deployment', () => {
     expect(uniqueIds.size).toBe(3)
   })
 
-  test('AkitaSocial contract should be under 8192 bytes', () => {
-    // If deployment succeeded, the contract is within limits
+  test('AkitaSocial contract deploys within the AVM 13 program limit', () => {
+    // > 8 KB since the principal-resolution legacy shims (PHASE-0-SPEC §7.2): the fixture reserves
+    // 7 extra pages; legacy-abi.test.ts asserts approval + clear <= 16_384 bytes
     expect(socialClient.appId).toBeGreaterThan(0n)
   })
 })
@@ -149,8 +157,8 @@ describe('Social Contracts Deployment', () => {
 describe('SDK MBR Calculations', () => {
   let sdk: SocialSDK
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
-  let deployer: Address & TransactionSignerAccount
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let deployer: TransactionSignerAccount
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -158,7 +166,7 @@ describe('SDK MBR Calculations', () => {
     dispenser = await algorand.account.dispenserFromEnvironment()
 
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy contracts
     const impactFactory = algorand.client.getTypedAppFactory(AkitaSocialImpactFactory, {
@@ -183,6 +191,8 @@ describe('SDK MBR Calculations', () => {
       defaultSigner: deployer.signer,
     })
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: { version: '0.0.1', akitaDao: 0n, akitaDaoEscrow: { name: '', app: 0n } }
     })
 
@@ -250,29 +260,20 @@ describe('SDK MBR Calculations', () => {
   })
 
   describe('calculateReplyMBR', () => {
-    test('should return same as post MBR for basic reply', () => {
+    test('should be post MBR plus the 32-byte parent ref', () => {
       const replyMbr = sdk.calculateReplyMBR(36, false, false)
       const postMbr = sdk.calculatePostMBR(36, false)
-      expect(replyMbr).toBe(postMbr)
+      expect(replyMbr).toBe(postMbr + REPLY_PARENT_REF_MBR)
     })
 
-    test('should add extra MBR when needsEmptyPost is true', () => {
-      const mbrWithout = sdk.calculateReplyMBR(36, false, false)
-      const mbrWith = sdk.calculateReplyMBR(36, false, true)
-      expect(mbrWith).toBeGreaterThan(mbrWithout)
-      // Empty post needs MIN_POSTS_MBR + VOTES_MBR
-      expect(mbrWith - mbrWithout).toBe(MIN_POSTS_MBR + VOTES_MBR)
+    test('needsEmptyPost adds the empty posts box a non-post parent gets on its first reply', () => {
+      expect(sdk.calculateReplyMBR(36, false, true) - sdk.calculateReplyMBR(36, false, false)).toBe(MIN_POSTS_MBR)
     })
 
-    test('should handle amendment and empty post together', () => {
+    test('should add the amendment and back-ref MBR for edits', () => {
       const mbrBase = sdk.calculateReplyMBR(36, false, false)
       const mbrAmendment = sdk.calculateReplyMBR(36, true, false)
-      const mbrEmpty = sdk.calculateReplyMBR(36, false, true)
-      const mbrBoth = sdk.calculateReplyMBR(36, true, true)
-
       expect(mbrAmendment - mbrBase).toBe(AMENDMENT_MBR + EDIT_BACK_REF_MBR)
-      expect(mbrEmpty - mbrBase).toBe(MIN_POSTS_MBR + VOTES_MBR)
-      expect(mbrBoth - mbrBase).toBe(AMENDMENT_MBR + EDIT_BACK_REF_MBR + MIN_POSTS_MBR + VOTES_MBR)
     })
   })
 
@@ -297,30 +298,21 @@ describe('SDK MBR Calculations', () => {
 
   describe('calculateReactMBR', () => {
     test('should include REACTIONS_MBR for first reaction with NFT', () => {
-      const mbrFirst = sdk.calculateReactMBR(true, false)
-      expect(mbrFirst).toBe(REACTIONLIST_MBR + REACTIONS_MBR)
+      expect(sdk.calculateReactMBR(true, false)).toBe(REACTION_RECORD_MBR + REACTIONS_MBR)
     })
 
-    test('should only have REACTIONLIST_MBR for subsequent reaction', () => {
-      const mbrSubsequent = sdk.calculateReactMBR(false, false)
-      expect(mbrSubsequent).toBe(REACTIONLIST_MBR)
+    test('should only have REACTION_RECORD_MBR for subsequent reaction', () => {
+      expect(sdk.calculateReactMBR(false, false)).toBe(REACTION_RECORD_MBR)
     })
 
-    test('should add empty post MBR when needsEmptyPost is true', () => {
-      const mbrWithout = sdk.calculateReactMBR(true, false)
-      const mbrWith = sdk.calculateReactMBR(true, true)
-      expect(mbrWith - mbrWithout).toBe(MIN_POSTS_MBR + VOTES_MBR)
+    test('needsEmptyPost adds the empty posts box a non-post target gets on its first reaction', () => {
+      expect(sdk.calculateReactMBR(true, true) - sdk.calculateReactMBR(true, false)).toBe(MIN_POSTS_MBR)
+      expect(sdk.calculateReactMBR(false, true) - sdk.calculateReactMBR(false, false)).toBe(MIN_POSTS_MBR)
     })
 
-    test('should handle all parameter combinations', () => {
-      const mbrFF = sdk.calculateReactMBR(false, false)
-      const mbrFT = sdk.calculateReactMBR(false, true)
-      const mbrTF = sdk.calculateReactMBR(true, false)
-      const mbrTT = sdk.calculateReactMBR(true, true)
-
-      expect(mbrTF - mbrFF).toBe(REACTIONS_MBR)
-      expect(mbrFT - mbrFF).toBe(MIN_POSTS_MBR + VOTES_MBR)
-      expect(mbrTT - mbrFF).toBe(REACTIONS_MBR + MIN_POSTS_MBR + VOTES_MBR)
+    test('legacy reaction boxes are refunded at the old MBR', () => {
+      expect(REACTIONLIST_MBR).toBe(18_900n)
+      expect(REACTION_RECORD_MBR).toBe(15_700n)
     })
   })
 
@@ -377,9 +369,9 @@ describe('SDK MBR Calculations', () => {
 describe('SDK Configuration', () => {
   let sdk: SocialSDK
   let algorand: algokit.AlgorandClient
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
   let socialAppId: bigint
   let graphAppId: bigint
   let impactAppId: bigint
@@ -391,7 +383,7 @@ describe('SDK Configuration', () => {
 
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     user1 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy contracts
     const impactFactory = algorand.client.getTypedAppFactory(AkitaSocialImpactFactory, {
@@ -418,6 +410,8 @@ describe('SDK Configuration', () => {
       defaultSigner: deployer.signer,
     })
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: { version: '0.0.1', akitaDao: 0n, akitaDaoEscrow: { name: '', app: 0n } }
     })
     socialAppId = socialResults.appClient.appId
@@ -462,10 +456,10 @@ describe('SDK Configuration', () => {
 describe('SDK Read Methods', () => {
   let sdk: SocialSDK
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let user2: TransactionSignerAccount
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -475,7 +469,7 @@ describe('SDK Read Methods', () => {
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     user1 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
     user2 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy contracts
     const impactFactory = algorand.client.getTypedAppFactory(AkitaSocialImpactFactory, {
@@ -500,6 +494,8 @@ describe('SDK Read Methods', () => {
       defaultSigner: deployer.signer,
     })
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: { version: '0.0.1', akitaDao: 0n, akitaDaoEscrow: { name: '', app: 0n } }
     })
 
@@ -609,7 +605,7 @@ describe('SDK Read Methods', () => {
     describe('getVote', () => {
       test('should throw for non-existent vote', async () => {
         const fakeRef = new Uint8Array(32).fill(0)
-        await expect(sdk.getVote({ ref: fakeRef }))
+        await expect(sdk.getVote({ account: user1.addr.toString(), ref: fakeRef }))
           .rejects
           .toThrow()
       })
@@ -632,9 +628,9 @@ describe('SDK Read Methods', () => {
 describe('SDK Write Methods (without DAO)', () => {
   let sdk: SocialSDK
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -643,7 +639,7 @@ describe('SDK Write Methods (without DAO)', () => {
 
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     user1 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy contracts
     const impactFactory = algorand.client.getTypedAppFactory(AkitaSocialImpactFactory, {
@@ -670,6 +666,8 @@ describe('SDK Write Methods (without DAO)', () => {
       defaultSigner: deployer.signer,
     })
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: { version: '0.0.1', akitaDao: 0n, akitaDaoEscrow: { name: '', app: 0n } }
     })
     // Fund for inner txns
@@ -787,7 +785,7 @@ describe('SDK Write Methods (without DAO)', () => {
     })
 
     test('unfollow should throw for non-existent follow', async () => {
-      await expect(sdk.unfollow({ address: user1.addr.toString(), index: 0n }))
+      await expect(sdk.unfollow({ address: user1.addr.toString() }))
         .rejects
         .toThrow()
     })
@@ -907,10 +905,10 @@ describe('SDK Write Methods (without DAO)', () => {
 // Test Suite: Success Cases with Full DAO Integration
 // ============================================================================
 describe('Social Operations Success Cases', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
-  let moderator: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let user2: TransactionSignerAccount
+  let moderator: TransactionSignerAccount
   let socialClient: AkitaSocialClient
   let graphClient: AkitaSocialGraphClient
   let impactClient: AkitaSocialImpactClient
@@ -919,7 +917,7 @@ describe('Social Operations Success Cases', () => {
   let user2Sdk: SocialSDK
   let moderatorSdk: SocialSDK
   let aktaAssetId: bigint
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
   // Test data
@@ -940,7 +938,7 @@ describe('Social Operations Success Cases', () => {
     user2 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(1_000_000_000) })
     moderator = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(1_000_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (5000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (5000).algo())
 
     // Create AKTA token
     const assetCreateResult = await algorand.send.assetCreate({
@@ -952,7 +950,7 @@ describe('Social Operations Success Cases', () => {
       unitName: 'AKTA',
       defaultFrozen: false,
     })
-    aktaAssetId = assetCreateResult.confirmation.assetId!
+    aktaAssetId = assetCreateResult.confirmation.assetIndex!
 
     // Opt users into AKTA
     for (const user of [user1, user2, moderator]) {
@@ -1001,6 +999,8 @@ describe('Social Operations Success Cases', () => {
       defaultSigner: deployer.signer,
     })
     const socialResults = await socialFactory.send.create.create({
+      // AkitaSocial is > 8 KB: its create transaction exceeds the flat minimum fee
+      extraFee: algokit.microAlgo(1_000),
       args: { version: '0.0.1', akitaDao: 0n, akitaDaoEscrow: { name: '', app: 0n } }
     })
     socialClient = socialResults.appClient
@@ -1142,9 +1142,9 @@ describe('Social Operations Success Cases', () => {
   describe('MBR Calculation Verification', () => {
     test('post MBR should match expected formula', () => {
       const mbr = sdk.calculatePostMBR(36)
-      // Verify the MBR is reasonable (should be ~93,100 microAlgos)
-      expect(mbr).toBeGreaterThan(90_000n)
-      expect(mbr).toBeLessThan(100_000n)
+      // posts box (47,300 + 400 * 36) + votes (19,300) + votelist (19,300) = 100,300.
+      // S-05: MIN_POSTS_MBR was 46,500, which left the ref length prefix unfunded.
+      expect(mbr).toBe(100_300n)
     })
 
     test('vote MBR should be votelist MBR', () => {
@@ -1155,8 +1155,8 @@ describe('Social Operations Success Cases', () => {
     test('react MBR for first reaction should include both components', () => {
       const mbrFirst = sdk.calculateReactMBR(true)
       const mbrSubsequent = sdk.calculateReactMBR(false)
-      expect(mbrFirst).toBe(REACTIONLIST_MBR + REACTIONS_MBR)
-      expect(mbrSubsequent).toBe(REACTIONLIST_MBR)
+      expect(mbrFirst).toBe(REACTION_RECORD_MBR + REACTIONS_MBR)
+      expect(mbrSubsequent).toBe(REACTION_RECORD_MBR)
     })
 
     test('follow MBR should be fixed', () => {
@@ -1173,9 +1173,9 @@ describe('Social Operations Success Cases', () => {
 // Test Suite: Direct Contract Tests (bypassing SDK for edge cases)
 // ============================================================================
 describe('Direct Contract Operations', () => {
-  let deployer: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
   let graphClient: AkitaSocialGraphClient
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
   beforeAll(async () => {
@@ -1184,7 +1184,7 @@ describe('Direct Contract Operations', () => {
     dispenser = await algorand.account.dispenserFromEnvironment()
 
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
 
     // Deploy Graph contract for direct testing
     const graphFactory = algorand.client.getTypedAppFactory(AkitaSocialGraphFactory, {
@@ -1226,20 +1226,36 @@ describe('Direct Contract Operations', () => {
 // Test Suite: Full Integration with Akita Universe (requires full DAO)
 // ============================================================================
 import { ProposalActionEnum } from 'akita-sdk/dao'
+import { Operator } from 'akita-sdk/gates'
+import type { ModeratorActivityGateClient } from '../artifacts/gates/sub-gates/moderator-activity/ModeratorActivityGateClient'
+import type { SocialModeratorGateClient } from '../artifacts/gates/sub-gates/social-moderator/SocialModeratorGateClient'
+import { sendPrepared } from 'akita-sdk'
+import { CallerType } from 'akita-sdk/wallet'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
+import { TimeWarp } from '../../tests/utils/time'
+import { getAppFundingNeeded, proposeAndExecute } from '../../scripts/utils'
+import {
+  DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
+  DEFAULT_UPDATE_AKITA_DAO_DURATION,
+  DEFAULT_UPDATE_AKITA_DAO_PARTICIPATION,
+  DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_CREATION,
+  DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_POWER,
+} from '../utils/defaults'
+import { errInvalidPaymentSender } from '../utils/errors'
+import { errAlreadyBlocked, errAlreadyReacted, errBanned, errHasGate, errHaventVoted, errInvalidModifier, errInvalidPayment, errNotSelfMeta } from './errors'
 
 // NOTE: These tests require buildAkitaUniverse which takes 5-10 minutes
 describe('Full DAO Integration Tests', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
-  let moderator: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let user2: TransactionSignerAccount
+  let moderator: TransactionSignerAccount
   let daoSdk: SocialSDK
   let user1Sdk: SocialSDK
   let user2Sdk: SocialSDK
   let moderatorSdk: SocialSDK
   let aktaAssetId: bigint
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount }
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
   let akitaUniverse: AkitaUniverse
   let postRef1: Uint8Array
@@ -1247,6 +1263,20 @@ describe('Full DAO Integration Tests', () => {
   let socialAppId: bigint
   let graphAppId: bigint
   let impactAppId: bigint
+
+  /** Top-level transactions `sender` signed in the blocks after `fromRound`, in group order (read from algod). */
+  async function senderTxnsSince(sender: string, fromRound: bigint): Promise<algosdk.Transaction[]> {
+    const { lastRound } = await algorand.client.algod.status().do()
+    const txns: algosdk.Transaction[] = []
+    for (let round = fromRound + 1n; round <= lastRound; round++) {
+      const { block } = await algorand.client.algod.block(round).do()
+      for (const stib of block.payset) {
+        const txn = stib.signedTxn.signedTxn.txn
+        if (txn.sender.toString() === sender) txns.push(txn)
+      }
+    }
+    return txns
+  }
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -1259,7 +1289,7 @@ describe('Full DAO Integration Tests', () => {
     user2 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     moderator = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (5000).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (5000).algo())
 
     // Create AKTA token BEFORE building universe so escrows can be opted in
     const assetCreateResult = await algorand.send.assetCreate({
@@ -1271,7 +1301,7 @@ describe('Full DAO Integration Tests', () => {
       unitName: 'AKTA',
       defaultFrozen: false,
     })
-    aktaAssetId = assetCreateResult.confirmation.assetId!
+    aktaAssetId = assetCreateResult.confirmation.assetIndex!
 
     // Build Akita Universe with AKTA asset ID (escrows will be opted into AKTA during setup)
     akitaUniverse = await buildAkitaUniverse({
@@ -1409,7 +1439,7 @@ describe('Full DAO Integration Tests', () => {
       // Account for: app call fee + payment transaction fee + inner transaction fees
       // Note: initMeta has 1 inner payment transaction + 1 abiCall (which may create inner transactions)
       const expectedPayment = user1Sdk.calculateMetaMBR()
-      const expectedCost = createExpectedCost(expectedPayment, 1, MIN_TXN_FEE * 3n) // 1 inner payment + payment transaction + extra inner txns
+      const expectedCost = createExpectedCost(expectedPayment, 1, MIN_TXN_FEE * 2n) // 1 inner payment + payment transaction; hint 0 resolves the sender with no EscrowFactory lookup (principal resolution)
       const verification = await verifyBalanceChange(
         algorand,
         user1.addr.toString(),
@@ -1533,7 +1563,7 @@ describe('Full DAO Integration Tests', () => {
       // Account for the composed payment, asset-transfer, and app-call group,
       // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user1Sdk.calculatePostMBR(testCid.length, false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 10n)
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 8n) // no escrow-factory referral lookup: audit removed the quote lookup, principal resolution the payment lookup
       const verification = await verifyBalanceChange(
         algorand,
         user1.addr.toString(),
@@ -1585,19 +1615,34 @@ describe('Full DAO Integration Tests', () => {
       // Account for the composed payment, asset-transfer, and app-call group,
       // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateReplyMBR(replyCid.length, false, false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 16n)
+      // pay + axfer + reply call (own fee + 10 inner txns; no escrow-factory referral lookup: the audit
+      // removed the quote lookup, principal resolution the payment lookup) + ONE resource carrier.
+      // The reply needs 31 Access entries (max 16 per call): the reply call plus one carrier.
+      // Before 2026-10-04 the SDK packed the resources in the order algod's simulate reported them,
+      // which is Go map order and changes on every simulate, so the same reply took 1 or 2 carriers
+      // (akita-sdk canonicalResources). The SDK now sorts them first, so the count is fixed.
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 13n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
         expectedCost,
         'reply to a post'
       )
+      const startRound = (await algorand.client.algod.status().do()).lastRound
 
       const result = await user2Sdk.reply({
         cid: replyCid,
         ref: postRef1,
         refType: RefType.Post,
       })
+
+      const sent = await senderTxnsSince(user2.addr.toString(), startRound)
+      const [replyCall, ...carriers] = sent.filter((txn) => txn.type === algosdk.TransactionType.appl)
+      expect(replyCall.applicationCall!.appIndex).toBe(socialAppId)
+      expect(replyCall.fee).toBe(MIN_TXN_FEE * 11n)
+      expect(carriers).toHaveLength(1)
+      expect(carriers[0].fee).toBe(MIN_TXN_FEE)
+      expect(sent.filter((txn) => txn.type !== algosdk.TransactionType.appl).map((txn) => txn.fee)).toEqual([MIN_TXN_FEE, MIN_TXN_FEE])
 
       // Verify balance change matches expected cost (MBR + fees)
       // Note: reactFee is paid separately in AKTA, not ALGO
@@ -1621,7 +1666,11 @@ describe('Full DAO Integration Tests', () => {
       // Account for the composed payment, asset-transfer, and app-call group,
       // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateVoteMBR(false)
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 15n)
+      // principal resolution: no escrow-factory referral lookup. The vote needs the same 31-entry resource set
+      // as the reply: the vote call plus ONE resource carrier. Up to 2026-10-04 the SDK packed the resources in
+      // algod's (Go map) order and this vote always happened to take 2 carriers on LocalNet (indexer, 9 runs);
+      // in the canonical order (akita-sdk canonicalResources) it takes 1, so the fee is 1,000 µA lower.
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 13n)
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1713,14 +1762,14 @@ describe('Full DAO Integration Tests', () => {
         unitName: 'REACT',
         defaultFrozen: false,
       })
-      reactionNftId = BigInt(nftResult.confirmation.assetId!)
+      reactionNftId = BigInt(nftResult.confirmation.assetIndex!)
 
       // Get expected cost (MBR for first reaction with NFT)
       // Note: reactFee is paid in AKTA via asset transfer, not included in ALGO payment
       // Account for the composed payment, asset-transfer, and app-call group,
       // including covered inner transactions and simulator-selected carriers.
       const mbrAmount = user2Sdk.calculateReactMBR(true, false) // first reaction with NFT
-      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 11n)
+      const expectedCost = createExpectedCost(mbrAmount, 0, MIN_TXN_FEE * 10n) // principal resolution: no escrow-factory referral lookup
       const verification = await verifyBalanceChange(
         algorand,
         user2.addr.toString(),
@@ -1782,7 +1831,7 @@ describe('Full DAO Integration Tests', () => {
         unitName: 'SHREACT',
         defaultFrozen: false,
       })
-      const sharedNftId = BigInt(nftResult.confirmation.assetId!)
+      const sharedNftId = BigInt(nftResult.confirmation.assetIndex!)
 
       await algorand.send.assetOptIn({
         sender: moderator.addr,
@@ -1996,14 +2045,571 @@ describe('Full DAO Integration Tests', () => {
         amount: algokit.microAlgos(Number(mbrData!.refTypes)),
       })
 
-      // Short-code matches `ERR_NOT_AKITA_DAO` ('NDAO') emitted via ARC-65
+      // Short-code matches `errNotAkitaDao` ('NDAO') emitted via ARC-65
       // `loggedAssert`. See `smart_contracts/social/errors.ts`.
       await expect(
         socialClient.send.registerRefType({
           args: { mbrPayment, name, schema },
           populateAppCallResources: true,
         })
-      ).rejects.toThrow('NDAO')
+      ).rejects.toThrow('errNdao')
     })
+  })
+
+  // ==========================================================================
+  // Regressions for the 2026-10 social audit (graph / impact / plugin lane)
+  // ==========================================================================
+  describe('Audit regressions', () => {
+    const aktaBalance = async (address: string): Promise<bigint> => {
+      const info = await algorand.asset.getAccountInformation(address, aktaAssetId)
+      return info.balance
+    }
+
+    // Mirrors `getHeldAktaImpactScore` in impact.algo.ts.
+    const heldAktaScore = (balance: bigint): bigint => {
+      if (balance < 10_000_000_000n) return 0n
+      const capped = balance >= 1_000_000_000_000n ? 1_000_000_000_000n : balance
+      return (capped * 50n) / 1_000_000_000_000n
+    }
+
+    // Runs `calls` through the DAO wallet with the Social plugin installed (DAO-gated
+    // moderation / impact methods need the DAO wallet as sender).
+    let socialPluginInstalledOnDao = false
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const executeAsDao = async (lease: string, calls: any[]) => {
+      const dao = akitaUniverse.dao
+      await dao.getWallet()
+      const daoWallet = dao.wallet
+      if (!socialPluginInstalledOnDao) {
+        await proposeAndExecute(algorand, dao, [{
+          type: ProposalActionEnum.AddPlugin,
+          client: akitaUniverse.socialPlugin,
+          callerType: CallerType.Global,
+          sourceLink: 'https://github.com/kylebee/akita-sc',
+          useExecutionKey: true,
+          fee: DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_CREATION,
+          power: DEFAULT_UPDATE_AKITA_DAO_PROPOSAL_POWER,
+          duration: DEFAULT_UPDATE_AKITA_DAO_DURATION,
+          participation: DEFAULT_UPDATE_AKITA_DAO_PARTICIPATION,
+          approval: DEFAULT_UPDATE_AKITA_DAO_APP_APPROVAL,
+        }])
+        socialPluginInstalledOnDao = true
+      }
+
+      const admin = await daoWallet.client.state.global.admin()
+      const funding = await getAppFundingNeeded(algorand, admin!, 2_000_000n, 1_000_000n)
+      if (funding > 0n) {
+        await algorand.send.payment({ sender: deployer.addr, signer: deployer.signer, receiver: admin!, amount: algokit.microAlgo(funding) })
+      }
+      await daoWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(2_000_000) })
+
+      const execution = await daoWallet.build.usePlugin({
+        sender: deployer.addr.toString(),
+        signer: deployer.signer,
+        lease,
+        windowSize: 2000n,
+        callerType: CallerType.Global,
+        calls,
+      })
+      const costs = await daoWallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: BigInt(execution.windows.length) })
+      await daoWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(costs.executions + 1_000_000n) })
+      await proposeAndExecute(algorand, dao, [{
+        type: ProposalActionEnum.ExecutePlugin,
+        plugin: akitaUniverse.socialPlugin.appId,
+        caller: deployer.addr.toString(),
+        escrow: '',
+        executionKey: execution.lease,
+        groups: execution.ids,
+        firstValid: execution.firstValid,
+        lastValid: execution.lastValid,
+      }])
+      for (const window of execution.windows) await sendPrepared(window, algorand.client.algod)
+    }
+
+    test('S-10e: a repeated block is rejected instead of keeping a second MBR payment', async () => {
+      const target = moderator.addr.toString()
+      await user1Sdk.block({ address: target })
+      await expect(user1Sdk.block({ address: target })).rejects.toThrow(new RegExp(errAlreadyBlocked))
+
+      const graphAddress = user1Sdk.graphClient.appAddress.toString()
+      const before = await algorand.account.getInformation(graphAddress)
+      await user1Sdk.unblock({ address: target })
+      const after = await algorand.account.getInformation(graphAddress)
+      // exactly one block MBR leaves the graph app
+      expect(BigInt(before.balance.microAlgos) - BigInt(after.balance.microAlgos)).toBe(BLOCKS_MBR)
+      await expect(user1Sdk.isBlocked({ user: user1.addr.toString(), blocked: target })).resolves.toBe(false)
+    })
+
+    test('S-09: graph MBR payments must come from the caller', async () => {
+      const graph = user1Sdk.graphClient
+      const sponsored = await algorand.createTransaction.payment({
+        sender: user2.addr,
+        receiver: graph.appAddress,
+        amount: algokit.microAlgo(BLOCKS_MBR),
+      })
+
+      await expect(graph.send.block({
+        sender: user1.addr,
+        signer: user1.signer,
+        args: { mbrPayment: { txn: sponsored, signer: user2.signer }, address: moderator.addr.toString() },
+        populateAppCallResources: true,
+        coverAppCallInnerTransactionFees: true,
+        maxFee: algokit.microAlgo(10_000),
+      })).rejects.toThrow(new RegExp(errInvalidPaymentSender))
+    })
+
+    test("S-06: a vote records the voter's impact without spot AKTA holdings", async () => {
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(61) })
+      await user2Sdk.vote({ ref: postKey, refType: RefType.Post, isUp: true })
+
+      const recorded = (await daoSdk.getVote({ account: user2.addr.toString(), ref: postKey })).impact
+      const full = await daoSdk.getUserImpact({ address: user2.addr.toString() })
+      const held = heldAktaScore(await aktaBalance(user2.addr.toString()))
+
+      // user2 holds ~100,000 AKTA, so the public score includes a held-AKTA component
+      expect(held).toBeGreaterThan(0n)
+      expect(full - recorded).toBe(held)
+    })
+
+    test('S-10h: the DAO cannot set a zero subscription modifier', async () => {
+      await expect(executeAsDao('social_zero_modifier', [
+        akitaUniverse.socialPlugin.updateSubscriptionStateModifier({ subscriptionIndex: 1n, newModifier: 0n }),
+      ])).rejects.toThrow(new RegExp(errInvalidModifier))
+    })
+
+    test('S-08: banned users can still withdraw follow and block MBR', async () => {
+      // moderator / ban boxes are funded from the moderation app's own balance (S-10i won't fix)
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: daoSdk.moderationClient.appAddress,
+        amount: algokit.microAlgo(1_000_000),
+      })
+      await executeAsDao('social_add_moderator', [
+        akitaUniverse.socialPlugin.addModerator({ address: moderator.addr.toString() }),
+      ])
+      await expect(daoSdk.getModeratorMeta({ user: moderator.addr.toString() })).resolves.toMatchObject({ exists: true })
+
+      // user2 follows user1 and blocks the moderator, then gets banned
+      await user2Sdk.follow({ address: user1.addr.toString() })
+      await user2Sdk.block({ address: moderator.addr.toString() })
+      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 10n * 365n * 86_400n * 100n
+      await moderatorSdk.ban({ address: user2.addr.toString(), expiration: farFuture })
+      await expect(daoSdk.isBanned({ account: user2.addr.toString() })).resolves.toBe(true)
+
+      const graphAddress = user2Sdk.graphClient.appAddress.toString()
+      const before = await algorand.account.getInformation(graphAddress)
+      await user2Sdk.unfollow({ address: user1.addr.toString() })
+      await user2Sdk.unblock({ address: moderator.addr.toString() })
+      const after = await algorand.account.getInformation(graphAddress)
+
+      expect(BigInt(before.balance.microAlgos) - BigInt(after.balance.microAlgos)).toBe(FOLLOWS_MBR + BLOCKS_MBR)
+      await expect(daoSdk.isFollowing({ follower: user2.addr.toString(), user: user1.addr.toString() })).resolves.toBe(false)
+
+      // a banned user still cannot create new follows
+      await expect(user2Sdk.follow({ address: user1.addr.toString() })).rejects.toThrow(new RegExp(errBanned))
+
+      await moderatorSdk.unban({ address: user2.addr.toString() })
+    })
+
+    // ------------------------------------------------------------------------
+    // AkitaSocialModeration lastActive (read by SocialModeratorGate)
+    // ------------------------------------------------------------------------
+
+    const ensureModerator = async (account: TransactionSignerAccount, lease: string) => {
+      const address = account.addr.toString()
+      if ((await daoSdk.getModeratorMeta({ user: address })).exists) return
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: daoSdk.moderationClient.appAddress,
+        amount: algokit.microAlgo(1_000_000),
+      })
+      await executeAsDao(lease, [akitaUniverse.socialPlugin.addModerator({ address })])
+    }
+
+    test('every moderation action records its block time as the moderator lastActive', async () => {
+      await ensureModerator(moderator, 'social_add_moderator_active')
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(62) })
+      const target = algorand.account.random().addr.toString()
+      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 365n * 86_400n
+      const client = moderatorSdk.moderationClient
+      const params = {
+        sender: moderator.addr,
+        signer: moderator.signer,
+        coverAppCallInnerTransactionFees: true,
+        maxFee: algokit.microAlgo(10_000),
+      }
+      // `delta`: the net count moves +1 on a forward action, -1 on a reversal, 0 when nothing changes
+      const setFlags = (flags: bigint) => () => client.send.setModeratorContentFlags({ ...params, args: { ref: postKey, flags } })
+      const actions = [
+        { name: 'ban', delta: 1n, run: () => client.send.ban({ ...params, args: { address: target, expiration: farFuture } }) },
+        { name: 'unban', delta: -1n, run: () => client.send.unban({ ...params, args: { address: target } }) },
+        { name: 'flagPost', delta: 1n, run: () => client.send.flagPost({ ...params, args: { ref: postKey } }) },
+        { name: 'flagPost (already flagged)', delta: 0n, run: () => client.send.flagPost({ ...params, args: { ref: postKey } }) },
+        { name: 'unflagPost', delta: -1n, run: () => client.send.unflagPost({ ...params, args: { ref: postKey } }) },
+        { name: 'setModeratorContentFlags', delta: 1n, run: setFlags(5n) },
+        { name: 'setModeratorContentFlags (same flags)', delta: 0n, run: setFlags(5n) },
+        { name: 'setModeratorContentFlags (other flags)', delta: 0n, run: setFlags(3n) },
+        { name: 'setModeratorContentFlags (cleared)', delta: -1n, run: setFlags(0n) },
+        { name: 'setModeratorContentFlags (set again)', delta: 1n, run: setFlags(5n) },
+      ]
+
+      const user = moderator.addr.toString()
+      let previous = await daoSdk.getModeratorActivity({ user })
+      for (const { name, delta, run } of actions) {
+        // each action lands in a later second, so one that skips the write cannot pass on the previous value.
+        // A warp, not a sleep: earlier warps can leave the LocalNet clock ahead of the wall clock.
+        await new TimeWarp(algorand).timeWarp(1n)
+        const { confirmation } = await run()
+        const { block } = await algorand.client.algod.block(confirmation.confirmedRound!).do()
+        const activity = await daoSdk.getModeratorActivity({ user })
+        const { lastActive } = await daoSdk.getModeratorMeta({ user })
+
+        const carried = activity.epoch === previous.epoch ? previous.actions : 0n
+        expect({ name, lastActive, actions: activity.actions }).toEqual({
+          name,
+          lastActive: BigInt(block.header.timestamp),
+          actions: carried + delta < 0n ? 0n : carried + delta,
+        })
+        expect(activity.lastActive).toBe(lastActive)
+        expect(lastActive > previous.lastActive).toBe(true)
+        previous = activity
+      }
+      await expect(daoSdk.getPost({ ref: postKey })).resolves.toMatchObject({ againstContentPolicy: false, moderatorFlags: 5n })
+    })
+
+    test('flag/unflag and ban/unban cycles do not raise the moderator activity count', async () => {
+      await ensureModerator(moderator, 'social_add_moderator_active')
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(63) })
+      const target = algorand.account.random().addr.toString()
+      const user = moderator.addr.toString()
+      const farFuture = BigInt(Math.floor(Date.now() / 1000)) + 365n * 86_400n
+      const { epoch, actions: before } = await daoSdk.getModeratorActivity({ user })
+      for (let i = 0; i < 3; i++) {
+        await moderatorSdk.flagPost({ ref: postKey })
+        await moderatorSdk.unflagPost({ ref: postKey })
+        await moderatorSdk.ban({ address: target, expiration: farFuture })
+        await moderatorSdk.unban({ address: target })
+      }
+      const after = await daoSdk.getModeratorActivity({ user })
+      // the cycles ran inside one epoch unless the clock crossed a boundary mid-test
+      expect(after.actions).toBe(after.epoch === epoch ? before : 0n)
+    })
+
+    const registerSubGateEntry = async (
+      gate: SocialModeratorGateClient | ModeratorActivityGateClient,
+      args: Uint8Array,
+    ): Promise<bigint> => {
+      const { return: cost } = await gate.send.cost({ sender: deployer.addr, signer: deployer.signer, args: { args } })
+      const mbrPayment = await algorand.createTransaction.payment({
+        sender: deployer.addr,
+        receiver: gate.appAddress,
+        amount: algokit.microAlgo(cost!),
+      })
+      const { return: registryId } = await gate.send.register({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { mbrPayment: { txn: mbrPayment, signer: deployer.signer }, args },
+      })
+      return registryId!
+    }
+
+    const gateCallParams = {
+      coverAppCallInnerTransactionFees: true,
+      maxFee: algokit.microAlgo(10_000),
+    }
+
+    test('SocialModeratorGate "active in the last hour" passes an active moderator and fails one who never acted', async () => {
+      const idle = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      await ensureModerator(moderator, 'social_add_moderator_active')
+      await ensureModerator(idle, 'social_add_moderator_idle')
+
+      const target = algorand.account.random().addr.toString()
+      await moderatorSdk.ban({ address: target, expiration: BigInt(Math.floor(Date.now() / 1000)) + 86_400n })
+      await moderatorSdk.unban({ address: target })
+
+      const gate = akitaUniverse.subgates.socialModeratorGate.client
+      const registryId = await registerSubGateEntry(
+        gate,
+        algosdk.ABIType.from('(uint8,uint64)').encode([Operator.GreaterThanOrEqualTo, 3_600n]),
+      )
+
+      const check = async (caller: string) => (await gate.send.check({
+        ...gateCallParams,
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { caller, registryId, args: new Uint8Array() },
+      })).return
+
+      expect(await check(moderator.addr.toString())).toBe(true)
+      expect(await check(idle.addr.toString())).toBe(false)
+    })
+
+    const activityArgs = (minActions: bigint, epochsBack: bigint) =>
+      algosdk.ABIType.from('(uint64,uint64)').encode([minActions, epochsBack])
+    const activityCheck = async (caller: string, registryId: bigint) => (await akitaUniverse.subgates.moderatorActivityGate.client.send.check({
+      ...gateCallParams,
+      sender: deployer.addr,
+      signer: deployer.signer,
+      args: { caller, registryId, args: new Uint8Array() },
+    })).return
+    const activityCheckFor = async (principal: string, spender: string, registryId: bigint) => (await akitaUniverse.subgates.moderatorActivityGate.client.send.checkFor({
+      ...gateCallParams,
+      sender: deployer.addr,
+      signer: deployer.signer,
+      args: { ctx: { principal, wallet: 0n, spender }, registryId, args: new Uint8Array() },
+    })).return
+
+    test('ModeratorActivityGate passes on counted actions in the epoch window, for check and checkFor', async () => {
+      const idle = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      await ensureModerator(moderator, 'social_add_moderator_active')
+      await ensureModerator(idle, 'social_add_moderator_idle2')
+
+      for (let i = 0; i < 2; i++) {
+        const target = algorand.account.random().addr.toString()
+        await moderatorSdk.ban({ address: target, expiration: BigInt(Math.floor(Date.now() / 1000)) + 86_400n })
+      }
+      const { actions, previousActions } = await daoSdk.getModeratorActivity({ user: moderator.addr.toString() })
+      expect(actions).toBeGreaterThanOrEqual(2n)
+
+      const gate = akitaUniverse.subgates.moderatorActivityGate.client
+      const reached = await registerSubGateEntry(gate, activityArgs(actions, 0n))
+      const missed = await registerSubGateEntry(gate, activityArgs(actions + previousActions + 1n, 1n))
+      await expect(registerSubGateEntry(gate, activityArgs(1n, 2n))).rejects.toThrow(/errIrga/)
+
+      const active = moderator.addr.toString()
+      const quiet = idle.addr.toString()
+      const outsider = user1.addr.toString()
+      expect(await activityCheck(active, reached)).toBe(true)
+      expect(await activityCheck(active, missed)).toBe(false)
+      expect(await activityCheck(quiet, reached)).toBe(false)
+      expect(await activityCheck(outsider, reached)).toBe(false)
+      // the moderator acted as the spender of another principal's context
+      expect(await activityCheckFor(quiet, active, reached)).toBe(true)
+      expect(await activityCheckFor(active, active, reached)).toBe(true)
+      expect(await activityCheckFor(quiet, quiet, reached)).toBe(false)
+      expect(await activityCheckFor(outsider, quiet, reached)).toBe(false)
+    })
+
+    test('activity counters roll over 7-day epochs and the gate window follows them, for check and checkFor', async () => {
+      const idle = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      await ensureModerator(moderator, 'social_add_moderator_active')
+      await ensureModerator(idle, 'social_add_moderator_idle3')
+      const active = moderator.addr.toString()
+      const quiet = idle.addr.toString()
+      const epochSeconds = 604_800n
+      const chainTime = async () => {
+        const { lastRound } = await algorand.client.algod.status().do()
+        return (await algorand.client.algod.block(lastRound).do()).block.header.timestamp
+      }
+      const warpToEpochStart = async (epochsAhead: bigint) => {
+        const now = await chainTime()
+        await new TimeWarp(algorand).timeWarp((now / epochSeconds + epochsAhead) * epochSeconds - now)
+      }
+      const counts = async () => {
+        const { actions, previousActions } = await daoSdk.getModeratorActivity({ user: active })
+        return { actions, previousActions }
+      }
+      // a fresh target each time: a ban counts +1 and only a reversal (unban) would take it back
+      const ban = async () => moderatorSdk.ban({ address: algorand.account.random().addr.toString(), expiration: (await chainTime()) + 86_400n })
+
+      // two epochs ahead, so the epoch before the current one holds no actions
+      await warpToEpochStart(2n)
+      await ban()
+      await ban()
+      expect(await counts()).toEqual({ actions: 2n, previousActions: 0n })
+
+      const gate = akitaUniverse.subgates.moderatorActivityGate.client
+      const current = await registerSubGateEntry(gate, activityArgs(2n, 0n))
+      const window = await registerSubGateEntry(gate, activityArgs(2n, 1n))
+      expect([await activityCheck(active, current), await activityCheck(active, window)]).toEqual([true, true])
+
+      // next epoch: the view rolls the stored counts forward before any write
+      await warpToEpochStart(1n)
+      expect(await counts()).toEqual({ actions: 0n, previousActions: 2n })
+      expect(await activityCheck(active, current)).toBe(false)
+      expect(await activityCheck(active, window)).toBe(true)
+      expect(await activityCheckFor(quiet, active, current)).toBe(false)
+      expect(await activityCheckFor(quiet, active, window)).toBe(true)
+
+      // the first write of the epoch rolls the stored record the same way
+      await ban()
+      expect(await counts()).toEqual({ actions: 1n, previousActions: 2n })
+
+      // two epochs on, both counts are out of the window
+      await warpToEpochStart(2n)
+      expect(await counts()).toEqual({ actions: 0n, previousActions: 0n })
+      expect(await activityCheck(active, window)).toBe(false)
+      expect(await activityCheckFor(quiet, active, window)).toBe(false)
+      await expect(daoSdk.getModeratorMeta({ user: active })).resolves.toMatchObject({ exists: true })
+    })
+
+    test('addModerator pays both moderator boxes from the moderation app and removeModerator frees them', async () => {
+      const temp = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      const address = temp.addr.toString()
+      const moderation = daoSdk.moderationClient
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: moderation.appAddress,
+        amount: algokit.microAlgo(1_000_000),
+      })
+      const minBalance = async () => (await algorand.account.getInformation(moderation.appAddress)).minBalance.microAlgos
+      const activityBox = Buffer.from([...Buffer.from('k'), ...temp.addr.publicKey])
+      const hasActivityBox = async () =>
+        (await algorand.app.getBoxNames(moderation.appId)).some((box) => Buffer.from(box.nameRaw).equals(activityBox))
+      const base = await minBalance()
+
+      await executeAsDao('social_add_moderator_boxes', [akitaUniverse.socialPlugin.addModerator({ address })])
+      expect(await minBalance() - base).toBe(MODERATORS_MBR + MODERATOR_ACTIVITY_MBR)
+      expect(await hasActivityBox()).toBe(true)
+
+      // counted actions update the counters without allocating more (ban +1, unban -1: net 0)
+      const target = algorand.account.random().addr.toString()
+      const params = { ...gateCallParams, sender: temp.addr, signer: temp.signer }
+      await moderation.send.ban({ ...params, args: { address: target, expiration: 1n } })
+      expect((await daoSdk.getModeratorActivity({ user: address })).actions).toBe(1n)
+      await moderation.send.unban({ ...params, args: { address: target } })
+      expect(await minBalance() - base).toBe(MODERATORS_MBR + MODERATOR_ACTIVITY_MBR)
+      expect((await daoSdk.getModeratorActivity({ user: address })).actions).toBe(0n)
+
+      await executeAsDao('social_remove_moderator_boxes', [akitaUniverse.socialPlugin.removeModerator({ address })])
+      expect(await minBalance()).toBe(base)
+      expect(await hasActivityBox()).toBe(false)
+      expect(await daoSdk.getModeratorActivity({ user: address })).toMatchObject({ exists: false, actions: 0n, previousActions: 0n })
+
+      // a re-added moderator starts from zero, not from the deleted counters
+      await executeAsDao('social_readd_moderator_boxes', [akitaUniverse.socialPlugin.addModerator({ address })])
+      expect(await daoSdk.getModeratorActivity({ user: address })).toMatchObject({ exists: true, lastActive: 0n, actions: 0n, previousActions: 0n })
+    })
+
+    // ------------------------------------------------------------------------
+    // AkitaSocial (S-01 / S-02 / S-04 / S-05 / S-08 / S-09 / S-10d)
+    // ------------------------------------------------------------------------
+
+    const lookalikeOf = (ref: Uint8Array, fill: number): Uint8Array => {
+      const out = new Uint8Array(32)
+      out.set(ref.slice(0, 16))
+      out.fill(fill, 16)
+      return out
+    }
+
+    const createNft = async (owner: TransactionSignerAccount): Promise<bigint> => {
+      const result = await algorand.send.assetCreate({
+        sender: owner.addr,
+        signer: owner.signer,
+        total: 1n,
+        decimals: 0,
+        assetName: 'Audit NFT',
+        unitName: 'ANFT',
+      })
+      return result.confirmation.assetIndex!
+    }
+
+    const socialFreeBalance = async (): Promise<bigint> => {
+      const info = await algorand.account.getInformation(daoSdk.socialClient.appAddress)
+      return BigInt(info.balance.microAlgos) - BigInt(info.minBalance.microAlgos)
+    }
+
+    test('S-02: initMeta only creates meta for the caller', async () => {
+      const stranger = algorand.account.random()
+      await expect(user1Sdk.initMeta({ user: stranger.addr.toString() })).rejects.toThrow(new RegExp(errNotSelfMeta))
+      const { return: exists } = await daoSdk.socialClient.send.getMetaExists({ args: { user: stranger.addr.toString() } })
+      expect(exists).toBe(false)
+    })
+
+    test('the legacy list cutoff is stamped by the first post box this version creates', async () => {
+      const cutoff = await daoSdk.socialClient.state.global.legacyListCutoff()
+      expect(cutoff).toBeDefined()
+      expect(cutoff! > 0n).toBe(true)
+    })
+
+    test('S-01: a vote on a lookalike ref cannot undo or block a vote on the real post', async () => {
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(71) })
+      const lookalike = lookalikeOf(postKey, 0xff)
+      const votesBox = () => algorand.app.getBoxValue(daoSdk.socialClient.appId, new Uint8Array([118, ...postKey]))
+      const before = await votesBox()
+
+      // user2 down-votes a lookalike address ref (same first 16 bytes as the post key)
+      await user2Sdk.vote({ ref: lookalike, refType: RefType.Address, isUp: false })
+
+      // they never voted on the real post, so there is nothing to undo there
+      await expect(user2Sdk.deleteVote({ ref: postKey })).rejects.toThrow(new RegExp(errHaventVoted))
+      expect(await votesBox()).toEqual(before)
+
+      // and the lookalike vote does not block a real vote on the post
+      await user2Sdk.vote({ ref: postKey, refType: RefType.Post, isUp: true })
+      await expect(daoSdk.getVote({ account: user2.addr.toString(), ref: postKey })).resolves.toMatchObject({ isUp: true })
+      await expect(daoSdk.getVote({ account: user2.addr.toString(), ref: lookalike })).resolves.toMatchObject({ isUp: false })
+    })
+
+    test('S-01 / S-08: a lookalike ref cannot delete a reaction, and a blocked reactor can still reclaim theirs', async () => {
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(72) })
+      const nft = await createNft(user2)
+      await user2Sdk.react({ ref: postKey, refType: RefType.Post, nft })
+
+      await expect(user2Sdk.deleteReaction({ ref: lookalikeOf(postKey, 0xee), nft })).rejects.toThrow(new RegExp(errAlreadyReacted))
+      const { userReactedNfts } = await user2Sdk.getPostReactions({ ref: postKey, userAddress: user2.addr.toString() })
+      expect(userReactedNfts.has(nft)).toBe(true)
+
+      // the post creator blocks the reactor; the refund path stays open
+      await user1Sdk.block({ address: user2.addr.toString() })
+      const appBefore = await algorand.account.getInformation(daoSdk.socialClient.appAddress)
+      await user2Sdk.deleteReaction({ ref: postKey, nft })
+      const appAfter = await algorand.account.getInformation(daoSdk.socialClient.appAddress)
+      expect(BigInt(appBefore.balance.microAlgos) - BigInt(appAfter.balance.microAlgos)).toBe(REACTION_RECORD_MBR)
+      await user1Sdk.unblock({ address: user2.addr.toString() })
+    })
+
+    test("S-04 / S-10d: a gated wall rejects ungated replies and votes; defaultPayWallId 0 is accepted", async () => {
+      // user2 materializes user1's wall with a vote before the gate is set
+      await user2Sdk.vote({ ref: user1.addr.publicKey, refType: RefType.Address, isUp: false })
+      await user2Sdk.deleteVote({ ref: user1.addr.publicKey })
+
+      await user1Sdk.updateMeta({ addressGateId: 999n, defaultPayWallId: 0n })
+      try {
+        await expect(user2Sdk.reply({
+          cid: new Uint8Array(36).fill(73),
+          ref: user1.addr.publicKey,
+          refType: RefType.Post,
+        })).rejects.toThrow(new RegExp(errHasGate))
+        await expect(user2Sdk.vote({ ref: user1.addr.publicKey, refType: RefType.Address, isUp: true }))
+          .rejects.toThrow(new RegExp(errHasGate))
+      } finally {
+        await user1Sdk.updateMeta({ addressGateId: 0n, defaultPayWallId: 0n })
+      }
+    })
+
+    test('S-09: a paywall MBR payment from another account is rejected', async () => {
+      const payWall = {
+        userPayInfo: [[PayWallType.OneTimePayment, 0n, 1_000_000n]] as [number, bigint, bigint][],
+        agentPayInfo: [],
+      }
+      const amount = MIN_PAYWALL_MBR + BOX_COST_PER_BYTE * PAYWALL_PAY_OPTION_SIZE
+      const sponsored = await algorand.createTransaction.payment({
+        sender: user2.addr,
+        receiver: daoSdk.socialClient.appAddress,
+        amount: algokit.microAlgo(amount),
+      })
+      await expect(daoSdk.socialClient.send.createPayWall({
+        sender: user1.addr,
+        signer: user1.signer,
+        args: { mbrPayment: { txn: sponsored, signer: user2.signer }, payWall },
+        populateAppCallResources: true,
+      })).rejects.toThrow(new RegExp(errInvalidPayment))
+    })
+
+    test('S-05: post, reply, a vote that materializes a ref, and react do not drain the app', async () => {
+      const start = await socialFreeBalance()
+      const { postKey } = await user1Sdk.post({ cid: new Uint8Array(36).fill(74) })
+      await user2Sdk.reply({ cid: new Uint8Array(36).fill(75), ref: postKey, refType: RefType.Post })
+      const freshAddress = algorand.account.random().addr.publicKey
+      await user2Sdk.vote({ ref: freshAddress, refType: RefType.Address, isUp: false })
+      const nft = await createNft(user2)
+      await user2Sdk.react({ ref: postKey, refType: RefType.Post, nft })
+      expect(await socialFreeBalance()).toBeGreaterThanOrEqual(start)
+    })
+
   })
 })

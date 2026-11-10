@@ -1,13 +1,14 @@
-import { abimethod, Account, Application, BoxMap, Bytes, bytes, Global, gtxn, itxn, loggedAssert, match, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, BoxMap, Bytes, bytes, Global, gtxn, itxn, loggedAssert, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
-import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/base"
-import { gateCheck, getAkitaSocialAppList } from "../utils/functions"
+import { UpgradeableAkitaBaseContract } from "../utils/base-contracts/upgradeable"
+import { assertBoundPayment, gateCheck, gateCheckCtx, getAkitaSocialAppList, principalOf } from "../utils/functions"
+import { gateCtx } from "../utils/principal"
 import { BaseSocial } from "./base"
 import { AkitaSocialBoxPrefixBlocks, AkitaSocialBoxPrefixFollows } from "./constants"
 import type { AkitaSocial } from "./contract.algo"
 import type { AkitaSocialModeration } from "./moderation.algo"
-import { ERR_ALREADY_FOLLOWING, ERR_AUTOMATED_ACCOUNT, ERR_BANNED, ERR_BLOCKED, ERR_FAILED_GATE, ERR_HAS_GATE, ERR_INVALID_PAYMENT, ERR_NOT_FOLLOWING, ERR_SELF_BLOCK, ERR_SELF_FOLLOW, ERR_USER_NOT_BLOCKED } from "./errors"
+import { errAlreadyBlocked, errAlreadyFollowing, errAutomatedAccount, errBanned, errBlocked, errFailedGate, errHasGate, errNotFollowing, errSelfBlock, errSelfFollow, errUserNotBlocked } from "./errors"
 import { BlockListKey, FollowsKey, MetaValue } from "./types"
 
 export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseContract) {
@@ -67,19 +68,19 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
   }
 
   private createFollow(sender: Account, address: Account): void {
-    loggedAssert(!this.isBanned(sender), ERR_BANNED)
-    loggedAssert(!this.isBlocked(address, sender), ERR_BLOCKED)
-    loggedAssert(sender !== address, ERR_SELF_FOLLOW)
+    loggedAssert(!this.isBanned(sender), errBanned)
+    loggedAssert(!this.isBlocked(address, sender), errBlocked)
+    loggedAssert(sender !== address, errSelfFollow)
     
     // Check if the follower is automated - automated accounts can't follow
     const { automated } = this.getMeta(sender)
-    loggedAssert(!automated, ERR_AUTOMATED_ACCOUNT)
+    loggedAssert(!automated, errAutomatedAccount)
 
     // Create the follows key using user-follower pair
     const followsKey = this.flw(address, sender)
     
     // Check if already following
-    loggedAssert(!this.follows(followsKey).exists, ERR_ALREADY_FOLLOWING)
+    loggedAssert(!this.follows(followsKey).exists, errAlreadyFollowing)
 
     // Get the follower tracking info from the account being followed (address)
     const { followerCount, followerIndex } = this.getMeta(address)
@@ -93,29 +94,22 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
   // we dont remove followers because that requires us to know the index
   // instead, blocking supersedes following
   block(mbrPayment: gtxn.PaymentTxn, address: Account): void {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
-    loggedAssert(Txn.sender !== address, ERR_SELF_BLOCK)
+    loggedAssert(!this.isBanned(Txn.sender), errBanned)
+    loggedAssert(Txn.sender !== address, errSelfBlock)
 
-    loggedAssert(
-      match(
-        mbrPayment,
-        {
-          receiver: Global.currentApplicationAddress,
-          amount: this.mbr(Bytes(''), '', Bytes('')).blocks
-        }
-      ),
-      ERR_INVALID_PAYMENT
-    )
+    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, this.mbr(Bytes(''), '', Bytes('')).blocks)
 
     const blocksKey = this.blk(Txn.sender, address)
+    // `create()` is a no-op on an existing box, which would keep a second payment with no
+    // matching refund
+    loggedAssert(!this.blocks(blocksKey).exists, errAlreadyBlocked)
     this.blocks(blocksKey).create()
   }
 
+  // Withdrawal path: deliberately open to banned users so their MBR is never locked.
   unblock(address: Account): void {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
-
     const blocksKey = this.blk(Txn.sender, address)
-    loggedAssert(this.blocks(blocksKey).exists, ERR_USER_NOT_BLOCKED)
+    loggedAssert(this.blocks(blocksKey).exists, errUserNotBlocked)
     this.blocks(blocksKey).delete()
 
     itxn
@@ -126,54 +120,58 @@ export class AkitaSocialGraph extends classes(BaseSocial, UpgradeableAkitaBaseCo
       .submit()
   }
 
+  /**
+   * Follow `address` through its follow gate. `wallet` is the caller's wallet hint (LAST argument,
+   * 0 = act as the sender): it is verified (`principalOf`, a wrong hint reverts) and the gate is
+   * checked against the verified context (`Gate.mustCheckFor`, principal-resolution spec §6.3, Q4).
+   * The follow itself stays keyed by the spender (Q5).
+   */
   gatedFollow(
+    mbrPayment: gtxn.PaymentTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    address: Account,
+    wallet: uint64
+  ): void {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    const { followGateID } = this.getMeta(address)
+    loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(p), followGateID), errFailedGate)
+
+    this.followImpl(mbrPayment, address)
+  }
+
+  /** LEGACY shim (pre-hint selector, deployed semantics: Gate.mustCheck on Txn.sender). Phase 4 removes it. */
+  @abimethod({ name: 'gatedFollow' })
+  legacyGatedFollow(
     mbrPayment: gtxn.PaymentTxn,
     gateTxn: gtxn.ApplicationCallTxn,
     address: Account
   ): void {
     const { followGateID } = this.getMeta(address)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, followGateID), ERR_FAILED_GATE)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, followGateID), errFailedGate)
 
+    this.followImpl(mbrPayment, address)
+  }
+
+  private followImpl(mbrPayment: gtxn.PaymentTxn, address: Account): void {
     const { follows } = this.mbr(Bytes(''), '', Bytes(''))
-    loggedAssert(
-      match(
-        mbrPayment,
-        {
-          receiver: Global.currentApplicationAddress,
-          amount: follows
-        }
-      ),
-      ERR_INVALID_PAYMENT
-    )
+    assertBoundPayment(mbrPayment, Txn.sender, Global.currentApplicationAddress, follows)
 
     this.createFollow(Txn.sender, address)
   }
 
   follow(mbrPayment: gtxn.PaymentTxn, address: Account): void {
     const { followGateID } = this.getMeta(address)
-    loggedAssert(followGateID === 0, ERR_HAS_GATE)
+    loggedAssert(followGateID === 0, errHasGate)
 
-    const { follows } = this.mbr(Bytes(''), '', Bytes(''))
-    loggedAssert(
-      match(
-        mbrPayment,
-        {
-          receiver: Global.currentApplicationAddress,
-          amount: follows
-        }
-      ),
-      ERR_INVALID_PAYMENT
-    )
-
-    this.createFollow(Txn.sender, address)
+    this.followImpl(mbrPayment, address)
   }
 
+  // Withdrawal path: deliberately open to banned users so their MBR is never locked.
   unfollow(address: Account): void {
-    loggedAssert(!this.isBanned(Txn.sender), ERR_BANNED)
     // Create the follows key using user-follower pair
     const followsKey = this.flw(address, Txn.sender)
     // Check if actually following
-    loggedAssert(this.follows(followsKey).exists, ERR_NOT_FOLLOWING)
+    loggedAssert(this.follows(followsKey).exists, errNotFollowing)
 
     const { followerCount, followerIndex } = this.getMeta(address)
 

@@ -1,7 +1,7 @@
 import { Contract, uint64 } from "@algorandfoundation/algorand-typescript";
 import { SubscriptionsMBRData } from "./types";
 import { BlocksMBR, MAX_PASSES, MinPassesMBR, ServicesListMBR, ServicesMBR, SubscriptionsListMBR, SubscriptionsMBR } from "./constants";
-import { AccountLength, BoxCostPerBox } from "../utils/constants";
+import { AccountLength, BoxCostPerByte } from "../utils/constants";
 
 export class BaseSubscriptions extends Contract {
   protected mbr(): SubscriptionsMBRData {
@@ -11,7 +11,9 @@ export class BaseSubscriptions extends Contract {
       services: ServicesMBR,
       serviceslist: ServicesListMBR,
       blocks: BlocksMBR,
-      passes: MinPassesMBR + (BoxCostPerBox * (AccountLength * MAX_PASSES)),
+      // audit SG-08: per-byte cost of the 2-byte array header + MAX_PASSES addresses
+      // ('p' + 32 + 8 key = 41 bytes is covered by MinPassesMBR) → 83_700
+      passes: MinPassesMBR + (BoxCostPerByte * (2 + (AccountLength * MAX_PASSES))),
     }
   }
 }

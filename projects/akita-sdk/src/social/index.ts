@@ -1,9 +1,9 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { AlgorandClient } from "@algorandfoundation/algokit-utils/types/algorand-client";
 import algosdk, { decodeAddress } from "algosdk";
-import { makeEmptyTransactionSigner } from "@algorandfoundation/algokit-utils/transact";
+import { makeEmptyTransactionSigner } from 'algosdk';
 import { DEFAULT_READER, DEFAULT_SEND_PARAMS } from "../constants";
-import { ENV_VAR_NAMES, resolveAppIdWithClient, getAppIdFromEnv, detectNetworkFromClient, AkitaNetwork } from "../config";
+import { ENV_VAR_NAMES, resolveAppIdWithClient, getAppIdFromEnv, detectNetworkFromClient, AkitaNetwork, socialHintedTargets } from "../config";
 import { OptionalAppIdFactoryParams } from "../types";
 import {
   AkitaDaoClient,
@@ -49,6 +49,7 @@ import {
   ReactArgs,
   RefType,
   ReplyArgs,
+  SetMetaWalletArgs,
   UnfollowArgs,
   UpdateMetaArgs,
   VoteArgs,
@@ -67,11 +68,16 @@ import {
   IMPACT_META_MBR,
   META_MBR,
   MIN_POSTS_MBR,
+  LEGACY_MIN_POSTS_MBR,
+  LEGACY_MIN_PAYWALL_MBR,
   REACTIONS_MBR,
   REACTIONLIST_MBR,
+  REACTION_RECORD_MBR,
+  REPLY_PARENT_REF_MBR,
   VOTELIST_MBR,
   VOTES_MBR,
   MODERATORS_MBR,
+  MODERATOR_ACTIVITY_MBR,
   BANNED_MBR,
   ACTIONS_MBR,
   MIN_PAYWALL_MBR,
@@ -100,6 +106,12 @@ export type SocialSDKConstructorParams = {
   readerAccount?: string;
   sendParams?: ExpandedSendParams;
   ipfsUrl?: string;
+  /**
+   * Whether AkitaSocial / AkitaSocialGraph run the principal-resolution upgrade (hinted overloads,
+   * corrected MBR, `Gate.mustCheckFor` gate txns). Default: `SOCIAL_HINTED_TARGETS[network]`
+   * (networks.ts), which stays `false` on TestNet/MainNet until the Phase 2 upgrade has executed.
+   */
+  hintedTargets?: boolean;
 };
 
 export class SocialSDK {
@@ -129,6 +141,14 @@ export class SocialSDK {
   /** The detected network for this SDK instance */
   public network: AkitaNetwork;
 
+  /**
+   * `true`: writes call the hinted overloads and quote the upgraded contract's MBR (gated writes take a
+   * `Gate.mustCheckFor` txn). `false`: writes call the deployed legacy selectors with the deployed MBR
+   * terms (gated writes take a `Gate.mustCheck` txn), and a non-zero `wallet` hint is refused locally.
+   * See `SOCIAL_HINTED_TARGETS` in networks.ts.
+   */
+  public hintedTargets: boolean;
+
   // Cached DAO data (to avoid repeated calls)
   private _socialFees: SocialFees | null = null;
   private _akitaAssets: AkitaAssets | null = null;
@@ -143,9 +163,11 @@ export class SocialSDK {
     readerAccount = DEFAULT_READER,
     sendParams = DEFAULT_SEND_PARAMS,
     ipfsUrl = '',
+    hintedTargets,
   }: SocialSDKConstructorParams) {
     this.algorand = algorand;
     this.network = detectNetworkFromClient(algorand);
+    this.hintedTargets = socialHintedTargets(this.network, hintedTargets);
     this.daoAppId = daoAppId ?? getAppIdFromEnv(ENV_VAR_NAMES.DAO_APP_ID);
     this.readerAccount = readerAccount;
     this.sendParams = { ...sendParams };
@@ -206,8 +228,8 @@ export class SocialSDK {
    * @returns The latest block timestamp as a bigint (unix seconds)
    */
   async getBlockchainTimestamp(): Promise<bigint> {
-    const status = await this.algorand.client.algod.status();
-    const block = await this.algorand.client.algod.block(status.lastRound);
+    const status = await this.algorand.client.algod.status().do();
+    const block = await this.algorand.client.algod.block(status.lastRound).do();
     return BigInt(block.block.header.timestamp);
   }
 
@@ -460,6 +482,32 @@ export class SocialSDK {
   }
 
   // ============================================================================
+  // Target selection (principal resolution Phase 2 switch)
+  // ============================================================================
+
+  /** Whether this instance quotes and calls the DEPLOYED (pre-Phase-2) social programs. */
+  private get legacyTargets(): boolean {
+    return this.hintedTargets === false;
+  }
+
+  /**
+   * Picks the overload for a write: `true` = hinted (trailing `wallet`), `false` = legacy selector.
+   * The deployed programs have no hinted selectors, so a non-zero hint is refused before anything is sent.
+   */
+  private useHintedOverload(wallet: bigint | number = 0n): boolean {
+    if (!this.legacyTargets) {
+      return true;
+    }
+    if (BigInt(wallet) !== 0n) {
+      throw new Error(
+        `SocialSDK: a wallet hint needs the upgraded social contracts, but ${this.network} still runs the deployed ` +
+        `AkitaSocial (SOCIAL_HINTED_TARGETS / hintedTargets is false). Call through the social plugin instead.`
+      );
+    }
+    return false;
+  }
+
+  // ============================================================================
   // MBR Calculation Methods (Static calculations)
   // ============================================================================
 
@@ -473,7 +521,8 @@ export class SocialSDK {
    * @returns MBR in microAlgos
    */
   calculatePostMBR(cidLength: number = CID_LENGTH, isAmendment: boolean = false): bigint {
-    const postsMbr = MIN_POSTS_MBR + (BOX_COST_PER_BYTE * BigInt(cidLength));
+    const minPosts = this.legacyTargets ? LEGACY_MIN_POSTS_MBR : MIN_POSTS_MBR;
+    const postsMbr = minPosts + (BOX_COST_PER_BYTE * BigInt(cidLength));
     let total = postsMbr + VOTES_MBR + VOTELIST_MBR;
     if (isAmendment) {
       // For edits: amendment MBR (marking original) + edit back-ref MBR (back-pointer in edit)
@@ -492,12 +541,28 @@ export class SocialSDK {
    * @returns MBR in microAlgos
    */
   calculateReplyMBR(cidLength: number = CID_LENGTH, isAmendment: boolean = false, needsEmptyPost: boolean = false): bigint {
-    let total = this.calculatePostMBR(cidLength, isAmendment);
-    if (needsEmptyPost) {
-      // Empty post has 0 CID length but still needs posts + votes MBR
-      total += MIN_POSTS_MBR + VOTES_MBR;
+    // Every reply ref stores the 32-byte parent ref (the deployed contract does not charge it).
+    // A parent that isn't a post gets an empty post on its first reply (the deployed contract
+    // requires an existing parent instead).
+    const parentRef = this.legacyTargets ? 0n : REPLY_PARENT_REF_MBR;
+    return this.calculatePostMBR(cidLength, isAmendment) + parentRef + this.emptyPostMBR(needsEmptyPost);
+  }
+
+  /** MBR of the empty post the upgraded contract creates for a non-post parent on its first reply or reaction. */
+  private emptyPostMBR(needsEmptyPost: boolean): bigint {
+    return needsEmptyPost && !this.legacyTargets ? MIN_POSTS_MBR : 0n;
+  }
+
+  /** Whether replying to or reacting on `ref` first creates its empty post (only non-post refs do). */
+  private async needsEmptyPost(sendParams: ExpandedSendParamsWithSigner, ref: Uint8Array, refType: RefType): Promise<boolean> {
+    if (this.legacyTargets || refType === RefType.Post) {
+      return false;
     }
-    return total;
+    const storageRef = this.reactionStorageRef(ref, refType);
+    if (!storageRef) {
+      return false;
+    }
+    return !(await this.socialClient.getPostExists({ ...sendParams, args: { ref: storageRef } }));
   }
 
   /**
@@ -510,7 +575,8 @@ export class SocialSDK {
   calculateVoteMBR(needsEmptyPost: boolean = false): bigint {
     let total = VOTELIST_MBR;
     if (needsEmptyPost) {
-      total += MIN_POSTS_MBR + VOTES_MBR;
+      // the deployed contract charges only its (smaller) posts box for a materialized ref
+      total += this.legacyTargets ? LEGACY_MIN_POSTS_MBR : MIN_POSTS_MBR + VOTES_MBR;
     }
     return total;
   }
@@ -524,12 +590,10 @@ export class SocialSDK {
    * @returns MBR in microAlgos
    */
   calculateReactMBR(isFirstReactionWithNFT: boolean = true, needsEmptyPost: boolean = false): bigint {
-    let total = REACTIONLIST_MBR;
+    // The deployed contract charges its 16-byte-key reaction list box per reaction.
+    let total = (this.legacyTargets ? REACTIONLIST_MBR : REACTION_RECORD_MBR) + this.emptyPostMBR(needsEmptyPost);
     if (isFirstReactionWithNFT) {
       total += REACTIONS_MBR;
-    }
-    if (needsEmptyPost) {
-      total += MIN_POSTS_MBR + VOTES_MBR;
     }
     return total;
   }
@@ -569,15 +633,16 @@ export class SocialSDK {
    */
   calculatePayWallMBR(userOptionsCount: number, agentOptionsCount: number): bigint {
     const totalOptions = userOptionsCount + agentOptionsCount;
-    return MIN_PAYWALL_MBR + (BOX_COST_PER_BYTE * PAYWALL_PAY_OPTION_SIZE * BigInt(totalOptions));
+    const minPayWall = this.legacyTargets ? LEGACY_MIN_PAYWALL_MBR : MIN_PAYWALL_MBR;
+    return minPayWall + (BOX_COST_PER_BYTE * PAYWALL_PAY_OPTION_SIZE * BigInt(totalOptions));
   }
 
   /**
-   * Calculate the MBR required for adding a moderator
+   * Calculate the MBR the moderation app needs for adding a moderator (moderators + activity boxes)
    * @returns MBR in microAlgos
    */
   calculateModeratorMBR(): bigint {
-    return MODERATORS_MBR;
+    return MODERATORS_MBR + MODERATOR_ACTIVITY_MBR;
   }
 
   /**
@@ -627,6 +692,21 @@ export class SocialSDK {
   async getModeratorMeta({ sender, signer, user }: MaybeSigner & { user: string }): Promise<{ exists: boolean; lastActive: bigint }> {
     const sendParams = this.getSendParams({ sender, signer });
     return await this.moderationClient.moderatorMeta({ ...sendParams, args: { user } });
+  }
+
+  /**
+   * Get a moderator's counted (state-changing) actions in the current 7-day epoch (`actions`) and the
+   * epoch before it (`previousActions`). Repeats that change nothing are not counted.
+   */
+  async getModeratorActivity({ sender, signer, user }: MaybeSigner & { user: string }): Promise<{
+    exists: boolean
+    lastActive: bigint
+    epoch: bigint
+    actions: bigint
+    previousActions: bigint
+  }> {
+    const sendParams = this.getSendParams({ sender, signer });
+    return await this.moderationClient.moderatorActivity({ ...sendParams, args: { user } });
   }
 
   /**
@@ -818,8 +898,10 @@ export class SocialSDK {
     subscriptionIndex = 0n,
     nfd = 0n,
     akitaNFT = 0n,
+    wallet = 0n,
   }: InitMetaArgs): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     const mbrAmount = this.calculateMetaMBR();
 
@@ -829,19 +911,50 @@ export class SocialSDK {
       receiver: this.socialClient.appAddress,
     });
 
-    const result = await this.socialClient.send.initMeta({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        user: user ?? sendParams.sender.toString(),
-        automated,
-        subscriptionIndex,
-        nfd,
-        akitaNft: akitaNFT,
-      },
-    });
+    const args = {
+      mbrPayment,
+      user: user ?? sendParams.sender.toString(),
+      automated,
+      subscriptionIndex,
+      nfd,
+      akitaNft: akitaNFT,
+    };
+    // hinted overload: the meta stores the verified wallet (0 for a plain account)
+    const result = hinted
+      ? await this.socialClient.send.initMetaPayAddressBoolUint64Uint64Uint64Uint64Uint64({
+        ...sendParams,
+        args: { ...args, wallet: BigInt(wallet) },
+      })
+      : await this.socialClient.send.initMetaPayAddressBoolUint64Uint64Uint64Uint64({ ...sendParams, args });
 
     return result.return!;
+  }
+
+  /**
+   * Rebind the sender's meta wallet to the verified wallet hint (`0n` unbinds). The hint is verified
+   * on chain, so a non-zero hint only passes from inside that wallet (use the social plugin's
+   * `setMetaWallet` for ARC-58 wallets); a top-level send with a non-zero hint reverts (`errHtop`).
+   */
+  async setMetaWallet({ sender, signer, wallet = 0n }: SetMetaWalletArgs = {}): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    if (this.legacyTargets) {
+      throw new Error(`SocialSDK: setMetaWallet needs the upgraded AkitaSocial, which ${this.network} does not run yet (SOCIAL_HINTED_TARGETS)`);
+    }
+
+    await this.socialClient.send.setMetaWallet({
+      ...sendParams,
+      args: { wallet: BigInt(wallet) },
+    });
+  }
+
+  /**
+   * The verified gate context of a plain direct call by `sender` (wallet hint 0):
+   * `{ principal: sender, wallet: 0n, spender: sender }`. Hinted gated methods (`gatedReply`,
+   * `gatedEditReply`, `gatedReact`, `gatedFollow`) require their gate txn to be
+   * `Gate.mustCheckFor(ctx, gateId, args)` with exactly this context.
+   */
+  static directGateCtx(sender: string): { principal: string; wallet: bigint; spender: string } {
+    return { principal: sender, wallet: 0n, spender: sender };
   }
 
   /**
@@ -858,17 +971,27 @@ export class SocialSDK {
     defaultPayWallId = 0n,
   }: UpdateMetaArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const args = { followGateId, addressGateId, subscriptionIndex, nfd, akitaNft: akitaNFT, defaultPayWallId };
 
-    await this.socialClient.send.updateMeta({
+    if (this.legacyTargets) {
+      await this.socialClient.send.updateMetaUint64Uint64Uint64Uint64Uint64Uint64Void({ ...sendParams, args });
+      return;
+    }
+
+    // setting a wall gate creates the sender's wall (the posts box keyed by their address) if it isn't there yet
+    const wallMissing = BigInt(addressGateId) !== 0n && !(await this.socialClient.getPostExists({
       ...sendParams,
-      args: {
-        followGateId,
-        addressGateId,
-        subscriptionIndex,
-        nfd,
-        akitaNft: akitaNFT,
-        defaultPayWallId,
-      },
+      args: { ref: decodeAddress(sendParams.sender.toString()).publicKey },
+    }));
+    const mbrPayment = this.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(wallMissing ? MIN_POSTS_MBR : 0n),
+      receiver: this.socialClient.appAddress,
+    });
+
+    await this.socialClient.send.updateMetaPayUint64Uint64Uint64Uint64Uint64Uint64Void({
+      ...sendParams,
+      args: { mbrPayment, ...args },
     });
   }
 
@@ -899,8 +1022,10 @@ export class SocialSDK {
     usePayWall = false,
     payWallId = 0n,
     creatorFlags = 0n,
+    wallet = 0n,
   }: PostArgs): Promise<{ postKey: Uint8Array; timestamp: bigint; nonce: Uint8Array }> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch fees, assets, and blockchain timestamp in parallel
     const [socialFees, akitaAssets, blockchainTimestamp] = await Promise.all([
@@ -937,20 +1062,12 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
-    group.post({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        tip: tipTxn,
-        timestamp,
-        nonce,
-        cid,
-        gateId,
-        usePayWall,
-        payWallId,
-        creatorFlags,
-      },
-    });
+    const args = { mbrPayment, tip: tipTxn, timestamp, nonce, cid, gateId, usePayWall, payWallId, creatorFlags };
+    if (hinted) {
+      group.postPayAxferUint64Byte_24Byte_36Uint64BoolUint64Uint64Uint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
+    } else {
+      group.postPayAxferUint64Byte_24Byte_36Uint64BoolUint64Uint64Void({ ...sendParams, args });
+    }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
 
     return { postKey, timestamp, nonce };
@@ -975,8 +1092,10 @@ export class SocialSDK {
     cid,
     amendment,
     creatorFlags = 0n,
+    wallet = 0n,
   }: EditPostArgs): Promise<Uint8Array> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Compute the deterministic edit key from: creator + originalKey + newCID
     const postKey = this.computeEditKey(sendParams.sender.toString(), amendment, cid);
@@ -1002,16 +1121,12 @@ export class SocialSDK {
       receiver: this.socialClient.appAddress,
     });
 
-    await this.socialClient.send.editPost({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        tip: tipTxn,
-        cid,
-        amendment,
-        creatorFlags,
-      },
-    });
+    const args = { mbrPayment, tip: tipTxn, cid, amendment, creatorFlags };
+    if (hinted) {
+      await this.socialClient.send.editPostPayAxferByte_36Byte_32Uint64Uint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
+    } else {
+      await this.socialClient.send.editPostPayAxferByte_36Byte_32Uint64Void({ ...sendParams, args });
+    }
 
     return postKey;
   }
@@ -1041,8 +1156,10 @@ export class SocialSDK {
     payWallId = 0n,
     gateTxn,
     creatorFlags = 0n,
+    wallet = 0n,
   }: ReplyArgs): Promise<{ replyKey: Uint8Array; timestamp: bigint; nonce: Uint8Array }> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch fees, assets, and blockchain timestamp in parallel
     const [socialFees, akitaAssets, blockchainTimestamp] = await Promise.all([
@@ -1061,8 +1178,7 @@ export class SocialSDK {
     const creatorAddress = sendParams.sender.toString();
     const replyKey = this.computePostKey(creatorAddress, timestamp, nonce);
 
-    // Note: May need extra MBR for empty post creation - caller should use calculateReplyMBR()
-    const mbrAmount = this.calculateReplyMBR(cid.length, false, false);
+    const mbrAmount = this.calculateReplyMBR(cid.length, false, await this.needsEmptyPost(sendParams, ref, refType));
 
     const mbrPayment = this.algorand.createTransaction.payment({
       ...sendParams,
@@ -1079,41 +1195,18 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
+    const args = { mbrPayment, tip: tipTxn, timestamp, nonce, cid, ref, type: refType, gateId, usePayWall, payWallId, creatorFlags };
     if (gateTxn) {
-      group.gatedReply({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          tip: tipTxn,
-          gateTxn,
-          timestamp,
-          nonce,
-          cid,
-          ref,
-          type: refType,
-          gateId,
-          usePayWall,
-          payWallId,
-          creatorFlags,
-        },
-      });
+      // hinted: gateTxn must be Gate.mustCheckFor(ctx); legacy (deployed) targets: Gate.mustCheck on the sender
+      if (hinted) {
+        group.gatedReplyPayAxferApplUint64Byte_24Byte_36ByteUint64Uint64BoolUint64Uint64Uint64Void({ ...sendParams, args: { ...args, gateTxn, wallet: BigInt(wallet) } });
+      } else {
+        group.gatedReplyPayAxferApplUint64Byte_24Byte_36ByteUint64Uint64BoolUint64Uint64Void({ ...sendParams, args: { ...args, gateTxn } });
+      }
+    } else if (hinted) {
+      group.replyPayAxferUint64Byte_24Byte_36ByteUint64Uint64BoolUint64Uint64Uint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
     } else {
-      group.reply({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          tip: tipTxn,
-          timestamp,
-          nonce,
-          cid,
-          ref,
-          type: refType,
-          gateId,
-          usePayWall,
-          payWallId,
-          creatorFlags,
-        },
-      });
+      group.replyPayAxferUint64Byte_24Byte_36ByteUint64Uint64BoolUint64Uint64Void({ ...sendParams, args });
     }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
 
@@ -1139,8 +1232,10 @@ export class SocialSDK {
     ref,
     refType,
     isUp,
+    wallet = 0n,
   }: VoteArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch fees and assets from DAO
     const [socialFees, akitaAssets] = await Promise.all([
@@ -1148,7 +1243,13 @@ export class SocialSDK {
       this.getAkitaAssets(),
     ]);
 
-    const mbrAmount = this.calculateVoteMBR(false);
+    // Voting on an asset / app / address ref that has no post box yet creates its
+    // posts and votes boxes in the same call, and the contract charges for both.
+    const storageRef = this.reactionStorageRef(ref, refType);
+    const postExists = refType === RefType.Post || !storageRef
+      ? true
+      : await this.socialClient.getPostExists({ ...sendParams, args: { ref: storageRef } });
+    const mbrAmount = this.calculateVoteMBR(!postExists);
 
     const mbrPayment = this.algorand.createTransaction.payment({
       ...sendParams,
@@ -1165,16 +1266,12 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
-    group.vote({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        tip: tipTxn,
-        ref,
-        type: refType,
-        isUp,
-      },
-    });
+    const args = { mbrPayment, tip: tipTxn, ref, type: refType, isUp };
+    if (hinted) {
+      group.votePayAxferByteUint64BoolUint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
+    } else {
+      group.votePayAxferByteUint64BoolVoid({ ...sendParams, args });
+    }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1197,8 +1294,10 @@ export class SocialSDK {
     sender,
     signer,
     ref,
+    wallet = 0n,
   }: InvertVoteArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch fees and assets from DAO
     const [socialFees, akitaAssets] = await Promise.all([
@@ -1223,15 +1322,12 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
-    group.editVote({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        tip: tipTxn,
-        ref,
-        flip: true,
-      },
-    });
+    const args = { mbrPayment, tip: tipTxn, ref, flip: true };
+    if (hinted) {
+      group.editVotePayAxferByte_32BoolUint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
+    } else {
+      group.editVotePayAxferByte_32BoolVoid({ ...sendParams, args });
+    }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1246,8 +1342,10 @@ export class SocialSDK {
     sender,
     signer,
     ref,
+    wallet = 0n,
   }: DeleteVoteArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch assets from DAO for the tip transaction structure
     const akitaAssets = await this.getAkitaAssets();
@@ -1269,15 +1367,12 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
-    group.editVote({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        tip: tipTxn,
-        ref,
-        flip: false,
-      },
-    });
+    const args = { mbrPayment, tip: tipTxn, ref, flip: false };
+    if (hinted) {
+      group.editVotePayAxferByte_32BoolUint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
+    } else {
+      group.editVotePayAxferByte_32BoolVoid({ ...sendParams, args });
+    }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
 
@@ -1303,8 +1398,10 @@ export class SocialSDK {
     refType,
     nft,
     gateTxn,
+    wallet = 0n,
   }: ReactArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     // Fetch fees and assets from DAO
     const [socialFees, akitaAssets] = await Promise.all([
@@ -1323,7 +1420,7 @@ export class SocialSDK {
           args: { ref: reactionRef, nft },
         })
       : false;
-    const mbrAmount = this.calculateReactMBR(!reactionExists, false);
+    const mbrAmount = this.calculateReactMBR(!reactionExists, await this.needsEmptyPost(sendParams, ref, refType));
 
     const mbrPayment = this.algorand.createTransaction.payment({
       ...sendParams,
@@ -1340,29 +1437,18 @@ export class SocialSDK {
 
     const group = this.socialClient.newGroup();
 
+    const args = { mbrPayment, tip: tipTxn, ref, type: refType, nft };
     if (gateTxn) {
-      group.gatedReact({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          tip: tipTxn,
-          gateTxn,
-          ref,
-          type: refType,
-          nft,
-        },
-      });
+      // hinted: gateTxn must be Gate.mustCheckFor(ctx); legacy (deployed) targets: Gate.mustCheck on the sender
+      if (hinted) {
+        group.gatedReactPayAxferApplByteUint64Uint64Uint64Void({ ...sendParams, args: { ...args, gateTxn, wallet: BigInt(wallet) } });
+      } else {
+        group.gatedReactPayAxferApplByteUint64Uint64Void({ ...sendParams, args: { ...args, gateTxn } });
+      }
+    } else if (hinted) {
+      group.reactPayAxferByteUint64Uint64Uint64Void({ ...sendParams, args: { ...args, wallet: BigInt(wallet) } });
     } else {
-      group.react({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          tip: tipTxn,
-          ref,
-          type: refType,
-          nft,
-        },
-      });
+      group.reactPayAxferByteUint64Uint64Void({ ...sendParams, args });
     }
     await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
   }
@@ -1411,13 +1497,16 @@ export class SocialSDK {
 
     try {
       // Get all boxes for the social app
-      const boxesResponse = await this.algorand.client.algod.applicationBoxes(Number(appId));
+      const boxesResponse = await this.algorand.client.algod.getApplicationBoxes(Number(appId)).do();
       
       // Reaction box prefix is 'r' (ASCII 114)
       const reactionPrefix = new Uint8Array([114]); // 'r'
       
-      // Reaction list box prefix is 'e' (ASCII 101) - for checking user reactions
+      // Legacy reaction list box prefix is 'e' (ASCII 101) - for checking user reactions
       const reactionListPrefix = new Uint8Array([101]); // 'e'
+      // Reaction record boxes: 'y' + sha256(user || ref || uint64be(nft))
+      const reactionRecordPrefix = 121; // 'y'
+      const boxNamesHex = new Set(boxesResponse.boxes.map((b) => Buffer.from(b.name).toString('hex')));
       
       // Process each box
       for (const box of boxesResponse.boxes) {
@@ -1437,11 +1526,23 @@ export class SocialSDK {
             
             // Read the box value to get the count
             try {
-              const boxValue = await this.algorand.client.algod.applicationBoxByName(Number(appId), boxName);
+              const boxValue = await this.algorand.client.algod.getApplicationBoxByName(Number(appId), boxName).do();
               const count = this.bytesToBigInt(boxValue.value);
               reactions.push({ nftId, count });
             } catch {
               // Box read failed, skip this reaction
+            }
+
+            if (userAddress) {
+              const recordKey = sha256(new Uint8Array([
+                ...decodeAddress(userAddress).publicKey,
+                ...ref,
+                ...algosdk.encodeUint64(nftId),
+              ]));
+              const recordName = Buffer.from(new Uint8Array([reactionRecordPrefix, ...recordKey])).toString('hex');
+              if (boxNamesHex.has(recordName)) {
+                userReactedNfts.add(nftId);
+              }
             }
           }
         }
@@ -1520,8 +1621,10 @@ export class SocialSDK {
     signer,
     address,
     gateTxn,
+    wallet = 0n,
   }: FollowArgs): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
+    const hinted = this.useHintedOverload(wallet);
 
     const mbrAmount = this.calculateFollowMBR();
 
@@ -1532,14 +1635,19 @@ export class SocialSDK {
     });
 
     if (gateTxn) {
-      await this.graphClient.send.gatedFollow({
-        ...sendParams,
-        args: {
-          mbrPayment,
-          gateTxn,
-          address,
-        },
-      });
+      // hinted overload: the gate subject is the verified context (wallet hint `wallet`, 0 = sender),
+      // gateTxn = Gate.mustCheckFor(ctx); legacy (deployed) targets: Gate.mustCheck on the sender
+      if (hinted) {
+        await this.graphClient.send.gatedFollowPayApplAddressUint64Void({
+          ...sendParams,
+          args: { mbrPayment, gateTxn, address, wallet: BigInt(wallet) },
+        });
+      } else {
+        await this.graphClient.send.gatedFollowPayApplAddressVoid({
+          ...sendParams,
+          args: { mbrPayment, gateTxn, address },
+        });
+      }
     } else {
       await this.graphClient.send.follow({
         ...sendParams,

@@ -9,6 +9,7 @@ import {
   clone,
   contract,
   Global,
+  GlobalState,
   gtxn,
   itxn,
   loggedAssert,
@@ -20,12 +21,32 @@ import {
 import { methodSelector, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Txn } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
-import { ERR_HAS_GATE } from '../social/errors'
+import { errHasGate } from '../social/errors'
 import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints } from '../utils/constants'
-import { calcPercent, gateCheck, getSubscriptionFees, getWalletIDUsingAkitaDAO, originOrTxnSender, referralFee, sendReferralPayment, splitOptInCount } from '../utils/functions'
+import {
+  assertBoundPayment,
+  assertSafeAssetTransfer,
+  assertSafePayment,
+  atRestPrincipalOf,
+  calcPercent,
+  gateCheck,
+  gateCheckCtx,
+  getSubscriptionFees,
+  legacyOriginOr,
+  legacyOriginOrTxnSender,
+  legacyWalletOf,
+  ownsAtRestOf,
+  principalOf,
+  quoteReferrerOf,
+  referralFeeTo,
+  referrerOrZeroAddress,
+  sendReferralPaymentTo,
+} from '../utils/functions'
+import { GateCtx, gateCtx, Principal } from '../utils/principal'
 import { CID } from '../utils/types/base'
 import {
   HighlightMessageNone,
+  LegacyPassesMBR,
   MAX_DESCRIPTION_LENGTH,
   MAX_PASSES,
   MAX_TITLE_LENGTH,
@@ -33,40 +54,46 @@ import {
   MIN_INTERVAL,
   SubscriptionsBoxPrefixBlocks,
   SubscriptionsBoxPrefixPasses,
+  SubscriptionsBoxPrefixPrincipals,
   SubscriptionsBoxPrefixServices,
   SubscriptionsBoxPrefixServicesList,
   SubscriptionsBoxPrefixSubscriptions,
   SubscriptionsBoxPrefixSubscriptionsList,
+  SubscriptionsGlobalStateKeyPassesRepricedAt,
+  SubscriptionPrincipalMBR,
 } from './constants'
 import {
-  ERR_ASA_MISMATCH,
-  ERR_BAD_DESCRIPTION_LENGTH,
-  ERR_BAD_OFFSET,
-  ERR_BLOCKED,
-  ERR_CANNOT_TRIGGER,
-  ERR_FAILED_GATE,
-  ERR_INVALID_ASSET_RECEIVER,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_SEQUENCE,
-  ERR_INVALID_TRANSFER,
-  ERR_MAX_PASSES_IS_FIVE,
-  ERR_MIN_AMOUNT_IS_THREE,
-  ERR_MIN_INTERVAL_IS_SIXTY,
-  ERR_NO_DONATIONS,
-  ERR_NOT_A_SERVICE,
-  ERR_NOT_ENOUGH_FUNDS,
-  ERR_NOT_OPTED_IN,
-  ERR_PASS_COUNT_OVERFLOW,
-  ERR_SERVICE_DOES_NOT_EXIST,
-  ERR_SERVICE_IS_NOT_ACTIVE,
-  ERR_SERVICE_IS_NOT_DRAFT,
-  ERR_SERVICE_IS_NOT_PAUSED,
-  ERR_SERVICE_IS_SHUTDOWN,
-  ERR_SERVICE_NOT_ACTIVATED,
-  ERR_SUBSCRIPTION_DOES_NOT_EXIST,
-  ERR_TITLE_TOO_LONG,
-  ERR_USER_ALREADY_BLOCKED,
-  ERR_USER_NOT_BLOCKED,
+  errAsaMismatch,
+  errBadDescriptionLength,
+  errBadOffset,
+  errBlocked,
+  errCannotTrigger,
+  errFailedGate,
+  errInvalidAssetReceiver,
+  errInvalidPayment,
+  errInvalidSequence,
+  errInvalidTransfer,
+  errMaxPassesIsFive,
+  errMinAmountIsThree,
+  errMinIntervalIsSixty,
+  errNoDonations,
+  errNoLegacyWallet,
+  errNotAService,
+  errNotGated,
+  errNotEnoughFunds,
+  errNotOptedIn,
+  errPassCountOverflow,
+  errPrincipalExists,
+  errServiceDoesNotExist,
+  errServiceIsNotActive,
+  errServiceIsNotDraft,
+  errServiceIsNotPaused,
+  errServiceIsShutdown,
+  errServiceNotActivated,
+  errSubscriptionDoesNotExist,
+  errTitleTooLong,
+  errUserAlreadyBlocked,
+  errUserNotBlocked,
 } from './errors'
 import {
   Amounts,
@@ -85,6 +112,7 @@ import {
   SubscriptionInfoWithDetails,
   SubscriptionInfoWithExistence,
   SubscriptionKey,
+  SubscriptionPrincipal,
   TriggerListRequest
 } from './types'
 
@@ -99,6 +127,15 @@ import { BaseSubscriptions } from './base'
   }
 })
 export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorContractWithOptIn) {
+
+  // GLOBAL STATE ---------------------------------------------------------------------------------
+
+  /**
+   * Subscriptions that started before this timestamp paid the legacy pass MBR
+   * (`LegacyPassesMBR`) and get it back on unsubscribe (audit SG-08 / decision SG-K).
+   * Set once, lazily, by the first subscribe / unsubscribe after the upgrade.
+   */
+  passesRepricedAt = GlobalState<uint64>({ key: SubscriptionsGlobalStateKeyPassesRepricedAt })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -129,6 +166,14 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
   passes = BoxMap<SubscriptionKey, Account[]>({ keyPrefix: SubscriptionsBoxPrefixPasses })
 
+  /**
+   * Stored principal pair `(W, principal)` of a gated subscription made through a verified wallet
+   * (principal resolution §6.4, Q11). Written by the hinted gated subscribe methods (or backfilled by
+   * `adoptPrincipal`), re-checked at trigger time without reading any wallet global, deleted and
+   * refunded by `unsubscribe`. 'i' + 32 + 8 = 41 byte key, 40 byte value → `SubscriptionPrincipalMBR`.
+   */
+  principals = BoxMap<SubscriptionKey, SubscriptionPrincipal>({ keyPrefix: SubscriptionsBoxPrefixPrincipals })
+
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
   private getLatestWindowStart(startDate: uint64, interval: uint64): uint64 {
@@ -142,23 +187,46 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     }
   }
 
-  private updateStreak(key: SubscriptionKey, elseStreak: uint64): void {
+  /** start of the previous payment window (0 if the subscription is still in its first one) */
+  private getPreviousWindowStart(currentWindowStart: uint64, interval: uint64): uint64 {
+    return currentWindowStart >= interval ? currentWindowStart - interval : 0
+  }
+
+  /**
+   * Streak bookkeeping for a payment. Only called from `triggerPayment`, which `canTrigger`
+   * limits to once per window, so the streak can grow by at most one per window.
+   */
+  private incrementStreakOnPayment(key: SubscriptionKey): void {
     const sub = clone(this.subscriptions(key).value)
 
     const currentWindowStart: uint64 = this.getLatestWindowStart(sub.startDate, sub.interval)
-    const lastWindowStart: uint64 = currentWindowStart - sub.interval
+    const lastWindowStart: uint64 = this.getPreviousWindowStart(currentWindowStart, sub.interval)
 
     if (sub.lastPayment < lastWindowStart) {
-      // reset the streak
-      this.subscriptions(key).value.streak = elseStreak
+      // a window was missed: restart the streak with this payment
+      this.subscriptions(key).value.streak = 1
       return
     }
 
-    // update the streak if this function is being called
-    // after a payment was made in the last window
-    // but not during the current window
-    if (sub.lastPayment >= lastWindowStart && !(sub.lastPayment >= currentWindowStart)) {
+    // paid in the previous window but not yet in this one
+    if (sub.lastPayment < currentWindowStart) {
       this.subscriptions(key).value.streak += 1
+    }
+  }
+
+  /** pass MBR that was charged for a subscription that started at `startDate` */
+  private passesCharged(startDate: uint64): uint64 {
+    if (this.passesRepricedAt.hasValue && startDate < this.passesRepricedAt.value) {
+      return LegacyPassesMBR
+    }
+    return this.mbr().passes
+  }
+
+  /** sets the pass repricing cut-over on the first subscribe / unsubscribe after deployment */
+  private ensurePassesRepriced(): void {
+    // the key is absent on apps created before this version (state added by an upgrade)
+    if (!this.passesRepricedAt.hasValue) {
+      this.passesRepricedAt.value = Global.latestTimestamp
     }
   }
 
@@ -206,34 +274,51 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     return id
   }
 
+  /**
+   * Shared body of every subscribe entry point (ALGO and ASA, hinted and legacy shims). Same checks,
+   * transfers and state as the deployed `createSubscription` / `createAsaSubscription` pair.
+   * @param payment ALGO: the subscription payment (amount + MBR + referral MBR, any surplus is escrowed);
+   *   ASA: the exact MBR + referral MBR payment
+   * @param asa true for an ASA subscription, whose asset transfer is the group txn at `xfer`
+   * @param referrer who receives the referral cut: the verified principal's referrer (hinted methods) or
+   *   the registry referrer of `Txn.sender` (legacy shims)
+   * @param wallet the verified wallet (0 for legacy shims or plain callers); with a gated service, the pair
+   *   `(wallet, principal)` is stored in `principals` and its MBR is charged
+   */
   private createSubscription(
     payment: gtxn.PaymentTxn,
+    asa: boolean,
+    xfer: uint64,
     recipient: Account,
     amount: uint64,
     interval: uint64,
-    serviceID: ServiceID
+    serviceID: ServiceID,
+    referrer: Account,
+    wallet: uint64,
+    principal: Account
   ): uint64 {
+    this.ensurePassesRepriced()
     const blocksKey = this.getBlockKey(recipient, Txn.sender)
     // ensure they aren't blocked
-    loggedAssert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
+    loggedAssert(!this.blocks(blocksKey).exists, errBlocked)
     // gate is zero unless the service has a gate
     let gateID: uint64 = 0
+    const asset: uint64 = asa ? gtxn.AssetTransferTxn(xfer).xferAsset.id : 0
 
-    let costs = this.mbr()
+    const costs = this.mbr()
     let mbrAmount = costs.subscriptions
     // index zero is always reserved for donations
-    const isDonation = serviceID === 0
     let payoutTarget = recipient
-    if (!isDonation) {
+    if (serviceID !== 0) {
       const boxKey: ServicesKey = { address: recipient, id: serviceID }
       // ensure the service exists
-      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+      loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
       // get the service details
       const service = clone(this.services(boxKey).value)
       // ensure the service is active
-      loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
-      // ensure its an algo subscription
-      loggedAssert(service.asset === 0, ERR_ASA_MISMATCH)
+      loggedAssert(service.status === ServiceStatusActive, errServiceIsNotActive)
+      // ensure the subscription pays in the service's asset (0 = ALGO)
+      loggedAssert(service.asset === asset, errAsaMismatch)
       // overwrite the details for the subscription
       amount = service.amount
       interval = service.interval
@@ -254,33 +339,74 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     if (needsSubscriptionsListBoxMbr) {
       mbrAmount += costs.subscriptionslist
     }
+    // principal resolution §6.4: a gated subscription by a verified wallet stores (W, principal)
+    const storesPrincipal = wallet !== 0 && gateID !== 0
+    if (storesPrincipal) {
+      mbrAmount += SubscriptionPrincipalMBR
+    }
 
     const amounts = this.getAmounts(amount)
     const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
-    const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, 0, akitaFees)
+    const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, asset, akitaFees, this.akitaDAOEscrow.value.app.address)
+    const required: uint64 = mbrAmount + referralMbr
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount >= (amount + mbrAmount + referralMbr), ERR_INVALID_PAYMENT)
+    // amounts.leftOver is the send amount after fees; any surplus (ALGO payment or asset transfer) is
+    // escrowed for future payments
+    let escrowed: uint64
+    if (asa) {
+      const assetXfer = gtxn.AssetTransferTxn(xfer)
+      // The revenue escrow is opted in to this asset eagerly at `optIn`
+      // time (see `AkitaFeeGeneratorContractWithOptIn.optIn`). The service's
+      // `asset === assetXfer.xferAsset.id` check above already guarantees
+      // subscribers use the same asset the service — and therefore the
+      // escrow — were configured with, so this assert is defensive.
+      loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(assetXfer.xferAsset), errNotOptedIn)
+      itxn
+        .assetTransfer({
+          assetReceiver: this.akitaDAOEscrow.value.app.address,
+          xferAsset: asset,
+          assetAmount: leftover
+        })
+        .submit()
 
-    itxn
-      .payment({
-        receiver: this.akitaDAOEscrow.value.app.address,
-        amount: leftover,
-      })
-      .submit()
+      // mbr payment checks
+      assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, required)
 
-    itxn
-      .payment({
-        receiver: payoutTarget,
-        amount: amounts.leftOver
-      })
-      .submit()
+      // asset transfer checks (no clawback-sourced, close-out or rekeying transfers)
+      assertSafeAssetTransfer(assetXfer, Txn.sender)
+      loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+      loggedAssert(assetXfer.assetAmount >= amount, errInvalidTransfer)
 
-    // amounts.leftOver is the send amount after fees
-    // payment.amount should be allowed to be over if
-    // the user wants to provide some assets for the escrow
-    // at the same time as they are subscribing
-    const paymentDifference: uint64 = payment.amount - (amount + mbrAmount + referralMbr)
+      itxn
+        .assetTransfer({
+          assetReceiver: payoutTarget,
+          xferAsset: asset,
+          assetAmount: amounts.leftOver
+        })
+        .submit()
+
+      escrowed = assetXfer.assetAmount - amount
+    } else {
+      assertSafePayment(payment, Txn.sender)
+      loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+      loggedAssert(payment.amount >= (amount + required), errInvalidPayment)
+
+      itxn
+        .payment({
+          receiver: this.akitaDAOEscrow.value.app.address,
+          amount: leftover,
+        })
+        .submit()
+
+      itxn
+        .payment({
+          receiver: payoutTarget,
+          amount: amounts.leftOver
+        })
+        .submit()
+
+      escrowed = payment.amount - (amount + required)
+    }
 
     this.subscriptions(subscriptionKey).value = {
       recipient: recipient,
@@ -288,118 +414,15 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
       startDate: Global.latestTimestamp,
       amount,
       interval,
-      asset: 0,
+      asset,
       gateID,
       lastPayment: Global.latestTimestamp,
       streak: 1,
-      escrowed: paymentDifference,
+      escrowed,
     }
 
-    return subscriptionID
-  }
-
-  private createAsaSubscription(
-    mbrPayment: gtxn.PaymentTxn,
-    assetXfer: gtxn.AssetTransferTxn,
-    recipient: Account,
-    amount: uint64,
-    interval: uint64,
-    serviceID: ServiceID,
-  ): uint64 {
-    const blocksKey = this.getBlockKey(recipient, Txn.sender)
-    // ensure they aren't blocked
-    loggedAssert(!this.blocks(blocksKey).exists, ERR_BLOCKED)
-    // gate is zero unless the service has a gate
-    let gateID: uint64 = 0
-
-    const costs = this.mbr()
-    let mbrAmount = costs.subscriptions
-    // index zero is always reserved for donations
-    const isDonation = serviceID === 0
-    let payoutTarget = recipient
-    if (!isDonation) {
-      const boxKey: ServicesKey = { address: recipient, id: serviceID }
-      // ensure the service exists
-      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-      // get the service details
-      const service = clone(this.services(boxKey).value)
-      // ensure the service is active
-      loggedAssert(service.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
-      // ensure its an algo subscription
-      loggedAssert(service.asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
-      // overwrite the details for the subscription
-      amount = service.amount
-      interval = service.interval
-      gateID = service.gateID
-
-      if (service.payoutAddress !== Global.zeroAddress) {
-        payoutTarget = service.payoutAddress
-      }
-
-      if (service.passes > 0) {
-        mbrAmount += costs.passes
-      }
-    }
-
-    const needsSubscriptionsListBoxMbr = !this.subscriptionslist(Txn.sender).exists
-    const subscriptionID = this.newSubscriptionID(Txn.sender)
-    const subscriptionKey = { address: Txn.sender, id: subscriptionID }
-
-    if (needsSubscriptionsListBoxMbr) {
-      mbrAmount += costs.subscriptionslist
-    }
-
-    const amounts = this.getAmounts(amount)
-    const akitaFees: uint64 = amounts.akitaFee + amounts.triggerFee
-    const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, assetXfer.xferAsset.id, akitaFees)
-
-    // The revenue escrow is opted in to this asset eagerly at `optIn`
-    // time (see `AkitaFeeGeneratorContractWithOptIn.optIn`). The service's
-    // `asset === assetXfer.xferAsset.id` check above already guarantees
-    // subscribers use the same asset the service — and therefore the
-    // escrow — were configured with, so this assert is defensive.
-    loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(assetXfer.xferAsset), ERR_NOT_OPTED_IN)
-    itxn
-      .assetTransfer({
-        assetReceiver: this.akitaDAOEscrow.value.app.address,
-        xferAsset: assetXfer.xferAsset,
-        assetAmount: leftover
-      })
-      .submit()
-
-    // mbr payment checks
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === mbrAmount + referralMbr, ERR_INVALID_PAYMENT)
-
-    // asset transfer checks
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetAmount >= amount, ERR_INVALID_TRANSFER)
-
-    itxn
-      .assetTransfer({
-        assetReceiver: payoutTarget,
-        xferAsset: assetXfer.xferAsset,
-        assetAmount: amounts.leftOver
-      })
-      .submit()
-
-    // amounts.leftOver is the send amount after fees
-    // payment.amount should be allowed to be over if
-    // the user wants to provide some assets for the escrow
-    // at the same time as they are subscribing
-    const paymentDifference: uint64 = assetXfer.assetAmount - amount
-
-    this.subscriptions(subscriptionKey).value = {
-      recipient: recipient,
-      serviceID,
-      startDate: Global.latestTimestamp,
-      amount,
-      interval,
-      asset: assetXfer.xferAsset.id,
-      gateID,
-      lastPayment: Global.latestTimestamp,
-      streak: 1,
-      escrowed: paymentDifference,
+    if (storesPrincipal) {
+      this.principals(subscriptionKey).value = { wallet, principal }
     }
 
     return subscriptionID
@@ -459,8 +482,10 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
         continue
       }
 
-      loggedAssert(txn.appId === Global.currentApplicationId, ERR_INVALID_SEQUENCE)
-      loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, ERR_INVALID_SEQUENCE)
+      loggedAssert(txn.appId === Global.currentApplicationId, errInvalidSequence)
+      loggedAssert(txn.onCompletion === OnCompleteAction.NoOp, errInvalidSequence)
+      // audit SG-12: only the same merchant may activate the new service
+      loggedAssert(txn.sender === Txn.sender, errInvalidSequence)
 
       if (txn.appArgs(0) === methodSelector(this.activateService)) {
         activated = true
@@ -469,460 +494,138 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
     }
 
-    loggedAssert(activated, ERR_SERVICE_NOT_ACTIVATED)
+    loggedAssert(activated, errServiceNotActivated)
   }
-
-  // LIFE CYCLE METHODS ---------------------------------------------------------------------------
-
-  @abimethod({ onCreate: 'require' })
-  create(version: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
-    this.version.value = version
-    this.akitaDAO.value = akitaDAO
-    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
-  }
-
-  // SUBSCRIPTION METHODS -------------------------------------------------------------------------
 
   /**
-   * newService creates a new service for a merchant
-   * @param payment The payment for the service creation
-   * @param interval The interval in seconds
-   * @param asset The asa to be used for the subscription
-   * @param amount The amount of the asa to be used for the subscription
-   * @param passes The number of accounts the subscription can be shared with
-   * @param gate The gate to be used for the subscription
-   * @param 
-   * or upgrade the subscription to a different service from the user without losing their streak
+   * LEGACY (registry semantics; legacy shims only, delete in Phase 4): the referrer the deployed
+   * contract paid, i.e. the registry wallet of `Txn.sender`'s referrer. `sendReferralPaymentTo` /
+   * `referralFeeTo` with this referrer are exactly `legacySendReferralPayment` / `legacyReferralFee`.
    */
-  newService(
-    payment: gtxn.PaymentTxn,
-    interval: uint64,
-    asset: uint64,
-    amount: uint64,
-    passes: uint64,
-    gateID: uint64,
-    payoutAddress: Account,
-    title: string,
-    bannerImage: CID,
-    highlightMessage: Uint8,
-    highlightColor: bytes<3>
-  ): uint64 {
-    const needsServicesListBoxMbr = !this.serviceslist(Txn.sender).exists
-    const id = this.newServiceID(Txn.sender)
-    const boxKey: ServicesKey = { address: Txn.sender, id }
+  private legacyReferrer(): Account {
+    return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
+  }
 
+  /**
+   * Argument checks shared by every subscribe entry point. Returns the service's gate id: required
+   * (any value) on the gated paths, asserted 0 on the ungated ones.
+   */
+  private checkSubscribe(recipient: Account, amount: uint64, interval: uint64, serviceID: ServiceID, gated: boolean): uint64 {
     // ensure the amount is enough to take fees on
-    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
+    loggedAssert(amount >= MIN_AMOUNT, errMinAmountIsThree)
     // ensure payouts cant be too fast
-    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
-    // family passes have a max of 5
-    loggedAssert(passes <= MAX_PASSES, ERR_MAX_PASSES_IS_FIVE)
-    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
+    loggedAssert(interval >= MIN_INTERVAL, errMinIntervalIsSixty)
 
-    const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
-    const costs = this.mbr()
-
-    let requiredAmount: uint64 = serviceCreationFee + costs.services
-    if (needsServicesListBoxMbr) {
-      requiredAmount += costs.serviceslist
-    }
-    if (asset !== 0) {
-      // Both the contract and the dedicated revenue escrow are opted in
-      // eagerly at `optIn` time. `newService` keeps a predictable MBR
-      // profile by asserting that up-front rather than paying for a
-      // revenue-manager opt-in flow on the first service created.
-      loggedAssert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
-      loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(asset)), ERR_NOT_OPTED_IN)
+    if (gated) {
+      loggedAssert(serviceID !== 0, errNotAService)
     }
 
-    const { leftover, referralMbr } = sendReferralPayment(this.akitaDAO.value, asset, serviceCreationFee)
-
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === requiredAmount + referralMbr, ERR_INVALID_PAYMENT)
-
-    itxn
-      .payment({
-        receiver: this.akitaDAOEscrow.value.app.address,
-        amount: leftover
-      })
-      .submit()
-
-    this.services(boxKey).value = {
-      status: ServiceStatusDraft,
-      interval,
-      asset,
-      amount,
-      passes,
-      gateID,
-      payoutAddress,
-      title,
-      description: '',
-      bannerImage,
-      highlightMessage,
-      highlightColor
+    if (serviceID === 0) {
+      return 0
     }
 
-    this.verifyServiceActivation()
-
-    return id
-  }
-
-  setServiceDescription(id: ServiceID, offset: uint64, data: bytes): void {
-    const key: ServicesKey = { address: Txn.sender, id }
-
-    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, ERR_BAD_DESCRIPTION_LENGTH)
-
-    let descBytes = Bytes(this.services(key).value.description)
-
-    loggedAssert(offset <= descBytes.length, ERR_BAD_OFFSET)
-
-    if (offset < descBytes.length) {
-      descBytes = descBytes.slice(0, offset)
-    }
-
-    this.services(key).value.description = String(descBytes.concat(data))
-  }
-
-  updateServiceTitle(id: ServiceID, title: string): void {
-    const key: ServicesKey = { address: Txn.sender, id }
-
-    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, ERR_TITLE_TOO_LONG)
-
-    this.services(key).value.title = title
-  }
-
-  /**
-   * activateService activates an service for a merchant
-   */
-  activateService(): void {
-    const id: uint64 = this.serviceslist(Txn.sender).value - 1
-
-    const boxKey: ServicesKey = { address: Txn.sender, id }
-
-    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    loggedAssert(this.services(boxKey).value.status === ServiceStatusDraft, ERR_SERVICE_IS_NOT_DRAFT)
-
-    this.services(boxKey).value.status = ServiceStatusActive
-  }
-
-  /**
-   * pauseService pauses a service for a merchant
-   * it does not shutdown pre-existing subscriptions
-   * it simply prevents new subscriptions from being created
-   * for a specific service
-   * @param index The index of the box to be used for the subscription
-   */
-  pauseService(id: ServiceID): void {
-    const boxKey: ServicesKey = { address: Txn.sender, id }
-    // ensure the box exists
-    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    // ensure the service is active
-    loggedAssert(this.services(boxKey).value.status === ServiceStatusActive, ERR_SERVICE_IS_NOT_ACTIVE)
-
-    this.services(boxKey).value.status = ServiceStatusPaused
-  }
-
-  /**
-   * unpauseService activates an service for a merchant
-   *
-   * @param index The index of the box to be used for the subscription
-   */
-  unpauseService(id: ServiceID): void {
-    const boxKey: ServicesKey = { address: Txn.sender, id }
-
-    // ensure the box exists
-    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    // ensure the service is currently paused
-    loggedAssert(this.services(boxKey).value.status === ServiceStatusPaused, ERR_SERVICE_IS_NOT_PAUSED)
-
-    this.services(boxKey).value.status = ServiceStatusActive
-  }
-
-  /**
-   * shutdownService permanently shuts down an service for a merchant
-   * it also shutsdown pre-existing subscriptions
-   * @param index The index of the box to be used for the subscription
-   */
-  shutdownService(id: ServiceID): void {
-    const boxKey: ServicesKey = { address: Txn.sender, id }
-    // ensure the box exists
-    loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    // ensure the service isn't already shutdown
-    loggedAssert(this.services(boxKey).value.status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
-
-    this.services(boxKey).value.status = ServiceStatusShutdown
-  }
-
-  /**
-   * block blacklists an address for a merchant
-   * @param payment The payment to cover mbr for blocking
-   * @param blocked The address to be blocked
-   */
-  block(payment: gtxn.PaymentTxn, blocked: Account): void {
-    // const origin = getOrigin(spending)
-    const boxKey = this.getBlockKey(Txn.sender, blocked)
-
-    // ensure the address is not already blocked
-    loggedAssert(!this.blocks(boxKey).exists, ERR_USER_ALREADY_BLOCKED)
-    // ensure the payment is correct
-    const costs = this.mbr()
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === costs.blocks, ERR_INVALID_PAYMENT)
-
-    this.blocks(boxKey).create()
-  }
-
-  /**
-   * unblock removes an address from a merchants blocks
-   * @param blocked The address to be unblocked
-   */
-  unblock(blocked: Account): void {
-    const boxKey = this.getBlockKey(Txn.sender, blocked)
-
-    // ensure that the address is currently blocked
-    loggedAssert(this.blocks(boxKey).exists, ERR_USER_NOT_BLOCKED)
-
-    this.blocks(boxKey).delete()
-
-    const costs = this.mbr()
-
-    itxn.payment({
-      receiver: Txn.sender,
-      amount: costs.blocks
-    }).submit()
-  }
-
-  gatedSubscribe(
-    payment: gtxn.PaymentTxn,
-    gateTxn: gtxn.ApplicationCallTxn,
-    recipient: Account,
-    amount: uint64,
-    interval: uint64,
-    serviceID: ServiceID,
-  ): uint64 {
-    // ensure the amount is enough to take fees on
-    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
-    // ensure payouts cant be too fast
-    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
-
-    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, errServiceDoesNotExist)
     const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-
-    const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-    const origin = originOrTxnSender(wallet)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
-
-    return this.createSubscription(payment, recipient, amount, interval, serviceID)
+    if (!gated) {
+      loggedAssert(gateID === 0, errHasGate)
+    }
+    return gateID
   }
 
-  subscribe(
+  /**
+   * Every subscribe entry point: argument checks, the caller's identity, the gate (gated paths) and
+   * `createSubscription`.
+   * - hinted (`legacy` false): `p = principalOf(dao, wallet)` (strict); the gate txn at group index `gate`
+   *   must be `Gate.mustCheckFor(gateCtx(p), gateID, args)`; referral to `p.referrer`; the pair
+   *   `(p.wallet, p.principal)` is stored for a gated service.
+   * - legacy shims (`legacy` true, `wallet` ignored): registry wallet of `Txn.sender`; the gate txn must be
+   *   `Gate.mustCheck(registry origin, gateID, args)`; registry referral; nothing stored.
+   */
+  private subscribeImpl(
     payment: gtxn.PaymentTxn,
+    asa: boolean,
+    xfer: uint64,
+    gated: boolean,
+    gate: uint64,
     recipient: Account,
     amount: uint64,
     interval: uint64,
     serviceID: ServiceID,
+    wallet: uint64,
+    legacy: boolean
   ): uint64 {
-    // ensure the amount is enough to take fees on
-    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
-    // ensure payouts cant be too fast
-    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
+    const gateID = this.checkSubscribe(recipient, amount, interval, serviceID, gated)
 
-    if (serviceID !== 0) {
-      loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
-      const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-      loggedAssert(gateID === 0, ERR_HAS_GATE)
-    }
-
-    return this.createSubscription(payment, recipient, amount, interval, serviceID)
-  }
-
-  gatedSubscribeAsa(
-    payment: gtxn.PaymentTxn,
-    assetXfer: gtxn.AssetTransferTxn,
-    gateTxn: gtxn.ApplicationCallTxn,
-    recipient: Account,
-    amount: uint64,
-    interval: uint64,
-    serviceID: ServiceID,
-  ): uint64 {
-    // ensure the amount is enough to take fees on
-    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
-    // ensure payouts cant be too fast
-    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
-
-    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-
-    const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-    const origin = originOrTxnSender(wallet)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
-
-    return this.createAsaSubscription(
-      payment,
-      assetXfer,
-      recipient,
-      amount,
-      interval,
-      serviceID
-    )
-  }
-
-  subscribeAsa(
-    payment: gtxn.PaymentTxn,
-    assetXfer: gtxn.AssetTransferTxn,
-    recipient: Account,
-    amount: uint64,
-    interval: uint64,
-    serviceID: ServiceID,
-  ): uint64 {
-    // ensure the amount is enough to take fees on
-    loggedAssert(amount >= MIN_AMOUNT, ERR_MIN_AMOUNT_IS_THREE)
-    // ensure payouts cant be too fast
-    loggedAssert(interval >= MIN_INTERVAL, ERR_MIN_INTERVAL_IS_SIXTY)
-
-    if (serviceID !== 0) {
-      loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
-      const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-      loggedAssert(gateID === 0, ERR_HAS_GATE)
-    }
-
-    return this.createAsaSubscription(
-      payment,
-      assetXfer,
-      recipient,
-      amount,
-      interval,
-      serviceID
-    )
-  }
-
-  deposit(payment: gtxn.PaymentTxn, id: SubscriptionID): void {
-    const subKey = { address: Txn.sender, id }
-
-    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
-
-    const sub = clone(this.subscriptions(subKey).value)
-
-    loggedAssert(sub.asset === 0, ERR_ASA_MISMATCH)
-
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-
-    this.subscriptions(subKey).value.escrowed += payment.amount
-  }
-
-  depositAsa(assetXfer: gtxn.AssetTransferTxn, id: SubscriptionID): void {
-    const subKey: SubscriptionKey = { address: Txn.sender, id }
-
-    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
-
-    const { asset } = this.subscriptions(subKey).value
-
-    loggedAssert(asset === assetXfer.xferAsset.id, ERR_ASA_MISMATCH)
-
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_ASSET_RECEIVER)
-
-    this.subscriptions(subKey).value.escrowed += assetXfer.assetAmount
-  }
-
-  withdraw(id: SubscriptionID, amount: uint64): void {
-    const subKey: SubscriptionKey = { address: Txn.sender, id }
-
-    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
-
-    const sub = clone(this.subscriptions(subKey).value)
-
-    loggedAssert(sub.escrowed >= amount, ERR_NOT_ENOUGH_FUNDS)
-
-    if (sub.asset !== 0) {
-      itxn
-        .assetTransfer({
-          assetReceiver: Txn.sender,
-          xferAsset: sub.asset,
-          assetAmount: amount
-        })
-        .submit()
-    } else {
-      itxn
-        .payment({
-          receiver: Txn.sender,
-          amount: amount
-        })
-        .submit()
-    }
-
-    this.subscriptions(subKey).value.escrowed -= amount
-  }
-
-  unsubscribe(id: SubscriptionID): void {
-    const subKey: SubscriptionKey = { address: Txn.sender, id }
-
-    loggedAssert(this.subscriptions(subKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
-
-    const sub = clone(this.subscriptions(subKey).value)
-
-    const costs = this.mbr()
-    let mbrRefund: uint64 = costs.subscriptions
-    if (sub.serviceID > 0) {
-      const { passes } = this.services({ address: sub.recipient, id: sub.serviceID }).value
-      if (passes > 0 && this.passes({ address: Txn.sender, id: sub.serviceID }).exists) {
-        this.passes({ address: Txn.sender, id: sub.serviceID }).delete()
-        mbrRefund += costs.passes
+    if (legacy) {
+      const legacyWallet = legacyWalletOf(this.akitaDAO.value, Txn.sender)
+      if (gated) {
+        loggedAssert(gateCheck(gtxn.ApplicationCallTxn(gate), this.akitaDAO.value, legacyOriginOrTxnSender(legacyWallet), gateID), errFailedGate)
       }
+      return this.createSubscription(payment, asa, xfer, recipient, amount, interval, serviceID, referrerOrZeroAddress(legacyWallet), 0, Global.zeroAddress)
     }
 
-    if (sub.asset !== 0) {
-      if (sub.escrowed > 0) {
-        itxn
-          .assetTransfer({
-            assetReceiver: Txn.sender,
-            xferAsset: sub.asset,
-            assetAmount: sub.escrowed
-          })
-          .submit()
-      }
-
-      itxn
-        .payment({
-          receiver: Txn.sender,
-          amount: mbrRefund
-        })
-        .submit()
-    } else {
-      itxn
-        .payment({
-          receiver: Txn.sender,
-          amount: sub.escrowed + mbrRefund
-        })
-        .submit()
+    const p = principalOf(this.akitaDAO.value, wallet)
+    if (gated) {
+      loggedAssert(gateCheckCtx(gtxn.ApplicationCallTxn(gate), this.akitaDAO.value, gateCtx(p), gateID), errFailedGate)
     }
-
-    this.subscriptions(subKey).delete()
+    return this.createSubscription(payment, asa, xfer, recipient, amount, interval, serviceID, p.referrer, p.wallet, p.principal)
   }
 
-  gatedTriggerPayment(gateTxn: gtxn.ApplicationCallTxn, key: SubscriptionKey): void {
+  /** gate id a gated trigger of `key` must pass (the service's gate) */
+  private triggerGateID(key: SubscriptionKey): uint64 {
     // ensure a subscription exists
-    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(key).exists, errSubscriptionDoesNotExist)
 
     const { serviceID, recipient } = this.subscriptions(key).value
 
-    loggedAssert(serviceID !== 0, ERR_NOT_A_SERVICE)
-    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, ERR_SERVICE_DOES_NOT_EXIST)
-    const gateID = this.services({ address: recipient, id: serviceID }).value.gateID
-
-    const wallet = getWalletIDUsingAkitaDAO(this.akitaDAO.value, Txn.sender)
-    const origin = originOrTxnSender(wallet)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), ERR_FAILED_GATE)
-
-    this.triggerPayment(key)
+    loggedAssert(serviceID !== 0, errNotAService)
+    loggedAssert(this.services({ address: recipient, id: serviceID }).exists, errServiceDoesNotExist)
+    return this.services({ address: recipient, id: serviceID }).value.gateID
   }
 
-  triggerPayment(key: SubscriptionKey): void {
+  /**
+   * Gate subject of a hinted gated trigger (principal resolution §6.4). `p` is the CALLER's own verified
+   * principal; it never names the subscriber.
+   *  (1) a stored pair exists and the caller is the subscriber's own wallet → the caller's live context
+   *      (avoids E23: inside its own window the subscriber is not owned at rest);
+   *  (2) a stored pair exists, any other caller → the pair re-checked at rest (no wallet-global reads, so
+   *      the subscriber cannot make keeper triggers panic);
+   *  (3) no stored pair (legacy subscription) → the registry derivation the deployed contract used, with
+   *      the wallet kept only if it owns the subscriber at rest.
+   */
+  private triggerCtx(key: SubscriptionKey, p: Principal): GateCtx {
+    let wallet: uint64
+    let principal: Account
+    if (this.principals(key).exists) {
+      const stored = clone(this.principals(key).value)
+      if (p.wallet !== 0 && p.wallet === stored.wallet) {
+        return gateCtx(p)
+      }
+      wallet = stored.wallet
+      principal = atRestPrincipalOf(this.akitaDAO.value, key.address, stored.wallet, stored.principal)
+    } else {
+      // LEGACY (registry; Phase 4 replaces it with `key.address` after the adoptPrincipal backfill, Q13)
+      const legacyWallet = legacyWalletOf(this.akitaDAO.value, key.address)
+      wallet = legacyWallet.id
+      principal = legacyOriginOr(legacyWallet, key.address)
+    }
 
-    loggedAssert(this.canTrigger(key), ERR_CANNOT_TRIGGER)
+    return {
+      principal,
+      // the wallet only counts while it owns the subscriber at rest (no wallet-global reads)
+      wallet: ownsAtRestOf(this.akitaDAO.value, wallet, key.address) ? wallet : 0,
+      spender: key.address,
+    }
+  }
+
+  /**
+   * Shared body of `triggerPayment` and both `gatedTriggerPayment` selectors. Replaces the old
+   * `Txn.applicationArgs(0) === methodSelector(this.gatedTriggerPayment)` check, which would reject the
+   * legacy shim (spec §6 conventions): a gated subscription can only be paid through a gated entry point.
+   */
+  private triggerImpl(key: SubscriptionKey, gated: boolean): void {
+
+    loggedAssert(this.canTrigger(key), errCannotTrigger)
 
     const {
       recipient,
@@ -933,7 +636,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     } = this.subscriptions(key).value
 
     if (gateID !== 0) {
-      loggedAssert(Txn.applicationArgs(0) === methodSelector(this.gatedTriggerPayment), ERR_INVALID_SEQUENCE)
+      loggedAssert(gated, errInvalidSequence)
     }
 
     let payoutTarget = recipient
@@ -1000,39 +703,639 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
         .submit()
     }
 
-    this.updateStreak(key, 1)
+    this.incrementStreakOnPayment(key)
 
     this.subscriptions(key).value.escrowed -= amount
     this.subscriptions(key).value.lastPayment = Global.latestTimestamp
   }
 
+  /** Shared body of both `newService` selectors; `referrer` as in `createSubscription`. */
+  private newServiceImpl(
+    payment: gtxn.PaymentTxn,
+    interval: uint64,
+    asset: uint64,
+    amount: uint64,
+    passes: uint64,
+    gateID: uint64,
+    payoutAddress: Account,
+    title: string,
+    bannerImage: CID,
+    highlightMessage: Uint8,
+    highlightColor: bytes<3>,
+    referrer: Account
+  ): uint64 {
+    const needsServicesListBoxMbr = !this.serviceslist(Txn.sender).exists
+    const id = this.newServiceID(Txn.sender)
+    const boxKey: ServicesKey = { address: Txn.sender, id }
+
+    // ensure the amount is enough to take fees on
+    loggedAssert(amount >= MIN_AMOUNT, errMinAmountIsThree)
+    // ensure payouts cant be too fast
+    loggedAssert(interval >= MIN_INTERVAL, errMinIntervalIsSixty)
+    // family passes have a max of 5
+    loggedAssert(passes <= MAX_PASSES, errMaxPassesIsFive)
+    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, errTitleTooLong)
+
+    const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
+    const costs = this.mbr()
+
+    let requiredAmount: uint64 = serviceCreationFee + costs.services
+    if (needsServicesListBoxMbr) {
+      requiredAmount += costs.serviceslist
+    }
+    if (asset !== 0) {
+      // Both the contract and the dedicated revenue escrow are opted in
+      // eagerly at `optIn` time. `newService` keeps a predictable MBR
+      // profile by asserting that up-front rather than paying for a
+      // revenue-manager opt-in flow on the first service created.
+      loggedAssert(Global.currentApplicationAddress.isOptedIn(Asset(asset)), errNotOptedIn)
+      loggedAssert(this.akitaDAOEscrow.value.app.address.isOptedIn(Asset(asset)), errNotOptedIn)
+    }
+
+    // audit SG-01: the creation fee is ALGO, so its referral cut is paid in ALGO too
+    // (never out of the ASA balances escrowed for subscribers)
+    const { leftover, referralMbr } = sendReferralPaymentTo(this.akitaDAO.value, referrer, 0, serviceCreationFee, this.akitaDAOEscrow.value.app.address)
+
+    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, requiredAmount + referralMbr)
+
+    itxn
+      .payment({
+        receiver: this.akitaDAOEscrow.value.app.address,
+        amount: leftover
+      })
+      .submit()
+
+    this.services(boxKey).value = {
+      status: ServiceStatusDraft,
+      interval,
+      asset,
+      amount,
+      passes,
+      gateID,
+      payoutAddress,
+      title,
+      description: '',
+      bannerImage,
+      highlightMessage,
+      highlightColor
+    }
+
+    this.verifyServiceActivation()
+
+    return id
+  }
+
+  /** `newServiceCost` without the referral term (the caller of `Txn.sender` decides the referrer) */
+  private serviceCost(referrer: Account): uint64 {
+    const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
+    const costs = this.mbr()
+
+    let requiredAmount: uint64 = serviceCreationFee + costs.services
+    if (!this.serviceslist(Txn.sender).exists) {
+      requiredAmount += costs.serviceslist
+    }
+
+    // audit SG-01: the creation fee (and so its referral) is always ALGO; `asset` is kept for ABI compatibility
+    return requiredAmount + referralFeeTo(this.akitaDAO.value, referrer, 0)
+  }
+
+  /** box MBR of a new subscription by `Txn.sender` (without the stored pair and the referral term); returns the gate id too */
+  private subscriptionMbr(recipient: Account, serviceID: ServiceID): [uint64, uint64] {
+    const costs = this.mbr()
+    let mbrAmount = costs.subscriptions
+    let gateID: uint64 = 0
+    // index zero is always reserved for donations
+    if (serviceID !== 0) {
+      const boxKey: ServicesKey = { address: recipient, id: serviceID }
+      // ensure the service exists
+      loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
+      // get the service details
+      const service = clone(this.services(boxKey).value)
+      gateID = service.gateID
+
+      if (service.passes > 0) {
+        mbrAmount += costs.passes
+      }
+    }
+
+    if (!this.subscriptionslist(Txn.sender).exists) {
+      mbrAmount += costs.subscriptionslist
+    }
+
+    // Note: Escrow opt-in costs are NOT included here because they are paid
+    // via inner transactions from the contract's balance in createSubscription()
+    return [mbrAmount, gateID]
+  }
+
+  // LIFE CYCLE METHODS ---------------------------------------------------------------------------
+
+  @abimethod({ onCreate: 'require' })
+  create(version: string, akitaDAO: Application, akitaDAOEscrow: EscrowConfig): void {
+    this.version.value = version
+    this.akitaDAO.value = akitaDAO
+    this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
+  }
+
+  // SUBSCRIPTION METHODS -------------------------------------------------------------------------
+
+  /**
+   * newService creates a new service for a merchant
+   * @param payment The payment for the service creation
+   * @param interval The interval in seconds
+   * @param asset The asa to be used for the subscription
+   * @param amount The amount of the asa to be used for the subscription
+   * @param passes The number of accounts the subscription can be shared with
+   * @param gateID The gate to be used for the subscription
+   * @param wallet Principal-resolution hint (last arg): the caller's ARC-58 wallet, 0 for a plain account.
+   * The referral cut goes to the verified wallet's referrer (no registry lookup).
+   */
+  newService(
+    payment: gtxn.PaymentTxn,
+    interval: uint64,
+    asset: uint64,
+    amount: uint64,
+    passes: uint64,
+    gateID: uint64,
+    payoutAddress: Account,
+    title: string,
+    bannerImage: CID,
+    highlightMessage: Uint8,
+    highlightColor: bytes<3>,
+    wallet: uint64
+  ): uint64 {
+    const p = principalOf(this.akitaDAO.value, wallet)
+    return this.newServiceImpl(payment, interval, asset, amount, passes, gateID, payoutAddress, title, bannerImage, highlightMessage, highlightColor, p.referrer)
+  }
+
+  /** LEGACY shim (pre-hint selector, registry referral); delete in Phase 4. */
+  @abimethod({ name: 'newService' })
+  legacyNewService(
+    payment: gtxn.PaymentTxn,
+    interval: uint64,
+    asset: uint64,
+    amount: uint64,
+    passes: uint64,
+    gateID: uint64,
+    payoutAddress: Account,
+    title: string,
+    bannerImage: CID,
+    highlightMessage: Uint8,
+    highlightColor: bytes<3>
+  ): uint64 {
+    return this.newServiceImpl(payment, interval, asset, amount, passes, gateID, payoutAddress, title, bannerImage, highlightMessage, highlightColor, this.legacyReferrer())
+  }
+
+  setServiceDescription(id: ServiceID, offset: uint64, data: bytes): void {
+    const key: ServicesKey = { address: Txn.sender, id }
+
+    loggedAssert(this.services(key).exists, errServiceDoesNotExist)
+    loggedAssert(offset + data.length <= MAX_DESCRIPTION_LENGTH, errBadDescriptionLength)
+
+    let descBytes = Bytes(this.services(key).value.description)
+
+    loggedAssert(offset <= descBytes.length, errBadOffset)
+
+    if (offset < descBytes.length) {
+      descBytes = descBytes.slice(0, offset)
+    }
+
+    this.services(key).value.description = String(descBytes.concat(data))
+  }
+
+  updateServiceTitle(id: ServiceID, title: string): void {
+    const key: ServicesKey = { address: Txn.sender, id }
+
+    loggedAssert(this.services(key).exists, errServiceDoesNotExist)
+    loggedAssert(Bytes(title).length <= MAX_TITLE_LENGTH, errTitleTooLong)
+
+    this.services(key).value.title = title
+  }
+
+  /**
+   * activateService activates an service for a merchant
+   */
+  activateService(): void {
+    const id: uint64 = this.serviceslist(Txn.sender).value - 1
+
+    const boxKey: ServicesKey = { address: Txn.sender, id }
+
+    loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusDraft, errServiceIsNotDraft)
+
+    this.services(boxKey).value.status = ServiceStatusActive
+  }
+
+  /**
+   * pauseService pauses a service for a merchant
+   * it does not shutdown pre-existing subscriptions
+   * it simply prevents new subscriptions from being created
+   * for a specific service
+   * @param index The index of the box to be used for the subscription
+   */
+  pauseService(id: ServiceID): void {
+    const boxKey: ServicesKey = { address: Txn.sender, id }
+    // ensure the box exists
+    loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
+    // ensure the service is active
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusActive, errServiceIsNotActive)
+
+    this.services(boxKey).value.status = ServiceStatusPaused
+  }
+
+  /**
+   * unpauseService activates an service for a merchant
+   *
+   * @param index The index of the box to be used for the subscription
+   */
+  unpauseService(id: ServiceID): void {
+    const boxKey: ServicesKey = { address: Txn.sender, id }
+
+    // ensure the box exists
+    loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
+    // ensure the service is currently paused
+    loggedAssert(this.services(boxKey).value.status === ServiceStatusPaused, errServiceIsNotPaused)
+
+    this.services(boxKey).value.status = ServiceStatusActive
+  }
+
+  /**
+   * shutdownService permanently shuts down an service for a merchant
+   * it also shutsdown pre-existing subscriptions
+   * @param index The index of the box to be used for the subscription
+   */
+  shutdownService(id: ServiceID): void {
+    const boxKey: ServicesKey = { address: Txn.sender, id }
+    // ensure the box exists
+    loggedAssert(this.services(boxKey).exists, errServiceDoesNotExist)
+    // ensure the service isn't already shutdown
+    loggedAssert(this.services(boxKey).value.status !== ServiceStatusShutdown, errServiceIsShutdown)
+
+    this.services(boxKey).value.status = ServiceStatusShutdown
+  }
+
+  /**
+   * block blacklists an address for a merchant
+   * @param payment The payment to cover mbr for blocking
+   * @param blocked The address to be blocked
+   */
+  block(payment: gtxn.PaymentTxn, blocked: Account): void {
+    // const origin = getOrigin(spending)
+    const boxKey = this.getBlockKey(Txn.sender, blocked)
+
+    // ensure the address is not already blocked
+    loggedAssert(!this.blocks(boxKey).exists, errUserAlreadyBlocked)
+    // ensure the payment is correct
+    const costs = this.mbr()
+    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, costs.blocks)
+
+    this.blocks(boxKey).create()
+  }
+
+  /**
+   * unblock removes an address from a merchants blocks
+   * @param blocked The address to be unblocked
+   */
+  unblock(blocked: Account): void {
+    const boxKey = this.getBlockKey(Txn.sender, blocked)
+
+    // ensure that the address is currently blocked
+    loggedAssert(this.blocks(boxKey).exists, errUserNotBlocked)
+
+    this.blocks(boxKey).delete()
+
+    const costs = this.mbr()
+
+    itxn.payment({
+      receiver: Txn.sender,
+      amount: costs.blocks
+    }).submit()
+  }
+
+  /**
+   * Subscribe to a gated ALGO service. The gate is checked for the caller's verified context through
+   * `Gate.mustCheckFor(gateCtx(p), gateID, args)` (`gateTxn`). A subscriber acting through a verified
+   * wallet stores the pair `(W, principal)` (+`SubscriptionPrincipalMBR`, quoted by `newSubscriptionCost`).
+   * @param wallet Principal-resolution hint (last arg): the caller's ARC-58 wallet, 0 for a plain account
+   */
+  gatedSubscribe(
+    payment: gtxn.PaymentTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+    wallet: uint64
+  ): uint64 {
+    return this.subscribeImpl(payment, false, 0, true, gateTxn.groupIndex, recipient, amount, interval, serviceID, wallet, false)
+  }
+
+  /** LEGACY shim (pre-hint selector): registry gate origin and referral, no stored pair; delete in Phase 4. */
+  @abimethod({ name: 'gatedSubscribe' })
+  legacyGatedSubscribe(
+    payment: gtxn.PaymentTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+  ): uint64 {
+    return this.subscribeImpl(payment, false, 0, true, gateTxn.groupIndex, recipient, amount, interval, serviceID, 0, true)
+  }
+
+  /**
+   * Subscribe to an ungated ALGO service (or donate with `serviceID` 0).
+   * @param wallet Principal-resolution hint (last arg): the referral cut goes to the verified wallet's referrer
+   */
+  subscribe(
+    payment: gtxn.PaymentTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+    wallet: uint64
+  ): uint64 {
+    return this.subscribeImpl(payment, false, 0, false, 0, recipient, amount, interval, serviceID, wallet, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, registry referral); delete in Phase 4. */
+  @abimethod({ name: 'subscribe' })
+  legacySubscribe(
+    payment: gtxn.PaymentTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+  ): uint64 {
+    return this.subscribeImpl(payment, false, 0, false, 0, recipient, amount, interval, serviceID, 0, true)
+  }
+
+  /** `gatedSubscribe` for an ASA service (`payment` covers the MBR exactly). */
+  gatedSubscribeAsa(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+    wallet: uint64
+  ): uint64 {
+    return this.subscribeImpl(payment, true, assetXfer.groupIndex, true, gateTxn.groupIndex, recipient, amount, interval, serviceID, wallet, false)
+  }
+
+  /** LEGACY shim (pre-hint selector): registry gate origin and referral, no stored pair; delete in Phase 4. */
+  @abimethod({ name: 'gatedSubscribeAsa' })
+  legacyGatedSubscribeAsa(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    gateTxn: gtxn.ApplicationCallTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+  ): uint64 {
+    return this.subscribeImpl(payment, true, assetXfer.groupIndex, true, gateTxn.groupIndex, recipient, amount, interval, serviceID, 0, true)
+  }
+
+  /** `subscribe` for an ASA service (`payment` covers the MBR exactly). */
+  subscribeAsa(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+    wallet: uint64
+  ): uint64 {
+    return this.subscribeImpl(payment, true, assetXfer.groupIndex, false, 0, recipient, amount, interval, serviceID, wallet, false)
+  }
+
+  /** LEGACY shim (pre-hint selector, registry referral); delete in Phase 4. */
+  @abimethod({ name: 'subscribeAsa' })
+  legacySubscribeAsa(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    recipient: Account,
+    amount: uint64,
+    interval: uint64,
+    serviceID: ServiceID,
+  ): uint64 {
+    return this.subscribeImpl(payment, true, assetXfer.groupIndex, false, 0, recipient, amount, interval, serviceID, 0, true)
+  }
+
+  deposit(payment: gtxn.PaymentTxn, id: SubscriptionID): void {
+    const subKey = { address: Txn.sender, id }
+
+    loggedAssert(this.subscriptions(subKey).exists, errSubscriptionDoesNotExist)
+
+    const sub = clone(this.subscriptions(subKey).value)
+
+    loggedAssert(sub.asset === 0, errAsaMismatch)
+
+    assertSafePayment(payment, Txn.sender)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+
+    this.subscriptions(subKey).value.escrowed += payment.amount
+  }
+
+  depositAsa(assetXfer: gtxn.AssetTransferTxn, id: SubscriptionID): void {
+    const subKey: SubscriptionKey = { address: Txn.sender, id }
+
+    loggedAssert(this.subscriptions(subKey).exists, errSubscriptionDoesNotExist)
+
+    const { asset } = this.subscriptions(subKey).value
+
+    loggedAssert(asset === assetXfer.xferAsset.id, errAsaMismatch)
+
+    assertSafeAssetTransfer(assetXfer, Txn.sender)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidAssetReceiver)
+
+    this.subscriptions(subKey).value.escrowed += assetXfer.assetAmount
+  }
+
+  withdraw(id: SubscriptionID, amount: uint64): void {
+    const subKey: SubscriptionKey = { address: Txn.sender, id }
+
+    loggedAssert(this.subscriptions(subKey).exists, errSubscriptionDoesNotExist)
+
+    const sub = clone(this.subscriptions(subKey).value)
+
+    loggedAssert(sub.escrowed >= amount, errNotEnoughFunds)
+
+    if (sub.asset !== 0) {
+      itxn
+        .assetTransfer({
+          assetReceiver: Txn.sender,
+          xferAsset: sub.asset,
+          assetAmount: amount
+        })
+        .submit()
+    } else {
+      itxn
+        .payment({
+          receiver: Txn.sender,
+          amount: amount
+        })
+        .submit()
+    }
+
+    this.subscriptions(subKey).value.escrowed -= amount
+  }
+
+  unsubscribe(id: SubscriptionID): void {
+    const subKey: SubscriptionKey = { address: Txn.sender, id }
+
+    loggedAssert(this.subscriptions(subKey).exists, errSubscriptionDoesNotExist)
+
+    const sub = clone(this.subscriptions(subKey).value)
+
+    this.ensurePassesRepriced()
+    const costs = this.mbr()
+    let mbrRefund: uint64 = costs.subscriptions
+    if (sub.serviceID > 0) {
+      const { passes } = this.services({ address: sub.recipient, id: sub.serviceID }).value
+      // audit SG-08: the pass MBR was charged at subscribe time whenever the service offers
+      // passes, so it is always refunded; the pass box is keyed by the subscription id
+      if (passes > 0) {
+        this.passes(subKey).delete()
+        mbrRefund += this.passesCharged(sub.startDate)
+      }
+    }
+    // principal resolution §6.4: the stored pair's MBR goes back with the subscription
+    if (this.principals(subKey).delete()) {
+      mbrRefund += SubscriptionPrincipalMBR
+    }
+
+    if (sub.asset !== 0) {
+      if (sub.escrowed > 0) {
+        itxn
+          .assetTransfer({
+            assetReceiver: Txn.sender,
+            xferAsset: sub.asset,
+            assetAmount: sub.escrowed
+          })
+          .submit()
+      }
+
+      itxn
+        .payment({
+          receiver: Txn.sender,
+          amount: mbrRefund
+        })
+        .submit()
+    } else {
+      itxn
+        .payment({
+          receiver: Txn.sender,
+          amount: sub.escrowed + mbrRefund
+        })
+        .submit()
+    }
+
+    this.subscriptions(subKey).delete()
+  }
+
+  /**
+   * Pay a gated subscription. The gate is re-checked for the SUBSCRIBER (audit SG-05), never for the
+   * caller: `wallet` is the caller's OWN hint (strict; keepers acting as themselves pass 0) and only
+   * selects case (1) of `triggerCtx` when the caller is the subscriber's own stored wallet. `gateTxn` must
+   * be `Gate.mustCheckFor(triggerGateCtx(key, wallet), gateID, args)`.
+   */
+  gatedTriggerPayment(gateTxn: gtxn.ApplicationCallTxn, key: SubscriptionKey, wallet: uint64): void {
+    const gateID = this.triggerGateID(key)
+    const ctx = this.triggerCtx(key, principalOf(this.akitaDAO.value, wallet))
+    loggedAssert(gateCheckCtx(gateTxn, this.akitaDAO.value, ctx, gateID), errFailedGate)
+
+    this.triggerImpl(key, true)
+  }
+
+  /**
+   * LEGACY shim (pre-hint selector, used by the deployed Subscriptions plugin): the gate subject is the
+   * subscriber's registry origin, checked with a plain `Gate.mustCheck`; delete in Phase 4.
+   */
+  @abimethod({ name: 'gatedTriggerPayment' })
+  legacyGatedTriggerPayment(gateTxn: gtxn.ApplicationCallTxn, key: SubscriptionKey): void {
+    const gateID = this.triggerGateID(key)
+    // audit SG-05: eligibility is re-checked for the subscriber, never for the keeper
+    const wallet = legacyWalletOf(this.akitaDAO.value, key.address)
+    const origin = legacyOriginOr(wallet, key.address)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, origin, gateID), errFailedGate)
+
+    this.triggerImpl(key, true)
+  }
+
+  /** Pay an ungated subscription (a gated one needs `gatedTriggerPayment`: errInvalidSequence). */
+  triggerPayment(key: SubscriptionKey): void {
+    this.triggerImpl(key, false)
+  }
+
+  /**
+   * Q13 backfill for a gated subscription made before principal resolution (no stored pair): copies the
+   * registry answer `(legacyWalletOf(key.address), legacyOriginOr(...))` into `principals` once, so the
+   * Phase 4 contract can drop the registry read. Permissionless and caller-funded: `payment` is exactly
+   * `SubscriptionPrincipalMBR` from `Txn.sender` (refunded to the subscriber by `unsubscribe`).
+   */
+  adoptPrincipal(payment: gtxn.PaymentTxn, key: SubscriptionKey): void {
+    loggedAssert(this.subscriptions(key).exists, errSubscriptionDoesNotExist)
+    loggedAssert(this.subscriptions(key).value.gateID !== 0, errNotGated)
+    loggedAssert(!this.principals(key).exists, errPrincipalExists)
+
+    const wallet = legacyWalletOf(this.akitaDAO.value, key.address)
+    // nothing to adopt: a plain subscriber keeps `key.address` (and nobody can pin it for them)
+    loggedAssert(wallet.id !== 0, errNoLegacyWallet)
+
+    assertBoundPayment(payment, Txn.sender, Global.currentApplicationAddress, SubscriptionPrincipalMBR)
+
+    this.principals(key).value = { wallet: wallet.id, principal: legacyOriginOr(wallet, key.address) }
+  }
+
+  /**
+   * Resets the streak of a subscription that missed a payment window. Never increments it
+   * (audit SG-02): only payments grow a streak.
+   */
   streakCheck(key: SubscriptionKey): void {
-    this.updateStreak(key, 0)
+    loggedAssert(this.subscriptions(key).exists, errSubscriptionDoesNotExist)
+    const sub = clone(this.subscriptions(key).value)
+    const currentWindowStart: uint64 = this.getLatestWindowStart(sub.startDate, sub.interval)
+    if (sub.lastPayment < this.getPreviousWindowStart(currentWindowStart, sub.interval)) {
+      this.subscriptions(key).value.streak = 0
+    }
   }
 
   setPasses(id: SubscriptionID, addresses: Account[]): void {
     const subscriptionsKey: SubscriptionKey = { address: Txn.sender, id }
 
-    loggedAssert(this.subscriptions(subscriptionsKey).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(subscriptionsKey).exists, errSubscriptionDoesNotExist)
 
     const { serviceID, recipient } = clone(this.subscriptions(subscriptionsKey).value)
 
-    loggedAssert(serviceID > 0, ERR_NO_DONATIONS)
+    loggedAssert(serviceID > 0, errNoDonations)
 
     const serviceKey: ServicesKey = { address: recipient, id: serviceID }
 
-    loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(serviceKey).exists, errServiceDoesNotExist)
 
     const { status, passes } = this.services(serviceKey).value
 
-    loggedAssert(status !== ServiceStatusShutdown, ERR_SERVICE_IS_SHUTDOWN)
-    loggedAssert(passes >= addresses.length, ERR_PASS_COUNT_OVERFLOW)
+    loggedAssert(status !== ServiceStatusShutdown, errServiceIsShutdown)
+    // audit SG-08: services without passes never paid for a pass box
+    loggedAssert(passes > 0 && passes >= addresses.length, errPassCountOverflow)
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
-      loggedAssert(!this.blocks(this.getBlockKey(recipient, addresses[i])).exists, ERR_BLOCKED)
+      loggedAssert(!this.blocks(this.getBlockKey(recipient, addresses[i])).exists, errBlocked)
     }
 
     this.passes({ address: Txn.sender, id }).value = clone(addresses)
+  }
+
+  /**
+   * Deletes a pass box left behind by a subscription that was cancelled before the SG-08
+   * fix (legacy `unsubscribe` deleted the wrong key). The freed MBR stays in the contract:
+   * whether the owner was already refunded cannot be determined on-chain.
+   */
+  clearOrphanPasses(key: SubscriptionKey): void {
+    loggedAssert(!this.subscriptions(key).exists, errSubscriptionDoesNotExist)
+    loggedAssert(this.passes(key).delete(), errSubscriptionDoesNotExist)
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
@@ -1071,52 +1374,53 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   }
 
   @abimethod({ readonly: true })
-  newServiceCost(asset: uint64): uint64 {
-    const serviceCreationFee = getSubscriptionFees(this.akitaDAO.value).serviceCreationFee
-    const costs = this.mbr()
-
-    let requiredAmount: uint64 = serviceCreationFee + costs.services
-    if (!this.serviceslist(Txn.sender).exists) {
-      requiredAmount += costs.serviceslist
-    }
-
-    const referralCost = referralFee(this.akitaDAO.value, asset)
-
-    return requiredAmount + referralCost
+  newServiceCost(asset: uint64, wallet: uint64): uint64 {
+    // the referrer `newService(..., wallet)` will pay (genuine wallet → its referrer; never reverts for valid hints)
+    return this.serviceCost(quoteReferrerOf(this.akitaDAO.value, wallet))
   }
 
+  /** LEGACY shim (pre-hint selector, registry referral); delete in Phase 4. */
+  @abimethod({ readonly: true, name: 'newServiceCost' })
+  legacyNewServiceCost(asset: uint64): uint64 {
+    return this.serviceCost(this.legacyReferrer())
+  }
+
+  /**
+   * Exact cost (excluding `amount`) of a subscribe by `Txn.sender` with hint `wallet`: box MBR, plus the
+   * stored pair (`SubscriptionPrincipalMBR`) when `wallet != 0` and the service is gated, plus the referral
+   * disbursement MBR when the wallet has a referrer.
+   */
   @abimethod({ readonly: true })
   newSubscriptionCost(
     recipient: Account,
     asset: uint64,
+    serviceID: ServiceID,
+    wallet: uint64
+  ): uint64 {
+    const [mbrAmount, gateID] = this.subscriptionMbr(recipient, serviceID)
+    const principalMbr: uint64 = wallet !== 0 && gateID !== 0 ? SubscriptionPrincipalMBR : 0
+    return mbrAmount + principalMbr + referralFeeTo(this.akitaDAO.value, quoteReferrerOf(this.akitaDAO.value, wallet), asset)
+  }
+
+  /** LEGACY shim (pre-hint selector, registry referral, no stored pair); delete in Phase 4. */
+  @abimethod({ readonly: true, name: 'newSubscriptionCost' })
+  legacyNewSubscriptionCost(
+    recipient: Account,
+    asset: uint64,
     serviceID: ServiceID
   ): uint64 {
-    const costs = this.mbr()
-    let mbrAmount = costs.subscriptions
-    // index zero is always reserved for donations
-    const isDonation = serviceID === 0
-    if (!isDonation) {
-      const boxKey: ServicesKey = { address: recipient, id: serviceID }
-      // ensure the service exists
-      loggedAssert(this.services(boxKey).exists, ERR_SERVICE_DOES_NOT_EXIST)
-      // get the service details
-      const service = clone(this.services(boxKey).value)
+    const [mbrAmount] = this.subscriptionMbr(recipient, serviceID)
+    return mbrAmount + referralFeeTo(this.akitaDAO.value, this.legacyReferrer(), asset)
+  }
 
-      if (service.passes > 0) {
-        mbrAmount += costs.passes
-      }
-    }
-
-    if (!this.subscriptionslist(Txn.sender).exists) {
-      mbrAmount += costs.subscriptionslist
-    }
-
-    const referralCost = referralFee(this.akitaDAO.value, asset)
-
-    // Note: Escrow opt-in costs are NOT included here because they are paid
-    // via inner transactions from the contract's balance in createAsaSubscription()
-
-    return mbrAmount + referralCost
+  /**
+   * The `GateCtx` `gatedTriggerPayment(gateTxn, key, wallet)` will assert, computed by the same code
+   * (`triggerCtx`). A plugin calls it from inside its window (same `Txn.sender` / caller app as the
+   * following target call) to build `Gate.mustCheckFor`; a keeper acting as itself passes `wallet = 0`.
+   */
+  @abimethod({ readonly: true })
+  triggerGateCtx(key: SubscriptionKey, wallet: uint64): GateCtx {
+    return this.triggerCtx(key, principalOf(this.akitaDAO.value, wallet))
   }
 
   @abimethod({ readonly: true })
@@ -1127,7 +1431,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
   @abimethod({ readonly: true })
   getService(address: Account, id: uint64): Service {
     const key: ServicesKey = { address, id }
-    loggedAssert(this.services(key).exists, ERR_SERVICE_DOES_NOT_EXIST)
+    loggedAssert(this.services(key).exists, errServiceDoesNotExist)
     return this.services(key).value
   }
 
@@ -1171,13 +1475,13 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
 
   @abimethod({ readonly: true })
   mustGetSubscription(key: SubscriptionKey): SubscriptionInfo {
-    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(key).exists, errSubscriptionDoesNotExist)
     return this.subscriptions(key).value
   }
 
   @abimethod({ readonly: true })
   getSubscriptionWithDetails(key: SubscriptionKey): SubscriptionInfoWithDetails {
-    loggedAssert(this.subscriptions(key).exists, ERR_SUBSCRIPTION_DOES_NOT_EXIST)
+    loggedAssert(this.subscriptions(key).exists, errSubscriptionDoesNotExist)
 
     const sub = clone(this.subscriptions(key).value)
 
@@ -1190,7 +1494,7 @@ export class Subscriptions extends classes(BaseSubscriptions, AkitaFeeGeneratorC
     let highlightColor: bytes<3> = Bytes('000').toFixed({ length: 3 })
     if (sub.serviceID !== 0) {
       const serviceKey: ServicesKey = { address: sub.recipient, id: sub.serviceID }
-      loggedAssert(this.services(serviceKey).exists, ERR_SERVICE_DOES_NOT_EXIST);
+      loggedAssert(this.services(serviceKey).exists, errServiceDoesNotExist);
       ({ status, payoutAddress, title, description, bannerImage, highlightMessage, highlightColor } = clone(this.services(serviceKey).value))
       if (payoutAddress === Global.zeroAddress) {
         payoutAddress = sub.recipient

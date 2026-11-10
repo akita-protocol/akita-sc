@@ -4,8 +4,7 @@
  * These values are the payload `loggedAssert`/`loggedErr` emits to the log
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
- * Constant NAMES are preserved from the pre-ARC-65 layout so call sites don't
- * change. Where a name matches one used by the main social contracts
+ * Constant names and values use camelCase. The `err` prefix avoids 8-byte logs. Where a name matches one used by the main social contracts
  * (`smart_contracts/social/errors.ts`), the SAME short code is used here so
  * the same translator can decode errors bubbling up from either layer.
  *
@@ -18,59 +17,59 @@
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values to the top-level
 // `smart_contracts/errors.ts`.
-export const ERR_NOT_AKITA_DAO = 'NDAO'
-export const ERR_FORBIDDEN = 'FORB'
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_PLUGIN_NOT_AUTH_ADDR = 'NATH'
-export const ERR_FAILED_GATE = 'FGTE'
-export const ERR_BLOCKED = 'BLKD'
-export const ERR_INVALID_ASSET = 'IAST'
-export const ERR_INVALID_APP = 'IAPP'
-export const ERR_ALREADY_OPTED_IN = 'AOPT'
-export const ERR_NOT_OPTED_IN = 'NOPT'
+export const errNotAkitaDao = 'errNdao'
+export const errForbidden = 'errForb'
+export const errInvalidPayment = 'errIpay'
+export const errPluginNotAuthAddr = 'errNath'
+export const errFailedGate = 'errFgte'
+export const errBlocked = 'errBlkd'
+export const errInvalidAsset = 'errIast'
+export const errInvalidApp = 'errIapp'
+export const errAlreadyOptedIn = 'errAopt'
+export const errNotOptedIn = 'errNopt'
 
 // --- Moderation (match main social contracts) ------------------------------
 
-export const ERR_BANNED = 'BAND'
-export const ERR_NOT_A_MODERATOR = 'NMOD'
-export const ERR_ALREADY_A_MODERATOR = 'EMOD'
-export const ERR_ALREADY_BANNED = 'EBAN'
-export const ERR_ALREADY_FLAGGED = 'EFLG'
-export const ERR_ALREADY_AN_ACTION = 'EACT'
+export const errBanned = 'errBand'
+export const errNotAModerator = 'errNmod'
+export const errAlreadyAModerator = 'errEmod'
+export const errAlreadyBanned = 'errEban'
+export const errAlreadyFlagged = 'errEflg'
+export const errAlreadyAnAction = 'errEact'
 
 // --- Content (match main social contracts) ---------------------------------
 
-export const ERR_BAD_CID = 'ICID'
-export const ERR_POST_NOT_FOUND = 'NPST'
-export const ERR_REPLY_NOT_FOUND = 'NRPL'
-export const ERR_ALREADY_VOTED = 'AVOT'
-export const ERR_HAVENT_VOTED = 'NVOT'
-export const ERR_META_DOESNT_EXIST = 'NMTA'
-export const ERR_META_ALREADY_EXISTS = 'EMTA'
-export const ERR_NOT_YOUR_POST_TO_EDIT = 'NEDT'
-export const ERR_IS_A_REPLY = 'ISRP'
-export const ERR_NOT_A_REPLY = 'NARP'
-export const ERR_IS_ALREADY_AMENDED = 'EAMD'
-export const ERR_NO_SELF_VOTE = 'SVOT'
-export const ERR_ALREADY_REACTED = 'ARCT'
-export const ERR_FEE_TOO_SMALL = 'FTSM'
+export const errBadCid = 'errIcid'
+export const errPostNotFound = 'errNpst'
+export const errReplyNotFound = 'errNrpl'
+export const errAlreadyVoted = 'errAvot'
+export const errHaventVoted = 'errNvot'
+export const errMetaDoesntExist = 'errNmta'
+export const errMetaAlreadyExists = 'errEmta'
+export const errNotYourPostToEdit = 'errNedt'
+export const errIsAReply = 'errIsrp'
+export const errNotAReply = 'errNarp'
+export const errIsAlreadyAmended = 'errEamd'
+export const errNoSelfVote = 'errSvot'
+export const errAlreadyReacted = 'errArct'
+export const errFeeTooSmall = 'errFtsm'
 
 // --- Identity / assets (match main social contracts) -----------------------
 
-export const ERR_INVALID_NFD = 'INFD'
-export const ERR_NOT_AN_NFD = 'NNFD'
-export const ERR_USER_DOES_NOT_OWN_NFD = 'NONF'
-export const ERR_NFD_CHANGED = 'CNFD'
-export const ERR_NOT_AN_AKITA_NFT = 'NANT'
-export const ERR_USER_DOES_NOT_OWN_NFT = 'NONT'
-export const ERR_NOT_A_SUBSCRIPTION = 'NSUB'
-export const ERR_AUTOMATED_ACCOUNT = 'AUTO'
+export const errInvalidNfd = 'errInfd'
+export const errNotAnNfd = 'errNnfd'
+export const errUserDoesNotOwnNfd = 'errNonf'
+export const errNfdChanged = 'errCnfd'
+export const errNotAnAkitaNft = 'errNant'
+export const errUserDoesNotOwnNft = 'errNont'
+export const errNotASubscription = 'errNsub'
+export const errAutomatedAccount = 'errAuto'
 
 // --- Graph (match main social contracts) -----------------------------------
 
-export const ERR_WRONG_FOLLOWER_KEY = 'WFLK'
-export const ERR_HAS_GATE = 'HGTE'
+export const errWrongFollowerKey = 'errWflk'
+export const errHasGate = 'errHgte'
 
 // --- Plugin-specific codes (no equivalent in main social) ------------------
 
-export const ERR_NOT_DAO = 'NTDO'
+export const errNotDao = 'errNtdo'

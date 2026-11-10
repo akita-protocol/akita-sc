@@ -10,13 +10,13 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Subscriptions
  * contract can emit. Ordered roughly the same way as the contract-side file.
  */
-export const SUBSCRIPTIONS_ERROR_MESSAGES: Record<string, string> = {
+export const SUBSCRIPTIONS_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Input validation ---------------------------------------------------
   MAMT: 'Minimum amount is 3 base units',
   MINV: 'Minimum interval is 60 seconds',
@@ -43,6 +43,11 @@ export const SUBSCRIPTIONS_ERROR_MESSAGES: Record<string, string> = {
   NODN: "Donations aren't applicable to passes",
   PCOF: 'More addresses than available passes',
 
+  // --- Principal resolution (stored pair, adoptPrincipal) ------------------
+  PEXS: 'Subscription already has a stored principal',
+  NLWL: 'Subscriber has no registered Akita wallet to adopt',
+  NGTD: 'Subscription is not gated',
+
   // --- Blocking -----------------------------------------------------------
   UABL: 'User is already blocked',
   UNBL: 'User is not blocked',
@@ -53,7 +58,7 @@ export const SUBSCRIPTIONS_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Subscriptions plugin -----------------------------------------------
   DNIT: 'Description has not been initialized',
-}
+})
 
 /**
  * Translates a short Subscriptions error code (or raw ARC-65 log entry) into
