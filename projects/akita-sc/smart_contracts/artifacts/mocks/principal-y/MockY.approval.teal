@@ -1,0 +1,108 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    bytecblock 0x151f7c75
+    // smart_contracts/mocks/principal-y/contract.algo.ts:13
+    // export class MockY extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x6dfe80fa // method "callProxy(uint64,uint64,uint64)(uint64,address,address,address,address,bool)"
+    txna ApplicationArgs 0
+    match main_callProxy_route@3
+    err
+
+main_callProxy_route@3:
+    // smart_contracts/mocks/principal-y/contract.algo.ts:14
+    // callProxy(proxy: Application, forgedWallet: uint64, probe: Application): Principal {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b callProxy
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/principal-y/contract.algo.ts:13
+    // export class MockY extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/principal-y/contract.algo.ts::MockY.callProxy[routing]() -> void:
+callProxy:
+    // smart_contracts/mocks/principal-y/contract.algo.ts:14
+    // callProxy(proxy: Application, forgedWallet: uint64, probe: Application): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-y/contract.algo.ts:15-18
+    // return abiCall<typeof MockPrincipalProxy.prototype.forward>({
+    //   appId: proxy,
+    //   args: [forgedWallet, probe, forgedWallet, true],
+    // }).returnValue
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0xc15b9b24 // method "forward(uint64,uint64,uint64,bool)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-y/contract.algo.ts:17
+    // args: [forgedWallet, probe, forgedWallet, true],
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-y/contract.algo.ts:15-18
+    // return abiCall<typeof MockPrincipalProxy.prototype.forward>({
+    //   appId: proxy,
+    //   args: [forgedWallet, probe, forgedWallet, true],
+    // }).returnValue
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/principal-y/contract.algo.ts:14
+    // callProxy(proxy: Application, forgedWallet: uint64, probe: Application): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return

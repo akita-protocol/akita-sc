@@ -1,0 +1,190 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 8 2
+    bytecblock "result" "cost" 0x151f7c75
+    // smart_contracts/mocks/gate/contract.algo.ts:8
+    // export class MockSubGate extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@8
+    pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0x90d4fa5d // method "cost(byte[])uint64", method "register(pay,byte[])uint64", method "check(address,uint64,byte[])bool", method "getEntry(uint64)byte[]"
+    txna ApplicationArgs 0
+    match cost register check getEntry
+    err
+
+main_create_NoOp@8:
+    // smart_contracts/mocks/gate/contract.algo.ts:8
+    // export class MockSubGate extends Contract {
+    pushbytes 0x4f754b15 // method "create(bool,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/mocks/gate/contract.algo.ts::MockSubGate.create[routing]() -> void:
+create:
+    // smart_contracts/mocks/gate/contract.algo.ts:12
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/gate/contract.algo.ts:9
+    // result = GlobalState<boolean>({ key: 'result' })
+    bytec_0 // "result"
+    // smart_contracts/mocks/gate/contract.algo.ts:14
+    // this.result.value = result
+    uncover 2
+    app_global_put
+    // smart_contracts/mocks/gate/contract.algo.ts:10
+    // registrationCost = GlobalState<uint64>({ key: 'cost' })
+    bytec_1 // "cost"
+    // smart_contracts/mocks/gate/contract.algo.ts:15
+    // this.registrationCost.value = registrationCost
+    swap
+    app_global_put
+    // smart_contracts/mocks/gate/contract.algo.ts:12
+    // @abimethod({ onCreate: 'require' })
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/contract.algo.ts::MockSubGate.cost[routing]() -> void:
+cost:
+    // smart_contracts/mocks/gate/contract.algo.ts:18
+    // cost(args: bytes): uint64 {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/mocks/gate/contract.algo.ts:19
+    // return this.registrationCost.value
+    intc_1 // 0
+    // smart_contracts/mocks/gate/contract.algo.ts:10
+    // registrationCost = GlobalState<uint64>({ key: 'cost' })
+    bytec_1 // "cost"
+    // smart_contracts/mocks/gate/contract.algo.ts:19
+    // return this.registrationCost.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/gate/contract.algo.ts:18
+    // cost(args: bytes): uint64 {
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/contract.algo.ts::MockSubGate.register[routing]() -> void:
+register:
+    // smart_contracts/mocks/gate/contract.algo.ts:22
+    // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushbytes 0x151f7c750000000000000000
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/contract.algo.ts::MockSubGate.check[routing]() -> void:
+check:
+    // smart_contracts/mocks/gate/contract.algo.ts:26
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    txna ApplicationArgs 1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/mocks/gate/contract.algo.ts:27
+    // return this.result.value
+    intc_1 // 0
+    // smart_contracts/mocks/gate/contract.algo.ts:9
+    // result = GlobalState<boolean>({ key: 'result' })
+    bytec_0 // "result"
+    // smart_contracts/mocks/gate/contract.algo.ts:27
+    // return this.result.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/gate/contract.algo.ts:26
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/contract.algo.ts::MockSubGate.getEntry[routing]() -> void:
+getEntry:
+    // smart_contracts/mocks/gate/contract.algo.ts:30
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    pushbytes 0x151f7c750000
+    log
+    intc_0 // 1
+    return

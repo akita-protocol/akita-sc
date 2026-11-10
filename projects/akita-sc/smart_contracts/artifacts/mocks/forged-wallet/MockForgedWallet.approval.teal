@@ -1,0 +1,326 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 8 2
+    bytecblock 0x151f7c75
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:15-16
+    // @contract({ avmVersion: 13 })
+    // export class MockForgedWallet extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@17
+    pushbytess 0xea9180dd 0x9c86a185 // method "update(string)void", method "destroy()void"
+    txna ApplicationArgs 0
+    match main_update_route@3 main_destroy_route@4
+
+main_switch_case_next@5:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:15-16
+    // @contract({ avmVersion: 13 })
+    // export class MockForgedWallet extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x854dede0 0xba36bdc6 0x6c49f0f5 0x9a81e4f4 0x401a6d80 0xdd7f1da9 0xd11bbc68 // method "opUp()void", method "setBytes(byte[],byte[])void", method "setUint(byte[],uint64)void", method "del(byte[])void", method "setAkitaDAO(uint64)void", method "callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool)", method "callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool)"
+    txna ApplicationArgs 0
+    match main_opUp_route@7 setBytes setUint del setAkitaDAO callProbeAs callTryProbeAs
+    err
+
+main_opUp_route@7:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:21
+    // opUp(): void { }
+    intc_0 // 1
+    return
+
+main_destroy_route@4:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:24
+    // @abimethod({ allowActions: ['DeleteApplication'] })
+    txn OnCompletion
+    pushint 5 // DeleteApplication
+    ==
+    txn ApplicationID
+    &&
+    return
+
+main_update_route@3:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:17
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+main___algots__.defaultCreate@17:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:15-16
+    // @contract({ avmVersion: 13 })
+    // export class MockForgedWallet extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.update[routing]() -> void:
+update:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:17
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setBytes[routing]() -> void:
+setBytes:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:27
+    // setBytes(key: bytes, value: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:28
+    // op.AppGlobal.put(key, value)
+    app_global_put
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:27
+    // setBytes(key: bytes, value: bytes): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setUint[routing]() -> void:
+setUint:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:32
+    // setUint(key: bytes, value: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:33
+    // op.AppGlobal.put(key, value)
+    app_global_put
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:32
+    // setUint(key: bytes, value: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.del[routing]() -> void:
+del:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:36
+    // del(key: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:37
+    // op.AppGlobal.delete(key)
+    app_global_del
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:36
+    // del(key: bytes): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setAkitaDAO[routing]() -> void:
+setAkitaDAO:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:40
+    // setAkitaDAO(dao: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:41
+    // op.AppGlobal.put(Bytes('akita_dao'), dao)
+    pushbytes "akita_dao"
+    swap
+    app_global_put
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:40
+    // setAkitaDAO(dao: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.callProbeAs[routing]() -> void:
+callProbeAs:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:45
+    // callProbeAs(probe: Application, hint: uint64, sender: Account): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:46-50
+    // return abiCall<typeof MockPrincipalProbe.prototype.probe>({
+    //   appId: probe,
+    //   sender,
+    //   args: [hint],
+    // }).returnValue
+    itxn_begin
+    itxn_field Sender
+    swap
+    itxn_field ApplicationID
+    pushbytes 0x32d90aaa // method "probe(uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:45
+    // callProbeAs(probe: Application, hint: uint64, sender: Account): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.callTryProbeAs[routing]() -> void:
+callTryProbeAs:
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:54
+    // callTryProbeAs(probe: Application, hint: uint64, sender: Account): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:55-59
+    // return abiCall<typeof MockPrincipalProbe.prototype.tryProbe>({
+    //   appId: probe,
+    //   sender,
+    //   args: [hint],
+    // }).returnValue
+    itxn_begin
+    itxn_field Sender
+    swap
+    itxn_field ApplicationID
+    pushbytes 0x85eeb198 // method "tryProbe(uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/forged-wallet/contract.algo.ts:54
+    // callTryProbeAs(probe: Application, hint: uint64, sender: Account): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

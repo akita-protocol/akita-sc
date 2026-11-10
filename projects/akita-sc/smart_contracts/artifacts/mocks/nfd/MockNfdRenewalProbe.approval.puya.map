@@ -1,0 +1,2164 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/nfd/mock.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAoBA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAWG;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAVM;;;;;;;;AAkBL;;AAAA;AAjBM;;;;;;;;;;;AAkBN;;AAAA;AACA;;;AAC0B;;AAAA;AAnBf;AAmBT;AAAA;AAlBS;AAoBX;;AAAA;AAnBc;;AAoBd;AAAA;AAnBW;AAoBa;AAAxB;AAnBa;AAoBa;AAA1B;AAnBgB;;AAoBa;AAA7B;AAnBe;;AAoBa;;AAA5B;AAlBD;AAAA;AAqBD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;;AAAf;AAAb;;;AAAA;;AAAA;AAAA;AACwB;AA/Bb;AA+BX;AAAA;AAFF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACe;;AAAe;;AAAf;AAAb;;;AAAA;;AAAA;AAAA;AAC6B;;AAAA;AAAL;AApCb;AAoCX;AAAA;AAFF;AAAA;AAME;AArCW;AAqCX;AAAA;AAAyB;AAAzB;AArCW;AAqCX;AAAA;AACO;AAxCI;AAwCJ;AAAA;AAFT;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;AACe;;AAAA;AAAA;;AAAmB;AA3ClB;;AA2CkB;AAAA;AAAnB;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AACa;AAAA;;AAAqB;;AAArB;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AACa;;AAAA;AAAmB;AA9CrB;AA8CqB;AAAA;AAAnB;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAEA;AA7Ca;AA6Cb;AAAA;AAA2B;AAA3B;AA7Ca;AA6Cb;AAAA;AA5CgB;;AA6ChB;AAAA;AA5Ce;;AA6Cf;AAAA;AAPF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 8"
+    },
+    "6": {
+      "op": "bytecblock \"i.expirationTime\" \"renewPrice\" \"quoteCount\" \"renewalCount\" \"expectedPayer\" \"lastAmount\" \"lastPayer\" \"ERR:errNotCreator\""
+    },
+    "113": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "115": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "116": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "117": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "119": {
+      "op": "bz main_create_NoOp@8",
+      "stack_out": []
+    },
+    "122": {
+      "op": "pushbytess 0x4d3dab8f 0x12972503 0x50f490c2 0x77fd5b74 // method \"setExpiration(uint64)void\", method \"setExpirationFromNow(uint64)void\", method \"getRenewPrice()uint64\", method \"renew(pay)void\"",
+      "defined_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setExpirationFromNow(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(setExpiration(uint64)void)",
+        "Method(setExpirationFromNow(uint64)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)"
+      ]
+    },
+    "144": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setExpirationFromNow(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(setExpiration(uint64)void)",
+        "Method(setExpirationFromNow(uint64)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "tmp%4#0"
+      ]
+    },
+    "147": {
+      "op": "match setExpiration setExpirationFromNow getRenewPrice renew",
+      "stack_out": []
+    },
+    "157": {
+      "op": "err"
+    },
+    "158": {
+      "block": "main_create_NoOp@8",
+      "stack_in": [],
+      "op": "pushbytes 0xf8690f82 // method \"create(string,uint64,uint64,address,bool)void\"",
+      "defined_out": [
+        "Method(create(string,uint64,uint64,address,bool)void)"
+      ],
+      "stack_out": [
+        "Method(create(string,uint64,uint64,address,bool)void)"
+      ]
+    },
+    "164": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(string,uint64,uint64,address,bool)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(string,uint64,uint64,address,bool)void)",
+        "tmp%5#0"
+      ]
+    },
+    "167": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "171": {
+      "op": "err"
+    },
+    "172": {
+      "subroutine": "smart_contracts/mocks/nfd/mock.algo.ts::MockNfdRenewalProbe.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "175": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "176": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "177": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "178": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "180": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "181": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "183": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "184": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "185": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "186": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "189": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "name#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0"
+      ]
+    },
+    "192": {
+      "op": "dup",
+      "defined_out": [
+        "name#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "193": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "name#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "194": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%1#0",
+        "name#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "195": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "name#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "196": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "name#0",
+        "tmp%2#0"
+      ]
+    },
+    "197": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "expiration#0"
+      ]
+    },
+    "198": {
+      "op": "swap",
+      "defined_out": [
+        "expiration#0",
+        "name#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0"
+      ]
+    },
+    "199": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0"
+      ]
+    },
+    "202": {
+      "op": "dup",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "203": {
+      "op": "len",
+      "defined_out": [
+        "expiration#0",
+        "len%2#0",
+        "name#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "204": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "205": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "expiration#0",
+        "name#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "206": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "tmp%4#0"
+      ]
+    },
+    "207": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ]
+    },
+    "208": {
+      "op": "swap",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "name#0"
+      ]
+    },
+    "209": {
+      "op": "txna ApplicationArgs 4"
+    },
+    "212": {
+      "op": "dup",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "name#0",
+        "expectedPayer#0",
+        "expectedPayer#0"
+      ]
+    },
+    "213": {
+      "op": "cover 2",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0"
+      ]
+    },
+    "215": {
+      "op": "dup",
+      "defined_out": [
+        "expectedPayer#0",
+        "expectedPayer#0 (copy)",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "expectedPayer#0 (copy)"
+      ]
+    },
+    "216": {
+      "op": "len",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "len%3#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "len%3#0"
+      ]
+    },
+    "217": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "expectedPayer#0",
+        "expiration#0",
+        "len%3#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "len%3#0",
+        "32"
+      ]
+    },
+    "219": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "eq%3#0"
+      ]
+    },
+    "220": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0"
+      ]
+    },
+    "221": {
+      "op": "txna ApplicationArgs 5",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0"
+      ]
+    },
+    "224": {
+      "op": "dup",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0",
+        "tmp%8#0 (copy)"
+      ]
+    },
+    "225": {
+      "op": "len",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "len%4#0",
+        "name#0",
+        "renewPrice#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0",
+        "len%4#0"
+      ]
+    },
+    "226": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "expectedPayer#0",
+        "expiration#0",
+        "len%4#0",
+        "name#0",
+        "renewPrice#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0",
+        "len%4#0",
+        "1"
+      ]
+    },
+    "227": {
+      "op": "==",
+      "defined_out": [
+        "eq%4#0",
+        "expectedPayer#0",
+        "expiration#0",
+        "name#0",
+        "renewPrice#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0",
+        "eq%4#0"
+      ]
+    },
+    "228": {
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0"
+      ]
+    },
+    "229": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "tmp%8#0",
+        "0"
+      ]
+    },
+    "230": {
+      "op": "getbit",
+      "defined_out": [
+        "expectedPayer#0",
+        "expiration#0",
+        "includeExpiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "includeExpiration#0"
+      ]
+    },
+    "231": {
+      "op": "pushbytes \"i.name\"",
+      "defined_out": [
+        "\"i.name\"",
+        "expectedPayer#0",
+        "expiration#0",
+        "includeExpiration#0",
+        "name#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "name#0",
+        "expectedPayer#0",
+        "includeExpiration#0",
+        "\"i.name\""
+      ]
+    },
+    "239": {
+      "op": "uncover 3",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "expectedPayer#0",
+        "includeExpiration#0",
+        "\"i.name\"",
+        "name#0"
+      ]
+    },
+    "241": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "expectedPayer#0",
+        "includeExpiration#0"
+      ]
+    },
+    "242": {
+      "op": "pushbytes \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "expectedPayer#0",
+        "expiration#0",
+        "includeExpiration#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "expectedPayer#0",
+        "includeExpiration#0",
+        "\"i.owner.a\""
+      ]
+    },
+    "253": {
+      "op": "uncover 2",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "includeExpiration#0",
+        "\"i.owner.a\"",
+        "expectedPayer#0"
+      ]
+    },
+    "255": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "includeExpiration#0"
+      ]
+    },
+    "256": {
+      "op": "bz create_after_if_else@3",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0"
+      ]
+    },
+    "259": {
+      "op": "dig 2",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "expiration#0"
+      ]
+    },
+    "261": {
+      "op": "itob",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "tmp%0#0"
+      ]
+    },
+    "262": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "expectedPayer#0",
+        "expiration#0",
+        "renewPrice#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "tmp%0#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "263": {
+      "op": "swap",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ]
+    },
+    "264": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0"
+      ]
+    },
+    "265": {
+      "block": "create_after_if_else@3",
+      "stack_in": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0"
+      ],
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "expectedPayer#0",
+        "\"renewPrice\""
+      ]
+    },
+    "266": {
+      "op": "uncover 2",
+      "defined_out": [
+        "\"renewPrice\"",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "expectedPayer#0",
+        "\"renewPrice\"",
+        "renewPrice#0"
+      ]
+    },
+    "268": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "expectedPayer#0"
+      ]
+    },
+    "269": {
+      "op": "bytec 4 // \"expectedPayer\"",
+      "defined_out": [
+        "\"expectedPayer\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "expectedPayer#0",
+        "\"expectedPayer\""
+      ]
+    },
+    "271": {
+      "op": "swap",
+      "defined_out": [
+        "\"expectedPayer\"",
+        "expectedPayer#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"expectedPayer\"",
+        "expectedPayer#0"
+      ]
+    },
+    "272": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "273": {
+      "op": "bytec_2 // \"quoteCount\"",
+      "defined_out": [
+        "\"quoteCount\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"quoteCount\""
+      ]
+    },
+    "274": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"quoteCount\"",
+        "0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"quoteCount\"",
+        "0"
+      ]
+    },
+    "275": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "276": {
+      "op": "bytec_3 // \"renewalCount\"",
+      "defined_out": [
+        "\"renewalCount\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"renewalCount\""
+      ]
+    },
+    "277": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "expiration#0",
+        "\"renewalCount\"",
+        "0"
+      ]
+    },
+    "278": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "279": {
+      "op": "bytec 5 // \"lastAmount\"",
+      "defined_out": [
+        "\"lastAmount\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"lastAmount\""
+      ]
+    },
+    "281": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "expiration#0",
+        "\"lastAmount\"",
+        "0"
+      ]
+    },
+    "282": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "283": {
+      "op": "bytec 6 // \"lastPayer\"",
+      "defined_out": [
+        "\"lastPayer\""
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"lastPayer\""
+      ]
+    },
+    "285": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "\"lastPayer\"",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"lastPayer\"",
+        "tmp%1#1"
+      ]
+    },
+    "287": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "288": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "1"
+      ]
+    },
+    "289": {
+      "op": "return",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "290": {
+      "subroutine": "smart_contracts/mocks/nfd/mock.algo.ts::MockNfdRenewalProbe.setExpiration[routing]",
+      "params": {},
+      "block": "setExpiration",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "293": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "294": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "295": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "296": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "297": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "298": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0"
+      ],
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "299": {
+      "op": "txn Sender",
+      "defined_out": [
+        "expiration#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "tmp%0#1"
+      ]
+    },
+    "301": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "expiration#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "303": {
+      "op": "==",
+      "defined_out": [
+        "expiration#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "tmp%2#0"
+      ]
+    },
+    "304": {
+      "op": "bnz setExpiration_after_assert@3",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "307": {
+      "op": "bytec 7 // \"ERR:errNotCreator\"",
+      "defined_out": [
+        "\"ERR:errNotCreator\"",
+        "expiration#0"
+      ],
+      "stack_out": [
+        "expiration#0",
+        "\"ERR:errNotCreator\""
+      ]
+    },
+    "309": {
+      "op": "log",
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "310": {
+      "error": "ERR:errNotCreator",
+      "op": "err // ERR:errNotCreator"
+    },
+    "311": {
+      "block": "setExpiration_after_assert@3",
+      "stack_in": [
+        "expiration#0"
+      ],
+      "op": "itob",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "312": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "313": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.expirationTime\"",
+        "tmp%3#0"
+      ]
+    },
+    "314": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "315": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "316": {
+      "op": "return",
+      "stack_out": []
+    },
+    "317": {
+      "subroutine": "smart_contracts/mocks/nfd/mock.algo.ts::MockNfdRenewalProbe.setExpirationFromNow[routing]",
+      "params": {},
+      "block": "setExpirationFromNow",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "320": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "321": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "322": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "323": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "324": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "325": {
+      "op": "btoi",
+      "defined_out": [
+        "offset#0"
+      ],
+      "stack_out": [
+        "offset#0"
+      ]
+    },
+    "326": {
+      "op": "txn Sender",
+      "defined_out": [
+        "offset#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%0#1"
+      ]
+    },
+    "328": {
+      "op": "global CreatorAddress",
+      "defined_out": [
+        "offset#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "330": {
+      "op": "==",
+      "defined_out": [
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0"
+      ]
+    },
+    "331": {
+      "op": "bnz setExpirationFromNow_after_assert@3",
+      "stack_out": [
+        "offset#0"
+      ]
+    },
+    "334": {
+      "op": "bytec 7 // \"ERR:errNotCreator\"",
+      "defined_out": [
+        "\"ERR:errNotCreator\"",
+        "offset#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "\"ERR:errNotCreator\""
+      ]
+    },
+    "336": {
+      "op": "log",
+      "stack_out": [
+        "offset#0"
+      ]
+    },
+    "337": {
+      "error": "ERR:errNotCreator",
+      "op": "err // ERR:errNotCreator"
+    },
+    "338": {
+      "block": "setExpirationFromNow_after_assert@3",
+      "stack_in": [
+        "offset#0"
+      ],
+      "op": "global LatestTimestamp",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%3#0"
+      ]
+    },
+    "340": {
+      "op": "+",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "341": {
+      "op": "itob",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "342": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "343": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.expirationTime\"",
+        "tmp%5#0"
+      ]
+    },
+    "344": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "345": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "346": {
+      "op": "return",
+      "stack_out": []
+    },
+    "347": {
+      "subroutine": "smart_contracts/mocks/nfd/mock.algo.ts::MockNfdRenewalProbe.getRenewPrice[routing]",
+      "params": {},
+      "block": "getRenewPrice",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "348": {
+      "op": "bytec_2 // \"quoteCount\"",
+      "defined_out": [
+        "\"quoteCount\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"quoteCount\""
+      ]
+    },
+    "349": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "350": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "351": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "352": {
+      "op": "+",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "353": {
+      "op": "bytec_2 // \"quoteCount\"",
+      "stack_out": [
+        "tmp%0#1",
+        "\"quoteCount\""
+      ]
+    },
+    "354": {
+      "op": "swap",
+      "stack_out": [
+        "\"quoteCount\"",
+        "tmp%0#1"
+      ]
+    },
+    "355": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "356": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "357": {
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"renewPrice\""
+      ]
+    },
+    "358": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "359": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%1#0"
+      ]
+    },
+    "360": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "361": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "367": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "368": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "369": {
+      "op": "log",
+      "stack_out": []
+    },
+    "370": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "371": {
+      "op": "return",
+      "stack_out": []
+    },
+    "372": {
+      "subroutine": "smart_contracts/mocks/nfd/mock.algo.ts::MockNfdRenewalProbe.renew[routing]",
+      "params": {},
+      "block": "renew",
+      "stack_in": [],
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "374": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "1"
+      ]
+    },
+    "375": {
+      "op": "-",
+      "defined_out": [
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "376": {
+      "op": "dupn 2",
+      "defined_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "378": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "380": {
+      "op": "intc_1 // pay",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "pay",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "381": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_type_matches%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "382": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "payment#0",
+        "payment#0"
+      ]
+    },
+    "383": {
+      "op": "gtxns Sender",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "385": {
+      "op": "dup",
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%0#1"
+      ]
+    },
+    "386": {
+      "op": "cover 2",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "388": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%0#1",
+        "0"
+      ]
+    },
+    "389": {
+      "op": "bytec 4 // \"expectedPayer\"",
+      "defined_out": [
+        "\"expectedPayer\"",
+        "0",
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%0#1",
+        "0",
+        "\"expectedPayer\""
+      ]
+    },
+    "391": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%0#1",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "392": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%0#1",
+        "maybe_value%0#0"
+      ]
+    },
+    "393": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%1#0"
+      ]
+    },
+    "394": {
+      "op": "bnz renew_after_assert@3",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0"
+      ]
+    },
+    "397": {
+      "op": "pushbytes \"ERR:errWrongPayer\"",
+      "defined_out": [
+        "\"ERR:errWrongPayer\"",
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "\"ERR:errWrongPayer\""
+      ]
+    },
+    "416": {
+      "op": "log",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0"
+      ]
+    },
+    "417": {
+      "error": "ERR:errWrongPayer",
+      "op": "err // ERR:errWrongPayer"
+    },
+    "418": {
+      "block": "renew_after_assert@3",
+      "stack_in": [
+        "tmp%0#1",
+        "payment#0"
+      ],
+      "op": "dup",
+      "defined_out": [
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "419": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%2#0"
+      ]
+    },
+    "421": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "423": {
+      "op": "==",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "tmp%4#0"
+      ]
+    },
+    "424": {
+      "op": "bnz renew_after_assert@5",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0"
+      ]
+    },
+    "427": {
+      "op": "pushbytes \"ERR:errWrongReceiver\"",
+      "defined_out": [
+        "\"ERR:errWrongReceiver\""
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0",
+        "\"ERR:errWrongReceiver\""
+      ]
+    },
+    "449": {
+      "op": "log",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0"
+      ]
+    },
+    "450": {
+      "error": "ERR:errWrongReceiver",
+      "op": "err // ERR:errWrongReceiver"
+    },
+    "451": {
+      "block": "renew_after_assert@5",
+      "stack_in": [
+        "tmp%0#1",
+        "payment#0"
+      ],
+      "op": "gtxns Amount",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "453": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%5#0"
+      ]
+    },
+    "454": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%5#0",
+        "0"
+      ]
+    },
+    "455": {
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\"",
+        "0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%5#0",
+        "0",
+        "\"renewPrice\""
+      ]
+    },
+    "456": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%5#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "457": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%5#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "458": {
+      "op": "==",
+      "defined_out": [
+        "tmp%5#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%6#0"
+      ]
+    },
+    "459": {
+      "op": "bnz renew_after_assert@7",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "462": {
+      "op": "pushbytes \"ERR:errWrongAmount\"",
+      "defined_out": [
+        "\"ERR:errWrongAmount\"",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "\"ERR:errWrongAmount\""
+      ]
+    },
+    "482": {
+      "op": "log",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "483": {
+      "error": "ERR:errWrongAmount",
+      "op": "err // ERR:errWrongAmount"
+    },
+    "484": {
+      "block": "renew_after_assert@7",
+      "stack_in": [
+        "tmp%0#1",
+        "tmp%5#0"
+      ],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "0"
+      ]
+    },
+    "485": {
+      "op": "bytec_3 // \"renewalCount\"",
+      "defined_out": [
+        "\"renewalCount\"",
+        "0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "0",
+        "\"renewalCount\""
+      ]
+    },
+    "486": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%2#0",
+        "maybe_value%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "maybe_value%2#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "487": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "maybe_value%2#0"
+      ]
+    },
+    "488": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "maybe_value%2#0",
+        "1"
+      ]
+    },
+    "489": {
+      "op": "+",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%7#0"
+      ]
+    },
+    "490": {
+      "op": "bytec_3 // \"renewalCount\"",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "tmp%7#0",
+        "\"renewalCount\""
+      ]
+    },
+    "491": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "\"renewalCount\"",
+        "tmp%7#0"
+      ]
+    },
+    "492": {
+      "op": "app_global_put",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "493": {
+      "op": "bytec 5 // \"lastAmount\"",
+      "defined_out": [
+        "\"lastAmount\""
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%5#0",
+        "\"lastAmount\""
+      ]
+    },
+    "495": {
+      "op": "swap",
+      "defined_out": [
+        "\"lastAmount\"",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "\"lastAmount\"",
+        "tmp%5#0"
+      ]
+    },
+    "496": {
+      "op": "app_global_put",
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "497": {
+      "op": "bytec 6 // \"lastPayer\"",
+      "defined_out": [
+        "\"lastPayer\""
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "\"lastPayer\""
+      ]
+    },
+    "499": {
+      "op": "swap",
+      "defined_out": [
+        "\"lastPayer\"",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "\"lastPayer\"",
+        "tmp%0#1"
+      ]
+    },
+    "500": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "501": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "502": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

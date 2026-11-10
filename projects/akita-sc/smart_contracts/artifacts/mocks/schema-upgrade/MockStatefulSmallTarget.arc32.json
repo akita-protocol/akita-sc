@@ -1,0 +1,78 @@
+{
+    "hints": {
+        "update(string)void": {
+            "call_config": {
+                "update_application": "CALL"
+            }
+        },
+        "ping()uint64": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgYm56IG1haW5fYWZ0ZXJfaWZfZWxzZUAyCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3Mvc2NoZW1hLXVwZ3JhZGUvY29udHJhY3QuYWxnby50czo0NAogICAgLy8gY291bnRlciA9IEdsb2JhbFN0YXRlPHVpbnQ2ND4oeyBrZXk6ICdjJywgaW5pdGlhbFZhbHVlOiA0MSB9KQogICAgcHVzaGJ5dGVzICJjIgogICAgcHVzaGludCA0MQogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9zY2hlbWEtdXBncmFkZS9jb250cmFjdC5hbGdvLnRzOjQ1CiAgICAvLyBsYWJlbCA9IEdsb2JhbFN0YXRlPGJ5dGVzPih7IGtleTogJ2wnLCBpbml0aWFsVmFsdWU6IEJ5dGVzKCdrZXB0JykgfSkKICAgIHB1c2hieXRlc3MgImwiICJrZXB0IgogICAgYXBwX2dsb2JhbF9wdXQKCm1haW5fYWZ0ZXJfaWZfZWxzZUAyOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3NjaGVtYS11cGdyYWRlL2NvbnRyYWN0LmFsZ28udHM6NDItNDMKICAgIC8vIEBjb250cmFjdCh7IHN0YXRlVG90YWxzOiB7IGdsb2JhbFVpbnRzOiAxLCBnbG9iYWxCeXRlczogMSB9IH0pCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja1N0YXRlZnVsU21hbGxUYXJnZXQgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAOAogICAgcHVzaGJ5dGVzcyAweGVhOTE4MGRkIDB4MWQ1YzU2MWIgLy8gbWV0aG9kICJ1cGRhdGUoc3RyaW5nKXZvaWQiLCBtZXRob2QgInBpbmcoKXVpbnQ2NCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fdXBkYXRlX3JvdXRlQDUgbWFpbl9waW5nX3JvdXRlQDYKICAgIGVycgoKbWFpbl9waW5nX3JvdXRlQDY6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3Mvc2NoZW1hLXVwZ3JhZGUvY29udHJhY3QuYWxnby50czo1MAogICAgLy8gcGluZygpOiB1aW50NjQgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICYmCiAgICBhc3NlcnQKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1MDAwMDAwMDAwMDAwMDAwMQogICAgbG9nCiAgICBwdXNoaW50IDEKICAgIHJldHVybgoKbWFpbl91cGRhdGVfcm91dGVANToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9zY2hlbWEtdXBncmFkZS9jb250cmFjdC5hbGdvLnRzOjQ3CiAgICAvLyBAYWJpbWV0aG9kKHsgYWxsb3dBY3Rpb25zOiBbJ1VwZGF0ZUFwcGxpY2F0aW9uJ10gfSkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgIHB1c2hpbnQgNCAvLyBVcGRhdGVBcHBsaWNhdGlvbgogICAgPT0KICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAmJgogICAgYXNzZXJ0CiAgICBiIHVwZGF0ZQoKbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAODoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9zY2hlbWEtdXBncmFkZS9jb250cmFjdC5hbGdvLnRzOjQyLTQzCiAgICAvLyBAY29udHJhY3QoeyBzdGF0ZVRvdGFsczogeyBnbG9iYWxVaW50czogMSwgZ2xvYmFsQnl0ZXM6IDEgfSB9KQogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tTdGF0ZWZ1bFNtYWxsVGFyZ2V0IGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgICYmCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3Mvc2NoZW1hLXVwZ3JhZGUvY29udHJhY3QuYWxnby50czo6TW9ja1N0YXRlZnVsU21hbGxUYXJnZXQudXBkYXRlW3JvdXRpbmddKCkgLT4gdm9pZDoKdXBkYXRlOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3NjaGVtYS11cGdyYWRlL2NvbnRyYWN0LmFsZ28udHM6NDcKICAgIC8vIEBhYmltZXRob2QoeyBhbGxvd0FjdGlvbnM6IFsnVXBkYXRlQXBwbGljYXRpb24nXSB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBwdXNoaW50IDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMgogICAgKwogICAgc3dhcAogICAgbGVuCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LmR5bmFtaWNfYXJyYXk8YXJjNC51aW50OD4KICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 1,
+            "num_uints": 1
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "counter": {
+                    "type": "uint64",
+                    "key": "c"
+                },
+                "label": {
+                    "type": "bytes",
+                    "key": "l"
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockStatefulSmallTarget",
+        "desc": "Holds global state (1 uint + 1 byte slice) and fits one page. Used to prove that a page-growing\n`updateApp` keeps the target's global schema (an update that sets extraProgramPages also sets the\nschema, so omitting it would fail with \"unable to change global schema\").",
+        "methods": [
+            {
+                "name": "update",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "newVersion"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "ping",
+                "args": [],
+                "readonly": false,
+                "returns": {
+                    "type": "uint64"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

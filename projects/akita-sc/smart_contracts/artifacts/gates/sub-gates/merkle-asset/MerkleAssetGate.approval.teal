@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 1 0 2 8
-    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "ERR:IARG" "ERR:IPAY"
+    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "ERR:errIarg" "ERR:errIpay"
     txn ApplicationID
     bnz main_after_if_else@2
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:33
@@ -35,7 +35,7 @@ main_after_if_else@2:
     err
 
 main_opUp_route@12:
-    // smart_contracts/utils/base-contracts/base.ts:41
+    // smart_contracts/utils/base-contracts/upgradeable.ts:30
     // opUp(): void { }
     intc_0 // 1
     return
@@ -71,14 +71,14 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:25
+    // smart_contracts/utils/base-contracts/upgradeable.ts:14
     // version = GlobalState<string>({ key: GlobalStateKeyVersion })
     pushbytes "version"
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:55
     // this.version.value = version
     uncover 2
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:56
@@ -141,39 +141,39 @@ register:
     extract 2 0
     dup
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:67
-    // loggedAssert(args.length >= MinRegisterArgsLength, ERR_INVALID_ARG_COUNT)
+    // loggedAssert(args.length >= MinRegisterArgsLength, errInvalidArgCount)
     len
     pushint 35
     >=
     bnz register_after_assert@3
-    bytec_3 // "ERR:IARG"
+    bytec_3 // "ERR:errIarg"
     log
-    err // ERR:IARG
+    err // ERR:errIarg
 
 register_after_assert@3:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:68
-    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     dig 1
     gtxns Receiver
     global CurrentApplicationAddress
     ==
     bnz register_after_assert@5
-    bytec 4 // "ERR:IPAY"
+    bytec 4 // "ERR:errIpay"
     log
-    err // ERR:IPAY
+    err // ERR:errIpay
 
 register_after_assert@5:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:69
-    // loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
-    dig 1
+    // loggedAssert(mbrPayment.amount === this.cost(args), errInvalidPayment)
+    swap
     gtxns Amount
     dig 1
     callsub smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.cost
     ==
     bnz register_after_assert@7
-    bytec 4 // "ERR:IPAY"
+    bytec 4 // "ERR:errIpay"
     log
-    err // ERR:IPAY
+    err // ERR:errIpay
 
 register_after_assert@7:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:46
@@ -205,7 +205,7 @@ register_after_assert@7:
     box_del
     pop
     dup
-    dig 2
+    uncover 2
     box_put
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:66
     // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
@@ -219,9 +219,7 @@ register_after_assert@7:
 
 // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.check[routing]() -> void:
 check:
-    intc_1 // 0
     pushbytes ""
-    dup
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:76
     // check(caller: Account, registryID: uint64, args: bytes): boolean {
     txna ApplicationArgs 1
@@ -250,45 +248,45 @@ check:
     extract 2 0
     dup
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:77
-    // loggedAssert(args.length >= MinCheckArgsLength, ERR_INVALID_ARG_COUNT)
+    // loggedAssert(args.length >= MinCheckArgsLength, errInvalidArgCount)
     len
     dup
     pushint 74
     >=
     bnz check_after_assert@3
-    bytec_3 // "ERR:IARG"
+    bytec_3 // "ERR:errIarg"
     log
-    err // ERR:IARG
+    err // ERR:errIarg
 
 check_after_assert@3:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:78
     // const { asset, proof } = decodeArc4<MerkleAssetGateCheckParams>(args)
-    dig 2
+    uncover 2
     intc_2 // 2
     extract_uint64
     dup
-    bury 8
-    dig 2
+    uncover 3
     dup
     intc_3 // 8
     extract_uint16
-    dig 3
+    uncover 4
     substring3
-    bury 9
+    swap
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:80
     // const [holdings, optedIn] = AssetHolding.assetBalance(caller, asset)
-    dig 5
+    uncover 4
     swap
     asset_holding_get AssetBalance
     swap
-    bury 7
+    bury 5
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:81
     // if (!optedIn || holdings === 0) {
     bz check_if_body@5
-    dig 5
+    dig 3
     bnz check_after_if_else@6
 
 check_if_body@5:
+    popn 3
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:82
     // return false
     intc_1 // 0
@@ -310,7 +308,7 @@ check_after_inlined_smart_contracts/gates/sub-gates/merkle-asset/contract.algo.t
 check_after_if_else@6:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:85
     // const { creator, name } = clone(this.registry(registryID).value)
-    dig 3
+    uncover 2
     itob
     dup
     intc_1 // 0
@@ -328,7 +326,7 @@ check_after_if_else@6:
     uncover 2
     box_extract
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:87-96
-    // return abiCall<typeof MetaMerkles.prototype.verify>({
+    // return abiCall<typeof Meta.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
     //     creator,
@@ -341,7 +339,7 @@ check_after_if_else@6:
     itxn_begin
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:92
     // sha256(sha256(itob(asset))),
-    dig 8
+    uncover 3
     itob
     sha256
     sha256
@@ -352,14 +350,14 @@ check_after_if_else@6:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:88
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     intc_1 // 0
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:88
     // appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/utils/functions.ts:44
+    // smart_contracts/utils/functions.ts:112
     // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
     pushbytes "aal"
     app_global_get_ex
@@ -370,7 +368,7 @@ check_after_if_else@6:
     extract_uint64
     itxn_field ApplicationID
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:87-96
-    // return abiCall<typeof MetaMerkles.prototype.verify>({
+    // return abiCall<typeof Meta.prototype.verify>({
     //   appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
     //   args: [
     //     creator,
@@ -388,7 +386,7 @@ check_after_if_else@6:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    dig 8
+    swap
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     pushint 6 // appl
@@ -514,9 +512,9 @@ getEntry:
     return
 
 
-// smart_contracts/utils/base-contracts/base.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
+// smart_contracts/utils/base-contracts/upgradeable.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
 updateAkitaDAO:
-    // smart_contracts/utils/base-contracts/base.ts:36
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
     // updateAkitaDAO(akitaDAO: Application): void {
     txna ApplicationArgs 1
     dup
@@ -525,41 +523,41 @@ updateAkitaDAO:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/utils/base-contracts/base.ts:37
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
     txn Sender
-    // smart_contracts/utils/base-contracts/base.ts:30
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     intc_1 // 0
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:30
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
     // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
     app_global_get_ex
     assert // check GlobalState exists
     pushbytes "wallet"
     app_global_get_ex
     pop
-    // smart_contracts/utils/base-contracts/base.ts:37
-    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
     app_params_get AppAddress
     assert // application exists
     ==
     bnz updateAkitaDAO_after_assert@3
-    pushbytes "ERR:NDAO"
+    pushbytes "ERR:errNdao"
     log
-    err // ERR:NDAO
+    err // ERR:errNdao
 
 updateAkitaDAO_after_assert@3:
-    // smart_contracts/utils/base-contracts/base.ts:27
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
     // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
     bytec_1 // "akita_dao"
-    // smart_contracts/utils/base-contracts/base.ts:38
+    // smart_contracts/utils/base-contracts/upgradeable.ts:27
     // this.akitaDAO.value = akitaDAO
-    dig 1
+    swap
     app_global_put
-    // smart_contracts/utils/base-contracts/base.ts:36
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
     // updateAkitaDAO(akitaDAO: Application): void {
     intc_0 // 1
     return
@@ -571,26 +569,24 @@ smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.c
     // cost(args: bytes): uint64 {
     proto 1 1
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:62
-    // loggedAssert(args.length >= MinRegisterArgsLength, ERR_INVALID_ARG_COUNT)
+    // loggedAssert(args.length >= MinRegisterArgsLength, errInvalidArgCount)
     frame_dig -1
     len
     dup
     pushint 35
     >=
     bnz smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.cost_after_assert@2
-    bytec_3 // "ERR:IARG"
+    bytec_3 // "ERR:errIarg"
     log
-    err // ERR:IARG
+    err // ERR:errIarg
 
 smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts::MerkleAssetGate.cost_after_assert@2:
     // smart_contracts/gates/sub-gates/merkle-asset/contract.algo.ts:63
     // return MinMetaMerkleRegistryMBR + (BoxCostPerBox * (args.length - 32))
-    frame_dig 0
     pushint 32
     -
     pushint 2500
     *
     pushint 18500
     +
-    swap
     retsub

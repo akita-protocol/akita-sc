@@ -1,0 +1,164 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:13
+    // export class MockAdminPlugin extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x8cf4abd4 // method "changeAdmin(uint64,bool,address)void"
+    txna ApplicationArgs 0
+    match main_changeAdmin_route@3
+    err
+
+main_changeAdmin_route@3:
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:14
+    // changeAdmin(wallet: Application, rekeyBack: boolean, newAdmin: Account): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b changeAdmin
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:13
+    // export class MockAdminPlugin extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/admin-plugin/contract.algo.ts::MockAdminPlugin.changeAdmin[routing]() -> void:
+changeAdmin:
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:14
+    // changeAdmin(wallet: Application, rekeyBack: boolean, newAdmin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    dup
+    cover 2
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:15-18
+    // abiCall<typeof AbstractedAccount.prototype.arc58_pluginChangeAdmin>({
+    //   appId: wallet,
+    //   args: [newAdmin],
+    // })
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x147b6cd6 // method "arc58_pluginChangeAdmin(address)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/utils/functions.ts:439
+    // if (rekeyBack) {
+    bz changeAdmin_after_if_else@6
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:441-448
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: sender,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    dig 1
+    bnz changeAdmin_after_if_else@4
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+
+changeAdmin_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@5:
+    itxn_field RekeyTo
+    // smart_contracts/utils/functions.ts:445
+    // amount: 0,
+    intc_0 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/utils/functions.ts:441-447
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: sender,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/utils/functions.ts:441-448
+    // itxn
+    //   .payment({
+    //     sender,
+    //     receiver: sender,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_submit
+
+changeAdmin_after_if_else@6:
+    // smart_contracts/mocks/admin-plugin/contract.algo.ts:14
+    // changeAdmin(wallet: Application, rekeyBack: boolean, newAdmin: Account): void {
+    intc_1 // 1
+    return
+
+changeAdmin_after_if_else@4:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    dig 2
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/utils/functions.ts:446
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    b changeAdmin_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@5

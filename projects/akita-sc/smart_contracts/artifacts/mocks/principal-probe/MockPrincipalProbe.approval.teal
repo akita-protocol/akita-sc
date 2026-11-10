@@ -1,0 +1,1764 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 32
+    bytecblock 0x151f7c75 "akita_dao" "aal" 0x00 "controlled_address" 0x32d90aaa 0x85eeb198 "referrer"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:25
+    // export class MockPrincipalProbe extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@24
+    pushbytes 0x854dede0 // method "opUp()void"
+    bytec 5 // method "probe(uint64)(uint64,address,address,address,address,bool)"
+    bytec 6 // method "tryProbe(uint64)(uint64,address,address,address,address,bool)"
+    pushbytess 0xe397a8d8 0xcf6cc7c7 0x13b497b7 0x3831b465 0x3b78a0ad 0x13e2e64b 0x8bed1eb6 0xd396f42e 0xc8d9a596 0xf7faa368 0xb55c70ec 0xbdd421d6 0xac1c1a63 0x645f6143 0x873ac0e2 0x3c8f2179 0xf43625ab // method "probeCost(uint64)uint64", method "probeAuth(uint64)address", method "quote(uint64)address", method "owns(uint64,address)bool", method "atRest(address,uint64,address)address", method "thirdParty(address,uint64)address", method "ctxOwns((address,uint64,address),address)bool", method "tipWalletOf(address,uint64)uint64", method "gateCheckCtxOf(appl,(address,uint64,address),uint64)bool", method "probeCtx(uint64)(address,uint64,address)", method "relay(uint64,uint64)(uint64,address,address,address,address,bool)", method "tryRelay(uint64,uint64)(uint64,address,address,address,address,bool)", method "pinnedFactoryProbe(uint64)(uint64,address,address,address,address,bool)", method "unpinnedFactory(uint64)uint64", method "genuineFor(uint64,uint64)bool", method "pinnedFactory()uint64", method "callerApp()uint64"
+    txna ApplicationArgs 0
+    match main_opUp_route@3 probe tryProbe probeCost probeAuth quote owns atRest thirdParty ctxOwns tipWalletOf gateCheckCtxOf probeCtx relay tryRelay pinnedFactoryProbe unpinnedFactory genuineFor pinnedFactory callerApp
+    err
+
+main_opUp_route@3:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:34
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main_create_NoOp@24:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:25
+    // export class MockPrincipalProbe extends Contract {
+    pushbytes 0x240d2f67 // method "create(uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/utils/principal.ts::plainPrincipal(sender: bytes) -> bytes:
+plainPrincipal:
+    // smart_contracts/utils/principal.ts:89
+    // function plainPrincipal(sender: Account): Principal {
+    proto 1 1
+    // smart_contracts/utils/principal.ts:93
+    // origin: Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/utils/principal.ts:95
+    // referrer: Global.zeroAddress,
+    dup
+    // smart_contracts/utils/principal.ts:91
+    // wallet: 0,
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:90-97
+    // return {
+    //   wallet: 0,
+    //   principal: sender,
+    //   origin: Global.zeroAddress,
+    //   spender: sender,
+    //   referrer: Global.zeroAddress,
+    //   viaPlugin: false,
+    // }
+    itob
+    frame_dig -1
+    concat
+    uncover 2
+    concat
+    frame_dig -1
+    concat
+    swap
+    concat
+    bytec_3 // 0x00
+    concat
+    retsub
+
+
+// smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
+isGenuineWallet:
+    // smart_contracts/utils/principal.ts:101
+    // export function isGenuineWallet(wallet: uint64, walletFactory: uint64): boolean {
+    proto 2 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:102
+    // if (wallet === 0 || walletFactory === 0) {
+    frame_dig -2
+    bz isGenuineWallet_if_body@2
+    frame_dig -1
+    bnz isGenuineWallet_after_if_else@3
+
+isGenuineWallet_if_body@2:
+    // smart_contracts/utils/principal.ts:103
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+isGenuineWallet_after_if_else@3:
+    // smart_contracts/utils/principal.ts:105
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    frame_dig -2
+    app_params_get AppCreator
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    bz isGenuineWallet_bool_false@6
+    // smart_contracts/utils/principal.ts:74
+    // return Account(op.sha512_256(Bytes('appID').concat(op.itob(appId))))
+    frame_dig -1
+    itob
+    pushbytes "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    frame_dig 0
+    ==
+    bz isGenuineWallet_bool_false@6
+    intc_1 // 1
+
+isGenuineWallet_bool_merge@7:
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    swap
+    retsub
+
+isGenuineWallet_bool_false@6:
+    intc_0 // 0
+    b isGenuineWallet_bool_merge@7
+
+
+// smart_contracts/utils/principal.ts::walletControlsLive(wallet: uint64, controlled: bytes, spender: bytes) -> uint64:
+walletControlsLive:
+    // smart_contracts/utils/principal.ts:118
+    // function walletControlsLive(wallet: uint64, controlled: Account, spender: Account): boolean {
+    proto 3 1
+    // smart_contracts/utils/principal.ts:119
+    // if (controlled === spender) {
+    frame_dig -2
+    frame_dig -1
+    ==
+    bz walletControlsLive_after_if_else@2
+    // smart_contracts/utils/principal.ts:120
+    // return true
+    intc_1 // 1
+    retsub
+
+walletControlsLive_after_if_else@2:
+    // smart_contracts/utils/principal.ts:122
+    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
+    frame_dig -3
+    app_params_get AppAddress
+    // smart_contracts/utils/principal.ts:123
+    // if (!walletExists) {
+    bnz walletControlsLive_after_if_else@4
+    // smart_contracts/utils/principal.ts:124
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+walletControlsLive_after_if_else@4:
+    // smart_contracts/utils/principal.ts:126
+    // if (controlled === walletAddress) {
+    frame_dig -2
+    dig 1
+    ==
+    bz walletControlsLive_after_if_else@6
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:127
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    retsub
+
+walletControlsLive_after_if_else@6:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    frame_dig -2
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:129
+    // return authAddrOf(controlled) === walletAddress
+    ==
+    retsub
+
+
+// smart_contracts/utils/principal.ts::resolvePrincipalCtx(walletFactory: uint64, hint: uint64, sender: bytes, callerApp: uint64, callerAddr: bytes, strict: uint64) -> bytes:
+resolvePrincipalCtx:
+    // smart_contracts/utils/principal.ts:140-147
+    // function resolvePrincipalCtx(
+    //   walletFactory: uint64,
+    //   hint: uint64,
+    //   sender: Account,
+    //   callerApp: uint64,
+    //   callerAddr: Account,
+    //   strict: boolean
+    // ): Principal {
+    proto 6 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:148
+    // if (hint === 0) {
+    frame_dig -5
+    bnz resolvePrincipalCtx_after_if_else@2
+    // smart_contracts/utils/principal.ts:149
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@2:
+    // smart_contracts/utils/principal.ts:152
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    frame_dig -5
+    frame_dig -6
+    callsub isGenuineWallet
+    bnz resolvePrincipalCtx_after_if_else@6
+    // smart_contracts/utils/principal.ts:153
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@5
+    // smart_contracts/utils/principal.ts:154
+    // loggedErr(errHintNotWallet)
+    pushbytes "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+resolvePrincipalCtx_after_if_else@5:
+    // smart_contracts/utils/principal.ts:156
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@6:
+    // smart_contracts/utils/principal.ts:159
+    // if (callerApp === 0) {
+    frame_dig -3
+    bnz resolvePrincipalCtx_after_if_else@10
+    // smart_contracts/utils/principal.ts:160
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@9
+    // smart_contracts/utils/principal.ts:161
+    // loggedErr(errHintTopLevel)
+    pushbytes "ERR:errHtop"
+    log
+    err // ERR:errHtop
+
+resolvePrincipalCtx_after_if_else@9:
+    // smart_contracts/utils/principal.ts:163
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@10:
+    // smart_contracts/utils/principal.ts:166
+    // let viaPlugin = false
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:167
+    // if (callerApp !== hint) {
+    frame_dig -3
+    frame_dig -5
+    !=
+    bz resolvePrincipalCtx_after_if_else@19
+    pop
+    // smart_contracts/utils/principal.ts:171
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -5
+    pushbytes "spending_address"
+    app_global_get_ex
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:172
+    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig 0
+    len
+    intc_3 // 32
+    ==
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig 0
+    frame_dig -4
+    ==
+    bz resolvePrincipalCtx_if_body@15
+    frame_dig -4
+    frame_dig -2
+    !=
+    bnz resolvePrincipalCtx_after_if_else@18
+
+resolvePrincipalCtx_if_body@15:
+    // smart_contracts/utils/principal.ts:173
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@17
+    // smart_contracts/utils/principal.ts:174
+    // loggedErr(errHintNotBound)
+    pushbytes "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+resolvePrincipalCtx_after_if_else@17:
+    // smart_contracts/utils/principal.ts:176
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@18:
+    // smart_contracts/utils/principal.ts:178
+    // viaPlugin = true
+    intc_1 // 1
+
+resolvePrincipalCtx_after_if_else@19:
+    // smart_contracts/utils/principal.ts:181
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    frame_dig -5
+    bytec 4 // "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:182
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz resolvePrincipalCtx_if_body@21
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz resolvePrincipalCtx_after_if_else@24
+
+resolvePrincipalCtx_if_body@21:
+    popn 2
+    // smart_contracts/utils/principal.ts:183
+    // if (strict) {
+    frame_dig -1
+    bz resolvePrincipalCtx_after_if_else@23
+    // smart_contracts/utils/principal.ts:184
+    // loggedErr(errHintBadWallet)
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+resolvePrincipalCtx_after_if_else@23:
+    // smart_contracts/utils/principal.ts:186
+    // return plainPrincipal(sender)
+    frame_dig -4
+    callsub plainPrincipal
+    swap
+    retsub
+
+resolvePrincipalCtx_after_if_else@24:
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    frame_dig -5
+    dig 1
+    frame_dig -4
+    callsub walletControlsLive
+    swap
+    // smart_contracts/utils/principal.ts:191
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    frame_dig -5
+    bytec 7 // "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz resolvePrincipalCtx_ternary_false@27
+    dup
+    len
+    intc_3 // 32
+    ==
+    bz resolvePrincipalCtx_ternary_false@27
+    swap
+
+resolvePrincipalCtx_ternary_merge@28:
+    // smart_contracts/utils/principal.ts:196
+    // principal: live ? controlled : sender,
+    frame_dig -4
+    dig 1
+    uncover 4
+    dup
+    cover 3
+    select
+    swap
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    bz resolvePrincipalCtx_ternary_false@30
+    swap
+
+resolvePrincipalCtx_ternary_merge@31:
+    // smart_contracts/utils/principal.ts:194-201
+    // return {
+    //   wallet: hint,
+    //   principal: live ? controlled : sender,
+    //   origin: live ? controlled : Global.zeroAddress,
+    //   spender: sender,
+    //   referrer,
+    //   viaPlugin,
+    // }
+    frame_dig -5
+    itob
+    uncover 2
+    concat
+    swap
+    concat
+    frame_dig -4
+    concat
+    swap
+    concat
+    bytec_3 // 0x00
+    intc_0 // 0
+    uncover 3
+    setbit
+    concat
+    swap
+    retsub
+
+resolvePrincipalCtx_ternary_false@30:
+    bury 1
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    global ZeroAddress
+    b resolvePrincipalCtx_ternary_merge@31
+
+resolvePrincipalCtx_ternary_false@27:
+    pop
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    swap
+    b resolvePrincipalCtx_ternary_merge@28
+
+
+// smart_contracts/utils/principal.ts::ownsAtRest(walletFactory: uint64, wallet: uint64, account: bytes) -> uint64:
+ownsAtRest:
+    // smart_contracts/utils/principal.ts:252
+    // export function ownsAtRest(walletFactory: uint64, wallet: uint64, account: Account): boolean {
+    proto 3 1
+    // smart_contracts/utils/principal.ts:253
+    // if (!isGenuineWallet(wallet, walletFactory)) {
+    frame_dig -2
+    frame_dig -3
+    callsub isGenuineWallet
+    bnz ownsAtRest_after_if_else@2
+    // smart_contracts/utils/principal.ts:254
+    // return false
+    intc_0 // 0
+    retsub
+
+ownsAtRest_after_if_else@2:
+    // smart_contracts/utils/principal.ts:79
+    // const [address] = op.AppParams.appAddress(wallet)
+    frame_dig -2
+    app_params_get AppAddress
+    pop
+    dup
+    // smart_contracts/utils/principal.ts:257
+    // if (account === walletAddress) {
+    frame_dig -1
+    ==
+    bz ownsAtRest_after_if_else@4
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:258
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    retsub
+
+ownsAtRest_after_if_else@4:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    frame_dig -1
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:260
+    // return authAddrOf(account) === walletAddress
+    ==
+    retsub
+
+
+// smart_contracts/utils/functions.ts::principalOf(akitaDAO: uint64, hint: uint64) -> bytes:
+principalOf:
+    // smart_contracts/utils/functions.ts:828
+    // export function principalOf(akitaDAO: Application, hint: uint64): Principal {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    frame_dig -2
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:829
+    // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:212
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/utils/principal.ts:213
+    // Global.callerApplicationId,
+    global CallerApplicationID
+    // smart_contracts/utils/principal.ts:214
+    // Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    uncover 3
+    frame_dig -1
+    cover 4
+    cover 4
+    // smart_contracts/utils/principal.ts:215
+    // true
+    intc_1 // 1
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    callsub resolvePrincipalCtx
+    // smart_contracts/utils/functions.ts:829
+    // return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+    retsub
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.create[routing]() -> void:
+create:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:28
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:30
+    // this.akitaDAO.value = Application(akitaDAO)
+    swap
+    app_global_put
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:28
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.probe[routing]() -> void:
+probe:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:37
+    // probe(wallet: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:38
+    // return principalOf(this.akitaDAO.value, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:38
+    // return principalOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    callsub principalOf
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:37
+    // probe(wallet: uint64): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.tryProbe[routing]() -> void:
+tryProbe:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:42
+    // tryProbe(wallet: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:43
+    // return tryPrincipalOf(this.akitaDAO.value, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:43
+    // return tryPrincipalOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:834
+    // return tryResolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:228
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/utils/principal.ts:229
+    // Global.callerApplicationId,
+    global CallerApplicationID
+    // smart_contracts/utils/principal.ts:230
+    // Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    // smart_contracts/utils/principal.ts:225-232
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   false
+    // )
+    uncover 3
+    cover 4
+    // smart_contracts/utils/principal.ts:231
+    // false
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:225-232
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   false
+    // )
+    callsub resolvePrincipalCtx
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:42
+    // tryProbe(wallet: uint64): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.probeCost[routing]() -> void:
+probeCost:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:50
+    // probeCost(wallet: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:51
+    // const before = Global.opcodeBudget
+    global OpcodeBudget
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:52
+    // const p = principalOf(this.akitaDAO.value, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:52
+    // const p = principalOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    uncover 2
+    callsub principalOf
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:53
+    // const after = Global.opcodeBudget
+    global OpcodeBudget
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:54
+    // assert(p.spender === Txn.sender)
+    swap
+    extract 72 32
+    txn Sender
+    ==
+    assert
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:55
+    // return before - after
+    -
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:50
+    // probeCost(wallet: uint64): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.probeAuth[routing]() -> void:
+probeAuth:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:59
+    // probeAuth(wallet: uint64): Account {
+    txna ApplicationArgs 1
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:60
+    // const [auth] = op.AcctParams.acctAuthAddr(Txn.sender)
+    txn Sender
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:59
+    // probeAuth(wallet: uint64): Account {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.quote[routing]() -> void:
+quote:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:64
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:66
+    // return quoteReferrerOf(this.akitaDAO.value, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:66
+    // return quoteReferrerOf(this.akitaDAO.value, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:839
+    // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:240
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    callsub isGenuineWallet
+    bnz quote_after_if_else@3
+    pop
+    // smart_contracts/utils/principal.ts:241
+    // return Global.zeroAddress
+    global ZeroAddress
+
+quote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:64
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+quote_after_if_else@3:
+    // smart_contracts/utils/principal.ts:243
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    bytec 7 // "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:244
+    // return referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz quote_ternary_false@6
+    dup
+    len
+    intc_3 // 32
+    ==
+    bz quote_ternary_false@6
+    // smart_contracts/utils/functions.ts:839
+    // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
+    b quote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
+
+quote_ternary_false@6:
+    pop
+    // smart_contracts/utils/principal.ts:244
+    // return referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    // smart_contracts/utils/functions.ts:839
+    // return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
+    b quote_after_inlined_smart_contracts/utils/principal.ts::quoteReferrer@8
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.owns[routing]() -> void:
+owns:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:69
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:71
+    // return ownsAtRestOf(this.akitaDAO.value, wallet, account)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:71
+    // return ownsAtRestOf(this.akitaDAO.value, wallet, account)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:844
+    // return ownsAtRest(getAkitaAppList(akitaDAO).wallet, wallet, account)
+    pushint 88
+    extract_uint64
+    cover 2
+    callsub ownsAtRest
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:69
+    // @abimethod({ readonly: true })
+    bytec_3 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.atRest[routing]() -> void:
+atRest:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:74
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:76
+    // return atRestPrincipalOf(this.akitaDAO.value, account, wallet, stored)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:76
+    // return atRestPrincipalOf(this.akitaDAO.value, account, wallet, stored)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:849
+    // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
+    pushint 88
+    extract_uint64
+    cover 2
+    // smart_contracts/utils/principal.ts:271
+    // if (stored === account) {
+    ==
+    bz atRest_after_if_else@3
+    popn 3
+
+atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:74
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+atRest_after_if_else@3:
+    // smart_contracts/utils/principal.ts:274
+    // if (!ownsAtRest(walletFactory, wallet, account)) {
+    dig 2
+    dig 4
+    callsub ownsAtRest
+    bnz atRest_after_if_else@5
+    popn 2
+    // smart_contracts/utils/functions.ts:849
+    // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
+    b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
+
+atRest_after_if_else@5:
+    // smart_contracts/utils/principal.ts:79
+    // const [address] = op.AppParams.appAddress(wallet)
+    swap
+    app_params_get AppAddress
+    pop
+    dup
+    // smart_contracts/utils/principal.ts:278
+    // if (stored === walletAddress) {
+    dig 2
+    ==
+    bz atRest_after_if_else@7
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:279
+    // return authAddrOf(walletAddress) === Global.zeroAddress ? stored : account
+    global ZeroAddress
+    ==
+    select
+    // smart_contracts/utils/functions.ts:849
+    // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
+    b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
+
+atRest_after_if_else@7:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    swap
+    dup
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:281
+    // return authAddrOf(stored) === walletAddress ? stored : account
+    uncover 2
+    ==
+    select
+    // smart_contracts/utils/functions.ts:849
+    // return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
+    b atRest_after_inlined_smart_contracts/utils/principal.ts::atRestPrincipal@8
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.thirdParty[routing]() -> void:
+thirdParty:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:80
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    cover 2
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:82
+    // return thirdPartyPrincipalOf(this.akitaDAO.value, account, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:82
+    // return thirdPartyPrincipalOf(this.akitaDAO.value, account, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:854
+    // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:291
+    // if (!ownsAtRest(walletFactory, wallet, account)) {
+    swap
+    uncover 2
+    callsub ownsAtRest
+    bnz thirdParty_after_if_else@3
+    pop
+
+thirdParty_after_inlined_smart_contracts/utils/principal.ts::thirdPartyPrincipal@7:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:80
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+thirdParty_after_if_else@3:
+    // smart_contracts/utils/principal.ts:294
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(wallet, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    dup
+    bytec 4 // "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:295
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz thirdParty_if_body@5
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz thirdParty_after_if_else@6
+
+thirdParty_if_body@5:
+    popn 2
+    // smart_contracts/utils/functions.ts:854
+    // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
+    b thirdParty_after_inlined_smart_contracts/utils/principal.ts::thirdPartyPrincipal@7
+
+thirdParty_after_if_else@6:
+    // smart_contracts/utils/principal.ts:299
+    // return walletControlsLive(wallet, controlled, account) ? controlled : account
+    dup
+    cover 2
+    uncover 3
+    dup
+    cover 3
+    callsub walletControlsLive
+    swap
+    cover 2
+    select
+    // smart_contracts/utils/functions.ts:854
+    // return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
+    b thirdParty_after_inlined_smart_contracts/utils/principal.ts::thirdPartyPrincipal@7
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.ctxOwns[routing]() -> void:
+ctxOwns:
+    pushbytes ""
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:85
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    pushint 72
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::GateCtx
+    txna ApplicationArgs 2
+    dup
+    cover 3
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:87
+    // return ctxOwnsOf(this.akitaDAO.value, ctx, account)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:87
+    // return ctxOwnsOf(this.akitaDAO.value, ctx, account)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:859
+    // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
+    pushint 88
+    extract_uint64
+    cover 3
+    // smart_contracts/utils/principal.ts:313
+    // if (account === ctx.principal || account === ctx.spender) {
+    swap
+    extract 0 32
+    ==
+    bnz ctxOwns_if_body@3
+    dup
+    extract 40 32
+    dig 3
+    ==
+    bz ctxOwns_after_if_else@4
+
+ctxOwns_if_body@3:
+    pop
+    // smart_contracts/utils/principal.ts:314
+    // return true
+    intc_1 // 1
+
+ctxOwns_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@9:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:85
+    // @abimethod({ readonly: true })
+    bytec_3 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+ctxOwns_after_if_else@4:
+    // smart_contracts/utils/principal.ts:316
+    // return ctx.wallet !== 0 && ownsAtRest(walletFactory, ctx.wallet, account)
+    intc_3 // 32
+    extract_uint64
+    dup
+    bury 4
+    bz ctxOwns_bool_false@7
+    dup
+    dig 3
+    dig 3
+    callsub ownsAtRest
+    bz ctxOwns_bool_false@7
+    intc_1 // 1
+    // smart_contracts/utils/functions.ts:859
+    // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
+    b ctxOwns_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@9
+
+ctxOwns_bool_false@7:
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:859
+    // return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
+    b ctxOwns_after_inlined_smart_contracts/utils/principal.ts::ctxOwns@9
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.tipWalletOf[routing]() -> void:
+tipWalletOf:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:91
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:93
+    // return tipWallet(this.akitaDAO.value, creator, stored)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:93
+    // return tipWallet(this.akitaDAO.value, creator, stored)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:937
+    // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
+    pushint 88
+    extract_uint64
+    cover 3
+    // smart_contracts/utils/principal.ts:371
+    // if (stored === 0 || !ownsAtRest(walletFactory, stored, creator)) {
+    bz tipWalletOf_if_body@3
+    dig 2
+    dig 1
+    dig 3
+    callsub ownsAtRest
+    bnz tipWalletOf_after_if_else@4
+
+tipWalletOf_if_body@3:
+    popn 2
+    // smart_contracts/utils/principal.ts:372
+    // return 0
+    intc_0 // 0
+
+tipWalletOf_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@8:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:91
+    // @abimethod({ readonly: true })
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+tipWalletOf_after_if_else@4:
+    // smart_contracts/utils/principal.ts:374
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(stored, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    dup
+    bytec 4 // "controlled_address"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:375
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz tipWalletOf_if_body@6
+    dup
+    len
+    intc_3 // 32
+    ==
+    bnz tipWalletOf_after_if_else@7
+
+tipWalletOf_if_body@6:
+    popn 3
+    // smart_contracts/utils/principal.ts:376
+    // return 0
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:937
+    // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
+    b tipWalletOf_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@8
+
+tipWalletOf_after_if_else@7:
+    // smart_contracts/utils/principal.ts:378
+    // return walletControlsLive(stored, Account(controlledBytes), creator) ? stored : 0
+    swap
+    dup
+    uncover 2
+    uncover 3
+    callsub walletControlsLive
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/utils/functions.ts:937
+    // return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
+    b tipWalletOf_after_inlined_smart_contracts/utils/principal.ts::tipWalletFor@8
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.gateCheckCtxOf[routing]() -> void:
+gateCheckCtxOf:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:97
+    // gateCheckCtxOf(gateTxn: gtxn.ApplicationCallTxn, ctx: GateCtx, id: uint64): boolean {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dupn 2
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    len
+    pushint 72
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::GateCtx
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:98
+    // return gateCheckCtx(gateTxn, this.akitaDAO.value, ctx, id)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:98
+    // return gateCheckCtx(gateTxn, this.akitaDAO.value, ctx, id)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:874
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    swap
+    gtxns ApplicationID
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    swap
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:874
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    pushint 40
+    extract_uint64
+    ==
+    // smart_contracts/utils/functions.ts:874-875
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    bz gateCheckCtxOf_bool_false@8
+    // smart_contracts/utils/functions.ts:875
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    dig 2
+    gtxns OnCompletion
+    // smart_contracts/utils/functions.ts:874-875
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    bnz gateCheckCtxOf_bool_false@8
+    // smart_contracts/utils/functions.ts:876
+    // gateTxn.numAppArgs === 4 &&
+    dig 2
+    gtxns NumAppArgs
+    pushint 4
+    ==
+    // smart_contracts/utils/functions.ts:874-876
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    bz gateCheckCtxOf_bool_false@8
+    // smart_contracts/utils/functions.ts:877
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    dig 2
+    gtxnsa ApplicationArgs 0
+    pushbytes 0x9b147d2c // method "mustCheckFor((address,uint64,address),uint64,byte[][])void"
+    ==
+    // smart_contracts/utils/functions.ts:874-877
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    bz gateCheckCtxOf_bool_false@8
+    // smart_contracts/utils/functions.ts:878
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    dig 2
+    gtxnsa ApplicationArgs 1
+    dig 2
+    ==
+    // smart_contracts/utils/functions.ts:874-878
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    bz gateCheckCtxOf_bool_false@8
+    // smart_contracts/utils/functions.ts:879
+    // gateTxn.appArgs(2) === itob(id)
+    dig 2
+    gtxnsa ApplicationArgs 2
+    dig 1
+    itob
+    ==
+    // smart_contracts/utils/functions.ts:874-879
+    // gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    // gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    // gateTxn.numAppArgs === 4 &&
+    // gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    // gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    // gateTxn.appArgs(2) === itob(id)
+    bz gateCheckCtxOf_bool_false@8
+    intc_1 // 1
+
+gateCheckCtxOf_bool_merge@9:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:97
+    // gateCheckCtxOf(gateTxn: gtxn.ApplicationCallTxn, ctx: GateCtx, id: uint64): boolean {
+    bytec_3 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+gateCheckCtxOf_bool_false@8:
+    intc_0 // 0
+    b gateCheckCtxOf_bool_merge@9
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.probeCtx[routing]() -> void:
+probeCtx:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:102
+    // probeCtx(wallet: uint64): GateCtx {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:103
+    // return gateCtx(principalOf(this.akitaDAO.value, wallet))
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:103
+    // return gateCtx(principalOf(this.akitaDAO.value, wallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    callsub principalOf
+    // smart_contracts/utils/principal.ts:304
+    // return { principal: p.principal, wallet: p.wallet, spender: p.spender }
+    dup
+    extract 8 32
+    dig 1
+    extract 0 8
+    uncover 2
+    extract 72 32
+    cover 2
+    concat
+    swap
+    concat
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:102
+    // probeCtx(wallet: uint64): GateCtx {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.relay[routing]() -> void:
+relay:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:107
+    // relay(target: Application, wallet: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:108-111
+    // return abiCall<typeof MockPrincipalProbe.prototype.probe>({
+    //   appId: target,
+    //   args: [wallet],
+    // }).returnValue
+    itxn_begin
+    swap
+    itxn_field ApplicationID
+    bytec 5 // method "probe(uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:107
+    // relay(target: Application, wallet: uint64): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.tryRelay[routing]() -> void:
+tryRelay:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:115
+    // tryRelay(target: Application, wallet: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:116-119
+    // return abiCall<typeof MockPrincipalProbe.prototype.tryProbe>({
+    //   appId: target,
+    //   args: [wallet],
+    // }).returnValue
+    itxn_begin
+    swap
+    itxn_field ApplicationID
+    bytec 6 // method "tryProbe(uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:115
+    // tryRelay(target: Application, wallet: uint64): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.pinnedFactoryProbe[routing]() -> void:
+pinnedFactoryProbe:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:123
+    // pinnedFactoryProbe(wallet: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:124
+    // return resolvePrincipal(getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:124
+    // return resolvePrincipal(getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:124
+    // return resolvePrincipal(getAkitaAppList(this.akitaDAO.value).wallet, wallet)
+    pushint 88
+    extract_uint64
+    // smart_contracts/utils/principal.ts:212
+    // Txn.sender,
+    txn Sender
+    // smart_contracts/utils/principal.ts:213
+    // Global.callerApplicationId,
+    global CallerApplicationID
+    // smart_contracts/utils/principal.ts:214
+    // Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    uncover 3
+    cover 4
+    // smart_contracts/utils/principal.ts:215
+    // true
+    intc_1 // 1
+    // smart_contracts/utils/principal.ts:209-216
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   hint,
+    //   Txn.sender,
+    //   Global.callerApplicationId,
+    //   Global.callerApplicationAddress,
+    //   true
+    // )
+    callsub resolvePrincipalCtx
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:123
+    // pinnedFactoryProbe(wallet: uint64): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.unpinnedFactory[routing]() -> void:
+unpinnedFactory:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:131
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:133
+    // const [dao] = op.AppGlobal.getExUint64(wallet, Bytes(GlobalStateKeyAkitaDAO))
+    bytec_1 // "akita_dao"
+    app_global_get_ex
+    pop
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:134
+    // const [appListBytes] = op.AppGlobal.getExBytes(dao, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:135
+    // return decodeArc4<AkitaAppList>(appListBytes).wallet
+    extract 88 8
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:131
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.genuineFor[routing]() -> void:
+genuineFor:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:139
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:141
+    // return isGenuineWallet(wallet, factory)
+    callsub isGenuineWallet
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:139
+    // @abimethod({ readonly: true })
+    bytec_3 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.pinnedFactory[routing]() -> void:
+pinnedFactory:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:147
+    // return getAkitaAppList(this.akitaDAO.value).wallet
+    intc_0 // 0
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:26
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:147
+    // return getAkitaAppList(this.akitaDAO.value).wallet
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    bytec_2 // "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:147
+    // return getAkitaAppList(this.akitaDAO.value).wallet
+    extract 88 8
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:145
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-probe/contract.algo.ts::MockPrincipalProbe.callerApp[routing]() -> void:
+callerApp:
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:153
+    // return Global.callerApplicationId
+    global CallerApplicationID
+    // smart_contracts/mocks/principal-probe/contract.algo.ts:151
+    // @abimethod({ readonly: true })
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

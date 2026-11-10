@@ -1,0 +1,1227 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 6 4096
+    bytecblock 0x151f7c75 "consensus" 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001 "program" 0xb9865a61 0x5b3a8b00 0xa9e823cd 0xc3eb7cd4 0x857e2717
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:42-43
+    // @contract({ stateTotals: { globalBytes: 9, globalUints: 1 } })
+    // export class MockGuildConsensusHost extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@16
+    pushbytess 0x4a0a5dc5 0x71096d25 0x413829cd // method "initProgram(uint64)void", method "loadProgram(uint64,byte[])void", method "createConsensus(byte[])uint64"
+    bytec 4 // method "validateActivation()void"
+    pushbytess 0x89dcb679 0x590623cd // method "openProposal(uint64,uint64,(uint64,uint64,uint64))void", method "vote(address,uint64,uint8,byte[])void"
+    bytec 5 // method "resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)"
+    bytec 6 // method "cleanupBallot(uint64,address[])uint64"
+    bytec 7 // method "proposalPower(address,byte[],uint64)uint64"
+    bytec 8 // method "consensusActionMbr(byte[])uint64"
+    pushbytess 0x8346ec1e 0xa45d8a99 // method "consensusAction(uint64,byte[])void", method "configureConsensus(byte[])void"
+    txna ApplicationArgs 0
+    match initProgram loadProgram createConsensus validateActivation openProposal vote resolveProposal cleanupBallot proposalPower consensusActionMbr consensusAction configureConsensus
+    err
+
+main_create_NoOp@16:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:42-43
+    // @contract({ stateTotals: { globalBytes: 9, globalUints: 1 } })
+    // export class MockGuildConsensusHost extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:45-47
+    // upgradeAppProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyUpgradeAppProposalSettings,
+    // })
+    pushbytes "upgrade_app_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:94
+    // this.upgradeAppProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:48
+    // addPluginProposalSettings = GlobalState<GuildProposalSettings>({ key: GuildGlobalStateKeyAddPluginProposalSettings })
+    pushbytes "add_plugin_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:95
+    // this.addPluginProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:49-51
+    // removeExecutionProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyRemoveExecutionProposalSettings,
+    // })
+    pushbytes "remove_execution_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:96
+    // this.removeExecutionProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:52-54
+    // removePluginProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyRemovePluginProposalSettings,
+    // })
+    pushbytes "remove_plugin_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:97
+    // this.removePluginProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:55-57
+    // addAllowancesProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyAddAllowancesProposalSettings,
+    // })
+    pushbytes "add_allowances_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:98
+    // this.addAllowancesProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:58-60
+    // removeAllowancesProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyRemoveAllowancesProposalSettings,
+    // })
+    pushbytes "remove_allowances_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:99
+    // this.removeAllowancesProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:61
+    // newEscrowProposalSettings = GlobalState<GuildProposalSettings>({ key: GuildGlobalStateKeyNewEscrowProposalSettings })
+    pushbytes "new_escrow_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:100
+    // this.newEscrowProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:62-64
+    // toggleEscrowLockProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyToggleEscrowLockProposalSettings,
+    // })
+    pushbytes "toggle_escrow_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:101
+    // this.toggleEscrowLockProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:65-67
+    // updateGuildProposalSettings = GlobalState<GuildProposalSettings>({
+    //   key: GuildGlobalStateKeyUpdateGuildProposalSettings,
+    // })
+    pushbytes "update_guild_ps"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:86-93
+    // const settings: GuildProposalSettings = {
+    //   fee: 0,
+    //   power: 0,
+    //   duration: 1,
+    //   participation: 0,
+    //   approval: 0,
+    //   minimumApprovals: 1,
+    // }
+    bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:102
+    // this.updateGuildProposalSettings.value = clone(settings)
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:84
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.initProgram[routing]() -> void:
+initProgram:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:105
+    // initProgram(size: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:106
+    // this.program.create({ size })
+    swap
+    box_create
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:105
+    // initProgram(size: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.loadProgram[routing]() -> void:
+loadProgram:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:109
+    // loadProgram(offset: uint64, data: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:110
+    // this.program.replace(offset, data)
+    cover 2
+    box_replace
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:109
+    // loadProgram(offset: uint64, data: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.createConsensus[routing]() -> void:
+createConsensus:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:114
+    // createConsensus(governanceConfig: bytes): uint64 {
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:116-121
+    // const consensus = consensusContract.call.create({
+    //   args: [governanceConfig],
+    //   approvalProgram: [this.programFirstChunk(), this.programSecondChunk()],
+    //   clearStateProgram: consensusContract.clearStateProgram,
+    //   extraProgramPages: 3,
+    // }).itxn.createdApp
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:71
+    // const size = this.program.length
+    box_len
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:72
+    // if (size > MAX_AVM_BYTE_ARRAY_LENGTH) return this.program.extract(0, MAX_AVM_BYTE_ARRAY_LENGTH)
+    intc 4 // 4096
+    >
+    bz createConsensus_after_if_else@3
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:72
+    // if (size > MAX_AVM_BYTE_ARRAY_LENGTH) return this.program.extract(0, MAX_AVM_BYTE_ARRAY_LENGTH)
+    intc_0 // 0
+    intc 4 // 4096
+    box_extract
+
+createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programFirstChunk@4:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:77
+    // const size = this.program.length
+    box_len
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:78
+    // if (size > MAX_AVM_BYTE_ARRAY_LENGTH) {
+    intc 4 // 4096
+    >
+    bz createConsensus_after_if_else@7
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:79
+    // return this.program.extract(MAX_AVM_BYTE_ARRAY_LENGTH, size - MAX_AVM_BYTE_ARRAY_LENGTH)
+    intc 4 // 4096
+    -
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:79
+    // return this.program.extract(MAX_AVM_BYTE_ARRAY_LENGTH, size - MAX_AVM_BYTE_ARRAY_LENGTH)
+    intc 4 // 4096
+    uncover 2
+    box_extract
+
+createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programSecondChunk@8:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:115
+    // const consensusContract = compileArc4(GuildConsensusCreateStub)
+    intc_0 // 0
+    itxn_field LocalNumUint
+    intc_0 // 0
+    itxn_field LocalNumByteSlice
+    intc_2 // 8
+    itxn_field GlobalNumByteSlice
+    pushint 12
+    itxn_field GlobalNumUint
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:116-121
+    // const consensus = consensusContract.call.create({
+    //   args: [governanceConfig],
+    //   approvalProgram: [this.programFirstChunk(), this.programSecondChunk()],
+    //   clearStateProgram: consensusContract.clearStateProgram,
+    //   extraProgramPages: 3,
+    // }).itxn.createdApp
+    intc_0 // 0
+    itxn_field OnCompletion
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:120
+    // extraProgramPages: 3,
+    pushint 3
+    itxn_field ExtraProgramPages
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:115
+    // const consensusContract = compileArc4(GuildConsensusCreateStub)
+    pushbytes base64(DYEBQw==)
+    itxn_field ClearStateProgramPages
+    swap
+    itxn_field ApprovalProgramPages
+    itxn_field ApprovalProgramPages
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:116-121
+    // const consensus = consensusContract.call.create({
+    //   args: [governanceConfig],
+    //   approvalProgram: [this.programFirstChunk(), this.programSecondChunk()],
+    //   clearStateProgram: consensusContract.clearStateProgram,
+    //   extraProgramPages: 3,
+    // }).itxn.createdApp
+    pushbytes 0x8e79358d // method "create(byte[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:122
+    // this.consensus.value = consensus
+    dig 1
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:123
+    // itxn.payment({ receiver: consensus.address, amount: Global.minBalance, fee: 0 }).submit()
+    itxn_begin
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    global MinBalance
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:124
+    // consensusContract.call.bindGuild({ appId: consensus, args: [Global.currentApplicationId] })
+    itxn_begin
+    global CurrentApplicationID
+    itob
+    intc_0 // 0
+    itxn_field OnCompletion
+    dig 1
+    itxn_field ApplicationID
+    pushbytes 0x3e87013b // method "bindGuild(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:114
+    // createConsensus(governanceConfig: bytes): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+createConsensus_after_if_else@7:
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:81
+    // return Bytes('')
+    pushbytes ""
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:118
+    // approvalProgram: [this.programFirstChunk(), this.programSecondChunk()],
+    b createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programSecondChunk@8
+
+createConsensus_after_if_else@3:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:68
+    // program = Box<bytes>({ key: 'program' })
+    bytec_3 // "program"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:73
+    // return this.program.extract(0, size)
+    intc_0 // 0
+    uncover 2
+    box_extract
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:118
+    // approvalProgram: [this.programFirstChunk(), this.programSecondChunk()],
+    b createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programFirstChunk@4
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.validateActivation[routing]() -> void:
+validateActivation:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:129
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.validateActivation>({ appId: this.consensus.value, args: [] })
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:129
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.validateActivation>({ appId: this.consensus.value, args: [] })
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    bytec 4 // method "validateActivation()void"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:128
+    // validateActivation(): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.openProposal[routing]() -> void:
+openProposal:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:132
+    // openProposal(proposalID: uint64, votingEnd: uint64, requirements: GuildConsensusRequirements): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 24
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusRequirements
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:133
+    // const amount = abiCall<typeof GuildConsensusBase.prototype.ballotMbr>({ appId: this.consensus.value, args: [] }).returnValue
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:133
+    // const amount = abiCall<typeof GuildConsensusBase.prototype.ballotMbr>({ appId: this.consensus.value, args: [] }).returnValue
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    itxn_field ApplicationID
+    pushbytes 0xd3d29643 // method "ballotMbr()uint64"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:134-146
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.openProposal>({
+    //   appId: this.consensus.value,
+    //   args: [
+    //     itxn.payment({
+    //       receiver: this.consensus.value.address,
+    //       amount,
+    //       fee: 0,
+    //     }),
+    //     proposalID,
+    //     votingEnd,
+    //     requirements,
+    //   ],
+    // })
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:138
+    // receiver: this.consensus.value.address,
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:137-141
+    // itxn.payment({
+    //   receiver: this.consensus.value.address,
+    //   amount,
+    //   fee: 0,
+    // }),
+    intc_1 // 1
+    itxn_field TypeEnum
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:140
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:134-146
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.openProposal>({
+    //   appId: this.consensus.value,
+    //   args: [
+    //     itxn.payment({
+    //       receiver: this.consensus.value.address,
+    //       amount,
+    //       fee: 0,
+    //     }),
+    //     proposalID,
+    //     votingEnd,
+    //     requirements,
+    //   ],
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x68449088 // method "openProposal(pay,uint64,uint64,(uint64,uint64,uint64))void"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:132
+    // openProposal(proposalID: uint64, votingEnd: uint64, requirements: GuildConsensusRequirements): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.vote[routing]() -> void:
+vote:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:149
+    // vote(voter: Account, proposalID: uint64, vote: GuildVoteType, evidence: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:151-154
+    // const voted = abiCall<typeof FixedSignerGuildConsensus.prototype.hasVoted>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID, voter],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:152
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:152
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:151-154
+    // const voted = abiCall<typeof FixedSignerGuildConsensus.prototype.hasVoted>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID, voter],
+    // }).returnValue
+    pushbytes 0xf50808ef // method "hasVoted(uint64,address)bool"
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
+    dig 4
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for bool
+    intc_0 // 0
+    getbit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:155-164
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.vote>({
+    //   appId: this.consensus.value,
+    //   args: [
+    //     itxn.payment({ receiver: this.consensus.value.address, amount: voted ? 0 : GuildVoteMBR, fee: 0 }),
+    //     voter,
+    //     proposalID,
+    //     vote,
+    //     evidence,
+    //   ],
+    // })
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:158
+    // itxn.payment({ receiver: this.consensus.value.address, amount: voted ? 0 : GuildVoteMBR, fee: 0 }),
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    pushint 22500
+    intc_0 // 0
+    uncover 3
+    select
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:155-164
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.vote>({
+    //   appId: this.consensus.value,
+    //   args: [
+    //     itxn.payment({ receiver: this.consensus.value.address, amount: voted ? 0 : GuildVoteMBR, fee: 0 }),
+    //     voter,
+    //     proposalID,
+    //     vote,
+    //     evidence,
+    //   ],
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x3d7525e9 // method "vote(pay,address,uint64,uint8,byte[])void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:149
+    // vote(voter: Account, proposalID: uint64, vote: GuildVoteType, evidence: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.resolveProposal[routing]() -> void:
+resolveProposal:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:167
+    // resolveProposal(proposalID: uint64): GuildConsensusResult {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:168-171
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.resolveProposal>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:169
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:169
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:168-171
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.resolveProposal>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID],
+    // }).returnValue
+    bytec 5 // method "resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    pushint 33
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusResult
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:167
+    // resolveProposal(proposalID: uint64): GuildConsensusResult {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.cleanupBallot[routing]() -> void:
+cleanupBallot:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:174
+    // cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<account>
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:175-178
+    // return abiCall<typeof GuildConsensusBase.prototype.cleanupBallot>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID, voters],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:176
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:176
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:175-178
+    // return abiCall<typeof GuildConsensusBase.prototype.cleanupBallot>({
+    //   appId: this.consensus.value,
+    //   args: [proposalID, voters],
+    // }).returnValue
+    bytec 6 // method "cleanupBallot(uint64,address[])uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:174
+    // cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.proposalPower[routing]() -> void:
+proposalPower:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:181
+    // proposalPower(account: Account, evidence: bytes, requiredThrough: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:182-185
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.proposalPower>({
+    //   appId: this.consensus.value,
+    //   args: [account, evidence, requiredThrough],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:183
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:183
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:182-185
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.proposalPower>({
+    //   appId: this.consensus.value,
+    //   args: [account, evidence, requiredThrough],
+    // }).returnValue
+    bytec 7 // method "proposalPower(address,byte[],uint64)uint64"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:181
+    // proposalPower(account: Account, evidence: bytes, requiredThrough: uint64): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr[routing]() -> void:
+consensusActionMbr:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:189
+    // consensusActionMbr(data: bytes): uint64 {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    callsub smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusAction[routing]() -> void:
+consensusAction:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:197
+    // consensusAction(proposalID: uint64, data: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    dup
+    extract 2 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:198
+    // const amount = this.consensusActionMbr(data)
+    callsub smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:199-202
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.applyConsensusAction>({
+    //   appId: this.consensus.value,
+    //   args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), proposalID, data],
+    // })
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:201
+    // args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), proposalID, data],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:201
+    // args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), proposalID, data],
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 2
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:199-202
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.applyConsensusAction>({
+    //   appId: this.consensus.value,
+    //   args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), proposalID, data],
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x67ed5fed // method "applyConsensusAction(pay,uint64,byte[])void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:197
+    // consensusAction(proposalID: uint64, data: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.configureConsensus[routing]() -> void:
+configureConsensus:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:206
+    // configureConsensus(config: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:207-210
+    // const amount = abiCall<typeof FixedSignerGuildConsensus.prototype.configurationMbr>({
+    //   appId: this.consensus.value,
+    //   args: [config],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:208
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:208
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:207-210
+    // const amount = abiCall<typeof FixedSignerGuildConsensus.prototype.configurationMbr>({
+    //   appId: this.consensus.value,
+    //   args: [config],
+    // }).returnValue
+    pushbytes 0xaa3e40a8 // method "configurationMbr(byte[])uint64"
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:211-214
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.configure>({
+    //   appId: this.consensus.value,
+    //   args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), config],
+    // })
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:213
+    // args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), config],
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:211-214
+    // abiCall<typeof FixedSignerGuildConsensus.prototype.configure>({
+    //   appId: this.consensus.value,
+    //   args: [itxn.payment({ receiver: this.consensus.value.address, amount, fee: 0 }), config],
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x8bff8387 // method "configure(pay,byte[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:206
+    // configureConsensus(config: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr(data: bytes) -> uint64:
+smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr:
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:189
+    // consensusActionMbr(data: bytes): uint64 {
+    proto 1 1
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:190-193
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.consensusActionMbr>({
+    //   appId: this.consensus.value,
+    //   args: [data],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:192
+    // args: [data],
+    frame_dig -1
+    len
+    itob
+    extract 6 2
+    frame_dig -1
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:191
+    // appId: this.consensus.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:44
+    // consensus = GlobalState<Application>({ key: GuildGlobalStateKeyConsensus })
+    bytec_1 // "consensus"
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:191
+    // appId: this.consensus.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts:190-193
+    // return abiCall<typeof FixedSignerGuildConsensus.prototype.consensusActionMbr>({
+    //   appId: this.consensus.value,
+    //   args: [data],
+    // }).returnValue
+    bytec 8 // method "consensusActionMbr(byte[])uint64"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    retsub

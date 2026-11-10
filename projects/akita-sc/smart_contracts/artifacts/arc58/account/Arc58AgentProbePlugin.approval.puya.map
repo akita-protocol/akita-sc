@@ -1,0 +1,879 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../arc58/account/agent-probe.algo.ts",
+    "../../../utils/functions.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;AAWA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;ACwbA;;;AACM;;AAAA;;;AACK;;AAAP;AAGK;;AAAA;;AAAA;AAAP;AD5bA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACoX+B;;AAEvB;AAFuB;AAAA;AAAA;;ADjX7B;AAKa;AAAA;;;;;AADD;;;;;;;;AAJZ;;;AAAA;;;AAAA;AAHF;AAAA;AAaA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;ACuW+B;;AAEvB;AAFuB;AAAA;AAAA;;ADpW7B;AAKa;AAAA;;;;;AADD;;;;;;;;AAJZ;;;AAAA;;;AAAA;AAHF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 1 0 8"
+    },
+    "6": {
+      "op": "bytecblock \"spending_address\""
+    },
+    "25": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "27": {
+      "op": "bz main___algots__.defaultCreate@9",
+      "stack_out": []
+    },
+    "30": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "32": {
+      "op": "!",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "33": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "34": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "36": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "37": {
+      "op": "pushbytess 0xd32f729b 0x44022fb8 // method \"allowed(uint64,bool)void\", method \"forbidden(uint64,bool)void\"",
+      "defined_out": [
+        "Method(allowed(uint64,bool)void)",
+        "Method(forbidden(uint64,bool)void)"
+      ],
+      "stack_out": [
+        "Method(allowed(uint64,bool)void)",
+        "Method(forbidden(uint64,bool)void)"
+      ]
+    },
+    "49": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(allowed(uint64,bool)void)",
+        "Method(forbidden(uint64,bool)void)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "Method(allowed(uint64,bool)void)",
+        "Method(forbidden(uint64,bool)void)",
+        "tmp%6#0"
+      ]
+    },
+    "52": {
+      "op": "match allowed forbidden",
+      "stack_out": []
+    },
+    "58": {
+      "op": "err"
+    },
+    "59": {
+      "block": "main___algots__.defaultCreate@9",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "61": {
+      "op": "!",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "62": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "64": {
+      "op": "!",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "65": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "66": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "67": {
+      "subroutine": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "params": {
+        "rekeyBack#0": "uint64",
+        "wallet#0": "uint64"
+      },
+      "block": "rekeyAddress",
+      "stack_in": [],
+      "op": "proto 2 1"
+    },
+    "70": {
+      "op": "frame_dig -2",
+      "defined_out": [
+        "rekeyBack#0 (copy)"
+      ],
+      "stack_out": [
+        "rekeyBack#0 (copy)"
+      ]
+    },
+    "72": {
+      "op": "bnz rekeyAddress_after_if_else@2",
+      "stack_out": []
+    },
+    "75": {
+      "op": "global ZeroAddress",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "77": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "78": {
+      "block": "rekeyAddress_after_if_else@2",
+      "stack_in": [],
+      "op": "frame_dig -1",
+      "defined_out": [
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0 (copy)"
+      ]
+    },
+    "80": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "82": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "value%0#0"
+      ]
+    },
+    "83": {
+      "retsub": true,
+      "op": "retsub"
+    },
+    "84": {
+      "subroutine": "smart_contracts/arc58/account/agent-probe.algo.ts::Arc58AgentProbePlugin.allowed[routing]",
+      "params": {},
+      "block": "allowed",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "87": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "88": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "89": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "90": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "91": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "92": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "93": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "96": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "97": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "98": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1",
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "1"
+      ]
+    },
+    "99": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "100": {
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "101": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "102": {
+      "op": "getbit",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0"
+      ]
+    },
+    "103": {
+      "op": "dig 1",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "105": {
+      "op": "bytec_0 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "wallet#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "106": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "107": {
+      "op": "pop",
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "108": {
+      "op": "cover 2",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "wallet#0",
+        "rekeyBack#0"
+      ]
+    },
+    "110": {
+      "op": "itxn_begin"
+    },
+    "111": {
+      "op": "swap",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ]
+    },
+    "112": {
+      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "op": "callsub rekeyAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ]
+    },
+    "115": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "117": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "118": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "120": {
+      "op": "dup",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ]
+    },
+    "121": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "123": {
+      "op": "itxn_field Sender",
+      "stack_out": []
+    },
+    "125": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "126": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "128": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "129": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "131": {
+      "op": "itxn_submit"
+    },
+    "132": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "133": {
+      "op": "return",
+      "stack_out": []
+    },
+    "134": {
+      "subroutine": "smart_contracts/arc58/account/agent-probe.algo.ts::Arc58AgentProbePlugin.forbidden[routing]",
+      "params": {},
+      "block": "forbidden",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "137": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "138": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "139": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "140": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "141": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "142": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "143": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "146": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "147": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "148": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1",
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "1"
+      ]
+    },
+    "149": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "150": {
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "151": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "152": {
+      "op": "getbit",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0"
+      ]
+    },
+    "153": {
+      "op": "dig 1",
+      "defined_out": [
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "wallet#0 (copy)"
+      ]
+    },
+    "155": {
+      "op": "bytec_0 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "rekeyBack#0",
+        "wallet#0",
+        "wallet#0 (copy)"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "wallet#0 (copy)",
+        "\"spending_address\""
+      ]
+    },
+    "156": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "157": {
+      "op": "pop",
+      "stack_out": [
+        "wallet#0",
+        "rekeyBack#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "158": {
+      "op": "cover 2",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "wallet#0",
+        "rekeyBack#0"
+      ]
+    },
+    "160": {
+      "op": "itxn_begin"
+    },
+    "161": {
+      "op": "swap",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "rekeyBack#0",
+        "wallet#0"
+      ]
+    },
+    "162": {
+      "callsub": "smart_contracts/utils/functions.ts::rekeyAddress",
+      "op": "callsub rekeyAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0",
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "inner_txn_params%0%%param_RekeyTo_idx_0#0"
+      ]
+    },
+    "165": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "167": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "168": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "170": {
+      "op": "dup",
+      "defined_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ],
+      "stack_out": [
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0 (copy)"
+      ]
+    },
+    "171": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "spendingAddressBytes#0"
+      ]
+    },
+    "173": {
+      "op": "itxn_field Sender",
+      "stack_out": []
+    },
+    "175": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "176": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "178": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "179": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "181": {
+      "op": "itxn_submit"
+    },
+    "182": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "183": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

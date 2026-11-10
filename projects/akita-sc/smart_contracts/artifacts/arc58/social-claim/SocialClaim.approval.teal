@@ -1,0 +1,1794 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 32 28500
+    bytecblock "p" "g" 0x151f7c75 "ERR:socialClaimNotPending" "welcome" "attestor" "manager" "d" "ERR:socialClaimInvalidManager" "pay" "ERR:socialClaimNotNoOp" "ERR:socialClaimNotPay" "ERR:socialClaimInvalidNewAdmin" 0x068101 "ERR:socialClaimNoGift" "controlled_address"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:50
+    // export class SocialClaim extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@13
+    pushbytess 0x2e546fa4 0x567679eb 0xea1b0c6e 0xbf4e6add 0x05b8759f 0x3669fc0f 0xeaeecf68 0x20703052 0xf4d84d74 // method "setAttestor(byte[32])void", method "setManager(address)void", method "bind(pay,uint64,byte[32],uint64)uint64", method "contribute(pay,uint64,byte[32],uint64)void", method "claim(byte[32],address,uint64,byte[64])void", method "refund(byte[32],uint64,uint64)void", method "prune(byte[32],uint64,uint64)void", method "getPending(byte[32])uint64", method "getGift(byte[32],uint64,uint64)(uint64,uint64)"
+    txna ApplicationArgs 0
+    match setAttestor setManager bind contribute claim refund prune getPending getGift
+    err
+
+main_create_NoOp@13:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:50
+    // export class SocialClaim extends Contract {
+    pushbytes 0xf12f6f92 // method "create(uint64,uint64,byte[32],address)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:62
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 3
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 4
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/social-claim/contract.algo.ts:64
+    // loggedAssert(welcome.id !== 0, 'socialClaimInvalidWelcome')
+    bnz create_after_assert@3
+    pushbytes "ERR:socialClaimInvalidWelcome"
+    log
+    err // ERR:socialClaimInvalidWelcome
+
+create_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:65
+    // loggedAssert(pay.id !== 0, 'socialClaimInvalidPay')
+    dig 1
+    bnz create_after_assert@5
+    pushbytes "ERR:socialClaimInvalidPay"
+    log
+    err // ERR:socialClaimInvalidPay
+
+create_after_assert@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:66
+    // loggedAssert(manager !== Global.zeroAddress, 'socialClaimInvalidManager')
+    dup
+    global ZeroAddress
+    !=
+    bnz create_after_assert@7
+    bytec 8 // "ERR:socialClaimInvalidManager"
+    log
+    err // ERR:socialClaimInvalidManager
+
+create_after_assert@7:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:51
+    // welcome = GlobalState<Application>({ key: 'welcome' })
+    bytec 4 // "welcome"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:67
+    // this.welcome.value = welcome
+    uncover 4
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:52
+    // pay = GlobalState<Application>({ key: 'pay' })
+    bytec 9 // "pay"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:68
+    // this.pay.value = pay
+    uncover 2
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:53
+    // attestor = GlobalState<bytes<32>>({ key: 'attestor' })
+    bytec 5 // "attestor"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:69
+    // this.attestor.value = attestor
+    uncover 2
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:54
+    // manager = GlobalState<Account>({ key: 'manager' })
+    bytec 6 // "manager"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:70
+    // this.manager.value = manager
+    swap
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:62
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.setAttestor[routing]() -> void:
+setAttestor:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:73
+    // setAttestor(attestor: bytes<32>): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/social-claim/contract.algo.ts:74
+    // this.requireManager()
+    callsub requireManager
+    // smart_contracts/arc58/social-claim/contract.algo.ts:53
+    // attestor = GlobalState<bytes<32>>({ key: 'attestor' })
+    bytec 5 // "attestor"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:75
+    // this.attestor.value = attestor
+    swap
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:73
+    // setAttestor(attestor: bytes<32>): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.setManager[routing]() -> void:
+setManager:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:78
+    // setManager(manager: Account): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/social-claim/contract.algo.ts:79
+    // this.requireManager()
+    callsub requireManager
+    // smart_contracts/arc58/social-claim/contract.algo.ts:80
+    // loggedAssert(manager !== Global.zeroAddress, 'socialClaimInvalidManager')
+    global ZeroAddress
+    !=
+    bnz setManager_after_assert@3
+    bytec 8 // "ERR:socialClaimInvalidManager"
+    log
+    err // ERR:socialClaimInvalidManager
+
+setManager_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:54
+    // manager = GlobalState<Account>({ key: 'manager' })
+    bytec 6 // "manager"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:81
+    // this.manager.value = manager
+    swap
+    app_global_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:78
+    // setManager(manager: Account): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.bind[routing]() -> void:
+bind:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:93
+    // bind(mbrPayment: gtxn.PaymentTxn, welcomeCallIndex: uint64, subject: bytes<32>, ttl: uint64): uint64 {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    cover 2
+    txna ApplicationArgs 2
+    dup
+    cover 4
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:94
+    // this.requirePosition(welcomeCallIndex)
+    dup
+    callsub requirePosition
+    // smart_contracts/arc58/social-claim/contract.algo.ts:95
+    // this.requireStorage(mbrPayment, SOCIAL_CLAIM_SUBJECT_MBR + SOCIAL_CLAIM_GIFT_MBR)
+    swap
+    pushint 47400
+    callsub requireStorage
+    // smart_contracts/arc58/social-claim/contract.algo.ts:96
+    // const welcomeCall = gtxn.ApplicationCallTxn(welcomeCallIndex)
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    // smart_contracts/arc58/social-claim/contract.algo.ts:97
+    // loggedAssert(welcomeCall.appId === this.welcome.value, 'socialClaimNotWelcome')
+    gtxns ApplicationID
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:51
+    // welcome = GlobalState<Application>({ key: 'welcome' })
+    bytec 4 // "welcome"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:97
+    // loggedAssert(welcomeCall.appId === this.welcome.value, 'socialClaimNotWelcome')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bnz bind_after_assert@3
+    pushbytes "ERR:socialClaimNotWelcome"
+    log
+    err // ERR:socialClaimNotWelcome
+
+bind_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:98
+    // loggedAssert(welcomeCall.onCompletion === OnCompleteAction.NoOp, 'socialClaimNotNoOp')
+    dig 1
+    gtxns OnCompletion
+    bz bind_after_assert@5
+    bytec 10 // "ERR:socialClaimNotNoOp"
+    log
+    err // ERR:socialClaimNotNoOp
+
+bind_after_assert@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:100
+    // welcomeCall.appArgs(0) === methodSelector<typeof WelcomePlugin.prototype.sendToAnyone>(),
+    dig 1
+    gtxnsa ApplicationArgs 0
+    pushbytes 0xdaf0faa2 // method "sendToAnyone(uint64,bool,address,string,byte[32],bool,uint64,uint64,uint64)uint64"
+    ==
+    // smart_contracts/arc58/social-claim/contract.algo.ts:99-102
+    // loggedAssert(
+    //   welcomeCall.appArgs(0) === methodSelector<typeof WelcomePlugin.prototype.sendToAnyone>(),
+    //   'socialClaimNotSendToAnyone',
+    // )
+    bnz bind_after_assert@7
+    pushbytes "ERR:socialClaimNotSendToAnyone"
+    log
+    err // ERR:socialClaimNotSendToAnyone
+
+bind_after_assert@7:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:103
+    // loggedAssert(welcomeCall.appArgs(3) === Global.currentApplicationAddress.bytes, 'socialClaimAdminNotThisApp')
+    dig 1
+    gtxnsa ApplicationArgs 3
+    global CurrentApplicationAddress
+    ==
+    bnz bind_after_assert@9
+    pushbytes "ERR:socialClaimAdminNotThisApp"
+    log
+    err // ERR:socialClaimAdminNotThisApp
+
+bind_after_assert@9:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    dig 3
+    concat
+    dup
+    cover 4
+    // smart_contracts/arc58/social-claim/contract.algo.ts:104
+    // loggedAssert(!this.pending(subject).exists, 'socialClaimAlreadyPending')
+    box_len
+    bury 1
+    bz bind_after_assert@11
+    pushbytes "ERR:socialClaimAlreadyPending"
+    log
+    err // ERR:socialClaimAlreadyPending
+
+bind_after_assert@11:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:59
+    // directory = BoxMap<bytes<32>, uint64>({ keyPrefix: 'd' })
+    bytec 7 // "d"
+    dig 3
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:105
+    // loggedAssert(!this.directory(subject).exists, 'socialClaimAlreadyClaimed')
+    box_len
+    bury 1
+    bz bind_after_assert@13
+    pushbytes "ERR:socialClaimAlreadyClaimed"
+    log
+    err // ERR:socialClaimAlreadyClaimed
+
+bind_after_assert@13:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:106
+    // this.requireTtl(ttl)
+    dup
+    callsub requireTtl
+    // smart_contracts/arc58/social-claim/contract.algo.ts:108
+    // const wallet = decodeArc4<uint64>(welcomeCall.lastLog, 'log')
+    swap
+    dup
+    gtxns LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    btoi
+    // smart_contracts/arc58/social-claim/contract.algo.ts:109
+    // const key: GiftKey = { subject, senderWallet: btoi(welcomeCall.appArgs(1)), asset: btoi(welcomeCall.appArgs(7)) }
+    dig 2
+    gtxnsa ApplicationArgs 1
+    btoi
+    dig 3
+    gtxnsa ApplicationArgs 7
+    btoi
+    swap
+    itob
+    uncover 6
+    dup
+    cover 6
+    swap
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:110
+    // this.requireAkitaWallet(key.senderWallet)
+    dup
+    intc_3 // 32
+    extract_uint64
+    dup
+    callsub requireAkitaWallet
+    // smart_contracts/arc58/social-claim/contract.algo.ts:111
+    // const gift: Gift = { amount: btoi(welcomeCall.appArgs(8)), expiry: Global.latestTimestamp + ttl }
+    uncover 4
+    gtxnsa ApplicationArgs 8
+    btoi
+    global LatestTimestamp
+    uncover 7
+    +
+    swap
+    itob
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:112
+    // this.pending(subject).value = wallet
+    uncover 3
+    itob
+    uncover 6
+    dig 1
+    box_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:60
+    // gifts = BoxMap<GiftKey, Gift>({ keyPrefix: 'g' })
+    bytec_1 // "g"
+    dig 4
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:113
+    // this.gifts(key).value = clone(gift)
+    dig 2
+    box_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:115
+    // subject, wallet, senderWallet: key.senderWallet, asset: key.asset, amount: gift.amount, expiry: gift.expiry,
+    uncover 3
+    extract 40 8
+    dig 2
+    extract 0 8
+    uncover 3
+    extract 8 8
+    // smart_contracts/arc58/social-claim/contract.algo.ts:114-116
+    // emit<SocialClaimBound>({
+    //   subject, wallet, senderWallet: key.senderWallet, asset: key.asset, amount: gift.amount, expiry: gift.expiry,
+    // })
+    uncover 6
+    uncover 4
+    concat
+    uncover 4
+    itob
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x6914dfda // method "SocialClaimBound(byte[32],uint64,uint64,uint64,uint64,uint64)"
+    swap
+    concat
+    log
+    // smart_contracts/arc58/social-claim/contract.algo.ts:93
+    // bind(mbrPayment: gtxn.PaymentTxn, welcomeCallIndex: uint64, subject: bytes<32>, ttl: uint64): uint64 {
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.contribute[routing]() -> void:
+contribute:
+    intc_0 // 0
+    dup
+    pushbytes ""
+    dupn 2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:128
+    // contribute(mbrPayment: gtxn.PaymentTxn, payCallIndex: uint64, subject: bytes<32>, ttl: uint64): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    cover 4
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:129
+    // this.requirePosition(payCallIndex)
+    dup
+    callsub requirePosition
+    // smart_contracts/arc58/social-claim/contract.algo.ts:130
+    // const payCall = gtxn.ApplicationCallTxn(payCallIndex)
+    dup
+    gtxns TypeEnum
+    pushint 6 // appl
+    ==
+    assert // transaction type is appl
+    // smart_contracts/arc58/social-claim/contract.algo.ts:131
+    // loggedAssert(payCall.appId === this.pay.value, 'socialClaimNotPay')
+    gtxns ApplicationID
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:52
+    // pay = GlobalState<Application>({ key: 'pay' })
+    bytec 9 // "pay"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:131
+    // loggedAssert(payCall.appId === this.pay.value, 'socialClaimNotPay')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bnz contribute_after_assert@3
+    bytec 11 // "ERR:socialClaimNotPay"
+    log
+    err // ERR:socialClaimNotPay
+
+contribute_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:132
+    // loggedAssert(payCall.onCompletion === OnCompleteAction.NoOp, 'socialClaimNotNoOp')
+    dup
+    gtxns OnCompletion
+    bz contribute_after_assert@5
+    bytec 10 // "ERR:socialClaimNotNoOp"
+    log
+    err // ERR:socialClaimNotNoOp
+
+contribute_after_assert@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:133
+    // loggedAssert(payCall.appArgs(0) === methodSelector<typeof PayPlugin.prototype.pay>(), 'socialClaimNotPay')
+    dup
+    gtxnsa ApplicationArgs 0
+    pushbytes 0xf9738492 // method "pay(uint64,bool,(address,uint64,uint64)[])void"
+    ==
+    bnz contribute_after_assert@7
+    bytec 11 // "ERR:socialClaimNotPay"
+    log
+    err // ERR:socialClaimNotPay
+
+contribute_after_assert@7:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    dig 4
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:134
+    // loggedAssert(this.pending(subject).exists, 'socialClaimNotPending')
+    box_len
+    bury 1
+    bnz contribute_after_assert@9
+    bytec_3 // "ERR:socialClaimNotPending"
+    log
+    err // ERR:socialClaimNotPending
+
+contribute_after_assert@9:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:135
+    // this.requireTtl(ttl)
+    dig 2
+    callsub requireTtl
+    // smart_contracts/arc58/social-claim/contract.algo.ts:137
+    // const payments = decodeArc4<PayParams[]>(payCall.appArgs(3))
+    dig 1
+    gtxnsa ApplicationArgs 3
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:138
+    // loggedAssert(payments.length === 1, 'socialClaimNotOnePayment')
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 1
+    ==
+    bnz contribute_after_assert@11
+    pushbytes "ERR:socialClaimNotOnePayment"
+    log
+    err // ERR:socialClaimNotOnePayment
+
+contribute_after_assert@11:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:140
+    // const wallet = this.pending(subject).value
+    swap
+    box_get
+    assert // Box must have value
+    btoi
+    dup
+    bury 7
+    // smart_contracts/arc58/social-claim/contract.algo.ts:141
+    // loggedAssert(payment.receiver === Application(wallet).address, 'socialClaimWrongReceiver')
+    swap
+    extract 2 48
+    dup
+    cover 2
+    extract 0 32
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz contribute_after_assert@13
+    pushbytes "ERR:socialClaimWrongReceiver"
+    log
+    err // ERR:socialClaimWrongReceiver
+
+contribute_after_assert@13:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:142
+    // loggedAssert(payment.amount > 0, 'socialClaimEmptyGift')
+    dup
+    pushint 40
+    extract_uint64
+    dup
+    cover 2
+    bnz contribute_after_assert@15
+    pushbytes "ERR:socialClaimEmptyGift"
+    log
+    err // ERR:socialClaimEmptyGift
+
+contribute_after_assert@15:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:144
+    // const key: GiftKey = { subject, senderWallet: btoi(payCall.appArgs(1)), asset: payment.asset }
+    uncover 2
+    gtxnsa ApplicationArgs 1
+    btoi
+    swap
+    extract 32 8
+    swap
+    itob
+    dig 5
+    swap
+    concat
+    swap
+    concat
+    dup
+    bury 9
+    // smart_contracts/arc58/social-claim/contract.algo.ts:147
+    // this.requireAkitaWallet(key.senderWallet)
+    dup
+    intc_3 // 32
+    extract_uint64
+    dup
+    bury 8
+    callsub requireAkitaWallet
+    // smart_contracts/arc58/social-claim/contract.algo.ts:148
+    // let gift: Gift = { amount: 0, expiry: 0 }
+    pushbytes 0x00000000000000000000000000000000
+    bury 10
+    // smart_contracts/arc58/social-claim/contract.algo.ts:60
+    // gifts = BoxMap<GiftKey, Gift>({ keyPrefix: 'g' })
+    bytec_1 // "g"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:149
+    // if (this.gifts(key).exists) {
+    box_len
+    bury 1
+    bz contribute_else_body@17
+    // smart_contracts/arc58/social-claim/contract.algo.ts:150
+    // gift = clone(this.gifts(key).value)
+    dup
+    box_get
+    swap
+    bury 11
+    assert // Box must have value
+    // smart_contracts/arc58/social-claim/contract.algo.ts:151
+    // this.requireStorage(mbrPayment, 0)
+    uncover 3
+    intc_0 // 0
+    callsub requireStorage
+
+contribute_after_if_else@18:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:155
+    // gift.amount += payment.amount
+    dig 8
+    dup
+    intc_0 // 0
+    extract_uint64
+    uncover 3
+    +
+    itob
+    replace2 0
+    dup
+    bury 9
+    // smart_contracts/arc58/social-claim/contract.algo.ts:156
+    // const expiry: uint64 = Global.latestTimestamp + ttl
+    global LatestTimestamp
+    uncover 3
+    +
+    dup
+    bury 7
+    // smart_contracts/arc58/social-claim/contract.algo.ts:157
+    // if (expiry > gift.expiry) gift.expiry = expiry
+    swap
+    intc_2 // 8
+    extract_uint64
+    >
+    bz contribute_after_if_else@20
+    dig 4
+    itob
+    dig 7
+    swap
+    replace2 8
+    bury 7
+
+contribute_after_if_else@20:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:158
+    // this.gifts(key).value = clone(gift)
+    dig 6
+    dup
+    cover 2
+    box_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:160
+    // subject, wallet, senderWallet: key.senderWallet, asset: key.asset, amount: gift.amount, expiry: gift.expiry,
+    dig 5
+    extract 40 8
+    dig 1
+    extract 0 8
+    uncover 2
+    extract 8 8
+    // smart_contracts/arc58/social-claim/contract.algo.ts:159-161
+    // emit<SocialClaimContributed>({
+    //   subject, wallet, senderWallet: key.senderWallet, asset: key.asset, amount: gift.amount, expiry: gift.expiry,
+    // })
+    dig 4
+    itob
+    uncover 4
+    swap
+    concat
+    dig 5
+    itob
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x5d28fc67 // method "SocialClaimContributed(byte[32],uint64,uint64,uint64,uint64,uint64)"
+    swap
+    concat
+    log
+    // smart_contracts/arc58/social-claim/contract.algo.ts:128
+    // contribute(mbrPayment: gtxn.PaymentTxn, payCallIndex: uint64, subject: bytes<32>, ttl: uint64): void {
+    intc_1 // 1
+    return
+
+contribute_else_body@17:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:153
+    // this.requireStorage(mbrPayment, SOCIAL_CLAIM_GIFT_MBR)
+    uncover 3
+    intc 4 // 28500
+    callsub requireStorage
+    b contribute_after_if_else@18
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.claim[routing]() -> void:
+claim:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:169
+    // claim(subject: bytes<32>, newAdmin: Account, expires: uint64, signature: bytes<64>): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    txna ApplicationArgs 4
+    dup
+    cover 2
+    len
+    pushint 64
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 64>
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:170
+    // loggedAssert(this.pending(subject).exists, 'socialClaimNotPending')
+    box_len
+    bury 1
+    bnz claim_after_assert@3
+    bytec_3 // "ERR:socialClaimNotPending"
+    log
+    err // ERR:socialClaimNotPending
+
+claim_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:171
+    // loggedAssert(Global.latestTimestamp <= expires, 'socialClaimAttestationExpired')
+    global LatestTimestamp
+    dig 4
+    <=
+    bnz claim_after_assert@5
+    pushbytes "ERR:socialClaimAttestationExpired"
+    log
+    err // ERR:socialClaimAttestationExpired
+
+claim_after_assert@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:172
+    // loggedAssert(newAdmin !== Global.zeroAddress, 'socialClaimInvalidNewAdmin')
+    dig 2
+    global ZeroAddress
+    !=
+    bnz claim_after_assert@7
+    bytec 12 // "ERR:socialClaimInvalidNewAdmin"
+    log
+    err // ERR:socialClaimInvalidNewAdmin
+
+claim_after_assert@7:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:173
+    // loggedAssert(newAdmin !== Global.currentApplicationAddress, 'socialClaimInvalidNewAdmin')
+    dig 2
+    global CurrentApplicationAddress
+    !=
+    bnz claim_after_assert@9
+    bytec 12 // "ERR:socialClaimInvalidNewAdmin"
+    log
+    err // ERR:socialClaimInvalidNewAdmin
+
+claim_after_assert@9:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:174
+    // const wallet = this.pending(subject).value
+    dup
+    box_get
+    assert // Box must have value
+    btoi
+    // smart_contracts/arc58/social-claim/contract.algo.ts:177
+    // .concat(itob(Global.currentApplicationId.id))
+    global CurrentApplicationID
+    itob
+    // smart_contracts/arc58/social-claim/contract.algo.ts:176
+    // const message = Bytes(SOCIAL_CLAIM_ATTESTATION_DOMAIN)
+    pushbytes "akita/social-claim/v1"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:176-177
+    // const message = Bytes(SOCIAL_CLAIM_ATTESTATION_DOMAIN)
+    //   .concat(itob(Global.currentApplicationId.id))
+    swap
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:176-178
+    // const message = Bytes(SOCIAL_CLAIM_ATTESTATION_DOMAIN)
+    //   .concat(itob(Global.currentApplicationId.id))
+    //   .concat(subject)
+    dig 6
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:176-179
+    // const message = Bytes(SOCIAL_CLAIM_ATTESTATION_DOMAIN)
+    //   .concat(itob(Global.currentApplicationId.id))
+    //   .concat(subject)
+    //   .concat(newAdmin.bytes)
+    dig 4
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:180
+    // .concat(itob(expires))
+    uncover 5
+    itob
+    // smart_contracts/arc58/social-claim/contract.algo.ts:176-180
+    // const message = Bytes(SOCIAL_CLAIM_ATTESTATION_DOMAIN)
+    //   .concat(itob(Global.currentApplicationId.id))
+    //   .concat(subject)
+    //   .concat(newAdmin.bytes)
+    //   .concat(itob(expires))
+    concat
+
+claim_while_top@13:
+    pushint 2410
+    global OpcodeBudget
+    >
+    bz claim_after_while@18
+    itxn_begin
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 5 // DeleteApplication
+    itxn_field OnCompletion
+    bytec 13 // 0x068101
+    itxn_field ApprovalProgram
+    bytec 13 // 0x068101
+    itxn_field ClearStateProgram
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    b claim_while_top@13
+
+claim_after_while@18:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:182
+    // loggedAssert(op.ed25519verifyBare(message, signature, this.attestor.value), 'socialClaimBadAttestation')
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:53
+    // attestor = GlobalState<bytes<32>>({ key: 'attestor' })
+    bytec 5 // "attestor"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:182
+    // loggedAssert(op.ed25519verifyBare(message, signature, this.attestor.value), 'socialClaimBadAttestation')
+    app_global_get_ex
+    assert // check GlobalState exists
+    swap
+    uncover 4
+    uncover 2
+    ed25519verify_bare
+    bnz claim_after_assert@11
+    pushbytes "ERR:socialClaimBadAttestation"
+    log
+    err // ERR:socialClaimBadAttestation
+
+claim_after_assert@11:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:184-188
+    // abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
+    //   appId: Application(wallet),
+    //   args: [newAdmin],
+    //   fee: 0,
+    // })
+    itxn_begin
+    dup
+    itxn_field ApplicationID
+    pushbytes 0xd24b7556 // method "arc58_changeAdmin(address)void"
+    itxn_field ApplicationArgs
+    uncover 2
+    dup
+    cover 2
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/arc58/social-claim/contract.algo.ts:187
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/social-claim/contract.algo.ts:184-188
+    // abiCall<typeof AbstractedAccount.prototype.arc58_changeAdmin>({
+    //   appId: Application(wallet),
+    //   args: [newAdmin],
+    //   fee: 0,
+    // })
+    itxn_submit
+    // smart_contracts/arc58/social-claim/contract.algo.ts:189
+    // this.pending(subject).delete()
+    uncover 2
+    box_del
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:59
+    // directory = BoxMap<bytes<32>, uint64>({ keyPrefix: 'd' })
+    bytec 7 // "d"
+    uncover 3
+    dup
+    cover 2
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:190
+    // this.directory(subject).value = wallet
+    uncover 2
+    itob
+    swap
+    dig 1
+    box_put
+    // smart_contracts/arc58/social-claim/contract.algo.ts:191
+    // emit<SocialClaimClaimed>({ subject, wallet, newAdmin })
+    concat
+    swap
+    concat
+    pushbytes 0xc1f9cb7d // method "SocialClaimClaimed(byte[32],uint64,address)"
+    swap
+    concat
+    log
+    // smart_contracts/arc58/social-claim/contract.algo.ts:169
+    // claim(subject: bytes<32>, newAdmin: Account, expires: uint64, signature: bytes<64>): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.refund[routing]() -> void:
+refund:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:208
+    // refund(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:209
+    // loggedAssert(this.pending(subject).exists, 'socialClaimNotPending')
+    box_len
+    bury 1
+    bnz refund_after_assert@3
+    bytec_3 // "ERR:socialClaimNotPending"
+    log
+    err // ERR:socialClaimNotPending
+
+refund_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:210
+    // const key: GiftKey = { subject, senderWallet, asset }
+    dig 1
+    itob
+    dup
+    cover 5
+    dig 4
+    swap
+    concat
+    dig 3
+    itob
+    dup
+    cover 7
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:60
+    // gifts = BoxMap<GiftKey, Gift>({ keyPrefix: 'g' })
+    bytec_1 // "g"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:211
+    // loggedAssert(this.gifts(key).exists, 'socialClaimNoGift')
+    box_len
+    bury 1
+    bnz refund_after_assert@5
+    bytec 14 // "ERR:socialClaimNoGift"
+    log
+    err // ERR:socialClaimNoGift
+
+refund_after_assert@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:212
+    // const { amount, expiry } = this.gifts(key).value
+    dup
+    box_get
+    assert // Box must have value
+    dup
+    intc_0 // 0
+    extract_uint64
+    cover 6
+    intc_2 // 8
+    extract_uint64
+    // smart_contracts/arc58/social-claim/contract.algo.ts:213
+    // loggedAssert(Global.latestTimestamp > expiry, 'socialClaimNotExpired')
+    global LatestTimestamp
+    <
+    bnz refund_after_assert@7
+    pushbytes "ERR:socialClaimNotExpired"
+    log
+    err // ERR:socialClaimNotExpired
+
+refund_after_assert@7:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:215
+    // const wallet = Application(this.pending(subject).value)
+    swap
+    box_get
+    assert // Box must have value
+    btoi
+    swap
+    // smart_contracts/arc58/social-claim/contract.algo.ts:216-218
+    // const [controlledBytes, exists] = op.AppGlobal.getExBytes(
+    //   Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    // )
+    dig 2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:217
+    // Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    bytec 15 // "controlled_address"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:216-218
+    // const [controlledBytes, exists] = op.AppGlobal.getExBytes(
+    //   Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    // )
+    app_global_get_ex
+    swap
+    cover 5
+    // smart_contracts/arc58/social-claim/contract.algo.ts:220
+    // if (!exists || !this.canReceive(refundedTo, asset, amount)) {
+    bz refund_if_body@9
+    dig 4
+    dig 4
+    dig 8
+    callsub canReceive
+    bnz refund_after_if_else@10
+
+refund_if_body@9:
+    uncover 3
+    pop
+    uncover 3
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:221
+    // this.gifts(key).delete()
+    box_del
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:222
+    // this.returnGiftStorage(senderWallet, wallet)
+    dup
+    cover 2
+    callsub returnGiftStorage
+    // smart_contracts/arc58/social-claim/contract.algo.ts:223
+    // emit<SocialClaimDropped>({ subject, wallet: wallet.id, senderWallet, asset, amount })
+    itob
+    concat
+    uncover 2
+    concat
+    uncover 2
+    concat
+    swap
+    itob
+    concat
+    pushbytes 0x0c001016 // method "SocialClaimDropped(byte[32],uint64,uint64,uint64,uint64)"
+    swap
+    concat
+    log
+
+refund_after_inlined_smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.refund@17:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:208
+    // refund(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
+    intc_1 // 1
+    return
+
+refund_after_if_else@10:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:227-231
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: wallet,
+    //   args: [Global.currentApplicationAddress, false],
+    //   fee: 0,
+    // })
+    itxn_begin
+    // smart_contracts/arc58/social-claim/contract.algo.ts:229
+    // args: [Global.currentApplicationAddress, false],
+    global CurrentApplicationAddress
+    dig 2
+    itxn_field ApplicationID
+    // smart_contracts/arc58/social-claim/contract.algo.ts:227-231
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: wallet,
+    //   args: [Global.currentApplicationAddress, false],
+    //   fee: 0,
+    // })
+    pushbytes 0xc95a5d3d // method "arc58_rekeyTo(address,bool)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/social-claim/contract.algo.ts:229
+    // args: [Global.currentApplicationAddress, false],
+    pushbytes 0x00
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/social-claim/contract.algo.ts:227-231
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: wallet,
+    //   args: [Global.currentApplicationAddress, false],
+    //   fee: 0,
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/arc58/social-claim/contract.algo.ts:230
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/social-claim/contract.algo.ts:227-231
+    // abiCall<typeof AbstractedAccount.prototype.arc58_rekeyTo>({
+    //   appId: wallet,
+    //   args: [Global.currentApplicationAddress, false],
+    //   fee: 0,
+    // })
+    itxn_submit
+    // smart_contracts/arc58/social-claim/contract.algo.ts:232
+    // if (asset === 0) {
+    dig 3
+    bnz refund_else_body@14
+    uncover 3
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:233-235
+    // itxn.payment({
+    //   sender: wallet.address, receiver: refundedTo, amount, rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    itxn_begin
+    // smart_contracts/arc58/social-claim/contract.algo.ts:234
+    // sender: wallet.address, receiver: refundedTo, amount, rekeyTo: wallet.address, fee: 0,
+    dig 1
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    dig 6
+    itxn_field Amount
+    dig 4
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/arc58/social-claim/contract.algo.ts:233-235
+    // itxn.payment({
+    //   sender: wallet.address, receiver: refundedTo, amount, rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    intc_1 // 1
+    itxn_field TypeEnum
+    // smart_contracts/arc58/social-claim/contract.algo.ts:234
+    // sender: wallet.address, receiver: refundedTo, amount, rekeyTo: wallet.address, fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/social-claim/contract.algo.ts:233-235
+    // itxn.payment({
+    //   sender: wallet.address, receiver: refundedTo, amount, rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    itxn_submit
+
+refund_after_if_else@16:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:243
+    // this.gifts(key).delete()
+    box_del
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:244
+    // this.returnGiftStorage(senderWallet, wallet)
+    dup
+    cover 2
+    callsub returnGiftStorage
+    // smart_contracts/arc58/social-claim/contract.algo.ts:245
+    // emit<SocialClaimRefunded>({ subject, wallet: wallet.id, senderWallet, asset, amount, refundedTo })
+    itob
+    uncover 2
+    swap
+    concat
+    uncover 3
+    concat
+    uncover 3
+    concat
+    uncover 2
+    itob
+    concat
+    swap
+    concat
+    pushbytes 0x97a4ebfd // method "SocialClaimRefunded(byte[32],uint64,uint64,uint64,uint64,address)"
+    swap
+    concat
+    log
+    // smart_contracts/arc58/social-claim/contract.algo.ts:208
+    // refund(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
+    b refund_after_inlined_smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.refund@17
+
+refund_else_body@14:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:237-240
+    // itxn.assetTransfer({
+    //   sender: wallet.address, assetReceiver: refundedTo, xferAsset: Asset(asset), assetAmount: amount,
+    //   rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    itxn_begin
+    // smart_contracts/arc58/social-claim/contract.algo.ts:238
+    // sender: wallet.address, assetReceiver: refundedTo, xferAsset: Asset(asset), assetAmount: amount,
+    dig 1
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/social-claim/contract.algo.ts:239
+    // rekeyTo: wallet.address, fee: 0,
+    swap
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field RekeyTo
+    dig 7
+    itxn_field AssetAmount
+    uncover 4
+    itxn_field XferAsset
+    dig 4
+    itxn_field AssetReceiver
+    itxn_field Sender
+    // smart_contracts/arc58/social-claim/contract.algo.ts:237-240
+    // itxn.assetTransfer({
+    //   sender: wallet.address, assetReceiver: refundedTo, xferAsset: Asset(asset), assetAmount: amount,
+    //   rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    pushint 4
+    itxn_field TypeEnum
+    // smart_contracts/arc58/social-claim/contract.algo.ts:239
+    // rekeyTo: wallet.address, fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/social-claim/contract.algo.ts:237-240
+    // itxn.assetTransfer({
+    //   sender: wallet.address, assetReceiver: refundedTo, xferAsset: Asset(asset), assetAmount: amount,
+    //   rekeyTo: wallet.address, fee: 0,
+    // }).submit()
+    itxn_submit
+    b refund_after_if_else@16
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.prune[routing]() -> void:
+prune:
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:253
+    // prune(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    swap
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:254
+    // loggedAssert(!this.pending(subject).exists, 'socialClaimStillPending')
+    box_len
+    bury 1
+    bz prune_after_assert@3
+    pushbytes "ERR:socialClaimStillPending"
+    log
+    err // ERR:socialClaimStillPending
+
+prune_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:255
+    // const key: GiftKey = { subject, senderWallet, asset }
+    dig 1
+    itob
+    dig 3
+    swap
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:60
+    // gifts = BoxMap<GiftKey, Gift>({ keyPrefix: 'g' })
+    bytec_1 // "g"
+    swap
+    concat
+    dup
+    bury 4
+    // smart_contracts/arc58/social-claim/contract.algo.ts:256
+    // if (this.gifts(key).exists) {
+    box_len
+    bury 1
+    bz prune_after_if_else@5
+    // smart_contracts/arc58/social-claim/contract.algo.ts:257
+    // this.gifts(key).delete()
+    dig 2
+    box_del
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:59
+    // directory = BoxMap<bytes<32>, uint64>({ keyPrefix: 'd' })
+    bytec 7 // "d"
+    dig 2
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:259
+    // this.returnGiftStorage(senderWallet, Application(this.directory(subject).value))
+    box_get
+    assert // Box must have value
+    btoi
+    dig 1
+    swap
+    callsub returnGiftStorage
+
+prune_after_if_else@5:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:253
+    // prune(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.getPending[routing]() -> void:
+getPending:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:263
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/social-claim/contract.algo.ts:57
+    // pending = BoxMap<bytes<32>, uint64>({ keyPrefix: 'p' })
+    bytec_0 // "p"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:265
+    // loggedAssert(this.pending(subject).exists, 'socialClaimNotPending')
+    box_len
+    bury 1
+    bnz getPending_after_assert@3
+    bytec_3 // "ERR:socialClaimNotPending"
+    log
+    err // ERR:socialClaimNotPending
+
+getPending_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:266
+    // return this.pending(subject).value
+    box_get
+    assert // Box must have value
+    btoi
+    // smart_contracts/arc58/social-claim/contract.algo.ts:263
+    // @abimethod({ readonly: true })
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.getGift[routing]() -> void:
+getGift:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:269
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/social-claim/contract.algo.ts:271
+    // const key: GiftKey = { subject, senderWallet, asset }
+    swap
+    itob
+    uncover 2
+    swap
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/social-claim/contract.algo.ts:60
+    // gifts = BoxMap<GiftKey, Gift>({ keyPrefix: 'g' })
+    bytec_1 // "g"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:272
+    // loggedAssert(this.gifts(key).exists, 'socialClaimNoGift')
+    box_len
+    bury 1
+    bnz getGift_after_assert@3
+    bytec 14 // "ERR:socialClaimNoGift"
+    log
+    err // ERR:socialClaimNoGift
+
+getGift_after_assert@3:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:273
+    // return this.gifts(key).value
+    box_get
+    assert // Box must have value
+    // smart_contracts/arc58/social-claim/contract.algo.ts:269
+    // @abimethod({ readonly: true })
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.canReceive(receiver: bytes, asset: uint64, amount: uint64) -> uint64:
+canReceive:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:277
+    // private canReceive(receiver: Account, asset: uint64, amount: uint64): boolean {
+    proto 3 1
+    // smart_contracts/arc58/social-claim/contract.algo.ts:278
+    // if (asset === 0) {
+    frame_dig -2
+    bnz canReceive_after_if_else@6
+    // smart_contracts/arc58/social-claim/contract.algo.ts:279
+    // return receiver.balance > 0 || amount >= Global.minBalance
+    frame_dig -3
+    acct_params_get AcctBalance
+    assert // account funded
+    bnz canReceive_bool_true@3
+    frame_dig -1
+    global MinBalance
+    >=
+    bz canReceive_bool_false@4
+
+canReceive_bool_true@3:
+    intc_1 // 1
+    // smart_contracts/arc58/social-claim/contract.algo.ts:279
+    // return receiver.balance > 0 || amount >= Global.minBalance
+    retsub
+
+canReceive_bool_false@4:
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:279
+    // return receiver.balance > 0 || amount >= Global.minBalance
+    retsub
+
+canReceive_after_if_else@6:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:281
+    // const [, optedIn] = op.AssetHolding.assetBalance(receiver, asset)
+    frame_dig -3
+    frame_dig -2
+    asset_holding_get AssetBalance
+    bury 1
+    // smart_contracts/arc58/social-claim/contract.algo.ts:282
+    // return optedIn
+    retsub
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.requireStorage(mbrPayment: uint64, amount: uint64) -> void:
+requireStorage:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:286
+    // private requireStorage(mbrPayment: gtxn.PaymentTxn, amount: uint64): void {
+    proto 2 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:288
+    // match(mbrPayment, { receiver: Global.currentApplicationAddress, amount }),
+    frame_dig -2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    frame_dig -2
+    gtxns Amount
+    frame_dig -1
+    ==
+    &&
+    // smart_contracts/arc58/social-claim/contract.algo.ts:287-290
+    // loggedAssert(
+    //   match(mbrPayment, { receiver: Global.currentApplicationAddress, amount }),
+    //   'socialClaimInvalidStoragePayment',
+    // )
+    bnz requireStorage_after_assert@2
+    pushbytes "ERR:socialClaimInvalidStoragePayment"
+    log
+    err // ERR:socialClaimInvalidStoragePayment
+
+requireStorage_after_assert@2:
+    retsub
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.returnGiftStorage(senderWallet: uint64, giftWallet: uint64) -> void:
+returnGiftStorage:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:299
+    // private returnGiftStorage(senderWallet: uint64, giftWallet: Application): void {
+    proto 2 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:300-302
+    // const [controlledBytes, exists] = op.AppGlobal.getExBytes(
+    //   Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    // )
+    frame_dig -2
+    // smart_contracts/arc58/social-claim/contract.algo.ts:301
+    // Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    bytec 15 // "controlled_address"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:300-302
+    // const [controlledBytes, exists] = op.AppGlobal.getExBytes(
+    //   Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    // )
+    app_global_get_ex
+    // smart_contracts/arc58/social-claim/contract.algo.ts:303
+    // if (exists && this.canReceive(Account(controlledBytes), 0, SOCIAL_CLAIM_GIFT_MBR)) {
+    bz returnGiftStorage_else_body@4
+    dup
+    intc_0 // 0
+    intc 4 // 28500
+    callsub canReceive
+    bz returnGiftStorage_else_body@4
+    // smart_contracts/arc58/social-claim/contract.algo.ts:304
+    // itxn.payment({ receiver: Account(controlledBytes), amount: SOCIAL_CLAIM_GIFT_MBR, fee: 0 }).submit()
+    itxn_begin
+    intc 4 // 28500
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+returnGiftStorage_after_if_else@8:
+    retsub
+
+returnGiftStorage_else_body@4:
+    pop
+    // smart_contracts/arc58/social-claim/contract.algo.ts:305
+    // } else if (this.canReceive(giftWallet.address, 0, SOCIAL_CLAIM_GIFT_MBR)) {
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    intc_0 // 0
+    intc 4 // 28500
+    callsub canReceive
+    bz returnGiftStorage_after_if_else@8
+    // smart_contracts/arc58/social-claim/contract.algo.ts:306
+    // itxn.payment({ receiver: giftWallet.address, amount: SOCIAL_CLAIM_GIFT_MBR, fee: 0 }).submit()
+    itxn_begin
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    intc 4 // 28500
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    retsub
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.requireAkitaWallet(senderWallet: uint64) -> void:
+requireAkitaWallet:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:311
+    // private requireAkitaWallet(senderWallet: uint64): void {
+    proto 1 0
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:312
+    // const [factory, exists] = op.AppGlobal.getExUint64(this.welcome.value, Bytes('factory'))
+    dup
+    // smart_contracts/arc58/social-claim/contract.algo.ts:51
+    // welcome = GlobalState<Application>({ key: 'welcome' })
+    bytec 4 // "welcome"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:312
+    // const [factory, exists] = op.AppGlobal.getExUint64(this.welcome.value, Bytes('factory'))
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushbytes "factory"
+    app_global_get_ex
+    // smart_contracts/arc58/social-claim/contract.algo.ts:313
+    // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
+    bz requireAkitaWallet_bool_false@3
+    // smart_contracts/utils/functions.ts:270
+    // if (wallet === 0 || walletFactory === 0) {
+    frame_dig -1
+    bz requireAkitaWallet_if_body@9
+    frame_dig 1
+    bnz requireAkitaWallet_after_if_else@10
+
+requireAkitaWallet_if_body@9:
+    // smart_contracts/utils/functions.ts:271
+    // return false
+    intc_0 // 0
+
+requireAkitaWallet_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@15:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:313
+    // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
+    bz requireAkitaWallet_bool_false@3
+    intc_1 // 1
+
+requireAkitaWallet_bool_merge@4:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:313
+    // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
+    bnz requireAkitaWallet_after_assert@6
+    pushbytes "ERR:socialClaimSenderNotWallet"
+    log
+    err // ERR:socialClaimSenderNotWallet
+
+requireAkitaWallet_after_assert@6:
+    retsub
+
+requireAkitaWallet_bool_false@3:
+    intc_0 // 0
+    b requireAkitaWallet_bool_merge@4
+
+requireAkitaWallet_after_if_else@10:
+    // smart_contracts/utils/functions.ts:273
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    frame_dig -1
+    app_params_get AppCreator
+    swap
+    frame_bury 0
+    // smart_contracts/utils/functions.ts:274
+    // return exists && creator === appAddress(walletFactory)
+    bz requireAkitaWallet_bool_false@13
+    // smart_contracts/utils/functions.ts:265
+    // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
+    frame_dig 1
+    itob
+    pushbytes "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/functions.ts:274
+    // return exists && creator === appAddress(walletFactory)
+    frame_dig 0
+    ==
+    bz requireAkitaWallet_bool_false@13
+    intc_1 // 1
+    // smart_contracts/arc58/social-claim/contract.algo.ts:313
+    // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
+    b requireAkitaWallet_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@15
+
+requireAkitaWallet_bool_false@13:
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:313
+    // loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
+    b requireAkitaWallet_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@15
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.requirePosition(pluginCallIndex: uint64) -> void:
+requirePosition:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:320
+    // private requirePosition(pluginCallIndex: uint64): void {
+    proto 1 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:321
+    // loggedAssert(pluginCallIndex + 3 === Txn.groupIndex, 'socialClaimBadPosition')
+    frame_dig -1
+    pushint 3
+    +
+    txn GroupIndex
+    ==
+    bnz requirePosition_after_assert@2
+    pushbytes "ERR:socialClaimBadPosition"
+    log
+    err // ERR:socialClaimBadPosition
+
+requirePosition_after_assert@2:
+    retsub
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.requireTtl(ttl: uint64) -> void:
+requireTtl:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:324
+    // private requireTtl(ttl: uint64): void {
+    proto 1 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:325
+    // loggedAssert(ttl >= SOCIAL_CLAIM_MIN_TTL && ttl <= SOCIAL_CLAIM_MAX_TTL, 'socialClaimInvalidTtl')
+    frame_dig -1
+    pushint 86400
+    >=
+    bz requireTtl_bool_false@3
+    frame_dig -1
+    pushint 31536000
+    <=
+    bz requireTtl_bool_false@3
+    intc_1 // 1
+
+requireTtl_bool_merge@4:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:325
+    // loggedAssert(ttl >= SOCIAL_CLAIM_MIN_TTL && ttl <= SOCIAL_CLAIM_MAX_TTL, 'socialClaimInvalidTtl')
+    bnz requireTtl_after_assert@6
+    pushbytes "ERR:socialClaimInvalidTtl"
+    log
+    err // ERR:socialClaimInvalidTtl
+
+requireTtl_after_assert@6:
+    retsub
+
+requireTtl_bool_false@3:
+    intc_0 // 0
+    b requireTtl_bool_merge@4
+
+
+// smart_contracts/arc58/social-claim/contract.algo.ts::SocialClaim.requireManager() -> void:
+requireManager:
+    // smart_contracts/arc58/social-claim/contract.algo.ts:329
+    // loggedAssert(Txn.sender === this.manager.value, 'socialClaimManagerOnly')
+    txn Sender
+    intc_0 // 0
+    // smart_contracts/arc58/social-claim/contract.algo.ts:54
+    // manager = GlobalState<Account>({ key: 'manager' })
+    bytec 6 // "manager"
+    // smart_contracts/arc58/social-claim/contract.algo.ts:329
+    // loggedAssert(Txn.sender === this.manager.value, 'socialClaimManagerOnly')
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bnz requireManager_after_assert@2
+    pushbytes "ERR:socialClaimManagerOnly"
+    log
+    err // ERR:socialClaimManagerOnly
+
+requireManager_after_assert@2:
+    retsub

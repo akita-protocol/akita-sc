@@ -1,0 +1,86 @@
+{
+    "hints": {
+        "create(uint64)void": {
+            "call_config": {
+                "no_op": "CREATE"
+            }
+        },
+        "setWalletFactory(uint64)void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAxCiAgICBieXRlY2Jsb2NrICJhYWwiCiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTEKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrR3VpbGRBa2l0YURBTyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJ6IG1haW5fY3JlYXRlX05vT3BANQogICAgcHVzaGJ5dGVzIDB4YjZiY2MwYmIgLy8gbWV0aG9kICJzZXRXYWxsZXRGYWN0b3J5KHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggc2V0V2FsbGV0RmFjdG9yeQogICAgZXJyCgptYWluX2NyZWF0ZV9Ob09wQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTEKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrR3VpbGRBa2l0YURBTyBleHRlbmRzIENvbnRyYWN0IHsKICAgIHB1c2hieXRlcyAweDI0MGQyZjY3IC8vIG1ldGhvZCAiY3JlYXRlKHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggY3JlYXRlCiAgICBlcnIKCgovLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6Ok1vY2tHdWlsZEFraXRhREFPLmNyZWF0ZVtyb3V0aW5nXSgpIC0+IHZvaWQ6CmNyZWF0ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoxNgogICAgLy8gQGFiaW1ldGhvZCh7IG9uQ3JlYXRlOiAncmVxdWlyZScgfSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoxOAogICAgLy8gdGhpcy5ndWlsZEZlZXMudmFsdWUgPSB7IGNyZWF0ZUZlZSB9CiAgICBpdG9iCiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTIKICAgIC8vIGd1aWxkRmVlcyA9IEdsb2JhbFN0YXRlPEd1aWxkRmVlcz4oeyBrZXk6IEFraXRhREFPR2xvYmFsU3RhdGVLZXlzR3VpbGRGZWVzIH0pCiAgICBwdXNoYnl0ZXMgImd1aWxkX2ZlZXMiCiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTgKICAgIC8vIHRoaXMuZ3VpbGRGZWVzLnZhbHVlID0geyBjcmVhdGVGZWUgfQogICAgc3dhcAogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoxMwogICAgLy8gd2FsbGV0RmVlcyA9IEdsb2JhbFN0YXRlPFdhbGxldEZlZXM+KHsga2V5OiBBa2l0YURBT0dsb2JhbFN0YXRlS2V5c1dhbGxldEZlZXMgfSkKICAgIHB1c2hieXRlc3MgIndhbGxldF9mZWVzIiAweDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTkKICAgIC8vIHRoaXMud2FsbGV0RmVlcy52YWx1ZSA9IHsgY3JlYXRlRmVlOiAwLCByZWZlcnJlclBlcmNlbnRhZ2U6IDAgfQogICAgYXBwX2dsb2JhbF9wdXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoxNAogICAgLy8gYWtpdGFBcHBMaXN0ID0gR2xvYmFsU3RhdGU8QWtpdGFBcHBMaXN0Pih7IGtleTogQWtpdGFEQU9HbG9iYWxTdGF0ZUtleXNBa2l0YUFwcExpc3QgfSkKICAgIGJ5dGVjXzAgLy8gImFhbCIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoyNS0zOAogICAgLy8gdGhpcy5ha2l0YUFwcExpc3QudmFsdWUgPSB7CiAgICAvLyAgIHN0YWtpbmc6IDAsCiAgICAvLyAgIHJld2FyZHM6IDAsCiAgICAvLyAgIHBvb2w6IDAsCiAgICAvLyAgIHByaXplQm94OiAwLAogICAgLy8gICBzdWJzY3JpcHRpb25zOiAwLAogICAgLy8gICBnYXRlOiAwLAogICAgLy8gICBhdWN0aW9uOiAwLAogICAgLy8gICBoeXBlclN3YXA6IDAsCiAgICAvLyAgIHJhZmZsZTogMCwKICAgIC8vICAgbWV0YU1lcmtsZXM6IDAsCiAgICAvLyAgIG1hcmtldHBsYWNlOiAwLAogICAgLy8gICB3YWxsZXQsCiAgICAvLyB9CiAgICBwdXNoYnl0ZXMgMHgwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAKICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvZ3VpbGRzL3Rlc3RzL21vY2stYWtpdGEtZGFvLmFsZ28udHM6MTYKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL2FyYzU4L2d1aWxkcy90ZXN0cy9tb2NrLWFraXRhLWRhby5hbGdvLnRzOjpNb2NrR3VpbGRBa2l0YURBTy5zZXRXYWxsZXRGYWN0b3J5W3JvdXRpbmddKCkgLT4gdm9pZDoKc2V0V2FsbGV0RmFjdG9yeToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoyNAogICAgLy8gc2V0V2FsbGV0RmFjdG9yeSh3YWxsZXQ6IHVpbnQ2NCk6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnRvaQogICAgLy8gc21hcnRfY29udHJhY3RzL2FyYzU4L2d1aWxkcy90ZXN0cy9tb2NrLWFraXRhLWRhby5hbGdvLnRzOjI1LTM4CiAgICAvLyB0aGlzLmFraXRhQXBwTGlzdC52YWx1ZSA9IHsKICAgIC8vICAgc3Rha2luZzogMCwKICAgIC8vICAgcmV3YXJkczogMCwKICAgIC8vICAgcG9vbDogMCwKICAgIC8vICAgcHJpemVCb3g6IDAsCiAgICAvLyAgIHN1YnNjcmlwdGlvbnM6IDAsCiAgICAvLyAgIGdhdGU6IDAsCiAgICAvLyAgIGF1Y3Rpb246IDAsCiAgICAvLyAgIGh5cGVyU3dhcDogMCwKICAgIC8vICAgcmFmZmxlOiAwLAogICAgLy8gICBtZXRhTWVya2xlczogMCwKICAgIC8vICAgbWFya2V0cGxhY2U6IDAsCiAgICAvLyAgIHdhbGxldCwKICAgIC8vIH0KICAgIGl0b2IKICAgIHB1c2hieXRlcyAweDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwCiAgICBzd2FwCiAgICBjb25jYXQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoxNAogICAgLy8gYWtpdGFBcHBMaXN0ID0gR2xvYmFsU3RhdGU8QWtpdGFBcHBMaXN0Pih7IGtleTogQWtpdGFEQU9HbG9iYWxTdGF0ZUtleXNBa2l0YUFwcExpc3QgfSkKICAgIGJ5dGVjXzAgLy8gImFhbCIKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9ndWlsZHMvdGVzdHMvbW9jay1ha2l0YS1kYW8uYWxnby50czoyNS0zOAogICAgLy8gdGhpcy5ha2l0YUFwcExpc3QudmFsdWUgPSB7CiAgICAvLyAgIHN0YWtpbmc6IDAsCiAgICAvLyAgIHJld2FyZHM6IDAsCiAgICAvLyAgIHBvb2w6IDAsCiAgICAvLyAgIHByaXplQm94OiAwLAogICAgLy8gICBzdWJzY3JpcHRpb25zOiAwLAogICAgLy8gICBnYXRlOiAwLAogICAgLy8gICBhdWN0aW9uOiAwLAogICAgLy8gICBoeXBlclN3YXA6IDAsCiAgICAvLyAgIHJhZmZsZTogMCwKICAgIC8vICAgbWV0YU1lcmtsZXM6IDAsCiAgICAvLyAgIG1hcmtldHBsYWNlOiAwLAogICAgLy8gICB3YWxsZXQsCiAgICAvLyB9CiAgICBzd2FwCiAgICBhcHBfZ2xvYmFsX3B1dAogICAgLy8gc21hcnRfY29udHJhY3RzL2FyYzU4L2d1aWxkcy90ZXN0cy9tb2NrLWFraXRhLWRhby5hbGdvLnRzOjI0CiAgICAvLyBzZXRXYWxsZXRGYWN0b3J5KHdhbGxldDogdWludDY0KTogdm9pZCB7CiAgICBpbnRjXzEgLy8gMQogICAgcmV0dXJuCg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 3,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "akitaAppList": {
+                    "type": "bytes",
+                    "key": "aal"
+                },
+                "guildFees": {
+                    "type": "bytes",
+                    "key": "guild_fees"
+                },
+                "walletFees": {
+                    "type": "bytes",
+                    "key": "wallet_fees"
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockGuildAkitaDAO",
+        "desc": "Minimal Akita DAO fee and app-list state used by GuildFactory integration tests.",
+        "methods": [
+            {
+                "name": "create",
+                "args": [
+                    {
+                        "type": "uint64",
+                        "name": "createFee"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "setWalletFactory",
+                "args": [
+                    {
+                        "type": "uint64",
+                        "name": "wallet"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                },
+                "desc": "Point Guild wallet creation at a wallet factory, as the DAO's app list does in production."
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {}
+}

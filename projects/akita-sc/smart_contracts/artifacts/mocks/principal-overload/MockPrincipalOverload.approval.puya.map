@@ -1,0 +1,480 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/principal-overload/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;AAQA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAEE;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACS;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAKC;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 8 1"
+    },
+    "5": {
+      "op": "bytecblock 0x151f7c75"
+    },
+    "12": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "14": {
+      "op": "bz main___algots__.defaultCreate@9",
+      "stack_out": []
+    },
+    "17": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "19": {
+      "op": "!",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "20": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "21": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "23": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "24": {
+      "op": "pushbytess 0x7dfa8ba5 0x38b44a3e // method \"m(uint64,uint64)uint64\", method \"m(uint64)uint64\"",
+      "defined_out": [
+        "Method(m(uint64)uint64)",
+        "Method(m(uint64,uint64)uint64)"
+      ],
+      "stack_out": [
+        "Method(m(uint64,uint64)uint64)",
+        "Method(m(uint64)uint64)"
+      ]
+    },
+    "36": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(m(uint64)uint64)",
+        "Method(m(uint64,uint64)uint64)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "Method(m(uint64,uint64)uint64)",
+        "Method(m(uint64)uint64)",
+        "tmp%6#0"
+      ]
+    },
+    "39": {
+      "op": "match m legacyM",
+      "stack_out": []
+    },
+    "45": {
+      "op": "err"
+    },
+    "46": {
+      "block": "main___algots__.defaultCreate@9",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "48": {
+      "op": "!",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "49": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "51": {
+      "op": "!",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "52": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "53": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "54": {
+      "subroutine": "smart_contracts/mocks/principal-overload/contract.algo.ts::MockPrincipalOverload.m[routing]",
+      "params": {},
+      "block": "m",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "57": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "58": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "59": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "60": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "61": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "62": {
+      "op": "btoi",
+      "defined_out": [
+        "value#0"
+      ],
+      "stack_out": [
+        "value#0"
+      ]
+    },
+    "63": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "value#0"
+      ],
+      "stack_out": [
+        "value#0",
+        "tmp%2#0"
+      ]
+    },
+    "66": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "value#0"
+      ],
+      "stack_out": [
+        "value#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "67": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "value#0"
+      ],
+      "stack_out": [
+        "value#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "68": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "value#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "69": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "value#0"
+      ],
+      "stack_out": [
+        "value#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "70": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "value#0",
+        "tmp%2#0"
+      ]
+    },
+    "71": {
+      "op": "btoi",
+      "defined_out": [
+        "value#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "value#0",
+        "wallet#0"
+      ]
+    },
+    "72": {
+      "op": "+",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "73": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "74": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "75": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "76": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "77": {
+      "op": "log",
+      "stack_out": []
+    },
+    "78": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "79": {
+      "op": "return",
+      "stack_out": []
+    },
+    "80": {
+      "subroutine": "smart_contracts/mocks/principal-overload/contract.algo.ts::MockPrincipalOverload.legacyM[routing]",
+      "params": {},
+      "block": "legacyM",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "83": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "84": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "85": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "86": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "87": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "88": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "89": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%0#0"
+      ]
+    },
+    "90": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "91": {
+      "op": "log",
+      "stack_out": []
+    },
+    "92": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "93": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

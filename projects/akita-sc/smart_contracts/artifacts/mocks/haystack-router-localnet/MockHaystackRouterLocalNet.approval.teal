@@ -652,7 +652,7 @@ main_after_assert@54:
     cover 4
     callsub tmPoolAddress
     cover 15
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:183
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:183
     // loggedAssert(assetIn !== assetOut, 'errTmPair')
     !=
     bnz main_after_assert@69
@@ -661,7 +661,7 @@ main_after_assert@54:
     err // ERR:errTmPair
 
 main_after_assert@69:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:184
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:184
     // loggedAssert(pool === tmPoolAddress(app, assetIn, assetOut), 'errTmPool')
     dig 14
     dig 7
@@ -675,19 +675,19 @@ main_after_assert@69:
     err // ERR:errTmPool
 
 main_after_assert@71:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:186
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:186
     // const before = tmHolding(account, assetOut)
     dig 11
     dig 13
     callsub tmHolding
     cover 7
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:187
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:187
     // if (assetIn === 0) {
     dig 6
     bnz main_else_body@73
     uncover 6
     pop
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:188-199
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:188-199
     // itxn.submitGroup(
     //   itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -708,13 +708,13 @@ main_after_assert@71:
     dig 11
     dup
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:189
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:189
     // itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:190-198
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:190-198
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -728,7 +728,7 @@ main_after_assert@71:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:130
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:193
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:193
     // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
     itob
     dig 1
@@ -745,7 +745,7 @@ main_after_assert@71:
     uncover 13
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:190-198
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:190-198
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -757,11 +757,11 @@ main_after_assert@71:
     // }),
     pushint 6
     itxn_field TypeEnum
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:197
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:197
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:188-199
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:188-199
     // itxn.submitGroup(
     //   itxn.payment({ sender: account, receiver: pool, amount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -777,7 +777,7 @@ main_after_assert@71:
     itxn_submit
 
 main_after_if_else@76:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:227
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:227
     // return tmHolding(account, assetOut) - before
     dig 10
     dig 12
@@ -787,11 +787,11 @@ main_after_if_else@76:
     b main_after_if_else@55
 
 main_else_body@73:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:200
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:200
     // } else if (assetOut === 0) {
     dig 13
     bnz main_else_body@75
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:201-212
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:201-212
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -816,13 +816,13 @@ main_else_body@73:
     dig 12
     dup
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:202
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:202
     // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     intc_2 // 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:203-211
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:203-211
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -836,7 +836,7 @@ main_else_body@73:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:130
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:206
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:206
     // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
     itob
     dig 1
@@ -853,7 +853,7 @@ main_else_body@73:
     uncover 13
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:203-211
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:203-211
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -865,11 +865,11 @@ main_else_body@73:
     // }),
     pushint 6
     itxn_field TypeEnum
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:210
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:210
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:201-212
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:201-212
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -886,7 +886,7 @@ main_else_body@73:
     b main_after_if_else@76
 
 main_else_body@75:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:214-225
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:214-225
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -911,13 +911,13 @@ main_else_body@75:
     dig 12
     dup
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:215
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:215
     // itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     intc_2 // 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:216-224
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:216-224
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -931,7 +931,7 @@ main_else_body@75:
     // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:130
     // amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
     intc_1 // 1
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:219
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:219
     // appArgs: [Bytes('swap'), Bytes('fixed-input'), op.itob(minOut)],
     itob
     dig 1
@@ -950,7 +950,7 @@ main_else_body@75:
     uncover 13
     itxn_field ApplicationID
     itxn_field Sender
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:216-224
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:216-224
     // itxn.applicationCall({
     //   sender: account,
     //   appId: app,
@@ -962,11 +962,11 @@ main_else_body@75:
     // }),
     pushint 6
     itxn_field TypeEnum
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:223
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:223
     // fee: 0,
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:214-225
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:214-225
     // itxn.submitGroup(
     //   itxn.assetTransfer({ sender: account, assetReceiver: pool, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
     //   itxn.applicationCall({
@@ -1186,12 +1186,12 @@ main_bool_false@14:
     b main_bool_merge@15
 
 
-// smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress(app: uint64, assetA: uint64, assetB: uint64) -> bytes:
+// smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress(app: uint64, assetA: uint64, assetB: uint64) -> bytes:
 tmPoolAddress:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:56
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:56
     // export function tmPoolAddress(app: Application, assetA: uint64, assetB: uint64): Account {
     proto 3 1
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:57
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:57
     // const asset1: uint64 = assetA > assetB ? assetA : assetB
     frame_dig -2
     frame_dig -1
@@ -1200,13 +1200,13 @@ tmPoolAddress:
     frame_dig -2
     dig 2
     select
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:58
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:58
     // const asset2: uint64 = assetA > assetB ? assetB : assetA
     frame_dig -2
     frame_dig -1
     uncover 3
     select
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:60
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:60
     // op.concat(op.concat(op.concat(TM_POOL_PREFIX, op.itob(app.id)), op.itob(asset1)), op.itob(asset2)),
     frame_dig -3
     itob
@@ -1219,16 +1219,16 @@ tmPoolAddress:
     swap
     itob
     concat
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:61
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:61
     // TM_POOL_SUFFIX,
     pushbytes 0x81005b3500340031181244311981011244810143
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:59-62
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:59-62
     // const program = op.concat(
     //   op.concat(op.concat(op.concat(TM_POOL_PREFIX, op.itob(app.id)), op.itob(asset1)), op.itob(asset2)),
     //   TM_POOL_SUFFIX,
     // )
     concat
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:63
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:63
     // return Account(op.sha512_256(op.concat(Bytes('Program'), program)))
     pushbytes "Program"
     swap
@@ -1237,12 +1237,12 @@ tmPoolAddress:
     retsub
 
 
-// smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding(account: bytes, asset: uint64) -> uint64:
+// smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding(account: bytes, asset: uint64) -> uint64:
 tmHolding:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:153
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:153
     // export function tmHolding(account: Account, asset: uint64): uint64 {
     proto 2 1
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:154
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:154
     // if (asset === 0) return account.balance
     frame_dig -1
     bnz tmHolding_after_if_else@2
@@ -1252,13 +1252,13 @@ tmHolding:
     retsub
 
 tmHolding_after_if_else@2:
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:155
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:155
     // const [balance] = op.AssetHolding.assetBalance(account, asset)
     frame_dig -2
     frame_dig -1
     asset_holding_get AssetBalance
     pop
-    // smart_contracts/plugin-dex/venues/tinyman-v2.ts:156
+    // smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts:156
     // return balance
     retsub
 

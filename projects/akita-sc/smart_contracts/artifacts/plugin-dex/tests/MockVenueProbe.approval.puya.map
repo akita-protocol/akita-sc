@@ -1,10 +1,10 @@
 {
   "version": 3,
   "sources": [
-    "../../../plugin-dex/tests/mock-venue-probe.algo.ts",
-    "../../../plugin-dex/venues/tinyman-v2.ts"
+    "../../../plugin-dex/hooks/shared/tinyman-v2.ts",
+    "../../../plugin-dex/tests/mock-venue-probe.algo.ts"
   ],
-  "mappings": "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",
+  "mappings": "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",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -161,7 +161,7 @@
       "stack_out": []
     },
     "87": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "params": {
         "app#0": "uint64",
         "assetA#0": "uint64",
@@ -461,7 +461,7 @@
       "op": "retsub"
     },
     "162": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmReadPool",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmReadPool",
       "params": {
         "pool#0": "bytes",
         "app#0": "uint64"
@@ -1838,7 +1838,7 @@
       "op": "retsub"
     },
     "497": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmQuoteFixedInput",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmQuoteFixedInput",
       "params": {
         "app#0": "uint64",
         "pool#0": "bytes",
@@ -1879,7 +1879,7 @@
       ]
     },
     "506": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmReadPool",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmReadPool",
       "op": "callsub tmReadPool",
       "defined_out": [
         "pool#1"
@@ -2082,7 +2082,7 @@
       ]
     },
     "538": {
-      "block": "tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28",
+      "block": "tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28",
       "stack_in": [
         "tmp%9#0",
         "tmFixedInputOut%0#0"
@@ -2184,7 +2184,7 @@
       ]
     },
     "555": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "558": {
       "block": "tmQuoteFixedInput_after_if_else@9",
@@ -2520,7 +2520,7 @@
       ]
     },
     "604": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "607": {
       "block": "tmQuoteFixedInput_after_if_else@19",
@@ -2624,7 +2624,7 @@
       ]
     },
     "620": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "623": {
       "block": "tmQuoteFixedInput_after_if_else@21",
@@ -2699,7 +2699,7 @@
       ]
     },
     "634": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "637": {
       "block": "tmQuoteFixedInput_after_if_else@23",
@@ -2825,7 +2825,7 @@
       ]
     },
     "653": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "656": {
       "block": "tmQuoteFixedInput_after_if_else@25",
@@ -3069,7 +3069,7 @@
       ]
     },
     "683": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "686": {
       "block": "tmQuoteFixedInput_after_if_else@27",
@@ -3088,7 +3088,7 @@
       ]
     },
     "687": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "690": {
       "block": "tmQuoteFixedInput_else_body@12",
@@ -3334,10 +3334,10 @@
       ]
     },
     "724": {
-      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmFixedInputOut@28"
+      "op": "b tmQuoteFixedInput_after_inlined_smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmFixedInputOut@28"
     },
     "727": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "params": {
         "account#0": "bytes",
         "asset#0": "uint64"
@@ -3677,7 +3677,7 @@
       ]
     },
     "776": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "tmp%0#1"
@@ -3886,7 +3886,7 @@
       ]
     },
     "804": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmReadPool",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmReadPool",
       "op": "callsub tmReadPool",
       "stack_out": [
         "tmp%0#0"
@@ -4339,7 +4339,7 @@
       ]
     },
     "855": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "amountIn#0",
@@ -4390,7 +4390,7 @@
       ]
     },
     "865": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmQuoteFixedInput",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmQuoteFixedInput",
       "op": "callsub tmQuoteFixedInput",
       "defined_out": [
         "tmp%1#1"
@@ -5610,7 +5610,7 @@
       ]
     },
     "994": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "assetIn#0",
@@ -5732,7 +5732,7 @@
       ]
     },
     "1006": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmQuoteFixedInput",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmQuoteFixedInput",
       "op": "callsub tmQuoteFixedInput",
       "defined_out": [
         "assetIn#0",
@@ -6144,7 +6144,7 @@
       ]
     },
     "1063": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "tmp%1#2"
@@ -6301,7 +6301,7 @@
       ]
     },
     "1093": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "before#0"
@@ -6912,7 +6912,7 @@
       ]
     },
     "1165": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "tmp%9#0"

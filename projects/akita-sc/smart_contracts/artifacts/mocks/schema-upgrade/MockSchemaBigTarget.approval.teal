@@ -1,0 +1,118 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    bytecblock "c" "s"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:20-21
+    // @contract({ stateTotals: { globalUints: 2, globalBytes: 1 } })
+    // export class MockSchemaBigTarget extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@6
+    pushbytess 0xea9180dd 0xe761a739 // method "update(string)void", method "bump()uint64"
+    txna ApplicationArgs 0
+    match main_update_route@3 main_bump_route@4
+    err
+
+main_bump_route@4:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:29
+    // bump(): uint64 {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b bump
+
+main_update_route@3:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:26
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+main___algots__.defaultCreate@6:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:20-21
+    // @contract({ stateTotals: { globalUints: 2, globalBytes: 1 } })
+    // export class MockSchemaBigTarget extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/schema-upgrade/contract.algo.ts::MockSchemaBigTarget.update[routing]() -> void:
+update:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:26
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/schema-upgrade/contract.algo.ts::MockSchemaBigTarget.bump[routing]() -> void:
+bump:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:22
+    // counter = GlobalState<uint64>({ key: 'c' })
+    bytec_0 // "c"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:30
+    // this.counter.value = 7
+    pushint 7
+    app_global_put
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:23
+    // second = GlobalState<uint64>({ key: 's' })
+    bytec_1 // "s"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:31
+    // this.second.value = 8
+    pushint 8
+    app_global_put
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:24
+    // label = GlobalState<bytes>({ key: 'l' })
+    pushbytess "l" "grown"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:32
+    // this.label.value = Bytes('grown')
+    app_global_put
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:33
+    // return this.counter.value + this.second.value
+    intc_0 // 0
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:22
+    // counter = GlobalState<uint64>({ key: 'c' })
+    bytec_0 // "c"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:33
+    // return this.counter.value + this.second.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_0 // 0
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:23
+    // second = GlobalState<uint64>({ key: 's' })
+    bytec_1 // "s"
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:33
+    // return this.counter.value + this.second.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    +
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:29
+    // bump(): uint64 {
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

@@ -3,8 +3,8 @@
   "sources": [
     "../../../arc58/keys/ed25519_passkey.algo.ts"
   ],
-  "mappings": "AAYoB;;AAFE;AAFG;AACH;AACA;AACE;AACJ;;AAAA;AAAA;;AAAA;AAAA;AAE4B;;AAAA;AAAA;AAAA;AAAP;AAAhB;AAAP;AAAA;AAEN;;AAAmB;;AAAnB;AAAJ;;;AACW;;AAAmB;AAAA;;AAAnB;AAAP;AAKG;AAAA;;AAAsB;AAAtB;AAAP;AAHW;;AAAa;AAAA;;AAAb;AAAP;",
-  "op_pc_offset": 1,
+  "mappings": "AAeoB;;AAFE;AAFG;AAEH;AADA;AAEE;AACJ;;AAAA;AAAA;;AAAA;AAAA;AAIL;;AAAA;AAAe;AAAf;;AAAA;AAAe;AAAf;;AAAA;;AAAA;AAAkB;AAAlB;;AAAA;AAAkB;AAAlB;;AAAA;;AAAA;AAAA;;AAAA;;AAAA;AAAgD;AAAhD;AAAP;AACQ;;AAAqB;AAArB;AAA6C;AAA7C;AAAyE;AAA1E;AAAP;AAIuC;AAAA;;AAAA;AAAA;AAAA;AAAP;AAAhB;AAEZ;;AAAmB;;AAAnB;AAAJ;;;AACW;;AAAmB;;AAAA;;AAAnB;AAAP;AAKG;AAAgC;AAAhC;AAAP;AAHW;;AAAa;;AAAA;;AAAb;AAAP;",
+  "op_pc_offset": 2,
   "pc_events": {
     "0": {
       "op": "arg 4"
@@ -16,10 +16,10 @@
       "op": "arg_0"
     },
     "4": {
-      "op": "arg_1"
+      "op": "arg_2"
     },
     "5": {
-      "op": "arg_2"
+      "op": "arg_1"
     },
     "6": {
       "op": "arg_3"
@@ -37,8 +37,8 @@
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "cdOne#0",
         "cdTwo#0",
+        "cdOne#0",
         "cdThree#0",
         "sig#0"
       ]
@@ -57,8 +57,8 @@
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "cdOne#0",
         "cdTwo#0",
+        "cdOne#0",
         "cdThree#0",
         "tmp%4#0"
       ]
@@ -78,8 +78,8 @@
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "cdOne#0",
         "cdTwo#0",
+        "cdOne#0",
         "cdThree#0",
         "tmp%4#0",
         "64"
@@ -99,8 +99,8 @@
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "cdOne#0",
         "cdTwo#0",
+        "cdOne#0",
         "cdThree#0",
         "tmp%5#0"
       ]
@@ -112,359 +112,849 @@
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "cdOne#0",
         "cdTwo#0",
+        "cdOne#0",
         "cdThree#0"
       ]
     },
     "14": {
+      "op": "dig 3",
+      "defined_out": [
+        "authData#0",
+        "authData#0 (copy)",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "authData#0 (copy)"
+      ]
+    },
+    "16": {
+      "op": "len",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "length%0#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0"
+      ]
+    },
+    "17": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "0"
+      ]
+    },
+    "18": {
+      "op": "dig 1",
+      "defined_out": [
+        "0",
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "length%0#0",
+        "length%0#0 (copy)",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "0",
+        "length%0#0 (copy)"
+      ]
+    },
+    "20": {
+      "op": ">=",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "is_out_of_bounds%0#0",
+        "length%0#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "is_out_of_bounds%0#0"
+      ]
+    },
+    "21": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "is_out_of_bounds%0#0",
+        "0"
+      ]
+    },
+    "22": {
+      "op": "dig 2",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "is_out_of_bounds%0#0",
+        "0",
+        "length%0#0 (copy)"
+      ]
+    },
+    "24": {
+      "op": "uncover 2",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "0",
+        "length%0#0 (copy)",
+        "is_out_of_bounds%0#0"
+      ]
+    },
+    "26": {
+      "op": "select",
+      "defined_out": [
+        "authData#0",
+        "bounded_index%0#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "length%0#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "bounded_index%0#0"
+      ]
+    },
+    "27": {
+      "op": "intc_0 // 32",
+      "defined_out": [
+        "32",
+        "authData#0",
+        "bounded_index%0#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "length%0#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "bounded_index%0#0",
+        "32"
+      ]
+    },
+    "28": {
+      "op": "dig 2",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "bounded_index%0#0",
+        "32",
+        "length%0#0 (copy)"
+      ]
+    },
+    "30": {
+      "op": ">=",
+      "defined_out": [
+        "authData#0",
+        "bounded_index%0#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "is_out_of_bounds%1#0",
+        "length%0#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0"
+      ]
+    },
+    "31": {
+      "op": "intc_0 // 32",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "length%0#0",
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0",
+        "32"
+      ]
+    },
+    "32": {
+      "op": "uncover 3",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "bounded_index%0#0",
+        "is_out_of_bounds%1#0",
+        "32",
+        "length%0#0"
+      ]
+    },
+    "34": {
+      "op": "uncover 2",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "bounded_index%0#0",
+        "32",
+        "length%0#0",
+        "is_out_of_bounds%1#0"
+      ]
+    },
+    "36": {
+      "op": "select",
+      "defined_out": [
+        "authData#0",
+        "bounded_index%0#0",
+        "bounded_index%1#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "bounded_index%0#0",
+        "bounded_index%1#0"
+      ]
+    },
+    "37": {
+      "op": "dig 5",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "bounded_index%0#0",
+        "bounded_index%1#0",
+        "authData#0 (copy)"
+      ]
+    },
+    "39": {
       "op": "cover 2",
       "stack_out": [
         "sig#0",
         "cdTwo#0",
         "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "authData#0 (copy)",
+        "bounded_index%0#0",
+        "bounded_index%1#0"
+      ]
+    },
+    "41": {
+      "op": "substring3",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%6#0"
+      ]
+    },
+    "42": {
+      "op": "bytec_0 // TMPL_RPID_HASH",
+      "defined_out": [
+        "TMPL_RPID_HASH",
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%6#0",
+        "TMPL_RPID_HASH"
+      ]
+    },
+    "43": {
+      "op": "==",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%7#0"
+      ]
+    },
+    "44": {
+      "op": "assert",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0"
+      ]
+    },
+    "45": {
+      "op": "dig 3",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "authData#0 (copy)"
+      ]
+    },
+    "47": {
+      "op": "intc_0 // 32",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "authData#0 (copy)",
+        "32"
+      ]
+    },
+    "48": {
+      "op": "getbyte",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%8#0"
+      ]
+    },
+    "49": {
+      "op": "intc_2 // 5",
+      "defined_out": [
+        "5",
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%8#0",
+        "5"
+      ]
+    },
+    "50": {
+      "op": "&",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%9#0"
+      ]
+    },
+    "51": {
+      "op": "intc_2 // 5",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%9#0",
+        "5"
+      ]
+    },
+    "52": {
+      "op": "==",
+      "defined_out": [
+        "authData#0",
+        "cdOne#0",
+        "cdThree#0",
+        "cdTwo#0",
+        "sig#0",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0",
+        "tmp%10#0"
+      ]
+    },
+    "53": {
+      "op": "assert",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdOne#0",
+        "cdThree#0"
+      ]
+    },
+    "54": {
+      "op": "swap",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
+        "cdTwo#0",
+        "cdThree#0",
+        "cdOne#0"
+      ]
+    },
+    "55": {
+      "op": "uncover 2",
+      "stack_out": [
+        "sig#0",
+        "cdTwo#0",
+        "authData#0",
         "cdThree#0",
         "cdOne#0",
         "cdTwo#0"
       ]
     },
-    "16": {
+    "57": {
       "op": "concat",
       "defined_out": [
         "authData#0",
         "cdThree#0",
         "cdTwo#0",
         "sig#0",
-        "tmp%6#0"
+        "tmp%11#0"
       ],
       "stack_out": [
         "sig#0",
         "cdTwo#0",
         "authData#0",
         "cdThree#0",
-        "tmp%6#0"
+        "tmp%11#0"
       ]
     },
-    "17": {
+    "58": {
       "op": "swap",
       "stack_out": [
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "tmp%6#0",
+        "tmp%11#0",
         "cdThree#0"
       ]
     },
-    "18": {
+    "59": {
       "op": "concat",
       "defined_out": [
         "authData#0",
         "cdTwo#0",
         "sig#0",
-        "tmp%7#0"
+        "tmp%12#0"
       ],
       "stack_out": [
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "tmp%7#0"
+        "tmp%12#0"
       ]
     },
-    "19": {
+    "60": {
       "op": "sha256",
       "defined_out": [
         "authData#0",
         "cdTwo#0",
         "sig#0",
-        "tmp%8#0"
+        "tmp%13#0"
       ],
       "stack_out": [
         "sig#0",
         "cdTwo#0",
         "authData#0",
-        "tmp%8#0"
+        "tmp%13#0"
       ]
     },
-    "20": {
+    "61": {
       "op": "concat",
       "defined_out": [
         "cdTwo#0",
-        "sig#0",
-        "tmp%9#0"
-      ],
-      "stack_out": [
-        "sig#0",
-        "cdTwo#0",
-        "tmp%9#0"
-      ]
-    },
-    "21": {
-      "op": "sha256",
-      "defined_out": [
-        "cdTwo#0",
-        "h#0",
+        "message#0",
         "sig#0"
       ],
       "stack_out": [
         "sig#0",
         "cdTwo#0",
-        "h#0"
+        "message#0"
       ]
     },
-    "22": {
-      "op": "swap",
-      "defined_out": [
-        "cdTwo#0",
-        "h#0",
-        "sig#0"
-      ],
-      "stack_out": [
-        "sig#0",
-        "h#0",
-        "cdTwo#0"
-      ]
-    },
-    "23": {
+    "62": {
       "op": "global GroupSize",
       "defined_out": [
         "cdTwo#0",
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%11#0"
+        "tmp%15#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
         "cdTwo#0",
-        "tmp%11#0"
+        "message#0",
+        "tmp%15#0"
       ]
     },
-    "25": {
+    "64": {
       "op": "pushint 1",
       "defined_out": [
         "1",
         "cdTwo#0",
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%11#0"
+        "tmp%15#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
         "cdTwo#0",
-        "tmp%11#0",
+        "message#0",
+        "tmp%15#0",
         "1"
       ]
     },
-    "27": {
+    "66": {
       "op": ">",
       "defined_out": [
         "cdTwo#0",
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%12#0"
+        "tmp%16#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
         "cdTwo#0",
-        "tmp%12#0"
+        "message#0",
+        "tmp%16#0"
       ]
     },
-    "28": {
+    "67": {
       "op": "bz main_else_body@2",
       "stack_out": [
         "sig#0",
-        "h#0",
-        "cdTwo#0"
+        "cdTwo#0",
+        "message#0"
       ]
     },
-    "31": {
+    "70": {
       "op": "global GroupID",
       "defined_out": [
         "cdTwo#0",
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%13#0"
+        "tmp%17#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
         "cdTwo#0",
-        "tmp%13#0"
+        "message#0",
+        "tmp%17#0"
       ]
     },
-    "33": {
-      "op": "swap",
+    "72": {
+      "op": "uncover 2",
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%13#0",
+        "message#0",
+        "tmp%17#0",
         "cdTwo#0"
       ]
     },
-    "34": {
+    "74": {
       "op": "base64_decode URLEncoding",
       "defined_out": [
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%13#0",
-        "tmp%14#0"
+        "tmp%17#0",
+        "tmp%18#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%13#0",
-        "tmp%14#0"
+        "message#0",
+        "tmp%17#0",
+        "tmp%18#0"
       ]
     },
-    "36": {
+    "76": {
       "op": "==",
       "defined_out": [
-        "h#0",
+        "message#0",
         "sig#0",
-        "tmp%15#0"
+        "tmp%19#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%15#0"
+        "message#0",
+        "tmp%19#0"
       ]
     },
-    "37": {
+    "77": {
       "op": "assert",
       "stack_out": [
         "sig#0",
-        "h#0"
+        "message#0"
       ]
     },
-    "38": {
+    "78": {
       "block": "main_after_if_else@3",
       "stack_in": [
         "sig#0",
-        "h#0"
+        "message#0"
       ],
-      "op": "dup",
+      "op": "swap",
       "defined_out": [
-        "h#0"
-      ],
-      "stack_out": [
-        "sig#0",
-        "h#0",
-        "h#0"
-      ]
-    },
-    "39": {
-      "op": "dig 2",
-      "defined_out": [
-        "h#0",
+        "message#0",
         "sig#0"
       ],
       "stack_out": [
-        "sig#0",
-        "h#0",
-        "h#0",
+        "message#0",
         "sig#0"
       ]
     },
-    "41": {
-      "op": "bytec_0 // TMPL_PK",
+    "79": {
+      "op": "bytec_1 // TMPL_PK",
       "defined_out": [
         "TMPL_PK",
-        "h#0",
+        "message#0",
         "sig#0"
       ],
       "stack_out": [
-        "sig#0",
-        "h#0",
-        "h#0",
+        "message#0",
         "sig#0",
         "TMPL_PK"
       ]
     },
-    "42": {
-      "op": "ed25519verify",
+    "80": {
+      "op": "ed25519verify_bare",
       "defined_out": [
-        "h#0",
-        "sig#0",
-        "tmp%19#0"
+        "tmp%23#0"
       ],
       "stack_out": [
-        "sig#0",
-        "h#0",
-        "tmp%19#0"
+        "tmp%23#0"
       ]
     },
-    "43": {
+    "81": {
       "op": "return",
-      "stack_out": [
-        "sig#0",
-        "h#0"
-      ]
+      "stack_out": []
     },
-    "44": {
+    "82": {
       "block": "main_else_body@2",
       "stack_in": [
         "sig#0",
-        "h#0",
-        "cdTwo#0"
+        "cdTwo#0",
+        "message#0"
       ],
       "op": "txn TxID",
       "defined_out": [
-        "tmp%16#0"
+        "tmp%20#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
         "cdTwo#0",
-        "tmp%16#0"
+        "message#0",
+        "tmp%20#0"
       ]
     },
-    "46": {
-      "op": "swap",
+    "84": {
+      "op": "uncover 2",
       "defined_out": [
         "cdTwo#0",
-        "tmp%16#0"
+        "tmp%20#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%16#0",
+        "message#0",
+        "tmp%20#0",
         "cdTwo#0"
       ]
     },
-    "47": {
+    "86": {
       "op": "base64_decode URLEncoding",
       "defined_out": [
-        "tmp%16#0",
-        "tmp%17#0"
+        "tmp%20#0",
+        "tmp%21#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%16#0",
-        "tmp%17#0"
+        "message#0",
+        "tmp%20#0",
+        "tmp%21#0"
       ]
     },
-    "49": {
+    "88": {
       "op": "==",
       "defined_out": [
-        "tmp%18#0"
+        "tmp%22#0"
       ],
       "stack_out": [
         "sig#0",
-        "h#0",
-        "tmp%18#0"
+        "message#0",
+        "tmp%22#0"
       ]
     },
-    "50": {
+    "89": {
       "op": "assert",
       "stack_out": [
         "sig#0",
-        "h#0"
+        "message#0"
       ]
     },
-    "51": {
+    "90": {
       "op": "b main_after_if_else@3"
     }
   }

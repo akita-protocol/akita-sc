@@ -1,0 +1,2105 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/forged-wallet/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;AAcA;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;AAAA;AAME;AAAA;AAGC;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAPA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAFH;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAEG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAUD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AACE;AADF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AACE;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACyB;;;;;;;;;;;AAAvB;AAAA;AADF;AAAA;AAKA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACS;;;;;;AAAA;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AASA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACS;;;;;;AAAA;;;;;;;;;;AAAA;;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 1 0 8 2"
+    },
+    "7": {
+      "op": "bytecblock 0x151f7c75"
+    },
+    "14": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "16": {
+      "op": "bz main___algots__.defaultCreate@17",
+      "stack_out": []
+    },
+    "19": {
+      "op": "pushbytess 0xea9180dd 0x9c86a185 // method \"update(string)void\", method \"destroy()void\"",
+      "defined_out": [
+        "Method(destroy()void)",
+        "Method(update(string)void)"
+      ],
+      "stack_out": [
+        "Method(update(string)void)",
+        "Method(destroy()void)"
+      ]
+    },
+    "31": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(destroy()void)",
+        "Method(update(string)void)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "Method(update(string)void)",
+        "Method(destroy()void)",
+        "tmp%2#0"
+      ]
+    },
+    "34": {
+      "op": "match main_update_route@3 main_destroy_route@4",
+      "stack_out": []
+    },
+    "40": {
+      "block": "main_switch_case_next@5",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%13#0"
+      ],
+      "stack_out": [
+        "tmp%13#0"
+      ]
+    },
+    "42": {
+      "op": "!",
+      "defined_out": [
+        "tmp%14#0"
+      ],
+      "stack_out": [
+        "tmp%14#0"
+      ]
+    },
+    "43": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "44": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%15#0"
+      ],
+      "stack_out": [
+        "tmp%15#0"
+      ]
+    },
+    "46": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "47": {
+      "op": "pushbytess 0x854dede0 0xba36bdc6 0x6c49f0f5 0x9a81e4f4 0x401a6d80 0xdd7f1da9 0xd11bbc68 // method \"opUp()void\", method \"setBytes(byte[],byte[])void\", method \"setUint(byte[],uint64)void\", method \"del(byte[])void\", method \"setAkitaDAO(uint64)void\", method \"callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool)\", method \"callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(del(byte[])void)",
+        "Method(opUp()void)",
+        "Method(setAkitaDAO(uint64)void)",
+        "Method(setBytes(byte[],byte[])void)",
+        "Method(setUint(byte[],uint64)void)"
+      ],
+      "stack_out": [
+        "Method(opUp()void)",
+        "Method(setBytes(byte[],byte[])void)",
+        "Method(setUint(byte[],uint64)void)",
+        "Method(del(byte[])void)",
+        "Method(setAkitaDAO(uint64)void)",
+        "Method(callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "84": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(del(byte[])void)",
+        "Method(opUp()void)",
+        "Method(setAkitaDAO(uint64)void)",
+        "Method(setBytes(byte[],byte[])void)",
+        "Method(setUint(byte[],uint64)void)",
+        "tmp%17#0"
+      ],
+      "stack_out": [
+        "Method(opUp()void)",
+        "Method(setBytes(byte[],byte[])void)",
+        "Method(setUint(byte[],uint64)void)",
+        "Method(del(byte[])void)",
+        "Method(setAkitaDAO(uint64)void)",
+        "Method(callProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "Method(callTryProbeAs(uint64,uint64,address)(uint64,address,address,address,address,bool))",
+        "tmp%17#0"
+      ]
+    },
+    "87": {
+      "op": "match main_opUp_route@7 setBytes setUint del setAkitaDAO callProbeAs callTryProbeAs",
+      "stack_out": []
+    },
+    "103": {
+      "op": "err"
+    },
+    "104": {
+      "block": "main_opUp_route@7",
+      "stack_in": [],
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "105": {
+      "op": "return",
+      "stack_out": []
+    },
+    "106": {
+      "block": "main_destroy_route@4",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "108": {
+      "op": "pushint 5 // DeleteApplication",
+      "defined_out": [
+        "DeleteApplication",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "DeleteApplication"
+      ]
+    },
+    "110": {
+      "op": "==",
+      "defined_out": [
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0"
+      ]
+    },
+    "111": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%9#0",
+        "tmp%10#0"
+      ]
+    },
+    "113": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%12#0"
+      ],
+      "stack_out": [
+        "tmp%12#0"
+      ]
+    },
+    "114": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "115": {
+      "block": "main_update_route@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "117": {
+      "op": "pushint 4 // UpdateApplication",
+      "defined_out": [
+        "UpdateApplication",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "UpdateApplication"
+      ]
+    },
+    "119": {
+      "op": "==",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "120": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "tmp%5#0"
+      ]
+    },
+    "122": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "123": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "124": {
+      "op": "b update"
+    },
+    "126": {
+      "block": "main___algots__.defaultCreate@17",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%18#0"
+      ],
+      "stack_out": [
+        "tmp%18#0"
+      ]
+    },
+    "128": {
+      "op": "!",
+      "defined_out": [
+        "tmp%19#0"
+      ],
+      "stack_out": [
+        "tmp%19#0"
+      ]
+    },
+    "129": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%19#0",
+        "tmp%20#0"
+      ],
+      "stack_out": [
+        "tmp%19#0",
+        "tmp%20#0"
+      ]
+    },
+    "131": {
+      "op": "!",
+      "defined_out": [
+        "tmp%19#0",
+        "tmp%21#0"
+      ],
+      "stack_out": [
+        "tmp%19#0",
+        "tmp%21#0"
+      ]
+    },
+    "132": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%22#0"
+      ],
+      "stack_out": [
+        "tmp%22#0"
+      ]
+    },
+    "133": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "134": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.update[routing]",
+      "params": {},
+      "block": "update",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "137": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "138": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "139": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "140": {
+      "op": "intc_3 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "141": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "142": {
+      "op": "swap",
+      "stack_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "143": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "144": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "eq%0#0"
+      ]
+    },
+    "145": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": []
+    },
+    "146": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "147": {
+      "op": "return",
+      "stack_out": []
+    },
+    "148": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setBytes[routing]",
+      "params": {},
+      "block": "setBytes",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "151": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "152": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "153": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "154": {
+      "op": "intc_3 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "155": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "156": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "158": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "159": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "160": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "161": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "key#0"
+      ],
+      "stack_out": [
+        "key#0"
+      ]
+    },
+    "164": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0"
+      ]
+    },
+    "167": {
+      "op": "dup",
+      "defined_out": [
+        "key#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "168": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "0"
+      ]
+    },
+    "169": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%1#0",
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "aggregate%array_length%1#0"
+      ]
+    },
+    "170": {
+      "op": "intc_3 // 2",
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "aggregate%array_length%1#0",
+        "2"
+      ]
+    },
+    "171": {
+      "op": "+",
+      "defined_out": [
+        "add%1#0",
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "add%1#0"
+      ]
+    },
+    "172": {
+      "op": "dig 1",
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "add%1#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "174": {
+      "op": "len",
+      "defined_out": [
+        "add%1#0",
+        "key#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "add%1#0",
+        "len%1#0"
+      ]
+    },
+    "175": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "176": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "key#0",
+        "tmp%2#0"
+      ]
+    },
+    "177": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "key#0",
+        "value#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "value#0"
+      ]
+    },
+    "180": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "181": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "182": {
+      "op": "return",
+      "stack_out": []
+    },
+    "183": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setUint[routing]",
+      "params": {},
+      "block": "setUint",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "186": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "187": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "188": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "189": {
+      "op": "intc_3 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "190": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "191": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "193": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "194": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "195": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "196": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "key#0"
+      ],
+      "stack_out": [
+        "key#0"
+      ]
+    },
+    "199": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0"
+      ]
+    },
+    "202": {
+      "op": "dup",
+      "defined_out": [
+        "key#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "203": {
+      "op": "len",
+      "defined_out": [
+        "key#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "204": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "key#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "205": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "key#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "206": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "key#0",
+        "tmp%2#0"
+      ]
+    },
+    "207": {
+      "op": "btoi",
+      "defined_out": [
+        "key#0",
+        "value#0"
+      ],
+      "stack_out": [
+        "key#0",
+        "value#0"
+      ]
+    },
+    "208": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "209": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "210": {
+      "op": "return",
+      "stack_out": []
+    },
+    "211": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.del[routing]",
+      "params": {},
+      "block": "del",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "214": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "215": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "216": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "217": {
+      "op": "intc_3 // 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "218": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "219": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "221": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "222": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "223": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "224": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "key#0"
+      ],
+      "stack_out": [
+        "key#0"
+      ]
+    },
+    "227": {
+      "op": "app_global_del",
+      "stack_out": []
+    },
+    "228": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "229": {
+      "op": "return",
+      "stack_out": []
+    },
+    "230": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.setAkitaDAO[routing]",
+      "params": {},
+      "block": "setAkitaDAO",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "233": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "234": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "235": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "236": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "237": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "238": {
+      "op": "btoi",
+      "defined_out": [
+        "dao#0"
+      ],
+      "stack_out": [
+        "dao#0"
+      ]
+    },
+    "239": {
+      "op": "pushbytes \"akita_dao\"",
+      "defined_out": [
+        "\"akita_dao\"",
+        "dao#0"
+      ],
+      "stack_out": [
+        "dao#0",
+        "\"akita_dao\""
+      ]
+    },
+    "250": {
+      "op": "swap",
+      "stack_out": [
+        "\"akita_dao\"",
+        "dao#0"
+      ]
+    },
+    "251": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "252": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "253": {
+      "op": "return",
+      "stack_out": []
+    },
+    "254": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.callProbeAs[routing]",
+      "params": {},
+      "block": "callProbeAs",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "257": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "258": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "259": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "260": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "261": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "262": {
+      "op": "btoi",
+      "defined_out": [
+        "probe#0"
+      ],
+      "stack_out": [
+        "probe#0"
+      ]
+    },
+    "263": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "266": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "267": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "268": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "269": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "270": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "271": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0"
+      ]
+    },
+    "274": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "sender#0",
+        "sender#0 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "sender#0 (copy)"
+      ]
+    },
+    "275": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "len%2#0"
+      ]
+    },
+    "276": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "len%2#0",
+        "32"
+      ]
+    },
+    "278": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "eq%2#0"
+      ]
+    },
+    "279": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0"
+      ]
+    },
+    "280": {
+      "op": "itxn_begin"
+    },
+    "281": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "283": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%2#0",
+        "probe#0"
+      ]
+    },
+    "284": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "286": {
+      "op": "pushbytes 0x32d90aaa // method \"probe(uint64)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "292": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "294": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "296": {
+      "op": "pushint 6 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "298": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "300": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "301": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "303": {
+      "op": "itxn_submit"
+    },
+    "304": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "306": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "307": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "310": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%1#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "311": {
+      "op": "extract 0 4",
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#0"
+      ]
+    },
+    "314": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#0",
+        "0x151f7c75"
+      ]
+    },
+    "315": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ]
+    },
+    "316": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "317": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ]
+    },
+    "318": {
+      "op": "len",
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0"
+      ]
+    },
+    "319": {
+      "op": "pushint 137",
+      "defined_out": [
+        "137",
+        "len%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0",
+        "137"
+      ]
+    },
+    "322": {
+      "op": "==",
+      "stack_out": [
+        "tmp%1#1",
+        "eq%0#0"
+      ]
+    },
+    "323": {
+      "error": "invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "op": "assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "324": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "325": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%1#1"
+      ]
+    },
+    "326": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "327": {
+      "op": "log",
+      "stack_out": []
+    },
+    "328": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "329": {
+      "op": "return",
+      "stack_out": []
+    },
+    "330": {
+      "subroutine": "smart_contracts/mocks/forged-wallet/contract.algo.ts::MockForgedWallet.callTryProbeAs[routing]",
+      "params": {},
+      "block": "callTryProbeAs",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "333": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "334": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "335": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "336": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "337": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "338": {
+      "op": "btoi",
+      "defined_out": [
+        "probe#0"
+      ],
+      "stack_out": [
+        "probe#0"
+      ]
+    },
+    "339": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "342": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "343": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "344": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "345": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "probe#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "346": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "347": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0"
+      ]
+    },
+    "350": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "sender#0",
+        "sender#0 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "sender#0 (copy)"
+      ]
+    },
+    "351": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "len%2#0"
+      ]
+    },
+    "352": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "len%2#0",
+        "32"
+      ]
+    },
+    "354": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "probe#0",
+        "sender#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0",
+        "eq%2#0"
+      ]
+    },
+    "355": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0",
+        "sender#0"
+      ]
+    },
+    "356": {
+      "op": "itxn_begin"
+    },
+    "357": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "probe#0",
+        "tmp%2#0"
+      ]
+    },
+    "359": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%2#0",
+        "probe#0"
+      ]
+    },
+    "360": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "362": {
+      "op": "pushbytes 0x85eeb198 // method \"tryProbe(uint64)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(tryProbe(uint64)(uint64,address,address,address,address,bool))",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "Method(tryProbe(uint64)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "368": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "370": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "372": {
+      "op": "pushint 6 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "374": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "376": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "377": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "379": {
+      "op": "itxn_submit"
+    },
+    "380": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "382": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "383": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "386": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%1#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "387": {
+      "op": "extract 0 4",
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#0"
+      ]
+    },
+    "390": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#0",
+        "0x151f7c75"
+      ]
+    },
+    "391": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ]
+    },
+    "392": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "393": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ]
+    },
+    "394": {
+      "op": "len",
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0"
+      ]
+    },
+    "395": {
+      "op": "pushint 137",
+      "defined_out": [
+        "137",
+        "len%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0",
+        "137"
+      ]
+    },
+    "398": {
+      "op": "==",
+      "stack_out": [
+        "tmp%1#1",
+        "eq%0#0"
+      ]
+    },
+    "399": {
+      "error": "invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "op": "assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "400": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "401": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%1#1"
+      ]
+    },
+    "402": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "403": {
+      "op": "log",
+      "stack_out": []
+    },
+    "404": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "405": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

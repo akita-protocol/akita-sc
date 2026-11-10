@@ -1,0 +1,243 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 1 6
+    bytecblock 0x151f7c75
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:11
+    // export class MockEscrowOwner extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@10
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x5077161e 0x95100113 0x809e74f9 // method "newEscrow(uint64,uint64)uint64", method "registerEscrow(uint64,uint64,uint64)void", method "deleteEscrow(uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match newEscrow registerEscrow deleteEscrow
+    err
+
+main___algots__.defaultCreate@10:
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:11
+    // export class MockEscrowOwner extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.newEscrow[routing]() -> void:
+newEscrow:
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:12
+    // newEscrow(factory: Application, cost: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:13-16
+    // return abiCall<typeof EscrowFactory.prototype.new>({
+    //   appId: factory,
+    //   args: [itxn.payment({ receiver: factory.address, amount: cost })],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:15
+    // args: [itxn.payment({ receiver: factory.address, amount: cost })],
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:13-16
+    // return abiCall<typeof EscrowFactory.prototype.new>({
+    //   appId: factory,
+    //   args: [itxn.payment({ receiver: factory.address, amount: cost })],
+    // }).returnValue
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0xd85cf184 // method "new(pay)uint64"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:12
+    // newEscrow(factory: Application, cost: uint64): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+
+// smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.registerEscrow[routing]() -> void:
+registerEscrow:
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:19
+    // registerEscrow(factory: Application, escrow: uint64, mbr: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:20-23
+    // abiCall<typeof EscrowFactory.prototype.register>({
+    //   appId: factory,
+    //   args: [itxn.payment({ receiver: factory.address, amount: mbr }), escrow],
+    // })
+    itxn_begin
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:22
+    // args: [itxn.payment({ receiver: factory.address, amount: mbr }), escrow],
+    dig 2
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:20-23
+    // abiCall<typeof EscrowFactory.prototype.register>({
+    //   appId: factory,
+    //   args: [itxn.payment({ receiver: factory.address, amount: mbr }), escrow],
+    // })
+    itxn_next
+    swap
+    itxn_field ApplicationID
+    pushbytes 0x607e7046 // method "register(pay,uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:19
+    // registerEscrow(factory: Application, escrow: uint64, mbr: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.deleteEscrow[routing]() -> void:
+deleteEscrow:
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:27
+    // deleteEscrow(factory: Application, escrow: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:30
+    // const escrowAddress = Application(escrow).address
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:31
+    // itxn.payment({ sender: escrowAddress, receiver: escrowAddress, amount: 0, rekeyTo: escrowAddress }).submit()
+    itxn_begin
+    dup
+    itxn_field RekeyTo
+    intc_1 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:33
+    // const before: uint64 = Global.currentApplicationAddress.balance
+    global CurrentApplicationAddress
+    acct_params_get AcctBalance
+    assert // account funded
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:34-37
+    // abiCall<typeof EscrowFactory.prototype.delete>({
+    //   appId: factory,
+    //   args: [escrow],
+    // })
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x8a39e79f // method "delete(uint64)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:38
+    // return Global.currentApplicationAddress.balance - before
+    global CurrentApplicationAddress
+    acct_params_get AcctBalance
+    assert // account funded
+    swap
+    -
+    // smart_contracts/mocks/escrow-owner/contract.algo.ts:27
+    // deleteEscrow(factory: Application, escrow: uint64): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return

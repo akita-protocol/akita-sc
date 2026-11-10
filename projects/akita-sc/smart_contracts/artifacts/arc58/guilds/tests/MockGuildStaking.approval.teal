@@ -1,0 +1,584 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 1 0 32
+    bytecblock 0x151f7c75 "w" "l" "t" 0x0000
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:8-9
+    // @contract({ stateTotals: { globalBytes: 0, globalUints: 0 } })
+    // export class MockGuildStaking extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@12
+    pushbytess 0x1a003ca0 0xbb20aa5f 0xdeaf3173 0xad2cd518 0x8ae7899f 0xbb6c3728 0xd40162af 0x4fc316ca // method "setWeightedStake(address,uint64,uint64)void", method "setLock(address,uint64,uint64,uint64)void", method "setLiveLockedStake(uint64,uint64)void", method "setSettings(uint64,uint64)void", method "getSettings(uint64[])(uint64,bool)[]", method "getWeightedStake(address,uint64)(uint64,uint64)", method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)", method "getTotals(uint64[])(uint64,uint64,uint64)[]"
+    txna ApplicationArgs 0
+    match setWeightedStake setLock setLiveLockedStake setSettings getSettings getWeightedStake getInfo getTotals
+    err
+
+main_create_NoOp@12:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:8-9
+    // @contract({ stateTotals: { globalBytes: 0, globalUints: 0 } })
+    // export class MockGuildStaking extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@13
+    err
+
+main_create_route@13:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:16
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.setWeightedStake[routing]() -> void:
+setWeightedStake:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:19
+    // setWeightedStake(account: Account, asset: uint64, amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:20
+    // this.weightedStakes({ account, asset }).value = amount
+    swap
+    itob
+    uncover 2
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:10
+    // weightedStakes = BoxMap<AccountAssetKey, uint64>({ keyPrefix: 'w' })
+    bytec_1 // "w"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:20
+    // this.weightedStakes({ account, asset }).value = amount
+    swap
+    itob
+    box_put
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:19
+    // setWeightedStake(account: Account, asset: uint64, amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.setLock[routing]() -> void:
+setLock:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:23
+    // setLock(account: Account, asset: uint64, amount: uint64, expiration: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:27
+    // lastUpdate: Global.latestTimestamp,
+    global LatestTimestamp
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:24-29
+    // this.locks({ account, asset }).value = {
+    //   amount,
+    //   expiration,
+    //   lastUpdate: Global.latestTimestamp,
+    //   weightedAge: 0,
+    // }
+    uncover 2
+    itob
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:28
+    // weightedAge: 0,
+    intc_2 // 0
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:24-29
+    // this.locks({ account, asset }).value = {
+    //   amount,
+    //   expiration,
+    //   lastUpdate: Global.latestTimestamp,
+    //   weightedAge: 0,
+    // }
+    itob
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:24
+    // this.locks({ account, asset }).value = {
+    swap
+    itob
+    uncover 2
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:11
+    // locks = BoxMap<AccountAssetKey, Stake>({ keyPrefix: 'l' })
+    bytec_2 // "l"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:24-29
+    // this.locks({ account, asset }).value = {
+    //   amount,
+    //   expiration,
+    //   lastUpdate: Global.latestTimestamp,
+    //   weightedAge: 0,
+    // }
+    swap
+    box_put
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:23
+    // setLock(account: Account, asset: uint64, amount: uint64, expiration: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.setLiveLockedStake[routing]() -> void:
+setLiveLockedStake:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:32
+    // setLiveLockedStake(asset: uint64, amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:33
+    // this.totals(asset).value = { locked: amount, escrowed: amount, liveLockedStake: amount }
+    itob
+    dup
+    dig 1
+    concat
+    swap
+    concat
+    swap
+    itob
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:12
+    // totals = BoxMap<uint64, TotalsInfo>({ keyPrefix: 't' })
+    bytec_3 // "t"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:33
+    // this.totals(asset).value = { locked: amount, escrowed: amount, liveLockedStake: amount }
+    swap
+    box_put
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:32
+    // setLiveLockedStake(asset: uint64, amount: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.setSettings[routing]() -> void:
+setSettings:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:36
+    // setSettings(asset: uint64, value: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:37
+    // this.settings(asset).value = value
+    swap
+    itob
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:14
+    // settings = BoxMap<uint64, uint64>({ keyPrefix: 's' })
+    pushbytes "s"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:37
+    // this.settings(asset).value = value
+    swap
+    itob
+    box_put
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:36
+    // setSettings(asset: uint64, value: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getSettings[routing]() -> void:
+getSettings:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:40
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_0 // 8
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:42
+    // const results: SettingsCheck[] = []
+    bytec 4 // 0x0000
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:43
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_2 // 0
+
+getSettings_while_top@2:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:43
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dup
+    dig 3
+    <
+    bz getSettings_after_while@7
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:44
+    // if (this.settings(assets[i]).exists) results.push({ value: this.settings(assets[i]).value, exists: true })
+    dig 3
+    extract 2 0
+    dig 1
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3 // on error: index access is out of bounds
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:14
+    // settings = BoxMap<uint64, uint64>({ keyPrefix: 's' })
+    pushbytes "s"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:44
+    // if (this.settings(assets[i]).exists) results.push({ value: this.settings(assets[i]).value, exists: true })
+    box_len
+    bury 1
+    bz getSettings_else_body@5
+    box_get
+    assert // Box must have value
+    btoi
+    itob
+    pushbytes 0x80
+    concat
+    uncover 2
+    dup
+    intc_2 // 0
+    extract_uint16
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:44
+    // if (this.settings(assets[i]).exists) results.push({ value: this.settings(assets[i]).value, exists: true })
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    swap
+    concat
+    swap
+
+getSettings_after_if_else@6:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:43
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_1 // 1
+    +
+    b getSettings_while_top@2
+
+getSettings_else_body@5:
+    pop
+    swap
+    dup
+    intc_2 // 0
+    extract_uint16
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:45
+    // else results.push({ value: 0, exists: false })
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:45
+    // else results.push({ value: 0, exists: false })
+    pushbytes 0x000000000000000000
+    concat
+    swap
+    b getSettings_after_if_else@6
+
+getSettings_after_while@7:
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:40
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getWeightedStake[routing]() -> void:
+getWeightedStake:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:50
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:52
+    // const key: AccountAssetKey = { account: address, asset }
+    itob
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:10
+    // weightedStakes = BoxMap<AccountAssetKey, uint64>({ keyPrefix: 'w' })
+    bytec_1 // "w"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:53
+    // return { amount: this.weightedStakes(key).exists ? this.weightedStakes(key).value : 0, weightedAge: 0 }
+    box_len
+    bury 1
+    bz getWeightedStake_ternary_false@3
+    box_get
+    assert // Box must have value
+    btoi
+
+getWeightedStake_ternary_merge@4:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:53
+    // return { amount: this.weightedStakes(key).exists ? this.weightedStakes(key).value : 0, weightedAge: 0 }
+    itob
+    intc_2 // 0
+    itob
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:50
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getWeightedStake_ternary_false@3:
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:53
+    // return { amount: this.weightedStakes(key).exists ? this.weightedStakes(key).value : 0, weightedAge: 0 }
+    intc_2 // 0
+    b getWeightedStake_ternary_merge@4
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getInfo[routing]() -> void:
+getInfo:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:56
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 9
+    ==
+    assert // invalid number of bytes for smart_contracts/staking/types.ts::StakeInfo
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:58
+    // const key: AccountAssetKey = { account: address, asset: stake.asset }
+    extract 0 8
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:11
+    // locks = BoxMap<AccountAssetKey, Stake>({ keyPrefix: 'l' })
+    bytec_2 // "l"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:59
+    // if (this.locks(key).exists) return this.locks(key).value
+    box_len
+    bury 1
+    bz getInfo_after_if_else@3
+    box_get
+    assert // Box must have value
+
+getInfo_after_inlined_smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getInfo@4:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:56
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+getInfo_after_if_else@3:
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:60
+    // return { amount: 0, expiration: 0, lastUpdate: 0, weightedAge: 0 }
+    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:56
+    // @abimethod({ readonly: true })
+    b getInfo_after_inlined_smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getInfo@4
+
+
+// smart_contracts/arc58/guilds/tests/mock-staking.algo.ts::MockGuildStaking.getTotals[routing]() -> void:
+getTotals:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:63
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_0 // 8
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:65
+    // const results: TotalsInfo[] = []
+    bytec 4 // 0x0000
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:66
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_2 // 0
+
+getTotals_while_top@2:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:66
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dup
+    dig 3
+    <
+    bz getTotals_after_while@7
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:67
+    // if (this.totals(assets[i]).exists) results.push(this.totals(assets[i]).value)
+    dig 3
+    extract 2 0
+    dig 1
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3 // on error: index access is out of bounds
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:12
+    // totals = BoxMap<uint64, TotalsInfo>({ keyPrefix: 't' })
+    bytec_3 // "t"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:67
+    // if (this.totals(assets[i]).exists) results.push(this.totals(assets[i]).value)
+    box_len
+    bury 1
+    bz getTotals_else_body@5
+    box_get
+    assert // Box must have value
+    uncover 2
+    dup
+    intc_2 // 0
+    extract_uint16
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:67
+    // if (this.totals(assets[i]).exists) results.push(this.totals(assets[i]).value)
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    swap
+    concat
+    swap
+
+getTotals_after_if_else@6:
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:66
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_1 // 1
+    +
+    b getTotals_while_top@2
+
+getTotals_else_body@5:
+    pop
+    swap
+    dup
+    intc_2 // 0
+    extract_uint16
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:68
+    // else results.push({ locked: 0, escrowed: 0, liveLockedStake: 0 })
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:68
+    // else results.push({ locked: 0, escrowed: 0, liveLockedStake: 0 })
+    pushbytes 0x000000000000000000000000000000000000000000000000
+    concat
+    swap
+    b getTotals_after_if_else@6
+
+getTotals_after_while@7:
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-staking.algo.ts:63
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

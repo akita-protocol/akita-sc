@@ -1,0 +1,754 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 2
+    bytecblock "controlled_address" "referrer" 0x151f7c75
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:28
+    // export class MockFakeWallet extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@8
+    pushbytess 0x854dede0 0x6b7afbd6 0xeb2c0f7b 0x39655e2a // method "opUp()void", method "registerSelf(uint64,uint64)void", method "probe(uint64,address)(uint64,address,address)", method "gatedEnter(uint64,uint64,address,uint64,byte[][],uint64,(uint64,uint64,byte[32][])[])void"
+    txna ApplicationArgs 0
+    match main_opUp_route@3 registerSelf probe gatedEnter
+    err
+
+main_opUp_route@3:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:41
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main_create_NoOp@8:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:28
+    // export class MockFakeWallet extends Contract {
+    pushbytes 0x55399314 // method "create(address,address,address)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/mocks/fake-wallet/contract.algo.ts::MockFakeWallet.create[routing]() -> void:
+create:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:33
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:29
+    // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress })
+    bytec_0 // "controlled_address"
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:35
+    // this.controlledAddress.value = controlledAddress
+    uncover 3
+    app_global_put
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:30
+    // referrer = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysReferrer })
+    bytec_1 // "referrer"
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:36
+    // this.referrer.value = referrer
+    uncover 2
+    app_global_put
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:31
+    // spendingAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysSpendingAddress })
+    pushbytes "spending_address"
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:37
+    // this.spendingAddress.value = spendingAddress
+    swap
+    app_global_put
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:33
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/fake-wallet/contract.algo.ts::MockFakeWallet.registerSelf[routing]() -> void:
+registerSelf:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:44
+    // registerSelf(escrowFactory: Application, mbr: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:45-51
+    // abiCall<typeof EscrowFactory.prototype.register>({
+    //   appId: escrowFactory,
+    //   args: [
+    //     itxn.payment({ receiver: escrowFactory.address, amount: mbr }),
+    //     0,
+    //   ],
+    // })
+    itxn_begin
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:48
+    // itxn.payment({ receiver: escrowFactory.address, amount: mbr }),
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:45-51
+    // abiCall<typeof EscrowFactory.prototype.register>({
+    //   appId: escrowFactory,
+    //   args: [
+    //     itxn.payment({ receiver: escrowFactory.address, amount: mbr }),
+    //     0,
+    //   ],
+    // })
+    itxn_next
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:49
+    // 0,
+    intc_0 // 0
+    itob
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:45-51
+    // abiCall<typeof EscrowFactory.prototype.register>({
+    //   appId: escrowFactory,
+    //   args: [
+    //     itxn.payment({ receiver: escrowFactory.address, amount: mbr }),
+    //     0,
+    //   ],
+    // })
+    pushbytes 0x607e7046 // method "register(pay,uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:44
+    // registerSelf(escrowFactory: Application, mbr: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/fake-wallet/contract.algo.ts::MockFakeWallet.probe[routing]() -> void:
+probe:
+    intc_0 // 0
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:55
+    // probe(akitaDAO: Application, address: Account): ResolvedOrigin {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/utils/functions.ts:127
+    // const [otherAppListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysOtherAppList))
+    dig 1
+    pushbytes "oal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:132
+    // return getOtherAppList(akitaDAO).escrow
+    pushint 24
+    extract_uint64
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    uncover 2
+    pushbytes "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:286
+    // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
+    pushint 88
+    extract_uint64
+    cover 3
+    // smart_contracts/utils/functions.ts:294-297
+    // const data = abiCall<typeof EscrowFactory.prototype.get>({
+    //   appId: escrowFactory,
+    //   args: [address]
+    // }).returnValue
+    itxn_begin
+    itxn_field ApplicationID
+    pushbytes 0x3c1a6f33 // method "get(address)byte[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for bytes
+    extract 6 0
+    dup
+    // smart_contracts/utils/functions.ts:299
+    // if (Bytes(data).length !== 8) {
+    len
+    intc_2 // 8
+    !=
+    bz probe_after_if_else@3
+    pop
+    // smart_contracts/utils/functions.ts:300
+    // return 0
+    intc_0 // 0
+
+probe_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@12:
+    // smart_contracts/utils/functions.ts:220
+    // if (walletID.id === 0) {
+    dup
+    bnz probe_after_if_else@16
+
+probe_after_inlined_smart_contracts/utils/functions.ts::legacyOriginOr@27:
+    // smart_contracts/utils/functions.ts:242
+    // return referrerOr(walletID, Global.zeroAddress)
+    global ZeroAddress
+    // smart_contracts/utils/functions.ts:235
+    // if (walletID.id === 0) {
+    dig 1
+    bnz probe_after_if_else@30
+
+probe_after_inlined_smart_contracts/utils/functions.ts::referrerOr@31:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:57-61
+    // return {
+    //   walletId: wallet.id,
+    //   origin: legacyOriginOr(wallet, address),
+    //   referrer: referrerOrZeroAddress(wallet),
+    // }
+    swap
+    itob
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:55
+    // probe(akitaDAO: Application, address: Account): ResolvedOrigin {
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+probe_after_if_else@30:
+    pop
+    // smart_contracts/utils/functions.ts:256-259
+    // const [referrerBytes] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysReferrer)
+    // )
+    dup
+    // smart_contracts/utils/functions.ts:258
+    // Bytes(AbstractAccountGlobalStateKeysReferrer)
+    bytec_1 // "referrer"
+    // smart_contracts/utils/functions.ts:256-259
+    // const [referrerBytes] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysReferrer)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:242
+    // return referrerOr(walletID, Global.zeroAddress)
+    b probe_after_inlined_smart_contracts/utils/functions.ts::referrerOr@31
+
+probe_after_if_else@16:
+    // smart_contracts/utils/functions.ts:247-250
+    // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    // )
+    dup
+    // smart_contracts/utils/functions.ts:249
+    // Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    bytec_0 // "controlled_address"
+    // smart_contracts/utils/functions.ts:247-250
+    // const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
+    //   walletID,
+    //   Bytes(AbstractAccountGlobalStateKeysControlledAddress)
+    // )
+    app_global_get_ex
+    swap
+    cover 2
+    // smart_contracts/utils/functions.ts:251
+    // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
+    bz probe_bool_false@19
+    dig 1
+    len
+    pushint 32
+    ==
+    bz probe_bool_false@19
+    intc_1 // 1
+
+probe_bool_merge@20:
+    // smart_contracts/utils/functions.ts:251
+    // loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
+    bnz probe_after_assert@22
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+probe_after_assert@22:
+    // smart_contracts/utils/functions.ts:224
+    // if (origin !== walletID.address && origin !== Txn.sender && origin.authAddress !== walletID.address) {
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    dig 2
+    !=
+    bz probe_after_if_else@26
+    dig 1
+    txn Sender
+    !=
+    bz probe_after_if_else@26
+    dig 1
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    !=
+    bz probe_after_if_else@26
+    bury 1
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:59
+    // origin: legacyOriginOr(wallet, address),
+    b probe_after_inlined_smart_contracts/utils/functions.ts::legacyOriginOr@27
+
+probe_after_if_else@26:
+    uncover 2
+    pop
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:59
+    // origin: legacyOriginOr(wallet, address),
+    b probe_after_inlined_smart_contracts/utils/functions.ts::legacyOriginOr@27
+
+probe_bool_false@19:
+    intc_0 // 0
+    b probe_bool_merge@20
+
+probe_after_if_else@3:
+    // smart_contracts/utils/functions.ts:303
+    // const wallet = btoi(data)
+    btoi
+    dup
+    // smart_contracts/utils/functions.ts:270
+    // if (wallet === 0 || walletFactory === 0) {
+    bz probe_if_body@5
+    dig 2
+    bnz probe_after_if_else@6
+
+probe_if_body@5:
+    // smart_contracts/utils/functions.ts:271
+    // return false
+    intc_0 // 0
+
+probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11:
+    // smart_contracts/utils/functions.ts:304
+    // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
+    intc_0 // 0
+    cover 2
+    select
+    // smart_contracts/utils/functions.ts:286
+    // return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
+    b probe_after_inlined_smart_contracts/utils/functions.ts::legacyWalletID@12
+
+probe_after_if_else@6:
+    // smart_contracts/utils/functions.ts:273
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    dup
+    app_params_get AppCreator
+    swap
+    bury 5
+    // smart_contracts/utils/functions.ts:274
+    // return exists && creator === appAddress(walletFactory)
+    bz probe_bool_false@9
+    // smart_contracts/utils/functions.ts:265
+    // return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
+    dig 2
+    itob
+    pushbytes "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/functions.ts:274
+    // return exists && creator === appAddress(walletFactory)
+    dig 4
+    ==
+    bz probe_bool_false@9
+    intc_1 // 1
+    // smart_contracts/utils/functions.ts:304
+    // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
+    b probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11
+
+probe_bool_false@9:
+    intc_0 // 0
+    // smart_contracts/utils/functions.ts:304
+    // return isAkitaWallet(wallet, walletFactory) ? wallet : 0
+    b probe_after_inlined_smart_contracts/utils/functions.ts::isAkitaWallet@11
+
+
+// smart_contracts/mocks/fake-wallet/contract.algo.ts::MockFakeWallet.gatedEnter[routing]() -> void:
+gatedEnter:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 5
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_3 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    intc_0 // 0
+
+gatedEnter_for_header@1:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    dup
+    dig 5
+    <
+    bz gatedEnter_after_for@4
+    dup
+    intc_3 // 2
+    *
+    dig 2
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(len+uint8[])[])
+    dig 1
+    len
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    +
+    cover 2
+    intc_1 // 1
+    +
+    b gatedEnter_for_header@1
+
+gatedEnter_after_for@4:
+    popn 2
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    intc_3 // 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 7
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_3 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    intc_0 // 0
+
+gatedEnter_for_header@5:
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    dup
+    dig 5
+    <
+    bz gatedEnter_after_for@8
+    dup
+    intc_3 // 2
+    *
+    dig 2
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,uint64,(len+uint8[32][]))[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    pushint 16
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 18
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint64,(len+uint8[32][]))
+    swap
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    pushint 20
+    +
+    +
+    cover 2
+    intc_1 // 1
+    +
+    b gatedEnter_for_header@5
+
+gatedEnter_after_for@8:
+    popn 2
+    uncover 2
+    pop
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    intc_3 // 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/staking-pool/types.ts::StakeEntry>
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:77-92
+    // abiCall<typeof StakingPool.prototype.gatedEnter>({
+    //   appId: pool,
+    //   args: [
+    //     itxn.payment({ receiver: pool.address, amount: payAmount }),
+    //     itxn.applicationCall({
+    //       appId: gate,
+    //       appArgs: [
+    //         methodSelector(GateMustCheckAbiMethod),
+    //         gateCaller,
+    //         gateId,
+    //         encodeArc4(gateArgs),
+    //       ],
+    //     }),
+    //     entries,
+    //   ],
+    // })
+    itxn_begin
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:80
+    // itxn.payment({ receiver: pool.address, amount: payAmount }),
+    dig 7
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 2
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:81-89
+    // itxn.applicationCall({
+    //   appId: gate,
+    //   appArgs: [
+    //     methodSelector(GateMustCheckAbiMethod),
+    //     gateCaller,
+    //     gateId,
+    //     encodeArc4(gateArgs),
+    //   ],
+    // }),
+    itxn_next
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:86
+    // gateId,
+    dig 4
+    itob
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:84
+    // methodSelector(GateMustCheckAbiMethod),
+    pushbytes 0x43922655 // method "mustCheck(address,uint64,byte[][])void"
+    itxn_field ApplicationArgs
+    dig 6
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    dig 3
+    itxn_field ApplicationArgs
+    dig 6
+    itxn_field ApplicationID
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:81-89
+    // itxn.applicationCall({
+    //   appId: gate,
+    //   appArgs: [
+    //     methodSelector(GateMustCheckAbiMethod),
+    //     gateCaller,
+    //     gateId,
+    //     encodeArc4(gateArgs),
+    //   ],
+    // }),
+    pushint 6
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:77-92
+    // abiCall<typeof StakingPool.prototype.gatedEnter>({
+    //   appId: pool,
+    //   args: [
+    //     itxn.payment({ receiver: pool.address, amount: payAmount }),
+    //     itxn.applicationCall({
+    //       appId: gate,
+    //       appArgs: [
+    //         methodSelector(GateMustCheckAbiMethod),
+    //         gateCaller,
+    //         gateId,
+    //         encodeArc4(gateArgs),
+    //       ],
+    //     }),
+    //     entries,
+    //   ],
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0xfdcfdff6 // method "gatedEnter(pay,appl,(uint64,uint64,byte[32][])[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/fake-wallet/contract.algo.ts:68-76
+    // gatedEnter(
+    //   pool: Application,
+    //   gate: Application,
+    //   gateCaller: Account,
+    //   gateId: uint64,
+    //   gateArgs: GateArgs,
+    //   payAmount: uint64,
+    //   entries: StakeEntry[]
+    // ): void {
+    intc_1 // 1
+    return

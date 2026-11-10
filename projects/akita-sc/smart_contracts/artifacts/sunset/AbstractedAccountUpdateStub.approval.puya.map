@@ -3,7 +3,7 @@
   "sources": [
     "../../sunset/wallet-factory.algo.ts"
   ],
-  "mappings": ";AAwBA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AACE;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AADF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACE;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA",
+  "mappings": ";AAgCA;;AAAA;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAEE;;AAAA;AAAA;;AAAA;AAAA;AAAA;;AAFF;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAEE;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA",
   "op_pc_offset": 0,
   "pc_events": {
     "1": {
@@ -23,7 +23,7 @@
       "op": "bz main___algots__.defaultCreate@5",
       "stack_out": []
     },
-    "6": {
+    "5": {
       "op": "pushbytes 0xea9180dd // method \"update(string)void\"",
       "defined_out": [
         "Method(update(string)void)"
@@ -32,7 +32,7 @@
         "Method(update(string)void)"
       ]
     },
-    "12": {
+    "11": {
       "op": "txna ApplicationArgs 0",
       "defined_out": [
         "Method(update(string)void)",
@@ -43,14 +43,14 @@
         "tmp%2#0"
       ]
     },
-    "15": {
+    "14": {
       "op": "match main_update_route@3",
       "stack_out": []
     },
-    "19": {
+    "18": {
       "op": "err"
     },
-    "20": {
+    "19": {
       "block": "main_update_route@3",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -61,7 +61,7 @@
         "tmp%3#0"
       ]
     },
-    "22": {
+    "21": {
       "op": "!",
       "defined_out": [
         "tmp%4#0"
@@ -70,7 +70,7 @@
         "tmp%4#0"
       ]
     },
-    "23": {
+    "22": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%4#0",
@@ -81,7 +81,7 @@
         "tmp%5#0"
       ]
     },
-    "25": {
+    "24": {
       "op": "&&",
       "defined_out": [
         "tmp%7#0"
@@ -90,14 +90,14 @@
         "tmp%7#0"
       ]
     },
-    "26": {
+    "25": {
       "op": "assert",
       "stack_out": []
     },
-    "27": {
+    "26": {
       "op": "b update"
     },
-    "30": {
+    "28": {
       "block": "main___algots__.defaultCreate@5",
       "stack_in": [],
       "op": "txn OnCompletion",
@@ -108,7 +108,7 @@
         "tmp%8#0"
       ]
     },
-    "32": {
+    "30": {
       "op": "!",
       "defined_out": [
         "tmp%9#0"
@@ -117,7 +117,7 @@
         "tmp%9#0"
       ]
     },
-    "33": {
+    "31": {
       "op": "txn ApplicationID",
       "defined_out": [
         "tmp%10#0",
@@ -128,7 +128,7 @@
         "tmp%10#0"
       ]
     },
-    "35": {
+    "33": {
       "op": "!",
       "defined_out": [
         "tmp%11#0",
@@ -139,7 +139,7 @@
         "tmp%11#0"
       ]
     },
-    "36": {
+    "34": {
       "op": "&&",
       "defined_out": [
         "tmp%12#0"
@@ -148,12 +148,12 @@
         "tmp%12#0"
       ]
     },
-    "37": {
+    "35": {
       "op": "return",
       "defined_out": [],
       "stack_out": []
     },
-    "38": {
+    "36": {
       "subroutine": "smart_contracts/sunset/wallet-factory.algo.ts::AbstractedAccountUpdateStub.update[routing]",
       "params": {},
       "block": "update",
@@ -166,7 +166,7 @@
         "tmp%0#0"
       ]
     },
-    "41": {
+    "39": {
       "op": "dup",
       "defined_out": [
         "tmp%0#0",
@@ -177,7 +177,7 @@
         "tmp%0#0 (copy)"
       ]
     },
-    "42": {
+    "40": {
       "op": "pushint 0",
       "defined_out": [
         "0",
@@ -190,7 +190,7 @@
         "0"
       ]
     },
-    "44": {
+    "42": {
       "error": "invalid array length header",
       "op": "extract_uint16 // on error: invalid array length header",
       "defined_out": [
@@ -202,7 +202,7 @@
         "aggregate%array_length%0#0"
       ]
     },
-    "45": {
+    "43": {
       "op": "pushint 2",
       "defined_out": [
         "2",
@@ -215,7 +215,7 @@
         "2"
       ]
     },
-    "47": {
+    "45": {
       "op": "+",
       "defined_out": [
         "add%0#0",
@@ -226,14 +226,14 @@
         "add%0#0"
       ]
     },
-    "48": {
+    "46": {
       "op": "swap",
       "stack_out": [
         "add%0#0",
         "tmp%0#0"
       ]
     },
-    "49": {
+    "47": {
       "op": "len",
       "defined_out": [
         "add%0#0",
@@ -244,7 +244,7 @@
         "len%0#0"
       ]
     },
-    "50": {
+    "48": {
       "op": "==",
       "defined_out": [
         "eq%0#0"
@@ -253,12 +253,12 @@
         "eq%0#0"
       ]
     },
-    "51": {
+    "49": {
       "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
       "stack_out": []
     },
-    "52": {
+    "50": {
       "op": "pushint 1",
       "defined_out": [
         "1"
@@ -267,7 +267,7 @@
         "1"
       ]
     },
-    "54": {
+    "52": {
       "op": "return",
       "stack_out": []
     }

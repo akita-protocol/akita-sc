@@ -1,9 +1,11 @@
-#pragma version 11
+#pragma version 13
 #pragma typetrack false
+#pragma autosalt false
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    // smart_contracts/mocks/wallet/mock.algo.ts:4
+    // smart_contracts/mocks/wallet/mock.algo.ts:4-5
+    // @contract({ avmVersion: 13 })
     // export class MockAbstractedAccount extends Contract {
     txn NumAppArgs
     bz main___algots__.defaultCreate@6
@@ -13,7 +15,7 @@ main:
     err
 
 main_ping_route@4:
-    // smart_contracts/mocks/wallet/mock.algo.ts:9
+    // smart_contracts/mocks/wallet/mock.algo.ts:10
     // ping(): uint64 {
     txn OnCompletion
     !
@@ -26,7 +28,7 @@ main_ping_route@4:
     return
 
 main_update_route@3:
-    // smart_contracts/mocks/wallet/mock.algo.ts:6
+    // smart_contracts/mocks/wallet/mock.algo.ts:7
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txn OnCompletion
     pushint 4 // UpdateApplication
@@ -37,7 +39,8 @@ main_update_route@3:
     b update
 
 main___algots__.defaultCreate@6:
-    // smart_contracts/mocks/wallet/mock.algo.ts:4
+    // smart_contracts/mocks/wallet/mock.algo.ts:4-5
+    // @contract({ avmVersion: 13 })
     // export class MockAbstractedAccount extends Contract {
     txn OnCompletion
     !
@@ -49,7 +52,7 @@ main___algots__.defaultCreate@6:
 
 // smart_contracts/mocks/wallet/mock.algo.ts::MockAbstractedAccount.update[routing]() -> void:
 update:
-    // smart_contracts/mocks/wallet/mock.algo.ts:6
+    // smart_contracts/mocks/wallet/mock.algo.ts:7
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txna ApplicationArgs 1
     dup

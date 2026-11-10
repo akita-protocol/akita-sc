@@ -1,0 +1,415 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../../arc58/guilds/tests/mock-akita-dao.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;AAUA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAKG;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAEwB;AANb;;;;;;;;;;;;AAMV;AAAA;AALW;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAMX;AALa;AAWa;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAA1B;AATD;AAAA;AAQD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAC4B;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AAXb;AAWb;AAAA;AADF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 8 1"
+    },
+    "5": {
+      "op": "bytecblock \"aal\""
+    },
+    "11": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "13": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "14": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "15": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "17": {
+      "op": "bz main_create_NoOp@5",
+      "stack_out": []
+    },
+    "20": {
+      "op": "pushbytes 0xb6bcc0bb // method \"setWalletFactory(uint64)void\"",
+      "defined_out": [
+        "Method(setWalletFactory(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(setWalletFactory(uint64)void)"
+      ]
+    },
+    "26": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(setWalletFactory(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(setWalletFactory(uint64)void)",
+        "tmp%4#0"
+      ]
+    },
+    "29": {
+      "op": "match setWalletFactory",
+      "stack_out": []
+    },
+    "33": {
+      "op": "err"
+    },
+    "34": {
+      "block": "main_create_NoOp@5",
+      "stack_in": [],
+      "op": "pushbytes 0x240d2f67 // method \"create(uint64)void\"",
+      "defined_out": [
+        "Method(create(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)"
+      ]
+    },
+    "40": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(uint64)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(uint64)void)",
+        "tmp%5#0"
+      ]
+    },
+    "43": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "47": {
+      "op": "err"
+    },
+    "48": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-akita-dao.algo.ts::MockGuildAkitaDAO.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "51": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "52": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "53": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "54": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "55": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "56": {
+      "op": "btoi",
+      "defined_out": [
+        "createFee#0"
+      ],
+      "stack_out": [
+        "createFee#0"
+      ]
+    },
+    "57": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "58": {
+      "op": "pushbytes \"guild_fees\"",
+      "defined_out": [
+        "\"guild_fees\"",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "\"guild_fees\""
+      ]
+    },
+    "70": {
+      "op": "swap",
+      "stack_out": [
+        "\"guild_fees\"",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "71": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "72": {
+      "op": "pushbytess \"wallet_fees\" 0x00000000000000000000000000000000",
+      "defined_out": [
+        "\"wallet_fees\"",
+        "0x00000000000000000000000000000000"
+      ],
+      "stack_out": [
+        "\"wallet_fees\"",
+        "0x00000000000000000000000000000000"
+      ]
+    },
+    "103": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "104": {
+      "op": "bytec_0 // \"aal\"",
+      "defined_out": [
+        "\"aal\""
+      ],
+      "stack_out": [
+        "\"aal\""
+      ]
+    },
+    "105": {
+      "op": "pushbytes 0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "\"aal\"",
+        "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ],
+      "stack_out": [
+        "\"aal\"",
+        "0x000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "203": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "204": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "205": {
+      "op": "return",
+      "stack_out": []
+    },
+    "206": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-akita-dao.algo.ts::MockGuildAkitaDAO.setWalletFactory[routing]",
+      "params": {},
+      "block": "setWalletFactory",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "209": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "210": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "211": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "212": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "213": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "214": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "215": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%11#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%11#0"
+      ]
+    },
+    "216": {
+      "op": "pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+      "defined_out": [
+        "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "aggregate%val_as_bytes%11#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%11#0",
+        "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+      ]
+    },
+    "306": {
+      "op": "swap",
+      "stack_out": [
+        "0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "aggregate%val_as_bytes%11#0"
+      ]
+    },
+    "307": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%head%11#0"
+      ],
+      "stack_out": [
+        "aggregate%head%11#0"
+      ]
+    },
+    "308": {
+      "op": "bytec_0 // \"aal\"",
+      "defined_out": [
+        "\"aal\"",
+        "aggregate%head%11#0"
+      ],
+      "stack_out": [
+        "aggregate%head%11#0",
+        "\"aal\""
+      ]
+    },
+    "309": {
+      "op": "swap",
+      "stack_out": [
+        "\"aal\"",
+        "aggregate%head%11#0"
+      ]
+    },
+    "310": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "311": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "312": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

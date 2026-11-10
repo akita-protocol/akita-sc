@@ -1,0 +1,6886 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../../arc58/guilds/tests/mock-consensus-host.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAyCA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;AAAA;;;;;;;;;;;;AAAA;;AAAA;;AAAA;;AAAA;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAG+B;;;;;;;;;;;;;;;;AAyCa;AAQxC;AA9C0B;;;;;;;;;;;;;;;AAsCc;AASxC;AA9CgC;;;;;;;;;;;;;;;;;;;;;AAqCQ;AAUxC;AA5C6B;;;;;;;;;;;;;;;;;;AAkCW;AAWxC;AA1C8B;;;;;;;;;;;;;;;;;;;AA+BU;AAYxC;AAxCiC;;;;;;;;;;;;;;;;;;;;;;AA4BO;AAaxC;AAtC0B;;;;;;;;;;;;;;;AAyBc;AAcxC;AAtCiC;;;;;;;;;;;;;;;;;;AAwBO;AAexC;AApC4B;;;;;;;;;;;;;;;;;AAqBY;AAgBxC;AAlBD;AAAA;AAqBD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AArCU;AAsCR;AAAA;;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAzCU;AA0CR;;AAAA;AADF;AAAA;AAKA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAEoB;AAhDV;AAGK;AAAA;AAAA;AAAA;;AAAA;AACF;;AAAP;AAAJ;;;;AAJQ;AAI0D;AAAG;;AAAxB;AAJrC;AASK;AAAA;AAAA;AAAA;;AAAA;AACF;;AAAP;AAAJ;;;AACgE;;AAAP;AAXjD;AAWsB;;AAArB;;AAAA;AAoCiB;;;AAAA;;;AAAA;;;AAAA;;;;AACR;;;AAIG;;;;AALK;;;;;;;;;;;;;AACR;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;;AAxER;AA8EV;;AAAA;AACA;AAAyB;AAAA;;AAAA;AAA2B;;;;;;AAApD;;;AAA4E;;;AAA5E;AACA;AAA4D;;AAAA;AAA5D;;;;;;;AAAA;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAVF;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAjCe;;AAqCiC;;;AAlDtC;AAKoB;AAArB;;AAAA;AA6Ca;;;AAWpB;AAAgF;AArFtE;AAqFsE;AAAA;;;AAAhF;;;;AAAA;;;AAAA;;;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AACiB;AAAgE;AAzFrE;AAyFqE;AAAA;;;;AAAhE;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACf;AAIgB;;AAAA;;AAAA;;;;;AADZ;;;AAGO;;;AANX;;;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAFF;AAAA;AAiBA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAEgB;AACL;AA5GC;AA4GD;AAAA;;;;AADK;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAId;AAG6B;;AAAA;;AAAA;AAAkD;;;;AAAJ;AAAR;;AAAA;;;;;AAA/D;;;AAA8F;;;AAHlG;;;AAAA;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AANF;AAAA;AAkBA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACS;AACE;AA7HC;AA6HD;AAAA;;;AADF;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AAOA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACS;AACE;AApIC;AAoID;AAAA;;;AADF;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AAOA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AACS;AACE;AA3IC;AA2ID;AAAA;;;AADF;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AAQA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAQA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AACiB;;;AACf;AAEkC;AA7JxB;AA6JwB;AAAA;AAAA;AAAA;;AAAA;;;;;;;AAAzB;;;AAAoE;;;AAF7E;;;AAAA;;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAFF;AAAA;AASA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACiB;AACN;AApKC;AAoKD;AAAA;;;;AADM;;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAIf;AAEkC;;AAAA;;AAAA;;;;;AAAzB;;;AAAoE;;;AAF7E;;;AAAA;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AALF;AAAA;AAjBA;;;AACS;AAEE;;AAAA;AAAA;AAAA;;;AAAA;;AAAA;AADA;AAnJC;AAmJD;AAAA;;;AADF;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAP",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 8 6 4096"
+    },
+    "9": {
+      "op": "bytecblock 0x151f7c75 \"consensus\" 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001 \"program\" 0xb9865a61 0x5b3a8b00 0xa9e823cd 0xc3eb7cd4 0x857e2717"
+    },
+    "108": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "110": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "111": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "112": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "114": {
+      "op": "bz main_create_NoOp@16",
+      "stack_out": []
+    },
+    "117": {
+      "op": "pushbytess 0x4a0a5dc5 0x71096d25 0x413829cd // method \"initProgram(uint64)void\", method \"loadProgram(uint64,byte[])void\", method \"createConsensus(byte[])uint64\"",
+      "defined_out": [
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)"
+      ]
+    },
+    "134": {
+      "op": "bytec 4 // method \"validateActivation()void\"",
+      "defined_out": [
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(validateActivation()void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)"
+      ]
+    },
+    "136": {
+      "op": "pushbytess 0x89dcb679 0x590623cd // method \"openProposal(uint64,uint64,(uint64,uint64,uint64))void\", method \"vote(address,uint64,uint8,byte[])void\"",
+      "defined_out": [
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ]
+    },
+    "148": {
+      "op": "bytec 5 // method \"resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)\"",
+      "defined_out": [
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))"
+      ]
+    },
+    "150": {
+      "op": "bytec 6 // method \"cleanupBallot(uint64,address[])uint64\"",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(cleanupBallot(uint64,address[])uint64)"
+      ]
+    },
+    "152": {
+      "op": "bytec 7 // method \"proposalPower(address,byte[],uint64)uint64\"",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(proposalPower(address,byte[],uint64)uint64)"
+      ]
+    },
+    "154": {
+      "op": "bytec 8 // method \"consensusActionMbr(byte[])uint64\"",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(consensusActionMbr(byte[])uint64)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(consensusActionMbr(byte[])uint64)"
+      ]
+    },
+    "156": {
+      "op": "pushbytess 0x8346ec1e 0xa45d8a99 // method \"consensusAction(uint64,byte[])void\", method \"configureConsensus(byte[])void\"",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(configureConsensus(byte[])void)",
+        "Method(consensusAction(uint64,byte[])void)",
+        "Method(consensusActionMbr(byte[])uint64)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(consensusActionMbr(byte[])uint64)",
+        "Method(consensusAction(uint64,byte[])void)",
+        "Method(configureConsensus(byte[])void)"
+      ]
+    },
+    "168": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(configureConsensus(byte[])void)",
+        "Method(consensusAction(uint64,byte[])void)",
+        "Method(consensusActionMbr(byte[])uint64)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(validateActivation()void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(initProgram(uint64)void)",
+        "Method(loadProgram(uint64,byte[])void)",
+        "Method(createConsensus(byte[])uint64)",
+        "Method(validateActivation()void)",
+        "Method(openProposal(uint64,uint64,(uint64,uint64,uint64))void)",
+        "Method(vote(address,uint64,uint8,byte[])void)",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "Method(consensusActionMbr(byte[])uint64)",
+        "Method(consensusAction(uint64,byte[])void)",
+        "Method(configureConsensus(byte[])void)",
+        "tmp%4#0"
+      ]
+    },
+    "171": {
+      "op": "match initProgram loadProgram createConsensus validateActivation openProposal vote resolveProposal cleanupBallot proposalPower consensusActionMbr consensusAction configureConsensus",
+      "stack_out": []
+    },
+    "197": {
+      "op": "err"
+    },
+    "198": {
+      "block": "main_create_NoOp@16",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "204": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ]
+    },
+    "207": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "211": {
+      "op": "err"
+    },
+    "212": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "pushbytes \"upgrade_app_ps\"",
+      "defined_out": [
+        "\"upgrade_app_ps\""
+      ],
+      "stack_out": [
+        "\"upgrade_app_ps\""
+      ]
+    },
+    "228": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "defined_out": [
+        "\"upgrade_app_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ],
+      "stack_out": [
+        "\"upgrade_app_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "229": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "230": {
+      "op": "pushbytes \"add_plugin_ps\"",
+      "defined_out": [
+        "\"add_plugin_ps\""
+      ],
+      "stack_out": [
+        "\"add_plugin_ps\""
+      ]
+    },
+    "245": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"add_plugin_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "246": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "247": {
+      "op": "pushbytes \"remove_execution_ps\"",
+      "defined_out": [
+        "\"remove_execution_ps\""
+      ],
+      "stack_out": [
+        "\"remove_execution_ps\""
+      ]
+    },
+    "268": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"remove_execution_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "269": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "270": {
+      "op": "pushbytes \"remove_plugin_ps\"",
+      "defined_out": [
+        "\"remove_plugin_ps\""
+      ],
+      "stack_out": [
+        "\"remove_plugin_ps\""
+      ]
+    },
+    "288": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"remove_plugin_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "289": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "290": {
+      "op": "pushbytes \"add_allowances_ps\"",
+      "defined_out": [
+        "\"add_allowances_ps\""
+      ],
+      "stack_out": [
+        "\"add_allowances_ps\""
+      ]
+    },
+    "309": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"add_allowances_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "310": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "311": {
+      "op": "pushbytes \"remove_allowances_ps\"",
+      "defined_out": [
+        "\"remove_allowances_ps\""
+      ],
+      "stack_out": [
+        "\"remove_allowances_ps\""
+      ]
+    },
+    "333": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"remove_allowances_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "334": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "335": {
+      "op": "pushbytes \"new_escrow_ps\"",
+      "defined_out": [
+        "\"new_escrow_ps\""
+      ],
+      "stack_out": [
+        "\"new_escrow_ps\""
+      ]
+    },
+    "350": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"new_escrow_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "351": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "352": {
+      "op": "pushbytes \"toggle_escrow_ps\"",
+      "defined_out": [
+        "\"toggle_escrow_ps\""
+      ],
+      "stack_out": [
+        "\"toggle_escrow_ps\""
+      ]
+    },
+    "370": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"toggle_escrow_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "371": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "372": {
+      "op": "pushbytes \"update_guild_ps\"",
+      "defined_out": [
+        "\"update_guild_ps\""
+      ],
+      "stack_out": [
+        "\"update_guild_ps\""
+      ]
+    },
+    "389": {
+      "op": "bytec_2 // 0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001",
+      "stack_out": [
+        "\"update_guild_ps\"",
+        "0x000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000001"
+      ]
+    },
+    "390": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "391": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "392": {
+      "op": "return",
+      "stack_out": []
+    },
+    "393": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.initProgram[routing]",
+      "params": {},
+      "block": "initProgram",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "396": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "397": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "398": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "399": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "400": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "401": {
+      "op": "btoi",
+      "defined_out": [
+        "size#0"
+      ],
+      "stack_out": [
+        "size#0"
+      ]
+    },
+    "402": {
+      "op": "bytec_3 // \"program\"",
+      "defined_out": [
+        "\"program\"",
+        "size#0"
+      ],
+      "stack_out": [
+        "size#0",
+        "\"program\""
+      ]
+    },
+    "403": {
+      "op": "swap",
+      "stack_out": [
+        "\"program\"",
+        "size#0"
+      ]
+    },
+    "404": {
+      "op": "box_create",
+      "defined_out": [
+        "{box_create}"
+      ],
+      "stack_out": [
+        "{box_create}"
+      ]
+    },
+    "405": {
+      "op": "pop",
+      "stack_out": []
+    },
+    "406": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "407": {
+      "op": "return",
+      "stack_out": []
+    },
+    "408": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.loadProgram[routing]",
+      "params": {},
+      "block": "loadProgram",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "411": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "412": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "413": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "414": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "415": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "416": {
+      "op": "btoi",
+      "defined_out": [
+        "offset#0"
+      ],
+      "stack_out": [
+        "offset#0"
+      ]
+    },
+    "417": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0"
+      ]
+    },
+    "420": {
+      "op": "dup",
+      "defined_out": [
+        "offset#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "421": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "offset#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "0"
+      ]
+    },
+    "422": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "423": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "425": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "add%0#0"
+      ]
+    },
+    "426": {
+      "op": "dig 1",
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "add%0#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "428": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%1#0",
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "add%0#0",
+        "len%1#0"
+      ]
+    },
+    "429": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "offset#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "430": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "offset#0",
+        "tmp%2#0"
+      ]
+    },
+    "431": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "data#0",
+        "offset#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "data#0"
+      ]
+    },
+    "434": {
+      "op": "bytec_3 // \"program\"",
+      "defined_out": [
+        "\"program\"",
+        "data#0",
+        "offset#0"
+      ],
+      "stack_out": [
+        "offset#0",
+        "data#0",
+        "\"program\""
+      ]
+    },
+    "435": {
+      "op": "cover 2",
+      "stack_out": [
+        "\"program\"",
+        "offset#0",
+        "data#0"
+      ]
+    },
+    "437": {
+      "op": "box_replace",
+      "stack_out": []
+    },
+    "438": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "439": {
+      "op": "return",
+      "stack_out": []
+    },
+    "440": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.createConsensus[routing]",
+      "params": {},
+      "block": "createConsensus",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1"
+    },
+    "443": {
+      "op": "dupn 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "445": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "446": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "447": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "449": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "450": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "451": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "452": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "453": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "454": {
+      "op": "itxn_begin"
+    },
+    "455": {
+      "op": "bytec_3 // \"program\"",
+      "defined_out": [
+        "\"program\"",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "\"program\""
+      ]
+    },
+    "456": {
+      "op": "box_len",
+      "defined_out": [
+        "check%0#0",
+        "size#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "check%0#0"
+      ]
+    },
+    "457": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "check%0#0",
+        "size#0"
+      ]
+    },
+    "458": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "check%0#0",
+        "size#0",
+        "size#0 (copy)"
+      ]
+    },
+    "459": {
+      "op": "uncover 2",
+      "defined_out": [
+        "check%0#0",
+        "size#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "size#0",
+        "check%0#0"
+      ]
+    },
+    "461": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "size#0"
+      ]
+    },
+    "462": {
+      "op": "intc 4 // 4096",
+      "defined_out": [
+        "4096",
+        "size#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "size#0",
+        "4096"
+      ]
+    },
+    "464": {
+      "op": ">",
+      "defined_out": [
+        "size#0",
+        "tmp%0#0",
+        "tmp%0#2"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "tmp%0#2"
+      ]
+    },
+    "465": {
+      "op": "bz createConsensus_after_if_else@3",
+      "stack_out": [
+        "tmp%0#0",
+        "size#0"
+      ]
+    },
+    "468": {
+      "op": "pop",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "469": {
+      "op": "bytec_3 // \"program\"",
+      "stack_out": [
+        "tmp%0#0",
+        "\"program\""
+      ]
+    },
+    "470": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "\"program\"",
+        "0"
+      ]
+    },
+    "471": {
+      "op": "intc 4 // 4096",
+      "stack_out": [
+        "tmp%0#0",
+        "\"program\"",
+        "0",
+        "4096"
+      ]
+    },
+    "473": {
+      "op": "box_extract",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "474": {
+      "block": "createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programFirstChunk@4",
+      "stack_in": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "op": "bytec_3 // \"program\"",
+      "defined_out": [
+        "\"program\""
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "\"program\""
+      ]
+    },
+    "475": {
+      "op": "box_len",
+      "defined_out": [
+        "check%0#0",
+        "size#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "check%0#0"
+      ]
+    },
+    "476": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "check%0#0",
+        "size#0"
+      ]
+    },
+    "477": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "check%0#0",
+        "size#0",
+        "size#0 (copy)"
+      ]
+    },
+    "478": {
+      "op": "uncover 2",
+      "defined_out": [
+        "check%0#0",
+        "size#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "size#0",
+        "check%0#0"
+      ]
+    },
+    "480": {
+      "error": "Box must have value",
+      "op": "assert // Box must have value",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "size#0"
+      ]
+    },
+    "481": {
+      "op": "intc 4 // 4096",
+      "defined_out": [
+        "4096",
+        "size#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "size#0",
+        "4096"
+      ]
+    },
+    "483": {
+      "op": ">",
+      "defined_out": [
+        "size#0",
+        "tmp%0#2"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "tmp%0#2"
+      ]
+    },
+    "484": {
+      "op": "bz createConsensus_after_if_else@7",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0"
+      ]
+    },
+    "487": {
+      "op": "intc 4 // 4096",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0",
+        "4096"
+      ]
+    },
+    "489": {
+      "op": "-",
+      "defined_out": [
+        "tmp%1#3"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%1#3"
+      ]
+    },
+    "490": {
+      "op": "bytec_3 // \"program\"",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%1#3",
+        "\"program\""
+      ]
+    },
+    "491": {
+      "op": "intc 4 // 4096",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%1#3",
+        "\"program\"",
+        "4096"
+      ]
+    },
+    "493": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "\"program\"",
+        "4096",
+        "tmp%1#3"
+      ]
+    },
+    "495": {
+      "op": "box_extract",
+      "defined_out": [
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "496": {
+      "block": "createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programSecondChunk@8",
+      "stack_in": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "0"
+      ]
+    },
+    "497": {
+      "op": "itxn_field LocalNumUint",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "499": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "0"
+      ]
+    },
+    "500": {
+      "op": "itxn_field LocalNumByteSlice",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "502": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "8"
+      ]
+    },
+    "503": {
+      "op": "itxn_field GlobalNumByteSlice",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "505": {
+      "op": "pushint 12",
+      "defined_out": [
+        "12"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "12"
+      ]
+    },
+    "507": {
+      "op": "itxn_field GlobalNumUint",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "509": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "0"
+      ]
+    },
+    "510": {
+      "op": "itxn_field OnCompletion",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "512": {
+      "op": "pushint 3",
+      "defined_out": [
+        "3"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "3"
+      ]
+    },
+    "514": {
+      "op": "itxn_field ExtraProgramPages",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "516": {
+      "op": "pushbytes base64(DYEBQw==)",
+      "defined_out": [
+        "DYEBQw=="
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1",
+        "DYEBQw=="
+      ]
+    },
+    "522": {
+      "op": "itxn_field ClearStateProgramPages",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "524": {
+      "op": "swap",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#1",
+        "tmp%1#1"
+      ]
+    },
+    "525": {
+      "op": "itxn_field ApprovalProgramPages",
+      "defined_out": [
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#1"
+      ]
+    },
+    "527": {
+      "op": "itxn_field ApprovalProgramPages",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "529": {
+      "op": "pushbytes 0x8e79358d // method \"create(byte[])void\"",
+      "defined_out": [
+        "Method(create(byte[])void)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "Method(create(byte[])void)"
+      ]
+    },
+    "535": {
+      "op": "itxn_field ApplicationArgs",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "537": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "539": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "540": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "542": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "543": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "545": {
+      "op": "itxn_submit"
+    },
+    "546": {
+      "op": "gitxn 0 CreatedApplicationID",
+      "defined_out": [
+        "consensus#0"
+      ],
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "549": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "consensus#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "\"consensus\""
+      ]
+    },
+    "550": {
+      "op": "dig 1",
+      "defined_out": [
+        "\"consensus\"",
+        "consensus#0",
+        "consensus#0 (copy)"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "\"consensus\"",
+        "consensus#0 (copy)"
+      ]
+    },
+    "552": {
+      "op": "app_global_put",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "553": {
+      "op": "itxn_begin"
+    },
+    "554": {
+      "op": "dup",
+      "stack_out": [
+        "consensus#0",
+        "consensus#0 (copy)"
+      ]
+    },
+    "555": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "consensus#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "557": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "consensus#0",
+        "value%0#0"
+      ]
+    },
+    "558": {
+      "op": "global MinBalance",
+      "defined_out": [
+        "consensus#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "value%0#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "560": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "consensus#0",
+        "value%0#0"
+      ]
+    },
+    "562": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "564": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "consensus#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "1"
+      ]
+    },
+    "565": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "567": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "consensus#0",
+        "0"
+      ]
+    },
+    "568": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "570": {
+      "op": "itxn_submit"
+    },
+    "571": {
+      "op": "itxn_begin"
+    },
+    "572": {
+      "op": "global CurrentApplicationID",
+      "defined_out": [
+        "consensus#0",
+        "tmp%4#1"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "tmp%4#1"
+      ]
+    },
+    "574": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0",
+        "consensus#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "575": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0",
+        "0"
+      ]
+    },
+    "576": {
+      "op": "itxn_field OnCompletion",
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "578": {
+      "op": "dig 1",
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0",
+        "consensus#0 (copy)"
+      ]
+    },
+    "580": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "582": {
+      "op": "pushbytes 0x3e87013b // method \"bindGuild(uint64)void\"",
+      "defined_out": [
+        "Method(bindGuild(uint64)void)",
+        "aggregate%val_as_bytes%0#0",
+        "consensus#0"
+      ],
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0",
+        "Method(bindGuild(uint64)void)"
+      ]
+    },
+    "588": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "consensus#0",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "590": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "592": {
+      "op": "intc_3 // appl",
+      "stack_out": [
+        "consensus#0",
+        "appl"
+      ]
+    },
+    "593": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "595": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "consensus#0",
+        "0"
+      ]
+    },
+    "596": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "consensus#0"
+      ]
+    },
+    "598": {
+      "op": "itxn_submit"
+    },
+    "599": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%1#0"
+      ]
+    },
+    "600": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%1#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%1#0",
+        "0x151f7c75"
+      ]
+    },
+    "601": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%1#0"
+      ]
+    },
+    "602": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "603": {
+      "op": "log",
+      "stack_out": []
+    },
+    "604": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "605": {
+      "op": "return",
+      "stack_out": []
+    },
+    "606": {
+      "block": "createConsensus_after_if_else@7",
+      "stack_in": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "size#0"
+      ],
+      "op": "pop",
+      "defined_out": [],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "607": {
+      "op": "pushbytes \"\"",
+      "defined_out": [
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "609": {
+      "op": "b createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programSecondChunk@8"
+    },
+    "612": {
+      "block": "createConsensus_after_if_else@3",
+      "stack_in": [
+        "tmp%0#0",
+        "size#0"
+      ],
+      "op": "bytec_3 // \"program\"",
+      "defined_out": [
+        "\"program\""
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "\"program\""
+      ]
+    },
+    "613": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "\"program\"",
+        "0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "size#0",
+        "\"program\"",
+        "0"
+      ]
+    },
+    "614": {
+      "op": "uncover 2",
+      "defined_out": [
+        "\"program\"",
+        "0",
+        "size#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "\"program\"",
+        "0",
+        "size#0"
+      ]
+    },
+    "616": {
+      "op": "box_extract",
+      "defined_out": [
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "617": {
+      "op": "b createConsensus_after_inlined_smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.programFirstChunk@4"
+    },
+    "620": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.validateActivation[routing]",
+      "params": {},
+      "block": "validateActivation",
+      "stack_in": [],
+      "op": "itxn_begin"
+    },
+    "621": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "622": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "623": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "624": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "625": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": []
+    },
+    "627": {
+      "op": "bytec 4 // method \"validateActivation()void\"",
+      "defined_out": [
+        "Method(validateActivation()void)"
+      ],
+      "stack_out": [
+        "Method(validateActivation()void)"
+      ]
+    },
+    "629": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "631": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "632": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "634": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "635": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "637": {
+      "op": "itxn_submit"
+    },
+    "638": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "639": {
+      "op": "return",
+      "stack_out": []
+    },
+    "640": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.openProposal[routing]",
+      "params": {},
+      "block": "openProposal",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "643": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "644": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "645": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "646": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "647": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "648": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "651": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "652": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "653": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "654": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "655": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "656": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0"
+      ]
+    },
+    "659": {
+      "op": "dup",
+      "defined_out": [
+        "requirements#0",
+        "requirements#0 (copy)",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "requirements#0 (copy)"
+      ]
+    },
+    "660": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "len%2#0"
+      ]
+    },
+    "661": {
+      "op": "pushint 24",
+      "defined_out": [
+        "24",
+        "len%2#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "len%2#0",
+        "24"
+      ]
+    },
+    "663": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "eq%2#0"
+      ]
+    },
+    "664": {
+      "error": "invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusRequirements",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusRequirements",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0"
+      ]
+    },
+    "665": {
+      "op": "itxn_begin"
+    },
+    "666": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "0"
+      ]
+    },
+    "667": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "668": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "669": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "670": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "671": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "673": {
+      "op": "pushbytes 0xd3d29643 // method \"ballotMbr()uint64\"",
+      "defined_out": [
+        "Method(ballotMbr()uint64)",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "Method(ballotMbr()uint64)"
+      ]
+    },
+    "679": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "681": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "appl"
+      ]
+    },
+    "682": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "684": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "685": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "687": {
+      "op": "itxn_submit"
+    },
+    "688": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "690": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "691": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "tmp%0#1"
+      ]
+    },
+    "694": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "695": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "tmp%1#1"
+      ]
+    },
+    "698": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "699": {
+      "op": "==",
+      "defined_out": [
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "tmp%2#0",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "tmp%2#1"
+      ]
+    },
+    "700": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1"
+      ]
+    },
+    "701": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%0#1",
+        "tmp%0#1 (copy)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "tmp%0#1 (copy)"
+      ]
+    },
+    "702": {
+      "op": "len",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "len%0#0"
+      ]
+    },
+    "703": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "704": {
+      "op": "==",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "eq%0#0"
+      ]
+    },
+    "705": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "tmp%0#1"
+      ]
+    },
+    "706": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "amount#0"
+      ]
+    },
+    "707": {
+      "op": "itxn_begin"
+    },
+    "708": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "710": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "amount#0",
+        "check%0#0",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "712": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "value%0#0"
+      ]
+    },
+    "713": {
+      "op": "itxn_field Receiver"
+    },
+    "715": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "717": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%0#0",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "718": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "720": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "721": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "723": {
+      "op": "itxn_next"
+    },
+    "724": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0"
+      ]
+    },
+    "726": {
+      "op": "pushbytes 0x68449088 // method \"openProposal(pay,uint64,uint64,(uint64,uint64,uint64))void\"",
+      "defined_out": [
+        "Method(openProposal(pay,uint64,uint64,(uint64,uint64,uint64))void)",
+        "requirements#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0",
+        "Method(openProposal(pay,uint64,uint64,(uint64,uint64,uint64))void)"
+      ]
+    },
+    "732": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "requirements#0"
+      ]
+    },
+    "734": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "requirements#0",
+        "tmp%0#0"
+      ]
+    },
+    "736": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0",
+        "requirements#0"
+      ]
+    },
+    "738": {
+      "op": "swap",
+      "stack_out": [
+        "requirements#0",
+        "tmp%2#0"
+      ]
+    },
+    "739": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "requirements#0"
+      ]
+    },
+    "741": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "743": {
+      "op": "intc_3 // appl",
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "744": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "746": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "747": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "749": {
+      "op": "itxn_submit"
+    },
+    "750": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "751": {
+      "op": "return",
+      "stack_out": []
+    },
+    "752": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.vote[routing]",
+      "params": {},
+      "block": "vote",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "755": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "756": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "757": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "759": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "760": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "761": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "764": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "765": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "766": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "767": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "768": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "769": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ]
+    },
+    "772": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "vote#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "vote#0 (copy)"
+      ]
+    },
+    "773": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "len%2#0"
+      ]
+    },
+    "774": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "len%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "len%2#0",
+        "1"
+      ]
+    },
+    "775": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "eq%2#0"
+      ]
+    },
+    "776": {
+      "error": "invalid number of bytes for arc4.uint8",
+      "op": "assert // invalid number of bytes for arc4.uint8",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0"
+      ]
+    },
+    "777": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "780": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)"
+      ]
+    },
+    "781": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "tmp%5#0 (copy)",
+        "0"
+      ]
+    },
+    "782": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "783": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "785": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "add%0#0"
+      ]
+    },
+    "786": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "add%0#0",
+        "tmp%5#0 (copy)"
+      ]
+    },
+    "788": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%3#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "add%0#0",
+        "len%3#0"
+      ]
+    },
+    "789": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "eq%3#0"
+      ]
+    },
+    "790": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "791": {
+      "op": "itxn_begin"
+    },
+    "792": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "0"
+      ]
+    },
+    "793": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "794": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "795": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "796": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "797": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "799": {
+      "op": "pushbytes 0xf50808ef // method \"hasVoted(uint64,address)bool\"",
+      "defined_out": [
+        "Method(hasVoted(uint64,address)bool)",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "Method(hasVoted(uint64,address)bool)"
+      ]
+    },
+    "805": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "807": {
+      "op": "dig 3",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "809": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "811": {
+      "op": "dig 4",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "813": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "815": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "appl"
+      ]
+    },
+    "816": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "818": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "819": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "821": {
+      "op": "itxn_submit"
+    },
+    "822": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "824": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "825": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#1",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "tmp%2#1"
+      ]
+    },
+    "828": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "829": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#1",
+        "tmp%3#1",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "tmp%3#1"
+      ]
+    },
+    "832": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#1",
+        "tmp%3#1",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "tmp%3#1",
+        "0x151f7c75"
+      ]
+    },
+    "833": {
+      "op": "==",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#1",
+        "tmp%4#1",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "tmp%4#1"
+      ]
+    },
+    "834": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1"
+      ]
+    },
+    "835": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#1",
+        "tmp%2#1 (copy)",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "tmp%2#1 (copy)"
+      ]
+    },
+    "836": {
+      "op": "len",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "len%0#0"
+      ]
+    },
+    "837": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "len%0#0",
+        "1"
+      ]
+    },
+    "838": {
+      "op": "==",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "eq%0#0"
+      ]
+    },
+    "839": {
+      "error": "invalid number of bytes for bool",
+      "op": "assert // invalid number of bytes for bool",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1"
+      ]
+    },
+    "840": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "tmp%2#1",
+        "0"
+      ]
+    },
+    "841": {
+      "op": "getbit",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0",
+        "voted#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0"
+      ]
+    },
+    "842": {
+      "op": "itxn_begin"
+    },
+    "843": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "845": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "value%0#0",
+        "vote#0",
+        "voted#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "847": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0",
+        "value%0#0"
+      ]
+    },
+    "848": {
+      "op": "pushint 22500",
+      "defined_out": [
+        "22500",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "value%0#0",
+        "vote#0",
+        "voted#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0",
+        "value%0#0",
+        "22500"
+      ]
+    },
+    "852": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "voted#0",
+        "value%0#0",
+        "22500",
+        "0"
+      ]
+    },
+    "853": {
+      "op": "uncover 3",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "value%0#0",
+        "22500",
+        "0",
+        "voted#0"
+      ]
+    },
+    "855": {
+      "op": "select",
+      "defined_out": [
+        "maybe_value%0#0",
+        "select%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "value%0#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "value%0#0",
+        "select%0#0"
+      ]
+    },
+    "856": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "value%0#0"
+      ]
+    },
+    "858": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "860": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "861": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "863": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "864": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "866": {
+      "op": "itxn_next"
+    },
+    "867": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "869": {
+      "op": "pushbytes 0x3d7525e9 // method \"vote(pay,address,uint64,uint8,byte[])void\"",
+      "defined_out": [
+        "Method(vote(pay,address,uint64,uint8,byte[])void)",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%5#0",
+        "vote#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "Method(vote(pay,address,uint64,uint8,byte[])void)"
+      ]
+    },
+    "875": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "877": {
+      "op": "uncover 3",
+      "stack_out": [
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0",
+        "tmp%0#0"
+      ]
+    },
+    "879": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0",
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "881": {
+      "op": "uncover 2",
+      "stack_out": [
+        "vote#0",
+        "tmp%5#0",
+        "tmp%2#0"
+      ]
+    },
+    "883": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "vote#0",
+        "tmp%5#0"
+      ]
+    },
+    "885": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%5#0",
+        "vote#0"
+      ]
+    },
+    "886": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "888": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "890": {
+      "op": "intc_3 // appl",
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "891": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "893": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "894": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "896": {
+      "op": "itxn_submit"
+    },
+    "897": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "898": {
+      "op": "return",
+      "stack_out": []
+    },
+    "899": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.resolveProposal[routing]",
+      "params": {},
+      "block": "resolveProposal",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "902": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "903": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "904": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "905": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "906": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "907": {
+      "op": "itxn_begin"
+    },
+    "908": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "909": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "910": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "911": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "912": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "914": {
+      "op": "bytec 5 // method \"resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)\"",
+      "defined_out": [
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "Method(resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64))"
+      ]
+    },
+    "916": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "918": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "920": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "921": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "923": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "924": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "926": {
+      "op": "itxn_submit"
+    },
+    "927": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "929": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "930": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "933": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%1#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "934": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "937": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%1#1",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#1",
+        "0x151f7c75"
+      ]
+    },
+    "938": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ]
+    },
+    "939": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "940": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ]
+    },
+    "941": {
+      "op": "len",
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0"
+      ]
+    },
+    "942": {
+      "op": "pushint 33",
+      "defined_out": [
+        "33",
+        "len%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0",
+        "33"
+      ]
+    },
+    "944": {
+      "op": "==",
+      "stack_out": [
+        "tmp%1#1",
+        "eq%0#0"
+      ]
+    },
+    "945": {
+      "error": "invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusResult",
+      "op": "assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusResult",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "946": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "947": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%1#1"
+      ]
+    },
+    "948": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "949": {
+      "op": "log",
+      "stack_out": []
+    },
+    "950": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "951": {
+      "op": "return",
+      "stack_out": []
+    },
+    "952": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.cleanupBallot[routing]",
+      "params": {},
+      "block": "cleanupBallot",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "955": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "956": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "957": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "958": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "959": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "960": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0"
+      ]
+    },
+    "963": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "voters#0",
+        "voters#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "voters#0 (copy)"
+      ]
+    },
+    "964": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "voters#0",
+        "voters#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "voters#0 (copy)",
+        "0"
+      ]
+    },
+    "965": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "966": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "aggregate%array_length%0#0",
+        "32"
+      ]
+    },
+    "968": {
+      "op": "*",
+      "defined_out": [
+        "mul%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "mul%0#0"
+      ]
+    },
+    "969": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "mul%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "mul%0#0",
+        "2"
+      ]
+    },
+    "971": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "add%0#0"
+      ]
+    },
+    "972": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "add%0#0",
+        "voters#0 (copy)"
+      ]
+    },
+    "974": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%1#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "add%0#0",
+        "len%1#0"
+      ]
+    },
+    "975": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "eq%1#0"
+      ]
+    },
+    "976": {
+      "error": "invalid number of bytes for arc4.dynamic_array<account>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<account>",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0"
+      ]
+    },
+    "977": {
+      "op": "itxn_begin"
+    },
+    "978": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "0"
+      ]
+    },
+    "979": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "980": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "981": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "982": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0"
+      ]
+    },
+    "984": {
+      "op": "bytec 6 // method \"cleanupBallot(uint64,address[])uint64\"",
+      "defined_out": [
+        "Method(cleanupBallot(uint64,address[])uint64)",
+        "tmp%0#0",
+        "voters#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0",
+        "Method(cleanupBallot(uint64,address[])uint64)"
+      ]
+    },
+    "986": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "voters#0"
+      ]
+    },
+    "988": {
+      "op": "swap",
+      "stack_out": [
+        "voters#0",
+        "tmp%0#0"
+      ]
+    },
+    "989": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "voters#0"
+      ]
+    },
+    "991": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "993": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "994": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "996": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "997": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "999": {
+      "op": "itxn_submit"
+    },
+    "1000": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "1002": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "1003": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "1006": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%1#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "1007": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#1"
+      ]
+    },
+    "1010": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%1#1",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%2#1",
+        "0x151f7c75"
+      ]
+    },
+    "1011": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%3#1"
+      ]
+    },
+    "1012": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "1013": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ]
+    },
+    "1014": {
+      "op": "len",
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0"
+      ]
+    },
+    "1015": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "tmp%1#1",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "1016": {
+      "op": "==",
+      "stack_out": [
+        "tmp%1#1",
+        "eq%0#0"
+      ]
+    },
+    "1017": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%1#1"
+      ]
+    },
+    "1018": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "1019": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%1#1"
+      ]
+    },
+    "1020": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "1021": {
+      "op": "log",
+      "stack_out": []
+    },
+    "1022": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "1023": {
+      "op": "return",
+      "stack_out": []
+    },
+    "1024": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.proposalPower[routing]",
+      "params": {},
+      "block": "proposalPower",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1027": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1028": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "1029": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "1031": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "1032": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1033": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1036": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "1037": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "0"
+      ]
+    },
+    "1038": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "1039": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "1041": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0"
+      ]
+    },
+    "1042": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "1044": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0",
+        "len%1#0"
+      ]
+    },
+    "1045": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "1046": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1047": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "1050": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "1051": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "1052": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "1053": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "1054": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "1055": {
+      "op": "itxn_begin"
+    },
+    "1056": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "0"
+      ]
+    },
+    "1057": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "1058": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1059": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1060": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "1062": {
+      "op": "bytec 7 // method \"proposalPower(address,byte[],uint64)uint64\"",
+      "defined_out": [
+        "Method(proposalPower(address,byte[],uint64)uint64)",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "Method(proposalPower(address,byte[],uint64)uint64)"
+      ]
+    },
+    "1064": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "1066": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%0#0"
+      ]
+    },
+    "1068": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "1070": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%4#0",
+        "tmp%2#0"
+      ]
+    },
+    "1071": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "1073": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "1075": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "1076": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "1078": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "1079": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "1081": {
+      "op": "itxn_submit"
+    },
+    "1082": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "1084": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "1085": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%3#1"
+      ]
+    },
+    "1088": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%3#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "1089": {
+      "op": "extract 0 4",
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%4#0"
+      ]
+    },
+    "1092": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%3#1",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%4#0",
+        "0x151f7c75"
+      ]
+    },
+    "1093": {
+      "op": "==",
+      "defined_out": [
+        "tmp%3#1",
+        "tmp%5#1"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%5#1"
+      ]
+    },
+    "1094": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%3#1"
+      ]
+    },
+    "1095": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%3#1",
+        "tmp%3#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%3#1 (copy)"
+      ]
+    },
+    "1096": {
+      "op": "len",
+      "stack_out": [
+        "tmp%3#1",
+        "len%0#0"
+      ]
+    },
+    "1097": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "tmp%3#1",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "1098": {
+      "op": "==",
+      "stack_out": [
+        "tmp%3#1",
+        "eq%0#0"
+      ]
+    },
+    "1099": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%3#1"
+      ]
+    },
+    "1100": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%3#1",
+        "0x151f7c75"
+      ]
+    },
+    "1101": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%3#1"
+      ]
+    },
+    "1102": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "1103": {
+      "op": "log",
+      "stack_out": []
+    },
+    "1104": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "1105": {
+      "op": "return",
+      "stack_out": []
+    },
+    "1106": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr[routing]",
+      "params": {},
+      "block": "consensusActionMbr",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1109": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1110": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "1111": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "1112": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "1114": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "1115": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1117": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "1118": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "1119": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1120": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "1123": {
+      "callsub": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "op": "callsub smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "1126": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "1127": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "1128": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "1129": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "1130": {
+      "op": "log",
+      "stack_out": []
+    },
+    "1131": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "1132": {
+      "op": "return",
+      "stack_out": []
+    },
+    "1133": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusAction[routing]",
+      "params": {},
+      "block": "consensusAction",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1136": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1137": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "1138": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "1139": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "1140": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1141": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1144": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "1145": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "0"
+      ]
+    },
+    "1146": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "1147": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "1149": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0"
+      ]
+    },
+    "1150": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "1152": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "add%0#0",
+        "len%1#0"
+      ]
+    },
+    "1153": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "1154": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1155": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "1156": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "data#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "data#0"
+      ]
+    },
+    "1159": {
+      "callsub": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "op": "callsub smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "defined_out": [
+        "amount#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0"
+      ]
+    },
+    "1162": {
+      "op": "itxn_begin"
+    },
+    "1163": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "0"
+      ]
+    },
+    "1164": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "amount#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "1165": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "amount#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1166": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1167": {
+      "op": "dup",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "1168": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "amount#0",
+        "check%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "maybe_value%0#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "1170": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "amount#0",
+        "maybe_value%0#0",
+        "value%0#0"
+      ]
+    },
+    "1171": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0",
+        "value%0#0",
+        "amount#0"
+      ]
+    },
+    "1173": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0",
+        "value%0#0"
+      ]
+    },
+    "1175": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1177": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "1178": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1180": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "1181": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1183": {
+      "op": "itxn_next"
+    },
+    "1184": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1186": {
+      "op": "pushbytes 0x67ed5fed // method \"applyConsensusAction(pay,uint64,byte[])void\"",
+      "defined_out": [
+        "Method(applyConsensusAction(pay,uint64,byte[])void)",
+        "tmp%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0",
+        "Method(applyConsensusAction(pay,uint64,byte[])void)"
+      ]
+    },
+    "1192": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "1194": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%0#0"
+      ]
+    },
+    "1195": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "1197": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "1199": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "1200": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "1202": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "1203": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "1205": {
+      "op": "itxn_submit"
+    },
+    "1206": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "1207": {
+      "op": "return",
+      "stack_out": []
+    },
+    "1208": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.configureConsensus[routing]",
+      "params": {},
+      "block": "configureConsensus",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1211": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1212": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "1213": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "1214": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "1216": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "1217": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1219": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "1220": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "1221": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1222": {
+      "op": "itxn_begin"
+    },
+    "1223": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "1224": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "1225": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1226": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1227": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "1228": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1230": {
+      "op": "pushbytes 0xaa3e40a8 // method \"configurationMbr(byte[])uint64\"",
+      "defined_out": [
+        "Method(configurationMbr(byte[])uint64)",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "Method(configurationMbr(byte[])uint64)"
+      ]
+    },
+    "1236": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1238": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "1240": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1242": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "appl"
+      ]
+    },
+    "1243": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1245": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "1246": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1248": {
+      "op": "itxn_submit"
+    },
+    "1249": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "1251": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "1252": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "awst_tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "1255": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "1256": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "tmp%2#0"
+      ]
+    },
+    "1259": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "tmp%2#0",
+        "0x151f7c75"
+      ]
+    },
+    "1260": {
+      "op": "==",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "tmp%3#0"
+      ]
+    },
+    "1261": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "1262": {
+      "op": "dup",
+      "defined_out": [
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "tmp%1#1 (copy)"
+      ]
+    },
+    "1263": {
+      "op": "len",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "len%0#0"
+      ]
+    },
+    "1264": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "1265": {
+      "op": "==",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1",
+        "eq%0#0"
+      ]
+    },
+    "1266": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "1267": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "amount#0"
+      ]
+    },
+    "1268": {
+      "op": "itxn_begin"
+    },
+    "1269": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "maybe_value%0#0 (copy)"
+      ]
+    },
+    "1271": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "amount#0",
+        "check%0#0",
+        "maybe_value%0#0",
+        "tmp%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "1273": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "amount#0",
+        "value%0#0"
+      ]
+    },
+    "1274": {
+      "op": "itxn_field Receiver"
+    },
+    "1276": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1278": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "1279": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1281": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0",
+        "0"
+      ]
+    },
+    "1282": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "tmp%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1284": {
+      "op": "itxn_next"
+    },
+    "1285": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1287": {
+      "op": "pushbytes 0x8bff8387 // method \"configure(pay,byte[])void\"",
+      "defined_out": [
+        "Method(configure(pay,byte[])void)",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "Method(configure(pay,byte[])void)"
+      ]
+    },
+    "1293": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "1295": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "1297": {
+      "op": "intc_3 // appl",
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "1298": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "1300": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "1301": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "1303": {
+      "op": "itxn_submit"
+    },
+    "1304": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "1305": {
+      "op": "return",
+      "stack_out": []
+    },
+    "1306": {
+      "subroutine": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "params": {
+        "data#0": "bytes"
+      },
+      "block": "smart_contracts/arc58/guilds/tests/mock-consensus-host.algo.ts::MockGuildConsensusHost.consensusActionMbr",
+      "stack_in": [],
+      "op": "proto 1 1"
+    },
+    "1309": {
+      "op": "itxn_begin"
+    },
+    "1310": {
+      "op": "frame_dig -1",
+      "defined_out": [
+        "data#0 (copy)"
+      ],
+      "stack_out": [
+        "data#0 (copy)"
+      ]
+    },
+    "1312": {
+      "op": "len",
+      "defined_out": [
+        "aggregate%length%0#0"
+      ],
+      "stack_out": [
+        "aggregate%length%0#0"
+      ]
+    },
+    "1313": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%as_bytes%0#0"
+      ]
+    },
+    "1314": {
+      "op": "extract 6 2",
+      "defined_out": [
+        "aggregate%length_uint16%0#0"
+      ],
+      "stack_out": [
+        "aggregate%length_uint16%0#0"
+      ]
+    },
+    "1317": {
+      "op": "frame_dig -1",
+      "stack_out": [
+        "aggregate%length_uint16%0#0",
+        "data#0 (copy)"
+      ]
+    },
+    "1319": {
+      "op": "concat",
+      "defined_out": [
+        "aggregate%encoded_value%0#0"
+      ],
+      "stack_out": [
+        "aggregate%encoded_value%0#0"
+      ]
+    },
+    "1320": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "aggregate%encoded_value%0#0"
+      ],
+      "stack_out": [
+        "aggregate%encoded_value%0#0",
+        "0"
+      ]
+    },
+    "1321": {
+      "op": "bytec_1 // \"consensus\"",
+      "defined_out": [
+        "\"consensus\"",
+        "0",
+        "aggregate%encoded_value%0#0"
+      ],
+      "stack_out": [
+        "aggregate%encoded_value%0#0",
+        "0",
+        "\"consensus\""
+      ]
+    },
+    "1322": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "aggregate%encoded_value%0#0",
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "aggregate%encoded_value%0#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "1323": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "aggregate%encoded_value%0#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "1324": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "aggregate%encoded_value%0#0"
+      ]
+    },
+    "1326": {
+      "op": "bytec 8 // method \"consensusActionMbr(byte[])uint64\"",
+      "defined_out": [
+        "Method(consensusActionMbr(byte[])uint64)",
+        "aggregate%encoded_value%0#0"
+      ],
+      "stack_out": [
+        "aggregate%encoded_value%0#0",
+        "Method(consensusActionMbr(byte[])uint64)"
+      ]
+    },
+    "1328": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "aggregate%encoded_value%0#0"
+      ]
+    },
+    "1330": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "1332": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "1333": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "1335": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "1336": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "1338": {
+      "op": "itxn_submit"
+    },
+    "1339": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "1341": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "1342": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%1#0"
+      ]
+    },
+    "1345": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%1#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "1346": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "1349": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%2#0",
+        "0x151f7c75"
+      ]
+    },
+    "1350": {
+      "op": "==",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%3#0"
+      ]
+    },
+    "1351": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "1352": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%1#0",
+        "tmp%1#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "tmp%1#0 (copy)"
+      ]
+    },
+    "1353": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "len%0#0"
+      ]
+    },
+    "1354": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "1355": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "eq%0#0"
+      ]
+    },
+    "1356": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "1357": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "1358": {
+      "retsub": true,
+      "op": "retsub"
+    }
+  }
+}

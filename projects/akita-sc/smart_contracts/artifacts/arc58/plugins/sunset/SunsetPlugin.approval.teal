@@ -4,7 +4,6 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 8 1 2
-    bytecblock "spending_address"
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:7
     // export class SunsetPlugin extends Contract {
     txn NumAppArgs
@@ -30,22 +29,61 @@ main___algots__.defaultCreate@11:
     return
 
 
+// smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
+getControlledSpendingAccount:
+    // smart_contracts/utils/functions.ts:398
+    // export function getControlledSpendingAccount(wallet: Application): Account {
+    proto 1 1
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    frame_dig -1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    // smart_contracts/utils/functions.ts:400
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz getControlledSpendingAccount_after_assert@2
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+getControlledSpendingAccount_after_assert@2:
+    // smart_contracts/utils/functions.ts:401
+    // return sender
+    retsub
+
+
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:341
+    // smart_contracts/utils/functions.ts:452
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:342
+    // smart_contracts/utils/functions.ts:453
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:454
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:346
+    // smart_contracts/utils/functions.ts:457
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -90,23 +128,10 @@ delete:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
+    // smart_contracts/arc58/plugins/sunset/contract.algo.ts:15
+    // const sender = getControlledSpendingAccount(wallet)
     dig 3
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    swap
+    callsub getControlledSpendingAccount
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:16-22
     // abiCall<typeof SunsetContract.prototype.delete>({
     //   sender,
@@ -128,7 +153,6 @@ delete:
     itxn_field RekeyTo
     uncover 2
     itxn_field ApplicationID
-    swap
     itxn_field Sender
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:16-22
     // abiCall<typeof SunsetContract.prototype.delete>({
@@ -199,7 +223,7 @@ deleteBoxes:
     swap
     dup
     len
-    swap
+    cover 2
     extract 2 0
     intc_0 // 0
 
@@ -215,15 +239,15 @@ deleteBoxes_for_header@1:
     dig 5
     <
     bz deleteBoxes_after_for@4
-    dupn 2
+    dup
     intc_3 // 2
     *
-    dig 3
+    dig 2
     dup
     uncover 2
     extract_uint16 // on error: invalid array encoding
     dup
-    dig 7
+    uncover 5
     dup
     cover 4
     ==
@@ -236,13 +260,15 @@ deleteBoxes_for_header@1:
     intc_3 // 2
     +
     +
-    bury 5
+    cover 2
     intc_2 // 1
     +
-    bury 1
     b deleteBoxes_for_header@1
 
 deleteBoxes_after_for@4:
+    popn 2
+    uncover 2
+    pop
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:25-30
     // deleteBoxes(
     //   wallet: Application,
@@ -250,30 +276,15 @@ deleteBoxes_after_for@4:
     //   appId: Application,
     //   boxes: bytes[]
     // ) {
-    dig 3
     intc_3 // 2
     +
-    dig 3
     ==
     assert // invalid number of bytes for arc4.dynamic_array<bytes>
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    dig 8
+    // smart_contracts/arc58/plugins/sunset/contract.algo.ts:31
+    // const sender = getControlledSpendingAccount(wallet)
+    uncover 3
     dup
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    swap
+    callsub getControlledSpendingAccount
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:32-37
     // abiCall<typeof SunsetContract.prototype.deleteBoxes>({
     //   sender,
@@ -284,11 +295,11 @@ deleteBoxes_after_for@4:
     itxn_begin
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:36
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 9
-    swap
+    uncover 4
+    uncover 2
     callsub rekeyAddress
     itxn_field RekeyTo
-    dig 7
+    uncover 2
     itxn_field ApplicationID
     itxn_field Sender
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:32-37
@@ -300,7 +311,6 @@ deleteBoxes_after_for@4:
     // })
     pushbytes 0x98fd65a7 // method "deleteBoxes(byte[][])void"
     itxn_field ApplicationArgs
-    dig 5
     itxn_field ApplicationArgs
     pushint 6 // appl
     itxn_field TypeEnum
@@ -361,23 +371,10 @@ closeOut:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/sunset/types.ts::AssetCloseParams>
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
+    // smart_contracts/arc58/plugins/sunset/contract.algo.ts:46
+    // const sender = getControlledSpendingAccount(wallet)
     dig 3
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    swap
+    callsub getControlledSpendingAccount
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:47-52
     // abiCall<typeof SunsetContract.prototype.closeOut>({
     //   sender,
@@ -394,7 +391,6 @@ closeOut:
     itxn_field RekeyTo
     uncover 2
     itxn_field ApplicationID
-    swap
     itxn_field Sender
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:47-52
     // abiCall<typeof SunsetContract.prototype.closeOut>({
@@ -465,23 +461,10 @@ deleteAssets:
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<asset>
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
+    // smart_contracts/arc58/plugins/sunset/contract.algo.ts:61
+    // const sender = getControlledSpendingAccount(wallet)
     dig 3
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_0 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    swap
+    callsub getControlledSpendingAccount
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:62-67
     // abiCall<typeof SunsetContract.prototype.deleteAssets>({
     //   sender,
@@ -498,7 +481,6 @@ deleteAssets:
     itxn_field RekeyTo
     uncover 2
     itxn_field ApplicationID
-    swap
     itxn_field Sender
     // smart_contracts/arc58/plugins/sunset/contract.algo.ts:62-67
     // abiCall<typeof SunsetContract.prototype.deleteAssets>({

@@ -1,0 +1,931 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 2 8
+    bytecblock "admin" "action_count" "escrow_locked" "last_action" 0x151f7c75
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:29
+    // actionCount = GlobalState<uint64>({ initialValue: 0, key: MockGuildWalletGlobalStateKeyActionCount })
+    bytec_1 // "action_count"
+    intc_1 // 0
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:30
+    // lastAction = GlobalState<uint64>({ initialValue: 0, key: MockGuildWalletGlobalStateKeyLastAction })
+    bytec_3 // "last_action"
+    intc_1 // 0
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:31
+    // escrowLocked = GlobalState<boolean>({ initialValue: false, key: MockGuildWalletGlobalStateKeyEscrowLocked })
+    bytec_2 // "escrow_locked"
+    intc_1 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:24
+    // export class MockGuildWallet extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@22
+    pushbytess 0x17866912 0x5672462e 0x572fd1ea 0x7727f851 0xeef448fd 0xe350b9d4 0xdf49b4fd 0x0943bab9 0xebaf14a0 0xd24b7556 0xbf4d7c57 0xd5dd382b 0x5cebed43 0xd58685af 0x9fae74d0 0x13bc44e4 // method "setAdmin(address)void", method "arc58_addPlugin(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)void", method "arc58_addNamedPlugin(string,uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)void", method "arc58_getNamedPluginKey(string)(uint64,address,string)", method "arc58_removePlugin(uint64,address,string)void", method "arc58_removeNamedPlugin(string)void", method "arc58_newEscrow(string,address)uint64", method "arc58_toggleEscrowLock(string)(uint64,address,bool)", method "arc58_reclaim(string,(uint64,uint64,bool)[])void", method "arc58_changeAdmin(address)void", method "arc58_addAllowances(string,(uint64,uint8,uint64,uint64,uint64,bool)[])void", method "arc58_removeAllowances(string,uint64[])void", method "arc58_addExecutionKey(byte[32],byte[32][],uint64,uint64)void", method "arc58_removeExecutionKey(byte[32])void", method "updateGuild(uint64,byte[],byte[],byte[],string)void", method "arc58_getAdmin()address"
+    txna ApplicationArgs 0
+    match setAdmin arc58_addPlugin arc58_addNamedPlugin arc58_getNamedPluginKey arc58_removePlugin arc58_removeNamedPlugin arc58_newEscrow arc58_toggleEscrowLock arc58_reclaim arc58_changeAdmin arc58_addAllowances arc58_removeAllowances arc58_addExecutionKey arc58_removeExecutionKey updateGuild arc58_getAdmin
+    err
+
+main_create_NoOp@22:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:24
+    // export class MockGuildWallet extends Contract {
+    pushbytes 0xcc694eaa // method "create(address)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:38
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:26
+    // admin = GlobalState<Account>({ key: MockGuildWalletGlobalStateKeyAdmin })
+    bytec_0 // "admin"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:40
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:28
+    // controlledAddress = GlobalState<Account>({ key: AbstractAccountGlobalStateKeysControlledAddress })
+    pushbytes "controlled_address"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:41
+    // this.controlledAddress.value = Global.currentApplicationAddress
+    global CurrentApplicationAddress
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:38
+    // @abimethod({ onCreate: 'require' })
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.setAdmin[routing]() -> void:
+setAdmin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:44
+    // setAdmin(admin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:26
+    // admin = GlobalState<Account>({ key: MockGuildWalletGlobalStateKeyAdmin })
+    bytec_0 // "admin"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:45
+    // this.admin.value = admin
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:44
+    // setAdmin(admin: Account): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_addPlugin[routing]() -> void:
+arc58_addPlugin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:48-62
+    // arc58_addPlugin(
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   admin: boolean,
+    //   delegationType: Uint8,
+    //   lastValid: uint64,
+    //   cooldown: uint64,
+    //   methods: MethodRestriction[],
+    //   useRounds: boolean,
+    //   useExecutionKey: boolean,
+    //   coverFees: boolean,
+    //   canReclaim: boolean,
+    //   defaultToEscrow: boolean,
+    // ): void {
+    txna ApplicationArgs 1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 5
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 6
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 7
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 8
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::MethodRestriction>
+    txna ApplicationArgs 9
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 10
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 11
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 12
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 13
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:63
+    // this.record(20)
+    pushint 20
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:48-62
+    // arc58_addPlugin(
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   admin: boolean,
+    //   delegationType: Uint8,
+    //   lastValid: uint64,
+    //   cooldown: uint64,
+    //   methods: MethodRestriction[],
+    //   useRounds: boolean,
+    //   useExecutionKey: boolean,
+    //   coverFees: boolean,
+    //   canReclaim: boolean,
+    //   defaultToEscrow: boolean,
+    // ): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_addNamedPlugin[routing]() -> void:
+arc58_addNamedPlugin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:66-81
+    // arc58_addNamedPlugin(
+    //   name: string,
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   admin: boolean,
+    //   delegationType: Uint8,
+    //   lastValid: uint64,
+    //   cooldown: uint64,
+    //   methods: MethodRestriction[],
+    //   useRounds: boolean,
+    //   useExecutionKey: boolean,
+    //   coverFees: boolean,
+    //   canReclaim: boolean,
+    //   defaultToEscrow: boolean,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 4
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 6
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 7
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 8
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 9
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::MethodRestriction>
+    txna ApplicationArgs 10
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 11
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 12
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 13
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 14
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:82
+    // this.namedPlugins(name).value = { plugin, caller, escrow: defaultToEscrow ? '' : escrow }
+    bz arc58_addNamedPlugin_ternary_false@3
+    pop
+    pushbytes ""
+
+arc58_addNamedPlugin_ternary_merge@4:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:82
+    // this.namedPlugins(name).value = { plugin, caller, escrow: defaultToEscrow ? '' : escrow }
+    uncover 2
+    itob
+    uncover 2
+    concat
+    swap
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    swap
+    pushbytes 0x002a
+    concat
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:25
+    // namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: 'n' })
+    pushbytes "n"
+    uncover 2
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:82
+    // this.namedPlugins(name).value = { plugin, caller, escrow: defaultToEscrow ? '' : escrow }
+    dup
+    box_del
+    pop
+    swap
+    box_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:83
+    // this.record(21)
+    pushint 21
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:66-81
+    // arc58_addNamedPlugin(
+    //   name: string,
+    //   plugin: uint64,
+    //   caller: Account,
+    //   escrow: string,
+    //   admin: boolean,
+    //   delegationType: Uint8,
+    //   lastValid: uint64,
+    //   cooldown: uint64,
+    //   methods: MethodRestriction[],
+    //   useRounds: boolean,
+    //   useExecutionKey: boolean,
+    //   coverFees: boolean,
+    //   canReclaim: boolean,
+    //   defaultToEscrow: boolean,
+    // ): void {
+    intc_0 // 1
+    return
+
+arc58_addNamedPlugin_ternary_false@3:
+    b arc58_addNamedPlugin_ternary_merge@4
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_getNamedPluginKey[routing]() -> void:
+arc58_getNamedPluginKey:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:86
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:25
+    // namedPlugins = BoxMap<string, PluginKey>({ keyPrefix: 'n' })
+    pushbytes "n"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:88
+    // return this.namedPlugins(name).value
+    box_get
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:86
+    // @abimethod({ readonly: true })
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_removePlugin[routing]() -> void:
+arc58_removePlugin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:91
+    // arc58_removePlugin(plugin: uint64, caller: Account, escrow: string): void {
+    txna ApplicationArgs 1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:92
+    // this.record(40)
+    pushint 40
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:91
+    // arc58_removePlugin(plugin: uint64, caller: Account, escrow: string): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_removeNamedPlugin[routing]() -> void:
+arc58_removeNamedPlugin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:95
+    // arc58_removeNamedPlugin(name: string): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:96
+    // this.record(41)
+    pushint 41
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:95
+    // arc58_removeNamedPlugin(name: string): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_newEscrow[routing]() -> void:
+arc58_newEscrow:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:99
+    // arc58_newEscrow(escrow: string, address: Account): uint64 {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:100
+    // this.record(70)
+    pushint 70
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:99
+    // arc58_newEscrow(escrow: string, address: Account): uint64 {
+    pushbytes 0x151f7c750000000000000000
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_toggleEscrowLock[routing]() -> void:
+arc58_toggleEscrowLock:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:104
+    // arc58_toggleEscrowLock(escrow: string): EscrowInfo {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:105
+    // this.record(71)
+    pushint 71
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:106
+    // this.escrowLocked.value = !this.escrowLocked.value
+    intc_1 // 0
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:31
+    // escrowLocked = GlobalState<boolean>({ initialValue: false, key: MockGuildWalletGlobalStateKeyEscrowLocked })
+    bytec_2 // "escrow_locked"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:106
+    // this.escrowLocked.value = !this.escrowLocked.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    !
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:31
+    // escrowLocked = GlobalState<boolean>({ initialValue: false, key: MockGuildWalletGlobalStateKeyEscrowLocked })
+    bytec_2 // "escrow_locked"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:106
+    // this.escrowLocked.value = !this.escrowLocked.value
+    dig 1
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:107
+    // return { id: 0, address: Global.zeroAddress, locked: this.escrowLocked.value }
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:104
+    // arc58_toggleEscrowLock(escrow: string): EscrowInfo {
+    pushbytes base32(CUPXY5IAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA)
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_reclaim[routing]() -> void:
+arc58_reclaim:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:110
+    // arc58_reclaim(escrow: string, reclaims: EscrowReclaim[]): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 17
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::EscrowReclaim>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:111
+    // this.record(72)
+    pushint 72
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:110
+    // arc58_reclaim(escrow: string, reclaims: EscrowReclaim[]): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_changeAdmin[routing]() -> void:
+arc58_changeAdmin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:114
+    // arc58_changeAdmin(newAdmin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:26
+    // admin = GlobalState<Account>({ key: MockGuildWalletGlobalStateKeyAdmin })
+    bytec_0 // "admin"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:115
+    // this.admin.value = newAdmin
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:116
+    // this.record(91)
+    pushint 91
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:114
+    // arc58_changeAdmin(newAdmin: Account): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_addAllowances[routing]() -> void:
+arc58_addAllowances:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:119
+    // arc58_addAllowances(escrow: string, allowances: AddAllowanceInfo[]): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 34
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::AddAllowanceInfo>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:120
+    // this.record(50)
+    pushint 50
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:119
+    // arc58_addAllowances(escrow: string, allowances: AddAllowanceInfo[]): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_removeAllowances[routing]() -> void:
+arc58_removeAllowances:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:123
+    // arc58_removeAllowances(escrow: string, assets: uint64[]): void {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:124
+    // this.record(60)
+    pushint 60
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:123
+    // arc58_removeAllowances(escrow: string, assets: uint64[]): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_addExecutionKey[routing]() -> void:
+arc58_addExecutionKey:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:127
+    // arc58_addExecutionKey(lease: bytes<32>, groups: bytes<32>[], firstValid: uint64, lastValid: uint64): void {
+    txna ApplicationArgs 1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    txna ApplicationArgs 3
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:128
+    // this.record(30)
+    pushint 30
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:127
+    // arc58_addExecutionKey(lease: bytes<32>, groups: bytes<32>[], firstValid: uint64, lastValid: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_removeExecutionKey[routing]() -> void:
+arc58_removeExecutionKey:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:131
+    // arc58_removeExecutionKey(lease: bytes<32>): void {
+    txna ApplicationArgs 1
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:132
+    // this.record(31)
+    pushint 31
+    callsub record
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:131
+    // arc58_removeExecutionKey(lease: bytes<32>): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.updateGuild[routing]() -> void:
+updateGuild:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:136-142
+    // updateGuild(
+    //   guild: Application,
+    //   approvalProgramFirst: bytes,
+    //   approvalProgramSecond: bytes,
+    //   clearStateProgram: bytes,
+    //   version: string,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:143-149
+    // abiCall<typeof Guild.prototype.update>({
+    //   appId: guild,
+    //   args: [version],
+    //   onCompletion: OnCompleteAction.UpdateApplication,
+    //   approvalProgram: [approvalProgramFirst, approvalProgramSecond],
+    //   clearStateProgram,
+    // })
+    itxn_begin
+    swap
+    itxn_field ClearStateProgramPages
+    uncover 2
+    itxn_field ApprovalProgramPages
+    swap
+    itxn_field ApprovalProgramPages
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:146
+    // onCompletion: OnCompleteAction.UpdateApplication,
+    pushint 4
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:143-149
+    // abiCall<typeof Guild.prototype.update>({
+    //   appId: guild,
+    //   args: [version],
+    //   onCompletion: OnCompleteAction.UpdateApplication,
+    //   approvalProgram: [approvalProgramFirst, approvalProgramSecond],
+    //   clearStateProgram,
+    // })
+    pushbytes 0xea9180dd // method "update(string)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:136-142
+    // updateGuild(
+    //   guild: Application,
+    //   approvalProgramFirst: bytes,
+    //   approvalProgramSecond: bytes,
+    //   clearStateProgram: bytes,
+    //   version: string,
+    // ): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.arc58_getAdmin[routing]() -> void:
+arc58_getAdmin:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:154
+    // return this.admin.value
+    intc_1 // 0
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:26
+    // admin = GlobalState<Account>({ key: MockGuildWalletGlobalStateKeyAdmin })
+    bytec_0 // "admin"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:154
+    // return this.admin.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:152
+    // @abimethod({ readonly: true })
+    bytec 4 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts::MockGuildWallet.record(action: uint64) -> void:
+record:
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:33
+    // private record(action: uint64): void {
+    proto 1 0
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:34
+    // this.actionCount.value += 1
+    intc_1 // 0
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:29
+    // actionCount = GlobalState<uint64>({ initialValue: 0, key: MockGuildWalletGlobalStateKeyActionCount })
+    bytec_1 // "action_count"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:34
+    // this.actionCount.value += 1
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_0 // 1
+    +
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:29
+    // actionCount = GlobalState<uint64>({ initialValue: 0, key: MockGuildWalletGlobalStateKeyActionCount })
+    bytec_1 // "action_count"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:34
+    // this.actionCount.value += 1
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:30
+    // lastAction = GlobalState<uint64>({ initialValue: 0, key: MockGuildWalletGlobalStateKeyLastAction })
+    bytec_3 // "last_action"
+    // smart_contracts/arc58/guilds/tests/mock-wallet.algo.ts:35
+    // this.lastAction.value = action
+    frame_dig -1
+    app_global_put
+    retsub

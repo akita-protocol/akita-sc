@@ -1,0 +1,1185 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 32
+    bytecblock "factory" 0x151f7c75 "spending_address" 0x0000 "ERR:errHnwl" "ERR:errHnbd"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:37
+    // export class WelcomePlugin extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytess 0x6aa254e7 0xdaf0faa2 // method "sponsor(uint64,bool,address,string,byte[32],bool,uint64)uint64", method "sendToAnyone(uint64,bool,address,string,byte[32],bool,uint64,uint64,uint64)uint64"
+    txna ApplicationArgs 0
+    match sponsor sendToAnyone
+    err
+
+main_create_NoOp@6:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:37
+    // export class WelcomePlugin extends Contract {
+    pushbytes 0x240d2f67 // method "create(uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/utils/principal.ts::isGenuineWallet(wallet: uint64, walletFactory: uint64) -> uint64:
+isGenuineWallet:
+    // smart_contracts/utils/principal.ts:101
+    // export function isGenuineWallet(wallet: uint64, walletFactory: uint64): boolean {
+    proto 2 1
+    intc_0 // 0
+    // smart_contracts/utils/principal.ts:102
+    // if (wallet === 0 || walletFactory === 0) {
+    frame_dig -2
+    bz isGenuineWallet_if_body@2
+    frame_dig -1
+    bnz isGenuineWallet_after_if_else@3
+
+isGenuineWallet_if_body@2:
+    // smart_contracts/utils/principal.ts:103
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+isGenuineWallet_after_if_else@3:
+    // smart_contracts/utils/principal.ts:105
+    // const [creator, exists] = op.AppParams.appCreator(wallet)
+    frame_dig -2
+    app_params_get AppCreator
+    swap
+    frame_bury 0
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    bz isGenuineWallet_bool_false@6
+    // smart_contracts/utils/principal.ts:74
+    // return Account(op.sha512_256(Bytes('appID').concat(op.itob(appId))))
+    frame_dig -1
+    itob
+    pushbytes "appID"
+    swap
+    concat
+    sha512_256
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    frame_dig 0
+    ==
+    bz isGenuineWallet_bool_false@6
+    intc_1 // 1
+
+isGenuineWallet_bool_merge@7:
+    // smart_contracts/utils/principal.ts:106
+    // return exists && creator === appAddressOf(walletFactory)
+    swap
+    retsub
+
+isGenuineWallet_bool_false@6:
+    intc_0 // 0
+    b isGenuineWallet_bool_merge@7
+
+
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/functions.ts:452
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:40
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:42
+    // loggedAssert(factory.id !== 0, 'welcomeInvalidFactory')
+    bnz create_after_assert@3
+    pushbytes "ERR:welcomeInvalidFactory"
+    log
+    err // ERR:welcomeInvalidFactory
+
+create_after_assert@3:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:38
+    // factory = GlobalState<Application>({ key: 'factory' })
+    bytec_0 // "factory"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:43
+    // this.factory.value = factory
+    swap
+    app_global_put
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:40
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.sponsor[routing]() -> void:
+sponsor:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:47-55
+    // sponsor(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   admin: Account,
+    //   nickname: string,
+    //   salt: bytes<32>,
+    //   useMainWalletReferrer: boolean,
+    //   maxCost: uint64,
+    // ): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:56
+    // return this.newWallet(wallet, rekeyBack, admin, nickname, salt, useMainWalletReferrer, 0, 0, maxCost)
+    cover 6
+    intc_0 // 0
+    dup
+    uncover 8
+    callsub newWallet
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:47-55
+    // sponsor(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   admin: Account,
+    //   nickname: string,
+    //   salt: bytes<32>,
+    //   useMainWalletReferrer: boolean,
+    //   maxCost: uint64,
+    // ): uint64 {
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.sendToAnyone[routing]() -> void:
+sendToAnyone:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:60-70
+    // sendToAnyone(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   admin: Account,
+    //   nickname: string,
+    //   salt: bytes<32>,
+    //   useMainWalletReferrer: boolean,
+    //   asset: uint64,
+    //   amount: uint64,
+    //   maxCost: uint64,
+    // ): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 8
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 9
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:71
+    // loggedAssert(amount > 0, 'welcomeEmptyGift')
+    bnz sendToAnyone_after_assert@3
+    pushbytes "ERR:welcomeEmptyGift"
+    log
+    err // ERR:welcomeEmptyGift
+
+sendToAnyone_after_assert@3:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:72
+    // return this.newWallet(wallet, rekeyBack, admin, nickname, salt, useMainWalletReferrer, asset, amount, maxCost)
+    callsub newWallet
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:60-70
+    // sendToAnyone(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   admin: Account,
+    //   nickname: string,
+    //   salt: bytes<32>,
+    //   useMainWalletReferrer: boolean,
+    //   asset: uint64,
+    //   amount: uint64,
+    //   maxCost: uint64,
+    // ): uint64 {
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/welcome/contract.algo.ts::WelcomePlugin.newWallet(wallet: uint64, rekeyBack: uint64, admin: bytes, nickname: bytes, salt: bytes, useMainWalletReferrer: uint64, asset: uint64, amount: uint64, maxCost: uint64) -> uint64:
+newWallet:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:75-85
+    // private newWallet(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   admin: Account,
+    //   nickname: string,
+    //   salt: bytes<32>,
+    //   useMainWalletReferrer: boolean,
+    //   asset: uint64,
+    //   amount: uint64,
+    //   maxCost: uint64,
+    // ): uint64 {
+    proto 9 1
+    intc_0 // 0
+    dupn 3
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:86
+    // loggedAssert(admin !== Global.zeroAddress, 'welcomeInvalidAdmin')
+    frame_dig -7
+    global ZeroAddress
+    !=
+    bnz newWallet_after_assert@2
+    pushbytes "ERR:welcomeInvalidAdmin"
+    log
+    err // ERR:welcomeInvalidAdmin
+
+newWallet_after_assert@2:
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    frame_dig -9
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_2 // "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    frame_bury 3
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:88
+    // loggedAssert(sender !== Global.zeroAddress, 'welcomeInactiveWallet')
+    global ZeroAddress
+    !=
+    bnz newWallet_after_assert@4
+    pushbytes "ERR:welcomeInactiveWallet"
+    log
+    err // ERR:welcomeInactiveWallet
+
+newWallet_after_assert@4:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:89
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, 'welcomeMissingAuthority')
+    frame_dig 3
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz newWallet_after_assert@6
+    pushbytes "ERR:welcomeMissingAuthority"
+    log
+    err // ERR:welcomeMissingAuthority
+
+newWallet_after_assert@6:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:91-95
+    // const total: uint64 = abiCall<typeof AbstractedAccountFactory.prototype.cost>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   fee: 0,
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    itxn_begin
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:93
+    // appId: this.factory.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:38
+    // factory = GlobalState<Application>({ key: 'factory' })
+    bytec_0 // "factory"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:93
+    // appId: this.factory.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    frame_dig 3
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:91-95
+    // const total: uint64 = abiCall<typeof AbstractedAccountFactory.prototype.cost>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   fee: 0,
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    pushbytes 0x9b67fa6d // method "cost()uint64"
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:94
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:91-95
+    // const total: uint64 = abiCall<typeof AbstractedAccountFactory.prototype.cost>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   fee: 0,
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:95
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    frame_dig -3
+    !
+    frame_dig -3
+    bnz newWallet_ternary_false@9
+    frame_dig -2
+
+newWallet_ternary_merge@10:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:91-95
+    // const total: uint64 = abiCall<typeof AbstractedAccountFactory.prototype.cost>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   fee: 0,
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    uncover 2
+    +
+    dup
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:96
+    // loggedAssert(total <= maxCost, 'welcomeCostLimitExceeded')
+    frame_dig -1
+    <=
+    bnz newWallet_after_assert@12
+    pushbytes "ERR:welcomeCostLimitExceeded"
+    log
+    err // ERR:welcomeCostLimitExceeded
+
+newWallet_after_assert@12:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:97
+    // const assets: uint64[] = []
+    intc_0 // 0
+    itob
+    cover 2
+    bytec_3 // 0x0000
+    frame_bury 0
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:98
+    // if (asset !== 0) assets.push(asset)
+    frame_dig -3
+    bz newWallet_after_if_else@14
+    frame_dig -3
+    itob
+    pushbytes 0x0001
+    swap
+    concat
+    frame_bury 0
+
+newWallet_after_if_else@14:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:100-118
+    // const id = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   args: [
+    //     itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    //     Global.zeroAddress,
+    //     admin,
+    //     nickname,
+    //     useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    //     salt,
+    //     '',
+    //     true,
+    //     asset === 0 ? amount : 0,
+    //     assets,
+    //     [],
+    //   ],
+    //   fee: 0,
+    //   rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:104
+    // itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:38
+    // factory = GlobalState<Application>({ key: 'factory' })
+    bytec_0 // "factory"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:104
+    // itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    frame_dig 3
+    itxn_field Sender
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:100-118
+    // const id = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   args: [
+    //     itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    //     Global.zeroAddress,
+    //     admin,
+    //     nickname,
+    //     useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    //     salt,
+    //     '',
+    //     true,
+    //     asset === 0 ? amount : 0,
+    //     assets,
+    //     [],
+    //   ],
+    //   fee: 0,
+    //   rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    // }).returnValue
+    itxn_next
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:105
+    // Global.zeroAddress,
+    global ZeroAddress
+    cover 2
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:107
+    // nickname,
+    frame_dig -6
+    len
+    itob
+    extract 6 2
+    frame_dig -6
+    concat
+    cover 2
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:108
+    // useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    frame_dig -4
+    bz newWallet_ternary_false@17
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:38
+    // factory = GlobalState<Application>({ key: 'factory' })
+    bytec_0 // "factory"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:108
+    // useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    app_global_get_ex
+    swap
+    dup
+    uncover 2
+    assert // check GlobalState exists
+    // smart_contracts/utils/principal.ts:326
+    // loggedAssert(isGenuineWallet(wallet.id, walletFactory), errHintNotWallet)
+    frame_dig -9
+    swap
+    callsub isGenuineWallet
+    bnz newWallet_after_assert@28
+    bytec 4 // "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+newWallet_after_assert@28:
+    // smart_contracts/utils/principal.ts:327
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(wallet, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -9
+    bytec_2 // "spending_address"
+    app_global_get_ex
+    swap
+    cover 4
+    // smart_contracts/utils/principal.ts:328
+    // loggedAssert(spendingExists && spending.length === 32, errHintNotBound)
+    bz newWallet_bool_false@31
+    dig 3
+    len
+    intc_3 // 32
+    ==
+    bz newWallet_bool_false@31
+    intc_1 // 1
+
+newWallet_bool_merge@32:
+    // smart_contracts/utils/principal.ts:328
+    // loggedAssert(spendingExists && spending.length === 32, errHintNotBound)
+    bnz newWallet_after_assert@34
+    bytec 5 // "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+newWallet_after_assert@34:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dig 3
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:330
+    // loggedAssert(authAddrOf(spender) === Global.currentApplicationAddress, errHintPluginNotAuth)
+    global CurrentApplicationAddress
+    ==
+    bnz newWallet_after_assert@36
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+newWallet_after_assert@36:
+    // smart_contracts/utils/principal.ts:335
+    // Global.currentApplicationId.id,
+    global CurrentApplicationID
+    cover 2
+    // smart_contracts/utils/principal.ts:336
+    // Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    frame_bury 1
+    // smart_contracts/utils/principal.ts:148
+    // if (hint === 0) {
+    frame_dig -9
+    bnz newWallet_after_if_else@38
+    pop
+    bury 1
+    // smart_contracts/utils/principal.ts:93
+    // origin: Global.zeroAddress,
+    global ZeroAddress
+    // smart_contracts/utils/principal.ts:95
+    // referrer: Global.zeroAddress,
+    dup
+    // smart_contracts/utils/principal.ts:90-97
+    // return {
+    //   wallet: 0,
+    //   principal: sender,
+    //   origin: Global.zeroAddress,
+    //   spender: sender,
+    //   referrer: Global.zeroAddress,
+    //   viaPlugin: false,
+    // }
+    uncover 3
+    uncover 4
+    dup
+    cover 3
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    pushbytes 0x00
+    concat
+
+newWallet_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@67:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:108
+    // useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    extract 8 32
+    swap
+
+newWallet_ternary_merge@18:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:112
+    // asset === 0 ? amount : 0,
+    intc_0 // 0
+    frame_dig -2
+    uncover 2
+    select
+    itob
+    cover 3
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:102
+    // appId: this.factory.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:38
+    // factory = GlobalState<Application>({ key: 'factory' })
+    bytec_0 // "factory"
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:102
+    // appId: this.factory.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:117
+    // rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    frame_dig -3
+    bnz newWallet_ternary_false@20
+    frame_dig -8
+    frame_dig -9
+    callsub rekeyAddress
+
+newWallet_ternary_merge@21:
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    frame_dig 3
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:100-118
+    // const id = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   args: [
+    //     itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    //     Global.zeroAddress,
+    //     admin,
+    //     nickname,
+    //     useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    //     salt,
+    //     '',
+    //     true,
+    //     asset === 0 ? amount : 0,
+    //     assets,
+    //     [],
+    //   ],
+    //   fee: 0,
+    //   rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    // }).returnValue
+    pushbytes 0xe0d189b8 // method "newAccount(pay,address,address,string,address,byte[32],string,bool,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    frame_dig -7
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    frame_dig -5
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:110
+    // '',
+    bytec_3 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:111
+    // true,
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    frame_dig 0
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:114
+    // [],
+    bytec_3 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:100-118
+    // const id = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   args: [
+    //     itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    //     Global.zeroAddress,
+    //     admin,
+    //     nickname,
+    //     useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    //     salt,
+    //     '',
+    //     true,
+    //     asset === 0 ? amount : 0,
+    //     assets,
+    //     [],
+    //   ],
+    //   fee: 0,
+    //   rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    // }).returnValue
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:116
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:100-118
+    // const id = abiCall<typeof AbstractedAccountFactory.prototype.newAccount>({
+    //   sender,
+    //   appId: this.factory.value,
+    //   args: [
+    //     itxn.payment({ sender, receiver: this.factory.value.address, amount: total, fee: 0 }),
+    //     Global.zeroAddress,
+    //     admin,
+    //     nickname,
+    //     useMainWalletReferrer ? pluginPrincipal(wallet, this.factory.value.id).principal : sender,
+    //     salt,
+    //     '',
+    //     true,
+    //     asset === 0 ? amount : 0,
+    //     assets,
+    //     [],
+    //   ],
+    //   fee: 0,
+    //   rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    // }).returnValue
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:120
+    // if (asset !== 0) {
+    frame_dig -3
+    bz newWallet_after_if_else@25
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:121-128
+    // itxn.assetTransfer({
+    //   sender,
+    //   assetReceiver: Application(id).address,
+    //   xferAsset: Asset(asset),
+    //   assetAmount: amount,
+    //   fee: 0,
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).submit()
+    itxn_begin
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:123
+    // assetReceiver: Application(id).address,
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:127
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    frame_dig -8
+    frame_dig -9
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    frame_dig -2
+    itxn_field AssetAmount
+    frame_dig -3
+    itxn_field XferAsset
+    itxn_field AssetReceiver
+    frame_dig 3
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:121-128
+    // itxn.assetTransfer({
+    //   sender,
+    //   assetReceiver: Application(id).address,
+    //   xferAsset: Asset(asset),
+    //   assetAmount: amount,
+    //   fee: 0,
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).submit()
+    pushint 4
+    itxn_field TypeEnum
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:126
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:121-128
+    // itxn.assetTransfer({
+    //   sender,
+    //   assetReceiver: Application(id).address,
+    //   xferAsset: Asset(asset),
+    //   assetAmount: amount,
+    //   fee: 0,
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).submit()
+    itxn_submit
+
+newWallet_after_if_else@25:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:130
+    // return id
+    frame_bury 0
+    retsub
+
+newWallet_ternary_false@20:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:117
+    // rekeyTo: asset === 0 ? rekeyAddress(rekeyBack, wallet) : Global.zeroAddress,
+    global ZeroAddress
+    b newWallet_ternary_merge@21
+
+newWallet_after_if_else@38:
+    uncover 3
+    pop
+    // smart_contracts/utils/principal.ts:152
+    // if (!isGenuineWallet(hint, walletFactory)) {
+    frame_dig -9
+    swap
+    callsub isGenuineWallet
+    bnz newWallet_after_if_else@40
+    // smart_contracts/utils/principal.ts:154
+    // loggedErr(errHintNotWallet)
+    bytec 4 // "ERR:errHnwl"
+    log
+    err // ERR:errHnwl
+
+newWallet_after_if_else@40:
+    // smart_contracts/utils/principal.ts:159
+    // if (callerApp === 0) {
+    dig 1
+    bnz newWallet_after_if_else@42
+    // smart_contracts/utils/principal.ts:161
+    // loggedErr(errHintTopLevel)
+    pushbytes "ERR:errHtop"
+    log
+    err // ERR:errHtop
+
+newWallet_after_if_else@42:
+    // smart_contracts/utils/principal.ts:166
+    // let viaPlugin = false
+    intc_0 // 0
+    cover 3
+    // smart_contracts/utils/principal.ts:167
+    // if (callerApp !== hint) {
+    swap
+    frame_dig -9
+    !=
+    bz newWallet_after_if_else@49
+    uncover 2
+    pop
+    // smart_contracts/utils/principal.ts:171
+    // const [spending, spendingExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_SPENDING))
+    frame_dig -9
+    bytec_2 // "spending_address"
+    app_global_get_ex
+    swap
+    frame_bury 2
+    // smart_contracts/utils/principal.ts:172
+    // if (!(spendingExists && spending.length === 32 && spending === sender.bytes && sender !== callerAddr)) {
+    bz newWallet_if_body@47
+    frame_dig 2
+    len
+    intc_3 // 32
+    ==
+    bz newWallet_if_body@47
+    frame_dig 2
+    dig 2
+    ==
+    bz newWallet_if_body@47
+    dig 1
+    frame_dig 1
+    !=
+    bnz newWallet_after_if_else@48
+
+newWallet_if_body@47:
+    // smart_contracts/utils/principal.ts:174
+    // loggedErr(errHintNotBound)
+    bytec 5 // "ERR:errHnbd"
+    log
+    err // ERR:errHnbd
+
+newWallet_after_if_else@48:
+    // smart_contracts/utils/principal.ts:178
+    // viaPlugin = true
+    intc_1 // 1
+    cover 2
+
+newWallet_after_if_else@49:
+    // smart_contracts/utils/principal.ts:181
+    // const [controlledBytes, controlledExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_CONTROLLED))
+    frame_dig -9
+    pushbytes "controlled_address"
+    app_global_get_ex
+    swap
+    cover 2
+    // smart_contracts/utils/principal.ts:182
+    // if (!(controlledExists && controlledBytes.length === 32)) {
+    bz newWallet_if_body@51
+    dig 1
+    len
+    intc_3 // 32
+    ==
+    bnz newWallet_after_if_else@52
+
+newWallet_if_body@51:
+    // smart_contracts/utils/principal.ts:184
+    // loggedErr(errHintBadWallet)
+    pushbytes "ERR:errIwlt"
+    log
+    err // ERR:errIwlt
+
+newWallet_after_if_else@52:
+    // smart_contracts/utils/principal.ts:119
+    // if (controlled === spender) {
+    dig 1
+    dig 3
+    ==
+    bz newWallet_after_if_else@54
+    // smart_contracts/utils/principal.ts:120
+    // return true
+    intc_1 // 1
+    cover 2
+
+newWallet_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@59:
+    // smart_contracts/utils/principal.ts:191
+    // const [referrerBytes, referrerExists] = op.AppGlobal.getExBytes(hint, Bytes(PRINCIPAL_KEY_REFERRER))
+    frame_dig -9
+    pushbytes "referrer"
+    app_global_get_ex
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    bz newWallet_ternary_false@62
+    dup
+    len
+    intc_3 // 32
+    ==
+    bz newWallet_ternary_false@62
+    cover 4
+
+newWallet_ternary_merge@63:
+    // smart_contracts/utils/principal.ts:196
+    // principal: live ? controlled : sender,
+    dig 3
+    dig 2
+    uncover 4
+    dup
+    cover 3
+    select
+    swap
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    bz newWallet_ternary_false@65
+    uncover 2
+    cover 3
+
+newWallet_ternary_merge@66:
+    // smart_contracts/utils/principal.ts:194-201
+    // return {
+    //   wallet: hint,
+    //   principal: live ? controlled : sender,
+    //   origin: live ? controlled : Global.zeroAddress,
+    //   spender: sender,
+    //   referrer,
+    //   viaPlugin,
+    // }
+    frame_dig -9
+    itob
+    swap
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    uncover 2
+    concat
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 4
+    setbit
+    concat
+    // smart_contracts/utils/principal.ts:331-338
+    // return resolvePrincipalCtx(
+    //   walletFactory,
+    //   wallet.id,
+    //   spender,
+    //   Global.currentApplicationId.id,
+    //   Global.currentApplicationAddress,
+    //   true
+    // )
+    b newWallet_after_inlined_smart_contracts/utils/principal.ts::resolvePrincipalCtx@67
+
+newWallet_ternary_false@65:
+    uncover 2
+    pop
+    // smart_contracts/utils/principal.ts:197
+    // origin: live ? controlled : Global.zeroAddress,
+    global ZeroAddress
+    cover 3
+    b newWallet_ternary_merge@66
+
+newWallet_ternary_false@62:
+    pop
+    // smart_contracts/utils/principal.ts:192
+    // const referrer = referrerExists && referrerBytes.length === 32 ? Account(referrerBytes) : Global.zeroAddress
+    global ZeroAddress
+    cover 4
+    b newWallet_ternary_merge@63
+
+newWallet_after_if_else@54:
+    // smart_contracts/utils/principal.ts:122
+    // const [walletAddress, walletExists] = op.AppParams.appAddress(wallet)
+    frame_dig -9
+    app_params_get AppAddress
+    swap
+    cover 3
+    // smart_contracts/utils/principal.ts:123
+    // if (!walletExists) {
+    bnz newWallet_after_if_else@56
+    uncover 2
+    pop
+    // smart_contracts/utils/principal.ts:124
+    // return false
+    intc_0 // 0
+    cover 2
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b newWallet_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@59
+
+newWallet_after_if_else@56:
+    // smart_contracts/utils/principal.ts:126
+    // if (controlled === walletAddress) {
+    dig 1
+    dig 3
+    ==
+    bz newWallet_after_if_else@58
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    uncover 2
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:127
+    // return authAddrOf(walletAddress) === Global.zeroAddress
+    global ZeroAddress
+    ==
+    cover 2
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b newWallet_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@59
+
+newWallet_after_if_else@58:
+    // smart_contracts/utils/principal.ts:85
+    // const [auth] = op.AcctParams.acctAuthAddr(account)
+    dig 1
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/utils/principal.ts:129
+    // return authAddrOf(controlled) === walletAddress
+    uncover 3
+    ==
+    cover 2
+    // smart_contracts/utils/principal.ts:189
+    // const live = walletControlsLive(hint, controlled, sender)
+    b newWallet_after_inlined_smart_contracts/utils/principal.ts::walletControlsLive@59
+
+newWallet_bool_false@31:
+    intc_0 // 0
+    b newWallet_bool_merge@32
+
+newWallet_ternary_false@17:
+    bury 1
+    frame_dig 3
+    swap
+    b newWallet_ternary_merge@18
+
+newWallet_ternary_false@9:
+    // smart_contracts/arc58/plugins/welcome/contract.algo.ts:95
+    // }).returnValue + (asset === 0 ? amount : Global.assetOptInMinBalance)
+    global AssetOptInMinBalance
+    b newWallet_ternary_merge@10

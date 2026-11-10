@@ -1,0 +1,266 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 2 4
+    bytecblock "ERR:mockInputReceiver"
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:16
+    // export class MockHaystackRouter extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@7
+    pushbytess 0x1fc4c3e3 0x5b02ba87 0x38635fde // method "optIn(uint64)void", method "prefix()void", method "finalize(uint64[],byte[],byte[],byte[93],byte[39],string)void"
+    txna ApplicationArgs 0
+    match optIn main_prefix_route@4 finalize
+    err
+
+main_prefix_route@4:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:24
+    // prefix(): void { }
+    intc_0 // 1
+    return
+
+main_create_NoOp@7:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:16
+    // export class MockHaystackRouter extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@8
+    err
+
+main_create_route@8:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:17
+    // @abimethod({ onCreate: 'require' })
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/haystack-router/contract.algo.ts::MockHaystackRouter.optIn[routing]() -> void:
+optIn:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:20
+    // optIn(asset: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:21
+    // itxn.assetTransfer({ xferAsset: asset, assetReceiver: Global.currentApplicationAddress, assetAmount: 0 }).submit()
+    itxn_begin
+    global CurrentApplicationAddress
+    intc_1 // 0
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field XferAsset
+    intc_3 // 4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:20
+    // optIn(asset: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/haystack-router/contract.algo.ts::MockHaystackRouter.finalize[routing]() -> void:
+finalize:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:32
+    // finalize(assets: uint64[], addresses: bytes, legs: bytes, terms: bytes<93>, flags: bytes<39>, tag: string): void {
+    txna ApplicationArgs 1
+    dupn 2
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    txna ApplicationArgs 2
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 93
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 93>
+    txna ApplicationArgs 5
+    len
+    pushint 39
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 39>
+    txna ApplicationArgs 6
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:33
+    // const inputIndex: uint64 = Txn.groupIndex - 1
+    txn GroupIndex
+    intc_0 // 1
+    -
+    dup
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:35
+    // if (input.type === TransactionType.Payment) {
+    gtxns TypeEnum
+    dup
+    intc_0 // 1
+    ==
+    bz finalize_else_body@9
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:36
+    // const pay = gtxn.PaymentTxn(inputIndex)
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:37
+    // loggedAssert(pay.receiver === Global.currentApplicationAddress && pay.closeRemainderTo === Global.zeroAddress, 'mockInputReceiver')
+    dup
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    bz finalize_bool_false@5
+    dup
+    gtxns CloseRemainderTo
+    global ZeroAddress
+    ==
+    bz finalize_bool_false@5
+    intc_0 // 1
+
+finalize_bool_merge@6:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:37
+    // loggedAssert(pay.receiver === Global.currentApplicationAddress && pay.closeRemainderTo === Global.zeroAddress, 'mockInputReceiver')
+    bnz finalize_after_if_else@18
+    bytec_0 // "ERR:mockInputReceiver"
+    log
+    err // ERR:mockInputReceiver
+
+finalize_after_if_else@18:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:43
+    // const assetOut = assets[1]
+    dig 2
+    pushint 10
+    extract_uint64
+    dup
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:44
+    // const minAmountOut = extractUint64(terms, 2)
+    dig 3
+    dup
+    intc_2 // 2
+    extract_uint64
+    cover 2
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:45
+    // const beneficiary = Account(extract(terms, 29, 32))
+    extract 29 32
+    swap
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:46
+    // if (assetOut === 0) itxn.payment({ receiver: beneficiary, amount: minAmountOut }).submit()
+    bnz finalize_else_body@21
+    uncover 2
+    pop
+    itxn_begin
+    itxn_field Receiver
+    itxn_field Amount
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+
+finalize_after_if_else@23:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:32
+    // finalize(assets: uint64[], addresses: bytes, legs: bytes, terms: bytes<93>, flags: bytes<39>, tag: string): void {
+    intc_0 // 1
+    return
+
+finalize_else_body@21:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:47
+    // else itxn.assetTransfer({ xferAsset: assetOut, assetReceiver: beneficiary, assetAmount: minAmountOut }).submit()
+    itxn_begin
+    itxn_field AssetReceiver
+    itxn_field AssetAmount
+    itxn_field XferAsset
+    intc_3 // 4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    b finalize_after_if_else@23
+
+finalize_bool_false@5:
+    intc_1 // 0
+    b finalize_bool_merge@6
+
+finalize_else_body@9:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:39
+    // const axfer = gtxn.AssetTransferTxn(inputIndex)
+    intc_3 // axfer
+    ==
+    assert // transaction type is axfer
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:40
+    // loggedAssert(axfer.assetReceiver === Global.currentApplicationAddress && axfer.assetCloseTo === Global.zeroAddress, 'mockInputReceiver')
+    dup
+    gtxns AssetReceiver
+    global CurrentApplicationAddress
+    ==
+    bz finalize_bool_false@12
+    dup
+    gtxns AssetCloseTo
+    global ZeroAddress
+    ==
+    bz finalize_bool_false@12
+    intc_0 // 1
+
+finalize_bool_merge@13:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:40
+    // loggedAssert(axfer.assetReceiver === Global.currentApplicationAddress && axfer.assetCloseTo === Global.zeroAddress, 'mockInputReceiver')
+    bnz finalize_after_assert@15
+    bytec_0 // "ERR:mockInputReceiver"
+    log
+    err // ERR:mockInputReceiver
+
+finalize_after_assert@15:
+    // smart_contracts/mocks/haystack-router/contract.algo.ts:41
+    // loggedAssert(axfer.assetSender === Global.zeroAddress, 'mockInputClawback')
+    dup
+    gtxns AssetSender
+    global ZeroAddress
+    ==
+    bnz finalize_after_if_else@18
+    pushbytes "ERR:mockInputClawback"
+    log
+    err // ERR:mockInputClawback
+
+finalize_bool_false@12:
+    intc_1 // 0
+    b finalize_bool_merge@13

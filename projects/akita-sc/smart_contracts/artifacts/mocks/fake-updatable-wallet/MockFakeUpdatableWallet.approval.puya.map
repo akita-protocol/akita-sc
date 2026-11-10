@@ -1,0 +1,365 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/fake-updatable-wallet/contract.algo.ts"
+  ],
+  "mappings": ";AAWA;;;;;;AAAA;;;AAAA;;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAWE;;;;;;;;;;;;;;AAAA;AAAA;;AAAA;AAXF;;;;;;AAAA;;;AAAA;;;;AAAA;AACmB;;;;;;;;;;;;;;;;;;;;AAIf;AAFD;;AAAA;AAKA;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "pushbytes 0xea9180dd // method \"update(string)void\"",
+      "defined_out": [
+        "Method(update(string)void)"
+      ],
+      "stack_out": [
+        "Method(update(string)void)"
+      ]
+    },
+    "7": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(update(string)void)",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "Method(update(string)void)",
+        "tmp%0#1"
+      ]
+    },
+    "10": {
+      "op": "match main_update_route@2",
+      "stack_out": []
+    },
+    "14": {
+      "block": "main_switch_case_next@3",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "16": {
+      "op": "!",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "17": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "18": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "20": {
+      "op": "bz main_create_NoOp@7",
+      "stack_out": []
+    },
+    "23": {
+      "op": "pushbytes 0x1d5c561b // method \"ping()uint64\"",
+      "defined_out": [
+        "Method(ping()uint64)"
+      ],
+      "stack_out": [
+        "Method(ping()uint64)"
+      ]
+    },
+    "29": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(ping()uint64)",
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "Method(ping()uint64)",
+        "tmp%10#0"
+      ]
+    },
+    "32": {
+      "op": "match main_ping_route@5",
+      "stack_out": []
+    },
+    "36": {
+      "op": "err"
+    },
+    "37": {
+      "block": "main_ping_route@5",
+      "stack_in": [],
+      "op": "pushbytes 0x151f7c750000000000000007",
+      "defined_out": [
+        "0x151f7c750000000000000007"
+      ],
+      "stack_out": [
+        "0x151f7c750000000000000007"
+      ]
+    },
+    "51": {
+      "op": "log",
+      "stack_out": []
+    },
+    "52": {
+      "op": "pushint 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "54": {
+      "op": "return",
+      "stack_out": []
+    },
+    "55": {
+      "block": "main_create_NoOp@7",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "61": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%11#0"
+      ]
+    },
+    "64": {
+      "op": "match main_create_route@8",
+      "stack_out": []
+    },
+    "68": {
+      "op": "err"
+    },
+    "69": {
+      "block": "main_create_route@8",
+      "stack_in": [],
+      "op": "pushbytess \"update_settings\" 0xc0",
+      "defined_out": [
+        "\"update_settings\"",
+        "0xc0"
+      ],
+      "stack_out": [
+        "\"update_settings\"",
+        "0xc0"
+      ]
+    },
+    "89": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "90": {
+      "op": "pushint 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "92": {
+      "op": "return",
+      "stack_out": []
+    },
+    "93": {
+      "block": "main_update_route@2",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "95": {
+      "op": "pushint 4 // UpdateApplication",
+      "defined_out": [
+        "UpdateApplication",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0",
+        "UpdateApplication"
+      ]
+    },
+    "97": {
+      "op": "==",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "98": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "100": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "101": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "102": {
+      "op": "b update"
+    },
+    "105": {
+      "subroutine": "smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts::MockFakeUpdatableWallet.update[routing]",
+      "params": {},
+      "block": "update",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "108": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "109": {
+      "op": "pushint 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "111": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "112": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "114": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "115": {
+      "op": "swap",
+      "stack_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "116": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "117": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "eq%0#0"
+      ]
+    },
+    "118": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": []
+    },
+    "119": {
+      "op": "pushint 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "121": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

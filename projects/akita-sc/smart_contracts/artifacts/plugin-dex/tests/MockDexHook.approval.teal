@@ -5,7 +5,7 @@
 main:
     intcblock 0 1 8 4
     bytecblock "value" "value2" "underlying" "target" "lender" 0x151f7c75 "mode" "calls" "receipt" "dex" "last_point" 0x00000000000000000000000000000000
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:74
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
     // export class MockDexHook extends Contract {
     txn OnCompletion
     !
@@ -18,7 +18,7 @@ main:
     err
 
 main_create_NoOp@8:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:74
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
     // export class MockDexHook extends Contract {
     pushbytes 0x240d2f67 // method "create(uint64)void"
     txna ApplicationArgs 0
@@ -82,7 +82,7 @@ rekeyBackToDex:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.create[routing]() -> void:
 create:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:90
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -91,77 +91,77 @@ create:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:75
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec 9 // "dex"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:89
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:92
     // this.dex.value = dex
     swap
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:76
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
     // mode = GlobalState<uint64>({ key: 'mode' })
     bytec 6 // "mode"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:90
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:93
     // this.mode.value = ModePass
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:91
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:94
     // this.value.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:92
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:95
     // this.value2.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:82
     // target = GlobalState<Account>({ key: 'target' })
     bytec_3 // "target"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:93
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:96
     // this.target.value = Global.zeroAddress
     global ZeroAddress
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
     // calls = GlobalState<uint64>({ key: 'calls' })
     bytec 7 // "calls"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:94
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:97
     // this.calls.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
     // lastPoint = GlobalState<uint64>({ key: 'last_point' })
     bytec 10 // "last_point"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:95
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:98
     // this.lastPoint.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:86
     // lender = GlobalState<Application>({ key: 'lender' })
     bytec 4 // "lender"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:96
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:99
     // this.lender.value = Application(0)
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:97
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:100
     // this.underlying.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:85
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:88
     // receipt = GlobalState<uint64>({ key: 'receipt' })
     bytec 8 // "receipt"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:98
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:101
     // this.receipt.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:90
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
@@ -169,7 +169,7 @@ create:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.configureExternal[routing]() -> void:
 configureExternal:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:102
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:105
     // configureExternal(lender: Application, underlying: uint64, receipt: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -192,28 +192,28 @@ configureExternal:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:86
     // lender = GlobalState<Application>({ key: 'lender' })
     bytec 4 // "lender"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:103
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:106
     // this.lender.value = lender
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:104
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:107
     // this.underlying.value = underlying
     uncover 2
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:85
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:88
     // receipt = GlobalState<uint64>({ key: 'receipt' })
     bytec 8 // "receipt"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:105
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:108
     // this.receipt.value = receipt
     swap
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:102
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:105
     // configureExternal(lender: Application, underlying: uint64, receipt: uint64): void {
     intc_1 // 1
     return
@@ -221,7 +221,7 @@ configureExternal:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.configure[routing]() -> void:
 configure:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:108
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:111
     // configure(mode: uint64, value: uint64, value2: uint64, target: Account): void {
     txna ApplicationArgs 1
     dup
@@ -250,35 +250,35 @@ configure:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:76
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
     // mode = GlobalState<uint64>({ key: 'mode' })
     bytec 6 // "mode"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:109
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:112
     // this.mode.value = mode
     uncover 4
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:110
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:113
     // this.value.value = value
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:111
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:114
     // this.value2.value = value2
     uncover 2
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:82
     // target = GlobalState<Account>({ key: 'target' })
     bytec_3 // "target"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:112
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:115
     // this.target.value = target
     swap
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:108
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:111
     // configure(mode: uint64, value: uint64, value2: uint64, target: Account): void {
     intc_1 // 1
     return
@@ -286,7 +286,7 @@ configure:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.optIn[routing]() -> void:
 optIn:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:116
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:119
     // optIn(asset: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -295,7 +295,7 @@ optIn:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:117
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:120
     // itxn.assetTransfer({ assetReceiver: Global.currentApplicationAddress, xferAsset: asset, assetAmount: 0 }).submit()
     itxn_begin
     global CurrentApplicationAddress
@@ -308,7 +308,7 @@ optIn:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:116
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:119
     // optIn(asset: uint64): void {
     intc_1 // 1
     return
@@ -317,7 +317,7 @@ optIn:
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook[routing]() -> void:
 akitaDexHook:
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
     txna ApplicationArgs 1
     dup
@@ -367,13 +367,13 @@ akitaDexHook:
     +
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::HookContext
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:198
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:201
     // requireDexCaller(this.dex.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:75
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
     // dex = GlobalState<Application>({ key: 'dex' })
     bytec 9 // "dex"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:198
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:201
     // requireDexCaller(this.dex.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -381,50 +381,50 @@ akitaDexHook:
     // loggedAssert(Global.callerApplicationId === dex.id, 'errHookCaller')
     global CallerApplicationID
     ==
-    bnz akitaDexHook_after_assert@72
+    bnz akitaDexHook_after_assert@77
     pushbytes "ERR:errHookCaller"
     log
     err // ERR:errHookCaller
 
-akitaDexHook_after_assert@72:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:199
+akitaDexHook_after_assert@77:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:202
     // this.calls.value += 1
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
     // calls = GlobalState<uint64>({ key: 'calls' })
     bytec 7 // "calls"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:199
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:202
     // this.calls.value += 1
     app_global_get_ex
     assert // check GlobalState exists
     intc_1 // 1
     +
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
     // calls = GlobalState<uint64>({ key: 'calls' })
     bytec 7 // "calls"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:199
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:202
     // this.calls.value += 1
     swap
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:203
     // this.lastPoint.value = ctx.point
     dupn 2
     intc_0 // 0
     extract_uint64
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
     // lastPoint = GlobalState<uint64>({ key: 'last_point' })
     bytec 10 // "last_point"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:203
     // this.lastPoint.value = ctx.point
     swap
     app_global_put
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:202
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:205
     // let mode = this.mode.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:76
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
     // mode = GlobalState<uint64>({ key: 'mode' })
     bytec 6 // "mode"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:202
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:205
     // let mode = this.mode.value
     app_global_get_ex
     swap
@@ -432,7 +432,7 @@ akitaDexHook_after_assert@72:
     cover 3
     cover 3
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:203
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:206
     // const custody = ctx.escrow.authAddress === Global.currentApplicationAddress
     extract 24 32
     dup
@@ -442,23 +442,23 @@ akitaDexHook_after_assert@72:
     global CurrentApplicationAddress
     ==
     swap
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:204
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:207
     // if (mode === ModeRequestCustody) {
     pushint 10
     ==
     bz akitaDexHook_after_if_else@5
     bury 1
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:205
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:208
     // if (!custody) {
     dup
     bnz akitaDexHook_after_if_else@4
     pop
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:206
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:209
     // return { flags: HookResultRequestCustody, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
     pushbytes 0x0000000000000002000000000000000000000000000000000000000000000000
 
-akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@62:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@67:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
     bytec 5 // 0x151f7c75
     swap
@@ -468,13 +468,13 @@ akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.t
     return
 
 akitaDexHook_after_if_else@4:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:208
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:211
     // mode = this.value2.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:208
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:211
     // mode = this.value2.value
     app_global_get_ex
     swap
@@ -482,16 +482,16 @@ akitaDexHook_after_if_else@4:
     assert // check GlobalState exists
 
 akitaDexHook_after_if_else@5:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:211
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:214
     // if (custody) {
-    bz akitaDexHook_after_if_else@55
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:212
+    bz akitaDexHook_after_if_else@60
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:215
     // if (mode === ModeSteal) {
     dup
     intc_1 // 1
     ==
     bz akitaDexHook_else_body@9
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:213-220
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:216-223
     // itxn
     //   .payment({
     //     sender: ctx.escrow,
@@ -501,20 +501,20 @@ akitaDexHook_after_if_else@5:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:216
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:219
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:217
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:220
     // amount: this.value.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:217
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:220
     // amount: this.value.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:218
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:221
     // rekeyTo: dex.address,
     dig 4
     app_params_get AppAddress
@@ -524,7 +524,7 @@ akitaDexHook_after_if_else@5:
     itxn_field Receiver
     dig 3
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:213-219
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:216-222
     // itxn
     //   .payment({
     //     sender: ctx.escrow,
@@ -536,7 +536,7 @@ akitaDexHook_after_if_else@5:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:213-220
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:216-223
     // itxn
     //   .payment({
     //     sender: ctx.escrow,
@@ -547,21 +547,21 @@ akitaDexHook_after_if_else@5:
     //   .submit()
     itxn_submit
 
-akitaDexHook_after_if_else@55:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:291
+akitaDexHook_after_if_else@60:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:306
     // if (mode === ModeSetFee) {
     dup
     pushint 5
     ==
-    bz akitaDexHook_after_if_else@57
+    bz akitaDexHook_after_if_else@62
     pop
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:292
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:307
     // return { flags: HookResultSetFee, feeBps: this.value.value, hookFee: 0, hookFeeOutBps: 0 }
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:292
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:307
     // return { flags: HookResultSetFee, feeBps: this.value.value, hookFee: 0, hookFeeOutBps: 0 }
     app_global_get_ex
     assert // check GlobalState exists
@@ -577,25 +577,25 @@ akitaDexHook_after_if_else@55:
     concat
     swap
     concat
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
-    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@62
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@67
 
-akitaDexHook_after_if_else@57:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:294
+akitaDexHook_after_if_else@62:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:309
     // if (mode === ModeHookFee) {
     dup
     pushint 6
     ==
-    bz akitaDexHook_after_if_else@59
+    bz akitaDexHook_after_if_else@64
     pop
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:295
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:310
     // return { flags: 0, feeBps: 0, hookFee: this.value.value, hookFeeOutBps: 0 }
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:295
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:310
     // return { flags: 0, feeBps: 0, hookFee: this.value.value, hookFeeOutBps: 0 }
     app_global_get_ex
     assert // check GlobalState exists
@@ -608,31 +608,31 @@ akitaDexHook_after_if_else@57:
     concat
     swap
     concat
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
-    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@62
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@67
 
-akitaDexHook_after_if_else@59:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:297
+akitaDexHook_after_if_else@64:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:312
     // if (mode === ModeHookFeeOut) {
     pushint 11
     ==
-    bz akitaDexHook_after_if_else@61
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:298
+    bz akitaDexHook_after_if_else@66
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:313
     // return { flags: 0, feeBps: 0, hookFee: this.value2.value, hookFeeOutBps: this.value.value }
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:298
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:313
     // return { flags: 0, feeBps: 0, hookFee: this.value2.value, hookFeeOutBps: this.value.value }
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:298
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:313
     // return { flags: 0, feeBps: 0, hookFee: this.value2.value, hookFeeOutBps: this.value.value }
     app_global_get_ex
     assert // check GlobalState exists
@@ -644,39 +644,39 @@ akitaDexHook_after_if_else@59:
     swap
     itob
     concat
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
-    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@62
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@67
 
-akitaDexHook_after_if_else@61:
+akitaDexHook_after_if_else@66:
     // smart_contracts/plugin-dex/hook-interface.ts:39
     // return { flags: 0, feeBps: 0, hookFee: 0, hookFeeOutBps: 0 }
     pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:197
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:200
     // akitaDexHook(dex: Application, hookIndex: uint64, ctx: HookContext): HookResult {
-    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@62
+    b akitaDexHook_after_inlined_smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.akitaDexHook@67
 
 akitaDexHook_else_body@9:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:221
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:224
     // } else if (mode === ModeKeepRekey) {
     dup
     pushint 2
     ==
-    bnz akitaDexHook_after_if_else@55
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:223
+    bnz akitaDexHook_after_if_else@60
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:226
     // } else if (mode === ModeDonate) {
     dup
     pushint 3
     ==
     bz akitaDexHook_else_body@14
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:224
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:227
     // itxn.payment({ receiver: ctx.escrow, amount: this.value.value }).submit()
     itxn_begin
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:224
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:227
     // itxn.payment({ receiver: ctx.escrow, amount: this.value.value }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -689,28 +689,28 @@ akitaDexHook_else_body@9:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:225
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:228
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@14:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:226
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:229
     // } else if (mode === ModeRekeyElsewhere) {
     dup
     intc_3 // 4
     ==
     bz akitaDexHook_else_body@17
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:227
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:230
     // itxn.payment({ sender: ctx.escrow, receiver: ctx.escrow, amount: 0, rekeyTo: this.target.value }).submit()
     itxn_begin
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:82
     // target = GlobalState<Account>({ key: 'target' })
     bytec_3 // "target"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:227
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:230
     // itxn.payment({ sender: ctx.escrow, receiver: ctx.escrow, amount: 0, rekeyTo: this.target.value }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -726,23 +726,23 @@ akitaDexHook_else_body@14:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@17:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:228
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:231
     // } else if (mode === ModeTrade) {
     dup
     pushint 7
     ==
     bz akitaDexHook_else_body@21
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:230
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:233
     // itxn.payment({ receiver: ctx.escrow, amount: this.value2.value }).submit()
     itxn_begin
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:230
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:233
     // itxn.payment({ receiver: ctx.escrow, amount: this.value2.value }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -755,7 +755,7 @@ akitaDexHook_else_body@17:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:231-239
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:234-242
     // itxn
     //   .assetTransfer({
     //     sender: ctx.escrow,
@@ -766,25 +766,25 @@ akitaDexHook_else_body@17:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:234
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:237
     // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:235
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:238
     // xferAsset: ctx.assetOut,
     dig 3
     pushint 144
     extract_uint64
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:236
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:239
     // assetAmount: this.value.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:236
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:239
     // assetAmount: this.value.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:237
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:240
     // rekeyTo: dex.address,
     dig 6
     app_params_get AppAddress
@@ -794,7 +794,7 @@ akitaDexHook_else_body@17:
     itxn_field XferAsset
     itxn_field AssetReceiver
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:231-238
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:234-241
     // itxn
     //   .assetTransfer({
     //     sender: ctx.escrow,
@@ -807,7 +807,7 @@ akitaDexHook_else_body@17:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:231-239
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:234-242
     // itxn
     //   .assetTransfer({
     //     sender: ctx.escrow,
@@ -818,34 +818,34 @@ akitaDexHook_else_body@17:
     //   })
     //   .submit()
     itxn_submit
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@21:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:240
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:243
     // } else if (mode === ModeKeyreg) {
     dup
     pushint 9
     ==
     bz akitaDexHook_else_body@27
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:241
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:244
     // if (this.value.value > 0) {
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:241
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:244
     // if (this.value.value > 0) {
     app_global_get_ex
     assert // check GlobalState exists
     bz akitaDexHook_after_if_else@25
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:242
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:245
     // itxn.payment({ receiver: ctx.escrow, amount: this.value.value }).submit()
     itxn_begin
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:242
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:245
     // itxn.payment({ receiver: ctx.escrow, amount: this.value.value }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -859,7 +859,7 @@ akitaDexHook_else_body@21:
     itxn_submit
 
 akitaDexHook_after_if_else@25:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:244-259
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:247-262
     // itxn
     //   .keyRegistration({
     //     sender: ctx.escrow,
@@ -877,43 +877,43 @@ akitaDexHook_after_if_else@25:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:254
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:257
     // voteFirst: Global.round,
     global Round
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:255
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:258
     // voteLast: Global.round + 100_000,
     dup
     pushint 100000
     +
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:257
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:260
     // rekeyTo: dex.address,
     dig 4
     app_params_get AppAddress
     assert // application exists
     itxn_field RekeyTo
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:256
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:259
     // voteKeyDilution: 1_000,
     pushint 1000
     itxn_field VoteKeyDilution
     itxn_field VoteLast
     itxn_field VoteFirst
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:250-252
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:253-255
     // stateProofKey: op
     //   .sha256(Bytes('sp1'))
     //   .concat(op.sha256(Bytes('sp2')))
     pushbytes 0x94b97b295a989a13f1e0f766d259cd39ac96384e9eddcfcfdb10d9365cd37213ba6ac2ed564d1ca4df745f2bfc1c5ea5dbdfbd9a38e64c70a70d23ac748a966a
     itxn_field StateProofPK
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:249
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:252
     // selectionKey: op.sha256(Bytes('selection')),
     pushbytes 0x65045134064dd4d905665eceaf4153fea4f9d69d2ae22255a0b7cef4701f4886
     itxn_field SelectionPK
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:248
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:251
     // voteKey: op.sha256(Bytes('vote')),
     pushbytes 0xab274474a6aa82c100dddca63977facb556f66f489fb558c044a456f9ba919ce
     itxn_field VotePK
     dig 3
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:244-258
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:247-261
     // itxn
     //   .keyRegistration({
     //     sender: ctx.escrow,
@@ -931,11 +931,11 @@ akitaDexHook_after_if_else@25:
     //   })
     pushint 2
     itxn_field TypeEnum
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:247
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:250
     // fee: KeyregIncentiveFee,
     pushint 2000000
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:244-259
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:247-262
     // itxn
     //   .keyRegistration({
     //     sender: ctx.escrow,
@@ -953,22 +953,22 @@ akitaDexHook_after_if_else@25:
     //   })
     //   .submit()
     itxn_submit
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@27:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:260
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:263
     // } else if (mode === ModeExternalDeposit) {
     dup
     pushint 12
     ==
     bz akitaDexHook_else_body@29
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:261
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:264
     // this.lend(ctx.escrow, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:261
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:264
     // this.lend(ctx.escrow, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -976,48 +976,48 @@ akitaDexHook_else_body@27:
     dup
     uncover 2
     callsub lend
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:262
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:265
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:262
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:265
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:262
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:265
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     cover 2
     callsub give
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:263
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:266
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@29:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:264
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:267
     // } else if (mode === ModeExternalRecall) {
     dup
     pushint 13
     ==
     bz akitaDexHook_else_body@31
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:265
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:268
     // this.redeem(ctx.escrow, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:265
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:268
     // this.redeem(ctx.escrow, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1025,48 +1025,48 @@ akitaDexHook_else_body@29:
     dup
     uncover 2
     callsub redeem
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:266
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:269
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:266
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:269
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:266
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:269
     // this.give(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     cover 2
     callsub give
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:267
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:270
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@31:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:268
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:271
     // } else if (mode === ModeExternalRecallTake) {
     dup
     pushint 16
     ==
     bz akitaDexHook_else_body@33
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:269
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:272
     // this.redeem(ctx.escrow, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:269
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:272
     // this.redeem(ctx.escrow, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1074,48 +1074,48 @@ akitaDexHook_else_body@31:
     dup
     uncover 2
     callsub redeem
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:270
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:273
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:270
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:273
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:270
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:273
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     cover 2
     callsub take
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:271
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:274
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@33:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:272
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:275
     // } else if (mode === ModeExternalDepositTake) {
     dup
     pushint 17
     ==
     bz akitaDexHook_else_body@35
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:273
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:276
     // this.lend(ctx.escrow, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:273
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:276
     // this.lend(ctx.escrow, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1123,56 +1123,56 @@ akitaDexHook_else_body@33:
     dup
     uncover 2
     callsub lend
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:274
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:274
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:274
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
     // this.take(ctx.escrow, this.underlying.value, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     cover 2
     callsub take
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:275
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:278
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@35:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:276
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:279
     // } else if (mode === ModeMoveReceipt) {
     dup
     pushint 14
     ==
     bz akitaDexHook_else_body@37
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
     // this.take(ctx.escrow, this.value2.value, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
     // this.take(ctx.escrow, this.value2.value, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:277
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
     // this.take(ctx.escrow, this.value2.value, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1182,37 +1182,37 @@ akitaDexHook_else_body@35:
     uncover 3
     uncover 2
     callsub take
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:278
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:281
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 akitaDexHook_else_body@37:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:279
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:282
     // } else if (mode === ModeSendTo) {
     dup
     pushint 15
     ==
     bz akitaDexHook_else_body@39
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
     // this.send(ctx.escrow, this.target.value, this.value2.value, this.value.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:79
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:82
     // target = GlobalState<Account>({ key: 'target' })
     bytec_3 // "target"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
     // this.send(ctx.escrow, this.target.value, this.value2.value, this.value.value)
     app_global_get_ex
     swap
     cover 2
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
     // this.send(ctx.escrow, this.target.value, this.value2.value, this.value.value)
     app_global_get_ex
     swap
@@ -1221,21 +1221,21 @@ akitaDexHook_else_body@37:
     cover 3
     assert // check GlobalState exists
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:280
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
     // this.send(ctx.escrow, this.target.value, this.value2.value, this.value.value)
     app_global_get_ex
     swap
     cover 2
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:148
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:151
     // if (asset === 0) {
-    bnz akitaDexHook_else_body@67
+    bnz akitaDexHook_else_body@72
     uncover 2
     pop
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:149
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:152
     // itxn.payment({ sender: escrow, receiver, amount }).submit()
     itxn_begin
     itxn_field Amount
@@ -1249,16 +1249,16 @@ akitaDexHook_else_body@37:
     itxn_field Fee
     itxn_submit
 
-akitaDexHook_after_if_else@68:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:281
+akitaDexHook_after_if_else@73:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:284
     // rekeyBackToDex(dex, ctx.escrow)
     dig 2
     dig 4
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
-akitaDexHook_else_body@67:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:151
+akitaDexHook_else_body@72:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:154
     // itxn.assetTransfer({ sender: escrow, assetReceiver: receiver, xferAsset: asset, assetAmount: amount }).submit()
     itxn_begin
     itxn_field AssetAmount
@@ -1273,26 +1273,125 @@ akitaDexHook_else_body@67:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    b akitaDexHook_after_if_else@68
+    b akitaDexHook_after_if_else@73
 
 akitaDexHook_else_body@39:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:282
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:285
+    // } else if (mode === ModeCloseHolding) {
+    dup
+    pushint 18
+    ==
+    bz akitaDexHook_else_body@43
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:286-294
+    // itxn
+    //   .assetTransfer({
+    //     sender: ctx.escrow,
+    //     assetReceiver: Asset(this.value2.value).creator,
+    //     assetCloseTo: Asset(this.value2.value).creator,
+    //     xferAsset: this.value2.value,
+    //     assetAmount: 0,
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:289
+    // assetReceiver: Asset(this.value2.value).creator,
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
+    // value2 = GlobalState<uint64>({ key: 'value2' })
+    bytec_1 // "value2"
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:289
+    // assetReceiver: Asset(this.value2.value).creator,
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    asset_params_get AssetCreator
+    assert // asset exists
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:290
+    // assetCloseTo: Asset(this.value2.value).creator,
+    dig 1
+    asset_params_get AssetCreator
+    assert // asset exists
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:292
+    // assetAmount: 0,
+    intc_0 // 0
+    itxn_field AssetAmount
+    uncover 2
+    itxn_field XferAsset
+    itxn_field AssetCloseTo
+    itxn_field AssetReceiver
+    dig 3
+    dup
+    itxn_field Sender
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:286-293
+    // itxn
+    //   .assetTransfer({
+    //     sender: ctx.escrow,
+    //     assetReceiver: Asset(this.value2.value).creator,
+    //     assetCloseTo: Asset(this.value2.value).creator,
+    //     xferAsset: this.value2.value,
+    //     assetAmount: 0,
+    //   })
+    intc_3 // 4
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:286-294
+    // itxn
+    //   .assetTransfer({
+    //     sender: ctx.escrow,
+    //     assetReceiver: Asset(this.value2.value).creator,
+    //     assetCloseTo: Asset(this.value2.value).creator,
+    //     xferAsset: this.value2.value,
+    //     assetAmount: 0,
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:295
+    // itxn.payment({ sender: ctx.escrow, receiver: Global.currentApplicationAddress, amount: this.value.value }).submit()
+    itxn_begin
+    global CurrentApplicationAddress
+    intc_0 // 0
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
+    // value = GlobalState<uint64>({ key: 'value' })
+    bytec_0 // "value"
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:295
+    // itxn.payment({ sender: ctx.escrow, receiver: Global.currentApplicationAddress, amount: this.value.value }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field Amount
+    itxn_field Receiver
+    dup
+    itxn_field Sender
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:296
+    // rekeyBackToDex(dex, ctx.escrow)
+    dig 3
+    swap
+    callsub rekeyBackToDex
+    b akitaDexHook_after_if_else@60
+
+akitaDexHook_else_body@43:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:297
     // } else if (mode === ModeStealBoth) {
     dup
     intc_2 // 8
     ==
-    bz akitaDexHook_else_body@41
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
+    bz akitaDexHook_else_body@45
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:298
     // this.take(ctx.escrow, ctx.assetIn, this.value.value)
     dig 1
     dup
     pushint 136
     extract_uint64
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:77
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:80
     // value = GlobalState<uint64>({ key: 'value' })
     bytec_0 // "value"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:283
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:298
     // this.take(ctx.escrow, ctx.assetIn, this.value.value)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1301,47 +1400,47 @@ akitaDexHook_else_body@39:
     cover 4
     cover 2
     callsub take
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:284
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:299
     // this.take(ctx.escrow, ctx.assetOut, this.value2.value)
     pushint 144
     extract_uint64
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:78
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:81
     // value2 = GlobalState<uint64>({ key: 'value2' })
     bytec_1 // "value2"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:284
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:299
     // this.take(ctx.escrow, ctx.assetOut, this.value2.value)
     app_global_get_ex
     assert // check GlobalState exists
     dig 2
     cover 2
     callsub take
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:285
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:300
     // rekeyBackToDex(dex, ctx.escrow)
     dig 3
     swap
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
-akitaDexHook_else_body@41:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:287
+akitaDexHook_else_body@45:
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:302
     // rekeyBackToDex(dex, ctx.escrow)
     dig 2
     dig 4
     callsub rekeyBackToDex
-    b akitaDexHook_after_if_else@55
+    b akitaDexHook_after_if_else@60
 
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.take(escrow: bytes, asset: uint64, amount: uint64) -> void:
 take:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:121
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:124
     // private take(escrow: Account, asset: uint64, amount: uint64): void {
     proto 3 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:122
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:125
     // if (asset === 0) {
     frame_dig -2
     bnz take_else_body@3
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:123
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:126
     // itxn.payment({ sender: escrow, receiver: Global.currentApplicationAddress, amount }).submit()
     itxn_begin
     global CurrentApplicationAddress
@@ -1358,7 +1457,7 @@ take:
     retsub
 
 take_else_body@3:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:125-132
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:128-135
     // itxn
     //   .assetTransfer({
     //     sender: escrow,
@@ -1368,7 +1467,7 @@ take_else_body@3:
     //   })
     //   .submit()
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:128
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:131
     // assetReceiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
     frame_dig -1
@@ -1378,7 +1477,7 @@ take_else_body@3:
     itxn_field AssetReceiver
     frame_dig -3
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:125-131
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:128-134
     // itxn
     //   .assetTransfer({
     //     sender: escrow,
@@ -1390,7 +1489,7 @@ take_else_body@3:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:125-132
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:128-135
     // itxn
     //   .assetTransfer({
     //     sender: escrow,
@@ -1405,21 +1504,21 @@ take_else_body@3:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.give(receiver: bytes, asset: uint64, amount: uint64) -> void:
 give:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:137
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:140
     // private give(receiver: Account, asset: uint64, amount: uint64): void {
     proto 3 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:138
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:141
     // if (amount === 0) return
     frame_dig -1
     bnz give_after_if_else@2
     retsub
 
 give_after_if_else@2:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:139
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:142
     // if (asset === 0) {
     frame_dig -2
     bnz give_else_body@5
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:140
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:143
     // itxn.payment({ receiver, amount }).submit()
     itxn_begin
     frame_dig -1
@@ -1434,7 +1533,7 @@ give_after_if_else@2:
     retsub
 
 give_else_body@5:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:142
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:145
     // itxn.assetTransfer({ assetReceiver: receiver, xferAsset: asset, assetAmount: amount }).submit()
     itxn_begin
     frame_dig -1
@@ -1453,38 +1552,38 @@ give_else_body@5:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.lend(escrow: bytes, amount: uint64) -> void:
 lend:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:156
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:159
     // private lend(escrow: Account, amount: uint64): void {
     proto 2 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:157
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:160
     // const lender = this.lender.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:86
     // lender = GlobalState<Application>({ key: 'lender' })
     bytec 4 // "lender"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:157
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:160
     // const lender = this.lender.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:158
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:161
     // if (this.underlying.value === 0) {
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:158
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:161
     // if (this.underlying.value === 0) {
     app_global_get_ex
     assert // check GlobalState exists
     bnz lend_else_body@4
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:159-163
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:162-166
     // abiCall<typeof MockLender.prototype.depositAlgo>({
     //   appId: lender,
     //   sender: escrow,
     //   args: [itxn.payment({ sender: escrow, receiver: lender.address, amount })],
     // })
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:162
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:165
     // args: [itxn.payment({ sender: escrow, receiver: lender.address, amount })],
     dup
     app_params_get AppAddress
@@ -1498,7 +1597,7 @@ lend:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:159-163
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:162-166
     // abiCall<typeof MockLender.prototype.depositAlgo>({
     //   appId: lender,
     //   sender: escrow,
@@ -1530,7 +1629,7 @@ lend:
     retsub
 
 lend_else_body@4:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:165-176
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:168-179
     // abiCall<typeof MockLender.prototype.depositAsset>({
     //   appId: lender,
     //   sender: escrow,
@@ -1544,18 +1643,18 @@ lend_else_body@4:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:171
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:174
     // assetReceiver: lender.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:172
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:175
     // xferAsset: this.underlying.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:84
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:87
     // underlying = GlobalState<uint64>({ key: 'underlying' })
     bytec_2 // "underlying"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:172
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:175
     // xferAsset: this.underlying.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1565,7 +1664,7 @@ lend_else_body@4:
     itxn_field AssetReceiver
     frame_dig -2
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:169-174
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:172-177
     // itxn.assetTransfer({
     //   sender: escrow,
     //   assetReceiver: lender.address,
@@ -1576,7 +1675,7 @@ lend_else_body@4:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:165-176
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:168-179
     // abiCall<typeof MockLender.prototype.depositAsset>({
     //   appId: lender,
     //   sender: escrow,
@@ -1617,20 +1716,20 @@ lend_else_body@4:
 
 // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts::MockDexHook.redeem(escrow: bytes, units: uint64) -> void:
 redeem:
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:181
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:184
     // private redeem(escrow: Account, units: uint64): void {
     proto 2 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:182
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:185
     // const lender = this.lender.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:83
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:86
     // lender = GlobalState<Application>({ key: 'lender' })
     bytec 4 // "lender"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:182
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:185
     // const lender = this.lender.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:183-194
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:186-197
     // abiCall<typeof MockLender.prototype.redeem>({
     //   appId: lender,
     //   sender: escrow,
@@ -1644,18 +1743,18 @@ redeem:
     //   ],
     // })
     itxn_begin
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:189
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:192
     // assetReceiver: lender.address,
     dup
     app_params_get AppAddress
     assert // application exists
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:190
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:193
     // xferAsset: this.receipt.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:85
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:88
     // receipt = GlobalState<uint64>({ key: 'receipt' })
     bytec 8 // "receipt"
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:190
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:193
     // xferAsset: this.receipt.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -1665,7 +1764,7 @@ redeem:
     itxn_field AssetReceiver
     frame_dig -2
     itxn_field Sender
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:187-192
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:190-195
     // itxn.assetTransfer({
     //   sender: escrow,
     //   assetReceiver: lender.address,
@@ -1676,7 +1775,7 @@ redeem:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:183-194
+    // smart_contracts/plugin-dex/tests/mock-dex-hook.algo.ts:186-197
     // abiCall<typeof MockLender.prototype.redeem>({
     //   appId: lender,
     //   sender: escrow,

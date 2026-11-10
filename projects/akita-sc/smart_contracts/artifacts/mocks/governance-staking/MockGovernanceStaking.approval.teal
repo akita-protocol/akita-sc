@@ -1,0 +1,273 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 1 0 32
+    bytecblock "s" "t" 0x151f7c75
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:11
+    // export class MockGovernanceStaking extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@11
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xbb20aa5f 0x85841a12 0xd40162af 0x4fc316ca // method "setLock(address,uint64,uint64,uint64)void", method "setLiveLocked(uint64,uint64)void", method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)", method "getTotals(uint64[])(uint64,uint64,uint64)[]"
+    txna ApplicationArgs 0
+    match setLock setLiveLocked getInfo getTotals
+    err
+
+main___algots__.defaultCreate@11:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:11
+    // export class MockGovernanceStaking extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/governance-staking/contract.algo.ts::MockGovernanceStaking.setLock[routing]() -> void:
+setLock:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:15
+    // setLock(address: Account, asset: uint64, amount: uint64, expiration: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:16
+    // this.locks({ address, asset, type: STAKING_TYPE_LOCK }).value = { amount, lastUpdate: Global.latestTimestamp, expiration, weightedAge: 0 }
+    global LatestTimestamp
+    uncover 2
+    itob
+    swap
+    itob
+    concat
+    swap
+    itob
+    concat
+    intc_2 // 0
+    itob
+    concat
+    swap
+    itob
+    uncover 2
+    swap
+    concat
+    pushbytes 0x28
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:12
+    // locks = BoxMap<StakeKey, Stake>({ keyPrefix: 's' })
+    bytec_0 // "s"
+    swap
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:16
+    // this.locks({ address, asset, type: STAKING_TYPE_LOCK }).value = { amount, lastUpdate: Global.latestTimestamp, expiration, weightedAge: 0 }
+    swap
+    box_put
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:15
+    // setLock(address: Account, asset: uint64, amount: uint64, expiration: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/governance-staking/contract.algo.ts::MockGovernanceStaking.setLiveLocked[routing]() -> void:
+setLiveLocked:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:19
+    // setLiveLocked(asset: uint64, liveLockedStake: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:20
+    // this.totals(asset).value = { locked: liveLockedStake, escrowed: 0, liveLockedStake }
+    itob
+    intc_2 // 0
+    itob
+    dig 1
+    swap
+    concat
+    swap
+    concat
+    swap
+    itob
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:13
+    // totals = BoxMap<uint64, TotalsInfo>({ keyPrefix: 't' })
+    bytec_1 // "t"
+    swap
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:20
+    // this.totals(asset).value = { locked: liveLockedStake, escrowed: 0, liveLockedStake }
+    swap
+    box_put
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:19
+    // setLiveLocked(asset: uint64, liveLockedStake: uint64): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/governance-staking/contract.algo.ts::MockGovernanceStaking.getInfo[routing]() -> void:
+getInfo:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:23
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 9
+    ==
+    assert // invalid number of bytes for smart_contracts/staking/types.ts::StakeInfo
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:25
+    // return this.locks({ address, asset: stake.asset, type: stake.type }).get({ default: { amount: 0, lastUpdate: 0, expiration: 0, weightedAge: 0 } })
+    dup
+    extract 0 8
+    swap
+    extract 8 1
+    cover 2
+    concat
+    swap
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:12
+    // locks = BoxMap<StakeKey, Stake>({ keyPrefix: 's' })
+    bytec_0 // "s"
+    swap
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:25
+    // return this.locks({ address, asset: stake.asset, type: stake.type }).get({ default: { amount: 0, lastUpdate: 0, expiration: 0, weightedAge: 0 } })
+    box_get
+    pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
+    cover 2
+    select
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:23
+    // @abimethod({ readonly: true })
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/governance-staking/contract.algo.ts::MockGovernanceStaking.getTotals[routing]() -> void:
+getTotals:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:28
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dupn 2
+    intc_2 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_0 // 8
+    *
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:30
+    // const results: TotalsInfo[] = []
+    pushbytes 0x0000
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:31
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_2 // 0
+
+getTotals_while_top@2:
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:31
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    dup
+    dig 3
+    <
+    bz getTotals_after_while@4
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:32
+    // results.push(this.totals(assets[i]).get({ default: { locked: 0, escrowed: 0, liveLockedStake: 0 } }))
+    dig 3
+    extract 2 0
+    dig 1
+    intc_0 // 8
+    *
+    intc_0 // 8
+    extract3 // on error: index access is out of bounds
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:13
+    // totals = BoxMap<uint64, TotalsInfo>({ keyPrefix: 't' })
+    bytec_1 // "t"
+    swap
+    concat
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:32
+    // results.push(this.totals(assets[i]).get({ default: { locked: 0, escrowed: 0, liveLockedStake: 0 } }))
+    box_get
+    pushbytes 0x000000000000000000000000000000000000000000000000
+    cover 2
+    select
+    uncover 2
+    dup
+    intc_2 // 0
+    extract_uint16
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:32
+    // results.push(this.totals(assets[i]).get({ default: { locked: 0, escrowed: 0, liveLockedStake: 0 } }))
+    intc_1 // 1
+    +
+    itob
+    extract 6 0
+    replace2 0
+    swap
+    concat
+    swap
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:31
+    // for (let i: uint64 = 0; i < assets.length; i += 1) {
+    intc_1 // 1
+    +
+    b getTotals_while_top@2
+
+getTotals_after_while@4:
+    pop
+    // smart_contracts/mocks/governance-staking/contract.algo.ts:28
+    // @abimethod({ readonly: true })
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

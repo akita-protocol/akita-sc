@@ -1,0 +1,404 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 1 6
+    bytecblock 0x151f7c75 0x0000
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:22
+    // export class MockLegacyNftCaller extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x2b8ba12b // method "newAuction(uint64,bool,uint64,uint64,uint64,uint64,address)uint64"
+    txna ApplicationArgs 0
+    match main_newAuction_route@3
+    err
+
+main_newAuction_route@3:
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:24-32
+    // newAuction(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   factory: Application,
+    //   prizeID: uint64,
+    //   startTimestamp: uint64,
+    //   endTimestamp: uint64,
+    //   marketplace: Account
+    // ): uint64 {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b newAuction
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:22
+    // export class MockLegacyNftCaller extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/auction/mocks/legacy-caller.algo.ts::MockLegacyNftCaller.newAuction[routing]() -> void:
+newAuction:
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:24-32
+    // newAuction(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   factory: Application,
+    //   prizeID: uint64,
+    //   startTimestamp: uint64,
+    //   endTimestamp: uint64,
+    //   marketplace: Account
+    // ): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    cover 2
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 4
+    dup
+    cover 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 3
+    txna ApplicationArgs 5
+    dup
+    cover 6
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 6
+    dup
+    cover 6
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 7
+    dup
+    cover 6
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    // smart_contracts/utils/functions.ts:400
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz newAuction_after_assert@3
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+newAuction_after_assert@3:
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:35-38
+    // const cost = abiCall<typeof AuctionFactory.prototype.newAuctionCost>({
+    //   appId: factory,
+    //   args: [false, 0, prizeID, 0],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:37
+    // args: [false, 0, prizeID, 0],
+    intc_1 // 0
+    itob
+    dup
+    cover 3
+    dig 2
+    dup
+    cover 2
+    itxn_field ApplicationID
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:35-38
+    // const cost = abiCall<typeof AuctionFactory.prototype.newAuctionCost>({
+    //   appId: factory,
+    //   args: [false, 0, prizeID, 0],
+    // }).returnValue
+    pushbytes 0xa5d42b3a // method "newAuctionCost(bool,uint64,uint64,uint64)uint64"
+    itxn_field ApplicationArgs
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:37
+    // args: [false, 0, prizeID, 0],
+    pushbytes 0x00
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:35-38
+    // const cost = abiCall<typeof AuctionFactory.prototype.newAuctionCost>({
+    //   appId: factory,
+    //   args: [false, 0, prizeID, 0],
+    // }).returnValue
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:40-59
+    // return abiCall<typeof AuctionFactory.prototype.legacyNewAuction>({
+    //   sender,
+    //   appId: factory,
+    //   args: [
+    //     itxn.payment({ sender, receiver: factory.address, amount: cost }),
+    //     itxn.assetTransfer({ sender, assetReceiver: factory.address, assetAmount: 1, xferAsset: Asset(prizeID) }),
+    //     '',
+    //     [],
+    //     0,
+    //     0,
+    //     1_000_000,
+    //     100_000,
+    //     startTimestamp,
+    //     endTimestamp,
+    //     0,
+    //     marketplace,
+    //     0,
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:44
+    // itxn.payment({ sender, receiver: factory.address, amount: cost }),
+    dig 1
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    dig 1
+    dup
+    cover 2
+    itxn_field Sender
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:45
+    // itxn.assetTransfer({ sender, assetReceiver: factory.address, assetAmount: 1, xferAsset: Asset(prizeID) }),
+    itxn_next
+    app_params_get AppAddress
+    assert // application exists
+    uncover 5
+    itxn_field XferAsset
+    intc_2 // 1
+    itxn_field AssetAmount
+    itxn_field AssetReceiver
+    itxn_field Sender
+    pushint 4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:40-59
+    // return abiCall<typeof AuctionFactory.prototype.legacyNewAuction>({
+    //   sender,
+    //   appId: factory,
+    //   args: [
+    //     itxn.payment({ sender, receiver: factory.address, amount: cost }),
+    //     itxn.assetTransfer({ sender, assetReceiver: factory.address, assetAmount: 1, xferAsset: Asset(prizeID) }),
+    //     '',
+    //     [],
+    //     0,
+    //     0,
+    //     1_000_000,
+    //     100_000,
+    //     startTimestamp,
+    //     endTimestamp,
+    //     0,
+    //     marketplace,
+    //     0,
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    itxn_next
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:50
+    // 1_000_000,
+    pushint 1000000
+    itob
+    cover 2
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:51
+    // 100_000,
+    pushint 100000
+    itob
+    cover 2
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    uncover 9
+    bnz newAuction_after_if_else@7
+    uncover 5
+    pop
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+
+newAuction_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8:
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:40-59
+    // return abiCall<typeof AuctionFactory.prototype.legacyNewAuction>({
+    //   sender,
+    //   appId: factory,
+    //   args: [
+    //     itxn.payment({ sender, receiver: factory.address, amount: cost }),
+    //     itxn.assetTransfer({ sender, assetReceiver: factory.address, assetAmount: 1, xferAsset: Asset(prizeID) }),
+    //     '',
+    //     [],
+    //     0,
+    //     0,
+    //     1_000_000,
+    //     100_000,
+    //     startTimestamp,
+    //     endTimestamp,
+    //     0,
+    //     marketplace,
+    //     0,
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    pushbytes 0xd1548fff // method "newAuction(pay,axfer,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64"
+    itxn_field ApplicationArgs
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:46
+    // '',
+    bytec_1 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:47
+    // [],
+    bytec_1 // 0x0000
+    itxn_field ApplicationArgs
+    uncover 2
+    dup
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:40-59
+    // return abiCall<typeof AuctionFactory.prototype.legacyNewAuction>({
+    //   sender,
+    //   appId: factory,
+    //   args: [
+    //     itxn.payment({ sender, receiver: factory.address, amount: cost }),
+    //     itxn.assetTransfer({ sender, assetReceiver: factory.address, assetAmount: 1, xferAsset: Asset(prizeID) }),
+    //     '',
+    //     [],
+    //     0,
+    //     0,
+    //     1_000_000,
+    //     100_000,
+    //     startTimestamp,
+    //     endTimestamp,
+    //     0,
+    //     marketplace,
+    //     0,
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // }).returnValue
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:24-32
+    // newAuction(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   factory: Application,
+    //   prizeID: uint64,
+    //   startTimestamp: uint64,
+    //   endTimestamp: uint64,
+    //   marketplace: Account
+    // ): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return
+
+newAuction_after_if_else@7:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    uncover 5
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/auction/mocks/legacy-caller.algo.ts:58
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    b newAuction_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8

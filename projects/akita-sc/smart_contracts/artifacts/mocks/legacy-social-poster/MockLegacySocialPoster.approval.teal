@@ -1,0 +1,334 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 1
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:13
+    // export class MockLegacySocialPoster extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x31c2c086 // method "post(uint64,bool,uint64,uint64,uint64,uint64,uint64,byte[24],byte[36])void"
+    txna ApplicationArgs 0
+    match main_post_route@3
+    err
+
+main_post_route@3:
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:15-25
+    // post(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   social: Application,
+    //   akta: uint64,
+    //   tip: uint64,
+    //   mbr: uint64,
+    //   timestamp: uint64,
+    //   nonce: bytes<24>,
+    //   cid: bytes<36>
+    // ): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b post
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:13
+    // export class MockLegacySocialPoster extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/legacy-social-poster/contract.algo.ts::MockLegacySocialPoster.post[routing]() -> void:
+post:
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:15-25
+    // post(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   social: Application,
+    //   akta: uint64,
+    //   tip: uint64,
+    //   mbr: uint64,
+    //   timestamp: uint64,
+    //   nonce: bytes<24>,
+    //   cid: bytes<36>
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    cover 2
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 3
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    txna ApplicationArgs 8
+    dup
+    cover 2
+    len
+    pushint 24
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 24>
+    txna ApplicationArgs 9
+    dup
+    cover 2
+    len
+    pushint 36
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 36>
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    cover 4
+    // smart_contracts/utils/functions.ts:400
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz post_after_assert@3
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+post_after_assert@3:
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:27-45
+    // itxn.submitGroup(
+    //   itxn.payment({ sender, receiver: social.address, amount: mbr }),
+    //   itxn.assetTransfer({ sender, assetReceiver: social.address, xferAsset: akta, assetAmount: tip }),
+    //   itxn.applicationCall({
+    //     sender,
+    //     appId: social,
+    //     appArgs: [
+    //       methodSelector('post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'),
+    //       op.itob(timestamp),
+    //       nonce,
+    //       cid,
+    //       op.itob(0), // gateID
+    //       op.bzero(1), // usePayWall = false
+    //       op.itob(0), // payWallID
+    //       op.itob(0), // creatorFlags
+    //     ],
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    // )
+    itxn_begin
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:28
+    // itxn.payment({ sender, receiver: social.address, amount: mbr }),
+    dig 6
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 4
+    itxn_field Amount
+    itxn_field Receiver
+    dig 3
+    dup
+    cover 2
+    itxn_field Sender
+    intc_2 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:29
+    // itxn.assetTransfer({ sender, assetReceiver: social.address, xferAsset: akta, assetAmount: tip }),
+    itxn_next
+    app_params_get AppAddress
+    assert // application exists
+    uncover 6
+    itxn_field AssetAmount
+    uncover 8
+    itxn_field XferAsset
+    itxn_field AssetReceiver
+    itxn_field Sender
+    pushint 4
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:30-44
+    // itxn.applicationCall({
+    //   sender,
+    //   appId: social,
+    //   appArgs: [
+    //     methodSelector('post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'),
+    //     op.itob(timestamp),
+    //     nonce,
+    //     cid,
+    //     op.itob(0), // gateID
+    //     op.bzero(1), // usePayWall = false
+    //     op.itob(0), // payWallID
+    //     op.itob(0), // creatorFlags
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_next
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:35
+    // op.itob(timestamp),
+    uncover 3
+    itob
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:38
+    // op.itob(0), // gateID
+    intc_1 // 0
+    itob
+    cover 3
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:39
+    // op.bzero(1), // usePayWall = false
+    intc_2 // 1
+    bzero
+    cover 3
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    uncover 8
+    bnz post_after_if_else@7
+    uncover 7
+    pop
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+
+post_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8:
+    itxn_field RekeyTo
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:34
+    // methodSelector('post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'),
+    pushbytes 0x8e507f1b // method "post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    swap
+    dup
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:30-44
+    // itxn.applicationCall({
+    //   sender,
+    //   appId: social,
+    //   appArgs: [
+    //     methodSelector('post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'),
+    //     op.itob(timestamp),
+    //     nonce,
+    //     cid,
+    //     op.itob(0), // gateID
+    //     op.bzero(1), // usePayWall = false
+    //     op.itob(0), // payWallID
+    //     op.itob(0), // creatorFlags
+    //   ],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushint 6
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:27-45
+    // itxn.submitGroup(
+    //   itxn.payment({ sender, receiver: social.address, amount: mbr }),
+    //   itxn.assetTransfer({ sender, assetReceiver: social.address, xferAsset: akta, assetAmount: tip }),
+    //   itxn.applicationCall({
+    //     sender,
+    //     appId: social,
+    //     appArgs: [
+    //       methodSelector('post(pay,axfer,uint64,byte[24],byte[36],uint64,bool,uint64,uint64)void'),
+    //       op.itob(timestamp),
+    //       nonce,
+    //       cid,
+    //       op.itob(0), // gateID
+    //       op.bzero(1), // usePayWall = false
+    //       op.itob(0), // payWallID
+    //       op.itob(0), // creatorFlags
+    //     ],
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    // )
+    itxn_submit
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:15-25
+    // post(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   social: Application,
+    //   akta: uint64,
+    //   tip: uint64,
+    //   mbr: uint64,
+    //   timestamp: uint64,
+    //   nonce: bytes<24>,
+    //   cid: bytes<36>
+    // ): void {
+    intc_2 // 1
+    return
+
+post_after_if_else@7:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    uncover 7
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/mocks/legacy-social-poster/contract.algo.ts:43
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    b post_after_inlined_smart_contracts/utils/functions.ts::rekeyAddress@8

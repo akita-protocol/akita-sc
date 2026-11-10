@@ -1,0 +1,55 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    // smart_contracts/arc58/guilds/tests/mock-guild-update.algo.ts:5-6
+    // @contract({ avmVersion: 13 })
+    // export class MockGuildUpdateReplacement extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0xea9180dd // method "update(string)void"
+    txna ApplicationArgs 0
+    match main_update_route@3
+    err
+
+main_update_route@3:
+    // smart_contracts/arc58/guilds/tests/mock-guild-update.algo.ts:7
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/arc58/guilds/tests/mock-guild-update.algo.ts:5-6
+    // @contract({ avmVersion: 13 })
+    // export class MockGuildUpdateReplacement extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-guild-update.algo.ts::MockGuildUpdateReplacement.update[routing]() -> void:
+update:
+    // smart_contracts/arc58/guilds/tests/mock-guild-update.algo.ts:7
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 1
+    return

@@ -1,0 +1,607 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 2
+    bytecblock 0x151f7c75 "akita_dao" "registry_cursor" "ERR:errIarg" "ERR:errIrga" "ERR:errIpay"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:26
+    // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
+    bytec_2 // "registry_cursor"
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:28
+    // registrationShape = GlobalState<string>({ initialValue: '(uint64,uint64)', key: GateGlobalStateKeyRegistrationShape })
+    pushbytess "registration_shape" "(uint64,uint64)"
+    app_global_put
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:30
+    // checkShape = GlobalState<string>({ initialValue: '', key: GateGlobalStateKeyCheckShape })
+    pushbytess "check_shape" ""
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:22
+    // export class GovernanceParticipationGate extends AkitaBaseContract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@14
+    pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0xb934aadc 0xf5bc3233 0x90d4fa5d 0x33e92c94 0x854dede0 // method "cost(byte[])uint64", method "register(pay,byte[])uint64", method "check(address,uint64,byte[])bool", method "checkFor((address,uint64,address),uint64,byte[])bool", method "getRegistrationShape((uint64,uint64))(uint64,uint64)", method "getEntry(uint64)byte[]", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    txna ApplicationArgs 0
+    match cost register check checkFor getRegistrationShape getEntry updateAkitaDAO main_opUp_route@12
+    err
+
+main_opUp_route@12:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:30
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main_create_NoOp@14:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:22
+    // export class GovernanceParticipationGate extends AkitaBaseContract {
+    pushbytes 0xcd9ad67e // method "create(string,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.create[routing]() -> void:
+create:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:58
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/utils/base-contracts/upgradeable.ts:14
+    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
+    pushbytes "version"
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:60
+    // this.version.value = version
+    uncover 2
+    app_global_put
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:61
+    // this.akitaDAO.value = Application(akitaDAO)
+    swap
+    app_global_put
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:58
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.cost[routing]() -> void:
+cost:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:66
+    // cost(args: bytes): uint64 {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushbytes 0x151f7c750000000000002f44
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.register[routing]() -> void:
+register:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:70
+    // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:71
+    // loggedAssert(args.length === GovernanceParticipationRegisterByteLength, errInvalidArgCount)
+    len
+    pushint 16
+    ==
+    bnz register_after_assert@3
+    bytec_3 // "ERR:errIarg"
+    log
+    err // ERR:errIarg
+
+register_after_assert@3:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:72
+    // loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    dig 2
+    gtxns Receiver
+    global CurrentApplicationAddress
+    ==
+    bnz register_after_assert@5
+    bytec 5 // "ERR:errIpay"
+    log
+    err // ERR:errIpay
+
+register_after_assert@5:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:73
+    // loggedAssert(mbrPayment.amount === GovernanceParticipationGateRegistryMBR, errInvalidPayment)
+    uncover 2
+    gtxns Amount
+    pushint 12100
+    ==
+    bnz register_after_assert@7
+    bytec 5 // "ERR:errIpay"
+    log
+    err // ERR:errIpay
+
+register_after_assert@7:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:76
+    // loggedAssert(info.minVotes > 0, errInvalidRegistryArg)
+    swap
+    pushint 10
+    extract_uint64
+    bnz register_after_assert@9
+    bytec 4 // "ERR:errIrga"
+    log
+    err // ERR:errIrga
+
+register_after_assert@9:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:39
+    // const id = this.registryCursor.value
+    intc_0 // 0
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:26
+    // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
+    bytec_2 // "registry_cursor"
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:39
+    // const id = this.registryCursor.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:40
+    // this.registryCursor.value += 1
+    dup
+    intc_1 // 1
+    +
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:26
+    // registryCursor = GlobalState<uint64>({ initialValue: 1, key: GateGlobalStateKeyRegistryCursor })
+    bytec_2 // "registry_cursor"
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:40
+    // this.registryCursor.value += 1
+    swap
+    app_global_put
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:79
+    // this.registry(id).value = clone(info)
+    itob
+    dup
+    uncover 2
+    box_put
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:70
+    // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.check[routing]() -> void:
+check:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:83
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:84
+    // loggedAssert(args.length === 0, errInvalidArgCount)
+    len
+    bz check_after_assert@3
+    bytec_3 // "ERR:errIarg"
+    log
+    err // ERR:errIarg
+
+check_after_assert@3:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:85
+    // loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
+    itob
+    dup
+    box_len
+    bury 1
+    bnz check_after_assert@5
+    bytec 4 // "ERR:errIrga"
+    log
+    err // ERR:errIrga
+
+check_after_assert@5:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:86
+    // const { withinSeconds, minVotes } = clone(this.registry(registryID).value)
+    box_get
+    assert // Box must have value
+    dup
+    intc_0 // 0
+    extract_uint64
+    swap
+    intc_2 // 8
+    extract_uint64
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:87
+    // return this.participationGate(caller, withinSeconds, minVotes)
+    callsub participationGate
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:83
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.checkFor[routing]() -> void:
+checkFor:
+    intc_0 // 0
+    pushbytes ""
+    dup
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:91
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 72
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::GateCtx
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:92
+    // loggedAssert(args.length === 0, errInvalidArgCount)
+    len
+    bz checkFor_after_assert@3
+    bytec_3 // "ERR:errIarg"
+    log
+    err // ERR:errIarg
+
+checkFor_after_assert@3:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:93
+    // loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
+    itob
+    dup
+    box_len
+    bury 1
+    bnz checkFor_after_assert@5
+    bytec 4 // "ERR:errIrga"
+    log
+    err // ERR:errIrga
+
+checkFor_after_assert@5:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:94
+    // const { withinSeconds, minVotes } = clone(this.registry(registryID).value)
+    box_get
+    assert // Box must have value
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    cover 2
+    bury 4
+    intc_2 // 8
+    extract_uint64
+    dup
+    bury 5
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:95
+    // if (this.participationGate(ctx.principal, withinSeconds, minVotes)) {
+    dig 2
+    extract 0 32
+    dup
+    cover 3
+    cover 2
+    callsub participationGate
+    bz checkFor_after_if_else@7
+    popn 2
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:96
+    // return true
+    intc_1 // 1
+
+checkFor_after_inlined_smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.checkFor@12:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:91
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+checkFor_after_if_else@7:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:98
+    // return ctx.spender !== ctx.principal && this.participationGate(ctx.spender, withinSeconds, minVotes)
+    swap
+    extract 40 32
+    dup
+    bury 5
+    !=
+    bz checkFor_bool_false@10
+    dig 2
+    dig 1
+    dig 3
+    callsub participationGate
+    bz checkFor_bool_false@10
+    intc_1 // 1
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:91
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    b checkFor_after_inlined_smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.checkFor@12
+
+checkFor_bool_false@10:
+    intc_0 // 0
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:91
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    b checkFor_after_inlined_smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.checkFor@12
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.getRegistrationShape[routing]() -> void:
+getRegistrationShape:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:101
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 16
+    ==
+    assert // invalid number of bytes for smart_contracts/gates/sub-gates/governance-participation/types.ts::GovernanceParticipationGateRegistryInfo
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.getEntry[routing]() -> void:
+getEntry:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:106
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:108
+    // return encodeArc4(this.registry(registryID).value)
+    itob
+    box_get
+    assert // Box must have value
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:106
+    // @abimethod({ readonly: true })
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/utils/base-contracts/upgradeable.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
+updateAkitaDAO:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
+    // updateAkitaDAO(akitaDAO: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    txn Sender
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushbytes "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz updateAkitaDAO_after_assert@3
+    pushbytes "ERR:errNdao"
+    log
+    err // ERR:errNdao
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:27
+    // this.akitaDAO.value = akitaDAO
+    swap
+    app_global_put
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
+    // updateAkitaDAO(akitaDAO: Application): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts::GovernanceParticipationGate.participationGate(user: bytes, withinSeconds: uint64, minVotes: uint64) -> uint64:
+participationGate:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:44
+    // private participationGate(user: Account, withinSeconds: uint64, minVotes: uint64): boolean {
+    proto 3 1
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:45-48
+    // const { lastVotedTs, votes } = abiCall<typeof AkitaDAO.prototype.getGovernanceParticipation>({
+    //   appId: this.akitaDAO.value,
+    //   args: [user],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:46
+    // appId: this.akitaDAO.value,
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:46
+    // appId: this.akitaDAO.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:45-48
+    // const { lastVotedTs, votes } = abiCall<typeof AkitaDAO.prototype.getGovernanceParticipation>({
+    //   appId: this.akitaDAO.value,
+    //   args: [user],
+    // }).returnValue
+    pushbytes 0x146fe00b // method "getGovernanceParticipation(address)(uint64,uint64,uint64)"
+    itxn_field ApplicationArgs
+    frame_dig -3
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    pushint 24
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/dao/types.ts::GovernanceParticipation
+    dup
+    pushint 4
+    extract_uint64
+    swap
+    pushint 20
+    extract_uint64
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:50
+    // if (votes < minVotes) {
+    frame_dig -1
+    <
+    bz participationGate_after_if_else@3
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:51
+    // return false
+    intc_0 // 0
+    swap
+    retsub
+
+participationGate_after_if_else@3:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:53
+    // return withinSeconds === 0 || Global.latestTimestamp - lastVotedTs <= withinSeconds
+    frame_dig -2
+    bz participationGate_bool_true@5
+    global LatestTimestamp
+    frame_dig 0
+    -
+    frame_dig -2
+    <=
+    bz participationGate_bool_false@6
+
+participationGate_bool_true@5:
+    intc_1 // 1
+
+participationGate_bool_merge@7:
+    // smart_contracts/gates/sub-gates/governance-participation/contract.algo.ts:53
+    // return withinSeconds === 0 || Global.latestTimestamp - lastVotedTs <= withinSeconds
+    swap
+    retsub
+
+participationGate_bool_false@6:
+    intc_0 // 0
+    b participationGate_bool_merge@7

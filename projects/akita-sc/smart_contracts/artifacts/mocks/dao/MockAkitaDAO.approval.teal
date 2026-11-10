@@ -3,30 +3,44 @@
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    // smart_contracts/mocks/dao/mock.algo.ts:4
+    intcblock 1 0 2 40
+    // smart_contracts/mocks/dao/mock.algo.ts:5
     // export class MockAkitaDAO extends Contract {
     txn NumAppArgs
-    bz main___algots__.defaultCreate@6
-    pushbytess 0xea9180dd 0x1d5c561b // method "update(string)void", method "ping()uint64"
+    bz main___algots__.defaultCreate@12
+    pushbytes 0xea9180dd // method "update(string)void"
     txna ApplicationArgs 0
-    match main_update_route@3 main_ping_route@4
-    err
+    match main_update_route@3
 
-main_ping_route@4:
-    // smart_contracts/mocks/dao/mock.algo.ts:9
-    // ping(): uint64 {
+main_switch_case_next@4:
+    // smart_contracts/mocks/dao/mock.algo.ts:5
+    // export class MockAkitaDAO extends Contract {
     txn OnCompletion
     !
-    txn ApplicationID
-    &&
     assert
+    txn ApplicationID
+    assert
+    pushbytess 0x1d5c561b 0xe17258dc 0x854dede0 // method "ping()uint64", method "isUpgradeLease(uint64,byte[32])bool", method "opUp()void"
+    txna ApplicationArgs 0
+    match main_ping_route@6 isUpgradeLease main_opUp_route@8
+    err
+
+main_opUp_route@8:
+    // smart_contracts/mocks/dao/mock.algo.ts:32
+    // opUp(): void { }
+    intc_0 // 1
+    return
+
+main_ping_route@6:
+    // smart_contracts/mocks/dao/mock.algo.ts:14
+    // ping(): uint64 {
     pushbytes 0x151f7c750000000000000539
     log
-    pushint 1
+    intc_0 // 1
     return
 
 main_update_route@3:
-    // smart_contracts/mocks/dao/mock.algo.ts:6
+    // smart_contracts/mocks/dao/mock.algo.ts:11
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txn OnCompletion
     pushint 4 // UpdateApplication
@@ -36,8 +50,8 @@ main_update_route@3:
     assert
     b update
 
-main___algots__.defaultCreate@6:
-    // smart_contracts/mocks/dao/mock.algo.ts:4
+main___algots__.defaultCreate@12:
+    // smart_contracts/mocks/dao/mock.algo.ts:5
     // export class MockAkitaDAO extends Contract {
     txn OnCompletion
     !
@@ -49,17 +63,127 @@ main___algots__.defaultCreate@6:
 
 // smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.update[routing]() -> void:
 update:
-    // smart_contracts/mocks/dao/mock.algo.ts:6
+    // smart_contracts/mocks/dao/mock.algo.ts:11
     // @abimethod({ allowActions: ['UpdateApplication'] })
     txna ApplicationArgs 1
     dup
-    pushint 0
+    intc_1 // 0
     extract_uint16 // on error: invalid array length header
-    pushint 2
+    intc_2 // 2
     +
     swap
     len
     ==
     assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
-    pushint 1
+    intc_0 // 1
     return
+
+
+// smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.isUpgradeLease[routing]() -> void:
+isUpgradeLease:
+    // smart_contracts/mocks/dao/mock.algo.ts:18
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/dao/mock.algo.ts:20
+    // if (!this.upgradeLeases(app).exists) {
+    itob
+    // smart_contracts/mocks/dao/mock.algo.ts:9
+    // upgradeLeases = BoxMap<uint64, UpgradeLease[]>({ keyPrefix: 'u' })
+    pushbytes "u"
+    swap
+    concat
+    dup
+    // smart_contracts/mocks/dao/mock.algo.ts:20
+    // if (!this.upgradeLeases(app).exists) {
+    box_len
+    bury 1
+    bnz isUpgradeLease_after_if_else@3
+    pop
+    // smart_contracts/mocks/dao/mock.algo.ts:21
+    // return false
+    intc_1 // 0
+
+isUpgradeLease_after_inlined_smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.isUpgradeLease@9:
+    // smart_contracts/mocks/dao/mock.algo.ts:18
+    // @abimethod({ readonly: true })
+    pushbytes 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+isUpgradeLease_after_if_else@3:
+    // smart_contracts/mocks/dao/mock.algo.ts:24
+    // for (let i: uint64 = 0; i < entries.length; i++) {
+    intc_1 // 0
+
+isUpgradeLease_while_top@4:
+    // smart_contracts/mocks/dao/mock.algo.ts:23-24
+    // const entries = clone(this.upgradeLeases(app).value)
+    // for (let i: uint64 = 0; i < entries.length; i++) {
+    dig 1
+    intc_1 // 0
+    intc_2 // 2
+    box_extract
+    btoi
+    // smart_contracts/mocks/dao/mock.algo.ts:24
+    // for (let i: uint64 = 0; i < entries.length; i++) {
+    dig 1
+    >
+    bz isUpgradeLease_after_while@8
+    // smart_contracts/mocks/dao/mock.algo.ts:25
+    // if (entries[i].lease === lease) {
+    dup
+    intc_3 // 40
+    *
+    intc_2 // 2
+    +
+    dig 2
+    swap
+    intc_3 // 40
+    box_extract // on error: index out of bounds
+    extract 0 32
+    dig 3
+    ==
+    bz isUpgradeLease_after_if_else@7
+    popn 2
+    // smart_contracts/mocks/dao/mock.algo.ts:26
+    // return true
+    intc_0 // 1
+    // smart_contracts/mocks/dao/mock.algo.ts:18
+    // @abimethod({ readonly: true })
+    b isUpgradeLease_after_inlined_smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.isUpgradeLease@9
+
+isUpgradeLease_after_if_else@7:
+    // smart_contracts/mocks/dao/mock.algo.ts:24
+    // for (let i: uint64 = 0; i < entries.length; i++) {
+    intc_0 // 1
+    +
+    b isUpgradeLease_while_top@4
+
+isUpgradeLease_after_while@8:
+    popn 2
+    // smart_contracts/mocks/dao/mock.algo.ts:29
+    // return false
+    intc_1 // 0
+    // smart_contracts/mocks/dao/mock.algo.ts:18
+    // @abimethod({ readonly: true })
+    b isUpgradeLease_after_inlined_smart_contracts/mocks/dao/mock.algo.ts::MockAkitaDAO.isUpgradeLease@9

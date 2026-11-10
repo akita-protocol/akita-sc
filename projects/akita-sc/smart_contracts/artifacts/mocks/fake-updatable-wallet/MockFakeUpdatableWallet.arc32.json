@@ -1,0 +1,85 @@
+{
+    "hints": {
+        "create()void": {
+            "call_config": {
+                "no_op": "CREATE"
+            }
+        },
+        "update(string)void": {
+            "call_config": {
+                "update_application": "CALL"
+            }
+        },
+        "ping()uint64": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZmFrZS11cGRhdGFibGUtd2FsbGV0L2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrRmFrZVVwZGF0YWJsZVdhbGxldCBleHRlbmRzIENvbnRyYWN0IHsKICAgIHB1c2hieXRlcyAweGVhOTE4MGRkIC8vIG1ldGhvZCAidXBkYXRlKHN0cmluZyl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl91cGRhdGVfcm91dGVAMgoKbWFpbl9zd2l0Y2hfY2FzZV9uZXh0QDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZmFrZS11cGRhdGFibGUtd2FsbGV0L2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrRmFrZVVwZGF0YWJsZVdhbGxldCBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGJ6IG1haW5fY3JlYXRlX05vT3BANwogICAgcHVzaGJ5dGVzIDB4MWQ1YzU2MWIgLy8gbWV0aG9kICJwaW5nKCl1aW50NjQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX3Bpbmdfcm91dGVANQogICAgZXJyCgptYWluX3Bpbmdfcm91dGVANToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9mYWtlLXVwZGF0YWJsZS13YWxsZXQvY29udHJhY3QuYWxnby50czoyMwogICAgLy8gcGluZygpOiB1aW50NjQgewogICAgcHVzaGJ5dGVzIDB4MTUxZjdjNzUwMDAwMDAwMDAwMDAwMDA3CiAgICBsb2cKICAgIHB1c2hpbnQgMQogICAgcmV0dXJuCgptYWluX2NyZWF0ZV9Ob09wQDc6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZmFrZS11cGRhdGFibGUtd2FsbGV0L2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrRmFrZVVwZGF0YWJsZVdhbGxldCBleHRlbmRzIENvbnRyYWN0IHsKICAgIHB1c2hieXRlcyAweDRjNWM2MWJhIC8vIG1ldGhvZCAiY3JlYXRlKCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9jcmVhdGVfcm91dGVAOAogICAgZXJyCgptYWluX2NyZWF0ZV9yb3V0ZUA4OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2Zha2UtdXBkYXRhYmxlLXdhbGxldC9jb250cmFjdC5hbGdvLnRzOjEzCiAgICAvLyB1cGRhdGVTZXR0aW5ncyA9IEdsb2JhbFN0YXRlPEZhY3RvcnlVcGRhdGVTZXR0aW5ncz4oeyBrZXk6IEFic3RyYWN0QWNjb3VudEdsb2JhbFN0YXRlS2V5c1VwZGF0ZVNldHRpbmdzIH0pCiAgICBwdXNoYnl0ZXNzICJ1cGRhdGVfc2V0dGluZ3MiIDB4YzAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9mYWtlLXVwZGF0YWJsZS13YWxsZXQvY29udHJhY3QuYWxnby50czoxNwogICAgLy8gdGhpcy51cGRhdGVTZXR0aW5ncy52YWx1ZSA9IHsgYWxsb3dlZDogdHJ1ZSwgYXV0b21hdGljOiB0cnVlIH0KICAgIGFwcF9nbG9iYWxfcHV0CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZmFrZS11cGRhdGFibGUtd2FsbGV0L2NvbnRyYWN0LmFsZ28udHM6MTUKICAgIC8vIEBhYmltZXRob2QoeyBvbkNyZWF0ZTogJ3JlcXVpcmUnIH0pCiAgICBwdXNoaW50IDEKICAgIHJldHVybgoKbWFpbl91cGRhdGVfcm91dGVAMjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9mYWtlLXVwZGF0YWJsZS13YWxsZXQvY29udHJhY3QuYWxnby50czoyMAogICAgLy8gQGFiaW1ldGhvZCh7IGFsbG93QWN0aW9uczogWydVcGRhdGVBcHBsaWNhdGlvbiddIH0pCiAgICB0eG4gT25Db21wbGV0aW9uCiAgICBwdXNoaW50IDQgLy8gVXBkYXRlQXBwbGljYXRpb24KICAgID09CiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIGFzc2VydAogICAgYiB1cGRhdGUKCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZmFrZS11cGRhdGFibGUtd2FsbGV0L2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tGYWtlVXBkYXRhYmxlV2FsbGV0LnVwZGF0ZVtyb3V0aW5nXSgpIC0+IHZvaWQ6CnVwZGF0ZToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9mYWtlLXVwZGF0YWJsZS13YWxsZXQvY29udHJhY3QuYWxnby50czoyMAogICAgLy8gQGFiaW1ldGhvZCh7IGFsbG93QWN0aW9uczogWydVcGRhdGVBcHBsaWNhdGlvbiddIH0pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIHB1c2hpbnQgMAogICAgZXh0cmFjdF91aW50MTYgLy8gb24gZXJyb3I6IGludmFsaWQgYXJyYXkgbGVuZ3RoIGhlYWRlcgogICAgcHVzaGludCAyCiAgICArCiAgICBzd2FwCiAgICBsZW4KICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQuZHluYW1pY19hcnJheTxhcmM0LnVpbnQ4PgogICAgcHVzaGludCAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 1,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {
+                "updateSettings": {
+                    "type": "bytes",
+                    "key": "update_settings"
+                }
+            },
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockFakeUpdatableWallet",
+        "desc": "TEST-ONLY (ACC-08). An app NOT created by the wallet factory that still looks updatable to it:\nit exposes `update_settings = { allowed: true, automatic: true }` and accepts\n`update(string)` as UpdateApplication. The factory must refuse to push wallet code into it.\nNever deploy outside tests.",
+        "methods": [
+            {
+                "name": "create",
+                "args": [],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "update",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "version"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "ping",
+                "args": [],
+                "readonly": false,
+                "returns": {
+                    "type": "uint64"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {}
+}

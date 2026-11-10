@@ -1,0 +1,1507 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/escrow-owner/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;AAUA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AACE;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACS;AAE2B;;AAAA;;AAAA;;;;;AAAzB;;;AAAA;;;AAFF;;;AAAA;;;;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AADT;AAAA;AAAA;AAAA;AAAA;AAAA;AAOA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;AAEkC;;AAAA;;AAAA;;;;;AAAzB;;;AAAA;;;AAFT;;;;AAAA;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AADF;AAAA;AAQA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAGwB;;AAAA;AACtB;;;;AAAuE;;;;;;;;AAAvE;;;AAAA;;;AAAA;AAEuB;;AAAA;;AAAA;AACvB;;;;;AAAA;;;;;;;;;;;AAAA;;;AAAA;;;AAAA;AAIO;;AAAA;;AAAA;AAAA;AAAA;AAXT;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 8 0 1 6"
+    },
+    "7": {
+      "op": "bytecblock 0x151f7c75"
+    },
+    "14": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "16": {
+      "op": "bz main___algots__.defaultCreate@10",
+      "stack_out": []
+    },
+    "19": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "21": {
+      "op": "!",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "22": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "23": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "25": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "26": {
+      "op": "pushbytess 0x5077161e 0x95100113 0x809e74f9 // method \"newEscrow(uint64,uint64)uint64\", method \"registerEscrow(uint64,uint64,uint64)void\", method \"deleteEscrow(uint64,uint64)uint64\"",
+      "defined_out": [
+        "Method(deleteEscrow(uint64,uint64)uint64)",
+        "Method(newEscrow(uint64,uint64)uint64)",
+        "Method(registerEscrow(uint64,uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(newEscrow(uint64,uint64)uint64)",
+        "Method(registerEscrow(uint64,uint64,uint64)void)",
+        "Method(deleteEscrow(uint64,uint64)uint64)"
+      ]
+    },
+    "43": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(deleteEscrow(uint64,uint64)uint64)",
+        "Method(newEscrow(uint64,uint64)uint64)",
+        "Method(registerEscrow(uint64,uint64,uint64)void)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "Method(newEscrow(uint64,uint64)uint64)",
+        "Method(registerEscrow(uint64,uint64,uint64)void)",
+        "Method(deleteEscrow(uint64,uint64)uint64)",
+        "tmp%6#0"
+      ]
+    },
+    "46": {
+      "op": "match newEscrow registerEscrow deleteEscrow",
+      "stack_out": []
+    },
+    "54": {
+      "op": "err"
+    },
+    "55": {
+      "block": "main___algots__.defaultCreate@10",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "57": {
+      "op": "!",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "58": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "60": {
+      "op": "!",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "61": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "62": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "63": {
+      "subroutine": "smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.newEscrow[routing]",
+      "params": {},
+      "block": "newEscrow",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "66": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "67": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "68": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "69": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "70": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "71": {
+      "op": "btoi",
+      "defined_out": [
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "72": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "75": {
+      "op": "dup",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "76": {
+      "op": "len",
+      "defined_out": [
+        "factory#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "77": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "78": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "79": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "80": {
+      "op": "btoi",
+      "defined_out": [
+        "cost#0",
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "cost#0"
+      ]
+    },
+    "81": {
+      "op": "itxn_begin"
+    },
+    "82": {
+      "op": "dig 1",
+      "defined_out": [
+        "cost#0",
+        "factory#0",
+        "factory#0 (copy)"
+      ],
+      "stack_out": [
+        "factory#0",
+        "cost#0",
+        "factory#0 (copy)"
+      ]
+    },
+    "84": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "cost#0",
+        "factory#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "cost#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "86": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "factory#0",
+        "cost#0",
+        "value%0#0"
+      ]
+    },
+    "87": {
+      "op": "itxn_field Receiver"
+    },
+    "89": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "91": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1",
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "1"
+      ]
+    },
+    "92": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "94": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "0"
+      ]
+    },
+    "95": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "97": {
+      "op": "itxn_next"
+    },
+    "98": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": []
+    },
+    "100": {
+      "op": "pushbytes 0xd85cf184 // method \"new(pay)uint64\"",
+      "defined_out": [
+        "Method(new(pay)uint64)"
+      ],
+      "stack_out": [
+        "Method(new(pay)uint64)"
+      ]
+    },
+    "106": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "108": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "109": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "111": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "112": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "114": {
+      "op": "itxn_submit"
+    },
+    "115": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "117": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "118": {
+      "op": "extract 4 0",
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%0#0"
+      ]
+    },
+    "121": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "122": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "125": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%1#1",
+        "0x151f7c75"
+      ]
+    },
+    "126": {
+      "op": "==",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%2#1"
+      ]
+    },
+    "127": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "128": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "129": {
+      "op": "len",
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "130": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "131": {
+      "op": "==",
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "132": {
+      "error": "invalid number of bytes for uint64",
+      "op": "assert // invalid number of bytes for uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "133": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "134": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%0#0"
+      ]
+    },
+    "135": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "136": {
+      "op": "log",
+      "stack_out": []
+    },
+    "137": {
+      "op": "intc_2 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "138": {
+      "op": "return",
+      "stack_out": []
+    },
+    "139": {
+      "subroutine": "smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.registerEscrow[routing]",
+      "params": {},
+      "block": "registerEscrow",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "142": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "143": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "144": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "145": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "146": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "147": {
+      "op": "btoi",
+      "defined_out": [
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "148": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "151": {
+      "op": "dup",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "152": {
+      "op": "len",
+      "defined_out": [
+        "factory#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "153": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "154": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "155": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "156": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "159": {
+      "op": "dup",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "160": {
+      "op": "len",
+      "defined_out": [
+        "factory#0",
+        "len%2#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "161": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "162": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "163": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%4#0"
+      ]
+    },
+    "164": {
+      "op": "btoi",
+      "defined_out": [
+        "factory#0",
+        "mbr#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "mbr#0"
+      ]
+    },
+    "165": {
+      "op": "itxn_begin"
+    },
+    "166": {
+      "op": "dig 2",
+      "defined_out": [
+        "factory#0",
+        "factory#0 (copy)",
+        "mbr#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "mbr#0",
+        "factory#0 (copy)"
+      ]
+    },
+    "168": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "factory#0",
+        "mbr#0",
+        "tmp%2#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "mbr#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "170": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "mbr#0",
+        "value%0#0"
+      ]
+    },
+    "171": {
+      "op": "itxn_field Receiver"
+    },
+    "173": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "175": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "1"
+      ]
+    },
+    "176": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "178": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "179": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "181": {
+      "op": "itxn_next"
+    },
+    "182": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%2#0",
+        "factory#0"
+      ]
+    },
+    "183": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "185": {
+      "op": "pushbytes 0x607e7046 // method \"register(pay,uint64)void\"",
+      "defined_out": [
+        "Method(register(pay,uint64)void)",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "Method(register(pay,uint64)void)"
+      ]
+    },
+    "191": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "193": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "195": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "196": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "198": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "199": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "201": {
+      "op": "itxn_submit"
+    },
+    "202": {
+      "op": "intc_2 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "203": {
+      "op": "return",
+      "stack_out": []
+    },
+    "204": {
+      "subroutine": "smart_contracts/mocks/escrow-owner/contract.algo.ts::MockEscrowOwner.deleteEscrow[routing]",
+      "params": {},
+      "block": "deleteEscrow",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "207": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "208": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "209": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "210": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "211": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "212": {
+      "op": "btoi",
+      "defined_out": [
+        "factory#0"
+      ],
+      "stack_out": [
+        "factory#0"
+      ]
+    },
+    "213": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "216": {
+      "op": "dup",
+      "defined_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "217": {
+      "op": "len",
+      "defined_out": [
+        "factory#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "218": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "219": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "220": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "221": {
+      "op": "dup",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "222": {
+      "op": "btoi",
+      "defined_out": [
+        "escrow#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrow#0"
+      ]
+    },
+    "223": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "escrowAddress#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0",
+        "check%0#0"
+      ]
+    },
+    "225": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0"
+      ]
+    },
+    "226": {
+      "op": "itxn_begin"
+    },
+    "227": {
+      "op": "dup",
+      "defined_out": [
+        "escrowAddress#0",
+        "escrowAddress#0 (copy)",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0",
+        "escrowAddress#0 (copy)"
+      ]
+    },
+    "228": {
+      "op": "itxn_field RekeyTo",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0"
+      ]
+    },
+    "230": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "escrowAddress#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0",
+        "0"
+      ]
+    },
+    "231": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0"
+      ]
+    },
+    "233": {
+      "op": "dup",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0",
+        "escrowAddress#0 (copy)"
+      ]
+    },
+    "234": {
+      "op": "itxn_field Receiver",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "escrowAddress#0"
+      ]
+    },
+    "236": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "238": {
+      "op": "intc_2 // 1",
+      "defined_out": [
+        "1",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "1"
+      ]
+    },
+    "239": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "241": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "242": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0"
+      ]
+    },
+    "244": {
+      "op": "itxn_submit"
+    },
+    "245": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "factory#0",
+        "tmp%0#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "tmp%0#1"
+      ]
+    },
+    "247": {
+      "op": "acct_params_get AcctBalance",
+      "defined_out": [
+        "before#0",
+        "check%1#0",
+        "factory#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "before#0",
+        "check%1#0"
+      ]
+    },
+    "249": {
+      "error": "account funded",
+      "op": "assert // account funded",
+      "stack_out": [
+        "factory#0",
+        "tmp%2#0",
+        "before#0"
+      ]
+    },
+    "250": {
+      "op": "itxn_begin"
+    },
+    "251": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "before#0",
+        "factory#0"
+      ]
+    },
+    "253": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%2#0",
+        "before#0"
+      ]
+    },
+    "255": {
+      "op": "pushbytes 0x8a39e79f // method \"delete(uint64)void\"",
+      "defined_out": [
+        "Method(delete(uint64)void)",
+        "before#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "before#0",
+        "Method(delete(uint64)void)"
+      ]
+    },
+    "261": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%2#0",
+        "before#0"
+      ]
+    },
+    "263": {
+      "op": "swap",
+      "stack_out": [
+        "before#0",
+        "tmp%2#0"
+      ]
+    },
+    "264": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "before#0"
+      ]
+    },
+    "266": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl",
+        "before#0"
+      ],
+      "stack_out": [
+        "before#0",
+        "appl"
+      ]
+    },
+    "267": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": [
+        "before#0"
+      ]
+    },
+    "269": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "before#0",
+        "0"
+      ]
+    },
+    "270": {
+      "op": "itxn_field Fee",
+      "stack_out": [
+        "before#0"
+      ]
+    },
+    "272": {
+      "op": "itxn_submit"
+    },
+    "273": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "before#0",
+        "tmp%2#1"
+      ],
+      "stack_out": [
+        "before#0",
+        "tmp%2#1"
+      ]
+    },
+    "275": {
+      "op": "acct_params_get AcctBalance",
+      "defined_out": [
+        "before#0",
+        "check%2#0",
+        "value%2#0"
+      ],
+      "stack_out": [
+        "before#0",
+        "value%2#0",
+        "check%2#0"
+      ]
+    },
+    "277": {
+      "error": "account funded",
+      "op": "assert // account funded",
+      "stack_out": [
+        "before#0",
+        "value%2#0"
+      ]
+    },
+    "278": {
+      "op": "swap",
+      "stack_out": [
+        "value%2#0",
+        "before#0"
+      ]
+    },
+    "279": {
+      "op": "-",
+      "defined_out": [
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%3#1"
+      ]
+    },
+    "280": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "281": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "282": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "283": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "284": {
+      "op": "log",
+      "stack_out": []
+    },
+    "285": {
+      "op": "intc_2 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "286": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

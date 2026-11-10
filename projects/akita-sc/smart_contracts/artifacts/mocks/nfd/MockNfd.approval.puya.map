@@ -1,0 +1,1095 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/nfd/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AA+BA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;AAAA;;;AAAA;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAMG;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AALM;;;;;;;;AAOL;;AAAA;AANM;;;;;;;;;;;AAON;;AAAA;AAC4B;AAAA;AAPb;AAOf;AAAA;AANW;AAOX;AAAA;AALD;AAAA;AASQ;AAXI;AAWJ;AAAA;AADT;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAIA;;AAAA;AAAA;AAAA;;AAAA;;AAAA;AAAA;AAAA;AACe;;AAAqB;;AAArB;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AACa;;AAAkB;AAhBpB;AAgBoB;AAAA;AAAlB;AAAb;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;AACsC;AAlBvB;AAkBuB;AAAA;AAAL;AAAkC;;;;;AAAlC;AAAL;AAlBb;AAkBf;AAAA;AAHF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 1 0 8"
+    },
+    "6": {
+      "op": "bytecblock \"i.expirationTime\" \"renewPrice\""
+    },
+    "36": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "38": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "39": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "40": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "42": {
+      "op": "bz main_create_NoOp@6",
+      "stack_out": []
+    },
+    "45": {
+      "op": "pushbytess 0x50f490c2 0x77fd5b74 // method \"getRenewPrice()uint64\", method \"renew(pay)void\"",
+      "defined_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)"
+      ],
+      "stack_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)"
+      ]
+    },
+    "57": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "tmp%4#0"
+      ]
+    },
+    "60": {
+      "op": "match getRenewPrice renew",
+      "stack_out": []
+    },
+    "66": {
+      "op": "err"
+    },
+    "67": {
+      "block": "main_create_NoOp@6",
+      "stack_in": [],
+      "op": "pushbytes 0x83be770d // method \"create(string,address,uint64,uint64)void\"",
+      "defined_out": [
+        "Method(create(string,address,uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(string,address,uint64,uint64)void)"
+      ]
+    },
+    "73": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(string,address,uint64,uint64)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(string,address,uint64,uint64)void)",
+        "tmp%5#0"
+      ]
+    },
+    "76": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "80": {
+      "op": "err"
+    },
+    "81": {
+      "subroutine": "smart_contracts/mocks/nfd/contract.algo.ts::MockNfd.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "84": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "85": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "86": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "87": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "89": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "90": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "92": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "93": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "94": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "95": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "nfdName#0"
+      ],
+      "stack_out": [
+        "nfdName#0"
+      ]
+    },
+    "98": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "nfdName#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0"
+      ]
+    },
+    "101": {
+      "op": "dup",
+      "defined_out": [
+        "nfdName#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ]
+    },
+    "102": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "nfdName#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "len%1#0"
+      ]
+    },
+    "103": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "len%1#0",
+        "nfdName#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "len%1#0",
+        "32"
+      ]
+    },
+    "105": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "nfdName#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "eq%1#0"
+      ]
+    },
+    "106": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "nfdName#0",
+        "owner#0"
+      ]
+    },
+    "107": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "110": {
+      "op": "dup",
+      "defined_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "111": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "112": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%2#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "113": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "114": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "115": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "nfdName#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0"
+      ]
+    },
+    "116": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "expiration#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "119": {
+      "op": "dup",
+      "defined_out": [
+        "expiration#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ]
+    },
+    "120": {
+      "op": "len",
+      "defined_out": [
+        "expiration#0",
+        "len%3#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0"
+      ]
+    },
+    "121": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0",
+        "8"
+      ]
+    },
+    "122": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "expiration#0",
+        "nfdName#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "eq%3#0"
+      ]
+    },
+    "123": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "124": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "nfdName#0",
+        "owner#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "renewPrice#0"
+      ]
+    },
+    "125": {
+      "op": "pushbytes \"i.name\"",
+      "defined_out": [
+        "\"i.name\"",
+        "expiration#0",
+        "nfdName#0",
+        "owner#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "nfdName#0",
+        "owner#0",
+        "expiration#0",
+        "renewPrice#0",
+        "\"i.name\""
+      ]
+    },
+    "133": {
+      "op": "uncover 4",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "renewPrice#0",
+        "\"i.name\"",
+        "nfdName#0"
+      ]
+    },
+    "135": {
+      "op": "app_global_put",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "renewPrice#0"
+      ]
+    },
+    "136": {
+      "op": "pushbytes \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "expiration#0",
+        "owner#0",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "renewPrice#0",
+        "\"i.owner.a\""
+      ]
+    },
+    "147": {
+      "op": "uncover 3",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0",
+        "\"i.owner.a\"",
+        "owner#0"
+      ]
+    },
+    "149": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "renewPrice#0"
+      ]
+    },
+    "150": {
+      "op": "swap",
+      "stack_out": [
+        "renewPrice#0",
+        "expiration#0"
+      ]
+    },
+    "151": {
+      "op": "itob",
+      "stack_out": [
+        "renewPrice#0",
+        "tmp%0#0"
+      ]
+    },
+    "152": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "renewPrice#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "renewPrice#0",
+        "tmp%0#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "153": {
+      "op": "swap",
+      "stack_out": [
+        "renewPrice#0",
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ]
+    },
+    "154": {
+      "op": "app_global_put",
+      "stack_out": [
+        "renewPrice#0"
+      ]
+    },
+    "155": {
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\"",
+        "renewPrice#0"
+      ],
+      "stack_out": [
+        "renewPrice#0",
+        "\"renewPrice\""
+      ]
+    },
+    "156": {
+      "op": "swap",
+      "stack_out": [
+        "\"renewPrice\"",
+        "renewPrice#0"
+      ]
+    },
+    "157": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "158": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "159": {
+      "op": "return",
+      "stack_out": []
+    },
+    "160": {
+      "subroutine": "smart_contracts/mocks/nfd/contract.algo.ts::MockNfd.getRenewPrice[routing]",
+      "params": {},
+      "block": "getRenewPrice",
+      "stack_in": [],
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "161": {
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"renewPrice\""
+      ]
+    },
+    "162": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "163": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "164": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "165": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "171": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "172": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "173": {
+      "op": "log",
+      "stack_out": []
+    },
+    "174": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "175": {
+      "op": "return",
+      "stack_out": []
+    },
+    "176": {
+      "subroutine": "smart_contracts/mocks/nfd/contract.algo.ts::MockNfd.renew[routing]",
+      "params": {},
+      "block": "renew",
+      "stack_in": [],
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "178": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "1"
+      ]
+    },
+    "179": {
+      "op": "-",
+      "defined_out": [
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "180": {
+      "op": "dupn 2",
+      "defined_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "182": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "184": {
+      "op": "intc_0 // pay",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "pay",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "185": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_type_matches%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "186": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "payment#0",
+        "payment#0"
+      ]
+    },
+    "187": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "189": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%1#0"
+      ]
+    },
+    "191": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%2#0"
+      ]
+    },
+    "192": {
+      "op": "bnz renew_after_assert@3",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "195": {
+      "op": "pushbytes \"ERR:mockNfdRenewReceiver\"",
+      "defined_out": [
+        "\"ERR:mockNfdRenewReceiver\"",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "\"ERR:mockNfdRenewReceiver\""
+      ]
+    },
+    "221": {
+      "op": "log",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "222": {
+      "error": "ERR:mockNfdRenewReceiver",
+      "op": "err // ERR:mockNfdRenewReceiver"
+    },
+    "223": {
+      "block": "renew_after_assert@3",
+      "stack_in": [
+        "payment#0"
+      ],
+      "op": "gtxns Amount",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "225": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0"
+      ]
+    },
+    "226": {
+      "op": "bytec_1 // \"renewPrice\"",
+      "defined_out": [
+        "\"renewPrice\"",
+        "0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "0",
+        "\"renewPrice\""
+      ]
+    },
+    "227": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "228": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%3#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "229": {
+      "op": ">=",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "230": {
+      "op": "bnz renew_after_assert@5",
+      "stack_out": []
+    },
+    "233": {
+      "op": "pushbytes \"ERR:mockNfdRenewAmount\"",
+      "defined_out": [
+        "\"ERR:mockNfdRenewAmount\""
+      ],
+      "stack_out": [
+        "\"ERR:mockNfdRenewAmount\""
+      ]
+    },
+    "257": {
+      "op": "log",
+      "stack_out": []
+    },
+    "258": {
+      "error": "ERR:mockNfdRenewAmount",
+      "op": "err // ERR:mockNfdRenewAmount"
+    },
+    "259": {
+      "block": "renew_after_assert@5",
+      "stack_in": [],
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "260": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "261": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "262": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%1#0"
+      ]
+    },
+    "263": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0"
+      ]
+    },
+    "264": {
+      "op": "pushint 31536000",
+      "defined_out": [
+        "31536000",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "tmp%5#0",
+        "31536000"
+      ]
+    },
+    "269": {
+      "op": "+",
+      "defined_out": [
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%6#0"
+      ]
+    },
+    "270": {
+      "op": "itob",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "271": {
+      "op": "bytec_0 // \"i.expirationTime\"",
+      "stack_out": [
+        "tmp%7#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "272": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.expirationTime\"",
+        "tmp%7#0"
+      ]
+    },
+    "273": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "274": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "275": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

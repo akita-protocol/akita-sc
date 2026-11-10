@@ -1,0 +1,102 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:12
+    // export class MockPrincipalReenter extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x22c6c8d2 // method "poke(uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_poke_route@3
+    err
+
+main_poke_route@3:
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:13
+    // poke(plugin: Application, forgedWallet: uint64, probe: Application): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b poke
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:12
+    // export class MockPrincipalReenter extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/principal-reenter/contract.algo.ts::MockPrincipalReenter.poke[routing]() -> void:
+poke:
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:13
+    // poke(plugin: Application, forgedWallet: uint64, probe: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:14-17
+    // abiCall<typeof TestPrincipalPlugin.prototype.callProbe>({
+    //   appId: plugin,
+    //   args: [Application(forgedWallet), false, probe, forgedWallet],
+    // })
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x6df43716 // method "callProbe(uint64,bool,uint64,uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:16
+    // args: [Application(forgedWallet), false, probe, forgedWallet],
+    pushbytes 0x00
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:14-17
+    // abiCall<typeof TestPrincipalPlugin.prototype.callProbe>({
+    //   appId: plugin,
+    //   args: [Application(forgedWallet), false, probe, forgedWallet],
+    // })
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    pushbytes 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/principal-reenter/contract.algo.ts:13
+    // poke(plugin: Application, forgedWallet: uint64, probe: Application): void {
+    pushint 1
+    return

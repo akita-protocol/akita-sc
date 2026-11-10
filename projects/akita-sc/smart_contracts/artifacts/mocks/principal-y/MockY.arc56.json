@@ -1,0 +1,146 @@
+{
+    "name": "MockY",
+    "structs": {
+        "Principal": [
+            {
+                "name": "wallet",
+                "type": "uint64"
+            },
+            {
+                "name": "principal",
+                "type": "address"
+            },
+            {
+                "name": "origin",
+                "type": "address"
+            },
+            {
+                "name": "spender",
+                "type": "address"
+            },
+            {
+                "name": "referrer",
+                "type": "address"
+            },
+            {
+                "name": "viaPlugin",
+                "type": "bool"
+            }
+        ]
+    },
+    "methods": [
+        {
+            "name": "callProxy",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "proxy"
+                },
+                {
+                    "type": "uint64",
+                    "name": "forgedWallet"
+                },
+                {
+                    "type": "uint64",
+                    "name": "probe"
+                }
+            ],
+            "returns": {
+                "type": "(uint64,address,address,address,address,bool)",
+                "struct": "Principal"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "TEST-ONLY. An unrelated app that drives a proxy with a forged wallet (E25/T41):\n`proxy.forward(forgedWallet, probe, forgedWallet, true)`. Works against any proxy with the\n`forward(uint64,uint64,uint64,bool)` ABI. Never deploy outside tests.",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        120
+                    ],
+                    "errorMessage": "Bytes has valid prefix"
+                },
+                {
+                    "pc": [
+                        53,
+                        63,
+                        72
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                },
+                {
+                    "pc": [
+                        127
+                    ],
+                    "errorMessage": "invalid number of bytes for smart_contracts/utils/principal.ts::Principal"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwteS9jb250cmFjdC5hbGdvLnRzOjEzCiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja1kgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVANQogICAgcHVzaGJ5dGVzIDB4NmRmZTgwZmEgLy8gbWV0aG9kICJjYWxsUHJveHkodWludDY0LHVpbnQ2NCx1aW50NjQpKHVpbnQ2NCxhZGRyZXNzLGFkZHJlc3MsYWRkcmVzcyxhZGRyZXNzLGJvb2wpIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9jYWxsUHJveHlfcm91dGVAMwogICAgZXJyCgptYWluX2NhbGxQcm94eV9yb3V0ZUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC15L2NvbnRyYWN0LmFsZ28udHM6MTQKICAgIC8vIGNhbGxQcm94eShwcm94eTogQXBwbGljYXRpb24sIGZvcmdlZFdhbGxldDogdWludDY0LCBwcm9iZTogQXBwbGljYXRpb24pOiBQcmluY2lwYWwgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICYmCiAgICBhc3NlcnQKICAgIGIgY2FsbFByb3h5CgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC15L2NvbnRyYWN0LmFsZ28udHM6MTMKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrWSBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICAmJgogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC15L2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tZLmNhbGxQcm94eVtyb3V0aW5nXSgpIC0+IHZvaWQ6CmNhbGxQcm94eToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwteS9jb250cmFjdC5hbGdvLnRzOjE0CiAgICAvLyBjYWxsUHJveHkocHJveHk6IEFwcGxpY2F0aW9uLCBmb3JnZWRXYWxsZXQ6IHVpbnQ2NCwgcHJvYmU6IEFwcGxpY2F0aW9uKTogUHJpbmNpcGFsIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBkdXAKICAgIGxlbgogICAgcHVzaGludCA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMwogICAgZHVwCiAgICBsZW4KICAgIHB1c2hpbnQgOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwteS9jb250cmFjdC5hbGdvLnRzOjE1LTE4CiAgICAvLyByZXR1cm4gYWJpQ2FsbDx0eXBlb2YgTW9ja1ByaW5jaXBhbFByb3h5LnByb3RvdHlwZS5mb3J3YXJkPih7CiAgICAvLyAgIGFwcElkOiBwcm94eSwKICAgIC8vICAgYXJnczogW2ZvcmdlZFdhbGxldCwgcHJvYmUsIGZvcmdlZFdhbGxldCwgdHJ1ZV0sCiAgICAvLyB9KS5yZXR1cm5WYWx1ZQogICAgaXR4bl9iZWdpbgogICAgdW5jb3ZlciAyCiAgICBpdHhuX2ZpZWxkIEFwcGxpY2F0aW9uSUQKICAgIHB1c2hieXRlcyAweGMxNWI5YjI0IC8vIG1ldGhvZCAiZm9yd2FyZCh1aW50NjQsdWludDY0LHVpbnQ2NCxib29sKSh1aW50NjQsYWRkcmVzcyxhZGRyZXNzLGFkZHJlc3MsYWRkcmVzcyxib29sKSIKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICBkaWcgMQogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbkFyZ3MKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICBpdHhuX2ZpZWxkIEFwcGxpY2F0aW9uQXJncwogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC15L2NvbnRyYWN0LmFsZ28udHM6MTcKICAgIC8vIGFyZ3M6IFtmb3JnZWRXYWxsZXQsIHByb2JlLCBmb3JnZWRXYWxsZXQsIHRydWVdLAogICAgcHVzaGJ5dGVzIDB4ODAKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLXkvY29udHJhY3QuYWxnby50czoxNS0xOAogICAgLy8gcmV0dXJuIGFiaUNhbGw8dHlwZW9mIE1vY2tQcmluY2lwYWxQcm94eS5wcm90b3R5cGUuZm9yd2FyZD4oewogICAgLy8gICBhcHBJZDogcHJveHksCiAgICAvLyAgIGFyZ3M6IFtmb3JnZWRXYWxsZXQsIHByb2JlLCBmb3JnZWRXYWxsZXQsIHRydWVdLAogICAgLy8gfSkucmV0dXJuVmFsdWUKICAgIHB1c2hpbnQgNiAvLyBhcHBsCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBwdXNoaW50IDAKICAgIGl0eG5fZmllbGQgRmVlCiAgICBpdHhuX3N1Ym1pdAogICAgaXR4biBMYXN0TG9nCiAgICBkdXAKICAgIGV4dHJhY3QgNCAwCiAgICBzd2FwCiAgICBleHRyYWN0IDAgNAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICA9PQogICAgYXNzZXJ0IC8vIEJ5dGVzIGhhcyB2YWxpZCBwcmVmaXgKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDEzNwogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3Igc21hcnRfY29udHJhY3RzL3V0aWxzL3ByaW5jaXBhbC50czo6UHJpbmNpcGFsCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLXkvY29udHJhY3QuYWxnby50czoxNAogICAgLy8gY2FsbFByb3h5KHByb3h5OiBBcHBsaWNhdGlvbiwgZm9yZ2VkV2FsbGV0OiB1aW50NjQsIHByb2JlOiBBcHBsaWNhdGlvbik6IFByaW5jaXBhbCB7CiAgICBieXRlY18wIC8vIDB4MTUxZjdjNzUKICAgIHN3YXAKICAgIGNvbmNhdAogICAgbG9nCiAgICBwdXNoaW50IDEKICAgIHJldHVybgo=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "byteCode": {
+        "approval": "CyYBBBUffHUxG0EAGIAEbf6A+jYaAI4BAAEAMRkUMRgQREIACDEZFDEYFBBDNhoBSRWBCBJEFzYaAkkVgQgSRDYaA0kVgQgSRLFPArIYgATBW5skshpLAbIashqyGoABgLIagQayEIEAsgGztD5JVwQATFcABCgSREkVgYkBEkQoTFCwgQFD",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

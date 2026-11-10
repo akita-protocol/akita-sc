@@ -1,0 +1,112 @@
+{
+    "name": "MockGateNFDRegistry",
+    "structs": {},
+    "methods": [
+        {
+            "name": "isValidNfdAppId",
+            "args": [
+                {
+                    "type": "string",
+                    "name": "nfdName"
+                },
+                {
+                    "type": "uint64",
+                    "name": "nfdAppId"
+                }
+            ],
+            "returns": {
+                "type": "bool"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": true,
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "Test-only NFD registry: an NFD app id is valid for `nfdName` when the app's `i.name`\nequals it (every MockGateNFD is \"registered\").",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        47
+                    ],
+                    "errorMessage": "invalid array length header"
+                },
+                {
+                    "pc": [
+                        55
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>"
+                },
+                {
+                    "pc": [
+                        67
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMCAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZ2F0ZS9uZmQuYWxnby50czoyOAogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tHYXRlTkZEUmVnaXN0cnkgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gTnVtQXBwQXJncwogICAgYnogbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVANQogICAgcHVzaGJ5dGVzIDB4NGJlMjJmYzYgLy8gbWV0aG9kICJpc1ZhbGlkTmZkQXBwSWQoc3RyaW5nLHVpbnQ2NClib29sIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9pc1ZhbGlkTmZkQXBwSWRfcm91dGVAMwogICAgZXJyCgptYWluX2lzVmFsaWROZmRBcHBJZF9yb3V0ZUAzOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2dhdGUvbmZkLmFsZ28udHM6MjkKICAgIC8vIEBhYmltZXRob2QoeyByZWFkb25seTogdHJ1ZSB9KQogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICYmCiAgICBhc3NlcnQKICAgIGIgaXNWYWxpZE5mZEFwcElkCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2dhdGUvbmZkLmFsZ28udHM6MjgKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrR2F0ZU5GRFJlZ2lzdHJ5IGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgICYmCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZ2F0ZS9uZmQuYWxnby50czo6TW9ja0dhdGVORkRSZWdpc3RyeS5pc1ZhbGlkTmZkQXBwSWRbcm91dGluZ10oKSAtPiB2b2lkOgppc1ZhbGlkTmZkQXBwSWQ6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZ2F0ZS9uZmQuYWxnby50czoyOQogICAgLy8gQGFiaW1ldGhvZCh7IHJlYWRvbmx5OiB0cnVlIH0pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGludGNfMCAvLyAwCiAgICBleHRyYWN0X3VpbnQxNiAvLyBvbiBlcnJvcjogaW52YWxpZCBhcnJheSBsZW5ndGggaGVhZGVyCiAgICBwdXNoaW50IDIKICAgICsKICAgIGRpZyAxCiAgICBsZW4KICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQuZHluYW1pY19hcnJheTxhcmM0LnVpbnQ4PgogICAgZXh0cmFjdCAyIDAKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvZ2F0ZS9uZmQuYWxnby50czozMQogICAgLy8gY29uc3QgW25hbWUsIGV4aXN0c10gPSBvcC5BcHBHbG9iYWwuZ2V0RXhCeXRlcyhuZmRBcHBJZCwgQnl0ZXMoJ2kubmFtZScpKQogICAgcHVzaGJ5dGVzICJpLm5hbWUiCiAgICBhcHBfZ2xvYmFsX2dldF9leAogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL2dhdGUvbmZkLmFsZ28udHM6MzIKICAgIC8vIHJldHVybiBleGlzdHMgJiYgbmFtZSA9PT0gQnl0ZXMobmZkTmFtZSkKICAgIGJ6IGlzVmFsaWROZmRBcHBJZF9ib29sX2ZhbHNlQDQKICAgIGR1cAogICAgZGlnIDIKICAgID09CiAgICBieiBpc1ZhbGlkTmZkQXBwSWRfYm9vbF9mYWxzZUA0CiAgICBpbnRjXzEgLy8gMQoKaXNWYWxpZE5mZEFwcElkX2Jvb2xfbWVyZ2VANToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9nYXRlL25mZC5hbGdvLnRzOjI5CiAgICAvLyBAYWJpbWV0aG9kKHsgcmVhZG9ubHk6IHRydWUgfSkKICAgIHB1c2hieXRlcyAweDAwCiAgICBpbnRjXzAgLy8gMAogICAgdW5jb3ZlciAyCiAgICBzZXRiaXQKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKaXNWYWxpZE5mZEFwcElkX2Jvb2xfZmFsc2VANDoKICAgIGludGNfMCAvLyAwCiAgICBiIGlzVmFsaWROZmRBcHBJZF9ib29sX21lcmdlQDUK",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "byteCode": {
+        "approval": "CyACAAExG0EAGIAES+IvxjYaAI4BAAEAMRkUMRgQREIACDEZFDEYFBBDNhoBSSJZgQIISwEVEkRXAgA2GgJJFYEIEkQXgAZpLm5hbWVlQQAaSUsCEkEAEyOAAQAiTwJUgAQVH3x1TFCwI0MiQv/q",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

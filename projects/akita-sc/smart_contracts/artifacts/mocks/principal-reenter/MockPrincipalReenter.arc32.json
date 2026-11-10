@@ -1,0 +1,64 @@
+{
+    "hints": {
+        "poke(uint64,uint64,uint64)void": {
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLXJlZW50ZXIvY29udHJhY3QuYWxnby50czoxMgogICAgLy8gZXhwb3J0IGNsYXNzIE1vY2tQcmluY2lwYWxSZWVudGVyIGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fX19hbGdvdHNfXy5kZWZhdWx0Q3JlYXRlQDUKICAgIHB1c2hieXRlcyAweDIyYzZjOGQyIC8vIG1ldGhvZCAicG9rZSh1aW50NjQsdWludDY0LHVpbnQ2NCl2b2lkIgogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMAogICAgbWF0Y2ggbWFpbl9wb2tlX3JvdXRlQDMKICAgIGVycgoKbWFpbl9wb2tlX3JvdXRlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLXJlZW50ZXIvY29udHJhY3QuYWxnby50czoxMwogICAgLy8gcG9rZShwbHVnaW46IEFwcGxpY2F0aW9uLCBmb3JnZWRXYWxsZXQ6IHVpbnQ2NCwgcHJvYmU6IEFwcGxpY2F0aW9uKTogdm9pZCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgJiYKICAgIGFzc2VydAogICAgYiBwb2tlCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1yZWVudGVyL2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrUHJpbmNpcGFsUmVlbnRlciBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICAhCiAgICAmJgogICAgcmV0dXJuCgoKLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1yZWVudGVyL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tQcmluY2lwYWxSZWVudGVyLnBva2Vbcm91dGluZ10oKSAtPiB2b2lkOgpwb2tlOgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1yZWVudGVyL2NvbnRyYWN0LmFsZ28udHM6MTMKICAgIC8vIHBva2UocGx1Z2luOiBBcHBsaWNhdGlvbiwgZm9yZ2VkV2FsbGV0OiB1aW50NjQsIHByb2JlOiBBcHBsaWNhdGlvbik6IHZvaWQgewogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIHB1c2hpbnQgOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAzCiAgICBkdXAKICAgIGxlbgogICAgcHVzaGludCA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1yZWVudGVyL2NvbnRyYWN0LmFsZ28udHM6MTQtMTcKICAgIC8vIGFiaUNhbGw8dHlwZW9mIFRlc3RQcmluY2lwYWxQbHVnaW4ucHJvdG90eXBlLmNhbGxQcm9iZT4oewogICAgLy8gICBhcHBJZDogcGx1Z2luLAogICAgLy8gICBhcmdzOiBbQXBwbGljYXRpb24oZm9yZ2VkV2FsbGV0KSwgZmFsc2UsIHByb2JlLCBmb3JnZWRXYWxsZXRdLAogICAgLy8gfSkKICAgIGl0eG5fYmVnaW4KICAgIHVuY292ZXIgMgogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbklECiAgICBwdXNoYnl0ZXMgMHg2ZGY0MzcxNiAvLyBtZXRob2QgImNhbGxQcm9iZSh1aW50NjQsYm9vbCx1aW50NjQsdWludDY0KSh1aW50NjQsYWRkcmVzcyxhZGRyZXNzLGFkZHJlc3MsYWRkcmVzcyxib29sKSIKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICBkaWcgMQogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbkFyZ3MKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtcmVlbnRlci9jb250cmFjdC5hbGdvLnRzOjE2CiAgICAvLyBhcmdzOiBbQXBwbGljYXRpb24oZm9yZ2VkV2FsbGV0KSwgZmFsc2UsIHByb2JlLCBmb3JnZWRXYWxsZXRdLAogICAgcHVzaGJ5dGVzIDB4MDAKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICBpdHhuX2ZpZWxkIEFwcGxpY2F0aW9uQXJncwogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbkFyZ3MKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtcmVlbnRlci9jb250cmFjdC5hbGdvLnRzOjE0LTE3CiAgICAvLyBhYmlDYWxsPHR5cGVvZiBUZXN0UHJpbmNpcGFsUGx1Z2luLnByb3RvdHlwZS5jYWxsUHJvYmU+KHsKICAgIC8vICAgYXBwSWQ6IHBsdWdpbiwKICAgIC8vICAgYXJnczogW0FwcGxpY2F0aW9uKGZvcmdlZFdhbGxldCksIGZhbHNlLCBwcm9iZSwgZm9yZ2VkV2FsbGV0XSwKICAgIC8vIH0pCiAgICBwdXNoaW50IDYgLy8gYXBwbAogICAgaXR4bl9maWVsZCBUeXBlRW51bQogICAgcHVzaGludCAwCiAgICBpdHhuX2ZpZWxkIEZlZQogICAgaXR4bl9zdWJtaXQKICAgIGl0eG4gTGFzdExvZwogICAgZHVwCiAgICBleHRyYWN0IDQgMAogICAgc3dhcAogICAgZXh0cmFjdCAwIDQKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1CiAgICA9PQogICAgYXNzZXJ0IC8vIEJ5dGVzIGhhcyB2YWxpZCBwcmVmaXgKICAgIGxlbgogICAgcHVzaGludCAxMzcKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIHNtYXJ0X2NvbnRyYWN0cy91dGlscy9wcmluY2lwYWwudHM6OlByaW5jaXBhbAogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1yZWVudGVyL2NvbnRyYWN0LmFsZ28udHM6MTMKICAgIC8vIHBva2UocGx1Z2luOiBBcHBsaWNhdGlvbiwgZm9yZ2VkV2FsbGV0OiB1aW50NjQsIHByb2JlOiBBcHBsaWNhdGlvbik6IHZvaWQgewogICAgcHVzaGludCAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockPrincipalReenter",
+        "desc": "TEST-ONLY (V0.2/T23). Reached mid-window from `TestPrincipalPlugin.callReenter`, it tries to\nborrow the open window by calling the plugin again with a forged wallet. The AVM forbids calling\nan app that is already on the call stack. Never deploy outside tests.",
+        "methods": [
+            {
+                "name": "poke",
+                "args": [
+                    {
+                        "type": "uint64",
+                        "name": "plugin"
+                    },
+                    {
+                        "type": "uint64",
+                        "name": "forgedWallet"
+                    },
+                    {
+                        "type": "uint64",
+                        "name": "probe"
+                    }
+                ],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {
+        "no_op": "CREATE"
+    }
+}

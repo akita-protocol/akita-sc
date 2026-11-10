@@ -82,14 +82,14 @@ rekey:
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
     // smart_contracts/escrow/contract.algo.ts:16
-    // loggedAssert(Txn.sender === Global.creatorAddress, ERR_ONLY_CREATOR_CAN_REKEY)
+    // loggedAssert(Txn.sender === Global.creatorAddress, errOnlyCreatorCanRekey)
     txn Sender
     global CreatorAddress
     ==
     bnz rekey_after_assert@3
-    pushbytes "ERR:OCCR"
+    pushbytes "ERR:errOccr"
     log
-    err // ERR:OCCR
+    err // ERR:errOccr
 
 rekey_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:18-24
@@ -104,9 +104,8 @@ rekey_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:21
     // receiver: Global.currentApplicationAddress,
     global CurrentApplicationAddress
-    dig 1
-    itxn_field RekeyTo
     itxn_field Receiver
+    itxn_field RekeyTo
     // smart_contracts/escrow/contract.algo.ts:20
     // amount: 0,
     intc_1 // 0
@@ -140,14 +139,14 @@ rekey_after_assert@3:
 // smart_contracts/escrow/contract.algo.ts::Escrow.delete[routing]() -> void:
 delete:
     // smart_contracts/escrow/contract.algo.ts:29
-    // loggedAssert(Txn.sender === Global.creatorAddress, ERR_ONLY_FACTORY_CAN_DELETE)
+    // loggedAssert(Txn.sender === Global.creatorAddress, errOnlyFactoryCanDelete)
     txn Sender
     global CreatorAddress
     ==
     bnz delete_after_assert@3
-    pushbytes "ERR:OFCD"
+    pushbytes "ERR:errOfcd"
     log
-    err // ERR:OFCD
+    err // ERR:errOfcd
 
 delete_after_assert@3:
     // smart_contracts/escrow/contract.algo.ts:31-33

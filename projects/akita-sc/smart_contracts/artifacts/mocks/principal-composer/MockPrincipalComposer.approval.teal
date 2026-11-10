@@ -1,0 +1,168 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 6
+    bytecblock 0x0000 0x151f7c75
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:17
+    // export class MockPrincipalComposer extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x207d8ff5 // method "compose(uint64,uint64,uint64,uint64)(uint64,address,address,address,address,bool)"
+    txna ApplicationArgs 0
+    match main_compose_route@3
+    err
+
+main_compose_route@3:
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:18
+    // compose(wallet: Application, plugin: Application, probe: Application, hintInWindow: uint64): Principal {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b compose
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:17
+    // export class MockPrincipalComposer extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/principal-composer/contract.algo.ts::MockPrincipalComposer.compose[routing]() -> void:
+compose:
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:18
+    // compose(wallet: Application, plugin: Application, probe: Application, hintInWindow: uint64): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:19-22
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [plugin.id, CallerTypeOther, '', [], []],
+    // })
+    itxn_begin
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:21
+    // args: [plugin.id, CallerTypeOther, '', [], []],
+    intc_1 // 0
+    itob
+    dig 5
+    itxn_field ApplicationID
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:19-22
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [plugin.id, CallerTypeOther, '', [], []],
+    // })
+    pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:21
+    // args: [plugin.id, CallerTypeOther, '', [], []],
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:19-22
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [plugin.id, CallerTypeOther, '', [], []],
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:23-26
+    // itxnCompose.next<typeof TestPrincipalPlugin.prototype.callProbe>({
+    //   appId: plugin,
+    //   args: [Application(hintInWindow), true, probe, hintInWindow],
+    // })
+    itxn_next
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x6df43716 // method "callProbe(uint64,bool,uint64,uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:25
+    // args: [Application(hintInWindow), true, probe, hintInWindow],
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:23-26
+    // itxnCompose.next<typeof TestPrincipalPlugin.prototype.callProbe>({
+    //   appId: plugin,
+    //   args: [Application(hintInWindow), true, probe, hintInWindow],
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:27-29
+    // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({
+    //   appId: wallet,
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x6cc3f606 // method "arc58_verifyAuthAddress()void"
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:30
+    // itxnCompose.submit()
+    itxn_submit
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:31
+    // return decodeArc4<Principal>(op.GITxn.lastLog(1), 'log')
+    gitxn 1 LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    // smart_contracts/mocks/principal-composer/contract.algo.ts:18
+    // compose(wallet: Application, plugin: Application, probe: Application, hintInWindow: uint64): Principal {
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    pushint 1
+    return

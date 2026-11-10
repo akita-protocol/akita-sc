@@ -1,5 +1,6 @@
-#pragma version 11
+#pragma version 13
 #pragma typetrack false
+#pragma autosalt false
 
 // @algorandfoundation/algorand-typescript/base-contract.d.ts::BaseContract.clearStateProgram() -> uint64:
 main:

@@ -1,0 +1,225 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 8
+    bytecblock "spending_address"
+    // smart_contracts/arc58/account/agent-probe.algo.ts:12
+    // export class Arc58AgentProbePlugin extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0xd32f729b 0x44022fb8 // method "allowed(uint64,bool)void", method "forbidden(uint64,bool)void"
+    txna ApplicationArgs 0
+    match allowed forbidden
+    err
+
+main___algots__.defaultCreate@9:
+    // smart_contracts/arc58/account/agent-probe.algo.ts:12
+    // export class Arc58AgentProbePlugin extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/functions.ts:452
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/arc58/account/agent-probe.algo.ts::Arc58AgentProbePlugin.allowed[routing]() -> void:
+allowed:
+    // smart_contracts/arc58/account/agent-probe.algo.ts:13
+    // allowed(wallet: Application, rekeyBack: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_0 // "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    cover 2
+    // smart_contracts/arc58/account/agent-probe.algo.ts:16-23
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/account/agent-probe.algo.ts:21
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    swap
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    // smart_contracts/arc58/account/agent-probe.algo.ts:20
+    // amount: 0,
+    intc_1 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/arc58/account/agent-probe.algo.ts:16-22
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/agent-probe.algo.ts:16-23
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/account/agent-probe.algo.ts:13
+    // allowed(wallet: Application, rekeyBack: boolean): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/arc58/account/agent-probe.algo.ts::Arc58AgentProbePlugin.forbidden[routing]() -> void:
+forbidden:
+    // smart_contracts/arc58/account/agent-probe.algo.ts:26
+    // forbidden(wallet: Application, rekeyBack: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_1 // 0
+    getbit
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    dig 1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    bytec_0 // "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    cover 2
+    // smart_contracts/arc58/account/agent-probe.algo.ts:29-36
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_begin
+    // smart_contracts/arc58/account/agent-probe.algo.ts:34
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    swap
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    // smart_contracts/arc58/account/agent-probe.algo.ts:33
+    // amount: 0,
+    intc_1 // 0
+    itxn_field Amount
+    dup
+    itxn_field Receiver
+    itxn_field Sender
+    // smart_contracts/arc58/account/agent-probe.algo.ts:29-35
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    intc_0 // 1
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/account/agent-probe.algo.ts:29-36
+    // itxn
+    //   .payment({
+    //     sender: spendingAccount,
+    //     receiver: spendingAccount,
+    //     amount: 0,
+    //     rekeyTo: rekeyAddress(rekeyBack, wallet),
+    //   })
+    //   .submit()
+    itxn_submit
+    // smart_contracts/arc58/account/agent-probe.algo.ts:26
+    // forbidden(wallet: Application, rekeyBack: boolean): void {
+    intc_0 // 1
+    return

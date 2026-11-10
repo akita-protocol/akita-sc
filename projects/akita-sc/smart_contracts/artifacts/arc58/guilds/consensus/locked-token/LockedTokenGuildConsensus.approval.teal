@@ -1,0 +1,3000 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 8 2 100000 18446744073709551615 604800 35300 22500 31536000
+    bytecblock "guild" 0x151f7c75 "ERR:errGset" "ERR:errGprp" "b" "active_ballots" "lock_approvals" "ERR:errGpst" "voting_asset" "staking_app" "ERR:errGpay" "activated" "voting_unit" 0x00 "v" 0x0001 "ERR:errGsnp" "ERR:errGstk" "ERR:errGfac" "ERR:errGast" "ERR:errGcac"
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/arc58/guilds/consensus/base.ts:77
+    // activeBallots = GlobalState<uint64>({ initialValue: 0, key: GuildConsensusGlobalStateKeyActiveBallots })
+    bytec 5 // "active_ballots"
+    intc_0 // 0
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/base.ts:79
+    // activated = GlobalState<boolean>({ initialValue: false, key: GuildConsensusGlobalStateKeyActivated })
+    bytec 11 // "activated"
+    intc_0 // 0
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:64-70
+    // @contract({
+    //   avmVersion: 13,
+    //   stateTotals: { globalBytes: GuildConsensusNumGlobalBytes, globalUints: GuildConsensusNumGlobalUints },
+    // })
+    // export class LockedTokenGuildConsensus extends GuildConsensusBase
+    //   implements GuildConsensusFactoryCreateInterface, GuildConsensusGuildInterface
+    // {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@23
+    pushbytess 0x9140c638 0xb9865a61 0x68449088 0x5b3a8b00 0x3d7525e9 0xc3eb7cd4 0xaa3e40a8 0x8bff8387 0x857e2717 0x67ed5fed 0x3e87013b 0xa9e823cd 0x92bb769e 0x6f9378e3 0xf50808ef 0xd3d29643 0x854dede0 // method "validateSettings((uint64,uint64,uint64,uint64,uint64,uint64))void", method "validateActivation()void", method "openProposal(pay,uint64,uint64,(uint64,uint64,uint64))void", method "resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)", method "vote(pay,address,uint64,uint8,byte[])void", method "proposalPower(address,byte[],uint64)uint64", method "configurationMbr(byte[])uint64", method "configure(pay,byte[])void", method "consensusActionMbr(byte[])uint64", method "applyConsensusAction(pay,uint64,byte[])void", method "bindGuild(uint64)void", method "cleanupBallot(uint64,address[])uint64", method "getBallot(uint64)(bool,bool,uint64,uint64,uint64,(uint64,uint64,uint64),(uint64,uint64,uint64))", method "voteMbr()uint64", method "hasVoted(uint64,address)bool", method "ballotMbr()uint64", method "opUp()void"
+    txna ApplicationArgs 0
+    match validateSettings validateActivation openProposal resolveProposal vote proposalPower configurationMbr configure consensusActionMbr applyConsensusAction bindGuild cleanupBallot getBallot main_voteMbr_route@18 hasVoted main_ballotMbr_route@20 main_opUp_route@21
+    err
+
+main_opUp_route@21:
+    // smart_contracts/arc58/guilds/consensus/base.ts:398
+    // opUp(): void {}
+    intc_1 // 1
+    return
+
+main_ballotMbr_route@20:
+    // smart_contracts/arc58/guilds/consensus/base.ts:393
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c7500000000000089e4
+    log
+    intc_1 // 1
+    return
+
+main_voteMbr_route@18:
+    // smart_contracts/arc58/guilds/consensus/base.ts:382
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c7500000000000057e4
+    log
+    intc_1 // 1
+    return
+
+main_create_NoOp@23:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:64-70
+    // @contract({
+    //   avmVersion: 13,
+    //   stateTotals: { globalBytes: GuildConsensusNumGlobalBytes, globalUints: GuildConsensusNumGlobalUints },
+    // })
+    // export class LockedTokenGuildConsensus extends GuildConsensusBase
+    //   implements GuildConsensusFactoryCreateInterface, GuildConsensusGuildInterface
+    // {
+    pushbytes 0x8e79358d // method "create(byte[])void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings[routing]() -> void:
+validateSettings:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:171
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 48
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildProposalSettings
+    callsub smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings
+    pop
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateActivation[routing]() -> void:
+validateActivation:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:181
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:105-108
+    // const totals = abiCall<typeof Staking.prototype.getTotals>({
+    //   appId: this.staking.value,
+    //   args: [[this.votingAsset.value.id]],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:107
+    // args: [[this.votingAsset.value.id]],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:76
+    // votingAsset = GlobalState<Asset>({ key: TokenConsensusGlobalStateKeyAsset })
+    bytec 8 // "voting_asset"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:107
+    // args: [[this.votingAsset.value.id]],
+    app_global_get_ex
+    assert // check GlobalState exists
+    itob
+    bytec 15 // 0x0001
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:106
+    // appId: this.staking.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:74
+    // staking = GlobalState<Application>({ key: LockedTokenConsensusGlobalStateKeyStaking })
+    bytec 9 // "staking_app"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:106
+    // appId: this.staking.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:105-108
+    // const totals = abiCall<typeof Staking.prototype.getTotals>({
+    //   appId: this.staking.value,
+    //   args: [[this.votingAsset.value.id]],
+    // }).returnValue
+    pushbytes 0x4fc316ca // method "getTotals(uint64[])(uint64,uint64,uint64)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 24
+    *
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/staking/types.ts::TotalsInfo>
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:109
+    // return totals[0].liveLockedStake / this.votingUnit.value
+    extract 6 24
+    pushint 16
+    extract_uint64
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:80
+    // votingUnit = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyUnit })
+    bytec 12 // "voting_unit"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:109
+    // return totals[0].liveLockedStake / this.votingUnit.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    /
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:131
+    // loggedAssert(this.eligibleLockedPower() > 0, errGuildUnsafeSnapshot)
+    bnz validateActivation_after_assert@3
+    bytec 16 // "ERR:errGsnp"
+    log
+    err // ERR:errGsnp
+
+validateActivation_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:133
+    // loggedAssert(this.maximumLockup() > ONE_WEEK, errGuildInvalidStaking)
+    callsub maximumLockup
+    intc 6 // 604800
+    >
+    bnz validateActivation_after_assert@5
+    bytec 17 // "ERR:errGstk"
+    log
+    err // ERR:errGstk
+
+validateActivation_after_assert@5:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:134
+    // loggedAssert(this.minimumApprovals.value > 0, errGuildInvalidSettings)
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:78
+    // minimumApprovals = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyMinimumApprovals })
+    bytec 6 // "lock_approvals"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:134
+    // loggedAssert(this.minimumApprovals.value > 0, errGuildInvalidSettings)
+    app_global_get_ex
+    assert // check GlobalState exists
+    bnz validateActivation_after_assert@7
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+validateActivation_after_assert@7:
+    // smart_contracts/arc58/guilds/consensus/base.ts:103
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyUpgradeAppProposalSettings)),
+    pushbytes "upgrade_app_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:104
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyAddPluginProposalSettings)),
+    pushbytes "add_plugin_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:105
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyRemoveExecutionProposalSettings)),
+    pushbytes "remove_execution_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:106
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyRemovePluginProposalSettings)),
+    pushbytes "remove_plugin_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:107
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyAddAllowancesProposalSettings)),
+    pushbytes "add_allowances_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:108
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyRemoveAllowancesProposalSettings)),
+    pushbytes "remove_allowances_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:109
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyNewEscrowProposalSettings)),
+    pushbytes "new_escrow_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:110
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyToggleEscrowLockProposalSettings)),
+    pushbytes "toggle_escrow_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:111
+    // this.getGuildSettings(Bytes(GuildGlobalStateKeyUpdateGuildProposalSettings)),
+    pushbytes "update_guild_ps"
+    callsub getGuildSettings
+    // smart_contracts/arc58/guilds/consensus/base.ts:102-112
+    // return [
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyUpgradeAppProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyAddPluginProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyRemoveExecutionProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyRemovePluginProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyAddAllowancesProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyRemoveAllowancesProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyNewEscrowProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyToggleEscrowLockProposalSettings)),
+    //   this.getGuildSettings(Bytes(GuildGlobalStateKeyUpdateGuildProposalSettings)),
+    // ]
+    pushbytes 0x0009
+    uncover 9
+    concat
+    uncover 8
+    concat
+    uncover 7
+    concat
+    uncover 6
+    concat
+    uncover 5
+    concat
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:140
+    // for (let i: uint64 = 0; i < settings.length; i += 1) {
+    intc_0 // 0
+    swap
+
+validateActivation_while_top@8:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:140
+    // for (let i: uint64 = 0; i < settings.length; i += 1) {
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dig 2
+    >
+    bz validateActivation_after_while@10
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:141
+    // this.validateSettings(settings[i])
+    dup
+    extract 2 0
+    uncover 2
+    dup
+    cover 2
+    pushint 48
+    *
+    pushint 48
+    extract3 // on error: index access is out of bounds
+    callsub smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings
+    pop
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:140
+    // for (let i: uint64 = 0; i < settings.length; i += 1) {
+    intc_1 // 1
+    +
+    swap
+    b validateActivation_while_top@8
+
+validateActivation_after_while@10:
+    // smart_contracts/arc58/guilds/consensus/base.ts:79
+    // activated = GlobalState<boolean>({ initialValue: false, key: GuildConsensusGlobalStateKeyActivated })
+    bytec 11 // "activated"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:183
+    // this.activated.value = true
+    intc_1 // 1
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:180
+    // validateActivation(): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.openProposal[routing]() -> void:
+openProposal:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:186-191
+    // openProposal(
+    //   mbrPayment: gtxn.PaymentTxn,
+    //   proposalID: uint64,
+    //   votingEnd: uint64,
+    //   requirements: GuildConsensusRequirements,
+    // ): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dupn 2
+    len
+    pushint 24
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildConsensusRequirements
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:123
+    // loggedAssert(result.participation === 0, errGuildInvalidSettings)
+    intc_0 // 0
+    extract_uint64
+    bz openProposal_after_assert@3
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+openProposal_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:124
+    // if (this.minimumApprovals.value > result.minimumApprovals) {
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:78
+    // minimumApprovals = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyMinimumApprovals })
+    bytec 6 // "lock_approvals"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:124
+    // if (this.minimumApprovals.value > result.minimumApprovals) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    dig 1
+    pushint 16
+    extract_uint64
+    >
+    bnz openProposal_if_body@4
+
+openProposal_after_if_else@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:213
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/base.ts:215
+    // !this.ballots(proposalID).exists && votingEnd > Global.latestTimestamp,
+    uncover 2
+    itob
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    cover 3
+    // smart_contracts/arc58/guilds/consensus/base.ts:215
+    // !this.ballots(proposalID).exists && votingEnd > Global.latestTimestamp,
+    box_len
+    bury 1
+    bnz openProposal_bool_false@12
+    dig 1
+    global LatestTimestamp
+    >
+    bz openProposal_bool_false@12
+    intc_1 // 1
+
+openProposal_bool_merge@13:
+    // smart_contracts/arc58/guilds/consensus/base.ts:214-217
+    // loggedAssert(
+    //   !this.ballots(proposalID).exists && votingEnd > Global.latestTimestamp,
+    //   errGuildInvalidProposalState,
+    // )
+    bnz openProposal_after_assert@15
+    bytec 7 // "ERR:errGpst"
+    log
+    err // ERR:errGpst
+
+openProposal_after_assert@15:
+    // smart_contracts/arc58/guilds/consensus/base.ts:219
+    // requirements.participation <= ONE_HUNDRED_PERCENT && requirements.approval <= ONE_HUNDRED_PERCENT,
+    dup
+    intc_0 // 0
+    extract_uint64
+    intc 4 // 100000
+    <=
+    bz openProposal_bool_false@18
+    dup
+    intc_2 // 8
+    extract_uint64
+    intc 4 // 100000
+    <=
+    bz openProposal_bool_false@18
+    intc_1 // 1
+
+openProposal_bool_merge@19:
+    // smart_contracts/arc58/guilds/consensus/base.ts:218-221
+    // loggedAssert(
+    //   requirements.participation <= ONE_HUNDRED_PERCENT && requirements.approval <= ONE_HUNDRED_PERCENT,
+    //   errGuildInvalidSettings,
+    // )
+    bnz openProposal_after_assert@21
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+openProposal_after_assert@21:
+    // smart_contracts/arc58/guilds/consensus/base.ts:223-227
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: ballotMbr,
+    // }),
+    uncover 3
+    dup
+    gtxns Sender
+    // smart_contracts/arc58/guilds/consensus/base.ts:224
+    // sender: this.guild.value.address,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:224
+    // sender: this.guild.value.address,
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/guilds/consensus/base.ts:223-227
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: ballotMbr,
+    // }),
+    ==
+    dig 1
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/consensus/base.ts:225
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/consensus/base.ts:223-227
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: ballotMbr,
+    // }),
+    ==
+    &&
+    swap
+    gtxns Amount
+    // smart_contracts/arc58/guilds/consensus/base.ts:395
+    // return GuildConsensusBallotMBR
+    intc 7 // 35300
+    // smart_contracts/arc58/guilds/consensus/base.ts:223-227
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: ballotMbr,
+    // }),
+    ==
+    &&
+    // smart_contracts/arc58/guilds/consensus/base.ts:222-229
+    // loggedAssert(
+    //   match(mbrPayment, {
+    //     sender: this.guild.value.address,
+    //     receiver: Global.currentApplicationAddress,
+    //     amount: ballotMbr,
+    //   }),
+    //   errGuildInvalidPayment,
+    // )
+    bnz openProposal_after_assert@23
+    bytec 10 // "ERR:errGpay"
+    log
+    err // ERR:errGpay
+
+openProposal_after_assert@23:
+    // smart_contracts/arc58/guilds/consensus/base.ts:238
+    // votes: { approvals: 0, rejections: 0, abstains: 0 },
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:231-239
+    // this.ballots(proposalID).value = {
+    //   resolved: false,
+    //   approved: false,
+    //   votingEnd,
+    //   eligiblePower,
+    //   voteCount: 0,
+    //   requirements: clone(requirements),
+    //   votes: { approvals: 0, rejections: 0, abstains: 0 },
+    // }
+    itob
+    uncover 2
+    itob
+    bytec 13 // 0x00
+    swap
+    concat
+    dig 1
+    concat
+    swap
+    concat
+    swap
+    concat
+    pushbytes 0x000000000000000000000000000000000000000000000000
+    concat
+    box_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:194
+    // this.activeBallots.value += 1
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:77
+    // activeBallots = GlobalState<uint64>({ initialValue: 0, key: GuildConsensusGlobalStateKeyActiveBallots })
+    bytec 5 // "active_ballots"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:194
+    // this.activeBallots.value += 1
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_1 // 1
+    +
+    // smart_contracts/arc58/guilds/consensus/base.ts:77
+    // activeBallots = GlobalState<uint64>({ initialValue: 0, key: GuildConsensusGlobalStateKeyActiveBallots })
+    bytec 5 // "active_ballots"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:194
+    // this.activeBallots.value += 1
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:186-191
+    // openProposal(
+    //   mbrPayment: gtxn.PaymentTxn,
+    //   proposalID: uint64,
+    //   votingEnd: uint64,
+    //   requirements: GuildConsensusRequirements,
+    // ): void {
+    intc_1 // 1
+    return
+
+openProposal_bool_false@18:
+    intc_0 // 0
+    b openProposal_bool_merge@19
+
+openProposal_bool_false@12:
+    intc_0 // 0
+    b openProposal_bool_merge@13
+
+openProposal_if_body@4:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:125
+    // result.minimumApprovals = this.minimumApprovals.value
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:78
+    // minimumApprovals = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyMinimumApprovals })
+    bytec 6 // "lock_approvals"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:125
+    // result.minimumApprovals = this.minimumApprovals.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    itob
+    replace2 16
+    b openProposal_after_if_else@5
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.resolveProposal[routing]() -> void:
+resolveProposal:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:197
+    // resolveProposal(proposalID: uint64): GuildConsensusResult {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/consensus/base.ts:289
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/base.ts:290
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    itob
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:290
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz resolveProposal_after_assert@3
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+resolveProposal_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/base.ts:291
+    // const ballot = clone(this.ballots(proposalID).value)
+    dup
+    box_get
+    swap
+    dup
+    cover 2
+    cover 3
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:292
+    // loggedAssert(!ballot.resolved, errGuildInvalidProposalState)
+    intc_0 // 0
+    getbit
+    bz resolveProposal_after_assert@5
+    bytec 7 // "ERR:errGpst"
+    log
+    err // ERR:errGpst
+
+resolveProposal_after_assert@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:293
+    // loggedAssert(ballot.eligiblePower > 0 || ballot.requirements.participation === 0, errGuildUnsafeSnapshot)
+    dig 1
+    pushint 9
+    extract_uint64
+    bnz resolveProposal_bool_true@7
+    dig 1
+    extract 25 24
+    intc_0 // 0
+    extract_uint64
+    bnz resolveProposal_bool_false@8
+
+resolveProposal_bool_true@7:
+    intc_1 // 1
+
+resolveProposal_bool_merge@9:
+    // smart_contracts/arc58/guilds/consensus/base.ts:293
+    // loggedAssert(ballot.eligiblePower > 0 || ballot.requirements.participation === 0, errGuildUnsafeSnapshot)
+    bnz resolveProposal_after_assert@11
+    bytec 16 // "ERR:errGsnp"
+    log
+    err // ERR:errGsnp
+
+resolveProposal_after_assert@11:
+    // smart_contracts/arc58/guilds/consensus/base.ts:295
+    // const { approvals, rejections, abstains } = ballot.votes
+    swap
+    dup
+    extract 49 24
+    dup
+    intc_0 // 0
+    extract_uint64
+    dig 1
+    intc_2 // 8
+    extract_uint64
+    uncover 2
+    pushint 16
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/base.ts:296
+    // const turnout: uint64 = approvals + rejections + abstains
+    dig 2
+    dig 2
+    +
+    +
+    // smart_contracts/arc58/guilds/consensus/base.ts:297
+    // ballot.approved = this.meetsRequirements(ballot, approvals, rejections, turnout)
+    callsub meetsRequirements
+    intc_1 // 1
+    uncover 2
+    setbit
+    dup
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:298
+    // if (Global.latestTimestamp <= ballot.votingEnd) {
+    global LatestTimestamp
+    swap
+    intc_1 // 1
+    extract_uint64
+    <=
+    bz resolveProposal_after_if_else@23
+    // smart_contracts/arc58/guilds/consensus/base.ts:299
+    // loggedAssert(this.decidedEarly(ballot, ballot.approved), errGuildVotingOpen)
+    dig 1
+    dup
+    intc_1 // 1
+    getbit
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:332
+    // if (ballot.eligiblePower === 0) {
+    pushint 9
+    extract_uint64
+    dup
+    bnz resolveProposal_after_if_else@14
+    pop
+    bury 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:333
+    // return false
+    intc_0 // 0
+
+resolveProposal_after_inlined_smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.decidedEarly@20:
+    // smart_contracts/arc58/guilds/consensus/base.ts:299
+    // loggedAssert(this.decidedEarly(ballot, ballot.approved), errGuildVotingOpen)
+    bnz resolveProposal_after_if_else@23
+    pushbytes "ERR:errGopn"
+    log
+    err // ERR:errGopn
+
+resolveProposal_after_if_else@23:
+    // smart_contracts/arc58/guilds/consensus/base.ts:301
+    // ballot.resolved = true
+    swap
+    intc_0 // 0
+    intc_1 // 1
+    setbit
+    // smart_contracts/arc58/guilds/consensus/base.ts:302
+    // this.ballots(proposalID).value = clone(ballot)
+    swap
+    dig 1
+    box_put
+    // smart_contracts/arc58/guilds/consensus/base.ts:304
+    // approved: ballot.approved,
+    dup
+    intc_1 // 1
+    getbit
+    // smart_contracts/arc58/guilds/consensus/base.ts:305
+    // approvals: ballot.votes.approvals,
+    dig 1
+    extract 49 24
+    dup
+    extract 0 8
+    // smart_contracts/arc58/guilds/consensus/base.ts:305-306
+    // approvals: ballot.votes.approvals,
+    // rejections: ballot.votes.rejections,
+    dig 1
+    extract 8 8
+    // smart_contracts/arc58/guilds/consensus/base.ts:307
+    // abstains: ballot.votes.abstains,
+    uncover 2
+    extract 16 8
+    // smart_contracts/arc58/guilds/consensus/base.ts:308
+    // eligiblePower: ballot.eligiblePower,
+    uncover 4
+    extract 9 8
+    // smart_contracts/arc58/guilds/consensus/base.ts:303-309
+    // return {
+    //   approved: ballot.approved,
+    //   approvals: ballot.votes.approvals,
+    //   rejections: ballot.votes.rejections,
+    //   abstains: ballot.votes.abstains,
+    //   eligiblePower: ballot.eligiblePower,
+    // }
+    bytec 13 // 0x00
+    intc_0 // 0
+    uncover 6
+    setbit
+    uncover 4
+    concat
+    uncover 3
+    concat
+    uncover 2
+    concat
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:199
+    // this.activeBallots.value -= 1
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:77
+    // activeBallots = GlobalState<uint64>({ initialValue: 0, key: GuildConsensusGlobalStateKeyActiveBallots })
+    bytec 5 // "active_ballots"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:199
+    // this.activeBallots.value -= 1
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_1 // 1
+    -
+    // smart_contracts/arc58/guilds/consensus/base.ts:77
+    // activeBallots = GlobalState<uint64>({ initialValue: 0, key: GuildConsensusGlobalStateKeyActiveBallots })
+    bytec 5 // "active_ballots"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:199
+    // this.activeBallots.value -= 1
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:197
+    // resolveProposal(proposalID: uint64): GuildConsensusResult {
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+resolveProposal_after_if_else@14:
+    // smart_contracts/arc58/guilds/consensus/base.ts:335
+    // const { approvals, rejections, abstains } = ballot.votes
+    dig 3
+    extract 49 24
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    cover 2
+    cover 6
+    dup
+    intc_2 // 8
+    extract_uint64
+    dup
+    cover 2
+    cover 7
+    pushint 16
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/base.ts:336
+    // const turnout: uint64 = approvals + rejections + abstains
+    cover 2
+    +
+    +
+    dup
+    cover 7
+    // smart_contracts/arc58/guilds/consensus/base.ts:337
+    // const remaining: uint64 = ballot.eligiblePower > turnout ? ballot.eligiblePower - turnout : 0
+    dig 1
+    <
+    bz resolveProposal_ternary_false@16
+    dig 6
+    -
+    swap
+
+resolveProposal_ternary_merge@17:
+    // smart_contracts/arc58/guilds/consensus/base.ts:338
+    // if (approved) {
+    uncover 2
+    bz resolveProposal_after_if_else@19
+    // smart_contracts/arc58/guilds/consensus/base.ts:340
+    // return this.meetsRequirements(ballot, approvals, rejections + remaining, turnout)
+    uncover 3
+    uncover 2
+    +
+    uncover 2
+    uncover 3
+    uncover 2
+    uncover 4
+    callsub meetsRequirements
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:299
+    // loggedAssert(this.decidedEarly(ballot, ballot.approved), errGuildVotingOpen)
+    b resolveProposal_after_inlined_smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.decidedEarly@20
+
+resolveProposal_after_if_else@19:
+    // smart_contracts/arc58/guilds/consensus/base.ts:342
+    // return !this.meetsRequirements(ballot, approvals + remaining, rejections, turnout + remaining)
+    uncover 4
+    uncover 2
+    dup
+    cover 2
+    +
+    uncover 5
+    uncover 2
+    +
+    uncover 3
+    uncover 2
+    uncover 4
+    uncover 3
+    callsub meetsRequirements
+    cover 2
+    !
+    // smart_contracts/arc58/guilds/consensus/base.ts:299
+    // loggedAssert(this.decidedEarly(ballot, ballot.approved), errGuildVotingOpen)
+    b resolveProposal_after_inlined_smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.decidedEarly@20
+
+resolveProposal_ternary_false@16:
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:337
+    // const remaining: uint64 = ballot.eligiblePower > turnout ? ballot.eligiblePower - turnout : 0
+    intc_0 // 0
+    swap
+    b resolveProposal_ternary_merge@17
+
+resolveProposal_bool_false@8:
+    intc_0 // 0
+    b resolveProposal_bool_merge@9
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.vote[routing]() -> void:
+vote:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:204
+    // vote(mbrPayment: gtxn.PaymentTxn, voter: Account, proposalID: uint64, vote: GuildVoteType, evidence: bytes): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.uint8
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/consensus/base.ts:260
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/base.ts:261
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    itob
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:261
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz vote_after_assert@3
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+vote_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/base.ts:262
+    // return this.ballots(proposalID).value.votingEnd
+    dupn 2
+    box_get
+    assert // Box must have value
+    intc_1 // 1
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:206
+    // this.voteWithPower(mbrPayment, voter, proposalID, vote, this.lockedPower(voter, votingEnd))
+    dig 5
+    swap
+    callsub lockedPower
+    cover 3
+    // smart_contracts/arc58/guilds/consensus/base.ts:272
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/base.ts:156
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz vote_after_assert@7
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+vote_after_assert@7:
+    // smart_contracts/arc58/guilds/consensus/base.ts:157
+    // const ballot = clone(this.ballots(proposalID).value)
+    dup
+    box_get
+    swap
+    dup
+    cover 2
+    cover 4
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:158
+    // loggedAssert(!ballot.resolved && Global.latestTimestamp <= ballot.votingEnd, errGuildInvalidProposalState)
+    intc_0 // 0
+    getbit
+    bnz vote_bool_false@10
+    global LatestTimestamp
+    dig 3
+    intc_1 // 1
+    extract_uint64
+    <=
+    bz vote_bool_false@10
+    intc_1 // 1
+
+vote_bool_merge@11:
+    // smart_contracts/arc58/guilds/consensus/base.ts:158
+    // loggedAssert(!ballot.resolved && Global.latestTimestamp <= ballot.votingEnd, errGuildInvalidProposalState)
+    bnz vote_after_assert@13
+    bytec 7 // "ERR:errGpst"
+    log
+    err // ERR:errGpst
+
+vote_after_assert@13:
+    // smart_contracts/arc58/guilds/consensus/base.ts:162
+    // const key: GuildVoteKey = { proposalID, voter }
+    swap
+    uncover 5
+    concat
+    // smart_contracts/arc58/guilds/consensus/base.ts:86
+    // votes = BoxMap<GuildVoteKey, GuildVote>({ keyPrefix: GuildConsensusBoxPrefixVotes })
+    bytec 14 // "v"
+    swap
+    concat
+    dup
+    cover 5
+    // smart_contracts/arc58/guilds/consensus/base.ts:163
+    // const changing = this.votes(key).exists
+    box_len
+    dup
+    uncover 2
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:165-169
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: changing ? 0 : GuildVoteMBR,
+    // }),
+    uncover 7
+    dup
+    gtxns Sender
+    // smart_contracts/arc58/guilds/consensus/base.ts:166
+    // sender: this.guild.value.address,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:166
+    // sender: this.guild.value.address,
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/guilds/consensus/base.ts:165-169
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: changing ? 0 : GuildVoteMBR,
+    // }),
+    ==
+    dig 1
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/consensus/base.ts:167
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/consensus/base.ts:165-169
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: changing ? 0 : GuildVoteMBR,
+    // }),
+    ==
+    &&
+    swap
+    gtxns Amount
+    // smart_contracts/arc58/guilds/consensus/base.ts:168
+    // amount: changing ? 0 : GuildVoteMBR,
+    intc 8 // 22500
+    intc_0 // 0
+    uncover 4
+    select
+    // smart_contracts/arc58/guilds/consensus/base.ts:165-169
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: changing ? 0 : GuildVoteMBR,
+    // }),
+    ==
+    &&
+    // smart_contracts/arc58/guilds/consensus/base.ts:164-171
+    // loggedAssert(
+    //   match(mbrPayment, {
+    //     sender: this.guild.value.address,
+    //     receiver: Global.currentApplicationAddress,
+    //     amount: changing ? 0 : GuildVoteMBR,
+    //   }),
+    //   errGuildInvalidPayment,
+    // )
+    bnz vote_after_assert@15
+    bytec 10 // "ERR:errGpay"
+    log
+    err // ERR:errGpay
+
+vote_after_assert@15:
+    // smart_contracts/arc58/guilds/consensus/base.ts:172
+    // loggedAssert(power > 0, errGuildNoGovernancePower)
+    dig 3
+    bnz vote_after_assert@17
+    pushbytes "ERR:errGpwr"
+    log
+    err // ERR:errGpwr
+
+vote_after_assert@17:
+    // smart_contracts/arc58/guilds/consensus/base.ts:174
+    // if (changing) {
+    dup
+    bz vote_after_if_else@25
+    // smart_contracts/arc58/guilds/consensus/base.ts:175
+    // const previous = clone(this.votes(key).value)
+    dig 5
+    box_get
+    swap
+    dup
+    cover 2
+    cover 6
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:176
+    // if (previous.type === GuildVoteApprove) {
+    extract 0 1
+    dup
+    pushbytes 0x0a
+    ==
+    bz vote_else_body@20
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:177
+    // ballot.votes.approvals -= previous.power
+    uncover 2
+    dup
+    extract 49 24
+    dup
+    intc_0 // 0
+    extract_uint64
+    uncover 6
+    intc_1 // 1
+    extract_uint64
+    -
+    itob
+    replace2 0
+    replace2 49
+    cover 2
+
+vote_after_if_else@25:
+    // smart_contracts/arc58/guilds/consensus/base.ts:185
+    // const turnout: uint64 = ballot.votes.approvals + ballot.votes.rejections + ballot.votes.abstains
+    dig 2
+    extract 49 24
+    dup
+    cover 7
+    dup
+    intc_0 // 0
+    extract_uint64
+    dup
+    cover 2
+    cover 6
+    dup
+    intc_2 // 8
+    extract_uint64
+    dup
+    cover 5
+    uncover 2
+    +
+    swap
+    pushint 16
+    extract_uint64
+    dup
+    cover 2
+    +
+    // smart_contracts/arc58/guilds/consensus/base.ts:186
+    // loggedAssert(power <= MAX_UINT64 - turnout, errGuildInvalidWeight)
+    intc 5 // 18446744073709551615
+    swap
+    -
+    dig 6
+    >=
+    bnz vote_after_assert@27
+    pushbytes "ERR:errGwgt"
+    log
+    err // ERR:errGwgt
+
+vote_after_assert@27:
+    // smart_contracts/arc58/guilds/consensus/base.ts:188
+    // if (vote === GuildVoteApprove) {
+    dig 7
+    pushbytes 0x0a
+    ==
+    bz vote_else_body@29
+    pop
+    uncover 2
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:189
+    // ballot.votes.approvals += power
+    uncover 4
+    dig 4
+    +
+    itob
+    uncover 7
+    swap
+    replace2 0
+    uncover 3
+    swap
+    replace2 49
+    cover 2
+
+vote_after_if_else@35:
+    // smart_contracts/arc58/guilds/consensus/base.ts:197
+    // if (!changing) {
+    bnz vote_after_if_else@37
+    // smart_contracts/arc58/guilds/consensus/base.ts:198
+    // ballot.voteCount += 1
+    swap
+    dup
+    pushint 17
+    extract_uint64
+    intc_1 // 1
+    +
+    itob
+    replace2 17
+    swap
+
+vote_after_if_else@37:
+    // smart_contracts/arc58/guilds/consensus/base.ts:201
+    // this.ballots(proposalID).value = clone(ballot)
+    swap
+    box_put
+    // smart_contracts/arc58/guilds/consensus/base.ts:202
+    // this.votes(key).value = { type: vote, power }
+    itob
+    concat
+    box_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:204
+    // vote(mbrPayment: gtxn.PaymentTxn, voter: Account, proposalID: uint64, vote: GuildVoteType, evidence: bytes): void {
+    intc_1 // 1
+    return
+
+vote_else_body@29:
+    uncover 6
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:190
+    // } else if (vote === GuildVoteReject) {
+    dig 6
+    pushbytes 0x14
+    ==
+    bz vote_else_body@31
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:191
+    // ballot.votes.rejections += power
+    uncover 2
+    dig 4
+    +
+    itob
+    uncover 7
+    swap
+    replace2 8
+    uncover 3
+    swap
+    replace2 49
+    cover 2
+    b vote_after_if_else@35
+
+vote_else_body@31:
+    uncover 3
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:192
+    // } else if (vote === GuildVoteAbstain) {
+    dig 5
+    pushbytes 0x1e
+    ==
+    bz vote_else_body@33
+    // smart_contracts/arc58/guilds/consensus/base.ts:193
+    // ballot.votes.abstains += power
+    dig 4
+    +
+    itob
+    uncover 7
+    swap
+    replace2 16
+    uncover 3
+    swap
+    replace2 49
+    cover 2
+    b vote_after_if_else@35
+
+vote_else_body@33:
+    // smart_contracts/arc58/guilds/consensus/base.ts:195
+    // loggedErr(errGuildInvalidVote)
+    pushbytes "ERR:errGvot"
+    log
+    err // ERR:errGvot
+
+vote_else_body@20:
+    // smart_contracts/arc58/guilds/consensus/base.ts:178
+    // } else if (previous.type === GuildVoteReject) {
+    pushbytes 0x14
+    ==
+    bz vote_else_body@22
+    // smart_contracts/arc58/guilds/consensus/base.ts:179
+    // ballot.votes.rejections -= previous.power
+    uncover 2
+    dup
+    extract 49 24
+    dup
+    intc_2 // 8
+    extract_uint64
+    uncover 6
+    intc_1 // 1
+    extract_uint64
+    -
+    itob
+    replace2 8
+    replace2 49
+    cover 2
+    b vote_after_if_else@25
+
+vote_else_body@22:
+    // smart_contracts/arc58/guilds/consensus/base.ts:181
+    // ballot.votes.abstains -= previous.power
+    uncover 2
+    dup
+    extract 49 24
+    dup
+    pushint 16
+    extract_uint64
+    uncover 6
+    intc_1 // 1
+    extract_uint64
+    -
+    itob
+    replace2 16
+    replace2 49
+    cover 2
+    b vote_after_if_else@25
+
+vote_bool_false@10:
+    intc_0 // 0
+    b vote_bool_merge@11
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.proposalPower[routing]() -> void:
+proposalPower:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:209
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:211
+    // return this.lockedPower(account, requiredThrough)
+    callsub lockedPower
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:209
+    // @abimethod({ readonly: true })
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:217
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/consensus/base.ts:92
+    // Global.callerApplicationId !== 0 && Global.callerApplicationAddress === Global.creatorAddress,
+    global CallerApplicationID
+    bz create_bool_false@4
+    global CallerApplicationAddress
+    global CreatorAddress
+    ==
+    bz create_bool_false@4
+    intc_1 // 1
+
+create_bool_merge@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:91-94
+    // loggedAssert(
+    //   Global.callerApplicationId !== 0 && Global.callerApplicationAddress === Global.creatorAddress,
+    //   errGuildFactoryOnly,
+    // )
+    bnz create_after_assert@7
+    bytec 18 // "ERR:errGfac"
+    log
+    err // ERR:errGfac
+
+create_after_assert@7:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:221
+    // this.configureLockedToken(Application(config.staking), Asset(config.asset), config.minimumApprovals)
+    dup
+    intc_3 // 2
+    extract_uint64
+    dig 1
+    pushint 10
+    extract_uint64
+    uncover 2
+    pushint 18
+    extract_uint64
+    callsub configureLockedToken
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:217
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+create_bool_false@4:
+    intc_0 // 0
+    b create_bool_merge@5
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.configurationMbr[routing]() -> void:
+configurationMbr:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:226
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushbytes 0x151f7c750000000000000000
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.configure[routing]() -> void:
+configure:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:232
+    // configure(mbrPayment: gtxn.PaymentTxn, config: bytes): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:233
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:235-239
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: 0,
+    // }),
+    dup
+    gtxns Sender
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:236
+    // sender: this.guild.value.address,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:236
+    // sender: this.guild.value.address,
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:235-239
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: 0,
+    // }),
+    ==
+    dig 1
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:237
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:235-239
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: 0,
+    // }),
+    ==
+    &&
+    swap
+    gtxns Amount
+    !
+    &&
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:234-241
+    // loggedAssert(
+    //   match(mbrPayment, {
+    //     sender: this.guild.value.address,
+    //     receiver: Global.currentApplicationAddress,
+    //     amount: 0,
+    //   }),
+    //   errGuildInvalidPayment,
+    // )
+    bnz configure_after_assert@3
+    bytec 10 // "ERR:errGpay"
+    log
+    err // ERR:errGpay
+
+configure_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:243
+    // this.configureLockedToken(Application(configuration.staking), Asset(configuration.asset), configuration.minimumApprovals)
+    dup
+    intc_3 // 2
+    extract_uint64
+    dig 1
+    pushint 10
+    extract_uint64
+    uncover 2
+    pushint 18
+    extract_uint64
+    callsub configureLockedToken
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:232
+    // configure(mbrPayment: gtxn.PaymentTxn, config: bytes): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.consensusActionMbr[routing]() -> void:
+consensusActionMbr:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:249
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:251
+    // return this.validateConsensusAction(data)
+    callsub validateConsensusAction
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:249
+    // @abimethod({ readonly: true })
+    itob
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.applyConsensusAction[routing]() -> void:
+applyConsensusAction:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:260
+    // applyConsensusAction(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, data: bytes): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_3 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:261
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:262
+    // const amount = this.validateConsensusAction(data)
+    callsub validateConsensusAction
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:264-268
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount,
+    // }),
+    dig 1
+    gtxns Sender
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:265
+    // sender: this.guild.value.address,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:265
+    // sender: this.guild.value.address,
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:264-268
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount,
+    // }),
+    ==
+    dig 2
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:266
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:264-268
+    // match(mbrPayment, {
+    //   sender: this.guild.value.address,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount,
+    // }),
+    ==
+    &&
+    uncover 2
+    gtxns Amount
+    uncover 2
+    ==
+    &&
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:263-270
+    // loggedAssert(
+    //   match(mbrPayment, {
+    //     sender: this.guild.value.address,
+    //     receiver: Global.currentApplicationAddress,
+    //     amount,
+    //   }),
+    //   errGuildInvalidPayment,
+    // )
+    bnz applyConsensusAction_after_assert@3
+    bytec 10 // "ERR:errGpay"
+    log
+    err // ERR:errGpay
+
+applyConsensusAction_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:273
+    // this.consensusActionPayload(data),
+    callsub consensusActionPayload
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:272-274
+    // const minimumApprovals = decodeArc4<ConsensusActionSetMinimumApprovals>(
+    //   this.consensusActionPayload(data),
+    // ).minimumApprovals
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/base.ts:250
+    // if (!this.activated.value) {
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:79
+    // activated = GlobalState<boolean>({ initialValue: false, key: GuildConsensusGlobalStateKeyActivated })
+    bytec 11 // "activated"
+    // smart_contracts/arc58/guilds/consensus/base.ts:250
+    // if (!this.activated.value) {
+    app_global_get_ex
+    assert // check GlobalState exists
+    bnz applyConsensusAction_after_if_else@8
+    bury 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:251
+    // return MAX_UINT64
+    intc 5 // 18446744073709551615
+
+applyConsensusAction_after_inlined_smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.demonstratedApprovals@17:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:275
+    // loggedAssert(minimumApprovals <= this.demonstratedApprovals(proposalID), errGuildLockout)
+    dig 1
+    >=
+    bnz applyConsensusAction_after_assert@5
+    pushbytes "ERR:errGlko"
+    log
+    err // ERR:errGlko
+
+applyConsensusAction_after_assert@5:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:78
+    // minimumApprovals = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyMinimumApprovals })
+    bytec 6 // "lock_approvals"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:276
+    // this.minimumApprovals.value = minimumApprovals
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:260
+    // applyConsensusAction(mbrPayment: gtxn.PaymentTxn, proposalID: uint64, data: bytes): void {
+    intc_1 // 1
+    return
+
+applyConsensusAction_after_if_else@8:
+    // smart_contracts/arc58/guilds/consensus/base.ts:253
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    swap
+    itob
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:253
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz applyConsensusAction_after_assert@10
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+applyConsensusAction_after_assert@10:
+    // smart_contracts/arc58/guilds/consensus/base.ts:254
+    // const ballot = clone(this.ballots(proposalID).value)
+    box_get
+    swap
+    dup
+    uncover 2
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:255
+    // loggedAssert(ballot.resolved && ballot.approved, errGuildInvalidProposalState)
+    intc_0 // 0
+    getbit
+    bz applyConsensusAction_bool_false@13
+    dup
+    intc_1 // 1
+    getbit
+    bz applyConsensusAction_bool_false@13
+    intc_1 // 1
+
+applyConsensusAction_bool_merge@14:
+    // smart_contracts/arc58/guilds/consensus/base.ts:255
+    // loggedAssert(ballot.resolved && ballot.approved, errGuildInvalidProposalState)
+    bnz applyConsensusAction_after_assert@16
+    bytec 7 // "ERR:errGpst"
+    log
+    err // ERR:errGpst
+
+applyConsensusAction_after_assert@16:
+    // smart_contracts/arc58/guilds/consensus/base.ts:256
+    // return ballot.votes.approvals
+    extract 49 24
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:275
+    // loggedAssert(minimumApprovals <= this.demonstratedApprovals(proposalID), errGuildLockout)
+    b applyConsensusAction_after_inlined_smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.demonstratedApprovals@17
+
+applyConsensusAction_bool_false@13:
+    intc_0 // 0
+    b applyConsensusAction_bool_merge@14
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.bindGuild[routing]() -> void:
+bindGuild:
+    pushbytes ""
+    // smart_contracts/arc58/guilds/consensus/base.ts:279
+    // bindGuild(guild: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/consensus/base.ts:280
+    // loggedAssert(Global.callerApplicationId !== 0 &&
+    global CallerApplicationID
+    // smart_contracts/arc58/guilds/consensus/base.ts:280-281
+    // loggedAssert(Global.callerApplicationId !== 0 &&
+    //   (Global.callerApplicationAddress === Global.creatorAddress || guild.creator === Global.callerApplicationAddress), errGuildFactoryOnly)
+    bz bindGuild_bool_false@5
+    // smart_contracts/arc58/guilds/consensus/base.ts:281
+    // (Global.callerApplicationAddress === Global.creatorAddress || guild.creator === Global.callerApplicationAddress), errGuildFactoryOnly)
+    global CallerApplicationAddress
+    global CreatorAddress
+    ==
+    bnz bindGuild_bool_true@4
+    dup
+    app_params_get AppCreator
+    assert // application exists
+    global CallerApplicationAddress
+    ==
+    bz bindGuild_bool_false@5
+
+bindGuild_bool_true@4:
+    intc_1 // 1
+
+bindGuild_bool_merge@6:
+    // smart_contracts/arc58/guilds/consensus/base.ts:280-281
+    // loggedAssert(Global.callerApplicationId !== 0 &&
+    //   (Global.callerApplicationAddress === Global.creatorAddress || guild.creator === Global.callerApplicationAddress), errGuildFactoryOnly)
+    bnz bindGuild_after_assert@8
+    bytec 18 // "ERR:errGfac"
+    log
+    err // ERR:errGfac
+
+bindGuild_after_assert@8:
+    // smart_contracts/arc58/guilds/consensus/base.ts:282
+    // loggedAssert(!this.guild.hasValue && guild.id > 0, errGuildWalletAlreadySet)
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:282
+    // loggedAssert(!this.guild.hasValue && guild.id > 0, errGuildWalletAlreadySet)
+    app_global_get_ex
+    bury 1
+    bnz bindGuild_bool_false@11
+    dup
+    bz bindGuild_bool_false@11
+    intc_1 // 1
+
+bindGuild_bool_merge@12:
+    // smart_contracts/arc58/guilds/consensus/base.ts:282
+    // loggedAssert(!this.guild.hasValue && guild.id > 0, errGuildWalletAlreadySet)
+    bnz bindGuild_after_assert@14
+    pushbytes "ERR:errGwst"
+    log
+    err // ERR:errGwst
+
+bindGuild_after_assert@14:
+    // smart_contracts/arc58/guilds/consensus/base.ts:283
+    // const [consensusID, exists] = op.AppGlobal.getExUint64(guild, Bytes(GuildGlobalStateKeyConsensus))
+    dup
+    pushbytes "consensus"
+    app_global_get_ex
+    swap
+    bury 3
+    // smart_contracts/arc58/guilds/consensus/base.ts:284
+    // loggedAssert(exists && consensusID === Global.currentApplicationId.id, errGuildInvalidProposal)
+    bz bindGuild_bool_false@17
+    dig 1
+    global CurrentApplicationID
+    ==
+    bz bindGuild_bool_false@17
+    intc_1 // 1
+
+bindGuild_bool_merge@18:
+    // smart_contracts/arc58/guilds/consensus/base.ts:284
+    // loggedAssert(exists && consensusID === Global.currentApplicationId.id, errGuildInvalidProposal)
+    bnz bindGuild_after_assert@20
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+bindGuild_after_assert@20:
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:285
+    // this.guild.value = guild
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/base.ts:279
+    // bindGuild(guild: Application): void {
+    intc_1 // 1
+    return
+
+bindGuild_bool_false@17:
+    intc_0 // 0
+    b bindGuild_bool_merge@18
+
+bindGuild_bool_false@11:
+    intc_0 // 0
+    b bindGuild_bool_merge@12
+
+bindGuild_bool_false@5:
+    intc_0 // 0
+    b bindGuild_bool_merge@6
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.cleanupBallot[routing]() -> void:
+cleanupBallot:
+    pushbytes ""
+    // smart_contracts/arc58/guilds/consensus/base.ts:346
+    // cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 3
+    pushint 32
+    *
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<account>
+    // smart_contracts/arc58/guilds/consensus/base.ts:347
+    // this.requireGuild()
+    callsub requireGuild
+    // smart_contracts/arc58/guilds/consensus/base.ts:348
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    itob
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:348
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz cleanupBallot_after_assert@3
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+cleanupBallot_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/base.ts:349
+    // const ballot = clone(this.ballots(proposalID).value)
+    dup
+    box_get
+    swap
+    dup
+    cover 2
+    cover 3
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:350
+    // loggedAssert(ballot.resolved, errGuildInvalidProposalState)
+    intc_0 // 0
+    getbit
+    bnz cleanupBallot_after_assert@5
+    bytec 7 // "ERR:errGpst"
+    log
+    err // ERR:errGpst
+
+cleanupBallot_after_assert@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:352
+    // let reclaimed: uint64 = 0
+    intc_0 // 0
+    bury 6
+    // smart_contracts/arc58/guilds/consensus/base.ts:353
+    // for (let i: uint64 = 0; i < voters.length; i += 1) {
+    intc_0 // 0
+    swap
+
+cleanupBallot_while_top@6:
+    // smart_contracts/arc58/guilds/consensus/base.ts:353
+    // for (let i: uint64 = 0; i < voters.length; i += 1) {
+    dig 1
+    dig 5
+    <
+    bz cleanupBallot_after_while@10
+    // smart_contracts/arc58/guilds/consensus/base.ts:354
+    // const key: GuildVoteKey = { proposalID, voter: voters[i] }
+    dig 5
+    extract 2 0
+    dig 2
+    pushint 32
+    *
+    pushint 32
+    extract3 // on error: index access is out of bounds
+    dig 4
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/base.ts:86
+    // votes = BoxMap<GuildVoteKey, GuildVote>({ keyPrefix: GuildConsensusBoxPrefixVotes })
+    bytec 14 // "v"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:355
+    // loggedAssert(this.votes(key).exists, errGuildVoteMissing)
+    box_len
+    bury 1
+    bnz cleanupBallot_after_assert@9
+    pushbytes "ERR:errGvmg"
+    log
+    err // ERR:errGvmg
+
+cleanupBallot_after_assert@9:
+    // smart_contracts/arc58/guilds/consensus/base.ts:356
+    // this.votes(key).delete()
+    box_del
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:357
+    // ballot.voteCount -= 1
+    uncover 2
+    dup
+    pushint 17
+    extract_uint64
+    intc_1 // 1
+    -
+    itob
+    replace2 17
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:358
+    // reclaimed += GuildVoteMBR
+    dig 6
+    intc 8 // 22500
+    +
+    bury 7
+    // smart_contracts/arc58/guilds/consensus/base.ts:353
+    // for (let i: uint64 = 0; i < voters.length; i += 1) {
+    swap
+    intc_1 // 1
+    +
+    swap
+    b cleanupBallot_while_top@6
+
+cleanupBallot_after_while@10:
+    bury 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:361
+    // if (ballot.voteCount === 0) {
+    dig 1
+    dup
+    extract 17 8
+    swap
+    pushint 17
+    extract_uint64
+    bnz cleanupBallot_else_body@12
+    uncover 2
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:362
+    // this.ballots(proposalID).delete()
+    swap
+    box_del
+    pop
+    // smart_contracts/arc58/guilds/consensus/base.ts:363
+    // reclaimed += GuildConsensusBallotMBR
+    dig 4
+    intc 7 // 35300
+    +
+    bury 5
+
+cleanupBallot_after_if_else@13:
+    // smart_contracts/arc58/guilds/consensus/base.ts:368
+    // if (reclaimed > 0) {
+    dig 4
+    bz cleanupBallot_after_if_else@16
+    // smart_contracts/arc58/guilds/consensus/base.ts:369
+    // itxn.payment({ receiver: this.guild.value.address, amount: reclaimed, fee: 0 }).submit()
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:369
+    // itxn.payment({ receiver: this.guild.value.address, amount: reclaimed, fee: 0 }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    app_params_get AppAddress
+    assert // application exists
+    dig 5
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+cleanupBallot_after_if_else@16:
+    // smart_contracts/arc58/guilds/consensus/base.ts:346
+    // cleanupBallot(proposalID: uint64, voters: Account[]): uint64 {
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+cleanupBallot_else_body@12:
+    // smart_contracts/arc58/guilds/consensus/base.ts:365
+    // this.ballots(proposalID).value = clone(ballot)
+    swap
+    uncover 2
+    box_put
+    b cleanupBallot_after_if_else@13
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.getBallot[routing]() -> void:
+getBallot:
+    // smart_contracts/arc58/guilds/consensus/base.ts:376
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/guilds/consensus/base.ts:378
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    itob
+    // smart_contracts/arc58/guilds/consensus/base.ts:84
+    // ballots = BoxMap<uint64, GuildConsensusBallot>({ keyPrefix: GuildConsensusBoxPrefixBallots })
+    bytec 4 // "b"
+    swap
+    concat
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:378
+    // loggedAssert(this.ballots(proposalID).exists, errGuildInvalidProposal)
+    box_len
+    bury 1
+    bnz getBallot_after_assert@3
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+getBallot_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/base.ts:379
+    // return this.ballots(proposalID).value
+    box_get
+    assert // Box must have value
+    // smart_contracts/arc58/guilds/consensus/base.ts:376
+    // @abimethod({ readonly: true })
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.hasVoted[routing]() -> void:
+hasVoted:
+    // smart_contracts/arc58/guilds/consensus/base.ts:388
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/guilds/consensus/base.ts:390
+    // return this.votes({ proposalID, voter }).exists
+    swap
+    itob
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/base.ts:86
+    // votes = BoxMap<GuildVoteKey, GuildVote>({ keyPrefix: GuildConsensusBoxPrefixVotes })
+    bytec 14 // "v"
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/base.ts:390
+    // return this.votes({ proposalID, voter }).exists
+    box_len
+    bury 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:388
+    // @abimethod({ readonly: true })
+    bytec 13 // 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_1 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.lockedPower(account: bytes, requiredThrough: uint64) -> uint64:
+lockedPower:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:85
+    // private lockedPower(account: Account, requiredThrough: uint64): uint64 {
+    proto 2 1
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:86-89
+    // const info = abiCall<typeof Staking.prototype.getInfo>({
+    //   appId: this.staking.value,
+    //   args: [account, { asset: this.votingAsset.value.id, type: STAKING_TYPE_LOCK }],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:88
+    // args: [account, { asset: this.votingAsset.value.id, type: STAKING_TYPE_LOCK }],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:76
+    // votingAsset = GlobalState<Asset>({ key: TokenConsensusGlobalStateKeyAsset })
+    bytec 8 // "voting_asset"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:88
+    // args: [account, { asset: this.votingAsset.value.id, type: STAKING_TYPE_LOCK }],
+    app_global_get_ex
+    assert // check GlobalState exists
+    itob
+    pushbytes 0x28
+    concat
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:87
+    // appId: this.staking.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:74
+    // staking = GlobalState<Application>({ key: LockedTokenConsensusGlobalStateKeyStaking })
+    bytec 9 // "staking_app"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:87
+    // appId: this.staking.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:86-89
+    // const info = abiCall<typeof Staking.prototype.getInfo>({
+    //   appId: this.staking.value,
+    //   args: [account, { asset: this.votingAsset.value.id, type: STAKING_TYPE_LOCK }],
+    // }).returnValue
+    pushbytes 0xd40162af // method "getInfo(address,(uint64,uint8))(uint64,uint64,uint64,uint64)"
+    itxn_field ApplicationArgs
+    frame_dig -2
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dupn 2
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for smart_contracts/staking/types.ts::Stake
+    pushint 20
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:90
+    // if (info.expiration <= requiredThrough) {
+    extract_uint64
+    dup
+    frame_dig -1
+    <=
+    bz lockedPower_after_if_else@3
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:91
+    // return 0
+    intc_0 // 0
+    frame_bury 0
+    retsub
+
+lockedPower_after_if_else@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:93
+    // const remainingTime: uint64 = info.expiration - Global.latestTimestamp
+    global LatestTimestamp
+    -
+    dup
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:94
+    // if (remainingTime < ONE_WEEK) {
+    intc 6 // 604800
+    <
+    bz lockedPower_after_if_else@5
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:95
+    // return 0
+    intc_0 // 0
+    frame_bury 0
+    retsub
+
+lockedPower_after_if_else@5:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:98
+    // const [productHigh, productLow] = op.mulw(info.amount, remainingTime / ONE_DAY)
+    swap
+    pushint 4
+    extract_uint64
+    swap
+    pushint 86400
+    /
+    mulw
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:99
+    // const [tokensHigh, tokensLow] = op.divmodw(productHigh, productLow, 0, this.votingUnit.value)
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:80
+    // votingUnit = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyUnit })
+    bytec 12 // "voting_unit"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:99
+    // const [tokensHigh, tokensLow] = op.divmodw(productHigh, productLow, 0, this.votingUnit.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    cover 2
+    intc_0 // 0
+    uncover 3
+    divmodw
+    popn 2
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:100
+    // const [powerHigh, powerLow] = op.divmodw(tokensHigh, tokensLow, 0, ONE_YEAR_IN_DAYS)
+    intc_0 // 0
+    pushint 365
+    divmodw
+    popn 2
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:101
+    // return powerHigh > 0 ? MAX_UINT64 : powerLow
+    intc 5 // 18446744073709551615
+    uncover 2
+    select
+    retsub
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.maximumLockup() -> uint64:
+maximumLockup:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:114-117
+    // const settings = abiCall<typeof Staking.prototype.getSettings>({
+    //   appId: this.staking.value,
+    //   args: [[this.votingAsset.value.id]],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:116
+    // args: [[this.votingAsset.value.id]],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:76
+    // votingAsset = GlobalState<Asset>({ key: TokenConsensusGlobalStateKeyAsset })
+    bytec 8 // "voting_asset"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:116
+    // args: [[this.votingAsset.value.id]],
+    app_global_get_ex
+    assert // check GlobalState exists
+    itob
+    bytec 15 // 0x0001
+    swap
+    concat
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:115
+    // appId: this.staking.value,
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:74
+    // staking = GlobalState<Application>({ key: LockedTokenConsensusGlobalStateKeyStaking })
+    bytec 9 // "staking_app"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:115
+    // appId: this.staking.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:114-117
+    // const settings = abiCall<typeof Staking.prototype.getSettings>({
+    //   appId: this.staking.value,
+    //   args: [[this.votingAsset.value.id]],
+    // }).returnValue
+    pushbytes 0x8ae7899f // method "getSettings(uint64[])(uint64,bool)[]"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_1 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 9
+    *
+    intc_3 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/staking/types.ts::SettingsCheck>
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:118
+    // return settings[0].exists ? settings[0].value : ONE_YEAR
+    extract 6 9
+    dup
+    pushint 64
+    getbit
+    bz maximumLockup_ternary_false@3
+    intc_0 // 0
+    extract_uint64
+    retsub
+
+maximumLockup_ternary_false@3:
+    pop
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:118
+    // return settings[0].exists ? settings[0].value : ONE_YEAR
+    intc 9 // 31536000
+    retsub
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.configureLockedToken(staking: uint64, asset: uint64, minimumApprovals: uint64) -> void:
+configureLockedToken:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:145
+    // private configureLockedToken(staking: Application, asset: Asset, minimumApprovals: uint64): void {
+    proto 3 0
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:146
+    // loggedAssert(staking.id > 0, errGuildInvalidStaking)
+    frame_dig -3
+    bnz configureLockedToken_after_assert@2
+    bytec 17 // "ERR:errGstk"
+    log
+    err // ERR:errGstk
+
+configureLockedToken_after_assert@2:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:147
+    // loggedAssert(asset.id > 0 && asset.total > 0, errGuildInvalidAsset)
+    frame_dig -2
+    bz configureLockedToken_bool_false@5
+    frame_dig -2
+    asset_params_get AssetTotal
+    assert // asset exists
+    bz configureLockedToken_bool_false@5
+    intc_1 // 1
+
+configureLockedToken_bool_merge@6:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:147
+    // loggedAssert(asset.id > 0 && asset.total > 0, errGuildInvalidAsset)
+    bnz configureLockedToken_after_assert@8
+    bytec 19 // "ERR:errGast"
+    log
+    err // ERR:errGast
+
+configureLockedToken_after_assert@8:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:148
+    // loggedAssert(asset.decimals <= MAX_LOCKED_TOKEN_DECIMALS, errGuildInvalidAsset)
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    pushint 19
+    <=
+    bnz configureLockedToken_after_assert@10
+    bytec 19 // "ERR:errGast"
+    log
+    err // ERR:errGast
+
+configureLockedToken_after_assert@10:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:149
+    // loggedAssert(minimumApprovals > 0, errGuildInvalidSettings)
+    frame_dig -1
+    bnz configureLockedToken_after_assert@12
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+configureLockedToken_after_assert@12:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:74
+    // staking = GlobalState<Application>({ key: LockedTokenConsensusGlobalStateKeyStaking })
+    bytec 9 // "staking_app"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:150
+    // this.staking.value = staking
+    frame_dig -3
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:76
+    // votingAsset = GlobalState<Asset>({ key: TokenConsensusGlobalStateKeyAsset })
+    bytec 8 // "voting_asset"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:151
+    // this.votingAsset.value = asset
+    frame_dig -2
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:152
+    // this.votingUnit.value = op.exp(10, asset.decimals)
+    frame_dig -2
+    asset_params_get AssetDecimals
+    assert // asset exists
+    pushint 10
+    swap
+    exp
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:80
+    // votingUnit = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyUnit })
+    bytec 12 // "voting_unit"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:152
+    // this.votingUnit.value = op.exp(10, asset.decimals)
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:78
+    // minimumApprovals = GlobalState<uint64>({ key: LockedTokenConsensusGlobalStateKeyMinimumApprovals })
+    bytec 6 // "lock_approvals"
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:153
+    // this.minimumApprovals.value = minimumApprovals
+    frame_dig -1
+    app_global_put
+    retsub
+
+configureLockedToken_bool_false@5:
+    intc_0 // 0
+    b configureLockedToken_bool_merge@6
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateConsensusAction(data: bytes) -> uint64:
+validateConsensusAction:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:157
+    // private validateConsensusAction(data: bytes): uint64 {
+    proto 1 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:135
+    // loggedAssert(data.length > 0, errGuildInvalidConsensusAction)
+    frame_dig -1
+    len
+    bnz validateConsensusAction_after_assert@7
+    bytec 20 // "ERR:errGcac"
+    log
+    err // ERR:errGcac
+
+validateConsensusAction_after_assert@7:
+    // smart_contracts/arc58/guilds/consensus/base.ts:136
+    // return op.getByte(data, 0)
+    frame_dig -1
+    intc_0 // 0
+    getbyte
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:159
+    // if (code === ActionSetMinimumApprovals) {
+    intc_1 // 1
+    ==
+    bz validateConsensusAction_after_if_else@4
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:161
+    // decodeArc4<ConsensusActionSetMinimumApprovals>(this.consensusActionPayload(data)).minimumApprovals > 0,
+    frame_dig -1
+    callsub consensusActionPayload
+    intc_0 // 0
+    extract_uint64
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:160-163
+    // loggedAssert(
+    //   decodeArc4<ConsensusActionSetMinimumApprovals>(this.consensusActionPayload(data)).minimumApprovals > 0,
+    //   errGuildInvalidSettings,
+    // )
+    bnz validateConsensusAction_after_assert@3
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+validateConsensusAction_after_assert@3:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:164
+    // return 0
+    intc_0 // 0
+    retsub
+
+validateConsensusAction_after_if_else@4:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:166
+    // loggedErr(errGuildInvalidConsensusAction)
+    bytec 20 // "ERR:errGcac"
+    log
+    err // ERR:errGcac
+
+
+// smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings(settings: bytes) -> bytes:
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:171-172
+    // @abimethod({ readonly: true })
+    // validateSettings(settings: GuildProposalSettings): void {
+    proto 1 1
+    pushbytes ""
+    // smart_contracts/arc58/guilds/consensus/base.ts:125
+    // settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    frame_dig -1
+    pushint 16
+    extract_uint64
+    dup
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    frame_dig 1
+    intc 9 // 31536000
+    <=
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    // smart_contracts/arc58/guilds/consensus/base.ts:126
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    frame_dig -1
+    intc_2 // 8
+    extract_uint64
+    pushint 1000
+    <=
+    // smart_contracts/arc58/guilds/consensus/base.ts:125-126
+    // settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    // smart_contracts/arc58/guilds/consensus/base.ts:126
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    frame_dig -1
+    intc_0 // 0
+    extract_uint64
+    pushint 1000000
+    <=
+    // smart_contracts/arc58/guilds/consensus/base.ts:125-126
+    // settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    // smart_contracts/arc58/guilds/consensus/base.ts:127
+    // settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
+    frame_dig -1
+    pushint 24
+    extract_uint64
+    intc 4 // 100000
+    <=
+    // smart_contracts/arc58/guilds/consensus/base.ts:125-127
+    // settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    // settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    // smart_contracts/arc58/guilds/consensus/base.ts:127
+    // settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
+    frame_dig -1
+    pushint 32
+    extract_uint64
+    dup
+    frame_bury 0
+    intc 4 // 100000
+    <=
+    // smart_contracts/arc58/guilds/consensus/base.ts:125-127
+    // settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    // settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    // settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+    // smart_contracts/arc58/guilds/consensus/base.ts:128
+    // (settings.approval > 0 || settings.minimumApprovals > 0),
+    frame_dig 0
+    bnz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_true@17
+    frame_dig -1
+    pushint 40
+    extract_uint64
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_true@17:
+    intc_1 // 1
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_merge@19:
+    // smart_contracts/arc58/guilds/consensus/base.ts:124-130
+    // loggedAssert(
+    //   settings.duration > 0 && settings.duration <= MAX_GUILD_VOTING_DURATION &&
+    //   settings.power <= MAX_GUILD_PROPOSAL_POWER && settings.fee <= MAX_GUILD_PROPOSAL_FEE &&
+    //   settings.participation <= ONE_HUNDRED_PERCENT && settings.approval <= ONE_HUNDRED_PERCENT &&
+    //   (settings.approval > 0 || settings.minimumApprovals > 0),
+    //   errGuildInvalidSettings,
+    // )
+    bnz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_after_assert@21
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_after_assert@21:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:175
+    // loggedAssert(settings.participation === 0 && settings.duration < this.maximumLockup(), errGuildInvalidSettings)
+    frame_dig -1
+    pushint 24
+    extract_uint64
+    bnz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@5
+    callsub maximumLockup
+    frame_dig 1
+    >
+    bz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@5
+    intc_1 // 1
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_merge@6:
+    // smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts:175
+    // loggedAssert(settings.participation === 0 && settings.duration < this.maximumLockup(), errGuildInvalidSettings)
+    bnz smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_after_assert@8
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_after_assert@8:
+    frame_dig -1
+    frame_bury 0
+    retsub
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@5:
+    intc_0 // 0
+    b smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_merge@6
+
+smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_false@18:
+    intc_0 // 0
+    b smart_contracts/arc58/guilds/consensus/locked-token/contract.algo.ts::LockedTokenGuildConsensus.validateSettings_bool_merge@19
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.requireGuild() -> void:
+requireGuild:
+    // smart_contracts/arc58/guilds/consensus/base.ts:98
+    // loggedAssert(this.guild.hasValue && Global.callerApplicationId === this.guild.value.id, errGuildInvalidProposal)
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:98
+    // loggedAssert(this.guild.hasValue && Global.callerApplicationId === this.guild.value.id, errGuildInvalidProposal)
+    app_global_get_ex
+    bury 1
+    bz requireGuild_bool_false@3
+    global CallerApplicationID
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:98
+    // loggedAssert(this.guild.hasValue && Global.callerApplicationId === this.guild.value.id, errGuildInvalidProposal)
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bz requireGuild_bool_false@3
+    intc_1 // 1
+
+requireGuild_bool_merge@4:
+    // smart_contracts/arc58/guilds/consensus/base.ts:98
+    // loggedAssert(this.guild.hasValue && Global.callerApplicationId === this.guild.value.id, errGuildInvalidProposal)
+    bnz requireGuild_after_assert@6
+    bytec_3 // "ERR:errGprp"
+    log
+    err // ERR:errGprp
+
+requireGuild_after_assert@6:
+    retsub
+
+requireGuild_bool_false@3:
+    intc_0 // 0
+    b requireGuild_bool_merge@4
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.getGuildSettings(key: bytes) -> bytes:
+getGuildSettings:
+    // smart_contracts/arc58/guilds/consensus/base.ts:115
+    // private getGuildSettings(key: bytes): GuildProposalSettings {
+    proto 1 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:116
+    // const [encoded, exists] = op.AppGlobal.getExBytes(this.guild.value, key)
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/consensus/base.ts:75
+    // guild = GlobalState<Application>({ key: GuildConsensusGlobalStateKeyGuild })
+    bytec_0 // "guild"
+    // smart_contracts/arc58/guilds/consensus/base.ts:116
+    // const [encoded, exists] = op.AppGlobal.getExBytes(this.guild.value, key)
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -1
+    app_global_get_ex
+    // smart_contracts/arc58/guilds/consensus/base.ts:117
+    // loggedAssert(exists, errGuildInvalidSettings)
+    bnz getGuildSettings_after_assert@2
+    bytec_2 // "ERR:errGset"
+    log
+    err // ERR:errGset
+
+getGuildSettings_after_assert@2:
+    // smart_contracts/arc58/guilds/consensus/base.ts:118
+    // return decodeArc4<GuildProposalSettings>(encoded)
+    retsub
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.consensusActionPayload(data: bytes) -> bytes:
+consensusActionPayload:
+    // smart_contracts/arc58/guilds/consensus/base.ts:139
+    // protected consensusActionPayload(data: bytes): bytes {
+    proto 1 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:140
+    // return data.slice(1)
+    frame_dig -1
+    len
+    intc_1 // 1
+    dig 1
+    >=
+    intc_1 // 1
+    dig 2
+    uncover 2
+    select
+    frame_dig -1
+    swap
+    uncover 2
+    substring3
+    retsub
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.productAtLeast(a: uint64, b: uint64, c: uint64, d: uint64) -> uint64:
+productAtLeast:
+    // smart_contracts/arc58/guilds/consensus/base.ts:143
+    // private productAtLeast(a: uint64, b: uint64, c: uint64, d: uint64): boolean {
+    proto 4 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:144
+    // const [ah, al] = op.mulw(a, b)
+    frame_dig -4
+    frame_dig -3
+    mulw
+    swap
+    dup
+    // smart_contracts/arc58/guilds/consensus/base.ts:145
+    // const [ch, cl] = op.mulw(c, d)
+    frame_dig -2
+    frame_dig -1
+    mulw
+    cover 2
+    dup
+    cover 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:146
+    // return ah > ch || (ah === ch && al >= cl)
+    >
+    bnz productAtLeast_bool_true@3
+    frame_dig 1
+    frame_dig 3
+    ==
+    bz productAtLeast_bool_false@4
+    frame_dig 0
+    frame_dig 2
+    >=
+    bz productAtLeast_bool_false@4
+
+productAtLeast_bool_true@3:
+    intc_1 // 1
+
+productAtLeast_bool_merge@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:146
+    // return ah > ch || (ah === ch && al >= cl)
+    frame_bury 0
+    retsub
+
+productAtLeast_bool_false@4:
+    intc_0 // 0
+    b productAtLeast_bool_merge@5
+
+
+// smart_contracts/arc58/guilds/consensus/base.ts::GuildConsensusBase.meetsRequirements(ballot: bytes, approvals: uint64, rejections: uint64, turnout: uint64) -> uint64, bytes:
+meetsRequirements:
+    // smart_contracts/arc58/guilds/consensus/base.ts:313
+    // private meetsRequirements(ballot: GuildConsensusBallot, approvals: uint64, rejections: uint64, turnout: uint64): boolean {
+    proto 4 2
+    intc_0 // 0
+    pushbytes ""
+    dupn 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:314
+    // const decisive: uint64 = approvals + rejections
+    frame_dig -3
+    frame_dig -2
+    +
+    // smart_contracts/arc58/guilds/consensus/base.ts:316-318
+    // approvals > 0 &&
+    // (ballot.requirements.participation === 0 ||
+    //   this.productAtLeast(turnout, ONE_HUNDRED_PERCENT, ballot.eligiblePower, ballot.requirements.participation)) &&
+    frame_dig -3
+    bz meetsRequirements_bool_false@9
+    // smart_contracts/arc58/guilds/consensus/base.ts:317
+    // (ballot.requirements.participation === 0 ||
+    frame_dig -4
+    extract 25 24
+    dup
+    frame_bury 0
+    intc_0 // 0
+    extract_uint64
+    dup
+    frame_bury 2
+    // smart_contracts/arc58/guilds/consensus/base.ts:317-318
+    // (ballot.requirements.participation === 0 ||
+    //   this.productAtLeast(turnout, ONE_HUNDRED_PERCENT, ballot.eligiblePower, ballot.requirements.participation)) &&
+    bz meetsRequirements_and_contd@3
+    // smart_contracts/arc58/guilds/consensus/base.ts:318
+    // this.productAtLeast(turnout, ONE_HUNDRED_PERCENT, ballot.eligiblePower, ballot.requirements.participation)) &&
+    frame_dig -4
+    pushint 9
+    extract_uint64
+    frame_dig -1
+    intc 4 // 100000
+    uncover 2
+    frame_dig 2
+    callsub productAtLeast
+    // smart_contracts/arc58/guilds/consensus/base.ts:317-318
+    // (ballot.requirements.participation === 0 ||
+    //   this.productAtLeast(turnout, ONE_HUNDRED_PERCENT, ballot.eligiblePower, ballot.requirements.participation)) &&
+    bz meetsRequirements_bool_false@9
+
+meetsRequirements_and_contd@3:
+    // smart_contracts/arc58/guilds/consensus/base.ts:319
+    // (ballot.requirements.minimumApprovals === 0 || approvals >= ballot.requirements.minimumApprovals) &&
+    frame_dig 0
+    pushint 16
+    extract_uint64
+    dup
+    frame_bury 3
+    bz meetsRequirements_and_contd@5
+    frame_dig -3
+    frame_dig 3
+    >=
+    bz meetsRequirements_bool_false@9
+
+meetsRequirements_and_contd@5:
+    // smart_contracts/arc58/guilds/consensus/base.ts:320
+    // (ballot.requirements.approval === 0 ||
+    frame_dig 0
+    intc_2 // 8
+    extract_uint64
+    dup
+    frame_bury 1
+    // smart_contracts/arc58/guilds/consensus/base.ts:320-321
+    // (ballot.requirements.approval === 0 ||
+    //   (decisive > 0 && this.productAtLeast(approvals, ONE_HUNDRED_PERCENT, decisive, ballot.requirements.approval)))
+    bz meetsRequirements_bool_true@8
+    // smart_contracts/arc58/guilds/consensus/base.ts:321
+    // (decisive > 0 && this.productAtLeast(approvals, ONE_HUNDRED_PERCENT, decisive, ballot.requirements.approval)))
+    frame_dig 4
+    bz meetsRequirements_bool_false@9
+    frame_dig -3
+    intc 4 // 100000
+    frame_dig 4
+    frame_dig 1
+    callsub productAtLeast
+    bz meetsRequirements_bool_false@9
+
+meetsRequirements_bool_true@8:
+    intc_1 // 1
+
+meetsRequirements_bool_merge@10:
+    // smart_contracts/arc58/guilds/consensus/base.ts:315-322
+    // return (
+    //   approvals > 0 &&
+    //   (ballot.requirements.participation === 0 ||
+    //     this.productAtLeast(turnout, ONE_HUNDRED_PERCENT, ballot.eligiblePower, ballot.requirements.participation)) &&
+    //   (ballot.requirements.minimumApprovals === 0 || approvals >= ballot.requirements.minimumApprovals) &&
+    //   (ballot.requirements.approval === 0 ||
+    //     (decisive > 0 && this.productAtLeast(approvals, ONE_HUNDRED_PERCENT, decisive, ballot.requirements.approval)))
+    // )
+    frame_dig -4
+    frame_bury 1
+    frame_bury 0
+    retsub
+
+meetsRequirements_bool_false@9:
+    intc_0 // 0
+    b meetsRequirements_bool_merge@10

@@ -1,0 +1,150 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 1
+    bytecblock 0x151f7c75
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:32
+    // export class MockCompliantProxy extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0xc15b9b24 // method "forward(uint64,uint64,uint64,bool)(uint64,address,address,address,address,bool)"
+    txna ApplicationArgs 0
+    match main_forward_route@3
+    err
+
+main_forward_route@3:
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:33
+    // forward(wallet: uint64, probe: Application, hint: uint64, rekeyBack: boolean): Principal {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b forward
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:32
+    // export class MockCompliantProxy extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/principal-proxy/contract.algo.ts::MockCompliantProxy.forward[routing]() -> void:
+forward:
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:33
+    // forward(wallet: uint64, probe: Application, hint: uint64, rekeyBack: boolean): Principal {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    uncover 2
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:35-40
+    // const result = abiCall<typeof MockPrincipalProbe.prototype.probe>({
+    //   appId: probe,
+    //   sender,
+    //   args: [hint],
+    //   rekeyTo: Global.callerApplicationAddress,
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:39
+    // rekeyTo: Global.callerApplicationAddress,
+    global CallerApplicationAddress
+    itxn_field RekeyTo
+    dup
+    itxn_field Sender
+    uncover 2
+    itxn_field ApplicationID
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:35-40
+    // const result = abiCall<typeof MockPrincipalProbe.prototype.probe>({
+    //   appId: probe,
+    //   sender,
+    //   args: [hint],
+    //   rekeyTo: Global.callerApplicationAddress,
+    // }).returnValue
+    pushbytes 0x32d90aaa // method "probe(uint64)(uint64,address,address,address,address,bool)"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    pushint 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dup
+    cover 2
+    cover 3
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    len
+    pushint 137
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:41
+    // const [auth] = op.AcctParams.acctAuthAddr(sender)
+    acct_params_get AcctAuthAddr
+    pop
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:42
+    // loggedAssert(auth === Global.callerApplicationAddress, 'errPxhb')
+    global CallerApplicationAddress
+    ==
+    bnz forward_after_assert@4
+    pushbytes "ERR:errPxhb"
+    log
+    err // ERR:errPxhb
+
+forward_after_assert@4:
+    // smart_contracts/mocks/principal-proxy/contract.algo.ts:33
+    // forward(wallet: uint64, probe: Application, hint: uint64, rekeyBack: boolean): Principal {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

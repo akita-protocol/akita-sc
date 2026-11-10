@@ -1,0 +1,127 @@
+{
+    "name": "Arc58AgentRevoker",
+    "structs": {},
+    "methods": [
+        {
+            "name": "revokePlugin",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "wallet"
+                },
+                {
+                    "type": "uint64",
+                    "name": "plugin"
+                },
+                {
+                    "type": "address",
+                    "name": "caller"
+                },
+                {
+                    "type": "string",
+                    "name": "escrow"
+                }
+            ],
+            "returns": {
+                "type": "void"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "Test-only revocation authority used by the ARC-58 agent conformance suite.\n\nA revocation authority must originate its wallet call from an application\naddress. This forwarding contract keeps that boundary observable without\ncoupling the generic conformance suite to DAO governance setup.",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        73
+                    ],
+                    "errorMessage": "invalid array length header"
+                },
+                {
+                    "pc": [
+                        81
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>"
+                },
+                {
+                    "pc": [
+                        67
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>"
+                },
+                {
+                    "pc": [
+                        49,
+                        58
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAwCiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvYWNjb3VudC9hZ2VudC1yZXZva2VyLmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBBcmM1OEFnZW50UmV2b2tlciBleHRlbmRzIENvbnRyYWN0IHsKICAgIHR4biBOdW1BcHBBcmdzCiAgICBieiBtYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA1CiAgICBwdXNoYnl0ZXMgMHhjMDdhMzFmZiAvLyBtZXRob2QgInJldm9rZVBsdWdpbih1aW50NjQsdWludDY0LGFkZHJlc3Msc3RyaW5nKXZvaWQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtYWluX3Jldm9rZVBsdWdpbl9yb3V0ZUAzCiAgICBlcnIKCm1haW5fcmV2b2tlUGx1Z2luX3JvdXRlQDM6CiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvYWNjb3VudC9hZ2VudC1yZXZva2VyLmFsZ28udHM6MTMKICAgIC8vIHJldm9rZVBsdWdpbih3YWxsZXQ6IEFwcGxpY2F0aW9uLCBwbHVnaW46IHVpbnQ2NCwgY2FsbGVyOiBBY2NvdW50LCBlc2Nyb3c6IHN0cmluZyk6IHZvaWQgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICYmCiAgICBhc3NlcnQKICAgIGIgcmV2b2tlUGx1Z2luCgptYWluX19fYWxnb3RzX18uZGVmYXVsdENyZWF0ZUA1OgogICAgLy8gc21hcnRfY29udHJhY3RzL2FyYzU4L2FjY291bnQvYWdlbnQtcmV2b2tlci5hbGdvLnRzOjEyCiAgICAvLyBleHBvcnQgY2xhc3MgQXJjNThBZ2VudFJldm9rZXIgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICB0eG4gQXBwbGljYXRpb25JRAogICAgIQogICAgJiYKICAgIHJldHVybgoKCi8vIHNtYXJ0X2NvbnRyYWN0cy9hcmM1OC9hY2NvdW50L2FnZW50LXJldm9rZXIuYWxnby50czo6QXJjNThBZ2VudFJldm9rZXIucmV2b2tlUGx1Z2luW3JvdXRpbmddKCkgLT4gdm9pZDoKcmV2b2tlUGx1Z2luOgogICAgLy8gc21hcnRfY29udHJhY3RzL2FyYzU4L2FjY291bnQvYWdlbnQtcmV2b2tlci5hbGdvLnRzOjEzCiAgICAvLyByZXZva2VQbHVnaW4od2FsbGV0OiBBcHBsaWNhdGlvbiwgcGx1Z2luOiB1aW50NjQsIGNhbGxlcjogQWNjb3VudCwgZXNjcm93OiBzdHJpbmcpOiB2b2lkIHsKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDIKICAgIGR1cAogICAgbGVuCiAgICBpbnRjXzAgLy8gOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDMKICAgIGR1cAogICAgbGVuCiAgICBwdXNoaW50IDMyCiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnN0YXRpY19hcnJheTxhcmM0LnVpbnQ4LCAzMj4KICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDQKICAgIGR1cAogICAgaW50Y18xIC8vIDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMgogICAgKwogICAgZGlnIDEKICAgIGxlbgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5keW5hbWljX2FycmF5PGFyYzQudWludDg+CiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvYWNjb3VudC9hZ2VudC1yZXZva2VyLmFsZ28udHM6MTQtMTcKICAgIC8vIGFiaUNhbGw8dHlwZW9mIEFic3RyYWN0ZWRBY2NvdW50LnByb3RvdHlwZS5hcmM1OF9yZW1vdmVQbHVnaW4+KHsKICAgIC8vICAgYXBwSWQ6IHdhbGxldCwKICAgIC8vICAgYXJnczogW3BsdWdpbiwgY2FsbGVyLCBlc2Nyb3ddLAogICAgLy8gfSkKICAgIGl0eG5fYmVnaW4KICAgIHVuY292ZXIgMwogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbklECiAgICBwdXNoYnl0ZXMgMHhlZWY0NDhmZCAvLyBtZXRob2QgImFyYzU4X3JlbW92ZVBsdWdpbih1aW50NjQsYWRkcmVzcyxzdHJpbmcpdm9pZCIKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICB1bmNvdmVyIDIKICAgIGl0eG5fZmllbGQgQXBwbGljYXRpb25BcmdzCiAgICBzd2FwCiAgICBpdHhuX2ZpZWxkIEFwcGxpY2F0aW9uQXJncwogICAgaXR4bl9maWVsZCBBcHBsaWNhdGlvbkFyZ3MKICAgIHB1c2hpbnQgNiAvLyBhcHBsCiAgICBpdHhuX2ZpZWxkIFR5cGVFbnVtCiAgICBpbnRjXzEgLy8gMAogICAgaXR4bl9maWVsZCBGZWUKICAgIGl0eG5fc3VibWl0CiAgICAvLyBzbWFydF9jb250cmFjdHMvYXJjNTgvYWNjb3VudC9hZ2VudC1yZXZva2VyLmFsZ28udHM6MTMKICAgIC8vIHJldm9rZVBsdWdpbih3YWxsZXQ6IEFwcGxpY2F0aW9uLCBwbHVnaW46IHVpbnQ2NCwgY2FsbGVyOiBBY2NvdW50LCBlc2Nyb3c6IHN0cmluZyk6IHZvaWQgewogICAgcHVzaGludCAxCiAgICByZXR1cm4K",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "byteCode": {
+        "approval": "CyACCAAxG0EAGIAEwHox/zYaAI4BAAEAMRkUMRgQREIACDEZFDEYFBBDNhoBSRUiEkQXNhoCSRUiEkQ2GgNJFYEgEkQ2GgRJI1mBAghLARUSRLFPA7IYgATu9Ej9shpPArIaTLIashqBBrIQI7IBs4EBQw==",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

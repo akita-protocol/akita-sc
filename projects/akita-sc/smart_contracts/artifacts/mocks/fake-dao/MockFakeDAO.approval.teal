@@ -1,0 +1,178 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 32
+    bytecblock "aal"
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:13
+    // export class MockFakeDAO extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytess 0xb4a8c490 0xb0f136c1 // method "setGate(uint64)void", method "spawn(address,address,address)uint64"
+    txna ApplicationArgs 0
+    match setGate spawn
+    err
+
+main_create_NoOp@6:
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:13
+    // export class MockFakeDAO extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/mocks/fake-dao/contract.algo.ts::MockFakeDAO.create[routing]() -> void:
+create:
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:30
+    // wallet: Global.currentApplicationId.id,
+    global CurrentApplicationID
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:18-31
+    // this.akitaAppList.value = {
+    //   staking: 0,
+    //   rewards: 0,
+    //   pool: 0,
+    //   prizeBox: 0,
+    //   subscriptions: 0,
+    //   gate: 0,
+    //   auction: 0,
+    //   hyperSwap: 0,
+    //   raffle: 0,
+    //   metaMerkles: 0,
+    //   marketplace: 0,
+    //   wallet: Global.currentApplicationId.id,
+    // }
+    itob
+    pushbytes 0x00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+    swap
+    concat
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:14
+    // akitaAppList = GlobalState<AkitaAppList>({ key: AkitaDAOGlobalStateKeysAkitaAppList })
+    bytec_0 // "aal"
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:18-31
+    // this.akitaAppList.value = {
+    //   staking: 0,
+    //   rewards: 0,
+    //   pool: 0,
+    //   prizeBox: 0,
+    //   subscriptions: 0,
+    //   gate: 0,
+    //   auction: 0,
+    //   hyperSwap: 0,
+    //   raffle: 0,
+    //   metaMerkles: 0,
+    //   marketplace: 0,
+    //   wallet: Global.currentApplicationId.id,
+    // }
+    swap
+    app_global_put
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:16
+    // @abimethod({ onCreate: 'require' })
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/fake-dao/contract.algo.ts::MockFakeDAO.setGate[routing]() -> void:
+setGate:
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:35
+    // setGate(gate: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:36
+    // const list = clone(this.akitaAppList.value)
+    intc_1 // 0
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:14
+    // akitaAppList = GlobalState<AkitaAppList>({ key: AkitaDAOGlobalStateKeysAkitaAppList })
+    bytec_0 // "aal"
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:36
+    // const list = clone(this.akitaAppList.value)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:37
+    // list.gate = gate
+    swap
+    replace2 40
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:14
+    // akitaAppList = GlobalState<AkitaAppList>({ key: AkitaDAOGlobalStateKeysAkitaAppList })
+    bytec_0 // "aal"
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:38
+    // this.akitaAppList.value = clone(list)
+    swap
+    app_global_put
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:35
+    // setGate(gate: uint64): void {
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/fake-dao/contract.algo.ts::MockFakeDAO.spawn[routing]() -> void:
+spawn:
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:42
+    // spawn(controlledAddress: Account, referrer: Account, spendingAddress: Account): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:43-45
+    // return compileArc4(MockFakeWallet).call.create({
+    //   args: [controlledAddress, referrer, spendingAddress],
+    // }).itxn.createdApp.id
+    itxn_begin
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:43
+    // return compileArc4(MockFakeWallet).call.create({
+    pushint 3
+    itxn_field GlobalNumByteSlice
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAEAAEIAiYDEmNvbnRyb2xsZWRfYWRkcmVzcwhyZWZlcnJlcgQVH3x1MRkURDEYQQAmggQEhU3t4ARrevvWBOssD3sEOWVeKjYaAI4EAAEASgCGAZgAI0OABFU5kxQ2GgCOAQABADYaAUkVgSASRDYaAkkVgSASRDYaA0kVgSASRChPA2cpTwJngBBzcGVuZGluZ19hZGRyZXNzTGcjQzYaAUkVJBJEFzYaAkkVJBJEF7FLAXIIRLIHsggjshAisgG2IhZMshiABGB+cEayGrIagQayECKyAbMjQyI2GgFJFSQSRBc2GgJJTgJJFYEgEkRLAYADb2FsZUiBGFtPAoADYWFsZUiBWFtOA7GyGIAEPBpvM7IashqBBrIQIrIBs7Q+SVcEAEsBVwAEKhJESSJZJQhMFRJEVwYASRUkE0EAdkgiSUAAHDIDSwFAAA1MFk8CUExQKkxQsCNDSEkpZUhC/+tJKGVMTgJBAEdLARWBIBJBAD4jQAAPgAtFUlI6ZXJySXdsdLAASXIIREsCE0EAG0sBMQATQQATSwFzAkRLAXIIRBNBAAVFAUL/mk8CSEL/lCJC/78XSUEABUsCQAAIIiJOAk1C/3pJcgdMRQVBABdLAhaABWFwcElETFADSwQSQQAEI0L/2SJC/9U2GgFJFSQSRBc2GgJJFSQSRBc2GgNJFYEgEkQ2GgRJFSQSRBc2GgVHAiJZSU4CJQtMSRVOAlcCACJJSwUMQQAhSSULSwJJTwJZSU8FSU4EEkRLARVSIlklCAhOAiMIQv/YRgIlCBJENhoGSRUkEkQXNhoHSU4CSSJZSU4CJQtMSRVOAlcCACJJSwUMQQAzSSULSwJJTwJZSU8FSU4EEkRLARVSSRVLAYEQWUmBEhJETFIiWYEgC4EUCAhOAiMIQv/GRgJPAkglCBJEsUsHSXIIRE8CsgiyByOyECKyAbZLBBaABEOSJlWyGksGshqyGksDshpLBrIYgQayECKyAbayGIAE/c/f9rIashqBBrIQIrIBsyND)
+    itxn_field ApprovalProgramPages
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:43-45
+    // return compileArc4(MockFakeWallet).call.create({
+    //   args: [controlledAddress, referrer, spendingAddress],
+    // }).itxn.createdApp.id
+    intc_1 // 0
+    itxn_field OnCompletion
+    pushbytes 0x55399314 // method "create(address,address,address)void"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    // smart_contracts/mocks/fake-dao/contract.algo.ts:42
+    // spawn(controlledAddress: Account, referrer: Account, spendingAddress: Account): uint64 {
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return

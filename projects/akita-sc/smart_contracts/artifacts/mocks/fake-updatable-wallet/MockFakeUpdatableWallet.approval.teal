@@ -1,0 +1,80 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:12
+    // export class MockFakeUpdatableWallet extends Contract {
+    pushbytes 0xea9180dd // method "update(string)void"
+    txna ApplicationArgs 0
+    match main_update_route@2
+
+main_switch_case_next@3:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:12
+    // export class MockFakeUpdatableWallet extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@7
+    pushbytes 0x1d5c561b // method "ping()uint64"
+    txna ApplicationArgs 0
+    match main_ping_route@5
+    err
+
+main_ping_route@5:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:23
+    // ping(): uint64 {
+    pushbytes 0x151f7c750000000000000007
+    log
+    pushint 1
+    return
+
+main_create_NoOp@7:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:12
+    // export class MockFakeUpdatableWallet extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@8
+    err
+
+main_create_route@8:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:13
+    // updateSettings = GlobalState<FactoryUpdateSettings>({ key: AbstractAccountGlobalStateKeysUpdateSettings })
+    pushbytess "update_settings" 0xc0
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:17
+    // this.updateSettings.value = { allowed: true, automatic: true }
+    app_global_put
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:15
+    // @abimethod({ onCreate: 'require' })
+    pushint 1
+    return
+
+main_update_route@2:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:20
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+
+// smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts::MockFakeUpdatableWallet.update[routing]() -> void:
+update:
+    // smart_contracts/mocks/fake-updatable-wallet/contract.algo.ts:20
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 1
+    return

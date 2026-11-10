@@ -1,0 +1,125 @@
+{
+    "name": "MockPrincipalOverload",
+    "structs": {},
+    "methods": [
+        {
+            "name": "m",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "value"
+                },
+                {
+                    "type": "uint64",
+                    "name": "wallet"
+                }
+            ],
+            "returns": {
+                "type": "uint64"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Hinted ABI: `m(uint64,uint64)uint64` (the trailing `wallet` hint).",
+            "events": [],
+            "recommendations": {}
+        },
+        {
+            "name": "m",
+            "args": [
+                {
+                    "type": "uint64",
+                    "name": "value"
+                }
+            ],
+            "returns": {
+                "type": "uint64"
+            },
+            "actions": {
+                "create": [],
+                "call": [
+                    "NoOp"
+                ]
+            },
+            "readonly": false,
+            "desc": "Legacy shim: `m(uint64)uint64`, the pre-hint signature.",
+            "events": [],
+            "recommendations": {}
+        }
+    ],
+    "arcs": [
+        22,
+        28
+    ],
+    "desc": "TEST-ONLY (T36). Compile probe for the legacy-shim pattern of PHASE-0-SPEC \u00a77.2: two TS methods\nexported under the same ARC-4 name `m` with different signatures. The hinted method keeps the\ncanonical name; the shim keeps the old signature. Never deploy outside tests.",
+    "networks": {},
+    "state": {
+        "schema": {
+            "global": {
+                "ints": 0,
+                "bytes": 0
+            },
+            "local": {
+                "ints": 0,
+                "bytes": 0
+            }
+        },
+        "keys": {
+            "global": {},
+            "local": {},
+            "box": {}
+        },
+        "maps": {
+            "global": {},
+            "local": {},
+            "box": {}
+        }
+    },
+    "bareActions": {
+        "create": [
+            "NoOp"
+        ],
+        "call": []
+    },
+    "sourceInfo": {
+        "approval": {
+            "sourceInfo": [
+                {
+                    "pc": [
+                        61,
+                        70,
+                        87
+                    ],
+                    "errorMessage": "invalid number of bytes for arc4.uint64"
+                }
+            ],
+            "pcOffsetMethod": "none"
+        },
+        "clear": {
+            "sourceInfo": [],
+            "pcOffsetMethod": "none"
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgOCAxCiAgICBieXRlY2Jsb2NrIDB4MTUxZjdjNzUKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtb3ZlcmxvYWQvY29udHJhY3QuYWxnby50czo5CiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja1ByaW5jaXBhbE92ZXJsb2FkIGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE51bUFwcEFyZ3MKICAgIGJ6IG1haW5fX19hbGdvdHNfXy5kZWZhdWx0Q3JlYXRlQDkKICAgIHR4biBPbkNvbXBsZXRpb24KICAgICEKICAgIGFzc2VydAogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgIGFzc2VydAogICAgcHVzaGJ5dGVzcyAweDdkZmE4YmE1IDB4MzhiNDRhM2UgLy8gbWV0aG9kICJtKHVpbnQ2NCx1aW50NjQpdWludDY0IiwgbWV0aG9kICJtKHVpbnQ2NCl1aW50NjQiCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAwCiAgICBtYXRjaCBtIGxlZ2FjeU0KICAgIGVycgoKbWFpbl9fX2FsZ290c19fLmRlZmF1bHRDcmVhdGVAOToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtb3ZlcmxvYWQvY29udHJhY3QuYWxnby50czo5CiAgICAvLyBleHBvcnQgY2xhc3MgTW9ja1ByaW5jaXBhbE92ZXJsb2FkIGV4dGVuZHMgQ29udHJhY3QgewogICAgdHhuIE9uQ29tcGxldGlvbgogICAgIQogICAgdHhuIEFwcGxpY2F0aW9uSUQKICAgICEKICAgICYmCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLW92ZXJsb2FkL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tQcmluY2lwYWxPdmVybG9hZC5tW3JvdXRpbmddKCkgLT4gdm9pZDoKbToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtb3ZlcmxvYWQvY29udHJhY3QuYWxnby50czoxMQogICAgLy8gbSh2YWx1ZTogdWludDY0LCB3YWxsZXQ6IHVpbnQ2NCk6IHVpbnQ2NCB7CiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAxCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18wIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICB0eG5hIEFwcGxpY2F0aW9uQXJncyAyCiAgICBkdXAKICAgIGxlbgogICAgaW50Y18wIC8vIDgKICAgID09CiAgICBhc3NlcnQgLy8gaW52YWxpZCBudW1iZXIgb2YgYnl0ZXMgZm9yIGFyYzQudWludDY0CiAgICBidG9pCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLW92ZXJsb2FkL2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIHJldHVybiB2YWx1ZSArIHdhbGxldAogICAgKwogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL3ByaW5jaXBhbC1vdmVybG9hZC9jb250cmFjdC5hbGdvLnRzOjExCiAgICAvLyBtKHZhbHVlOiB1aW50NjQsIHdhbGxldDogdWludDY0KTogdWludDY0IHsKICAgIGl0b2IKICAgIGJ5dGVjXzAgLy8gMHgxNTFmN2M3NQogICAgc3dhcAogICAgY29uY2F0CiAgICBsb2cKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvcHJpbmNpcGFsLW92ZXJsb2FkL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tQcmluY2lwYWxPdmVybG9hZC5sZWdhY3lNW3JvdXRpbmddKCkgLT4gdm9pZDoKbGVnYWN5TToKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9wcmluY2lwYWwtb3ZlcmxvYWQvY29udHJhY3QuYWxnby50czoxNgogICAgLy8gQGFiaW1ldGhvZCh7IG5hbWU6ICdtJyB9KQogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMQogICAgZHVwCiAgICBsZW4KICAgIGludGNfMCAvLyA4CiAgICA9PQogICAgYXNzZXJ0IC8vIGludmFsaWQgbnVtYmVyIG9mIGJ5dGVzIGZvciBhcmM0LnVpbnQ2NAogICAgYnl0ZWNfMCAvLyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgo=",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "byteCode": {
+        "approval": "CyACCAEmAQQVH3x1MRtBAB0xGRREMRhEggIEffqLpQQ4tEo+NhoAjgIACQAjADEZFDEYFBBDNhoBSRUiEkQXNhoCSRUiEkQXCBYoTFCwI0M2GgFJFSISRChMULAjQw==",
+        "clear": "C4EBQw=="
+    },
+    "compilerInfo": {
+        "compiler": "puya",
+        "compilerVersion": {
+            "major": 5,
+            "minor": 10,
+            "patch": 1
+        }
+    },
+    "events": [],
+    "templateVariables": {}
+}

@@ -1,0 +1,80 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 1
+    bytecblock 0x151f7c75
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:9
+    // export class MockPrincipalOverload extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@9
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x7dfa8ba5 0x38b44a3e // method "m(uint64,uint64)uint64", method "m(uint64)uint64"
+    txna ApplicationArgs 0
+    match m legacyM
+    err
+
+main___algots__.defaultCreate@9:
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:9
+    // export class MockPrincipalOverload extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/principal-overload/contract.algo.ts::MockPrincipalOverload.m[routing]() -> void:
+m:
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:11
+    // m(value: uint64, wallet: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:12
+    // return value + wallet
+    +
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:11
+    // m(value: uint64, wallet: uint64): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/mocks/principal-overload/contract.algo.ts::MockPrincipalOverload.legacyM[routing]() -> void:
+legacyM:
+    // smart_contracts/mocks/principal-overload/contract.algo.ts:16
+    // @abimethod({ name: 'm' })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return

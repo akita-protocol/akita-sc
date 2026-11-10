@@ -1,0 +1,180 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 2 1 8
+    bytecblock "mock.verified" "i.timeChanged"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:9
+    // export class MockImpactNFD extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@6
+    pushbytess 0x25c4be05 0x6c13ede4 // method "change(byte[],uint64)void", method "readField(byte[])byte[]"
+    txna ApplicationArgs 0
+    match change readField
+    err
+
+main_create_NoOp@6:
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:9
+    // export class MockImpactNFD extends Contract {
+    pushbytes 0xd41ed177 // method "create(string,byte[],uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/mocks/impact-nfd/contract.algo.ts::MockImpactNFD.create[routing]() -> void:
+create:
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:15
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:10
+    // name = GlobalState<bytes>({ key: 'i.name' })
+    pushbytes "i.name"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:17
+    // this.name.value = Bytes(name)
+    uncover 3
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:11
+    // ver = GlobalState<bytes>({ key: 'i.ver' })
+    pushbytess "i.ver" "3.11"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:18
+    // this.ver.value = Bytes('3.11')
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:13
+    // verified = GlobalState<bytes>({ key: 'mock.verified' })
+    bytec_0 // "mock.verified"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:19
+    // this.verified.value = verified
+    uncover 2
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:20
+    // this.timeChanged.value = itob(timeChanged)
+    itob
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:12
+    // timeChanged = GlobalState<bytes>({ key: 'i.timeChanged' })
+    bytec_1 // "i.timeChanged"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:20
+    // this.timeChanged.value = itob(timeChanged)
+    swap
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:15
+    // @abimethod({ onCreate: 'require' })
+    intc_2 // 1
+    return
+
+
+// smart_contracts/mocks/impact-nfd/contract.algo.ts::MockImpactNFD.change[routing]() -> void:
+change:
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:23
+    // change(verified: bytes, timeChanged: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:13
+    // verified = GlobalState<bytes>({ key: 'mock.verified' })
+    bytec_0 // "mock.verified"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:24
+    // this.verified.value = verified
+    uncover 2
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:25
+    // this.timeChanged.value = itob(timeChanged)
+    itob
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:12
+    // timeChanged = GlobalState<bytes>({ key: 'i.timeChanged' })
+    bytec_1 // "i.timeChanged"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:25
+    // this.timeChanged.value = itob(timeChanged)
+    swap
+    app_global_put
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:23
+    // change(verified: bytes, timeChanged: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/mocks/impact-nfd/contract.algo.ts::MockImpactNFD.readField[routing]() -> void:
+readField:
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:28
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:30
+    // return this.verified.value
+    intc_0 // 0
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:13
+    // verified = GlobalState<bytes>({ key: 'mock.verified' })
+    bytec_0 // "mock.verified"
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:30
+    // return this.verified.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/mocks/impact-nfd/contract.algo.ts:28
+    // @abimethod({ readonly: true })
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_2 // 1
+    return

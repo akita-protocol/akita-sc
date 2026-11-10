@@ -1,0 +1,3414 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../../arc58/plugins/nfd/auto-renew-mock.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AA+DA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAaG;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAZM;;AAcL;;AAAA;AAbM;AAcN;;AAAA;AACwB;AAAA;AAdb;;AAcX;AAAA;AAbM;AAcN;AAAA;AAbW;AAca;AAAxB;AAbY;;AAca;AAAzB;AAbe;AAca;AAA5B;AAbU;;AAca;AAAvB;AAbU;;AAca;AAAvB;AAZc;;AAaa;AAA3B;AAXD;AAAA;AAcD;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA1BO;;AA2BL;;AAAA;AA1BM;AA2BN;;AAAA;AACwB;AAAA;AA3Bb;;AA2BX;AAAA;AA1BM;AA2BN;AAAA;AA1BW;AA2Ba;AAAxB;AA1BY;;AA2Ba;AAAzB;AA1Be;AA2Ba;AAA5B;AA1BU;;AA2Ba;AAAvB;AA1BU;;AA2Ba;AAAvB;AATF;AAAA;AAYA;;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;;;AAtCO;;AAuCL;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAzCQ;AA0CN;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAC0B;AA7Cb;;AA6CX;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA/CQ;AAgDN;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAC0B;AA9Cb;;AA8CX;AAAA;AADF;AAAA;AAIA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAnDY;;AAoDV;;AAAA;AAnDU;;AAoDV;AAAA;AAFF;AAAA;AAMU;AAzDE;;AAyDF;AAAA;AAAD;AAAP;AACO;AA9DD;AA8DC;AAAA;AAFT;AAAA;;;;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAKA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AACU;AA7DE;;AA6DF;AAAA;AAAD;AAAP;AACO;AAAA;;AAAmB;;AAAnB;AAAP;AACO;AAAA;;AAAqB;;AAArB;AAAP;AACO;;AAAmB;AArEpB;AAqEoB;AAAA;AAAnB;;AAAA;AAAP;AAnEY;;AAoEZ;AAAA;AACA;AAtEW;AAsEX;AAAA;AAAyB;AAAzB;AAtEW;AAsEX;AAAA;AANF;AAAA;AASA;;;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AACE;AAxEe;AAwEf;AAAA;AAA6B;AAA7B;AAxEe;AAwEf;AAAA;AADF;AAAA;AAIA;;AAAA;AAAA;AAAA;AAAA;;AAAA;AAAA;AAAA;AACS;AAAA;;AAAA;AAAmB;;AAAnB;AAAP;AACO;;AAAA;;AAAqB;;AAArB;AAAP;AACO;AAAA;;AAAwB;AA3EpB;;AA2EoB;AAAA;AAAL;AAAnB;AAAP;AAnFM;AAoFN;AAAA;AACA;AA5Ec;;AA4Ed;AAAA;AAA4B;AAA5B;AA5Ec;;AA4Ed;AAAA;AALF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 0 1 8 32"
+    },
+    "7": {
+      "op": "bytecblock \"test_price\" \"i.owner.a\" \"renew_count\" \"ownership_calls\" \"fail_price\" \"fail_renew\" \"i.name\" \"i.expirationTime\" \"last_payment\" \"purchase_count\" \"i.sellamt\""
+    },
+    "142": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "144": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "145": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "146": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "148": {
+      "op": "bz main_create_NoOp@15",
+      "stack_out": []
+    },
+    "151": {
+      "op": "pushbytess 0xef602a2b 0x66f7ded7 0x64e61812 0x4d3dab8f 0xa8d205a2 0x336b7db5 0x12a18003 0x50f490c2 0x77fd5b74 0x5076d9ca 0xa392ae82 // method \"configure(string,address,uint64,uint64)void\", method \"setName(string)void\", method \"setOwner(address)void\", method \"setExpiration(uint64)void\", method \"setPrice(uint64)void\", method \"setSaleAmount(uint64)void\", method \"setFailure(bool,bool)void\", method \"getRenewPrice()uint64\", method \"renew(pay)void\", method \"offerForSale(uint64,address)void\", method \"purchase(pay)void\"",
+      "defined_out": [
+        "Method(configure(string,address,uint64,uint64)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(offerForSale(uint64,address)void)",
+        "Method(purchase(pay)void)",
+        "Method(renew(pay)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setFailure(bool,bool)void)",
+        "Method(setName(string)void)",
+        "Method(setOwner(address)void)",
+        "Method(setPrice(uint64)void)",
+        "Method(setSaleAmount(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(configure(string,address,uint64,uint64)void)",
+        "Method(setName(string)void)",
+        "Method(setOwner(address)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setPrice(uint64)void)",
+        "Method(setSaleAmount(uint64)void)",
+        "Method(setFailure(bool,bool)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "Method(offerForSale(uint64,address)void)",
+        "Method(purchase(pay)void)"
+      ]
+    },
+    "208": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(configure(string,address,uint64,uint64)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(offerForSale(uint64,address)void)",
+        "Method(purchase(pay)void)",
+        "Method(renew(pay)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setFailure(bool,bool)void)",
+        "Method(setName(string)void)",
+        "Method(setOwner(address)void)",
+        "Method(setPrice(uint64)void)",
+        "Method(setSaleAmount(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(configure(string,address,uint64,uint64)void)",
+        "Method(setName(string)void)",
+        "Method(setOwner(address)void)",
+        "Method(setExpiration(uint64)void)",
+        "Method(setPrice(uint64)void)",
+        "Method(setSaleAmount(uint64)void)",
+        "Method(setFailure(bool,bool)void)",
+        "Method(getRenewPrice()uint64)",
+        "Method(renew(pay)void)",
+        "Method(offerForSale(uint64,address)void)",
+        "Method(purchase(pay)void)",
+        "tmp%4#0"
+      ]
+    },
+    "211": {
+      "op": "match configure setName setOwner setExpiration setPrice setSaleAmount setFailure getRenewPrice renew offerForSale purchase",
+      "stack_out": []
+    },
+    "235": {
+      "op": "err"
+    },
+    "236": {
+      "block": "main_create_NoOp@15",
+      "stack_in": [],
+      "op": "pushbytes 0x83be770d // method \"create(string,address,uint64,uint64)void\"",
+      "defined_out": [
+        "Method(create(string,address,uint64,uint64)void)"
+      ],
+      "stack_out": [
+        "Method(create(string,address,uint64,uint64)void)"
+      ]
+    },
+    "242": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create(string,address,uint64,uint64)void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create(string,address,uint64,uint64)void)",
+        "tmp%5#0"
+      ]
+    },
+    "245": {
+      "op": "match create",
+      "stack_out": []
+    },
+    "249": {
+      "op": "err"
+    },
+    "250": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.create[routing]",
+      "params": {},
+      "block": "create",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "253": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "254": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "255": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "256": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "258": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "259": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "261": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "262": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "263": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "264": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "267": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0"
+      ]
+    },
+    "270": {
+      "op": "dup",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ]
+    },
+    "271": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "len%1#0"
+      ]
+    },
+    "272": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "len%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "len%1#0",
+        "32"
+      ]
+    },
+    "273": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "eq%1#0"
+      ]
+    },
+    "274": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "name#0",
+        "owner#0"
+      ]
+    },
+    "275": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "278": {
+      "op": "dup",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "279": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "280": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "281": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "282": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "283": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0"
+      ]
+    },
+    "284": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "287": {
+      "op": "dup",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ]
+    },
+    "288": {
+      "op": "len",
+      "defined_out": [
+        "expiration#0",
+        "len%3#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0"
+      ]
+    },
+    "289": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0",
+        "8"
+      ]
+    },
+    "290": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "eq%3#0"
+      ]
+    },
+    "291": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "292": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "293": {
+      "op": "bytec 6 // \"i.name\"",
+      "defined_out": [
+        "\"i.name\"",
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.name\""
+      ]
+    },
+    "295": {
+      "op": "uncover 4",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.name\"",
+        "name#0"
+      ]
+    },
+    "297": {
+      "op": "app_global_put",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "298": {
+      "op": "bytec_1 // \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "expiration#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.owner.a\""
+      ]
+    },
+    "299": {
+      "op": "uncover 3",
+      "stack_out": [
+        "expiration#0",
+        "price#0",
+        "\"i.owner.a\"",
+        "owner#0"
+      ]
+    },
+    "301": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "302": {
+      "op": "swap",
+      "stack_out": [
+        "price#0",
+        "expiration#0"
+      ]
+    },
+    "303": {
+      "op": "itob",
+      "stack_out": [
+        "price#0",
+        "tmp%0#0"
+      ]
+    },
+    "304": {
+      "op": "bytec 7 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "price#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "price#0",
+        "tmp%0#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "306": {
+      "op": "swap",
+      "stack_out": [
+        "price#0",
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ]
+    },
+    "307": {
+      "op": "app_global_put",
+      "stack_out": [
+        "price#0"
+      ]
+    },
+    "308": {
+      "op": "bytec_0 // \"test_price\"",
+      "defined_out": [
+        "\"test_price\"",
+        "price#0"
+      ],
+      "stack_out": [
+        "price#0",
+        "\"test_price\""
+      ]
+    },
+    "309": {
+      "op": "swap",
+      "stack_out": [
+        "\"test_price\"",
+        "price#0"
+      ]
+    },
+    "310": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "311": {
+      "op": "bytec_2 // \"renew_count\"",
+      "defined_out": [
+        "\"renew_count\""
+      ],
+      "stack_out": [
+        "\"renew_count\""
+      ]
+    },
+    "312": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"renew_count\"",
+        "0"
+      ]
+    },
+    "313": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "314": {
+      "op": "bytec 8 // \"last_payment\"",
+      "defined_out": [
+        "\"last_payment\""
+      ],
+      "stack_out": [
+        "\"last_payment\""
+      ]
+    },
+    "316": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"last_payment\"",
+        "0"
+      ]
+    },
+    "317": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "318": {
+      "op": "bytec_3 // \"ownership_calls\"",
+      "defined_out": [
+        "\"ownership_calls\""
+      ],
+      "stack_out": [
+        "\"ownership_calls\""
+      ]
+    },
+    "319": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"ownership_calls\"",
+        "0"
+      ]
+    },
+    "320": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "321": {
+      "op": "bytec 4 // \"fail_price\"",
+      "defined_out": [
+        "\"fail_price\""
+      ],
+      "stack_out": [
+        "\"fail_price\""
+      ]
+    },
+    "323": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"fail_price\"",
+        "0"
+      ]
+    },
+    "324": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "325": {
+      "op": "bytec 5 // \"fail_renew\"",
+      "defined_out": [
+        "\"fail_renew\""
+      ],
+      "stack_out": [
+        "\"fail_renew\""
+      ]
+    },
+    "327": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"fail_renew\"",
+        "0"
+      ]
+    },
+    "328": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "329": {
+      "op": "bytec 9 // \"purchase_count\"",
+      "defined_out": [
+        "\"purchase_count\""
+      ],
+      "stack_out": [
+        "\"purchase_count\""
+      ]
+    },
+    "331": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"purchase_count\"",
+        "0"
+      ]
+    },
+    "332": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "333": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "334": {
+      "op": "return",
+      "stack_out": []
+    },
+    "335": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.configure[routing]",
+      "params": {},
+      "block": "configure",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "338": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "339": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "340": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "341": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "343": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "344": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "346": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "347": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "348": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "349": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "352": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0"
+      ]
+    },
+    "355": {
+      "op": "dup",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "owner#0 (copy)"
+      ]
+    },
+    "356": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "len%1#0"
+      ]
+    },
+    "357": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "len%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "len%1#0",
+        "32"
+      ]
+    },
+    "358": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "eq%1#0"
+      ]
+    },
+    "359": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "name#0",
+        "owner#0"
+      ]
+    },
+    "360": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "363": {
+      "op": "dup",
+      "defined_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "364": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "365": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "366": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "367": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "tmp%4#0"
+      ]
+    },
+    "368": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0"
+      ]
+    },
+    "369": {
+      "op": "txna ApplicationArgs 4",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "372": {
+      "op": "dup",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "tmp%6#0 (copy)"
+      ]
+    },
+    "373": {
+      "op": "len",
+      "defined_out": [
+        "expiration#0",
+        "len%3#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0"
+      ]
+    },
+    "374": {
+      "op": "intc_2 // 8",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "len%3#0",
+        "8"
+      ]
+    },
+    "375": {
+      "op": "==",
+      "defined_out": [
+        "eq%3#0",
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0",
+        "eq%3#0"
+      ]
+    },
+    "376": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "tmp%6#0"
+      ]
+    },
+    "377": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "378": {
+      "op": "bytec 6 // \"i.name\"",
+      "defined_out": [
+        "\"i.name\"",
+        "expiration#0",
+        "name#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.name\""
+      ]
+    },
+    "380": {
+      "op": "uncover 4",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.name\"",
+        "name#0"
+      ]
+    },
+    "382": {
+      "op": "app_global_put",
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "383": {
+      "op": "bytec_1 // \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "expiration#0",
+        "owner#0",
+        "price#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "expiration#0",
+        "price#0",
+        "\"i.owner.a\""
+      ]
+    },
+    "384": {
+      "op": "uncover 3",
+      "stack_out": [
+        "expiration#0",
+        "price#0",
+        "\"i.owner.a\"",
+        "owner#0"
+      ]
+    },
+    "386": {
+      "op": "app_global_put",
+      "stack_out": [
+        "expiration#0",
+        "price#0"
+      ]
+    },
+    "387": {
+      "op": "swap",
+      "stack_out": [
+        "price#0",
+        "expiration#0"
+      ]
+    },
+    "388": {
+      "op": "itob",
+      "stack_out": [
+        "price#0",
+        "tmp%0#0"
+      ]
+    },
+    "389": {
+      "op": "bytec 7 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "price#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "price#0",
+        "tmp%0#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "391": {
+      "op": "swap",
+      "stack_out": [
+        "price#0",
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ]
+    },
+    "392": {
+      "op": "app_global_put",
+      "stack_out": [
+        "price#0"
+      ]
+    },
+    "393": {
+      "op": "bytec_0 // \"test_price\"",
+      "defined_out": [
+        "\"test_price\"",
+        "price#0"
+      ],
+      "stack_out": [
+        "price#0",
+        "\"test_price\""
+      ]
+    },
+    "394": {
+      "op": "swap",
+      "stack_out": [
+        "\"test_price\"",
+        "price#0"
+      ]
+    },
+    "395": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "396": {
+      "op": "bytec_2 // \"renew_count\"",
+      "defined_out": [
+        "\"renew_count\""
+      ],
+      "stack_out": [
+        "\"renew_count\""
+      ]
+    },
+    "397": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"renew_count\"",
+        "0"
+      ]
+    },
+    "398": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "399": {
+      "op": "bytec 8 // \"last_payment\"",
+      "defined_out": [
+        "\"last_payment\""
+      ],
+      "stack_out": [
+        "\"last_payment\""
+      ]
+    },
+    "401": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"last_payment\"",
+        "0"
+      ]
+    },
+    "402": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "403": {
+      "op": "bytec_3 // \"ownership_calls\"",
+      "defined_out": [
+        "\"ownership_calls\""
+      ],
+      "stack_out": [
+        "\"ownership_calls\""
+      ]
+    },
+    "404": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"ownership_calls\"",
+        "0"
+      ]
+    },
+    "405": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "406": {
+      "op": "bytec 4 // \"fail_price\"",
+      "defined_out": [
+        "\"fail_price\""
+      ],
+      "stack_out": [
+        "\"fail_price\""
+      ]
+    },
+    "408": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"fail_price\"",
+        "0"
+      ]
+    },
+    "409": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "410": {
+      "op": "bytec 5 // \"fail_renew\"",
+      "defined_out": [
+        "\"fail_renew\""
+      ],
+      "stack_out": [
+        "\"fail_renew\""
+      ]
+    },
+    "412": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "\"fail_renew\"",
+        "0"
+      ]
+    },
+    "413": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "414": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "415": {
+      "op": "return",
+      "stack_out": []
+    },
+    "416": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setName[routing]",
+      "params": {},
+      "block": "setName",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "419": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "420": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)",
+        "0"
+      ]
+    },
+    "421": {
+      "error": "invalid array length header",
+      "op": "extract_uint16 // on error: invalid array length header",
+      "defined_out": [
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0"
+      ]
+    },
+    "422": {
+      "op": "pushint 2",
+      "defined_out": [
+        "2",
+        "aggregate%array_length%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "aggregate%array_length%0#0",
+        "2"
+      ]
+    },
+    "424": {
+      "op": "+",
+      "defined_out": [
+        "add%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0"
+      ]
+    },
+    "425": {
+      "op": "dig 1",
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "427": {
+      "op": "len",
+      "defined_out": [
+        "add%0#0",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "add%0#0",
+        "len%0#0"
+      ]
+    },
+    "428": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "429": {
+      "error": "invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "op": "assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "430": {
+      "op": "extract 2 0",
+      "defined_out": [
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0"
+      ]
+    },
+    "433": {
+      "op": "bytec 6 // \"i.name\"",
+      "defined_out": [
+        "\"i.name\"",
+        "name#0"
+      ],
+      "stack_out": [
+        "name#0",
+        "\"i.name\""
+      ]
+    },
+    "435": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.name\"",
+        "name#0"
+      ]
+    },
+    "436": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "437": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "438": {
+      "op": "return",
+      "stack_out": []
+    },
+    "439": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setOwner[routing]",
+      "params": {},
+      "block": "setOwner",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "owner#0"
+      ],
+      "stack_out": [
+        "owner#0"
+      ]
+    },
+    "442": {
+      "op": "dup",
+      "defined_out": [
+        "owner#0",
+        "owner#0 (copy)"
+      ],
+      "stack_out": [
+        "owner#0",
+        "owner#0 (copy)"
+      ]
+    },
+    "443": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "len%0#0"
+      ]
+    },
+    "444": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "len%0#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "445": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "owner#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "eq%0#0"
+      ]
+    },
+    "446": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "owner#0"
+      ]
+    },
+    "447": {
+      "op": "bytec_1 // \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "owner#0"
+      ],
+      "stack_out": [
+        "owner#0",
+        "\"i.owner.a\""
+      ]
+    },
+    "448": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.owner.a\"",
+        "owner#0"
+      ]
+    },
+    "449": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "450": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "451": {
+      "op": "return",
+      "stack_out": []
+    },
+    "452": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setExpiration[routing]",
+      "params": {},
+      "block": "setExpiration",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "455": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "456": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "457": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "458": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "459": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "460": {
+      "op": "btoi",
+      "defined_out": [
+        "expiration#0"
+      ],
+      "stack_out": [
+        "expiration#0"
+      ]
+    },
+    "461": {
+      "op": "itob",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "462": {
+      "op": "bytec 7 // \"i.expirationTime\"",
+      "defined_out": [
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "\"i.expirationTime\""
+      ]
+    },
+    "464": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.expirationTime\"",
+        "tmp%0#0"
+      ]
+    },
+    "465": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "466": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "467": {
+      "op": "return",
+      "stack_out": []
+    },
+    "468": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setPrice[routing]",
+      "params": {},
+      "block": "setPrice",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "471": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "472": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "473": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "474": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "475": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "476": {
+      "op": "btoi",
+      "defined_out": [
+        "price#0"
+      ],
+      "stack_out": [
+        "price#0"
+      ]
+    },
+    "477": {
+      "op": "bytec_0 // \"test_price\"",
+      "defined_out": [
+        "\"test_price\"",
+        "price#0"
+      ],
+      "stack_out": [
+        "price#0",
+        "\"test_price\""
+      ]
+    },
+    "478": {
+      "op": "swap",
+      "stack_out": [
+        "\"test_price\"",
+        "price#0"
+      ]
+    },
+    "479": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "480": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "481": {
+      "op": "return",
+      "stack_out": []
+    },
+    "482": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setSaleAmount[routing]",
+      "params": {},
+      "block": "setSaleAmount",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "485": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "486": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "487": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "488": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "489": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "490": {
+      "op": "btoi",
+      "defined_out": [
+        "amount#0"
+      ],
+      "stack_out": [
+        "amount#0"
+      ]
+    },
+    "491": {
+      "op": "itob",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "492": {
+      "op": "bytec 10 // \"i.sellamt\"",
+      "defined_out": [
+        "\"i.sellamt\"",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "\"i.sellamt\""
+      ]
+    },
+    "494": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.sellamt\"",
+        "tmp%0#0"
+      ]
+    },
+    "495": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "496": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "497": {
+      "op": "return",
+      "stack_out": []
+    },
+    "498": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.setFailure[routing]",
+      "params": {},
+      "block": "setFailure",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "501": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "502": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "503": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "1"
+      ]
+    },
+    "504": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "505": {
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "506": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "0"
+      ]
+    },
+    "507": {
+      "op": "getbit",
+      "defined_out": [
+        "failPrice#0"
+      ],
+      "stack_out": [
+        "failPrice#0"
+      ]
+    },
+    "508": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "failPrice#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0"
+      ]
+    },
+    "511": {
+      "op": "dup",
+      "defined_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "512": {
+      "op": "len",
+      "defined_out": [
+        "failPrice#0",
+        "len%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "513": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "len%1#0",
+        "1"
+      ]
+    },
+    "514": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "failPrice#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "515": {
+      "error": "invalid number of bytes for arc4.bool",
+      "op": "assert // invalid number of bytes for arc4.bool",
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0"
+      ]
+    },
+    "516": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "failPrice#0",
+        "tmp%2#0",
+        "0"
+      ]
+    },
+    "517": {
+      "op": "getbit",
+      "defined_out": [
+        "failPrice#0",
+        "failRenew#0"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "failRenew#0"
+      ]
+    },
+    "518": {
+      "op": "bytec 4 // \"fail_price\"",
+      "defined_out": [
+        "\"fail_price\"",
+        "failPrice#0",
+        "failRenew#0"
+      ],
+      "stack_out": [
+        "failPrice#0",
+        "failRenew#0",
+        "\"fail_price\""
+      ]
+    },
+    "520": {
+      "op": "uncover 2",
+      "stack_out": [
+        "failRenew#0",
+        "\"fail_price\"",
+        "failPrice#0"
+      ]
+    },
+    "522": {
+      "op": "app_global_put",
+      "stack_out": [
+        "failRenew#0"
+      ]
+    },
+    "523": {
+      "op": "bytec 5 // \"fail_renew\"",
+      "defined_out": [
+        "\"fail_renew\"",
+        "failRenew#0"
+      ],
+      "stack_out": [
+        "failRenew#0",
+        "\"fail_renew\""
+      ]
+    },
+    "525": {
+      "op": "swap",
+      "stack_out": [
+        "\"fail_renew\"",
+        "failRenew#0"
+      ]
+    },
+    "526": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "527": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "528": {
+      "op": "return",
+      "stack_out": []
+    },
+    "529": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.getRenewPrice[routing]",
+      "params": {},
+      "block": "getRenewPrice",
+      "stack_in": [],
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "530": {
+      "op": "bytec 4 // \"fail_price\"",
+      "defined_out": [
+        "\"fail_price\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"fail_price\""
+      ]
+    },
+    "532": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "533": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "534": {
+      "op": "!",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "535": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "536": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "537": {
+      "op": "bytec_0 // \"test_price\"",
+      "defined_out": [
+        "\"test_price\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"test_price\""
+      ]
+    },
+    "538": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "539": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%1#0"
+      ]
+    },
+    "540": {
+      "op": "itob",
+      "defined_out": [
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "541": {
+      "op": "pushbytes 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ],
+      "stack_out": [
+        "aggregate%val_as_bytes%0#0",
+        "0x151f7c75"
+      ]
+    },
+    "547": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "aggregate%val_as_bytes%0#0"
+      ]
+    },
+    "548": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "549": {
+      "op": "log",
+      "stack_out": []
+    },
+    "550": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "551": {
+      "op": "return",
+      "stack_out": []
+    },
+    "552": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.renew[routing]",
+      "params": {},
+      "block": "renew",
+      "stack_in": [],
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "554": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "1"
+      ]
+    },
+    "555": {
+      "op": "-",
+      "defined_out": [
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "556": {
+      "op": "dup",
+      "defined_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "557": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "559": {
+      "op": "intc_1 // pay",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "pay",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "560": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_type_matches%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "561": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "562": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "0"
+      ]
+    },
+    "563": {
+      "op": "bytec 5 // \"fail_renew\"",
+      "defined_out": [
+        "\"fail_renew\"",
+        "0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "0",
+        "\"fail_renew\""
+      ]
+    },
+    "565": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "566": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "payment#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "567": {
+      "op": "!",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "568": {
+      "op": "assert",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "569": {
+      "op": "dup",
+      "stack_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "570": {
+      "op": "gtxns Sender",
+      "defined_out": [
+        "payment#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%1#0"
+      ]
+    },
+    "572": {
+      "op": "txn Sender",
+      "defined_out": [
+        "payment#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%1#0",
+        "tmp%2#0"
+      ]
+    },
+    "574": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%3#0"
+      ]
+    },
+    "575": {
+      "op": "assert",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "576": {
+      "op": "dup",
+      "stack_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "577": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "payment#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%4#0"
+      ]
+    },
+    "579": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "payment#0",
+        "tmp%4#0",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%4#0",
+        "tmp%5#0"
+      ]
+    },
+    "581": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%6#0"
+      ]
+    },
+    "582": {
+      "op": "assert",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "583": {
+      "op": "gtxns Amount",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "585": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "tmp%7#0",
+        "0"
+      ]
+    },
+    "586": {
+      "op": "bytec_0 // \"test_price\"",
+      "defined_out": [
+        "\"test_price\"",
+        "0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "0",
+        "\"test_price\""
+      ]
+    },
+    "587": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "588": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%7#0",
+        "maybe_value%1#0"
+      ]
+    },
+    "589": {
+      "op": "dig 1",
+      "defined_out": [
+        "maybe_value%1#0",
+        "tmp%7#0",
+        "tmp%7#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "maybe_value%1#0",
+        "tmp%7#0 (copy)"
+      ]
+    },
+    "591": {
+      "op": "==",
+      "defined_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "tmp%8#0"
+      ]
+    },
+    "592": {
+      "op": "assert",
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "593": {
+      "op": "bytec 8 // \"last_payment\"",
+      "defined_out": [
+        "\"last_payment\"",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0",
+        "\"last_payment\""
+      ]
+    },
+    "595": {
+      "op": "swap",
+      "stack_out": [
+        "\"last_payment\"",
+        "tmp%7#0"
+      ]
+    },
+    "596": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "597": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "598": {
+      "op": "bytec_2 // \"renew_count\"",
+      "defined_out": [
+        "\"renew_count\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"renew_count\""
+      ]
+    },
+    "599": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%2#0",
+        "maybe_value%2#0"
+      ],
+      "stack_out": [
+        "maybe_value%2#0",
+        "maybe_exists%2#0"
+      ]
+    },
+    "600": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%2#0"
+      ]
+    },
+    "601": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "maybe_value%2#0",
+        "1"
+      ]
+    },
+    "602": {
+      "op": "+",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "603": {
+      "op": "bytec_2 // \"renew_count\"",
+      "stack_out": [
+        "tmp%10#0",
+        "\"renew_count\""
+      ]
+    },
+    "604": {
+      "op": "swap",
+      "stack_out": [
+        "\"renew_count\"",
+        "tmp%10#0"
+      ]
+    },
+    "605": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "606": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "607": {
+      "op": "return",
+      "stack_out": []
+    },
+    "608": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.offerForSale[routing]",
+      "params": {},
+      "block": "offerForSale",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "611": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0"
+      ],
+      "stack_out": [
+        "len%0#0"
+      ]
+    },
+    "612": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "len%0#0",
+        "8"
+      ]
+    },
+    "613": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0"
+      ],
+      "stack_out": [
+        "eq%0#0"
+      ]
+    },
+    "614": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": []
+    },
+    "615": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "618": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0"
+      ],
+      "stack_out": [
+        "len%1#0"
+      ]
+    },
+    "619": {
+      "op": "intc_3 // 32",
+      "defined_out": [
+        "32",
+        "len%1#0"
+      ],
+      "stack_out": [
+        "len%1#0",
+        "32"
+      ]
+    },
+    "620": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0"
+      ],
+      "stack_out": [
+        "eq%1#0"
+      ]
+    },
+    "621": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": []
+    },
+    "622": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "623": {
+      "op": "bytec_3 // \"ownership_calls\"",
+      "defined_out": [
+        "\"ownership_calls\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"ownership_calls\""
+      ]
+    },
+    "624": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "625": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%0#0"
+      ]
+    },
+    "626": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "maybe_value%0#0"
+      ],
+      "stack_out": [
+        "maybe_value%0#0",
+        "1"
+      ]
+    },
+    "627": {
+      "op": "+",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "628": {
+      "op": "bytec_3 // \"ownership_calls\"",
+      "stack_out": [
+        "tmp%0#1",
+        "\"ownership_calls\""
+      ]
+    },
+    "629": {
+      "op": "swap",
+      "stack_out": [
+        "\"ownership_calls\"",
+        "tmp%0#1"
+      ]
+    },
+    "630": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "631": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "632": {
+      "op": "return",
+      "stack_out": []
+    },
+    "633": {
+      "subroutine": "smart_contracts/arc58/plugins/nfd/auto-renew-mock.algo.ts::Arc58NfdInstanceMock.purchase[routing]",
+      "params": {},
+      "block": "purchase",
+      "stack_in": [],
+      "op": "txn GroupIndex",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "635": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "1"
+      ]
+    },
+    "636": {
+      "op": "-",
+      "defined_out": [
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "637": {
+      "op": "dup",
+      "defined_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ],
+      "stack_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "638": {
+      "op": "gtxns TypeEnum",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type%0#0"
+      ]
+    },
+    "640": {
+      "op": "intc_1 // pay",
+      "defined_out": [
+        "gtxn_type%0#0",
+        "pay",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type%0#0",
+        "pay"
+      ]
+    },
+    "641": {
+      "op": "==",
+      "defined_out": [
+        "gtxn_type_matches%0#0",
+        "payment#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "gtxn_type_matches%0#0"
+      ]
+    },
+    "642": {
+      "error": "transaction type is pay",
+      "op": "assert // transaction type is pay",
+      "stack_out": [
+        "payment#0"
+      ]
+    },
+    "643": {
+      "op": "dup",
+      "stack_out": [
+        "payment#0",
+        "payment#0 (copy)"
+      ]
+    },
+    "644": {
+      "op": "gtxns Sender",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "646": {
+      "op": "dup"
+    },
+    "647": {
+      "op": "txn Sender",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%0#1 (copy)",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%0#1 (copy)",
+        "tmp%1#0"
+      ]
+    },
+    "649": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%2#0"
+      ]
+    },
+    "650": {
+      "op": "assert",
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "651": {
+      "op": "dig 1",
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "payment#0 (copy)"
+      ]
+    },
+    "653": {
+      "op": "gtxns Receiver",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%3#0"
+      ]
+    },
+    "655": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%3#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%3#0",
+        "tmp%4#0"
+      ]
+    },
+    "657": {
+      "op": "==",
+      "defined_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1",
+        "tmp%5#0"
+      ]
+    },
+    "658": {
+      "op": "assert",
+      "stack_out": [
+        "payment#0",
+        "tmp%0#1"
+      ]
+    },
+    "659": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%0#1",
+        "payment#0"
+      ]
+    },
+    "660": {
+      "op": "gtxns Amount",
+      "defined_out": [
+        "tmp%0#1",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0"
+      ]
+    },
+    "662": {
+      "op": "intc_0 // 0",
+      "defined_out": [
+        "0",
+        "tmp%0#1",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "0"
+      ]
+    },
+    "663": {
+      "op": "bytec 10 // \"i.sellamt\"",
+      "defined_out": [
+        "\"i.sellamt\"",
+        "0",
+        "tmp%0#1",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "0",
+        "\"i.sellamt\""
+      ]
+    },
+    "665": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "tmp%0#1",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "666": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "667": {
+      "op": "btoi",
+      "defined_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%6#0",
+        "tmp%7#0"
+      ]
+    },
+    "668": {
+      "op": "==",
+      "defined_out": [
+        "tmp%0#1",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "tmp%8#0"
+      ]
+    },
+    "669": {
+      "op": "assert",
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "670": {
+      "op": "bytec_1 // \"i.owner.a\"",
+      "defined_out": [
+        "\"i.owner.a\"",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1",
+        "\"i.owner.a\""
+      ]
+    },
+    "671": {
+      "op": "swap",
+      "stack_out": [
+        "\"i.owner.a\"",
+        "tmp%0#1"
+      ]
+    },
+    "672": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "673": {
+      "op": "intc_0 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "674": {
+      "op": "bytec 9 // \"purchase_count\"",
+      "defined_out": [
+        "\"purchase_count\"",
+        "0"
+      ],
+      "stack_out": [
+        "0",
+        "\"purchase_count\""
+      ]
+    },
+    "676": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%1#0",
+        "maybe_value%1#0"
+      ],
+      "stack_out": [
+        "maybe_value%1#0",
+        "maybe_exists%1#0"
+      ]
+    },
+    "677": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "maybe_value%1#0"
+      ]
+    },
+    "678": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "maybe_value%1#0",
+        "1"
+      ]
+    },
+    "679": {
+      "op": "+",
+      "defined_out": [
+        "tmp%10#0"
+      ],
+      "stack_out": [
+        "tmp%10#0"
+      ]
+    },
+    "680": {
+      "op": "bytec 9 // \"purchase_count\"",
+      "stack_out": [
+        "tmp%10#0",
+        "\"purchase_count\""
+      ]
+    },
+    "682": {
+      "op": "swap",
+      "stack_out": [
+        "\"purchase_count\"",
+        "tmp%10#0"
+      ]
+    },
+    "683": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "684": {
+      "op": "intc_1 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "685": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

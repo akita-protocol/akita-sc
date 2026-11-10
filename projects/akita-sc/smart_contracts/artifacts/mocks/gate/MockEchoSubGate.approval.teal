@@ -1,0 +1,186 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 1 0 2 8
+    bytecblock 0x151f7c750000000000000000 0x00 0x151f7c75
+    // smart_contracts/mocks/gate/echo.algo.ts:12
+    // export class MockEchoSubGate extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@12
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x329f04ee 0x77bb79b9 0x6e03f50a 0xb934aadc 0x90d4fa5d // method "cost(byte[])uint64", method "register(pay,byte[])uint64", method "check(address,uint64,byte[])bool", method "checkFor((address,uint64,address),uint64,byte[])bool", method "getEntry(uint64)byte[]"
+    txna ApplicationArgs 0
+    match cost register check checkFor getEntry
+    err
+
+main___algots__.defaultCreate@12:
+    // smart_contracts/mocks/gate/echo.algo.ts:12
+    // export class MockEchoSubGate extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/gate/echo.algo.ts::MockEchoSubGate.cost[routing]() -> void:
+cost:
+    // smart_contracts/mocks/gate/echo.algo.ts:13
+    // cost(args: bytes): uint64 {
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    bytec_0 // 0x151f7c750000000000000000
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/echo.algo.ts::MockEchoSubGate.register[routing]() -> void:
+register:
+    // smart_contracts/mocks/gate/echo.algo.ts:17
+    // register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
+    txn GroupIndex
+    intc_0 // 1
+    -
+    gtxns TypeEnum
+    intc_0 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    bytec_0 // 0x151f7c750000000000000000
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/echo.algo.ts::MockEchoSubGate.check[routing]() -> void:
+check:
+    // smart_contracts/mocks/gate/echo.algo.ts:21
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/gate/echo.algo.ts:22
+    // log(Bytes('check'))
+    pushbytes "check"
+    log
+    // smart_contracts/mocks/gate/echo.algo.ts:23
+    // return args === caller.bytes
+    ==
+    // smart_contracts/mocks/gate/echo.algo.ts:21
+    // check(caller: Account, registryID: uint64, args: bytes): boolean {
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/echo.algo.ts::MockEchoSubGate.checkFor[routing]() -> void:
+checkFor:
+    // smart_contracts/mocks/gate/echo.algo.ts:26
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    pushint 72
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/principal.ts::GateCtx
+    txna ApplicationArgs 2
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 3
+    dup
+    intc_1 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/gate/echo.algo.ts:27
+    // log(Bytes('checkFor'))
+    pushbytes "checkFor"
+    log
+    // smart_contracts/mocks/gate/echo.algo.ts:28
+    // return args === encodeArc4(ctx)
+    ==
+    // smart_contracts/mocks/gate/echo.algo.ts:26
+    // checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    bytec_1 // 0x00
+    intc_1 // 0
+    uncover 2
+    setbit
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_0 // 1
+    return
+
+
+// smart_contracts/mocks/gate/echo.algo.ts::MockEchoSubGate.getEntry[routing]() -> void:
+getEntry:
+    // smart_contracts/mocks/gate/echo.algo.ts:31
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    pushbytes 0x151f7c750000
+    log
+    intc_0 // 1
+    return

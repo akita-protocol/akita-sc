@@ -2,7 +2,7 @@
   "version": 3,
   "sources": [
     "../../../mocks/haystack-router-localnet/contract.algo.ts",
-    "../../../plugin-dex/venues/tinyman-v2.ts"
+    "../../../plugin-dex/hooks/shared/tinyman-v2.ts"
   ],
   "mappings": "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",
   "op_pc_offset": 0,
@@ -1788,7 +1788,7 @@
       ]
     },
     "286": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "assetOut#0",
@@ -4268,7 +4268,7 @@
       ]
     },
     "439": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "app#0",
@@ -5682,7 +5682,7 @@
       ]
     },
     "529": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "tmp%21#1"
@@ -7562,7 +7562,7 @@
       ]
     },
     "671": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "asset#1",
@@ -7841,7 +7841,7 @@
       ]
     },
     "702": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "op": "callsub tmPoolAddress",
       "defined_out": [
         "tmp%1#2"
@@ -8079,7 +8079,7 @@
       ]
     },
     "731": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "before#1"
@@ -9074,7 +9074,7 @@
       ]
     },
     "805": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "tmp%9#1"
@@ -11567,7 +11567,7 @@
       ]
     },
     "996": {
-      "callsub": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "callsub": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "op": "callsub tmHolding",
       "defined_out": [
         "tmp%70#0"
@@ -12862,7 +12862,7 @@
       "op": "b main_bool_merge@15"
     },
     "1162": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmPoolAddress",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmPoolAddress",
       "params": {
         "app#0": "uint64",
         "assetA#0": "uint64",
@@ -13162,7 +13162,7 @@
       "op": "retsub"
     },
     "1237": {
-      "subroutine": "smart_contracts/plugin-dex/venues/tinyman-v2.ts::tmHolding",
+      "subroutine": "smart_contracts/plugin-dex/hooks/shared/tinyman-v2.ts::tmHolding",
       "params": {
         "account#0": "bytes",
         "asset#0": "uint64"

@@ -1,0 +1,88 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1
+    // smart_contracts/mocks/gate/nfd.algo.ts:28
+    // export class MockGateNFDRegistry extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x4be22fc6 // method "isValidNfdAppId(string,uint64)bool"
+    txna ApplicationArgs 0
+    match main_isValidNfdAppId_route@3
+    err
+
+main_isValidNfdAppId_route@3:
+    // smart_contracts/mocks/gate/nfd.algo.ts:29
+    // @abimethod({ readonly: true })
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b isValidNfdAppId
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/gate/nfd.algo.ts:28
+    // export class MockGateNFDRegistry extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/gate/nfd.algo.ts::MockGateNFDRegistry.isValidNfdAppId[routing]() -> void:
+isValidNfdAppId:
+    // smart_contracts/mocks/gate/nfd.algo.ts:29
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/gate/nfd.algo.ts:31
+    // const [name, exists] = op.AppGlobal.getExBytes(nfdAppId, Bytes('i.name'))
+    pushbytes "i.name"
+    app_global_get_ex
+    // smart_contracts/mocks/gate/nfd.algo.ts:32
+    // return exists && name === Bytes(nfdName)
+    bz isValidNfdAppId_bool_false@4
+    dup
+    dig 2
+    ==
+    bz isValidNfdAppId_bool_false@4
+    intc_1 // 1
+
+isValidNfdAppId_bool_merge@5:
+    // smart_contracts/mocks/gate/nfd.algo.ts:29
+    // @abimethod({ readonly: true })
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+isValidNfdAppId_bool_false@4:
+    intc_0 // 0
+    b isValidNfdAppId_bool_merge@5

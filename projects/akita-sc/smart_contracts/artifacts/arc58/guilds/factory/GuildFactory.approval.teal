@@ -1,0 +1,1891 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 8 2000 4096 2342000
+    bytecblock "guild" "akita_dao" 0x151f7c75 "" "p" "ERR:errIcor" "wallet" "ERR:errNdao" "ERR:errGfcf" "version" "child_contract_version" "akita_escrow" "consensus_factory" 0xea9180dd 0x03644ecf 0x487c4d4e 0x71096d25 "ERR:errGfty" "ERR:errGfpy" base64(DYEBQw==)
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:30-31
+    // @contract({ avmVersion: 13, stateTotals: { globalBytes: FactoryGlobalStateMaxBytes, globalUints: FactoryGlobalStateMaxUints } })
+    // export class GuildFactory extends GuildProgramRegistry {
+    bytec 13 // method "update(string)void"
+    txna ApplicationArgs 0
+    match main_update_route@2
+
+main_switch_case_next@3:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:30-31
+    // @contract({ avmVersion: 13, stateTotals: { globalBytes: FactoryGlobalStateMaxBytes, globalUints: FactoryGlobalStateMaxUints } })
+    // export class GuildFactory extends GuildProgramRegistry {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@17
+    bytec 14 // method "initProgram(pay,string,uint64)void"
+    pushbytess 0xae84cbd8 0xaa08be1a 0xed2b3fba 0x3dc61a03 // method "updateAkitaDAOEscrow((string,uint64))void", method "updateGuild(uint64)void", method "newGuild(pay,string,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))),byte[])(uint64,uint64)", method "guildCreateFee()uint64"
+    bytec 15 // method "cost(string)uint64"
+    bytec 16 // method "loadProgram(uint64,byte[])void"
+    pushbytess 0x3ba24b01 0x2dd24eb3 0x33e92c94 0x854dede0 // method "programMbr(string,uint64)uint64", method "programFunding(string,uint64)uint64", method "updateAkitaDAO(uint64)void", method "opUp()void"
+    txna ApplicationArgs 0
+    match initProgram updateAkitaDAOEscrow updateGuild newGuild guildCreateFee cost loadProgram programMbr programFunding updateAkitaDAO main_opUp_route@15
+    err
+
+main_opUp_route@15:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:30
+    // opUp(): void { }
+    intc_1 // 1
+    return
+
+main_create_NoOp@17:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:30-31
+    // @contract({ avmVersion: 13, stateTotals: { globalBytes: FactoryGlobalStateMaxBytes, globalUints: FactoryGlobalStateMaxUints } })
+    // export class GuildFactory extends GuildProgramRegistry {
+    pushbytes 0x9d5f533c // method "create(string,uint64,(string,uint64),uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+main_update_route@2:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:35
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.initProgram[routing]() -> void:
+initProgram:
+    bytec_3 // ""
+    dupn 3
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:40
+    // initProgram(mbrPayment: gtxn.PaymentTxn, programName: string, size: uint64): void {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:42
+    // this.validateProgramName(name)
+    dup
+    callsub validateProgramName
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:43
+    // loggedAssert(name === GuildFactoryGuildProgramKey, errGuildFactoryInvalidType)
+    bytec_0 // "guild"
+    ==
+    bnz initProgram_after_assert@3
+    bytec 17 // "ERR:errGfty"
+    log
+    err // ERR:errGfty
+
+initProgram_after_assert@3:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:45
+    // Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    txn Sender
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:22
+    // programs = BoxMap<string, bytes>({ keyPrefix: GuildFactoryBoxPrefixPrograms })
+    bytec 4 // "p"
+    dig 2
+    concat
+    dup
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:45
+    // Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    box_len
+    bury 1
+    bz initProgram_ternary_false@5
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 6 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:45
+    // Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    app_params_get AppAddress
+    assert // application exists
+
+initProgram_ternary_merge@6:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:45
+    // Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    uncover 2
+    ==
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:44-47
+    // loggedAssert(
+    //   Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    //   errNotAkitaDao,
+    // )
+    bnz initProgram_after_assert@8
+    bytec 7 // "ERR:errNdao"
+    log
+    err // ERR:errNdao
+
+initProgram_after_assert@8:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:48
+    // this.childContractVersion.value = this.version.value
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:14
+    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
+    bytec 9 // "version"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:48
+    // this.childContractVersion.value = this.version.value
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:34
+    // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
+    bytec 10 // "child_contract_version"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:48
+    // this.childContractVersion.value = this.version.value
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:53
+    // this.validateProgramName(programName)
+    dig 1
+    callsub validateProgramName
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:54
+    // loggedAssert(size > 0 && size <= MAX_GUILD_APPROVAL_PROGRAM_SIZE, errGuildFactoryInvalidConfig)
+    dig 2
+    bz initProgram_bool_false@12
+    dig 2
+    pushint 16372
+    <=
+    bz initProgram_bool_false@12
+    intc_1 // 1
+
+initProgram_bool_merge@13:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:54
+    // loggedAssert(size > 0 && size <= MAX_GUILD_APPROVAL_PROGRAM_SIZE, errGuildFactoryInvalidConfig)
+    bnz initProgram_after_assert@15
+    bytec 8 // "ERR:errGfcf"
+    log
+    err // ERR:errGfcf
+
+initProgram_after_assert@15:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:55-59
+    // loggedAssert(match(mbrPayment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.programFunding(programName, size),
+    // }), errGuildFactoryInvalidPayment)
+    uncover 3
+    dup
+    gtxns Sender
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:56
+    // sender: Txn.sender,
+    txn Sender
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:55-59
+    // loggedAssert(match(mbrPayment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.programFunding(programName, size),
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    dig 1
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:57
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:55-59
+    // loggedAssert(match(mbrPayment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.programFunding(programName, size),
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    &&
+    swap
+    gtxns Amount
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:58
+    // amount: this.programFunding(programName, size),
+    uncover 3
+    dig 4
+    callsub smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:55-59
+    // loggedAssert(match(mbrPayment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.programFunding(programName, size),
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    &&
+    bnz initProgram_after_assert@17
+    bytec 18 // "ERR:errGfpy"
+    log
+    err // ERR:errGfpy
+
+initProgram_after_assert@17:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:61
+    // const chunks: uint64 = (size + PROGRAM_UPLOAD_CHUNK_SIZE - 1) / PROGRAM_UPLOAD_CHUNK_SIZE
+    dig 1
+    intc 4 // 2000
+    +
+    intc_1 // 1
+    -
+    intc 4 // 2000
+    /
+    dup
+    bury 6
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:62
+    // loggedAssert(Txn.groupIndex + chunks < Global.groupSize, errInvalidCallOrder)
+    txn GroupIndex
+    +
+    global GroupSize
+    <
+    bnz initProgram_after_assert@19
+    bytec 5 // "ERR:errIcor"
+    log
+    err // ERR:errIcor
+
+initProgram_after_assert@19:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:63
+    // for (let i: uint64 = 0; i < chunks; i += 1) {
+    intc_0 // 0
+
+initProgram_while_top@20:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:63
+    // for (let i: uint64 = 0; i < chunks; i += 1) {
+    dup
+    dig 6
+    <
+    bz initProgram_after_while@34
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:64
+    // const txn = gtxn.Transaction(Txn.groupIndex + i + 1)
+    txn GroupIndex
+    dig 1
+    dup
+    cover 2
+    +
+    intc_1 // 1
+    +
+    dup
+    cover 2
+    bury 6
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:65
+    // const remaining: uint64 = size - i * PROGRAM_UPLOAD_CHUNK_SIZE
+    intc 4 // 2000
+    *
+    dup
+    bury 7
+    dig 4
+    swap
+    -
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:66
+    // const chunkSize: uint64 = remaining > PROGRAM_UPLOAD_CHUNK_SIZE ? PROGRAM_UPLOAD_CHUNK_SIZE : remaining
+    dup
+    intc 4 // 2000
+    >
+    intc 4 // 2000
+    swap
+    select
+    bury 8
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    gtxns TypeEnum
+    pushint 6
+    ==
+    bz initProgram_bool_false@30
+    dig 3
+    gtxns ApplicationID
+    global CurrentApplicationID
+    ==
+    bz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:69
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dig 3
+    gtxns OnCompletion
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-69
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bnz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:69
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dig 3
+    gtxns Sender
+    txn Sender
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-69
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:69
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dig 3
+    gtxns NumAppArgs
+    pushint 3
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-69
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:70
+    // txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    dig 3
+    gtxnsa ApplicationArgs 0
+    bytec 16 // method "loadProgram(uint64,byte[])void"
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-70
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    // txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    bz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:70
+    // txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    dig 3
+    gtxnsa ApplicationArgs 1
+    btoi
+    dig 5
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-70
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    // txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    bz initProgram_bool_false@30
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:71
+    // txn.appArgs(2).length === chunkSize + 2,
+    dig 3
+    gtxnsa ApplicationArgs 2
+    len
+    dig 7
+    intc_2 // 2
+    +
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:68-71
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    // txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    // txn.appArgs(2).length === chunkSize + 2,
+    bz initProgram_bool_false@30
+    intc_1 // 1
+
+initProgram_bool_merge@31:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:67-73
+    // loggedAssert(
+    //   txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    //   txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    //   txn.appArgs(0) === methodSelector(this.loadProgram) && op.btoi(txn.appArgs(1)) === i * PROGRAM_UPLOAD_CHUNK_SIZE &&
+    //   txn.appArgs(2).length === chunkSize + 2,
+    //   errInvalidCallOrder,
+    // )
+    bnz initProgram_after_assert@33
+    bytec 5 // "ERR:errIcor"
+    log
+    err // ERR:errIcor
+
+initProgram_after_assert@33:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:63
+    // for (let i: uint64 = 0; i < chunks; i += 1) {
+    intc_1 // 1
+    +
+    b initProgram_while_top@20
+
+initProgram_bool_false@30:
+    intc_0 // 0
+    b initProgram_bool_merge@31
+
+initProgram_after_while@34:
+    pop
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:75
+    // if (this.programs(programName).exists) {
+    dup
+    box_len
+    bury 1
+    bz initProgram_else_body@36
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:76
+    // this.programs(programName).resize(size)
+    swap
+    box_resize
+
+initProgram_after_if_else@37:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:40
+    // initProgram(mbrPayment: gtxn.PaymentTxn, programName: string, size: uint64): void {
+    intc_1 // 1
+    return
+
+initProgram_else_body@36:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:78
+    // this.programs(programName).create({ size })
+    swap
+    box_create
+    pop
+    b initProgram_after_if_else@37
+
+initProgram_bool_false@12:
+    intc_0 // 0
+    b initProgram_bool_merge@13
+
+initProgram_ternary_false@5:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:45
+    // Txn.sender === (this.programs(name).exists ? this.getAkitaDAOWallet().address : Global.creatorAddress),
+    global CreatorAddress
+    b initProgram_ternary_merge@6
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:69
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64)
+    uncover 2
+    swap
+    dig 2
+    substring3
+    dup
+    cover 6
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/base-contracts/base.ts::EscrowConfig
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:71
+    // loggedAssert(version !== '', errGuildFactoryInvalidVersion)
+    bytec_3 // ""
+    !=
+    bnz create_after_assert@3
+    pushbytes "ERR:errGfvr"
+    log
+    err // ERR:errGfvr
+
+create_after_assert@3:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:73
+    // akitaDAO.id > 0 && akitaDAOEscrow.app.id > 0 && akitaDAOEscrow.name !== '' && consensusFactory.id > 0,
+    dig 2
+    bz create_bool_false@8
+    dig 1
+    intc_2 // 2
+    extract_uint64
+    bz create_bool_false@8
+    dig 4
+    extract 2 0
+    bytec_3 // ""
+    !=
+    bz create_bool_false@8
+    dup
+    bz create_bool_false@8
+    intc_1 // 1
+
+create_bool_merge@9:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:72-75
+    // loggedAssert(
+    //   akitaDAO.id > 0 && akitaDAOEscrow.app.id > 0 && akitaDAOEscrow.name !== '' && consensusFactory.id > 0,
+    //   errGuildFactoryInvalidConfig,
+    // )
+    bnz create_after_assert@11
+    bytec 8 // "ERR:errGfcf"
+    log
+    err // ERR:errGfcf
+
+create_after_assert@11:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:14
+    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
+    bytec 9 // "version"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:76
+    // this.version.value = version
+    uncover 4
+    app_global_put
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:77
+    // this.akitaDAO.value = akitaDAO
+    uncover 3
+    app_global_put
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:36
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 11 // "akita_escrow"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:78
+    // this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
+    uncover 2
+    app_global_put
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:35
+    // consensusFactory = GlobalState<Application>({ key: 'consensus_factory' })
+    bytec 12 // "consensus_factory"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:79
+    // this.consensusFactory.value = consensusFactory
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:69
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+create_bool_false@8:
+    intc_0 // 0
+    b create_bool_merge@9
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.updateAkitaDAOEscrow[routing]() -> void:
+updateAkitaDAOEscrow:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:82
+    // updateAkitaDAOEscrow(config: EscrowConfig): void {
+    txna ApplicationArgs 1
+    dupn 2
+    len
+    dig 1
+    intc_0 // 0
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 10
+    ==
+    assert // invalid tail pointer at index 0 of ((len+utf8[]),uint64)
+    uncover 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/utils/base-contracts/base.ts::EscrowConfig
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:83
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    txn Sender
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 6 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:83
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz updateAkitaDAOEscrow_after_assert@3
+    bytec 7 // "ERR:errNdao"
+    log
+    err // ERR:errNdao
+
+updateAkitaDAOEscrow_after_assert@3:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:36
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 11 // "akita_escrow"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:84
+    // this.akitaDAOEscrow.value = clone(config)
+    swap
+    app_global_put
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:82
+    // updateAkitaDAOEscrow(config: EscrowConfig): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.updateGuild[routing]() -> void:
+updateGuild:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:90
+    // updateGuild(guild: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:91
+    // this.requireProgram(GuildFactoryGuildProgramKey)
+    bytec_0 // "guild"
+    callsub requireProgram
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:92
+    // const [creator, exists] = op.AppGlobal.getExBytes(guild, Bytes(GuildGlobalStateKeyCreator))
+    pushbytes "creator"
+    app_global_get_ex
+    swap
+    cover 2
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:93
+    // loggedAssert(exists && Txn.sender === Account(creator), errGuildCreatorOnly)
+    bz updateGuild_bool_false@4
+    txn Sender
+    dig 2
+    ==
+    bz updateGuild_bool_false@4
+    intc_1 // 1
+
+updateGuild_bool_merge@5:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:93
+    // loggedAssert(exists && Txn.sender === Account(creator), errGuildCreatorOnly)
+    bnz updateGuild_after_assert@7
+    pushbytes "ERR:errGcrt"
+    log
+    err // ERR:errGcrt
+
+updateGuild_after_assert@7:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:95-106
+    // abiCall<typeof GuildCreateStub.prototype.update>({
+    //   appId: guild,
+    //   args: [this.childContractVersion.value],
+    //   onCompletion: OnCompleteAction.UpdateApplication,
+    //   approvalProgram: [
+    //     this.programChunk(GuildFactoryGuildProgramKey, 0),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    //   ],
+    //   clearStateProgram: template.clearStateProgram,
+    // })
+    itxn_begin
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:97
+    // args: [this.childContractVersion.value],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:34
+    // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
+    bytec 10 // "child_contract_version"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:97
+    // args: [this.childContractVersion.value],
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:100
+    // this.programChunk(GuildFactoryGuildProgramKey, 0),
+    bytec_0 // "guild"
+    intc_0 // 0
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:101
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    bytec_0 // "guild"
+    intc 5 // 4096
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:102
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    bytec_0 // "guild"
+    pushint 8192
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:103
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    bytec_0 // "guild"
+    pushint 12288
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:94
+    // const template = compileArc4(GuildCreateStub)
+    bytec 19 // base64(DYEBQw==)
+    itxn_field ClearStateProgramPages
+    uncover 3
+    itxn_field ApprovalProgramPages
+    uncover 2
+    itxn_field ApprovalProgramPages
+    swap
+    itxn_field ApprovalProgramPages
+    itxn_field ApprovalProgramPages
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:98
+    // onCompletion: OnCompleteAction.UpdateApplication,
+    pushint 4
+    itxn_field OnCompletion
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:95-106
+    // abiCall<typeof GuildCreateStub.prototype.update>({
+    //   appId: guild,
+    //   args: [this.childContractVersion.value],
+    //   onCompletion: OnCompleteAction.UpdateApplication,
+    //   approvalProgram: [
+    //     this.programChunk(GuildFactoryGuildProgramKey, 0),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    //   ],
+    //   clearStateProgram: template.clearStateProgram,
+    // })
+    bytec 13 // method "update(string)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:90
+    // updateGuild(guild: Application): void {
+    intc_1 // 1
+    return
+
+updateGuild_bool_false@4:
+    intc_0 // 0
+    b updateGuild_bool_merge@5
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.newGuild[routing]() -> void:
+newGuild:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:115-120
+    // newGuild(
+    //   payment: gtxn.PaymentTxn,
+    //   consensusName: string,
+    //   baseConfig: GuildBaseConfig,
+    //   governanceConfig: bytes,
+    // ): GuildDeployment {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    dup
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    dupn 2
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    cover 4
+    len
+    pushint 440
+    ==
+    assert // invalid number of bytes for smart_contracts/arc58/guilds/core/types.ts::GuildBaseConfig
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:121
+    // this.requireProgram(GuildFactoryGuildProgramKey)
+    bytec_0 // "guild"
+    callsub requireProgram
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:122
+    // const consensusCost = this.consensusCost(consensusName)
+    callsub consensusCost
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:123
+    // const createFee = this.getGuildCreateFee()
+    callsub getGuildCreateFee
+    cover 5
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:124
+    // const walletFactory = Application(getAkitaAppList(this.akitaDAO.value).wallet)
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:124
+    // const walletFactory = Application(getAkitaAppList(this.akitaDAO.value).wallet)
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    pushbytes "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:124
+    // const walletFactory = Application(getAkitaAppList(this.akitaDAO.value).wallet)
+    dup
+    extract 88 8
+    cover 2
+    pushint 88
+    extract_uint64
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:125
+    // loggedAssert(walletFactory.id > 0, errGuildFactoryInvalidConfig)
+    bnz newGuild_after_assert@3
+    bytec 8 // "ERR:errGfcf"
+    log
+    err // ERR:errGfcf
+
+newGuild_after_assert@3:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:126-130
+    // loggedAssert(match(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.guildMbr() + consensusCost + createFee,
+    // }), errGuildFactoryInvalidPayment)
+    uncover 4
+    dup
+    gtxns Sender
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:127
+    // sender: Txn.sender,
+    txn Sender
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:126-130
+    // loggedAssert(match(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.guildMbr() + consensusCost + createFee,
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    dig 1
+    gtxns Receiver
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:128
+    // receiver: Global.currentApplicationAddress,
+    global CurrentApplicationAddress
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:126-130
+    // loggedAssert(match(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.guildMbr() + consensusCost + createFee,
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    &&
+    swap
+    gtxns Amount
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:63-64
+    // return 8 * MIN_PROGRAM_PAGES + GLOBAL_STATE_KEY_UINT_COST * GuildNumGlobalUints +
+    //   GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    intc 6 // 2342000
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:64
+    // GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    global MinBalance
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:63-64
+    // return 8 * MIN_PROGRAM_PAGES + GLOBAL_STATE_KEY_UINT_COST * GuildNumGlobalUints +
+    //   GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    +
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:129
+    // amount: this.guildMbr() + consensusCost + createFee,
+    dig 3
+    +
+    dig 8
+    +
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:126-130
+    // loggedAssert(match(payment, {
+    //   sender: Txn.sender,
+    //   receiver: Global.currentApplicationAddress,
+    //   amount: this.guildMbr() + consensusCost + createFee,
+    // }), errGuildFactoryInvalidPayment)
+    ==
+    &&
+    bnz newGuild_after_assert@5
+    bytec 18 // "ERR:errGfpy"
+    log
+    err // ERR:errGfpy
+
+newGuild_after_assert@5:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:131-134
+    // const consensus = abiCall<typeof GuildConsensusFactory.prototype.newConsensus>({
+    //   appId: this.consensusFactory.value,
+    //   args: [itxn.payment({ receiver: this.consensusFactory.value.address, amount: consensusCost, fee: 0 }), consensusName, governanceConfig],
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:133
+    // args: [itxn.payment({ receiver: this.consensusFactory.value.address, amount: consensusCost, fee: 0 }), consensusName, governanceConfig],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:35
+    // consensusFactory = GlobalState<Application>({ key: 'consensus_factory' })
+    bytec 12 // "consensus_factory"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:133
+    // args: [itxn.payment({ receiver: this.consensusFactory.value.address, amount: consensusCost, fee: 0 }), consensusName, governanceConfig],
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    uncover 2
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:131-134
+    // const consensus = abiCall<typeof GuildConsensusFactory.prototype.newConsensus>({
+    //   appId: this.consensusFactory.value,
+    //   args: [itxn.payment({ receiver: this.consensusFactory.value.address, amount: consensusCost, fee: 0 }), consensusName, governanceConfig],
+    // }).returnValue
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0xd27657aa // method "newConsensus(pay,string,byte[])uint64"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for application
+    dup
+    btoi
+    dup
+    uncover 2
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:136-147
+    // const guild = template.call.create({
+    //   args: [this.childContractVersion.value, Txn.sender, walletFactory, consensus, baseConfig],
+    //   approvalProgram: [
+    //     this.programChunk(GuildFactoryGuildProgramKey, 0),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    //   ],
+    //   clearStateProgram: template.clearStateProgram,
+    //   // Reserve AVM 13 capacity for governed upgrades, independently of today's program size.
+    //   extraProgramPages: 7,
+    // }).itxn.createdApp
+    itxn_begin
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:137
+    // args: [this.childContractVersion.value, Txn.sender, walletFactory, consensus, baseConfig],
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:34
+    // childContractVersion = GlobalState<string>({ key: BaseFactoryGlobalStateKeyChildContractVersion })
+    bytec 10 // "child_contract_version"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:137
+    // args: [this.childContractVersion.value, Txn.sender, walletFactory, consensus, baseConfig],
+    app_global_get_ex
+    assert // check GlobalState exists
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    txn Sender
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:139
+    // this.programChunk(GuildFactoryGuildProgramKey, 0),
+    bytec_0 // "guild"
+    intc_0 // 0
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:140
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    bytec_0 // "guild"
+    intc 5 // 4096
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:141
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    bytec_0 // "guild"
+    pushint 8192
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:142
+    // this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    bytec_0 // "guild"
+    pushint 12288
+    callsub programChunk
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:135
+    // const template = compileArc4(GuildCreateStub)
+    pushint 24
+    itxn_field GlobalNumByteSlice
+    pushint 12
+    itxn_field GlobalNumUint
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:136-147
+    // const guild = template.call.create({
+    //   args: [this.childContractVersion.value, Txn.sender, walletFactory, consensus, baseConfig],
+    //   approvalProgram: [
+    //     this.programChunk(GuildFactoryGuildProgramKey, 0),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    //   ],
+    //   clearStateProgram: template.clearStateProgram,
+    //   // Reserve AVM 13 capacity for governed upgrades, independently of today's program size.
+    //   extraProgramPages: 7,
+    // }).itxn.createdApp
+    intc_0 // 0
+    itxn_field OnCompletion
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:146
+    // extraProgramPages: 7,
+    pushint 7
+    itxn_field ExtraProgramPages
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:135
+    // const template = compileArc4(GuildCreateStub)
+    bytec 19 // base64(DYEBQw==)
+    itxn_field ClearStateProgramPages
+    uncover 3
+    itxn_field ApprovalProgramPages
+    uncover 2
+    itxn_field ApprovalProgramPages
+    swap
+    itxn_field ApprovalProgramPages
+    itxn_field ApprovalProgramPages
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:136-147
+    // const guild = template.call.create({
+    //   args: [this.childContractVersion.value, Txn.sender, walletFactory, consensus, baseConfig],
+    //   approvalProgram: [
+    //     this.programChunk(GuildFactoryGuildProgramKey, 0),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 2),
+    //     this.programChunk(GuildFactoryGuildProgramKey, MAX_AVM_BYTE_ARRAY_LENGTH * 3),
+    //   ],
+    //   clearStateProgram: template.clearStateProgram,
+    //   // Reserve AVM 13 capacity for governed upgrades, independently of today's program size.
+    //   extraProgramPages: 7,
+    // }).itxn.createdApp
+    pushbytes 0x06cb2e54 // method "create(string,address,uint64,uint64,(uint64,((uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64),(uint64,uint64,uint64,uint64,uint64,uint64))))void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:148
+    // itxn.payment({ receiver: guild.address, amount: Global.minBalance, fee: 0 }).submit()
+    itxn_begin
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    global MinBalance
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:149
+    // abiCall<typeof GuildConsensusCreateStub.prototype.bindGuild>({ appId: consensus, args: [guild] })
+    itxn_begin
+    itob
+    dup
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x3e87013b // method "bindGuild(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:150
+    // if (createFee > 0) {
+    dig 2
+    bz newGuild_after_if_else@13
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:151
+    // itxn.payment({ receiver: this.akitaDAOEscrow.value.app.address, amount: createFee, fee: 0 }).submit()
+    itxn_begin
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:36
+    // akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
+    bytec 11 // "akita_escrow"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:151
+    // itxn.payment({ receiver: this.akitaDAOEscrow.value.app.address, amount: createFee, fee: 0 }).submit()
+    app_global_get_ex
+    assert // check GlobalState exists
+    intc_2 // 2
+    extract_uint64
+    app_params_get AppAddress
+    assert // application exists
+    dig 3
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+
+newGuild_after_if_else@13:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:153
+    // return { guild, consensus }
+    swap
+    itob
+    concat
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:115-120
+    // newGuild(
+    //   payment: gtxn.PaymentTxn,
+    //   consensusName: string,
+    //   baseConfig: GuildBaseConfig,
+    //   governanceConfig: bytes,
+    // ): GuildDeployment {
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.guildCreateFee[routing]() -> void:
+guildCreateFee:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:160
+    // return this.getGuildCreateFee()
+    callsub getGuildCreateFee
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:158
+    // @abimethod({ readonly: true })
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.cost[routing]() -> void:
+cost:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:163
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:165
+    // this.requireProgram(GuildFactoryGuildProgramKey)
+    bytec_0 // "guild"
+    callsub requireProgram
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:63-64
+    // return 8 * MIN_PROGRAM_PAGES + GLOBAL_STATE_KEY_UINT_COST * GuildNumGlobalUints +
+    //   GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    intc 6 // 2342000
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:64
+    // GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    global MinBalance
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:63-64
+    // return 8 * MIN_PROGRAM_PAGES + GLOBAL_STATE_KEY_UINT_COST * GuildNumGlobalUints +
+    //   GLOBAL_STATE_KEY_BYTES_COST * GuildNumGlobalBytes + Global.minBalance
+    +
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:166
+    // return this.guildMbr() + this.consensusCost(consensusName) + this.getGuildCreateFee()
+    swap
+    callsub consensusCost
+    +
+    callsub getGuildCreateFee
+    +
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:163
+    // @abimethod({ readonly: true })
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.loadProgram[routing]() -> void:
+loadProgram:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:83
+    // loadProgram(offset: uint64, data: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    cover 2
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:84
+    // loggedAssert(offset % PROGRAM_UPLOAD_CHUNK_SIZE === 0, errInvalidCallOrder)
+    intc 4 // 2000
+    %
+    bz loadProgram_after_assert@3
+    bytec 5 // "ERR:errIcor"
+    log
+    err // ERR:errIcor
+
+loadProgram_after_assert@3:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:85
+    // const previousCalls: uint64 = offset / PROGRAM_UPLOAD_CHUNK_SIZE + 1
+    dup
+    intc 4 // 2000
+    /
+    intc_1 // 1
+    +
+    dup
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:86
+    // loggedAssert(Txn.groupIndex >= previousCalls, errInvalidCallOrder)
+    txn GroupIndex
+    <=
+    bnz loadProgram_after_assert@5
+    bytec 5 // "ERR:errIcor"
+    log
+    err // ERR:errIcor
+
+loadProgram_after_assert@5:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:87
+    // const txn = gtxn.Transaction(Txn.groupIndex - previousCalls)
+    txn GroupIndex
+    swap
+    -
+    dup
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:89
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    gtxns TypeEnum
+    pushint 6
+    ==
+    bz loadProgram_bool_false@12
+    dup
+    gtxns ApplicationID
+    global CurrentApplicationID
+    ==
+    bz loadProgram_bool_false@12
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:90
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dup
+    gtxns OnCompletion
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:89-90
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bnz loadProgram_bool_false@12
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:90
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dup
+    gtxns Sender
+    txn Sender
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:89-90
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bz loadProgram_bool_false@12
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:90
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    dup
+    gtxns NumAppArgs
+    pushint 3
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:89-90
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    bz loadProgram_bool_false@12
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:91
+    // txn.appArgs(0) === methodSelector('initProgram(pay,string,uint64)void'),
+    dup
+    gtxnsa ApplicationArgs 0
+    bytec 14 // method "initProgram(pay,string,uint64)void"
+    ==
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:89-91
+    // txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    // txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    // txn.appArgs(0) === methodSelector('initProgram(pay,string,uint64)void'),
+    bz loadProgram_bool_false@12
+    intc_1 // 1
+
+loadProgram_bool_merge@13:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:88-93
+    // loggedAssert(
+    //   txn.type === TransactionType.ApplicationCall && txn.appId === Global.currentApplicationId &&
+    //   txn.onCompletion === OnCompleteAction.NoOp && txn.sender === Txn.sender && txn.numAppArgs === 3 &&
+    //   txn.appArgs(0) === methodSelector('initProgram(pay,string,uint64)void'),
+    //   errInvalidCallOrder,
+    // )
+    bnz loadProgram_after_assert@15
+    bytec 5 // "ERR:errIcor"
+    log
+    err // ERR:errIcor
+
+loadProgram_after_assert@15:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:94
+    // const name = decodeArc4<string>(txn.appArgs(1))
+    dup
+    gtxnsa ApplicationArgs 1
+    extract 2 0
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:95
+    // this.requireProgram(name)
+    dup
+    callsub requireProgram
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:22
+    // programs = BoxMap<string, bytes>({ keyPrefix: GuildFactoryBoxPrefixPrograms })
+    bytec 4 // "p"
+    swap
+    concat
+    dup
+    cover 2
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:96
+    // loggedAssert(this.programs(name).length === op.btoi(txn.appArgs(2)), errGuildFactoryInvalidConfig)
+    box_len
+    assert // Box must have value
+    swap
+    gtxnsa ApplicationArgs 2
+    btoi
+    ==
+    bnz loadProgram_after_assert@17
+    bytec 8 // "ERR:errGfcf"
+    log
+    err // ERR:errGfcf
+
+loadProgram_after_assert@17:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:97
+    // this.programs(name).replace(offset, data)
+    swap
+    uncover 2
+    box_replace
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:83
+    // loadProgram(offset: uint64, data: bytes): void {
+    intc_1 // 1
+    return
+
+loadProgram_bool_false@12:
+    intc_0 // 0
+    b loadProgram_bool_merge@13
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr[routing]() -> void:
+programMbr:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:102
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding[routing]() -> void:
+programFunding:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:108
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    callsub smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding
+    itob
+    bytec_2 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/utils/base-contracts/upgradeable.ts::UpgradeableAkitaBaseContract.update[routing]() -> void:
+update:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:35
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    txn Sender
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 6 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/upgradeable.ts:37
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz update_after_assert@3
+    bytec 7 // "ERR:errNdao"
+    log
+    err // ERR:errNdao
+
+update_after_assert@3:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:38
+    // const [plugins] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:38
+    // const [plugins] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysPluginAppList))
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushbytes "pal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/upgradeable.ts:39
+    // const updatePlugin = decodeArc4<PluginAppList>(plugins).update
+    pushint 16
+    extract_uint64
+    // smart_contracts/utils/base-contracts/upgradeable.ts:40
+    // loggedAssert(Global.callerApplicationId === updatePlugin, errInvalidUpgrade)
+    global CallerApplicationID
+    ==
+    bnz update_after_assert@5
+    pushbytes "ERR:errIupg"
+    log
+    err // ERR:errIupg
+
+update_after_assert@5:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:14
+    // version = GlobalState<string>({ key: GlobalStateKeyVersion })
+    bytec 9 // "version"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:41
+    // this.version.value = newVersion
+    swap
+    app_global_put
+    // smart_contracts/utils/base-contracts/upgradeable.ts:35
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/utils/base-contracts/upgradeable.ts::AkitaBaseContract.updateAkitaDAO[routing]() -> void:
+updateAkitaDAO:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
+    // updateAkitaDAO(akitaDAO: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    txn Sender
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:19
+    // const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
+    app_global_get_ex
+    assert // check GlobalState exists
+    bytec 6 // "wallet"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/base-contracts/upgradeable.ts:26
+    // loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
+    app_params_get AppAddress
+    assert // application exists
+    ==
+    bnz updateAkitaDAO_after_assert@3
+    bytec 7 // "ERR:errNdao"
+    log
+    err // ERR:errNdao
+
+updateAkitaDAO_after_assert@3:
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/utils/base-contracts/upgradeable.ts:27
+    // this.akitaDAO.value = akitaDAO
+    swap
+    app_global_put
+    // smart_contracts/utils/base-contracts/upgradeable.ts:25
+    // updateAkitaDAO(akitaDAO: Application): void {
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.getGuildCreateFee() -> uint64:
+getGuildCreateFee:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:53
+    // const [fees, exists] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysGuildFees))
+    intc_0 // 0
+    // smart_contracts/utils/base-contracts/upgradeable.ts:16
+    // akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
+    bytec_1 // "akita_dao"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:53
+    // const [fees, exists] = op.AppGlobal.getExBytes(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysGuildFees))
+    app_global_get_ex
+    assert // check GlobalState exists
+    pushbytes "guild_fees"
+    app_global_get_ex
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:54
+    // loggedAssert(exists, errGuildFactoryGuildFeesUnset)
+    bnz getGuildCreateFee_after_assert@2
+    pushbytes "ERR:errGfgf"
+    log
+    err // ERR:errGfgf
+
+getGuildCreateFee_after_assert@2:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:55
+    // return decodeArc4<GuildFees>(fees).createFee
+    intc_0 // 0
+    extract_uint64
+    retsub
+
+
+// smart_contracts/arc58/guilds/factory/contract.algo.ts::GuildFactory.consensusCost(name: bytes) -> uint64:
+consensusCost:
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:58
+    // private consensusCost(name: string): uint64 {
+    proto 1 1
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:59
+    // return abiCall<typeof GuildConsensusFactory.prototype.cost>({ appId: this.consensusFactory.value, args: [name] }).returnValue
+    itxn_begin
+    frame_dig -1
+    len
+    itob
+    extract 6 2
+    frame_dig -1
+    concat
+    intc_0 // 0
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:35
+    // consensusFactory = GlobalState<Application>({ key: 'consensus_factory' })
+    bytec 12 // "consensus_factory"
+    // smart_contracts/arc58/guilds/factory/contract.algo.ts:59
+    // return abiCall<typeof GuildConsensusFactory.prototype.cost>({ appId: this.consensusFactory.value, args: [name] }).returnValue
+    app_global_get_ex
+    assert // check GlobalState exists
+    itxn_field ApplicationID
+    bytec 15 // method "cost(string)uint64"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_2 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_3 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    retsub
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.validateProgramName(name: bytes) -> void:
+validateProgramName:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:26
+    // protected validateProgramName(name: string): void {
+    proto 1 0
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:27
+    // loggedAssert(name !== '' && Bytes(name).length <= MAX_GUILD_PROGRAM_NAME_BYTES, errGuildFactoryInvalidType)
+    frame_dig -1
+    bytec_3 // ""
+    !=
+    bz validateProgramName_bool_false@3
+    frame_dig -1
+    len
+    pushint 63
+    <=
+    bz validateProgramName_bool_false@3
+    intc_1 // 1
+
+validateProgramName_bool_merge@4:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:27
+    // loggedAssert(name !== '' && Bytes(name).length <= MAX_GUILD_PROGRAM_NAME_BYTES, errGuildFactoryInvalidType)
+    bnz validateProgramName_after_assert@6
+    bytec 17 // "ERR:errGfty"
+    log
+    err // ERR:errGfty
+
+validateProgramName_after_assert@6:
+    retsub
+
+validateProgramName_bool_false@3:
+    intc_0 // 0
+    b validateProgramName_bool_merge@4
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.requireProgram(name: bytes) -> void:
+requireProgram:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:30
+    // protected requireProgram(name: string): void {
+    proto 1 0
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:31
+    // this.validateProgramName(name)
+    frame_dig -1
+    callsub validateProgramName
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:22
+    // programs = BoxMap<string, bytes>({ keyPrefix: GuildFactoryBoxPrefixPrograms })
+    bytec 4 // "p"
+    frame_dig -1
+    concat
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:32
+    // loggedAssert(this.programs(name).exists, errContractNotSet)
+    box_len
+    bury 1
+    bnz requireProgram_after_assert@2
+    pushbytes "ERR:errCnst"
+    log
+    err // ERR:errCnst
+
+requireProgram_after_assert@2:
+    retsub
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programChunk(name: bytes, offset: uint64) -> bytes:
+programChunk:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:35
+    // protected programChunk(name: string, offset: uint64): bytes {
+    proto 2 1
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:36
+    // this.requireProgram(name)
+    frame_dig -2
+    callsub requireProgram
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:22
+    // programs = BoxMap<string, bytes>({ keyPrefix: GuildFactoryBoxPrefixPrograms })
+    bytec 4 // "p"
+    frame_dig -2
+    concat
+    dup
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:38
+    // if (offset >= program.length) {
+    box_len
+    assert // Box must have value
+    frame_dig -1
+    <=
+    bz programChunk_after_if_else@2
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:39
+    // return Bytes('')
+    bytec_3 // ""
+    swap
+    retsub
+
+programChunk_after_if_else@2:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:41
+    // const remaining: uint64 = program.length - offset
+    dup
+    box_len
+    assert // Box must have value
+    frame_dig -1
+    -
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:42
+    // return program.extract(offset, remaining > MAX_AVM_BYTE_ARRAY_LENGTH ? MAX_AVM_BYTE_ARRAY_LENGTH : remaining)
+    dup
+    intc 5 // 4096
+    >
+    intc 5 // 4096
+    swap
+    select
+    frame_dig -1
+    swap
+    box_extract
+    retsub
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr(programName: bytes, size: uint64) -> uint64:
+smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:102-103
+    // @abimethod({ readonly: true })
+    // programMbr(programName: string, size: uint64): uint64 {
+    proto 2 1
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:104
+    // this.validateProgramName(programName)
+    frame_dig -2
+    callsub validateProgramName
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:105
+    // return 2_500 + 400 * (1 + Bytes(programName).length + size)
+    frame_dig -2
+    len
+    intc_1 // 1
+    +
+    frame_dig -1
+    +
+    pushint 400
+    *
+    pushint 2500
+    +
+    retsub
+
+
+// smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding(programName: bytes, size: uint64) -> uint64:
+smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:108-109
+    // @abimethod({ readonly: true })
+    // programFunding(programName: string, size: uint64): uint64 {
+    proto 2 1
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:110
+    // const requested = this.programMbr(programName, size)
+    frame_dig -2
+    frame_dig -1
+    callsub smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:22
+    // programs = BoxMap<string, bytes>({ keyPrefix: GuildFactoryBoxPrefixPrograms })
+    bytec 4 // "p"
+    frame_dig -2
+    concat
+    dup
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:111
+    // if (!this.programs(programName).exists) {
+    box_len
+    bury 1
+    bnz smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding_after_if_else@2
+    pop
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:112
+    // return requested
+    retsub
+
+smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding_after_if_else@2:
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:114
+    // const current = this.programMbr(programName, this.programs(programName).length)
+    box_len
+    assert // Box must have value
+    frame_dig -2
+    swap
+    callsub smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programMbr
+    dup
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:115
+    // return requested > current ? requested - current : 0
+    dig 2
+    <
+    bz smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding_ternary_false@4
+    -
+    retsub
+
+smart_contracts/arc58/guilds/factory/registry.algo.ts::GuildProgramRegistry.programFunding_ternary_false@4:
+    popn 2
+    // smart_contracts/arc58/guilds/factory/registry.algo.ts:115
+    // return requested > current ? requested - current : 0
+    intc_0 // 0
+    retsub

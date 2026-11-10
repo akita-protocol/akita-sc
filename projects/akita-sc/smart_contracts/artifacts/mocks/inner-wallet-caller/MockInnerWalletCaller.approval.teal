@@ -1,0 +1,167 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 8 0 6
+    bytecblock 0x0000
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:14
+    // export class MockInnerWalletCaller extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@5
+    pushbytes 0x46deee3f // method "useGrant(uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match main_useGrant_route@3
+    err
+
+main_useGrant_route@3:
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:16
+    // useGrant(wallet: Application, payPlugin: Application, rekeyFee: uint64): void {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    b useGrant
+
+main___algots__.defaultCreate@5:
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:14
+    // export class MockInnerWalletCaller extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/inner-wallet-caller/contract.algo.ts::MockInnerWalletCaller.useGrant[routing]() -> void:
+useGrant:
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:16
+    // useGrant(wallet: Application, payPlugin: Application, rekeyFee: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    dup
+    btoi
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_0 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:17-21
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [payPlugin.id, CallerTypeOther, '', [], []],
+    //   fee: rekeyFee,
+    // })
+    itxn_begin
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:19
+    // args: [payPlugin.id, CallerTypeOther, '', [], []],
+    intc_1 // 0
+    itob
+    dig 4
+    itxn_field ApplicationID
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:17-21
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [payPlugin.id, CallerTypeOther, '', [], []],
+    //   fee: rekeyFee,
+    // })
+    pushbytes 0x5adf338f // method "arc58_rekeyToPlugin(uint64,uint64,string,uint64[],(uint64,uint64)[])void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    dup
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:19
+    // args: [payPlugin.id, CallerTypeOther, '', [], []],
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    bytec_0 // 0x0000
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:17-21
+    // itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+    //   appId: wallet,
+    //   args: [payPlugin.id, CallerTypeOther, '', [], []],
+    //   fee: rekeyFee,
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    swap
+    itxn_field Fee
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:22-25
+    // itxnCompose.next<typeof PayPlugin.prototype.pay>({
+    //   appId: payPlugin,
+    //   args: [wallet, true, [{ receiver: Global.currentApplicationAddress, asset: 0, amount: 0 }]],
+    // })
+    itxn_next
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:24
+    // args: [wallet, true, [{ receiver: Global.currentApplicationAddress, asset: 0, amount: 0 }]],
+    global CurrentApplicationAddress
+    dig 1
+    concat
+    swap
+    concat
+    pushbytes 0x0001
+    swap
+    concat
+    swap
+    itxn_field ApplicationID
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:22-25
+    // itxnCompose.next<typeof PayPlugin.prototype.pay>({
+    //   appId: payPlugin,
+    //   args: [wallet, true, [{ receiver: Global.currentApplicationAddress, asset: 0, amount: 0 }]],
+    // })
+    pushbytes 0xf9738492 // method "pay(uint64,bool,(address,uint64,uint64)[])void"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:24
+    // args: [wallet, true, [{ receiver: Global.currentApplicationAddress, asset: 0, amount: 0 }]],
+    pushbytes 0x80
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:22-25
+    // itxnCompose.next<typeof PayPlugin.prototype.pay>({
+    //   appId: payPlugin,
+    //   args: [wallet, true, [{ receiver: Global.currentApplicationAddress, asset: 0, amount: 0 }]],
+    // })
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:26-28
+    // itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({
+    //   appId: wallet,
+    // })
+    itxn_next
+    itxn_field ApplicationID
+    pushbytes 0x6cc3f606 // method "arc58_verifyAuthAddress()void"
+    itxn_field ApplicationArgs
+    intc_2 // appl
+    itxn_field TypeEnum
+    intc_1 // 0
+    itxn_field Fee
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:29
+    // itxnCompose.submit()
+    itxn_submit
+    // smart_contracts/mocks/inner-wallet-caller/contract.algo.ts:16
+    // useGrant(wallet: Application, payPlugin: Application, rekeyFee: uint64): void {
+    pushint 1
+    return

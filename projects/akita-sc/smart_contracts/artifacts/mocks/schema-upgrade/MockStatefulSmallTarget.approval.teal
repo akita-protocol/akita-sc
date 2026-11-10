@@ -1,0 +1,80 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    txn ApplicationID
+    bnz main_after_if_else@2
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:44
+    // counter = GlobalState<uint64>({ key: 'c', initialValue: 41 })
+    pushbytes "c"
+    pushint 41
+    app_global_put
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:45
+    // label = GlobalState<bytes>({ key: 'l', initialValue: Bytes('kept') })
+    pushbytess "l" "kept"
+    app_global_put
+
+main_after_if_else@2:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:42-43
+    // @contract({ stateTotals: { globalUints: 1, globalBytes: 1 } })
+    // export class MockStatefulSmallTarget extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@8
+    pushbytess 0xea9180dd 0x1d5c561b // method "update(string)void", method "ping()uint64"
+    txna ApplicationArgs 0
+    match main_update_route@5 main_ping_route@6
+    err
+
+main_ping_route@6:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:50
+    // ping(): uint64 {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    &&
+    assert
+    pushbytes 0x151f7c750000000000000001
+    log
+    pushint 1
+    return
+
+main_update_route@5:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:47
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txn OnCompletion
+    pushint 4 // UpdateApplication
+    ==
+    txn ApplicationID
+    &&
+    assert
+    b update
+
+main___algots__.defaultCreate@8:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:42-43
+    // @contract({ stateTotals: { globalUints: 1, globalBytes: 1 } })
+    // export class MockStatefulSmallTarget extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/mocks/schema-upgrade/contract.algo.ts::MockStatefulSmallTarget.update[routing]() -> void:
+update:
+    // smart_contracts/mocks/schema-upgrade/contract.algo.ts:47
+    // @abimethod({ allowActions: ['UpdateApplication'] })
+    txna ApplicationArgs 1
+    dup
+    pushint 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    pushint 1
+    return

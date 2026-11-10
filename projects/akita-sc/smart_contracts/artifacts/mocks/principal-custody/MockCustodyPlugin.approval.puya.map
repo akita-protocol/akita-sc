@@ -1,0 +1,1590 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/principal-custody/contract.algo.ts",
+    "../../../utils/functions.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;AAcA;;AAAA;;;AAAA;;AAAA;AAAA;AAAA;;AAAA;AAAA;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;AAAA;AAAA;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAIE;;;AAAA;;AAAA;AAAA;;AAAA;AAAA;AACiB;;AAAA;AACO;;AAAT;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AALK;AAML;AAAA;AAHF;AAAA;AAOA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;AAAA;AAAA;ACyWQ;AAFuB;AAAA;AAAA;ADrWL;AAZnB;AAYmB;AAAA;AAAX;AAAb;;;AAAA;;;;;;;;;;;;;AAAA;AAAA;AACO;AC4aF;AAAA;;AAAA;;;;;;;;AD5aE;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAHT;AAAA;AAAA;AAAA;AAAA;AAAA;AAYA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AC2V+B;;AAEvB;AAFuB;AAAA;ADzVtB;;;;;;AAAA;;;;;AAAA;;;AAAA;;;AAAA;AAAA;;AAAA;AAAA;;;AAAA;AAAA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;;;AAAA;AAAA;AAFT;AAAA;AAAA;AAAA;AAAA;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 8 1 0 6"
+    },
+    "7": {
+      "op": "bytecblock 0x151f7c75 \"held\" \"spending_address\" 0x32d90aaa"
+    },
+    "41": {
+      "op": "txn NumAppArgs",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "43": {
+      "op": "bz main___algots__.defaultCreate@10",
+      "stack_out": []
+    },
+    "46": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "48": {
+      "op": "!",
+      "defined_out": [
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "tmp%3#0"
+      ]
+    },
+    "49": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "50": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "52": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "53": {
+      "op": "pushbytess 0xf4700661 0x915c692f 0x84a6e920 // method \"init(address)void\", method \"act(uint64,uint64,uint64)(uint64,address,address,address,address,bool)\", method \"actUnsafe(uint64,uint64,uint64)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(act(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(actUnsafe(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(init(address)void)"
+      ],
+      "stack_out": [
+        "Method(init(address)void)",
+        "Method(act(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(actUnsafe(uint64,uint64,uint64)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "70": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(act(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(actUnsafe(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(init(address)void)",
+        "tmp%6#0"
+      ],
+      "stack_out": [
+        "Method(init(address)void)",
+        "Method(act(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "Method(actUnsafe(uint64,uint64,uint64)(uint64,address,address,address,address,bool))",
+        "tmp%6#0"
+      ]
+    },
+    "73": {
+      "op": "match init act actUnsafe",
+      "stack_out": []
+    },
+    "81": {
+      "op": "err"
+    },
+    "82": {
+      "block": "main___algots__.defaultCreate@10",
+      "stack_in": [],
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "84": {
+      "op": "!",
+      "defined_out": [
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0"
+      ]
+    },
+    "85": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%9#0"
+      ]
+    },
+    "87": {
+      "op": "!",
+      "defined_out": [
+        "tmp%10#0",
+        "tmp%8#0"
+      ],
+      "stack_out": [
+        "tmp%8#0",
+        "tmp%10#0"
+      ]
+    },
+    "88": {
+      "op": "&&",
+      "defined_out": [
+        "tmp%11#0"
+      ],
+      "stack_out": [
+        "tmp%11#0"
+      ]
+    },
+    "89": {
+      "op": "return",
+      "defined_out": [],
+      "stack_out": []
+    },
+    "90": {
+      "subroutine": "smart_contracts/mocks/principal-custody/contract.algo.ts::MockCustodyPlugin.init[routing]",
+      "params": {},
+      "block": "init",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1"
+    },
+    "93": {
+      "op": "dupn 2",
+      "defined_out": [
+        "held#0",
+        "held#0 (copy)"
+      ],
+      "stack_out": [
+        "held#0",
+        "held#0",
+        "held#0 (copy)"
+      ]
+    },
+    "95": {
+      "op": "len",
+      "defined_out": [
+        "held#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "held#0",
+        "held#0",
+        "len%0#0"
+      ]
+    },
+    "96": {
+      "op": "pushint 32",
+      "defined_out": [
+        "32",
+        "held#0",
+        "len%0#0"
+      ],
+      "stack_out": [
+        "held#0",
+        "held#0",
+        "len%0#0",
+        "32"
+      ]
+    },
+    "98": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "held#0"
+      ],
+      "stack_out": [
+        "held#0",
+        "held#0",
+        "eq%0#0"
+      ]
+    },
+    "99": {
+      "error": "invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "op": "assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>",
+      "stack_out": [
+        "held#0",
+        "held#0"
+      ]
+    },
+    "100": {
+      "op": "acct_params_get AcctAuthAddr",
+      "defined_out": [
+        "auth#0",
+        "awst_tmp%1#0",
+        "held#0"
+      ],
+      "stack_out": [
+        "held#0",
+        "auth#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "102": {
+      "op": "pop",
+      "stack_out": [
+        "held#0",
+        "auth#0"
+      ]
+    },
+    "103": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "auth#0",
+        "held#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "held#0",
+        "auth#0",
+        "tmp%0#1"
+      ]
+    },
+    "105": {
+      "op": "==",
+      "defined_out": [
+        "held#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "held#0",
+        "tmp%1#1"
+      ]
+    },
+    "106": {
+      "op": "bnz init_after_assert@3",
+      "stack_out": [
+        "held#0"
+      ]
+    },
+    "109": {
+      "op": "pushbytes \"ERR:errCsnh\"",
+      "defined_out": [
+        "\"ERR:errCsnh\"",
+        "held#0"
+      ],
+      "stack_out": [
+        "held#0",
+        "\"ERR:errCsnh\""
+      ]
+    },
+    "122": {
+      "op": "log",
+      "stack_out": [
+        "held#0"
+      ]
+    },
+    "123": {
+      "error": "ERR:errCsnh",
+      "op": "err // ERR:errCsnh"
+    },
+    "124": {
+      "block": "init_after_assert@3",
+      "stack_in": [
+        "held#0"
+      ],
+      "op": "bytec_1 // \"held\"",
+      "defined_out": [
+        "\"held\""
+      ],
+      "stack_out": [
+        "held#0",
+        "\"held\""
+      ]
+    },
+    "125": {
+      "op": "swap",
+      "defined_out": [
+        "\"held\"",
+        "held#0"
+      ],
+      "stack_out": [
+        "\"held\"",
+        "held#0"
+      ]
+    },
+    "126": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "127": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "128": {
+      "op": "return",
+      "stack_out": []
+    },
+    "129": {
+      "subroutine": "smart_contracts/mocks/principal-custody/contract.algo.ts::MockCustodyPlugin.act[routing]",
+      "params": {},
+      "block": "act",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "132": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "133": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "134": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "135": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "136": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "137": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "138": {
+      "op": "dup",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "139": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "142": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "143": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "144": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "145": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "146": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "147": {
+      "op": "btoi",
+      "defined_out": [
+        "probe#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "wallet#0",
+        "probe#0"
+      ]
+    },
+    "148": {
+      "op": "cover 2",
+      "defined_out": [
+        "probe#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "150": {
+      "op": "txna ApplicationArgs 3"
+    },
+    "153": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%4#0",
+        "tmp%4#0"
+      ]
+    },
+    "154": {
+      "op": "cover 3",
+      "defined_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0",
+        "tmp%4#0"
+      ]
+    },
+    "156": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0",
+        "len%2#0"
+      ]
+    },
+    "157": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "158": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0",
+        "eq%2#0"
+      ]
+    },
+    "159": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0"
+      ]
+    },
+    "160": {
+      "op": "bytec_2 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "wallet#0",
+        "\"spending_address\""
+      ]
+    },
+    "161": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "162": {
+      "op": "pop",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "163": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "164": {
+      "op": "intc_2 // 0",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0",
+        "0"
+      ]
+    },
+    "165": {
+      "op": "bytec_1 // \"held\"",
+      "defined_out": [
+        "\"held\"",
+        "0",
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0",
+        "0",
+        "\"held\""
+      ]
+    },
+    "166": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "maybe_exists%0#0",
+        "maybe_value%0#0",
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0",
+        "maybe_value%0#0",
+        "maybe_exists%0#0"
+      ]
+    },
+    "167": {
+      "error": "check GlobalState exists",
+      "op": "assert // check GlobalState exists",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "spendingAddressBytes#0",
+        "maybe_value%0#0"
+      ]
+    },
+    "168": {
+      "op": "!=",
+      "defined_out": [
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%1#1",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "tmp%1#1"
+      ]
+    },
+    "169": {
+      "op": "bnz act_after_assert@3",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "172": {
+      "op": "pushbytes \"ERR:errCsgd\"",
+      "defined_out": [
+        "\"ERR:errCsgd\"",
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0",
+        "\"ERR:errCsgd\""
+      ]
+    },
+    "185": {
+      "op": "log",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "186": {
+      "error": "ERR:errCsgd",
+      "op": "err // ERR:errCsgd"
+    },
+    "187": {
+      "block": "act_after_assert@3",
+      "stack_in": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "spendingAddressBytes#0"
+      ],
+      "op": "itxn_begin"
+    },
+    "188": {
+      "op": "swap",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0",
+        "wallet#0"
+      ]
+    },
+    "189": {
+      "op": "app_params_get AppAddress",
+      "defined_out": [
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "191": {
+      "error": "application exists",
+      "op": "assert // application exists",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0",
+        "value%0#0"
+      ]
+    },
+    "192": {
+      "op": "itxn_field RekeyTo",
+      "defined_out": [
+        "spendingAddressBytes#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "194": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0"
+      ]
+    },
+    "196": {
+      "op": "swap",
+      "defined_out": [
+        "probe#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "probe#0"
+      ]
+    },
+    "197": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "199": {
+      "op": "bytec_3 // method \"probe(uint64)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "200": {
+      "op": "itxn_field ApplicationArgs",
+      "defined_out": [
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "202": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "204": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "205": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "207": {
+      "op": "intc_2 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "208": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "210": {
+      "op": "itxn_submit"
+    },
+    "211": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "213": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "214": {
+      "op": "extract 4 0",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%3#1"
+      ]
+    },
+    "217": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%3#1",
+        "awst_tmp%0#0"
+      ]
+    },
+    "218": {
+      "op": "extract 0 4",
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%4#0"
+      ]
+    },
+    "221": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%3#1",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%4#0",
+        "0x151f7c75"
+      ]
+    },
+    "222": {
+      "op": "==",
+      "defined_out": [
+        "tmp%3#1",
+        "tmp%5#1"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%5#1"
+      ]
+    },
+    "223": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%3#1"
+      ]
+    },
+    "224": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%3#1",
+        "tmp%3#1 (copy)"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "tmp%3#1 (copy)"
+      ]
+    },
+    "225": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "len%0#0"
+      ]
+    },
+    "226": {
+      "op": "pushint 137",
+      "defined_out": [
+        "137",
+        "len%0#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "len%0#0",
+        "137"
+      ]
+    },
+    "229": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%3#1",
+        "eq%0#0"
+      ]
+    },
+    "230": {
+      "error": "invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "op": "assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "stack_out": [
+        "tmp%3#1"
+      ]
+    },
+    "231": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%3#1",
+        "0x151f7c75"
+      ]
+    },
+    "232": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%3#1"
+      ]
+    },
+    "233": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "234": {
+      "op": "log",
+      "stack_out": []
+    },
+    "235": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "236": {
+      "op": "return",
+      "stack_out": []
+    },
+    "237": {
+      "subroutine": "smart_contracts/mocks/principal-custody/contract.algo.ts::MockCustodyPlugin.actUnsafe[routing]",
+      "params": {},
+      "block": "actUnsafe",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "240": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "241": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "242": {
+      "op": "intc_0 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "243": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "244": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "245": {
+      "op": "btoi",
+      "defined_out": [
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0"
+      ]
+    },
+    "246": {
+      "op": "txna ApplicationArgs 2",
+      "defined_out": [
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "249": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "250": {
+      "op": "len",
+      "defined_out": [
+        "len%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0"
+      ]
+    },
+    "251": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "len%1#0",
+        "8"
+      ]
+    },
+    "252": {
+      "op": "==",
+      "defined_out": [
+        "eq%1#0",
+        "tmp%2#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0",
+        "eq%1#0"
+      ]
+    },
+    "253": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "wallet#0",
+        "tmp%2#0"
+      ]
+    },
+    "254": {
+      "op": "btoi",
+      "defined_out": [
+        "probe#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "probe#0"
+      ]
+    },
+    "255": {
+      "op": "txna ApplicationArgs 3",
+      "defined_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0"
+      ]
+    },
+    "258": {
+      "op": "dup",
+      "defined_out": [
+        "probe#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0",
+        "tmp%4#0 (copy)"
+      ]
+    },
+    "259": {
+      "op": "len",
+      "defined_out": [
+        "len%2#0",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0",
+        "len%2#0"
+      ]
+    },
+    "260": {
+      "op": "intc_0 // 8",
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0",
+        "len%2#0",
+        "8"
+      ]
+    },
+    "261": {
+      "op": "==",
+      "defined_out": [
+        "eq%2#0",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0",
+        "eq%2#0"
+      ]
+    },
+    "262": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "wallet#0",
+        "probe#0",
+        "tmp%4#0"
+      ]
+    },
+    "263": {
+      "op": "uncover 2",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ]
+    },
+    "265": {
+      "op": "bytec_2 // \"spending_address\"",
+      "defined_out": [
+        "\"spending_address\"",
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "wallet#0",
+        "\"spending_address\""
+      ]
+    },
+    "266": {
+      "op": "app_global_get_ex",
+      "defined_out": [
+        "awst_tmp%1#0",
+        "probe#0",
+        "spendingAddressBytes#0",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0",
+        "awst_tmp%1#0"
+      ]
+    },
+    "267": {
+      "op": "pop",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0",
+        "spendingAddressBytes#0"
+      ]
+    },
+    "268": {
+      "op": "itxn_begin"
+    },
+    "269": {
+      "op": "itxn_field Sender",
+      "stack_out": [
+        "probe#0",
+        "tmp%4#0"
+      ]
+    },
+    "271": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%4#0",
+        "probe#0"
+      ]
+    },
+    "272": {
+      "op": "itxn_field ApplicationID",
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "274": {
+      "op": "bytec_3 // method \"probe(uint64)(uint64,address,address,address,address,bool)\"",
+      "defined_out": [
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "tmp%4#0",
+        "Method(probe(uint64)(uint64,address,address,address,address,bool))"
+      ]
+    },
+    "275": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": [
+        "tmp%4#0"
+      ]
+    },
+    "277": {
+      "op": "itxn_field ApplicationArgs",
+      "stack_out": []
+    },
+    "279": {
+      "op": "intc_3 // appl",
+      "defined_out": [
+        "appl"
+      ],
+      "stack_out": [
+        "appl"
+      ]
+    },
+    "280": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "282": {
+      "op": "intc_2 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "283": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "285": {
+      "op": "itxn_submit"
+    },
+    "286": {
+      "op": "itxn LastLog",
+      "defined_out": [
+        "awst_tmp%0#0"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0"
+      ]
+    },
+    "288": {
+      "op": "dup",
+      "defined_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "awst_tmp%0#0",
+        "awst_tmp%0#0 (copy)"
+      ]
+    },
+    "289": {
+      "op": "extract 4 0",
+      "stack_out": [
+        "awst_tmp%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "292": {
+      "op": "swap",
+      "stack_out": [
+        "tmp%2#0",
+        "awst_tmp%0#0"
+      ]
+    },
+    "293": {
+      "op": "extract 0 4",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#1"
+      ]
+    },
+    "296": {
+      "op": "bytec_0 // 0x151f7c75",
+      "defined_out": [
+        "0x151f7c75",
+        "tmp%2#0",
+        "tmp%3#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%3#1",
+        "0x151f7c75"
+      ]
+    },
+    "297": {
+      "op": "==",
+      "defined_out": [
+        "tmp%2#0",
+        "tmp%4#1"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%4#1"
+      ]
+    },
+    "298": {
+      "error": "Bytes has valid prefix",
+      "op": "assert // Bytes has valid prefix",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "299": {
+      "op": "dup",
+      "stack_out": [
+        "tmp%2#0",
+        "tmp%2#0 (copy)"
+      ]
+    },
+    "300": {
+      "op": "len",
+      "stack_out": [
+        "tmp%2#0",
+        "len%0#0"
+      ]
+    },
+    "301": {
+      "op": "pushint 137",
+      "defined_out": [
+        "137",
+        "len%0#0",
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0",
+        "len%0#0",
+        "137"
+      ]
+    },
+    "304": {
+      "op": "==",
+      "stack_out": [
+        "tmp%2#0",
+        "eq%0#0"
+      ]
+    },
+    "305": {
+      "error": "invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "op": "assert // invalid number of bytes for smart_contracts/utils/principal.ts::Principal",
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "306": {
+      "op": "bytec_0 // 0x151f7c75",
+      "stack_out": [
+        "tmp%2#0",
+        "0x151f7c75"
+      ]
+    },
+    "307": {
+      "op": "swap",
+      "stack_out": [
+        "0x151f7c75",
+        "tmp%2#0"
+      ]
+    },
+    "308": {
+      "op": "concat",
+      "defined_out": [
+        "tmp%7#0"
+      ],
+      "stack_out": [
+        "tmp%7#0"
+      ]
+    },
+    "309": {
+      "op": "log",
+      "stack_out": []
+    },
+    "310": {
+      "op": "intc_1 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "311": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

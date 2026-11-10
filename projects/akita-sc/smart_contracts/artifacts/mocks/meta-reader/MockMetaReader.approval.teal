@@ -1,0 +1,1469 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 2 1 50000
+    bytecblock 0x151f7c75 "m" 0x80 ""
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:9-10
+    // @contract({ avmVersion: 13 })
+    // export class MockMetaReader extends Contract {
+    txn NumAppArgs
+    bz main___algots__.defaultCreate@20
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    assert
+    pushbytess 0x0c3d4dfa 0x786573ce 0x8b42670a 0x56967247 0x3626322e 0xbdbf7f5e 0x5e63982f 0xf2768da9 0xc6dbd60c 0xc6e7c50d 0xc4b6af0f 0xc8e8d188 0xba100773 // method "read(uint64,address,byte[])(bool,uint64,byte[])", method "info(uint64,address,byte[])(bool,uint64,uint64)", method "slice(uint64,address,byte[],uint64,uint64,uint64)byte[]", method "readViaCall(uint64,address,byte[])(bool,uint64,byte[])", method "setOwned(uint64,byte[],byte[],uint64)uint64", method "setOwnedParts(uint64,byte[],byte[],byte[],byte[],byte[],uint64)uint64", method "removeOwned(uint64,byte[],uint64)uint64", method "verify(uint64,address,string,byte[32],byte[32][],uint64)bool", method "verifiedRead(uint64,address,string,byte[32],byte[32][],uint64,string)string", method "royalty(uint64,uint64,string,byte[32][])uint64", method "permissions(uint64)(bool,bool)", method "write(uint64,byte[],byte[])void", method "remove(uint64,byte[])bool"
+    txna ApplicationArgs 0
+    match read info slice readViaCall setOwned setOwnedParts removeOwned verify verifiedRead royalty permissions write remove
+    err
+
+main___algots__.defaultCreate@20:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:9-10
+    // @contract({ avmVersion: 13 })
+    // export class MockMetaReader extends Contract {
+    txn OnCompletion
+    !
+    txn ApplicationID
+    !
+    &&
+    return
+
+
+// smart_contracts/meta/functions.ts::metaRecordKey(account: bytes, key: bytes) -> bytes:
+metaRecordKey:
+    // smart_contracts/meta/functions.ts:10
+    // export function metaRecordKey(account: Account, key: bytes): bytes {
+    proto 2 1
+    // smart_contracts/meta/functions.ts:11
+    // loggedAssert(key.length > 0 && key.length <= MaxRecordKeyBytes, errInvalidKey)
+    frame_dig -1
+    len
+    dup
+    bz metaRecordKey_bool_false@3
+    frame_dig 0
+    pushint 31
+    <=
+    bz metaRecordKey_bool_false@3
+    intc_3 // 1
+
+metaRecordKey_bool_merge@4:
+    // smart_contracts/meta/functions.ts:11
+    // loggedAssert(key.length > 0 && key.length <= MaxRecordKeyBytes, errInvalidKey)
+    bnz metaRecordKey_after_assert@6
+    pushbytes "ERR:errMkey"
+    log
+    err // ERR:errMkey
+
+metaRecordKey_after_assert@6:
+    // smart_contracts/meta/functions.ts:12
+    // return account.bytes.concat(key)
+    frame_dig -2
+    frame_dig -1
+    concat
+    swap
+    retsub
+
+metaRecordKey_bool_false@3:
+    intc_0 // 0
+    b metaRecordKey_bool_merge@4
+
+
+// smart_contracts/meta/functions.ts::readMetaRecordInfo(registry: uint64, account: bytes, key: bytes) -> bytes:
+readMetaRecordInfo:
+    // smart_contracts/meta/functions.ts:16
+    // export function readMetaRecordInfo(registry: Application, account: Account, key: bytes): MetaRecordInfo {
+    proto 3 1
+    // smart_contracts/meta/functions.ts:17
+    // const id = metaRecordKey(account, key)
+    frame_dig -2
+    frame_dig -1
+    callsub metaRecordKey
+    // smart_contracts/meta/functions.ts:18
+    // const name = Bytes(RecordPrefix).concat(id)
+    bytec_1 // "m"
+    swap
+    concat
+    dup
+    // smart_contracts/meta/functions.ts:19
+    // const [length, exists] = op.AppBox.length(registry, name)
+    frame_dig -3
+    swap
+    app_box_len
+    // smart_contracts/meta/functions.ts:20
+    // if (!exists) return { exists: false, revision: 0, size: 0 }
+    bnz readMetaRecordInfo_after_if_else@2
+    pushbytes 0x0000000000000000000000000000000000
+    frame_bury 0
+    retsub
+
+readMetaRecordInfo_after_if_else@2:
+    // smart_contracts/meta/functions.ts:21
+    // return { exists: true, revision: decodeArc4<uint64>(op.AppBox.extract(registry, name, 0, 8)), size: length - RecordHeaderBytes }
+    frame_dig -3
+    uncover 2
+    intc_0 // 0
+    intc_1 // 8
+    app_box_extract
+    btoi
+    swap
+    pushint 12
+    -
+    swap
+    itob
+    bytec_2 // 0x80
+    swap
+    concat
+    swap
+    itob
+    concat
+    retsub
+
+
+// smart_contracts/meta/functions.ts::setMetaRecordParts(registry: uint64, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64) -> uint64:
+setMetaRecordParts:
+    // smart_contracts/meta/functions.ts:58-60
+    // export function setMetaRecordParts(
+    //   registry: Application, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64,
+    // ): uint64 {
+    proto 7 1
+    // smart_contracts/meta/functions.ts:61
+    // const size: uint64 = data0.length + data1.length + data2.length + data3.length
+    frame_dig -5
+    len
+    frame_dig -4
+    len
+    dup2
+    +
+    frame_dig -3
+    len
+    swap
+    dig 1
+    +
+    frame_dig -2
+    len
+    swap
+    dig 1
+    +
+    // smart_contracts/meta/functions.ts:62-64
+    // const cost = abiCall<typeof Meta.prototype.recordCost>({
+    //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/meta/functions.ts:63
+    // appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
+    global CurrentApplicationAddress
+    frame_dig -6
+    len
+    itob
+    extract 6 2
+    frame_dig -6
+    concat
+    uncover 2
+    itob
+    frame_dig -7
+    itxn_field ApplicationID
+    // smart_contracts/meta/functions.ts:62-64
+    // const cost = abiCall<typeof Meta.prototype.recordCost>({
+    //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
+    // }).returnValue
+    pushbytes 0xd0b62802 // method "recordCost(address,byte[],uint64)uint64"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    dig 1
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/meta/functions.ts:63
+    // appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/meta/functions.ts:62-64
+    // const cost = abiCall<typeof Meta.prototype.recordCost>({
+    //   appId: registry, args: [Global.currentApplicationAddress, key, size], fee: 0,
+    // }).returnValue
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    // smart_contracts/meta/functions.ts:65-69
+    // return abiCall<typeof Meta.prototype.setRecord>({
+    //   appId: registry,
+    //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    //   fee: 0,
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/meta/functions.ts:67
+    // args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    frame_dig -7
+    app_params_get AppAddress
+    assert // application exists
+    itxn_field Receiver
+    itxn_field Amount
+    intc_3 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/meta/functions.ts:65-69
+    // return abiCall<typeof Meta.prototype.setRecord>({
+    //   appId: registry,
+    //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    //   fee: 0,
+    // }).returnValue
+    itxn_next
+    // smart_contracts/meta/functions.ts:67
+    // args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    uncover 4
+    itob
+    extract 6 2
+    frame_dig -5
+    concat
+    uncover 4
+    itob
+    extract 6 2
+    frame_dig -4
+    concat
+    uncover 4
+    itob
+    extract 6 2
+    frame_dig -3
+    concat
+    uncover 4
+    itob
+    extract 6 2
+    frame_dig -2
+    concat
+    frame_dig -1
+    itob
+    frame_dig -7
+    itxn_field ApplicationID
+    // smart_contracts/meta/functions.ts:65-69
+    // return abiCall<typeof Meta.prototype.setRecord>({
+    //   appId: registry,
+    //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    //   fee: 0,
+    // }).returnValue
+    pushbytes 0xb1e6d4fb // method "setRecord(pay,byte[],byte[],byte[],byte[],byte[],uint64)uint64"
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    // smart_contracts/meta/functions.ts:68
+    // fee: 0,
+    intc_0 // 0
+    itxn_field Fee
+    // smart_contracts/meta/functions.ts:65-69
+    // return abiCall<typeof Meta.prototype.setRecord>({
+    //   appId: registry,
+    //   args: [itxn.payment({ receiver: registry.address, amount: cost, fee: 0 }), key, data0, data1, data2, data3, expectedRevision],
+    //   fee: 0,
+    // }).returnValue
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    btoi
+    retsub
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.read[routing]() -> void:
+read:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:11
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    cover 3
+    // smart_contracts/meta/functions.ts:38
+    // const info = readMetaRecordInfo(registry, account, key)
+    callsub readMetaRecordInfo
+    dup
+    // smart_contracts/meta/functions.ts:39
+    // if (!info.exists) return { exists: false, revision: 0, data: Bytes('') }
+    intc_0 // 0
+    getbit
+    bnz read_after_if_else@3
+    popn 4
+    pushbytes 0x000000000000000000000b0000
+
+read_after_inlined_smart_contracts/meta/functions.ts::readMetaRecord@6:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:11
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+read_after_if_else@3:
+    // smart_contracts/meta/functions.ts:40
+    // loggedAssert(info.size <= MaxInlineRecordBytes, errRecordRequiresSlice)
+    pushint 9
+    extract_uint64
+    pushint 1024
+    <=
+    bnz read_after_assert@5
+    pushbytes "ERR:errMrsl"
+    log
+    err // ERR:errMrsl
+
+read_after_assert@5:
+    // smart_contracts/meta/functions.ts:41
+    // const [value] = op.AppBox.get(registry, Bytes(RecordPrefix).concat(metaRecordKey(account, key)))
+    callsub metaRecordKey
+    bytec_1 // "m"
+    swap
+    concat
+    app_box_get
+    pop
+    // smart_contracts/meta/functions.ts:43
+    // return { exists: true, revision: record.revision, data: record.data }
+    dup
+    extract 0 8
+    dig 1
+    intc_1 // 8
+    extract_uint16
+    dig 2
+    len
+    uncover 3
+    cover 2
+    substring3
+    extract 2 0
+    bytec_2 // 0x80
+    uncover 2
+    concat
+    dig 1
+    len
+    itob
+    extract 6 2
+    uncover 2
+    concat
+    swap
+    pushbytes 0x000b
+    concat
+    swap
+    concat
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:13
+    // return readMetaRecord(registry, account, key)
+    b read_after_inlined_smart_contracts/meta/functions.ts::readMetaRecord@6
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.info[routing]() -> void:
+info:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:16
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:18
+    // return readMetaRecordInfo(registry, account, key)
+    callsub readMetaRecordInfo
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:16
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.slice[routing]() -> void:
+slice:
+    bytec_3 // ""
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:21
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 2
+    dup
+    cover 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    cover 3
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 3
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 4
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 3
+    // smart_contracts/meta/functions.ts:29
+    // const info = readMetaRecordInfo(registry, account, key)
+    callsub readMetaRecordInfo
+    dup
+    cover 7
+    // smart_contracts/meta/functions.ts:30
+    // loggedAssert(info.exists, errRecordNotFound)
+    intc_0 // 0
+    getbit
+    bnz slice_after_assert@3
+    pushbytes "ERR:errMrnf"
+    log
+    err // ERR:errMrnf
+
+slice_after_assert@3:
+    // smart_contracts/meta/functions.ts:31
+    // loggedAssert(info.revision === expectedRevision, errRecordRevisionMismatch)
+    dig 6
+    intc_3 // 1
+    extract_uint64
+    ==
+    bnz slice_after_assert@5
+    pushbytes "ERR:errMrev"
+    log
+    err // ERR:errMrev
+
+slice_after_assert@5:
+    // smart_contracts/meta/functions.ts:32
+    // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
+    dig 1
+    pushint 1024
+    <=
+    bz slice_bool_false@9
+    dig 5
+    pushint 9
+    extract_uint64
+    dup
+    bury 8
+    dig 1
+    >=
+    bz slice_bool_false@9
+    dig 6
+    dig 1
+    -
+    dig 2
+    >=
+    bz slice_bool_false@9
+    intc_3 // 1
+
+slice_bool_merge@10:
+    // smart_contracts/meta/functions.ts:32
+    // loggedAssert(length <= MaxRecordChunkBytes && offset <= info.size && length <= info.size - offset, errRecordRange)
+    bnz slice_after_assert@12
+    pushbytes "ERR:errMrng"
+    log
+    err // ERR:errMrng
+
+slice_after_assert@12:
+    // smart_contracts/meta/functions.ts:33
+    // return op.AppBox.extract(registry, Bytes(RecordPrefix).concat(metaRecordKey(account, key)), RecordHeaderBytes + offset, length)
+    uncover 3
+    uncover 3
+    callsub metaRecordKey
+    bytec_1 // "m"
+    swap
+    concat
+    pushint 12
+    uncover 2
+    +
+    uncover 3
+    cover 2
+    uncover 3
+    app_box_extract
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:21
+    // @abimethod({ readonly: true })
+    dup
+    len
+    itob
+    extract 6 2
+    swap
+    concat
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+slice_bool_false@9:
+    intc_0 // 0
+    b slice_bool_merge@10
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.readViaCall[routing]() -> void:
+readViaCall:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:33
+    // public readViaCall(registry: Application, account: Account, key: bytes): MetaRecordRead {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/meta/functions.ts:48
+    // return abiCall<typeof Meta.prototype.readRecord>({ appId: registry, args: [account, key], fee: 0 }).returnValue
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x501d3eb2 // method "readRecord(address,byte[])(bool,uint64,byte[])"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    dig 1
+    pushint 9
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 11
+    ==
+    assert // invalid tail pointer at index 2 of (bool1,uint64,(len+uint8[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 13
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/meta/types.ts::MetaRecordRead
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:33
+    // public readViaCall(registry: Application, account: Account, key: bytes): MetaRecordRead {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.setOwned[routing]() -> void:
+setOwned:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:38
+    // public setOwned(registry: Application, key: bytes, data: bytes, expectedRevision: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    dup
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    cover 2
+    // smart_contracts/meta/functions.ts:53
+    // const first: uint64 = data.length < MaxRecordPartBytes ? data.length : MaxRecordPartBytes
+    len
+    dup
+    pushint 4094
+    <
+    bz setOwned_ternary_false@3
+    dup
+
+setOwned_ternary_merge@4:
+    // smart_contracts/meta/functions.ts:54
+    // return setMetaRecordParts(registry, key, data.slice(0, first), data.slice(first), Bytes(''), Bytes(''), expectedRevision)
+    intc_0 // 0
+    uncover 2
+    dup
+    cover 2
+    >=
+    intc_0 // 0
+    dig 2
+    uncover 2
+    select
+    uncover 2
+    dup
+    dig 3
+    >=
+    dig 3
+    swap
+    select
+    uncover 3
+    dup
+    cover 2
+    uncover 3
+    dig 2
+    substring3
+    cover 2
+    uncover 3
+    substring3
+    uncover 4
+    uncover 4
+    uncover 3
+    uncover 3
+    bytec_3 // ""
+    dup
+    uncover 6
+    callsub setMetaRecordParts
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:38
+    // public setOwned(registry: Application, key: bytes, data: bytes, expectedRevision: uint64): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+setOwned_ternary_false@3:
+    // smart_contracts/meta/functions.ts:53
+    // const first: uint64 = data.length < MaxRecordPartBytes ? data.length : MaxRecordPartBytes
+    pushint 4094
+    b setOwned_ternary_merge@4
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.setOwnedParts[routing]() -> void:
+setOwnedParts:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:42
+    // public setOwnedParts(registry: Application, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 4
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 6
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 7
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:43
+    // return setMetaRecordParts(registry, key, data0, data1, data2, data3, expectedRevision)
+    callsub setMetaRecordParts
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:42
+    // public setOwnedParts(registry: Application, key: bytes, data0: bytes, data1: bytes, data2: bytes, data3: bytes, expectedRevision: uint64): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.removeOwned[routing]() -> void:
+removeOwned:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:46
+    // public removeOwned(registry: Application, key: bytes, expectedRevision: uint64): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/meta/functions.ts:74
+    // return abiCall<typeof Meta.prototype.removeRecord>({ appId: registry, args: [key, expectedRevision], fee: 0 }).returnValue
+    itxn_begin
+    uncover 2
+    itxn_field ApplicationID
+    pushbytes 0x17d3d05b // method "removeRecord(byte[],uint64)uint64"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for uint64
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:46
+    // public removeOwned(registry: Application, key: bytes, expectedRevision: uint64): uint64 {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.verify[routing]() -> void:
+verify:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:50
+    // public verify(registry: Application, address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/meta/functions.ts:79
+    // return abiCall<typeof Meta.prototype.verify>({ appId: registry, args: [address, name, leaf, proof, type], fee: 0 }).returnValue
+    itxn_begin
+    uncover 5
+    itxn_field ApplicationID
+    pushbytes 0x2bf3cc5a // method "verify(address,string,byte[32],byte[32][],uint64)bool"
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    len
+    intc_3 // 1
+    ==
+    assert // invalid number of bytes for bool
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:50
+    // public verify(registry: Application, address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64): boolean {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.verifiedRead[routing]() -> void:
+verifiedRead:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:54
+    // public verifiedRead(registry: Application, address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 7
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    // smart_contracts/meta/functions.ts:84
+    // return abiCall<typeof Meta.prototype.verifiedRead>({ appId: registry, args: [address, name, leaf, proof, type, key], fee: 0 }).returnValue
+    itxn_begin
+    uncover 6
+    itxn_field ApplicationID
+    pushbytes 0x0cf1b9cf // method "verifiedRead(address,string,byte[32],byte[32][],uint64,string)string"
+    itxn_field ApplicationArgs
+    uncover 5
+    itxn_field ApplicationArgs
+    uncover 4
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    swap
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for string
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:54
+    // public verifiedRead(registry: Application, address: Account, name: string, leaf: Leaf, proof: Proof, type: uint64, key: string): string {
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.royalty[routing]() -> void:
+royalty:
+    intc_0 // 0
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:58
+    // public royalty(akitaDAO: Application, asset: Asset, name: string, proof: Proof): uint64 {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 3
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    dup
+    cover 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    pushint 32
+    *
+    intc_2 // 2
+    +
+    uncover 2
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<bytes[32]>
+    // smart_contracts/utils/functions.ts:545
+    // let creatorRoyalty: uint64 = 0
+    intc_0 // 0
+    cover 5
+    // smart_contracts/utils/functions.ts:547
+    // if (!(proof.length > 0)) {
+    bnz royalty_after_if_else@3
+    popn 4
+    // smart_contracts/utils/functions.ts:548
+    // return CreatorRoyaltyDefault
+    pushint 5000
+
+royalty_after_inlined_smart_contracts/utils/functions.ts::royalties@8:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:58
+    // public royalty(akitaDAO: Application, asset: Asset, name: string, proof: Proof): uint64 {
+    itob
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+royalty_after_if_else@3:
+    // smart_contracts/utils/functions.ts:553-563
+    // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
+    //   appId: getAkitaAppList(akitaDAO).metaMerkles,
+    //   args: [
+    //     asset.creator,
+    //     name,
+    //     sha256(sha256(itob(asset.id))),
+    //     proof,
+    //     1,
+    //     'royalty',
+    //   ]
+    // }).returnValue
+    itxn_begin
+    // smart_contracts/utils/functions.ts:556
+    // asset.creator,
+    dup
+    asset_params_get AssetCreator
+    assert // asset exists
+    // smart_contracts/utils/functions.ts:558
+    // sha256(sha256(itob(asset.id))),
+    swap
+    itob
+    sha256
+    sha256
+    // smart_contracts/utils/functions.ts:560
+    // 1,
+    intc_3 // 1
+    itob
+    // smart_contracts/utils/functions.ts:112
+    // const [appListBytes] = op.AppGlobal.getExBytes(akitaDAO, Bytes(AkitaDAOGlobalStateKeysAkitaAppList))
+    uncover 5
+    pushbytes "aal"
+    app_global_get_ex
+    pop
+    // smart_contracts/utils/functions.ts:554
+    // appId: getAkitaAppList(akitaDAO).metaMerkles,
+    pushint 72
+    extract_uint64
+    itxn_field ApplicationID
+    // smart_contracts/utils/functions.ts:553-563
+    // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
+    //   appId: getAkitaAppList(akitaDAO).metaMerkles,
+    //   args: [
+    //     asset.creator,
+    //     name,
+    //     sha256(sha256(itob(asset.id))),
+    //     proof,
+    //     1,
+    //     'royalty',
+    //   ]
+    // }).returnValue
+    pushbytes 0x1ff7c74c // method "verifiedMustRead(address,string,byte[32],byte[32][],uint64,string)string"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/functions.ts:561
+    // 'royalty',
+    pushbytes 0x0007726f79616c7479
+    itxn_field ApplicationArgs
+    // smart_contracts/utils/functions.ts:553-563
+    // const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
+    //   appId: getAkitaAppList(akitaDAO).metaMerkles,
+    //   args: [
+    //     asset.creator,
+    //     name,
+    //     sha256(sha256(itob(asset.id))),
+    //     proof,
+    //     1,
+    //     'royalty',
+    //   ]
+    // }).returnValue
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    itxn LastLog
+    dup
+    extract 4 0
+    dig 1
+    extract 0 4
+    bytec_0 // 0x151f7c75
+    ==
+    assert // Bytes has valid prefix
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for string
+    extract 6 0
+    dup
+    bury 3
+    // smart_contracts/utils/functions.ts:565
+    // if (Bytes(creatorRoyaltyString).length > 0) {
+    len
+    bz royalty_after_if_else@5
+    // smart_contracts/utils/functions.ts:566
+    // creatorRoyalty = btoi(Bytes(creatorRoyaltyString))
+    dig 1
+    btoi
+    bury 1
+
+royalty_after_if_else@5:
+    // smart_contracts/utils/functions.ts:569
+    // if (creatorRoyalty > CreatorRoyaltyMaximumSingle) {
+    dup
+    intc 4 // 50000
+    >
+    bz royalty_after_if_else@7
+    // smart_contracts/utils/functions.ts:570
+    // return CreatorRoyaltyMaximumSingle
+    intc 4 // 50000
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:59
+    // return royalties(akitaDAO, asset, name, proof)
+    b royalty_after_inlined_smart_contracts/utils/functions.ts::royalties@8
+
+royalty_after_if_else@7:
+    dup
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:59
+    // return royalties(akitaDAO, asset, name, proof)
+    b royalty_after_inlined_smart_contracts/utils/functions.ts::royalties@8
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.permissions[routing]() -> void:
+permissions:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:62
+    // @abimethod({ readonly: true })
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:64
+    // const [publicReads] = op.AppParams.appForeignBoxReads(registry)
+    dup
+    app_params_get AppForeignBoxReads
+    pop
+    swap
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:65
+    // const [familyAccess] = op.AppParams.appFamilyBoxAccess(registry)
+    app_params_get AppFamilyBoxAccess
+    pop
+    swap
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:66
+    // return { publicReads, familyAccess }
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    intc_3 // 1
+    uncover 2
+    setbit
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:62
+    // @abimethod({ readonly: true })
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.write[routing]() -> void:
+write:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:69
+    // public write(registry: Application, name: bytes, data: bytes): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:70
+    // op.AppBox.put(registry, name, data)
+    app_box_put
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:69
+    // public write(registry: Application, name: bytes, data: bytes): void {
+    intc_3 // 1
+    return
+
+
+// smart_contracts/mocks/meta-reader/contract.algo.ts::MockMetaReader.remove[routing]() -> void:
+remove:
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:73
+    // public remove(registry: Application, name: bytes): boolean {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:74
+    // return op.AppBox.delete(registry, name)
+    app_box_del
+    // smart_contracts/mocks/meta-reader/contract.algo.ts:73
+    // public remove(registry: Application, name: bytes): boolean {
+    pushbytes 0x00
+    intc_0 // 0
+    uncover 2
+    setbit
+    bytec_0 // 0x151f7c75
+    swap
+    concat
+    log
+    intc_3 // 1
+    return

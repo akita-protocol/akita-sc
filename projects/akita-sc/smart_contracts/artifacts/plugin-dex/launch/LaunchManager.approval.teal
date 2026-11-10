@@ -4,28 +4,28 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 1 8 6 79800 161 281
-    bytecblock 0x151f7c75 "ERR:errLmpy" "ERR:errLmpr" "l" "ERR:errLmnf" "vault" "treasury" "launch_fee" "bounty" "anti_snipe" "launch_tax" "gated" "rewards" "dev_max_bps" "ERR:errLmdv" 0x0000 "admin" "gated_funding" "launch_cursor" "dev_vest_min" "dev_vest_max" "ERR:errLmhk" 0x002a 0x0002 0xdc53d7e7 0x970dad1f 0x068101
+    bytecblock 0x151f7c75 "ERR:errLmpy" "ERR:errLmpr" "l" "ERR:errLmnf" "vault" "treasury" "launch_fee" "bounty" "anti_snipe" "launch_tax" "gated" "rewards" "dev_max_bps" "pending_admin" "ERR:errLmdv" 0x0000 "admin" "gated_funding" "launch_cursor" "dev_vest_min" "dev_vest_max" "ERR:errLmhk" 0x002a 0x0002 0xdc53d7e7 0x970dad1f "ERR:errLmad" 0x068101
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:212
     // export class LaunchManager extends Contract {
     txn OnCompletion
     !
     assert
     txn ApplicationID
-    bz main_create_NoOp@14
-    pushbytess 0x854dede0 0x17866912 0xc7b7734d 0x3f03c85c 0x714258a1 0xca899122 0xf5e836c2 // method "opUp()void", method "setAdmin(address)void", method "setFees(uint64,uint64,address)void", method "setHooks(uint64,uint64,uint64,uint64)void", method "setDevBuy(uint64,uint64,uint64,uint64)void", method "createToken(pay,(string,string,string,uint64,uint64))uint64", method "launch(pay,uint64,(uint64,uint64,uint64,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,address),uint64,uint64,uint64,bool,byte[],uint64,uint64,uint64),uint64,uint64)(uint64,uint64,uint64)"
-    bytec 25 // method "graduate(uint64)void"
+    bz main_create_NoOp@15
+    pushbytess 0x854dede0 0x79a7b2dc 0x45b0a525 0xc7b7734d 0x3f03c85c 0x714258a1 0xca899122 0xf5e836c2 // method "opUp()void", method "proposeAdmin(address)void", method "acceptAdmin()void", method "setFees(uint64,uint64,address)void", method "setHooks(uint64,uint64,uint64,uint64)void", method "setDevBuy(uint64,uint64,uint64,uint64)void", method "createToken(pay,(string,string,string,uint64,uint64))uint64", method "launch(pay,uint64,(uint64,uint64,uint64,uint64,uint64,(uint64,uint64,uint64,uint64,uint64,address),uint64,uint64,uint64,bool,byte[],uint64,uint64,uint64),uint64,uint64)(uint64,uint64,uint64)"
+    bytec 26 // method "graduate(uint64)void"
     pushbytess 0x744458bf 0x0ca3fe49 // method "reclaimDevBuyMbr(uint64)uint64", method "getLaunch(uint64)(address,uint64,uint64,uint64,bool,bool,uint64,uint64,uint64,uint64)"
     txna ApplicationArgs 0
-    match main_opUp_route@3 setAdmin setFees setHooks setDevBuy createToken launch graduate reclaimDevBuyMbr getLaunch
+    match main_opUp_route@3 proposeAdmin acceptAdmin setFees setHooks setDevBuy createToken launch graduate reclaimDevBuyMbr getLaunch
     err
 
 main_opUp_route@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:258
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:260
     // opUp(): void {}
     intc_1 // 1
     return
 
-main_create_NoOp@14:
+main_create_NoOp@15:
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:212
     // export class LaunchManager extends Contract {
     pushbytes 0xd0d402c3 // method "create(uint64,address,uint64,uint64)void"
@@ -131,29 +131,29 @@ dynamic_array_concat_dynamic_element_after_for@8:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::canReceive(account: bytes, asset: uint64, amount: uint64) -> uint64:
 canReceive:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:709
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:719
     // function canReceive(account: Account, asset: uint64, amount: uint64): boolean {
     proto 3 1
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:710
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:720
     // if (amount === 0) {
     frame_dig -1
     bnz canReceive_after_if_else@2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:711
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:721
     // return true
     intc_1 // 1
     retsub
 
 canReceive_after_if_else@2:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:713
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:723
     // if (asset === 0) {
     frame_dig -2
     bnz canReceive_after_if_else@8
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:704
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:714
     // const [balance] = op.AcctParams.acctBalance(account)
     frame_dig -3
     acct_params_get AcctBalance
     pop
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:714
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:724
     // return balanceOf(account) > 0 || amount >= Global.minBalance
     bnz canReceive_bool_true@5
     frame_dig -1
@@ -163,18 +163,18 @@ canReceive_after_if_else@2:
 
 canReceive_bool_true@5:
     intc_1 // 1
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:714
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:724
     // return balanceOf(account) > 0 || amount >= Global.minBalance
     retsub
 
 canReceive_bool_false@6:
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:714
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:724
     // return balanceOf(account) > 0 || amount >= Global.minBalance
     retsub
 
 canReceive_after_if_else@8:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:716
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:726
     // return account.isOptedIn(Asset(asset))
     frame_dig -3
     frame_dig -2
@@ -185,7 +185,7 @@ canReceive_after_if_else@8:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.create[routing]() -> void:
 create:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:238
     // @abimethod({ onCreate: 'require' })
     txna ApplicationArgs 1
     dup
@@ -217,136 +217,194 @@ create:
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:213
     // vault = GlobalState<Application>({ key: 'vault' })
     bytec 5 // "vault"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:238
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:240
     // this.vault.value = vault
     uncover 4
     app_global_put
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:214
     // admin = GlobalState<Account>({ key: 'admin' })
-    bytec 16 // "admin"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:239
+    bytec 17 // "admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:241
     // this.admin.value = admin
     dig 3
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:215
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 6 // "treasury"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:240
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:242
     // this.treasury.value = admin
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
     // launchFee = GlobalState<uint64>({ key: 'launch_fee' })
     bytec 7 // "launch_fee"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:241
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:243
     // this.launchFee.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
     // bounty = GlobalState<uint64>({ key: 'bounty' })
     bytec 8 // "bounty"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:242
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:244
     // this.bounty.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:220
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:222
     // antiSnipeHook = GlobalState<uint64>({ key: 'anti_snipe' })
     bytec 9 // "anti_snipe"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:243
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:245
     // this.antiSnipeHook.value = antiSnipeHook
     uncover 2
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
     // launchTaxHook = GlobalState<uint64>({ key: 'launch_tax' })
     bytec 10 // "launch_tax"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:244
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:246
     // this.launchTaxHook.value = launchTaxHook
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
     // gatedHook = GlobalState<uint64>({ key: 'gated' })
     bytec 11 // "gated"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:245
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:247
     // this.gatedHook.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:224
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:226
     // gatedFunding = GlobalState<uint64>({ key: 'gated_funding' })
-    bytec 17 // "gated_funding"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:246
+    bytec 18 // "gated_funding"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:248
     // this.gatedFunding.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
     // launchCursor = GlobalState<uint64>({ key: 'launch_cursor' })
-    bytec 18 // "launch_cursor"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:247
+    bytec 19 // "launch_cursor"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:249
     // this.launchCursor.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
     // rewards = GlobalState<uint64>({ key: 'rewards' })
     bytec 12 // "rewards"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:248
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:250
     // this.rewards.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
     // devBuyMaxBps = GlobalState<uint64>({ key: 'dev_max_bps' })
     bytec 13 // "dev_max_bps"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:249
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:251
     // this.devBuyMaxBps.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:233
     // devVestMin = GlobalState<uint64>({ key: 'dev_vest_min' })
-    bytec 19 // "dev_vest_min"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:250
+    bytec 20 // "dev_vest_min"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:252
     // this.devVestMin.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:232
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
     // devVestMax = GlobalState<uint64>({ key: 'dev_vest_max' })
-    bytec 20 // "dev_vest_max"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:251
+    bytec 21 // "dev_vest_max"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:253
     // this.devVestMax.value = 0
     intc_0 // 0
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:238
     // @abimethod({ onCreate: 'require' })
     intc_1 // 1
     return
 
 
-// smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.setAdmin[routing]() -> void:
-setAdmin:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:266
-    // setAdmin(admin: Account): void {
+// smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.proposeAdmin[routing]() -> void:
+proposeAdmin:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:274
+    // proposeAdmin(admin: Account): void {
     txna ApplicationArgs 1
     dup
     len
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:267
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:275
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:214
-    // admin = GlobalState<Account>({ key: 'admin' })
-    bytec 16 // "admin"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:268
-    // this.admin.value = admin
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:216
+    // pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
+    bytec 14 // "pending_admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:276
+    // this.pendingAdmin.value = admin
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:266
-    // setAdmin(admin: Account): void {
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:274
+    // proposeAdmin(admin: Account): void {
     intc_1 // 1
     return
 
 
+// smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.acceptAdmin[routing]() -> void:
+acceptAdmin:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:281
+    // loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdmin)
+    intc_0 // 0
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:216
+    // pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
+    bytec 14 // "pending_admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:281
+    // loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdmin)
+    app_global_get_ex
+    bury 1
+    bz acceptAdmin_bool_false@4
+    txn Sender
+    intc_0 // 0
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:216
+    // pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
+    bytec 14 // "pending_admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:281
+    // loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdmin)
+    app_global_get_ex
+    assert // check GlobalState exists
+    ==
+    bz acceptAdmin_bool_false@4
+    intc_1 // 1
+
+acceptAdmin_bool_merge@5:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:281
+    // loggedAssert(this.pendingAdmin.hasValue && Txn.sender === this.pendingAdmin.value, errAdmin)
+    bnz acceptAdmin_after_assert@7
+    bytec 27 // "ERR:errLmad"
+    log
+    err // ERR:errLmad
+
+acceptAdmin_after_assert@7:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:214
+    // admin = GlobalState<Account>({ key: 'admin' })
+    bytec 17 // "admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:282
+    // this.admin.value = Txn.sender
+    txn Sender
+    app_global_put
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:216
+    // pendingAdmin = GlobalState<Account>({ key: 'pending_admin' })
+    bytec 14 // "pending_admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:283
+    // this.pendingAdmin.delete()
+    app_global_del
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:280
+    // acceptAdmin(): void {
+    intc_1 // 1
+    return
+
+acceptAdmin_bool_false@4:
+    intc_0 // 0
+    b acceptAdmin_bool_merge@5
+
+
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.setFees[routing]() -> void:
 setFees:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:272
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:287
     // setFees(launchFee: uint64, bounty: uint64, treasury: Account): void {
     txna ApplicationArgs 1
     dup
@@ -368,31 +426,31 @@ setFees:
     pushint 32
     ==
     assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:273
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:288
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
     // launchFee = GlobalState<uint64>({ key: 'launch_fee' })
     bytec 7 // "launch_fee"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:274
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:289
     // this.launchFee.value = launchFee
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
     // bounty = GlobalState<uint64>({ key: 'bounty' })
     bytec 8 // "bounty"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:275
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:290
     // this.bounty.value = bounty
     uncover 2
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:215
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 6 // "treasury"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:276
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:291
     // this.treasury.value = treasury
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:272
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:287
     // setFees(launchFee: uint64, bounty: uint64, treasury: Account): void {
     intc_1 // 1
     return
@@ -400,7 +458,7 @@ setFees:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.setHooks[routing]() -> void:
 setHooks:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:280
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:295
     // setHooks(antiSnipeHook: uint64, launchTaxHook: uint64, gatedHook: uint64, gatedFunding: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -430,38 +488,38 @@ setHooks:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:281
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:296
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:220
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:222
     // antiSnipeHook = GlobalState<uint64>({ key: 'anti_snipe' })
     bytec 9 // "anti_snipe"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:282
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:297
     // this.antiSnipeHook.value = antiSnipeHook
     uncover 4
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
     // launchTaxHook = GlobalState<uint64>({ key: 'launch_tax' })
     bytec 10 // "launch_tax"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:283
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:298
     // this.launchTaxHook.value = launchTaxHook
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
     // gatedHook = GlobalState<uint64>({ key: 'gated' })
     bytec 11 // "gated"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:284
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:299
     // this.gatedHook.value = gatedHook
     uncover 2
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:224
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:226
     // gatedFunding = GlobalState<uint64>({ key: 'gated_funding' })
-    bytec 17 // "gated_funding"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:285
+    bytec 18 // "gated_funding"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:300
     // this.gatedFunding.value = gatedFunding
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:280
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:295
     // setHooks(antiSnipeHook: uint64, launchTaxHook: uint64, gatedHook: uint64, gatedFunding: uint64): void {
     intc_1 // 1
     return
@@ -469,7 +527,7 @@ setHooks:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.setDevBuy[routing]() -> void:
 setDevBuy:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:292
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:307
     // setDevBuy(rewards: uint64, maxBps: uint64, minVestSeconds: uint64, maxVestSeconds: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -502,10 +560,10 @@ setDevBuy:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:293
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:308
     // this.requireAdmin()
     callsub requireAdmin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:294
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:309
     // loggedAssert(maxBps <= MaxDevBuyBps && minVestSeconds <= maxVestSeconds, errParams)
     pushint 1000
     <=
@@ -517,7 +575,7 @@ setDevBuy:
     intc_1 // 1
 
 setDevBuy_bool_merge@5:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:294
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:309
     // loggedAssert(maxBps <= MaxDevBuyBps && minVestSeconds <= maxVestSeconds, errParams)
     bnz setDevBuy_after_assert@7
     bytec_2 // "ERR:errLmpr"
@@ -525,35 +583,35 @@ setDevBuy_bool_merge@5:
     err // ERR:errLmpr
 
 setDevBuy_after_assert@7:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
     // rewards = GlobalState<uint64>({ key: 'rewards' })
     bytec 12 // "rewards"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:295
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:310
     // this.rewards.value = rewards
     uncover 4
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
     // devBuyMaxBps = GlobalState<uint64>({ key: 'dev_max_bps' })
     bytec 13 // "dev_max_bps"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:296
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:311
     // this.devBuyMaxBps.value = maxBps
     uncover 3
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:233
     // devVestMin = GlobalState<uint64>({ key: 'dev_vest_min' })
-    bytec 19 // "dev_vest_min"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:297
+    bytec 20 // "dev_vest_min"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:312
     // this.devVestMin.value = minVestSeconds
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:232
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
     // devVestMax = GlobalState<uint64>({ key: 'dev_vest_max' })
-    bytec 20 // "dev_vest_max"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:298
+    bytec 21 // "dev_vest_max"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:313
     // this.devVestMax.value = maxVestSeconds
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:292
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:307
     // setDevBuy(rewards: uint64, maxBps: uint64, minVestSeconds: uint64, maxVestSeconds: uint64): void {
     intc_1 // 1
     return
@@ -567,7 +625,7 @@ setDevBuy_bool_false@4:
 createToken:
     pushbytes ""
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:444
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:459
     // createToken(payment: gtxn.PaymentTxn, t: TokenParams): uint64 {
     txn GroupIndex
     intc_1 // 1
@@ -639,7 +697,7 @@ createToken:
     +
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/launch/launch-manager.algo.ts::TokenParams
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:445
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:460
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errPayment)
     gtxns Receiver
     global CurrentApplicationAddress
@@ -650,7 +708,7 @@ createToken:
     err // ERR:errLmpy
 
 createToken_after_assert@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:446
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:461
     // loggedAssert(t.totalSupply > 0 && t.decimals <= 19, errParams)
     dup
     pushint 14
@@ -667,7 +725,7 @@ createToken_after_assert@3:
     intc_1 // 1
 
 createToken_bool_merge@7:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:446
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:461
     // loggedAssert(t.totalSupply > 0 && t.decimals <= 19, errParams)
     bnz createToken_after_assert@9
     bytec_2 // "ERR:errLmpr"
@@ -675,17 +733,17 @@ createToken_bool_merge@7:
     err // ERR:errLmpr
 
 createToken_after_assert@9:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:447
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:462
     // const mbrBefore = Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
     assert // account funded
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:450-452
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:465-467
     // const asset = itxn
     //   .assetConfig({ total: t.totalSupply, decimals: t.decimals, assetName: t.assetName, unitName: t.unitName, url: t.url })
     //   .submit().createdAsset.id
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:451
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:466
     // .assetConfig({ total: t.totalSupply, decimals: t.decimals, assetName: t.assetName, unitName: t.unitName, url: t.url })
     swap
     dup
@@ -711,45 +769,45 @@ createToken_after_assert@9:
     itxn_field ConfigAssetDecimals
     swap
     itxn_field ConfigAssetTotal
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:450-451
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:465-466
     // const asset = itxn
     //   .assetConfig({ total: t.totalSupply, decimals: t.decimals, assetName: t.assetName, unitName: t.unitName, url: t.url })
     pushint 3
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:450-452
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:465-467
     // const asset = itxn
     //   .assetConfig({ total: t.totalSupply, decimals: t.decimals, assetName: t.assetName, unitName: t.unitName, url: t.url })
     //   .submit().createdAsset.id
     itxn_submit
     itxn CreatedAssetID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:454
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:469
     // const launchId = this.launchCursor.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
     // launchCursor = GlobalState<uint64>({ key: 'launch_cursor' })
-    bytec 18 // "launch_cursor"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:454
+    bytec 19 // "launch_cursor"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:469
     // const launchId = this.launchCursor.value
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:455
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:470
     // this.launchCursor.value = launchId + 1
     dup
     intc_1 // 1
     +
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
     // launchCursor = GlobalState<uint64>({ key: 'launch_cursor' })
-    bytec 18 // "launch_cursor"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:455
+    bytec 19 // "launch_cursor"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:470
     // this.launchCursor.value = launchId + 1
     swap
     app_global_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:457
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:472
     // creator: Txn.sender,
     txn Sender
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:456-467
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:471-482
     // this.launches(launchId).value = {
     //   creator: Txn.sender,
     //   asset,
@@ -765,10 +823,10 @@ createToken_after_assert@9:
     uncover 2
     itob
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:459
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:474
     // poolId: 0,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:456-467
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:471-482
     // this.launches(launchId).value = {
     //   creator: Txn.sender,
     //   asset,
@@ -797,18 +855,18 @@ createToken_after_assert@9:
     concat
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:456
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:471
     // this.launches(launchId).value = {
     swap
     itob
     dup
     cover 3
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
     // launches = BoxMap<uint64, Launch>({ keyPrefix: LaunchManagerBoxPrefixLaunches })
     bytec_3 // "l"
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:456-467
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:471-482
     // this.launches(launchId).value = {
     //   creator: Txn.sender,
     //   asset,
@@ -823,7 +881,7 @@ createToken_after_assert@9:
     // }
     swap
     box_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:469
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:484
     // const cost: uint64 = Global.currentApplicationAddress.minBalance - mbrBefore
     global CurrentApplicationAddress
     acct_params_get AcctMinBalance
@@ -832,7 +890,7 @@ createToken_after_assert@9:
     -
     dup
     bury 5
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:470
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:485
     // loggedAssert(payment.amount >= cost, errPayment)
     dig 2
     gtxns Amount
@@ -845,13 +903,13 @@ createToken_after_assert@9:
     err // ERR:errLmpy
 
 createToken_after_assert@12:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:471
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:486
     // if (payment.amount > cost) {
     dig 2
     dig 4
     >
     bz createToken_after_if_else@15
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:472
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:487
     // itxn.payment({ receiver: payment.sender, amount: payment.amount - cost }).submit()
     itxn_begin
     dig 1
@@ -868,7 +926,7 @@ createToken_after_assert@12:
     itxn_submit
 
 createToken_after_if_else@15:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:444
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:459
     // createToken(payment: gtxn.PaymentTxn, t: TokenParams): uint64 {
     bytec_0 // 0x151f7c75
     swap
@@ -888,7 +946,7 @@ launch:
     dupn 3
     pushbytes ""
     dupn 10
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:489
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:504
     // launch(payment: gtxn.PaymentTxn, launchId: uint64, p: LaunchParams, maxLaunchFee: uint64, maxBounty: uint64): LaunchResult {
     txn GroupIndex
     intc_1 // 1
@@ -946,7 +1004,7 @@ launch:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 3
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:490
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:505
     // loggedAssert(payment.receiver === Global.currentApplicationAddress, errPayment)
     gtxns Receiver
     global CurrentApplicationAddress
@@ -957,23 +1015,23 @@ launch:
     err // ERR:errLmpy
 
 launch_after_assert@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:491
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
     // loggedAssert(this.launchFee.value <= maxLaunchFee && this.bounty.value <= maxBounty, errFeeCap)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
     // launchFee = GlobalState<uint64>({ key: 'launch_fee' })
     bytec 7 // "launch_fee"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:491
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
     // loggedAssert(this.launchFee.value <= maxLaunchFee && this.bounty.value <= maxBounty, errFeeCap)
     app_global_get_ex
     assert // check GlobalState exists
     >=
     bz launch_bool_false@6
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
     // bounty = GlobalState<uint64>({ key: 'bounty' })
     bytec 8 // "bounty"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:491
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
     // loggedAssert(this.launchFee.value <= maxLaunchFee && this.bounty.value <= maxBounty, errFeeCap)
     app_global_get_ex
     assert // check GlobalState exists
@@ -983,7 +1041,7 @@ launch_after_assert@3:
     intc_1 // 1
 
 launch_bool_merge@7:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:491
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
     // loggedAssert(this.launchFee.value <= maxLaunchFee && this.bounty.value <= maxBounty, errFeeCap)
     bnz launch_while_top@126
     pushbytes "ERR:errLmcp"
@@ -1000,9 +1058,9 @@ launch_while_top@126:
     itxn_field TypeEnum
     pushint 5 // DeleteApplication
     itxn_field OnCompletion
-    bytec 26 // 0x068101
+    bytec 28 // 0x068101
     itxn_field ApprovalProgram
-    bytec 26 // 0x068101
+    bytec 28 // 0x068101
     itxn_field ClearStateProgram
     intc_0 // 0
     itxn_field Fee
@@ -1010,18 +1068,18 @@ launch_while_top@126:
     b launch_while_top@126
 
 launch_after_while@131:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:493
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:508
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     itob
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
     // launches = BoxMap<uint64, Launch>({ keyPrefix: LaunchManagerBoxPrefixLaunches })
     bytec_3 // "l"
     swap
     concat
     dup
     cover 2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:493
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:508
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     box_len
     bury 1
@@ -1031,7 +1089,7 @@ launch_after_while@131:
     err // ERR:errLmnf
 
 launch_after_assert@11:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:494
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:509
     // const record = clone(this.launches(launchId).value)
     dig 1
     box_get
@@ -1039,7 +1097,7 @@ launch_after_assert@11:
     dup
     uncover 2
     assert // Box must have value
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:495
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:510
     // loggedAssert(Txn.sender === record.creator, errCreator)
     txn Sender
     swap
@@ -1053,7 +1111,7 @@ launch_after_assert@11:
     err // ERR:errLmcr
 
 launch_after_assert@13:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:496
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:511
     // loggedAssert(!record.launched, errLaunched)
     dup
     pushint 448
@@ -1064,7 +1122,7 @@ launch_after_assert@13:
     err // ERR:errLmln
 
 launch_after_assert@15:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:497
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:512
     // const asset = record.asset
     dup
     extract 32 8
@@ -1073,20 +1131,20 @@ launch_after_assert@15:
     extract_uint64
     dup
     cover 4
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:498
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:513
     // const totalSupply = Asset(asset).total
     asset_params_get AssetTotal
     swap
     cover 3
     assert // asset exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:500
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:515
     // const freeBefore: uint64 = this.free() - payment.amount
     callsub free
     dig 9
     gtxns Amount
     -
     cover 4
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:310
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:325
     // loggedAssert(p.curveSupply > 0 && p.curveSupply < totalSupply, errParams)
     dig 8
     intc_0 // 0
@@ -1101,7 +1159,7 @@ launch_after_assert@15:
     intc_1 // 1
 
 launch_bool_merge@82:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:310
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:325
     // loggedAssert(p.curveSupply > 0 && p.curveSupply < totalSupply, errParams)
     bnz launch_after_assert@84
     bytec_2 // "ERR:errLmpr"
@@ -1109,7 +1167,7 @@ launch_bool_merge@82:
     err // ERR:errLmpr
 
 launch_after_assert@84:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:311
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:326
     // loggedAssert(p.virtualQuote > 0 && p.virtualToken > 0, errParams)
     dig 9
     intc_2 // 8
@@ -1124,7 +1182,7 @@ launch_after_assert@84:
     intc_1 // 1
 
 launch_bool_merge@88:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:311
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:326
     // loggedAssert(p.virtualQuote > 0 && p.virtualToken > 0, errParams)
     bnz launch_after_assert@90
     bytec_2 // "ERR:errLmpr"
@@ -1132,7 +1190,7 @@ launch_bool_merge@88:
     err // ERR:errLmpr
 
 launch_after_assert@90:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:312
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:327
     // const reserve: uint64 = totalSupply - p.curveSupply
     dig 3
     dig 5
@@ -1140,7 +1198,7 @@ launch_after_assert@90:
     cover 2
     -
     cover 9
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:313
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:328
     // loggedAssert(reserve >= mulDivUp(p.curveSupply, p.virtualToken, p.curveSupply + p.virtualToken), errParams)
     dig 12
     pushint 16
@@ -1176,7 +1234,7 @@ launch_after_assert@92:
     swap
 
 launch_ternary_merge@96:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:313
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:328
     // loggedAssert(reserve >= mulDivUp(p.curveSupply, p.virtualToken, p.curveSupply + p.virtualToken), errParams)
     dig 10
     uncover 2
@@ -1195,7 +1253,7 @@ launch_after_assert@98:
     dig 10
     divw
     bury 24
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:315
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:330
     // loggedAssert(p.graduationThreshold > 0 && p.graduationThreshold <= maxRaise, errParams)
     dig 12
     pushint 24
@@ -1210,7 +1268,7 @@ launch_after_assert@98:
     intc_1 // 1
 
 launch_bool_merge@102:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:315
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:330
     // loggedAssert(p.graduationThreshold > 0 && p.graduationThreshold <= maxRaise, errParams)
     bnz launch_after_assert@104
     bytec_2 // "ERR:errLmpr"
@@ -1218,7 +1276,7 @@ launch_bool_merge@102:
     err // ERR:errLmpr
 
 launch_after_assert@104:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:316
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:331
     // loggedAssert(p.feeBps <= MaxFeeBps && p.snipe.startFeeBps <= MaxPoolFeeCapBps, errParams)
     dig 13
     pushint 32
@@ -1237,7 +1295,7 @@ launch_after_assert@104:
     intc_1 // 1
 
 launch_bool_merge@108:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:316
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:331
     // loggedAssert(p.feeBps <= MaxFeeBps && p.snipe.startFeeBps <= MaxPoolFeeCapBps, errParams)
     bnz launch_after_assert@110
     bytec_2 // "ERR:errLmpr"
@@ -1245,7 +1303,7 @@ launch_bool_merge@108:
     err // ERR:errLmpr
 
 launch_after_assert@110:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:317
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:332
     // if (p.devBuy > 0) {
     dig 14
     pushint 147
@@ -1253,22 +1311,22 @@ launch_after_assert@110:
     dup
     cover 13
     bz launch_after_if_else@123
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:318
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:333
     // loggedAssert(this.rewards.value !== 0 && this.devBuyMaxBps.value > 0, errDevBuy)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
     // rewards = GlobalState<uint64>({ key: 'rewards' })
     bytec 12 // "rewards"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:318
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:333
     // loggedAssert(this.rewards.value !== 0 && this.devBuyMaxBps.value > 0, errDevBuy)
     app_global_get_ex
     assert // check GlobalState exists
     bz launch_bool_false@114
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
     // devBuyMaxBps = GlobalState<uint64>({ key: 'dev_max_bps' })
     bytec 13 // "dev_max_bps"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:318
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:333
     // loggedAssert(this.rewards.value !== 0 && this.devBuyMaxBps.value > 0, errDevBuy)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1276,15 +1334,15 @@ launch_after_assert@110:
     intc_1 // 1
 
 launch_bool_merge@115:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:318
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:333
     // loggedAssert(this.rewards.value !== 0 && this.devBuyMaxBps.value > 0, errDevBuy)
     bnz launch_after_assert@117
-    bytec 14 // "ERR:errLmdv"
+    bytec 15 // "ERR:errLmdv"
     log
     err // ERR:errLmdv
 
 launch_after_assert@117:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:319
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334
     // loggedAssert(p.devVestSeconds >= this.devVestMin.value && p.devVestSeconds <= this.devVestMax.value, errDevBuy)
     dig 15
     pushint 155
@@ -1292,20 +1350,20 @@ launch_after_assert@117:
     dup
     bury 19
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:233
     // devVestMin = GlobalState<uint64>({ key: 'dev_vest_min' })
-    bytec 19 // "dev_vest_min"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:319
+    bytec 20 // "dev_vest_min"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334
     // loggedAssert(p.devVestSeconds >= this.devVestMin.value && p.devVestSeconds <= this.devVestMax.value, errDevBuy)
     app_global_get_ex
     assert // check GlobalState exists
     >=
     bz launch_bool_false@120
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:232
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
     // devVestMax = GlobalState<uint64>({ key: 'dev_vest_max' })
-    bytec 20 // "dev_vest_max"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:319
+    bytec 21 // "dev_vest_max"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334
     // loggedAssert(p.devVestSeconds >= this.devVestMin.value && p.devVestSeconds <= this.devVestMax.value, errDevBuy)
     app_global_get_ex
     assert // check GlobalState exists
@@ -1315,21 +1373,21 @@ launch_after_assert@117:
     intc_1 // 1
 
 launch_bool_merge@121:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:319
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334
     // loggedAssert(p.devVestSeconds >= this.devVestMin.value && p.devVestSeconds <= this.devVestMax.value, errDevBuy)
     bnz launch_after_if_else@123
-    bytec 14 // "ERR:errLmdv"
+    bytec 15 // "ERR:errLmdv"
     log
     err // ERR:errLmdv
 
 launch_after_if_else@123:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:504
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:519
     // const launchFee = this.launchFee.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
     // launchFee = GlobalState<uint64>({ key: 'launch_fee' })
     bytec 7 // "launch_fee"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:504
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:519
     // const launchFee = this.launchFee.value
     app_global_get_ex
     swap
@@ -1337,17 +1395,17 @@ launch_after_if_else@123:
     cover 2
     cover 12
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:505
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:520
     // if (launchFee > 0) {
     bz launch_after_if_else@18
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:521
     // itxn.payment({ receiver: this.treasury.value, amount: launchFee }).submit()
     itxn_begin
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:215
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:217
     // treasury = GlobalState<Account>({ key: 'treasury' })
     bytec 6 // "treasury"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:506
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:521
     // itxn.payment({ receiver: this.treasury.value, amount: launchFee }).submit()
     app_global_get_ex
     assert // check GlobalState exists
@@ -1361,13 +1419,13 @@ launch_after_if_else@123:
     itxn_submit
 
 launch_after_if_else@18:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:510
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:525
     // const bounty = this.bounty.value
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:219
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
     // bounty = GlobalState<uint64>({ key: 'bounty' })
     bytec 8 // "bounty"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:510
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:525
     // const bounty = this.bounty.value
     app_global_get_ex
     swap
@@ -1375,12 +1433,12 @@ launch_after_if_else@18:
     cover 2
     cover 15
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:511
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:526
     // const available = this.free()
     callsub free
     dup
     cover 14
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:512
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:527
     // loggedAssert(available >= freeBefore + bounty, errPayment)
     dig 10
     uncover 2
@@ -1394,7 +1452,7 @@ launch_after_if_else@18:
     err // ERR:errLmpy
 
 launch_after_assert@20:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:513
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:528
     // const startFee = p.snipe.startFeeBps
     dig 19
     extract 40 72
@@ -1403,7 +1461,7 @@ launch_after_assert@20:
     intc_0 // 0
     extract_uint64
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:517
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:532
     // maxFeeBps: startFee > p.feeBps ? startFee : p.feeBps,
     dig 2
     >
@@ -1411,7 +1469,7 @@ launch_after_assert@20:
     cover 2
 
 launch_ternary_merge@23:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:519
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:534
     // maxHookFeeBps: p.buyTaxBps > p.sellTaxBps ? p.buyTaxBps : p.sellTaxBps,
     dig 21
     dup
@@ -1429,10 +1487,10 @@ launch_ternary_merge@23:
     dig 25
 
 launch_ternary_merge@26:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:515
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:530
     // curve: 0,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:514-526
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:529-541
     // const config: PoolConfig = {
     //   curve: 0,
     //   feeBps: p.feeBps,
@@ -1483,13 +1541,13 @@ launch_ternary_merge@26:
     pushbytes 0x004b0000
     concat
     cover 8
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:528
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:543
     // const vault = this.vault.value
     intc_0 // 0
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:213
     // vault = GlobalState<Application>({ key: 'vault' })
     bytec 5 // "vault"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:528
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:543
     // const vault = this.vault.value
     app_global_get_ex
     swap
@@ -1497,13 +1555,13 @@ launch_ternary_merge@26:
     cover 2
     cover 3
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:529-532
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:544-547
     // const poolId = abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: vault.address, amount: available - freeBefore - bounty }), 0, asset, config, this.hookStack(p), externals],
     // }).returnValue
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:531
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:546
     // args: [itxn.payment({ receiver: vault.address, amount: available - freeBefore - bounty }), 0, asset, config, this.hookStack(p), externals],
     app_params_get AppAddress
     assert // application exists
@@ -1518,17 +1576,17 @@ launch_ternary_merge@26:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:529-532
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:544-547
     // const poolId = abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: vault.address, amount: available - freeBefore - bounty }), 0, asset, config, this.hookStack(p), externals],
     // }).returnValue
     itxn_next
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:378
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:393
     // const hooks: HookInstall[] = []
-    bytec 15 // 0x0000
+    bytec 16 // 0x0000
     cover 7
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:379
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:394
     // if (p.gated) {
     dig 21
     pushint 1088
@@ -1536,35 +1594,35 @@ launch_ternary_merge@26:
     bz launch_after_if_else@63
     uncover 7
     pop
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:380
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:395
     // loggedAssert(this.gatedHook.value !== 0, errHooks)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
     // gatedHook = GlobalState<uint64>({ key: 'gated' })
     bytec 11 // "gated"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:380
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:395
     // loggedAssert(this.gatedHook.value !== 0, errHooks)
     app_global_get_ex
     assert // check GlobalState exists
     bnz launch_after_assert@59
-    bytec 21 // "ERR:errLmhk"
+    bytec 22 // "ERR:errLmhk"
     log
     err // ERR:errLmhk
 
 launch_after_assert@59:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:382
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:397
     // app: this.gatedHook.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:225
     // gatedHook = GlobalState<uint64>({ key: 'gated' })
     bytec 11 // "gated"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:382
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:397
     // app: this.gatedHook.value,
     app_global_get_ex
     swap
     cover 4
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:386
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:401
     // funding: p.gatedFunding !== 0 ? p.gatedFunding : this.gatedFunding.value,
     dig 21
     pushint 139
@@ -1574,11 +1632,11 @@ launch_after_assert@59:
     cover 2
 
 launch_ternary_merge@62:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:387
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:402
     // initData: p.gatedInitData,
     dig 21
     extract 2 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:381-388
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:396-403
     // hooks.push({
     //   app: this.gatedHook.value,
     //   points: HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote,
@@ -1589,10 +1647,10 @@ launch_ternary_merge@62:
     // })
     uncover 5
     itob
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:383
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:398
     // points: HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote,
     intc 5 // 161
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:381-388
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:396-403
     // hooks.push({
     //   app: this.gatedHook.value,
     //   points: HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote,
@@ -1603,10 +1661,10 @@ launch_ternary_merge@62:
     // })
     itob
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:384
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:399
     // perms: HookPermDynamicFee,
     pushint 2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:381-388
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:396-403
     // hooks.push({
     //   app: this.gatedHook.value,
     //   points: HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote,
@@ -1629,17 +1687,17 @@ launch_ternary_merge@62:
     uncover 2
     concat
     swap
-    bytec 22 // 0x002a
+    bytec 23 // 0x002a
     concat
     swap
     concat
-    bytec 23 // 0x0002
+    bytec 24 // 0x0002
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:378
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:393
     // const hooks: HookInstall[] = []
-    bytec 15 // 0x0000
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:381-388
+    bytec 16 // 0x0000
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:396-403
     // hooks.push({
     //   app: this.gatedHook.value,
     //   points: HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote,
@@ -1654,23 +1712,23 @@ launch_ternary_merge@62:
     cover 7
 
 launch_after_if_else@63:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:391
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:406
     // loggedAssert(this.antiSnipeHook.value !== 0, errHooks)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:220
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:222
     // antiSnipeHook = GlobalState<uint64>({ key: 'anti_snipe' })
     bytec 9 // "anti_snipe"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:391
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:406
     // loggedAssert(this.antiSnipeHook.value !== 0, errHooks)
     app_global_get_ex
     assert // check GlobalState exists
     bnz launch_after_assert@65
-    bytec 21 // "ERR:errLmhk"
+    bytec 22 // "ERR:errLmhk"
     log
     err // ERR:errLmhk
 
 launch_after_assert@65:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:393
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:408
     // snipe.exempt = Global.currentApplicationAddress
     global CurrentApplicationAddress
     uncover 3
@@ -1678,34 +1736,34 @@ launch_after_assert@65:
     replace2 40
     dup
     cover 3
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:394
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:409
     // let snipePoints: uint64 = HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote
     intc 5 // 161
     bury 28
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:395
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:410
     // if (snipe.startMode === SnipeStartFirstLiquidity) {
     pushint 32
     extract_uint64
     intc_1 // 1
     ==
     bz launch_after_if_else@67
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:396
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:411
     // snipePoints = snipePoints | HookPointAfterAddLiquidity
     pushint 165
     bury 27
 
 launch_after_if_else@67:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:399
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:414
     // app: this.antiSnipeHook.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:220
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:222
     // antiSnipeHook = GlobalState<uint64>({ key: 'anti_snipe' })
     bytec 9 // "anti_snipe"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:399
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:414
     // app: this.antiSnipeHook.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:398-405
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:413-420
     // hooks.push({
     //   app: this.antiSnipeHook.value,
     //   points: snipePoints,
@@ -1718,10 +1776,10 @@ launch_after_if_else@67:
     dig 27
     itob
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:401
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:416
     // perms: HookPermDynamicFee,
     pushint 2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:398-405
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:413-420
     // hooks.push({
     //   app: this.antiSnipeHook.value,
     //   points: snipePoints,
@@ -1734,10 +1792,10 @@ launch_after_if_else@67:
     concat
     dig 37
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:721
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:731
     // return 2_500 + 400 * (1 + 8 + size)
     pushint 38100
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:398-405
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:413-420
     // hooks.push({
     //   app: this.antiSnipeHook.value,
     //   points: snipePoints,
@@ -1756,11 +1814,11 @@ launch_after_if_else@67:
     swap
     concat
     swap
-    bytec 22 // 0x002a
+    bytec 23 // 0x002a
     concat
     swap
     concat
-    bytec 23 // 0x0002
+    bytec 24 // 0x0002
     swap
     concat
     uncover 7
@@ -1768,7 +1826,7 @@ launch_after_if_else@67:
     intc_1 // 1
     callsub dynamic_array_concat_dynamic_element
     cover 6
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:407
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:422
     // if (p.buyTaxBps > 0 || p.sellTaxBps > 0) {
     dig 24
     bnz launch_if_body@69
@@ -1776,64 +1834,64 @@ launch_after_if_else@67:
     bz launch_after_if_else@76
 
 launch_if_body@69:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:408
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:423
     // loggedAssert(this.launchTaxHook.value !== 0, errHooks)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
     // launchTaxHook = GlobalState<uint64>({ key: 'launch_tax' })
     bytec 10 // "launch_tax"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:408
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:423
     // loggedAssert(this.launchTaxHook.value !== 0, errHooks)
     app_global_get_ex
     assert // check GlobalState exists
     bnz launch_after_assert@71
-    bytec 21 // "ERR:errLmhk"
+    bytec 22 // "ERR:errLmhk"
     log
     err // ERR:errLmhk
 
 launch_after_assert@71:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:409
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:424
     // let points: uint64 = HookPointAfterInitialize | HookPointBeforeSwap | HookPointQuote
     intc 5 // 161
     bury 29
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:410
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:425
     // let perms: uint64 = 0
     intc_0 // 0
     bury 30
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:411
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:426
     // if (p.buyTaxBps > 0) {
     dig 24
     bz launch_after_if_else@73
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:412
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:427
     // perms = perms | HookPermHookFee
     pushint 4
     bury 30
 
 launch_after_if_else@73:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:414
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:429
     // if (p.sellTaxBps > 0) {
     dig 23
     bz launch_after_if_else@75
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:415
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:430
     // perms = perms | HookPermHookFeeOut
     dig 29
     intc_2 // 8
     |
     bury 30
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:416
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:431
     // points = points | HookPointAfterSwap
     pushint 225
     bury 29
 
 launch_after_if_else@75:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:419
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:434
     // owner: Txn.sender,
     txn Sender
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:423
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:438
     // untilRound: p.taxUntilRound,
     dig 21
     extract 128 8
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:418-424
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:433-439
     // const tax: TaxInit = {
     //   owner: Txn.sender,
     //   quoteAsset: 0,
@@ -1854,17 +1912,17 @@ launch_after_if_else@75:
     concat
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:426
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:441
     // app: this.launchTaxHook.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:221
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:223
     // launchTaxHook = GlobalState<uint64>({ key: 'launch_tax' })
     bytec 10 // "launch_tax"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:426
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:441
     // app: this.launchTaxHook.value,
     app_global_get_ex
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:425-432
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:440-447
     // hooks.push({
     //   app: this.launchTaxHook.value,
     //   points,
@@ -1882,10 +1940,10 @@ launch_after_if_else@75:
     concat
     uncover 2
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:721
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:731
     // return 2_500 + 400 * (1 + 8 + size)
     pushint 34900
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:425-432
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:440-447
     // hooks.push({
     //   app: this.launchTaxHook.value,
     //   points,
@@ -1903,11 +1961,11 @@ launch_after_if_else@75:
     uncover 2
     concat
     swap
-    bytec 22 // 0x002a
+    bytec 23 // 0x002a
     concat
     swap
     concat
-    bytec 23 // 0x0002
+    bytec 24 // 0x0002
     swap
     concat
     uncover 7
@@ -1920,7 +1978,7 @@ launch_after_if_else@76:
     swap
     dup
     itxn_field ApplicationID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:529-532
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:544-547
     // const poolId = abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: vault.address, amount: available - freeBefore - bounty }), 0, asset, config, this.hookStack(p), externals],
@@ -1935,11 +1993,11 @@ launch_after_if_else@76:
     itxn_field ApplicationArgs
     uncover 6
     itxn_field ApplicationArgs
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:527
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:542
     // const externals: ExternalSlotConfig[] = []
-    bytec 15 // 0x0000
+    bytec 16 // 0x0000
     itxn_field ApplicationArgs
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:529-532
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:544-547
     // const poolId = abiCall<typeof PluginDex.prototype.createPool>({
     //   appId: vault,
     //   args: [itxn.payment({ receiver: vault.address, amount: available - freeBefore - bounty }), 0, asset, config, this.hookStack(p), externals],
@@ -1967,12 +2025,12 @@ launch_after_if_else@76:
     dup
     btoi
     cover 7
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:535
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:550
     // const pool = abiCall<typeof PluginDex.prototype.getPool>({ appId: vault, args: [poolId] }).returnValue
     itxn_begin
     dig 1
     itxn_field ApplicationID
-    bytec 24 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
+    bytec 25 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
     itxn_field ApplicationArgs
     dup
     itxn_field ApplicationArgs
@@ -1994,7 +2052,7 @@ launch_after_if_else@76:
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::PoolInfo
     pushint 20
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:536
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:551
     // const escrow = Application(pool.escrow).address
     extract_uint64
     app_params_get AppAddress
@@ -2003,7 +2061,7 @@ launch_after_if_else@76:
     cover 2
     bury 37
     assert // application exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:537-544
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:552-559
     // abiCall<typeof PluginDex.prototype.initializeLaunch>({
     //   appId: vault,
     //   args: [
@@ -2021,13 +2079,13 @@ launch_after_if_else@76:
     itxn_field XferAsset
     dup
     itxn_field AssetReceiver
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:540
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:555
     // itxn.assetTransfer({ assetReceiver: escrow, xferAsset: asset, assetAmount: p.curveSupply }),
     pushint 4
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:541
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:556
     // itxn.assetTransfer({ assetReceiver: escrow, xferAsset: asset, assetAmount: totalSupply - p.curveSupply }),
     itxn_next
     uncover 14
@@ -2038,7 +2096,7 @@ launch_after_if_else@76:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:537-544
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:552-559
     // abiCall<typeof PluginDex.prototype.initializeLaunch>({
     //   appId: vault,
     //   args: [
@@ -2070,15 +2128,15 @@ launch_after_if_else@76:
     intc_2 // 8
     ==
     assert // invalid number of bytes for uint64
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:547
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:562
     // let dev: DevBuyResult = { tokens: 0, unlock: 0, rewards: 0, disbursement: 0 }
     pushbytes 0x0000000000000000000000000000000000000000000000000000000000000000
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:548
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:563
     // if (p.devBuy > 0) {
     dig 12
     bz launch_after_if_else@36
     pop
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:549
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:564
     // loggedAssert(this.free() >= freeBefore + bounty + p.devBuy + Global.assetOptInMinBalance + DevBuyDisbursementMbr, errPayment)
     callsub free
     dig 7
@@ -2095,7 +2153,7 @@ launch_after_if_else@76:
     err // ERR:errLmpy
 
 launch_after_assert@35:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334-338
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:349-353
     // const tokens = abiCall<typeof PluginDex.prototype.swap>({
     //   appId: this.vault.value,
     //   // wallet hint 0: the LaunchManager acts as itself (principal-resolution spec §6.12, P2-DEX-04)
@@ -2106,34 +2164,34 @@ launch_after_assert@35:
     itxn_field Amount
     dig 31
     itxn_field Receiver
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:337
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:352
     // args: [itxn.payment({ receiver: escrow, amount: p.devBuy }), poolId, 0, Global.currentApplicationAddress, Bytes(''), 0],
     intc_1 // 1
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334-338
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:349-353
     // const tokens = abiCall<typeof PluginDex.prototype.swap>({
     //   appId: this.vault.value,
     //   // wallet hint 0: the LaunchManager acts as itself (principal-resolution spec §6.12, P2-DEX-04)
     //   args: [itxn.payment({ receiver: escrow, amount: p.devBuy }), poolId, 0, Global.currentApplicationAddress, Bytes(''), 0],
     // }).returnValue
     itxn_next
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:337
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:352
     // args: [itxn.payment({ receiver: escrow, amount: p.devBuy }), poolId, 0, Global.currentApplicationAddress, Bytes(''), 0],
     global CurrentApplicationAddress
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:335
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:350
     // appId: this.vault.value,
     intc_0 // 0
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:213
     // vault = GlobalState<Application>({ key: 'vault' })
     bytec 5 // "vault"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:335
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:350
     // appId: this.vault.value,
     app_global_get_ex
     assert // check GlobalState exists
     itxn_field ApplicationID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334-338
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:349-353
     // const tokens = abiCall<typeof PluginDex.prototype.swap>({
     //   appId: this.vault.value,
     //   // wallet hint 0: the LaunchManager acts as itself (principal-resolution spec §6.12, P2-DEX-04)
@@ -2148,12 +2206,12 @@ launch_after_assert@35:
     itxn_field ApplicationArgs
     swap
     itxn_field ApplicationArgs
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:337
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:352
     // args: [itxn.payment({ receiver: escrow, amount: p.devBuy }), poolId, 0, Global.currentApplicationAddress, Bytes(''), 0],
-    bytec 15 // 0x0000
+    bytec 16 // 0x0000
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:334-338
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:349-353
     // const tokens = abiCall<typeof PluginDex.prototype.swap>({
     //   appId: this.vault.value,
     //   // wallet hint 0: the LaunchManager acts as itself (principal-resolution spec §6.12, P2-DEX-04)
@@ -2180,14 +2238,14 @@ launch_after_assert@35:
     btoi
     dup
     cover 2
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:339
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354
     // loggedAssert(tokens > 0 && tokens <= mulDiv(p.curveSupply, this.devBuyMaxBps.value, BpsDivisor), errDevBuy)
     bz launch_bool_false@45
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:231
     // devBuyMaxBps = GlobalState<uint64>({ key: 'dev_max_bps' })
     bytec 13 // "dev_max_bps"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:339
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354
     // loggedAssert(tokens > 0 && tokens <= mulDiv(p.curveSupply, this.devBuyMaxBps.value, BpsDivisor), errDevBuy)
     app_global_get_ex
     assert // check GlobalState exists
@@ -2195,13 +2253,13 @@ launch_after_assert@35:
     // return op.divw(...op.mulw(a, b), c)
     dig 5
     mulw
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:339
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354
     // loggedAssert(tokens > 0 && tokens <= mulDiv(p.curveSupply, this.devBuyMaxBps.value, BpsDivisor), errDevBuy)
     pushint 10000
     // smart_contracts/plugin-dex/math.ts:9
     // return op.divw(...op.mulw(a, b), c)
     divw
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:339
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354
     // loggedAssert(tokens > 0 && tokens <= mulDiv(p.curveSupply, this.devBuyMaxBps.value, BpsDivisor), errDevBuy)
     dig 2
     >=
@@ -2209,21 +2267,21 @@ launch_after_assert@35:
     intc_1 // 1
 
 launch_bool_merge@46:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:339
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354
     // loggedAssert(tokens > 0 && tokens <= mulDiv(p.curveSupply, this.devBuyMaxBps.value, BpsDivisor), errDevBuy)
     bnz launch_after_assert@48
-    bytec 14 // "ERR:errLmdv"
+    bytec 15 // "ERR:errLmdv"
     log
     err // ERR:errLmdv
 
 launch_after_assert@48:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:341
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:356
     // const rewards = Application(this.rewards.value)
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:227
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:229
     // rewards = GlobalState<uint64>({ key: 'rewards' })
     bytec 12 // "rewards"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:341
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:356
     // const rewards = Application(this.rewards.value)
     app_global_get_ex
     swap
@@ -2231,7 +2289,7 @@ launch_after_assert@48:
     cover 2
     cover 5
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:342
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:357
     // const rewardsMbrBefore = rewards.address.minBalance
     dup
     app_params_get AppAddress
@@ -2240,11 +2298,11 @@ launch_after_assert@48:
     swap
     cover 14
     assert // account funded
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:343
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:358
     // let paid: uint64 = DevBuyDisbursementMbr
     intc 4 // 79800
     bury 32
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:345
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:360
     // if (!rewards.address.isOptedIn(Asset(asset))) {
     app_params_get AppAddress
     assert // application exists
@@ -2252,21 +2310,21 @@ launch_after_assert@48:
     asset_holding_get AssetBalance
     bury 1
     bnz launch_after_if_else@50
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:343
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:358
     // let paid: uint64 = DevBuyDisbursementMbr
     intc 4 // 79800
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:346
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:361
     // paid += Global.assetOptInMinBalance
     global AssetOptInMinBalance
     +
     bury 31
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:347-350
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:362-365
     // abiCall<typeof Rewards.prototype.optIn>({
     //   appId: rewards,
     //   args: [itxn.payment({ receiver: rewards.address, amount: Global.assetOptInMinBalance }), Asset(asset)],
     // })
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:349
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:364
     // args: [itxn.payment({ receiver: rewards.address, amount: Global.assetOptInMinBalance }), Asset(asset)],
     dig 3
     dup
@@ -2279,7 +2337,7 @@ launch_after_assert@48:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:347-350
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:362-365
     // abiCall<typeof Rewards.prototype.optIn>({
     //   appId: rewards,
     //   args: [itxn.payment({ receiver: rewards.address, amount: Global.assetOptInMinBalance }), Asset(asset)],
@@ -2297,14 +2355,14 @@ launch_after_assert@48:
     itxn_submit
 
 launch_after_if_else@50:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:352
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:367
     // const unlock: uint64 = Global.latestTimestamp + p.devVestSeconds
     global LatestTimestamp
     dig 21
     pushint 155
     extract_uint64
     +
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:353
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:368
     // const allocations: UserAllocation[] = [{ address: creator, amount: tokens }]
     uncover 2
     dup
@@ -2317,7 +2375,7 @@ launch_after_if_else@50:
     pushbytes 0x0001
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354-363
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:369-378
     // const disbursement = abiCall<typeof Rewards.prototype.legacyCreateInstantAsaDisbursement>({
     //   appId: rewards,
     //   args: [
@@ -2329,7 +2387,7 @@ launch_after_if_else@50:
     //   ],
     // }).returnValue
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:357
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:372
     // itxn.payment({ receiver: rewards.address, amount: DevBuyDisbursementMbr }),
     dig 5
     dup
@@ -2342,7 +2400,7 @@ launch_after_if_else@50:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:358
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:373
     // itxn.assetTransfer({ assetReceiver: rewards.address, xferAsset: asset, assetAmount: tokens }),
     itxn_next
     dup
@@ -2357,7 +2415,7 @@ launch_after_if_else@50:
     itxn_field TypeEnum
     intc_0 // 0
     itxn_field Fee
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354-363
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:369-378
     // const disbursement = abiCall<typeof Rewards.prototype.legacyCreateInstantAsaDisbursement>({
     //   appId: rewards,
     //   args: [
@@ -2369,19 +2427,19 @@ launch_after_if_else@50:
     //   ],
     // }).returnValue
     itxn_next
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:359
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:374
     // unlock,
     uncover 2
     itob
     dup
     cover 6
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:360
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:375
     // DevBuyNeverExpires,
     pushint 18446744073709551615
     itob
     dig 2
     itxn_field ApplicationID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:354-363
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:369-378
     // const disbursement = abiCall<typeof Rewards.prototype.legacyCreateInstantAsaDisbursement>({
     //   appId: rewards,
     //   args: [
@@ -2419,7 +2477,7 @@ launch_after_if_else@50:
     assert // invalid number of bytes for uint64
     btoi
     cover 10
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:367
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:382
     // const grew: uint64 = rewards.address.minBalance - rewardsMbrBefore
     app_params_get AppAddress
     assert // application exists
@@ -2429,18 +2487,18 @@ launch_after_if_else@50:
     -
     dup
     bury 35
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:368
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:383
     // if (grew > paid) {
     dig 32
     >
     bz launch_after_if_else@54
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:369
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:384
     // const shortfall: uint64 = grew - paid
     dig 33
     dig 32
     -
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:370
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:385
     // loggedAssert(this.free() >= reserved + shortfall, errPayment)
     callsub free
     dig 13
@@ -2453,7 +2511,7 @@ launch_after_if_else@50:
     err // ERR:errLmpy
 
 launch_after_assert@53:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:371
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:386
     // itxn.payment({ receiver: rewards.address, amount: shortfall }).submit()
     itxn_begin
     dig 3
@@ -2468,7 +2526,7 @@ launch_after_assert@53:
     itxn_submit
 
 launch_after_if_else@54:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:373
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:388
     // return { tokens, unlock, rewards: rewards.id, disbursement }
     uncover 4
     uncover 4
@@ -2481,7 +2539,7 @@ launch_after_if_else@54:
     concat
 
 launch_after_if_else@36:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:554-565
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:569-580
     // this.launches(launchId).value = {
     //   creator: record.creator,
     //   asset,
@@ -2536,11 +2594,11 @@ launch_after_if_else@36:
     uncover 4
     swap
     box_put
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:567
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:582
     // const freeAfter = this.free()
     callsub free
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:568
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:583
     // loggedAssert(freeAfter >= freeBefore + bounty, errPayment)
     uncover 5
     >=
@@ -2550,7 +2608,7 @@ launch_after_if_else@36:
     err // ERR:errLmpy
 
 launch_after_assert@38:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:569
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:584
     // const refund: uint64 = freeAfter - freeBefore - bounty
     uncover 4
     -
@@ -2558,10 +2616,10 @@ launch_after_assert@38:
     -
     dup
     bury 25
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:570
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:585
     // if (refund > 0) {
     bz launch_after_if_else@41
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:571
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:586
     // itxn.payment({ receiver: payment.sender, amount: refund }).submit()
     itxn_begin
     dig 18
@@ -2576,7 +2634,7 @@ launch_after_assert@38:
     itxn_submit
 
 launch_after_if_else@41:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:574-591
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:589-606
     // emit<LaunchEvent>({
     //   launchId,
     //   creator: Txn.sender,
@@ -2596,10 +2654,10 @@ launch_after_if_else@41:
     //   devDisbursement: dev.disbursement,
     // })
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:576
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:591
     // creator: Txn.sender,
     txn Sender
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:574-591
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:589-606
     // emit<LaunchEvent>({
     //   launchId,
     //   creator: Txn.sender,
@@ -2659,14 +2717,14 @@ launch_after_if_else@41:
     swap
     concat
     log
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:592
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:607
     // return { launchId, asset, poolId }
     uncover 2
     swap
     concat
     swap
     concat
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:489
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:504
     // launch(payment: gtxn.PaymentTxn, launchId: uint64, p: LaunchParams, maxLaunchFee: uint64, maxBounty: uint64): LaunchResult {
     bytec_0 // 0x151f7c75
     swap
@@ -2681,13 +2739,13 @@ launch_bool_false@45:
 
 launch_ternary_false@61:
     pop
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:386
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:401
     // funding: p.gatedFunding !== 0 ? p.gatedFunding : this.gatedFunding.value,
     intc_0 // 0
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:224
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:226
     // gatedFunding = GlobalState<uint64>({ key: 'gated_funding' })
-    bytec 17 // "gated_funding"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:386
+    bytec 18 // "gated_funding"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:401
     // funding: p.gatedFunding !== 0 ? p.gatedFunding : this.gatedFunding.value,
     app_global_get_ex
     assert // check GlobalState exists
@@ -2744,10 +2802,10 @@ launch_bool_false@6:
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.graduate[routing]() -> void:
 graduate:
     intc_0 // 0
-    dupn 2
+    dup
     pushbytes ""
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:604
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:617
     // graduate(launchId: uint64): void {
     txna ApplicationArgs 1
     dup
@@ -2756,17 +2814,17 @@ graduate:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:605
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:618
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     itob
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
     // launches = BoxMap<uint64, Launch>({ keyPrefix: LaunchManagerBoxPrefixLaunches })
     bytec_3 // "l"
     swap
     concat
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:605
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:618
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     box_len
     bury 1
@@ -2776,15 +2834,16 @@ graduate:
     err // ERR:errLmnf
 
 graduate_after_assert@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:606
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:619
     // const launch = clone(this.launches(launchId).value)
     dup
     box_get
     swap
     dup
-    uncover 2
+    cover 2
+    cover 3
     assert // Box must have value
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:607
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:620
     // loggedAssert(launch.launched, errNotFound)
     pushint 448
     getbit
@@ -2794,9 +2853,9 @@ graduate_after_assert@3:
     err // ERR:errLmnf
 
 graduate_after_assert@5:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:608
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:621
     // loggedAssert(!launch.settled, errSettled)
-    dup
+    dig 1
     pushint 449
     getbit
     bz graduate_after_assert@7
@@ -2805,13 +2864,13 @@ graduate_after_assert@5:
     err // ERR:errLmst
 
 graduate_after_assert@7:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:610
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:623
     // const vault = this.vault.value
     intc_0 // 0
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:213
     // vault = GlobalState<Application>({ key: 'vault' })
     bytec 5 // "vault"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:610
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:623
     // const vault = this.vault.value
     app_global_get_ex
     swap
@@ -2819,16 +2878,16 @@ graduate_after_assert@7:
     cover 2
     bury 6
     assert // check GlobalState exists
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:611
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:624
     // const pool = abiCall<typeof PluginDex.prototype.getPool>({ appId: vault, args: [launch.poolId] }).returnValue
     itxn_begin
-    dig 1
+    dig 2
     extract 40 8
     dup
     cover 5
     swap
     itxn_field ApplicationID
-    bytec 24 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
+    bytec 25 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
     itxn_field ApplicationArgs
     itxn_field ApplicationArgs
     intc_3 // appl
@@ -2848,7 +2907,7 @@ graduate_after_assert@7:
     intc 6 // 281
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::PoolInfo
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:612
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:625
     // const bonding = (pool.virtualA | pool.virtualB) !== 0
     dup
     pushint 100
@@ -2858,22 +2917,20 @@ graduate_after_assert@7:
     extract_uint64
     |
     dup
-    cover 3
-    dup
     intc_0 // 0
     !=
-    cover 6
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:613
+    cover 5
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:626
     // if (bonding) {
     bz graduate_after_if_else@11
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:614
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:627
     // abiCall<typeof PluginDex.prototype.graduate>({ appId: vault, args: [launch.poolId] })
     itxn_begin
-    dig 6
+    dig 5
     itxn_field ApplicationID
-    bytec 25 // method "graduate(uint64)void"
+    bytec 26 // method "graduate(uint64)void"
     itxn_field ApplicationArgs
-    dig 4
+    dig 3
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -2882,40 +2939,11 @@ graduate_after_assert@7:
     itxn_submit
 
 graduate_after_if_else@11:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:616
-    // let recipient = bonding ? Txn.sender : launch.creator
-    uncover 2
-    bz graduate_ternary_false@13
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:629
+    // const recipient = Txn.sender
     txn Sender
-    bury 9
-
-graduate_ternary_merge@14:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:617
-    // if (launch.bounty > 0 && launch.bounty < Global.minBalance && balanceOf(recipient) === 0) {
-    pushint 48
-    extract_uint64
-    dup
-    cover 3
-    bz graduate_after_if_else@18
-    dig 2
-    global MinBalance
-    <
-    bz graduate_after_if_else@18
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:704
-    // const [balance] = op.AcctParams.acctBalance(account)
-    dig 8
-    acct_params_get AcctBalance
-    pop
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:617
-    // if (launch.bounty > 0 && launch.bounty < Global.minBalance && balanceOf(recipient) === 0) {
-    bnz graduate_after_if_else@18
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:618
-    // recipient = Txn.sender
-    txn Sender
-    bury 9
-
-graduate_after_if_else@18:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:621
+    cover 4
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:631
     // this.launches(launchId).value.settled = true
     dup
     pushint 56
@@ -2928,23 +2956,26 @@ graduate_after_if_else@18:
     pushint 56
     uncover 2
     box_replace // on error: index out of bounds
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:622
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:632
     // this.launches(launchId).value.bounty = 0
     intc_0 // 0
     itob
     pushint 48
     swap
     box_replace // on error: index out of bounds
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:623
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:633
     // if (launch.bounty > 0) {
-    dig 1
-    bz graduate_after_if_else@21
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:624
+    pushint 48
+    extract_uint64
+    dup
+    cover 2
+    bz graduate_after_if_else@14
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:634
     // itxn.payment({ receiver: recipient, amount: launch.bounty }).submit()
     itxn_begin
     dig 1
     itxn_field Amount
-    dig 7
+    dig 3
     itxn_field Receiver
     intc_1 // 1
     itxn_field TypeEnum
@@ -2952,13 +2983,13 @@ graduate_after_if_else@18:
     itxn_field Fee
     itxn_submit
 
-graduate_after_if_else@21:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:678
+graduate_after_if_else@14:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:688
     // const pool = abiCall<typeof PluginDex.prototype.getPool>({ appId: vault, args: [poolId] }).returnValue
     itxn_begin
-    dig 4
+    dig 5
     itxn_field ApplicationID
-    bytec 24 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
+    bytec 25 // method "getPool(uint64)(uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,byte[16],uint64,uint64,uint64,address,bool,bool,bool)"
     itxn_field ApplicationArgs
     dig 2
     itxn_field ApplicationArgs
@@ -2982,38 +3013,38 @@ graduate_after_if_else@21:
     ==
     assert // invalid number of bytes for smart_contracts/plugin-dex/types.ts::PoolInfo
     pushint 188
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:679
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:689
     // if (pool.protocolFeesA === 0 && pool.protocolFeesB === 0) {
     extract_uint64
     dup
-    bury 7
-    bnz graduate_after_if_else@25
+    bury 8
+    bnz graduate_after_if_else@18
     dig 8
     pushint 196
     extract_uint64
-    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@31
+    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@24
 
-graduate_after_if_else@25:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:682
+graduate_after_if_else@18:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:692
     // const [treasuryBytes, exists] = op.AppGlobal.getExBytes(vault, Bytes(PluginDexGlobalStateKeyTreasury))
-    dig 4
+    dig 5
     bytec 6 // "treasury"
     app_global_get_ex
     swap
-    bury 8
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:683
+    bury 9
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:693
     // if (!exists) {
-    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@31
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:687
+    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@24
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:697
     // if (!canReceive(treasury, pool.assetA, pool.protocolFeesA) || !canReceive(treasury, pool.assetB, pool.protocolFeesB)) {
     dig 8
     pushint 4
     extract_uint64
-    dig 7
+    dig 8
     swap
-    dig 7
+    dig 8
     callsub canReceive
-    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@31
+    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@24
     dig 8
     dup
     pushint 12
@@ -3021,14 +3052,14 @@ graduate_after_if_else@25:
     swap
     pushint 196
     extract_uint64
-    dig 8
+    dig 9
     cover 2
     callsub canReceive
-    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@31
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:690
+    bz graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@24
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:700
     // abiCall<typeof PluginDex.prototype.collectProtocolFees>({ appId: vault, args: [poolId] })
     itxn_begin
-    dig 4
+    dig 5
     itxn_field ApplicationID
     pushbytes 0x0e515d30 // method "collectProtocolFees(uint64)void"
     itxn_field ApplicationArgs
@@ -3040,12 +3071,12 @@ graduate_after_if_else@25:
     itxn_field Fee
     itxn_submit
 
-graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@31:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:627
+graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.collectSurplus@24:
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:637
     // emit<LaunchSettledEvent>({ launchId, poolId: launch.poolId, recipient, bounty: launch.bounty, graduated: bonding })
     uncover 2
     concat
-    dig 6
+    uncover 2
     concat
     swap
     itob
@@ -3059,23 +3090,15 @@ graduate_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts:
     swap
     concat
     log
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:604
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:617
     // graduate(launchId: uint64): void {
     intc_1 // 1
     return
 
-graduate_ternary_false@13:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:616
-    // let recipient = bonding ? Txn.sender : launch.creator
-    dup
-    extract 0 32
-    bury 9
-    b graduate_ternary_merge@14
-
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.reclaimDevBuyMbr[routing]() -> void:
 reclaimDevBuyMbr:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:648
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:658
     // reclaimDevBuyMbr(launchId: uint64): uint64 {
     txna ApplicationArgs 1
     dup
@@ -3084,16 +3107,16 @@ reclaimDevBuyMbr:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:649
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:659
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     itob
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
     // launches = BoxMap<uint64, Launch>({ keyPrefix: LaunchManagerBoxPrefixLaunches })
     bytec_3 // "l"
     swap
     concat
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:649
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:659
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     box_len
     bury 1
@@ -3103,32 +3126,32 @@ reclaimDevBuyMbr:
     err // ERR:errLmnf
 
 reclaimDevBuyMbr_after_assert@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:650
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:660
     // const launch = clone(this.launches(launchId).value)
     box_get
     swap
     dup
     uncover 2
     assert // Box must have value
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:651
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:661
     // loggedAssert(launch.devRewards !== 0, errDevBuy)
     pushint 73
     extract_uint64
     dup
     cover 2
     bnz reclaimDevBuyMbr_after_assert@5
-    bytec 14 // "ERR:errLmdv"
+    bytec 15 // "ERR:errLmdv"
     log
     err // ERR:errLmdv
 
 reclaimDevBuyMbr_after_assert@5:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:654-657
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:664-667
     // const shortfall = abiCall<typeof Rewards.prototype.allocationMbrCreditShortfall>({
     //   appId: rewards,
     //   args: [launch.devDisbursement, 1],
     // }).returnValue
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:656
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:666
     // args: [launch.devDisbursement, 1],
     dup
     extract 81 8
@@ -3138,7 +3161,7 @@ reclaimDevBuyMbr_after_assert@5:
     itob
     dig 3
     itxn_field ApplicationID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:654-657
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:664-667
     // const shortfall = abiCall<typeof Rewards.prototype.allocationMbrCreditShortfall>({
     //   appId: rewards,
     //   args: [launch.devDisbursement, 1],
@@ -3167,22 +3190,22 @@ reclaimDevBuyMbr_after_assert@5:
     ==
     assert // invalid number of bytes for uint64
     btoi
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:658
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:668
     // const credits: uint64 = UserAllocationMBR - shortfall
     pushint 25300
     swap
     -
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:659
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:669
     // if (credits === 0) {
     bnz reclaimDevBuyMbr_after_if_else@8
     popn 4
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:660
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:670
     // return 0
     intc_0 // 0
 
 reclaimDevBuyMbr_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.reclaimDevBuyMbr@13:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:648
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:658
     // reclaimDevBuyMbr(launchId: uint64): uint64 {
     itob
     bytec_0 // 0x151f7c75
@@ -3193,7 +3216,7 @@ reclaimDevBuyMbr_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.
     return
 
 reclaimDevBuyMbr_after_if_else@8:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:662
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:672
     // loggedAssert(canReceive(launch.creator, 0, credits), errPayment)
     swap
     extract 0 32
@@ -3207,20 +3230,20 @@ reclaimDevBuyMbr_after_if_else@8:
     err // ERR:errLmpy
 
 reclaimDevBuyMbr_after_assert@10:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:664-667
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:674-677
     // abiCall<typeof Rewards.prototype.withdrawMbrCredits>({
     //   appId: rewards,
     //   args: [launch.devDisbursement, credits],
     // })
     itxn_begin
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:666
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:676
     // args: [launch.devDisbursement, credits],
     swap
     dup
     itob
     uncover 3
     itxn_field ApplicationID
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:664-667
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:674-677
     // abiCall<typeof Rewards.prototype.withdrawMbrCredits>({
     //   appId: rewards,
     //   args: [launch.devDisbursement, credits],
@@ -3235,7 +3258,7 @@ reclaimDevBuyMbr_after_assert@10:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:668
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:678
     // itxn.payment({ receiver: launch.creator, amount: credits }).submit()
     itxn_begin
     dup
@@ -3247,14 +3270,14 @@ reclaimDevBuyMbr_after_assert@10:
     intc_0 // 0
     itxn_field Fee
     itxn_submit
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:648
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:658
     // reclaimDevBuyMbr(launchId: uint64): uint64 {
     b reclaimDevBuyMbr_after_inlined_smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.reclaimDevBuyMbr@13
 
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.getLaunch[routing]() -> void:
 getLaunch:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:695
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:705
     // @abimethod({ readonly: true })
     txna ApplicationArgs 1
     dup
@@ -3263,16 +3286,16 @@ getLaunch:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:697
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:707
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     itob
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:234
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:236
     // launches = BoxMap<uint64, Launch>({ keyPrefix: LaunchManagerBoxPrefixLaunches })
     bytec_3 // "l"
     swap
     concat
     dup
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:697
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:707
     // loggedAssert(this.launches(launchId).exists, errNotFound)
     box_len
     bury 1
@@ -3282,11 +3305,11 @@ getLaunch:
     err // ERR:errLmnf
 
 getLaunch_after_assert@3:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:698
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:708
     // return clone(this.launches(launchId).value)
     box_get
     assert // Box must have value
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:695
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:705
     // @abimethod({ readonly: true })
     bytec_0 // 0x151f7c75
     swap
@@ -3298,20 +3321,20 @@ getLaunch_after_assert@3:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.requireAdmin() -> void:
 requireAdmin:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:263
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:265
     // loggedAssert(Txn.sender === this.admin.value, errAdmin)
     txn Sender
     intc_0 // 0
     // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:214
     // admin = GlobalState<Account>({ key: 'admin' })
-    bytec 16 // "admin"
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:263
+    bytec 17 // "admin"
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:265
     // loggedAssert(Txn.sender === this.admin.value, errAdmin)
     app_global_get_ex
     assert // check GlobalState exists
     ==
     bnz requireAdmin_after_assert@2
-    pushbytes "ERR:errLmad"
+    bytec 27 // "ERR:errLmad"
     log
     err // ERR:errLmad
 
@@ -3321,7 +3344,7 @@ requireAdmin_after_assert@2:
 
 // smart_contracts/plugin-dex/launch/launch-manager.algo.ts::LaunchManager.free() -> uint64:
 free:
-    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:305
+    // smart_contracts/plugin-dex/launch/launch-manager.algo.ts:320
     // return Global.currentApplicationAddress.balance - Global.currentApplicationAddress.minBalance
     global CurrentApplicationAddress
     acct_params_get AcctBalance

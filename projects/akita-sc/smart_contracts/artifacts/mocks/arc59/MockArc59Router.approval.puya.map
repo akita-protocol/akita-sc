@@ -1,0 +1,1088 @@
+{
+  "version": 3,
+  "sources": [
+    "../../../mocks/arc59/contract.algo.ts"
+  ],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;AAiBA;;AAAA;AAAA;AAAA;;AAAA;;;AAAA;;;;;;;;;;;;;;;;;;;;;;AAAA;;;AAAA;;;;;;;;;;AAAA;AAAA;;;;;;AAAA;;;AAAA;;;;AAAA;AAIG;AAAA;AAGD;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AACE;AAEmB;;;;;AACF;;;;;AAHjB;;;AAAA;;;AAAA;AADF;AAAA;AAUA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AAhBa;AAiBa;;AAAxB;AAhBW;AAiBa;AAAxB;AAEA;AAEmB;;AAC2B;;AAA7B;;AAAA;;AAAA;;;;;;;;;AAHjB;;;AAAA;;;AAAA;AAJF;AAAA;AAaA;;;AAAA;AAAA;AAAA;AAAA;AAAA;AAAA;AA7Ba;AA8Ba;;AAAxB;AA7BW;AA8Ba;;AAAxB;AAEA;AAEmB;AAAA;;AAAA;AAC2B;;AAA7B;;AAAA;;AAAA;AAAA;AAEC;;AAAA;;AAAA;;;;;;;;;;;AALlB;;;AAAA;;;AAAA;AAJF;AAAA;AA7Ba;AA4Ca;;AAAxB;AA3CW;AA4Ca;;AAAxB;AAEA;AAEc;;AACF;;AAAA;;AAAA;AAA2C;;AAAA;;AAAA;AAA3C;;;;;AAHZ;;;AAAA;;;AAAA;AAJF;AAAA",
+  "op_pc_offset": 0,
+  "pc_events": {
+    "1": {
+      "subroutine": "@algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram",
+      "params": {},
+      "block": "main",
+      "stack_in": [],
+      "op": "intcblock 1 0 8 4"
+    },
+    "7": {
+      "op": "bytecblock \"caller\" \"action\""
+    },
+    "23": {
+      "op": "txn OnCompletion",
+      "defined_out": [
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "tmp%0#1"
+      ]
+    },
+    "25": {
+      "op": "!",
+      "defined_out": [
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "tmp%1#0"
+      ]
+    },
+    "26": {
+      "op": "assert",
+      "stack_out": []
+    },
+    "27": {
+      "op": "txn ApplicationID",
+      "defined_out": [
+        "tmp%2#0"
+      ],
+      "stack_out": [
+        "tmp%2#0"
+      ]
+    },
+    "29": {
+      "op": "bz main_create_NoOp@8",
+      "stack_out": []
+    },
+    "32": {
+      "op": "pushbytess 0x1fc4c3e3 0xbf902e3c 0x89b3c9cd 0x362dcad7 // method \"optIn(uint64)void\", method \"arc59_claim(uint64)void\", method \"arc59_reject(uint64)void\", method \"arc59_claimAlgo()void\"",
+      "defined_out": [
+        "Method(arc59_claim(uint64)void)",
+        "Method(arc59_claimAlgo()void)",
+        "Method(arc59_reject(uint64)void)",
+        "Method(optIn(uint64)void)"
+      ],
+      "stack_out": [
+        "Method(optIn(uint64)void)",
+        "Method(arc59_claim(uint64)void)",
+        "Method(arc59_reject(uint64)void)",
+        "Method(arc59_claimAlgo()void)"
+      ]
+    },
+    "54": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(arc59_claim(uint64)void)",
+        "Method(arc59_claimAlgo()void)",
+        "Method(arc59_reject(uint64)void)",
+        "Method(optIn(uint64)void)",
+        "tmp%4#0"
+      ],
+      "stack_out": [
+        "Method(optIn(uint64)void)",
+        "Method(arc59_claim(uint64)void)",
+        "Method(arc59_reject(uint64)void)",
+        "Method(arc59_claimAlgo()void)",
+        "tmp%4#0"
+      ]
+    },
+    "57": {
+      "op": "match optIn arc59_claim arc59_reject arc59_claimAlgo",
+      "stack_out": []
+    },
+    "67": {
+      "op": "err"
+    },
+    "68": {
+      "block": "main_create_NoOp@8",
+      "stack_in": [],
+      "op": "pushbytes 0x4c5c61ba // method \"create()void\"",
+      "defined_out": [
+        "Method(create()void)"
+      ],
+      "stack_out": [
+        "Method(create()void)"
+      ]
+    },
+    "74": {
+      "op": "txna ApplicationArgs 0",
+      "defined_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ],
+      "stack_out": [
+        "Method(create()void)",
+        "tmp%5#0"
+      ]
+    },
+    "77": {
+      "op": "match main_create_route@9",
+      "stack_out": []
+    },
+    "81": {
+      "op": "err"
+    },
+    "82": {
+      "block": "main_create_route@9",
+      "stack_in": [],
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "83": {
+      "op": "return",
+      "stack_out": []
+    },
+    "84": {
+      "subroutine": "smart_contracts/mocks/arc59/contract.algo.ts::MockArc59Router.optIn[routing]",
+      "params": {},
+      "block": "optIn",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "87": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "88": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "89": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "90": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "91": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "92": {
+      "op": "btoi",
+      "defined_out": [
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "93": {
+      "op": "itxn_begin"
+    },
+    "94": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "96": {
+      "op": "swap",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "asa#0"
+      ]
+    },
+    "97": {
+      "op": "itxn_field XferAsset",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "99": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "0"
+      ]
+    },
+    "100": {
+      "op": "itxn_field AssetAmount",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "102": {
+      "op": "itxn_field AssetReceiver",
+      "stack_out": []
+    },
+    "104": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4"
+      ],
+      "stack_out": [
+        "4"
+      ]
+    },
+    "105": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "107": {
+      "op": "intc_1 // 0",
+      "stack_out": [
+        "0"
+      ]
+    },
+    "108": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "110": {
+      "op": "itxn_submit"
+    },
+    "111": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "112": {
+      "op": "return",
+      "stack_out": []
+    },
+    "113": {
+      "subroutine": "smart_contracts/mocks/arc59/contract.algo.ts::MockArc59Router.arc59_claim[routing]",
+      "params": {},
+      "block": "arc59_claim",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "116": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "117": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "118": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "119": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "120": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "121": {
+      "op": "btoi",
+      "defined_out": [
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "122": {
+      "op": "bytec_0 // \"caller\"",
+      "defined_out": [
+        "\"caller\"",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"caller\""
+      ]
+    },
+    "123": {
+      "op": "txn Sender",
+      "defined_out": [
+        "\"caller\"",
+        "asa#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"caller\"",
+        "tmp%0#1"
+      ]
+    },
+    "125": {
+      "op": "app_global_put",
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "126": {
+      "op": "bytec_1 // \"action\"",
+      "defined_out": [
+        "\"action\"",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"action\""
+      ]
+    },
+    "127": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "\"action\"",
+        "1",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"action\"",
+        "1"
+      ]
+    },
+    "128": {
+      "op": "app_global_put",
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "129": {
+      "op": "itxn_begin"
+    },
+    "130": {
+      "op": "txn Sender",
+      "defined_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "132": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%1#1"
+      ]
+    },
+    "134": {
+      "op": "dig 2",
+      "defined_out": [
+        "asa#0",
+        "asa#0 (copy)",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%1#1"
+      ],
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%1#1",
+        "asa#0 (copy)"
+      ]
+    },
+    "136": {
+      "op": "asset_holding_get AssetBalance",
+      "defined_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "138": {
+      "op": "pop",
+      "stack_out": [
+        "asa#0",
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%2#0"
+      ]
+    },
+    "139": {
+      "op": "uncover 2",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%2#0",
+        "asa#0"
+      ]
+    },
+    "141": {
+      "op": "itxn_field XferAsset",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0",
+        "tmp%2#0"
+      ]
+    },
+    "143": {
+      "op": "itxn_field AssetAmount",
+      "stack_out": [
+        "inner_txn_params%0%%param_AssetReceiver_idx_0#0"
+      ]
+    },
+    "145": {
+      "op": "itxn_field AssetReceiver",
+      "stack_out": []
+    },
+    "147": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4"
+      ],
+      "stack_out": [
+        "4"
+      ]
+    },
+    "148": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "150": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "151": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "153": {
+      "op": "itxn_submit"
+    },
+    "154": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "155": {
+      "op": "return",
+      "stack_out": []
+    },
+    "156": {
+      "subroutine": "smart_contracts/mocks/arc59/contract.algo.ts::MockArc59Router.arc59_reject[routing]",
+      "params": {},
+      "block": "arc59_reject",
+      "stack_in": [],
+      "op": "txna ApplicationArgs 1",
+      "defined_out": [
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "159": {
+      "op": "dup",
+      "defined_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "tmp%0#0 (copy)"
+      ]
+    },
+    "160": {
+      "op": "len",
+      "defined_out": [
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0"
+      ]
+    },
+    "161": {
+      "op": "intc_2 // 8",
+      "defined_out": [
+        "8",
+        "len%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "len%0#0",
+        "8"
+      ]
+    },
+    "162": {
+      "op": "==",
+      "defined_out": [
+        "eq%0#0",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "tmp%0#0",
+        "eq%0#0"
+      ]
+    },
+    "163": {
+      "error": "invalid number of bytes for arc4.uint64",
+      "op": "assert // invalid number of bytes for arc4.uint64",
+      "stack_out": [
+        "tmp%0#0"
+      ]
+    },
+    "164": {
+      "op": "btoi",
+      "defined_out": [
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "165": {
+      "op": "bytec_0 // \"caller\"",
+      "defined_out": [
+        "\"caller\"",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"caller\""
+      ]
+    },
+    "166": {
+      "op": "txn Sender",
+      "defined_out": [
+        "\"caller\"",
+        "asa#0",
+        "tmp%0#1"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"caller\"",
+        "tmp%0#1"
+      ]
+    },
+    "168": {
+      "op": "app_global_put",
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "169": {
+      "op": "bytec_1 // \"action\"",
+      "defined_out": [
+        "\"action\"",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"action\""
+      ]
+    },
+    "170": {
+      "op": "pushint 2",
+      "defined_out": [
+        "\"action\"",
+        "2",
+        "asa#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "\"action\"",
+        "2"
+      ]
+    },
+    "172": {
+      "op": "app_global_put",
+      "stack_out": [
+        "asa#0"
+      ]
+    },
+    "173": {
+      "op": "itxn_begin"
+    },
+    "174": {
+      "op": "dup",
+      "defined_out": [
+        "asa#0",
+        "asa#0 (copy)"
+      ],
+      "stack_out": [
+        "asa#0",
+        "asa#0 (copy)"
+      ]
+    },
+    "175": {
+      "op": "asset_params_get AssetCreator",
+      "defined_out": [
+        "asa#0",
+        "check%0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "177": {
+      "error": "asset exists",
+      "op": "assert // asset exists",
+      "stack_out": [
+        "asa#0",
+        "value%0#0"
+      ]
+    },
+    "178": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "asa#0",
+        "tmp%1#1",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "value%0#0",
+        "tmp%1#1"
+      ]
+    },
+    "180": {
+      "op": "dig 2",
+      "stack_out": [
+        "asa#0",
+        "value%0#0",
+        "tmp%1#1",
+        "asa#0 (copy)"
+      ]
+    },
+    "182": {
+      "op": "asset_holding_get AssetBalance",
+      "defined_out": [
+        "asa#0",
+        "tmp%2#0",
+        "tmp%3#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "value%0#0",
+        "tmp%2#0",
+        "tmp%3#0"
+      ]
+    },
+    "184": {
+      "op": "pop",
+      "stack_out": [
+        "asa#0",
+        "value%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "185": {
+      "op": "swap",
+      "stack_out": [
+        "asa#0",
+        "tmp%2#0",
+        "value%0#0"
+      ]
+    },
+    "186": {
+      "op": "dig 2",
+      "stack_out": [
+        "asa#0",
+        "tmp%2#0",
+        "value%0#0",
+        "asa#0 (copy)"
+      ]
+    },
+    "188": {
+      "op": "asset_params_get AssetCreator",
+      "defined_out": [
+        "asa#0",
+        "check%1#0",
+        "tmp%2#0",
+        "value%0#0",
+        "value%1#0"
+      ],
+      "stack_out": [
+        "asa#0",
+        "tmp%2#0",
+        "value%0#0",
+        "value%1#0",
+        "check%1#0"
+      ]
+    },
+    "190": {
+      "error": "asset exists",
+      "op": "assert // asset exists",
+      "stack_out": [
+        "asa#0",
+        "tmp%2#0",
+        "value%0#0",
+        "value%1#0"
+      ]
+    },
+    "191": {
+      "op": "itxn_field AssetCloseTo",
+      "stack_out": [
+        "asa#0",
+        "tmp%2#0",
+        "value%0#0"
+      ]
+    },
+    "193": {
+      "op": "uncover 2",
+      "stack_out": [
+        "tmp%2#0",
+        "value%0#0",
+        "asa#0"
+      ]
+    },
+    "195": {
+      "op": "itxn_field XferAsset",
+      "stack_out": [
+        "tmp%2#0",
+        "value%0#0"
+      ]
+    },
+    "197": {
+      "op": "itxn_field AssetReceiver"
+    },
+    "199": {
+      "op": "itxn_field AssetAmount",
+      "stack_out": []
+    },
+    "201": {
+      "op": "intc_3 // 4",
+      "defined_out": [
+        "4"
+      ],
+      "stack_out": [
+        "4"
+      ]
+    },
+    "202": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "204": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "205": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "207": {
+      "op": "itxn_submit"
+    },
+    "208": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "209": {
+      "op": "return",
+      "stack_out": []
+    },
+    "210": {
+      "subroutine": "smart_contracts/mocks/arc59/contract.algo.ts::MockArc59Router.arc59_claimAlgo[routing]",
+      "params": {},
+      "block": "arc59_claimAlgo",
+      "stack_in": [],
+      "op": "bytec_0 // \"caller\"",
+      "defined_out": [
+        "\"caller\""
+      ],
+      "stack_out": [
+        "\"caller\""
+      ]
+    },
+    "211": {
+      "op": "txn Sender",
+      "defined_out": [
+        "\"caller\"",
+        "tmp%0#0"
+      ],
+      "stack_out": [
+        "\"caller\"",
+        "tmp%0#0"
+      ]
+    },
+    "213": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "214": {
+      "op": "bytec_1 // \"action\"",
+      "defined_out": [
+        "\"action\""
+      ],
+      "stack_out": [
+        "\"action\""
+      ]
+    },
+    "215": {
+      "op": "pushint 3",
+      "defined_out": [
+        "\"action\"",
+        "3"
+      ],
+      "stack_out": [
+        "\"action\"",
+        "3"
+      ]
+    },
+    "217": {
+      "op": "app_global_put",
+      "stack_out": []
+    },
+    "218": {
+      "op": "itxn_begin"
+    },
+    "219": {
+      "op": "txn Sender",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "221": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "tmp%1#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "tmp%1#0"
+      ]
+    },
+    "223": {
+      "op": "acct_params_get AcctBalance",
+      "defined_out": [
+        "check%0#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0",
+        "check%0#0"
+      ]
+    },
+    "225": {
+      "error": "account funded",
+      "op": "assert // account funded",
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0"
+      ]
+    },
+    "226": {
+      "op": "global CurrentApplicationAddress",
+      "defined_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "tmp%2#0",
+        "value%0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0",
+        "tmp%2#0"
+      ]
+    },
+    "228": {
+      "op": "acct_params_get AcctMinBalance",
+      "defined_out": [
+        "check%1#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0",
+        "value%1#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0",
+        "value%1#0",
+        "check%1#0"
+      ]
+    },
+    "230": {
+      "error": "account funded",
+      "op": "assert // account funded",
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "value%0#0",
+        "value%1#0"
+      ]
+    },
+    "231": {
+      "op": "-",
+      "defined_out": [
+        "inner_txn_params%0%%param_Amount_idx_0#0",
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ],
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0",
+        "inner_txn_params%0%%param_Amount_idx_0#0"
+      ]
+    },
+    "232": {
+      "op": "itxn_field Amount",
+      "stack_out": [
+        "inner_txn_params%0%%param_Receiver_idx_0#0"
+      ]
+    },
+    "234": {
+      "op": "itxn_field Receiver",
+      "stack_out": []
+    },
+    "236": {
+      "op": "intc_0 // 1",
+      "defined_out": [
+        "1"
+      ],
+      "stack_out": [
+        "1"
+      ]
+    },
+    "237": {
+      "op": "itxn_field TypeEnum",
+      "stack_out": []
+    },
+    "239": {
+      "op": "intc_1 // 0",
+      "defined_out": [
+        "0"
+      ],
+      "stack_out": [
+        "0"
+      ]
+    },
+    "240": {
+      "op": "itxn_field Fee",
+      "stack_out": []
+    },
+    "242": {
+      "op": "itxn_submit"
+    },
+    "243": {
+      "op": "intc_0 // 1",
+      "stack_out": [
+        "1"
+      ]
+    },
+    "244": {
+      "op": "return",
+      "stack_out": []
+    }
+  }
+}

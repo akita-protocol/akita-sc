@@ -1,9 +1,11 @@
-#pragma version 11
+#pragma version 13
 #pragma typetrack false
+#pragma autosalt false
 
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
-    // smart_contracts/sunset/wallet-factory.algo.ts:25
+    // smart_contracts/sunset/wallet-factory.algo.ts:33-34
+    // @contract({ avmVersion: 13 })
     // class AbstractedAccountUpdateStub extends Contract {
     txn NumAppArgs
     bz main___algots__.defaultCreate@5
@@ -13,7 +15,7 @@ main:
     err
 
 main_update_route@3:
-    // smart_contracts/sunset/wallet-factory.algo.ts:26
+    // smart_contracts/sunset/wallet-factory.algo.ts:35
     // update(version: string): void {
     txn OnCompletion
     !
@@ -23,7 +25,8 @@ main_update_route@3:
     b update
 
 main___algots__.defaultCreate@5:
-    // smart_contracts/sunset/wallet-factory.algo.ts:25
+    // smart_contracts/sunset/wallet-factory.algo.ts:33-34
+    // @contract({ avmVersion: 13 })
     // class AbstractedAccountUpdateStub extends Contract {
     txn OnCompletion
     !
@@ -35,7 +38,7 @@ main___algots__.defaultCreate@5:
 
 // smart_contracts/sunset/wallet-factory.algo.ts::AbstractedAccountUpdateStub.update[routing]() -> void:
 update:
-    // smart_contracts/sunset/wallet-factory.algo.ts:26
+    // smart_contracts/sunset/wallet-factory.algo.ts:35
     // update(version: string): void {
     txna ApplicationArgs 1
     dup

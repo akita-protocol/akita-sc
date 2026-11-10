@@ -1,0 +1,72 @@
+{
+    "hints": {
+        "create()void": {
+            "call_config": {
+                "no_op": "CREATE"
+            }
+        },
+        "isValidNfdAppId(string,uint64)bool": {
+            "read_only": true,
+            "call_config": {
+                "no_op": "CALL"
+            }
+        }
+    },
+    "source": {
+        "approval": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYXJjNC9pbmRleC5kLnRzOjpDb250cmFjdC5hcHByb3ZhbFByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBpbnRjYmxvY2sgMCAxCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvbmZkL2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrTmZkUmVnaXN0cnkgZXh0ZW5kcyBDb250cmFjdCB7CiAgICB0eG4gT25Db21wbGV0aW9uCiAgICAhCiAgICBhc3NlcnQKICAgIHR4biBBcHBsaWNhdGlvbklECiAgICBieiBtYWluX2NyZWF0ZV9Ob09wQDUKICAgIHB1c2hieXRlcyAweDRiZTIyZmM2IC8vIG1ldGhvZCAiaXNWYWxpZE5mZEFwcElkKHN0cmluZyx1aW50NjQpYm9vbCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIGlzVmFsaWROZmRBcHBJZAogICAgZXJyCgptYWluX2NyZWF0ZV9Ob09wQDU6CiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvbmZkL2NvbnRyYWN0LmFsZ28udHM6MTIKICAgIC8vIGV4cG9ydCBjbGFzcyBNb2NrTmZkUmVnaXN0cnkgZXh0ZW5kcyBDb250cmFjdCB7CiAgICBwdXNoYnl0ZXMgMHg0YzVjNjFiYSAvLyBtZXRob2QgImNyZWF0ZSgpdm9pZCIKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDAKICAgIG1hdGNoIG1haW5fY3JlYXRlX3JvdXRlQDYKICAgIGVycgoKbWFpbl9jcmVhdGVfcm91dGVANjoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czoxMwogICAgLy8gQGFiaW1ldGhvZCh7IG9uQ3JlYXRlOiAncmVxdWlyZScgfSkKICAgIGludGNfMSAvLyAxCiAgICByZXR1cm4KCgovLyBzbWFydF9jb250cmFjdHMvbW9ja3MvbmZkL2NvbnRyYWN0LmFsZ28udHM6Ok1vY2tOZmRSZWdpc3RyeS5pc1ZhbGlkTmZkQXBwSWRbcm91dGluZ10oKSAtPiB2b2lkOgppc1ZhbGlkTmZkQXBwSWQ6CiAgICBpbnRjXzAgLy8gMAogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL25mZC9jb250cmFjdC5hbGdvLnRzOjE2CiAgICAvLyBAYWJpbWV0aG9kKHsgcmVhZG9ubHk6IHRydWUgfSkKICAgIHR4bmEgQXBwbGljYXRpb25BcmdzIDEKICAgIGR1cAogICAgaW50Y18wIC8vIDAKICAgIGV4dHJhY3RfdWludDE2IC8vIG9uIGVycm9yOiBpbnZhbGlkIGFycmF5IGxlbmd0aCBoZWFkZXIKICAgIHB1c2hpbnQgMgogICAgKwogICAgZGlnIDEKICAgIGxlbgogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC5keW5hbWljX2FycmF5PGFyYzQudWludDg+CiAgICBleHRyYWN0IDIgMAogICAgdHhuYSBBcHBsaWNhdGlvbkFyZ3MgMgogICAgZHVwCiAgICBsZW4KICAgIHB1c2hpbnQgOAogICAgPT0KICAgIGFzc2VydCAvLyBpbnZhbGlkIG51bWJlciBvZiBieXRlcyBmb3IgYXJjNC51aW50NjQKICAgIGJ0b2kKICAgIGR1cAogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL25mZC9jb250cmFjdC5hbGdvLnRzOjE5CiAgICAvLyBpZiAoYXBwLmNyZWF0b3IgIT09IEdsb2JhbC5jcmVhdG9yQWRkcmVzcykgewogICAgYXBwX3BhcmFtc19nZXQgQXBwQ3JlYXRvcgogICAgYXNzZXJ0IC8vIGFwcGxpY2F0aW9uIGV4aXN0cwogICAgZ2xvYmFsIENyZWF0b3JBZGRyZXNzCiAgICAhPQogICAgYnogaXNWYWxpZE5mZEFwcElkX2FmdGVyX2lmX2Vsc2VAMwogICAgcG9wCiAgICAvLyBzbWFydF9jb250cmFjdHMvbW9ja3MvbmZkL2NvbnRyYWN0LmFsZ28udHM6MjAKICAgIC8vIHJldHVybiBmYWxzZQogICAgaW50Y18wIC8vIDAKCmlzVmFsaWROZmRBcHBJZF9hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czo6TW9ja05mZFJlZ2lzdHJ5LmlzVmFsaWROZmRBcHBJZEA4OgogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL25mZC9jb250cmFjdC5hbGdvLnRzOjE2CiAgICAvLyBAYWJpbWV0aG9kKHsgcmVhZG9ubHk6IHRydWUgfSkKICAgIHB1c2hieXRlcyAweDAwCiAgICBpbnRjXzAgLy8gMAogICAgdW5jb3ZlciAyCiAgICBzZXRiaXQKICAgIHB1c2hieXRlcyAweDE1MWY3Yzc1CiAgICBzd2FwCiAgICBjb25jYXQKICAgIGxvZwogICAgaW50Y18xIC8vIDEKICAgIHJldHVybgoKaXNWYWxpZE5mZEFwcElkX2FmdGVyX2lmX2Vsc2VAMzoKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czoyMgogICAgLy8gY29uc3QgW25hbWUsIGV4aXN0c10gPSBvcC5BcHBHbG9iYWwuZ2V0RXhCeXRlcyhhcHAsIEJ5dGVzKCdpLm5hbWUnKSkKICAgIHB1c2hieXRlcyAiaS5uYW1lIgogICAgYXBwX2dsb2JhbF9nZXRfZXgKICAgIHN3YXAKICAgIGJ1cnkgMwogICAgLy8gc21hcnRfY29udHJhY3RzL21vY2tzL25mZC9jb250cmFjdC5hbGdvLnRzOjIzCiAgICAvLyByZXR1cm4gZXhpc3RzICYmIG5hbWUgPT09IEJ5dGVzKG5mZE5hbWUpCiAgICBieiBpc1ZhbGlkTmZkQXBwSWRfYm9vbF9mYWxzZUA2CiAgICBkdXAyCiAgICA9PQogICAgYnogaXNWYWxpZE5mZEFwcElkX2Jvb2xfZmFsc2VANgogICAgaW50Y18xIC8vIDEKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czoxNgogICAgLy8gQGFiaW1ldGhvZCh7IHJlYWRvbmx5OiB0cnVlIH0pCiAgICBiIGlzVmFsaWROZmRBcHBJZF9hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czo6TW9ja05mZFJlZ2lzdHJ5LmlzVmFsaWROZmRBcHBJZEA4Cgppc1ZhbGlkTmZkQXBwSWRfYm9vbF9mYWxzZUA2OgogICAgaW50Y18wIC8vIDAKICAgIC8vIHNtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czoxNgogICAgLy8gQGFiaW1ldGhvZCh7IHJlYWRvbmx5OiB0cnVlIH0pCiAgICBiIGlzVmFsaWROZmRBcHBJZF9hZnRlcl9pbmxpbmVkX3NtYXJ0X2NvbnRyYWN0cy9tb2Nrcy9uZmQvY29udHJhY3QuYWxnby50czo6TW9ja05mZFJlZ2lzdHJ5LmlzVmFsaWROZmRBcHBJZEA4Cg==",
+        "clear": "I3ByYWdtYSB2ZXJzaW9uIDExCiNwcmFnbWEgdHlwZXRyYWNrIGZhbHNlCgovLyBAYWxnb3JhbmRmb3VuZGF0aW9uL2FsZ29yYW5kLXR5cGVzY3JpcHQvYmFzZS1jb250cmFjdC5kLnRzOjpCYXNlQ29udHJhY3QuY2xlYXJTdGF0ZVByb2dyYW0oKSAtPiB1aW50NjQ6Cm1haW46CiAgICBwdXNoaW50IDEKICAgIHJldHVybgo="
+    },
+    "state": {
+        "global": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        },
+        "local": {
+            "num_byte_slices": 0,
+            "num_uints": 0
+        }
+    },
+    "schema": {
+        "global": {
+            "declared": {},
+            "reserved": {}
+        },
+        "local": {
+            "declared": {},
+            "reserved": {}
+        }
+    },
+    "contract": {
+        "name": "MockNfdRegistry",
+        "desc": "TEST-ONLY NFD registry double. `isValidNfdAppId` accepts any NFD app created\nby the same deployer whose `i.name` matches. ABI-compatible with the subset\nof the NFD registry the NFDPlugin calls in these tests.",
+        "methods": [
+            {
+                "name": "create",
+                "args": [],
+                "readonly": false,
+                "returns": {
+                    "type": "void"
+                }
+            },
+            {
+                "name": "isValidNfdAppId",
+                "args": [
+                    {
+                        "type": "string",
+                        "name": "nfdName"
+                    },
+                    {
+                        "type": "uint64",
+                        "name": "nfdAppId"
+                    }
+                ],
+                "readonly": true,
+                "returns": {
+                    "type": "bool"
+                }
+            }
+        ],
+        "networks": {}
+    },
+    "bare_call_config": {}
+}

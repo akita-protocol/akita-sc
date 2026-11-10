@@ -4,7 +4,7 @@
 // @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
 main:
     intcblock 0 8 1 6
-    bytecblock "registry" "spending_address" "ERR:NDSA" 0x5588dcb4
+    bytecblock "registry" "ERR:errNdsa" 0x5588dcb4
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:11
     // export class DualStakePlugin extends Contract {
     txn OnCompletion
@@ -26,22 +26,61 @@ main_create_NoOp@6:
     err
 
 
+// smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
+getControlledSpendingAccount:
+    // smart_contracts/utils/functions.ts:398
+    // export function getControlledSpendingAccount(wallet: Application): Account {
+    proto 1 1
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    frame_dig -1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    // smart_contracts/utils/functions.ts:400
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz getControlledSpendingAccount_after_assert@2
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+getControlledSpendingAccount_after_assert@2:
+    // smart_contracts/utils/functions.ts:401
+    // return sender
+    retsub
+
+
 // smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
 rekeyAddress:
-    // smart_contracts/utils/functions.ts:341
+    // smart_contracts/utils/functions.ts:452
     // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
     proto 2 1
-    // smart_contracts/utils/functions.ts:342
+    // smart_contracts/utils/functions.ts:453
     // if (!rekeyBack) {
     frame_dig -2
     bnz rekeyAddress_after_if_else@2
-    // smart_contracts/utils/functions.ts:343
+    // smart_contracts/utils/functions.ts:454
     // return Global.zeroAddress
     global ZeroAddress
     retsub
 
 rekeyAddress_after_if_else@2:
-    // smart_contracts/utils/functions.ts:346
+    // smart_contracts/utils/functions.ts:457
     // return wallet.address
     frame_dig -1
     app_params_get AppAddress
@@ -76,7 +115,6 @@ create:
 // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts::DualStakePlugin.mint[routing]() -> void:
 mint:
     pushbytes ""
-    dupn 3
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:26-31
     // mint(
     //   wallet: Application,
@@ -117,32 +155,20 @@ mint:
     ==
     assert // invalid number of bytes for arc4.uint64
     btoi
-    cover 2
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
+    cover 3
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:32
+    // const sender = getControlledSpendingAccount(wallet)
     swap
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
-    swap
+    callsub getControlledSpendingAccount
+    cover 4
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:34
-    // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    // loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     intc_0 // 0
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:15
     // registry = GlobalState<Application>({ key: DualStakePluginGlobalStateKey })
     bytec_0 // "registry"
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:34
-    // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    // loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     app_global_get_ex
     assert // check GlobalState exists
     app_params_get AppAddress
@@ -152,9 +178,9 @@ mint:
     assert // application exists
     ==
     bnz mint_after_assert@3
-    bytec_2 // "ERR:NDSA"
+    bytec_1 // "ERR:errNdsa"
     log
-    err // ERR:NDSA
+    err // ERR:errNdsa
 
 mint_after_assert@3:
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:36-42
@@ -168,14 +194,13 @@ mint_after_assert@3:
     itxn_begin
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:39
     // receiver: appId.address,
-    dig 2
-    dup
+    dupn 2
     app_params_get AppAddress
     assert // application exists
     dig 3
     itxn_field Amount
     itxn_field Receiver
-    dig 1
+    dig 4
     dup
     itxn_field Sender
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:37-41
@@ -215,7 +240,6 @@ mint_after_assert@3:
     assert // invalid number of bytes for uint64
     btoi
     dup
-    bury 7
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:46
     // if (rate > 0) {
     bz mint_after_if_else@12
@@ -225,14 +249,14 @@ mint_after_assert@3:
     //   appId
     // })
     itxn_next
-    dig 2
+    dig 1
     dup
     itxn_field ApplicationID
-    dig 1
+    dig 5
     dup
     cover 2
     itxn_field Sender
-    bytec_3 // method "mint()void"
+    bytec_2 // method "mint()void"
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -246,7 +270,7 @@ mint_after_assert@3:
     pop
     dup
     cover 2
-    bury 11
+    cover 9
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:55
     // const precision = op.AppGlobal.getExUint64(appId, Bytes(DualStakeGlobalStateKeyRatePrecision))[0]
     pushbytes "rate_precision"
@@ -254,35 +278,35 @@ mint_after_assert@3:
     pop
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:56
     // const asaAmount: uint64 = op.divw(...op.mulw(amount, rate), precision) + 1
-    dig 4
-    dig 9
+    uncover 5
+    uncover 4
     mulw
     uncover 2
     divw
     intc_2 // 1
     +
-    bury 11
+    cover 4
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:58
     // const [holdings, isOptedIn] = op.AssetHolding.assetBalance(sender, asaID)
     asset_holding_get AssetBalance
     swap
     bury 8
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:59
-    // loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
+    // loggedAssert(isOptedIn && holdings >= asaAmount, errNotEnoughOfAsa)
     bz mint_bool_false@8
     dig 6
-    dig 9
+    dig 3
     >=
     bz mint_bool_false@8
     intc_2 // 1
 
 mint_bool_merge@9:
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:59
-    // loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
+    // loggedAssert(isOptedIn && holdings >= asaAmount, errNotEnoughOfAsa)
     bnz mint_after_assert@11
-    pushbytes "ERR:NEOA"
+    pushbytes "ERR:errNeoa"
     log
-    err // ERR:NEOA
+    err // ERR:errNeoa
 
 mint_after_assert@11:
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:61-69
@@ -298,21 +322,18 @@ mint_after_assert@11:
     itxn_next
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:64
     // assetReceiver: appId.address,
-    dig 2
     app_params_get AppAddress
     assert // application exists
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:67
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 4
-    dig 6
+    swap
+    uncover 4
     callsub rekeyAddress
     itxn_field RekeyTo
-    dig 8
+    uncover 3
     itxn_field XferAsset
-    dig 9
-    itxn_field AssetAmount
     itxn_field AssetReceiver
-    dup
+    itxn_field AssetAmount
     itxn_field Sender
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:62-68
     // itxn.assetTransfer({
@@ -346,6 +367,8 @@ mint_bool_false@8:
     b mint_bool_merge@9
 
 mint_after_if_else@12:
+    pop
+    bury 1
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:77-81
     // itxnCompose.next<typeof DualStake.prototype.mint>({
     //   sender,
@@ -355,13 +378,11 @@ mint_after_if_else@12:
     itxn_next
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:80
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 3
-    dig 5
+    swap
+    uncover 3
     callsub rekeyAddress
     itxn_field RekeyTo
-    dig 2
     itxn_field ApplicationID
-    dup
     itxn_field Sender
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:77-81
     // itxnCompose.next<typeof DualStake.prototype.mint>({
@@ -369,7 +390,7 @@ mint_after_if_else@12:
     //   appId,
     //   rekeyTo: rekeyAddress(rekeyBack, wallet)
     // })
-    bytec_3 // method "mint()void"
+    bytec_2 // method "mint()void"
     itxn_field ApplicationArgs
     intc_3 // appl
     itxn_field TypeEnum
@@ -426,31 +447,19 @@ redeem:
     assert // invalid number of bytes for arc4.uint64
     btoi
     cover 2
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
+    // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:87
+    // const sender = getControlledSpendingAccount(wallet)
     swap
-    // smart_contracts/utils/functions.ts:288
-    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    bytec_1 // "spending_address"
-    // smart_contracts/utils/functions.ts:286-289
-    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
-    //   wallet,
-    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
-    // )
-    app_global_get_ex
-    pop
+    callsub getControlledSpendingAccount
     swap
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:89
-    // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    // loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     intc_0 // 0
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:15
     // registry = GlobalState<Application>({ key: DualStakePluginGlobalStateKey })
     bytec_0 // "registry"
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:89
-    // loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    // loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     app_global_get_ex
     assert // check GlobalState exists
     app_params_get AppAddress
@@ -460,14 +469,14 @@ redeem:
     assert // application exists
     ==
     bnz redeem_after_assert@3
-    bytec_2 // "ERR:NDSA"
+    bytec_1 // "ERR:errNdsa"
     log
-    err // ERR:NDSA
+    err // ERR:errNdsa
 
 redeem_after_assert@3:
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:91
     // const dualStakeTokenId: uint64 = op.AppGlobal.getExUint64(appId, Bytes(DualStakePluginGlobalStateKeyLSTID))[0]
-    dig 2
+    uncover 2
     dup
     pushbytes "lst_id"
     app_global_get_ex
@@ -490,10 +499,10 @@ redeem_after_assert@3:
     assert // application exists
     uncover 2
     itxn_field XferAsset
-    dig 3
+    uncover 3
     itxn_field AssetAmount
     itxn_field AssetReceiver
-    dig 1
+    swap
     dup
     itxn_field Sender
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:93-99
@@ -527,8 +536,8 @@ redeem_after_assert@3:
     itxn_begin
     // smart_contracts/arc58/plugins/dual-stake/contract.algo.ts:105
     // rekeyTo: rekeyAddress(rekeyBack, wallet)
-    dig 5
-    dig 7
+    uncover 2
+    uncover 3
     callsub rekeyAddress
     itxn_field RekeyTo
     itxn_field Sender

@@ -1,0 +1,312 @@
+#pragma version 11
+#pragma typetrack false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 1 2 32
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:13
+    // export class MockGuildAccountFactory extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@7
+    pushbytess 0xe0d189b8 0x9b67fa6d 0x01e22f3f // method "newAccount(pay,address,address,string,address,byte[32],string,bool,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64", method "cost()uint64", method "updateWallet(uint64)void"
+    txna ApplicationArgs 0
+    match newAccount main_cost_route@4 updateWallet
+    err
+
+main_cost_route@4:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:35
+    // @abimethod({ readonly: true })
+    pushbytes 0x151f7c7500000000002dc6c0
+    log
+    intc_1 // 1
+    return
+
+main_create_NoOp@7:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:13
+    // export class MockGuildAccountFactory extends Contract {
+    pushbytes 0x4c5c61ba // method "create()void"
+    txna ApplicationArgs 0
+    match main_create_route@8
+    err
+
+main_create_route@8:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:14
+    // @abimethod({ onCreate: 'require' })
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts::MockGuildAccountFactory.newAccount[routing]() -> void:
+newAccount:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:17-29
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    txn GroupIndex
+    intc_1 // 1
+    -
+    gtxns TypeEnum
+    intc_1 // pay
+    ==
+    assert // transaction type is pay
+    txna ApplicationArgs 1
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 4
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 5
+    len
+    intc_3 // 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    txna ApplicationArgs 6
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    txna ApplicationArgs 7
+    len
+    intc_1 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    txna ApplicationArgs 8
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 9
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 8
+    *
+    intc_2 // 2
+    +
+    swap
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    txna ApplicationArgs 10
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    dup
+    cover 2
+    intc_2 // 2
+    *
+    swap
+    dup
+    len
+    cover 2
+    extract 2 0
+    intc_0 // 0
+
+newAccount_for_header@1:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:17-29
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    dup
+    dig 5
+    <
+    bz newAccount_after_for@4
+    dup
+    intc_2 // 2
+    *
+    dig 2
+    dup
+    uncover 2
+    extract_uint16 // on error: invalid array encoding
+    dup
+    uncover 5
+    dup
+    cover 4
+    ==
+    assert // invalid tail pointer for (len+(uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)[])
+    dig 1
+    len
+    substring3
+    dup
+    len
+    dig 1
+    pushint 40
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 63
+    ==
+    assert // invalid tail pointer at index 2 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 65
+    +
+    dig 2
+    pushint 60
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    dig 2
+    ==
+    assert // invalid tail pointer at index 7 of (uint64,uint8[32],(len+utf8[]),bool1,uint8,uint64,uint64,(len+(uint8[4],uint64)[]),bool1,bool1,bool1,bool1,bool1)
+    uncover 3
+    swap
+    uncover 3
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 12
+    *
+    intc_2 // 2
+    +
+    +
+    +
+    cover 2
+    intc_1 // 1
+    +
+    b newAccount_for_header@1
+
+newAccount_after_for@4:
+    popn 2
+    uncover 2
+    pop
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:17-29
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    intc_2 // 2
+    +
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<smart_contracts/arc58/account/types.ts::PluginInstall>
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:30
+    // const wallet = compileArc4(MockGuildWallet).call.create({ args: [admin] }).itxn.createdApp
+    itxn_begin
+    intc_2 // 2
+    itxn_field GlobalNumByteSlice
+    pushint 3
+    itxn_field GlobalNumUint
+    pushbytes base64(C4EBQw==)
+    itxn_field ClearStateProgramPages
+    pushbytes base64(CyAEAQACCCYFBWFkbWluDGFjdGlvbl9jb3VudA1lc2Nyb3dfbG9ja2VkC2xhc3RfYWN0aW9uBBUffHUxGEAACSkjZysjZyojZzEZFEQxGEEAeIIQBBeGaRIEVnJGLgRXL9HqBHcn+FEE7vRI/QTjULnUBN9JtP0ECUO6uQTrrxSgBNJLdVYEv018VwTV3TgrBFzr7UME1YaFrwSfrnTQBBO8ROQ2GgCOEAA0AEIAsgFnAYUBpwG6AeQCOAJaAm0CjwKwAtwC6wNXAIAEzGlOqjYaAI4BAAEANhoBSRWBIBJEKExngBJjb250cm9sbGVkX2FkZHJlc3MyCmciQzYaAUkVgSASRChMZyJDNhoBFSUSRDYaAhWBIBJENhoDSSNZJAhMFRJENhoEFSISRDYaBRUiEkQ2GgYVJRJENhoHFSUSRDYaCEkjWYEMCyQITBUSRDYaCRUiEkQ2GgoVIhJENhoLFSISRDYaDBUiEkQ2Gg0VIhJEgRSIArIiQzYaAUkjWSQISwEVEkRXAgA2GgJJFSUSRBc2GgNJFYEgEkQ2GgRJI1kkCEsBFRJEVwIANhoFFSISRDYaBhUiEkQ2GgcVJRJENhoIFSUSRDYaCUkjWYEMCyQITBUSRDYaChUiEkQ2GgsVIhJENhoMFSISRDYaDRUiEkQ2Gg5JFSISRCNTQQAsSIAATwIWTwJQTEkVFlcGAkxQTIACACpQTFCAAW5PAlBJvEhMv4EViAIAIkNC/9Q2GgFJI1kkCEsBFRJEVwIAgAFuTFC+RCcETFCwIkM2GgEVJRJENhoCFYEgEkQ2GgNJI1kkCEwVEkSBKIgBvSJDNhoBSSNZJAhMFRJEgSmIAaoiQzYaAUkjWSQITBUSRDYaAhWBIBJEgUaIAY+ADBUffHUAAAAAAAAAALAiQzYaAUkjWSQITBUSRIFHiAFtIyplRBQqSwFngAEAI08CVIAsFR98dQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABMULAiQzYaAUkjWSQITBUSRDYaAkkjWYERCyQITBUSRIFIiAEKIkM2GgFJFYEgEkQoTGeBW4gA9yJDNhoBSSNZJAhMFRJENhoCSSNZgSILJAhMFRJEgTKIANUiQzYaAUkjWSQITBUSRDYaAkkjWSULJAhMFRJEgTyIALQiQzYaARWBIBJENhoCSSNZgSALJAhMFRJENhoDFSUSRDYaBBUlEkSBHogAiCJDNhoBFYEgEkSBH4gAeSJDNhoBSRUlEkQXNhoCSSNZJAhLARUSRFcCADYaA0kjWSQISwEVEkRXAgA2GgRJI1kkCEsBFRJEVwIANhoFSSNZJAhLARUSRLFMskJPArJATLJAgQSyGUyyGIAE6pGA3bIashqBBrIQI7IBsyJDIyhlRCcETFCwIkOKAQAjKWVEIggpTGcri/9niQ==)
+    itxn_field ApprovalProgramPages
+    intc_0 // 0
+    itxn_field OnCompletion
+    pushbytes 0xcc694eaa // method "create(address)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    pushint 6 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    gitxn 0 CreatedApplicationID
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:31
+    // itxn.payment({ receiver: wallet.address, amount: Global.minBalance + MockWalletFunding }).submit()
+    itxn_begin
+    dup
+    app_params_get AppAddress
+    assert // application exists
+    global MinBalance
+    pushint 2000000
+    +
+    itxn_field Amount
+    itxn_field Receiver
+    intc_1 // 1
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:17-29
+    // newAccount(
+    //   payment: gtxn.PaymentTxn,
+    //   controlledAddress: Account,
+    //   admin: Account,
+    //   nickname: string,
+    //   referrer: Account,
+    //   salt: bytes<32>,
+    //   bio: string,
+    //   automaticUpdates: boolean,
+    //   extraFunding: uint64,
+    //   assets: uint64[],
+    //   plugins: PluginInstall[],
+    // ): uint64 {
+    itob
+    pushbytes 0x151f7c75
+    swap
+    concat
+    log
+    intc_1 // 1
+    return
+
+
+// smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts::MockGuildAccountFactory.updateWallet[routing]() -> void:
+updateWallet:
+    // smart_contracts/arc58/guilds/tests/mock-account-factory.algo.ts:40
+    // updateWallet(wallet: Application): void {}
+    txna ApplicationArgs 1
+    len
+    pushint 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    intc_1 // 1
+    return
