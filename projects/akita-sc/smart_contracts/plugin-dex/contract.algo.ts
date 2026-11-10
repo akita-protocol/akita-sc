@@ -25,6 +25,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, compileArc4, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import {
+  AlgoMaxSupply,
   BpsDivisor,
   CurveFlagBonding,
   CurveFlagClose,
@@ -746,9 +747,13 @@ export class PluginDex extends Contract {
       if (slots.length > 1) held1 = this.holding(escrow, slots[1].receipt)
     }
 
+    const mbr = escrow.minBalance
+
     itxn.payment({ sender: escrow, receiver: escrow, amount: 0, rekeyTo: Application(hook.app).address }).submit()
     const result = this.callHook(hook, index, ctx, CustodyGuardBudget)
     loggedAssert(escrow.authAddress === Global.currentApplicationAddress, errMissingRekeyBack)
+    // ALGO is not a pool asset of an ASA/ASA pool, so a holding closed under custody would free MBR unseen
+    loggedAssert(pool.assetA === 0 || escrow.minBalance >= mbr, errCustodyInvariant)
 
     let dA = signedDelta(liqA, this.holding(escrow, pool.assetA))
     let dB = signedDelta(liqB, this.holding(escrow, pool.assetB))
@@ -820,8 +825,6 @@ export class PluginDex extends Contract {
       negA: dA.neg,
       deltaB: dB.mag,
       negB: dB.neg,
-      reserveA: pool.reserveA,
-      reserveB: pool.reserveB,
     })
     return result
   }
@@ -1080,7 +1083,10 @@ export class PluginDex extends Contract {
         errExternalConfig,
       )
       const receipt = Asset(ext.receipt)
-      loggedAssert(receipt.clawback === Global.zeroAddress && receipt.freeze === Global.zeroAddress, errExternalConfig)
+      loggedAssert(
+        receipt.clawback === Global.zeroAddress && receipt.freeze === Global.zeroAddress && !receipt.defaultFrozen,
+        errExternalConfig,
+      )
       for (let j: uint64 = 0; j < s; j += 1) {
         loggedAssert(slots[j].receipt !== ext.receipt, errExternalConfig)
       }
@@ -1664,6 +1670,10 @@ export class PluginDex extends Contract {
         config.graduationThreshold > 0 && (config.quoteIsA ? config.virtualA : config.virtualB) > 0,
         errLaunchState,
       )
+      // effective reserves (real + virtual) must fit a uint64 for any balance the asset can reach
+      const [overA] = op.addw(config.virtualA, assetA === 0 ? AlgoMaxSupply : Asset(assetA).total)
+      const [overB] = op.addw(config.virtualB, Asset(assetB).total)
+      loggedAssert(overA === 0 && overB === 0, errLaunchState)
     } else {
       loggedAssert(config.graduationThreshold === 0, errLaunchState)
     }

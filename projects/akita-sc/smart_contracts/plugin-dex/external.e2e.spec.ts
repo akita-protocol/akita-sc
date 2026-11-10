@@ -747,19 +747,22 @@ describe('PluginDex external positions', () => {
       await expectContractError(tryCreate([slot({ receipt: receiptA })]), 'errPdva')
     })
 
-    test('(OPEN-DECISIONS #6) the Vault refuses a receipt with a clawback or freeze address, whatever the valuator quotes (errPdex)', async () => {
+    test('(OPEN-DECISIONS #6) the Vault refuses a receipt with a clawback or freeze address or frozen by default, whatever the valuator quotes (errPdex)', async () => {
       // the valuator would also value such a receipt 0 (approval checklist), but the Vault refuses it first, so the
       // rule no longer depends on every approved valuator implementing it
       const checked = await deployValuator(lenderB)
       await checked.send.configure({ args: { mode: VALUATOR.fixed, value: RATE }, ...send })
-      const receipt = async (unitName: string, roles: { clawback?: string; freeze?: string }) =>
+      const receipt = async (unitName: string, roles: { clawback?: string; freeze?: string; defaultFrozen?: boolean }) =>
         (await algorand.send.assetCreate({ sender: admin.addr, total: 10n ** 15n, decimals: 6, unitName, ...roles }))
           .assetId
       const clawback = await receipt('rCLW', { clawback: admin.addr.toString() })
       const freeze = await receipt('rFRZ', { freeze: admin.addr.toString() })
+      // default-frozen with no freeze address: the escrow's holding could never be unfrozen
+      const frozen = await receipt('rDFZ', { defaultFrozen: true })
       const clean = await receipt('rOK', {})
       await expectContractError(tryCreate([slotFor(ext, checked, 1n, clawback)]), 'errPdex')
       await expectContractError(tryCreate([slotFor(ext, checked, 1n, freeze)]), 'errPdex')
+      await expectContractError(tryCreate([slotFor(ext, checked, 1n, frozen)]), 'errPdex')
       // the same valuator values a receipt with neither role
       const { poolId } = await tryCreate([slotFor(ext, checked, 1n, clean)])
       expect((await slots(poolId))[0]).toMatchObject({ receipt: clean, rate: RATE })

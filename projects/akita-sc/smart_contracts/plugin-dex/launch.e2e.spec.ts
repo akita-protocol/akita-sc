@@ -271,6 +271,10 @@ describe('PluginDex launch pools', () => {
         await expectContractError(createLaunch(launchConfig({ virtualA: 0n })), 'errPdlb')
         // the quote side is B but only A has an offset
         await expectContractError(createLaunch(launchConfig({ quoteIsA: false, virtualB: 0n })), 'errPdlb')
+        // offsets whose effective reserve could overflow a uint64: the token side at its total supply, the
+        // ALGO side at the ALGO supply (10^16 µALGO)
+        await expectContractError(createLaunch(launchConfig({ virtualB: 2n ** 64n - 1n })), 'errPdlb')
+        await expectContractError(createLaunch(launchConfig({ virtualA: 2n ** 64n - 10n ** 16n })), 'errPdlb')
         // a token-side offset of 0 is allowed (pure virtual-quote curve)
         const { pool } = await createLaunch(launchConfig({ virtualB: 0n }))
         expect([pool.virtualA, pool.virtualB]).toEqual([VA, 0n])
@@ -567,7 +571,13 @@ describe('PluginDex launch pools', () => {
         await swap(poolId, 0n, 3_000_000n)
       })
 
-      const poke = () => dex.send.poke({ sender: trader.addr, args: { poolId, hookIndex: 0n, data: NO_DATA }, ...send })
+      // behind an opUp reference carrier: the trading custody hook needs more than one call's 8 references
+      const poke = () =>
+        dex
+          .newGroup()
+          .opUp({ sender: trader.addr, args: [], note: 'reference carrier', maxFee: send.maxFee })
+          .poke({ sender: trader.addr, args: { poolId, hookIndex: 0n, data: NO_DATA }, maxFee: send.maxFee })
+          .send(send)
 
       test('a buy at the curve price plus the custody fee passes; one µALGO less fails (errPdki)', async () => {
         const pool = await dex.getPool({ args: { poolId } })
@@ -664,7 +674,12 @@ describe('PluginDex launch pools', () => {
 
         // the surplus reaches the treasury with the protocol fees
         const before = await holding(algorand, treasury.addr.toString(), 0n)
-        await dex.send.collectProtocolFees({ args: { poolId }, ...send })
+        // behind an opUp reference carrier (review I-2: a fee sweep can need more than 8 references)
+        await dex
+          .newGroup()
+          .opUp({ args: [], note: 'reference carrier', maxFee: send.maxFee })
+          .collectProtocolFees({ args: { poolId }, maxFee: send.maxFee })
+          .send(send)
         expect(await holding(algorand, treasury.addr.toString(), 0n)).toBe(before + after.protocolFeesA)
         await assertEscrowIdentity(algorand, dex, poolId)
       })

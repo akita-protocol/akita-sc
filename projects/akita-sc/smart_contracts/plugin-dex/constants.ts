@@ -87,6 +87,8 @@ export const SecondsPerDay: uint64 = 86_400
 export const MaxRouteHops: uint64 = 4
 /** LP units burned on the first deposit so a pool can never be fully drained to zero supply */
 export const MinimumLiquidity: uint64 = 1_000
+/** µALGO in existence (10B ALGO): the largest ALGO reserve a pool can hold */
+export const AlgoMaxSupply: uint64 = Uint64(10_000_000_000_000_000n)
 
 export const LPAssetTotal: uint64 = Uint64(18_446_744_073_709_551_615n)
 export const LPAssetDecimals: uint64 = 6

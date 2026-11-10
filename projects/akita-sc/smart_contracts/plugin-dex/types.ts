@@ -279,8 +279,6 @@ export type CustodyEvent = {
   negA: boolean
   deltaB: uint64
   negB: boolean
-  reserveA: uint64
-  reserveB: uint64
 }
 
 export type ExternalMarkEvent = { poolId: uint64; slot: uint64; units: uint64; rate: uint64; bookValue: uint64 }

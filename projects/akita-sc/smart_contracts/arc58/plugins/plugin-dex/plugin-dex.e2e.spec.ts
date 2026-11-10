@@ -1,5 +1,5 @@
 /**
- * PluginDexPlugin end to end: an Akita wallet creates pools and provides liquidity on the PluginDex
+ * PluginDexPlugin end to end: an Akita wallet creates pools, swaps and provides liquidity on the PluginDex
  * Vault through `wallet.usePlugin`, with no admin flash rekey. Every outer transaction is sent by the
  * caller, so any signer that can sign its own transactions (passkey, KMD, Pera) can drive it.
  */
@@ -22,7 +22,10 @@ import {
   LpMode,
   PluginDexSDK,
   spotDistribution,
+  withSlippage,
 } from '../../../../../akita-sdk/src/plugin-dex'
+import { getApplicationAddress } from 'algosdk'
+import { expectContractError } from '../../../../tests/utils/errors'
 import { deployAbstractedAccountFactory } from '../../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../../../tests/fixtures/escrow'
@@ -45,7 +48,7 @@ describe('PluginDexPlugin', () => {
   let token: bigint
   let quoteToken: bigint
 
-  const use = (...calls: ReturnType<PluginDexPluginSDK['addLiquidity']>[]) => wallet.usePlugin({ callerType: CallerType.Global, calls })
+  const use = (...calls: ReturnType<PluginDexPluginSDK['swap']>[]) => wallet.usePlugin({ callerType: CallerType.Global, calls })
   const holding = async (asset: bigint) =>
     asset === 0n
       ? (await algorand.account.getInformation(walletAddress)).balance.microAlgo
@@ -98,7 +101,7 @@ describe('PluginDexPlugin', () => {
     }
   })
 
-  test('creates a pool, adds and removes liquidity, all from the wallet', async () => {
+  test('creates a pool, adds liquidity, swaps both ways and removes, all from the wallet', async () => {
     const before = (await reader.listPools()).size
     await use(plugin.createPool({ assetA: token, assetB: 0n, config: defaultPoolConfig(30n), payment: 2_000_000n }))
     const poolId = BigInt(before)
@@ -110,6 +113,29 @@ describe('PluginDexPlugin', () => {
     const lp = await holding(pool.lpAsset)
     expect(lp).toBeGreaterThan(0n)
     expect(plugin.decodeReturn<bigint>(added, 'addLiquidity')).toBe(lp)
+
+    const tokenBefore = await holding(token)
+    const quoted = await reader.quote({ poolId, assetIn: 0n, amountIn: 1_000_000n, swapper: walletAddress })
+    const swapped = await use(plugin.swap({ poolId, assetIn: 0n, amountIn: 1_000_000n, minAmountOut: withSlippage(quoted, 50n) }))
+    const out = plugin.decodeReturn<bigint>(swapped, 'swap')
+    expect(out).toBe(quoted)
+    expect((await holding(token)) - tokenBefore).toBe(out)
+
+    const algoBefore = await holding(0n)
+    await use(plugin.swap({ poolId, assetIn: token, amountIn: 10_000_000n, minAmountOut: 1n }))
+    expect(await holding(0n)).toBeGreaterThan(algoBefore - 50_000n)
+
+    const routedBefore = await holding(token)
+    const routeQuote = await reader.quoteRoute({ route: [poolId], assetIn: 0n, amountIn: 500_000n, swapper: walletAddress })
+    const routed = await use(plugin.swapRoute({ route: [poolId], assetIn: 0n, assetOut: token, amountIn: 500_000n, minAmountOut: routeQuote }))
+    expect(plugin.decodeReturn<bigint>(routed, 'swapRoute')).toBe(routeQuote)
+    expect((await holding(token)) - routedBefore).toBe(routeQuote)
+
+    // a floor above the quote reverts in the Vault and leaves the wallet unchanged
+    const floorBefore = await holding(token)
+    const next = await reader.quote({ poolId, assetIn: 0n, amountIn: 1_000_000n, swapper: walletAddress })
+    await expectContractError(use(plugin.swap({ poolId, assetIn: 0n, amountIn: 1_000_000n, minAmountOut: next + 1n })), 'errPdsl')
+    expect(await holding(token)).toBe(floorBefore)
 
     const tokenBeforeRemove = await holding(token)
     const removed = await use(plugin.removeLiquidity({ poolId, lpAmount: lp }))
@@ -150,6 +176,43 @@ describe('PluginDexPlugin', () => {
     }))
     const [position] = await engine.listPositions(walletAddress, poolId)
     expect(position.owner).toBe(walletAddress)
+
+    // a split swap: consecutive plugin swaps in one window, each held to its share of the simulated output
+    // (the chunk minimums add up to the aggregate minimum); only the last call rekeys the wallet back. The
+    // amounts differ (as the apps' chunkAmounts makes them) so no two transactions in the group are identical.
+    const chunks = [400_000n, 399_999n, 400_003n]
+    const escrow = getApplicationAddress((await reader.getPool(poolId)).escrow).toString()
+    const sim = dex.newGroup()
+    for (const [i, amount] of chunks.entries()) {
+      sim.swap({
+        sender: walletAddress,
+        args: {
+          input: algorand.createTransaction.assetTransfer({ sender: walletAddress, receiver: escrow, assetId: token, amount }),
+          poolId,
+          minAmountOut: 0n,
+          recipient: walletAddress,
+          data: new Uint8Array(),
+          wallet: 0n,
+        },
+        staticFee: microAlgo(200_000),
+        // the Vault calls reference their deposits by position, so without a note they are identical
+        note: `chunk ${i}`,
+      })
+    }
+    const simulated = (await sim.simulate({ skipSignatures: true, allowUnnamedResources: true })).returns.map((r) => BigInt(r as unknown as bigint))
+    const chunkSwaps = (mins: bigint[]) =>
+      chunks.map((amountIn, i) =>
+        plugin.swap({ poolId, assetIn: token, amountIn, minAmountOut: mins[i], rekeyBack: i === chunks.length - 1 }))
+
+    // one chunk floored above its share reverts the whole group
+    const quoteBefore = await holding(quoteToken)
+    await expectContractError(use(...chunkSwaps(simulated.map((out, i) => (i === 1 ? out + 1n : out)))), 'errPdsl')
+    expect(await holding(quoteToken)).toBe(quoteBefore)
+
+    const split = await use(...chunkSwaps(simulated))
+    expect(split.confirmations.filter((c) => c.txn.txn.applicationCall?.appIndex === plugin.appId)).toHaveLength(chunks.length)
+    expect((await holding(quoteToken)) - quoteBefore).toBe(simulated.reduce((a, b) => a + b, 0n))
+    expect((await algorand.account.getInformation(walletAddress)).authAddr?.toString() ?? walletAddress).toBe(walletAddress)
 
     const ids = dist.map((d) => activeId + d.delta)
     await use(plugin.removeLiquidityCurve({

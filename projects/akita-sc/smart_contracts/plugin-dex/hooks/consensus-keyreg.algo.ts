@@ -137,7 +137,7 @@ export class ConsensusKeyregHook extends Contract {
     }
 
     if (!operator) {
-      rekeyBackToDex(dex, ctx.escrow)
+      rekeyBackToDex(this.dex.value, ctx.escrow)
       return passResult()
     }
 
@@ -157,12 +157,12 @@ export class ConsensusKeyregHook extends Contract {
           voteFirst: keys.voteFirst,
           voteLast: keys.voteLast,
           voteKeyDilution: keys.voteKeyDilution,
-          rekeyTo: dex.address,
+          rekeyTo: this.dex.value.address,
         })
         .submit()
       emit<KeyregEvent>({ poolId: ctx.poolId, escrow: ctx.escrow, online: true, fee })
     } else {
-      itxn.keyRegistration({ sender: ctx.escrow, fee: 0, rekeyTo: dex.address }).submit()
+      itxn.keyRegistration({ sender: ctx.escrow, fee: 0, rekeyTo: this.dex.value.address }).submit()
       emit<KeyregEvent>({ poolId: ctx.poolId, escrow: ctx.escrow, online: false, fee: 0 })
     }
     return passResult()

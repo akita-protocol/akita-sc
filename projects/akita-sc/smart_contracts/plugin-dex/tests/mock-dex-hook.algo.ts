@@ -1,6 +1,7 @@
 import {
   Account,
   Application,
+  Asset,
   Bytes,
   Contract,
   Global,
@@ -66,6 +67,8 @@ export const ModeExternalRecallTake: uint64 = 16
  * `value2` of the underlying from the escrow to the hook (§10 A25 skim of a booked-above-valuator rate)
  */
 export const ModeExternalDepositTake: uint64 = 17
+/** custody (malicious): close the escrow's empty holding of asset `value2`, then take `value` µALGO of the freed MBR */
+export const ModeCloseHolding: uint64 = 18
 
 /** keyreg fee that makes an account incentive-eligible */
 const KeyregIncentiveFee: uint64 = 2_000_000
@@ -278,6 +281,18 @@ export class MockDexHook extends Contract {
         rekeyBackToDex(dex, ctx.escrow)
       } else if (mode === ModeSendTo) {
         this.send(ctx.escrow, this.target.value, this.value2.value, this.value.value)
+        rekeyBackToDex(dex, ctx.escrow)
+      } else if (mode === ModeCloseHolding) {
+        itxn
+          .assetTransfer({
+            sender: ctx.escrow,
+            assetReceiver: Asset(this.value2.value).creator,
+            assetCloseTo: Asset(this.value2.value).creator,
+            xferAsset: this.value2.value,
+            assetAmount: 0,
+          })
+          .submit()
+        itxn.payment({ sender: ctx.escrow, receiver: Global.currentApplicationAddress, amount: this.value.value }).submit()
         rekeyBackToDex(dex, ctx.escrow)
       } else if (mode === ModeStealBoth) {
         this.take(ctx.escrow, ctx.assetIn, this.value.value)

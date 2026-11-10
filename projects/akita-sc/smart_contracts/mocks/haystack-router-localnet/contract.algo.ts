@@ -17,7 +17,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall } from '@algorandfoundation/algorand-typescript/arc4'
 import type { PluginDex } from '../../plugin-dex/contract.algo'
-import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/venues/tinyman-v2'
+import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/hooks/shared/tinyman-v2'
 
 /**
  * MOCK, LocalNet only. This is not Haystack's code and has none of it.

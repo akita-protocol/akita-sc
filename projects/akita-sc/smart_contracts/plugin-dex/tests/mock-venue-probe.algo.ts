@@ -1,10 +1,10 @@
 import { Account, Application, Contract, Global, itxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { readonly } from '@algorandfoundation/algorand-typescript/arc4'
-import { TmPool, tmPoolAddress, tmQuoteFixedInput, tmReadPool, tmSwapAs } from '../venues/tinyman-v2'
+import { TmPool, tmPoolAddress, tmQuoteFixedInput, tmReadPool, tmSwapAs } from '../hooks/shared/tinyman-v2'
 
 /**
- * Test-only app that exercises the Tinyman v2 venue library
- * (`venues/tinyman-v2.ts`) the way the router adapter and the backrun hook will:
+ * Test-only app that exercises the Tinyman v2 library
+ * (`hooks/shared/tinyman-v2.ts`) the way the backrun hook does:
  * it swaps as an account that is rekeyed to it and hands the account back on
  * the Tinyman appl.
  */

@@ -1,7 +1,7 @@
 # PluginDex v2: architecture as built
 
 PluginDex v2 is a hooked AMM **Vault** with pluggable pricing curves, version-pinned hook stacks, external
-positions, launch pools, and an ARC-58 router on top. This file describes the system **as built** at the end of
+positions, launch pools, and an ARC-58 wallet plugin (PluginDexPlugin) on top. This file describes the system **as built** at the end of
 the stabilize round (2026-10-02) and the deploy-blocking decisions (2026-10-03). If this file and the code disagree, the code is right.
 
 - Design and reasons: `research/FINAL-SPEC.md`. Its §10 (A1-A40 and the track amendments) overrides the earlier
@@ -29,22 +29,21 @@ plugin-dex app to 14,000 B. The AVM limit is 16,384 B (approval + clear, `extraP
 | LaunchTaxHook | `hooks/launch-tax.algo.ts` | 1,134 | immutable; per-pool owner claims | tax accruals (quote asset) |
 | ConsensusKeyregHook | `hooks/consensus-keyreg.algo.ts` | 841 | immutable code; admin = DAO wallet (keys, tank) | fee tank, key box MBR |
 | LaunchManager | `launch/launch-manager.algo.ts` | 3,578 | immutable code; admin = DAO wallet (fees, bounty, hook ids, dev-buy policy) | escrowed graduation bounties, launch records |
-| VenueRegistry | `venues/registry.algo.ts` | 217 | immutable code; admin = DAO wallet | adapter table (global state) |
-| TinymanV2Adapter | `venues/tinyman-v2-adapter.algo.ts` | 1,247 | immutable, permissionless | nothing |
-| **AkitaRouterPlugin** | `../arc58/plugins/akita-router/contract.algo.ts` | 3,790 | immutable, adminless ARC-58 plugin (version 0) | leg escrow `E`: MBR and opt-ins only |
+| **PluginDexPlugin** | `../arc58/plugins/plugin-dex/contract.algo.ts` | 2,460 | immutable, adminless ARC-58 plugin (version 0) | nothing (every call is sent as the wallet's spending account) |
+
+The Tinyman v2 library that BackrunArbHook inlines lives in `hooks/shared/tinyman-v2.ts` (helpers, not an app).
 
 Test-only apps live in `tests/` (MockDexHook modes 0-17, MockCurve modes 0-17, MockLender, MockValuator,
-MockVenueAdapter, RecordingDexHook, MockUpdatableHook(V2), MockWallet(Factory), MockSocialImpact and others).
+MockVenueProbe, RecordingDexHook, MockUpdatableHook(V2), MockWallet(Factory), MockSocialImpact and others).
 
 **Deploy order** (`scripts/lib/immutable-catalog.json`, enforced by `scripts/lib/immutable-deployment.ts`;
 FINAL-SPEC §10 A40). v2 replaces v1 under the `PluginDex` key and is never deployed beside it:
 
 1. PluginDex (`version`, `admin`)
 2. BinEngine (`vault`) and the 8 production hooks (`dex` plus their parameters)
-3. VenueRegistry
-4. TinymanV2Adapter
-5. AkitaRouterPlugin (`version`, `dex`, `registry`; `plugin: true`, while the Vault entry is `plugin: false`)
-6. LaunchManager (`vault`, `admin`, `antiSnipeHook`, `launchTaxHook`)
+3. PluginDexPlugin (`version`, `dex`; `plugin: true`, while the Vault entry is `plugin: false`)
+4. LaunchManager (`vault`, `admin`, `antiSnipeHook`, `launchTaxHook`)
+5. GatedFeePassPlugin (`version`, `hook` = GatedFeeHook)
 
 Each dependency ID is checked against its compiled program hash before a receipt is written. The admin
 approvals are printed, not sent (§12 "Deployment").
@@ -116,7 +115,7 @@ like the swap.
 The Vault stays DAO-agnostic: it copies the value into `HookContext.wallet` (right after `callerApp`) unverified
 and every liquidity, initialize and poke point gets 0. Hooks that need identity verify it themselves:
 `resolvePrincipalFromDexCtx` at BeforeSwap (after `requireDexCaller`), only the quote-only
-`thirdPartyPrincipal` at Quote. The AkitaRouterPlugin forwards `windowHint(wallet)`; the LaunchManager's dev
+`thirdPartyPrincipal` at Quote. PluginDexPlugin forwards `windowHint(wallet)`; the LaunchManager's dev
 buy passes 0. `tryQuoteRoute` returns 0 instead of reverting on an unusable route (missing, paused or closed
 pool, unknown asset, no liquidity, uninitialized launch).
 
@@ -179,13 +178,13 @@ immutability and pin cover that remaining range.
   table box for this). So every occupied bin stays worth ≥ the floor; a 100% Remove is always allowed.
   (Built as OPEN-DECISIONS #14a; awaiting team confirmation.)
 - **Callers split trades into ≤ `maxBinsPerSwap`-move slices; a Quote of 0 means split.** A swap that needs
-  more moves than `maxBinsPerSwap` reverts and its Quote returns 0 (crossed bins stay occupied). Routers and
+  more moves than `maxBinsPerSwap` reverts and its Quote returns 0 (crossed bins stay occupied). Apps and
   the SDK quote, and on 0 retry with smaller slices sent as consecutive calls, so dust bins cost liveness
   and fees, never funds.
 - `closeChunk` requires every bin record in the chunk to be zero.
 - Its hook data is the 40 B `BinHookState {startId, endId, binsCrossed, va, binStep}`; `binStep` is at byte
   offset 32.
-- Foreign box reads are enabled, so routers, hooks and the SDK read bins without an inner call.
+- Foreign box reads are enabled, so apps, hooks and the SDK read bins without an inner call.
 
 ## 5. Hooks: interface
 
@@ -254,9 +253,15 @@ For each custody call (`custodyCall`, §4.6):
      `custodyFeeBps`, then the aggregate and direction checks (errPdcv).
    - A loss may only come out of the liquid reserve (`reserve − external`): protocol fees, locked launch
      funds and in-flight amounts are protected.
-6. **Bounds after booking**: `reserveX ≥ externalX` on both sides (errPdki). A slot whose units grew must
+6. **Bounds after booking**: `reserveX ≥ externalX` on both sides (errPdki). On an ASA/ASA pool the
+   escrow's minimum balance may not fall (errPdki): ALGO is not a pool asset there, so a hook that closed an
+   empty holding could otherwise take the freed MBR unmeasured (audit A-L5). A slot whose units grew must
    stay ≤ `capBps` of its side's reserve (errPdec).
-7. **Result**: fee permissions apply exactly as for non-custody hooks. Then `CustodyEvent` is emitted.
+7. **Result**: fee permissions apply exactly as for non-custody hooks. Then `CustodyEvent` is emitted
+   (`poolId, hook, point, deltaA, negA, deltaB, negB`, 46 B with its selector). The reserves are in the
+   `SwapEvent`; leaving them out keeps 16 custody calls plus the swap under the 1,024 B log limit of one app
+   call (audit A-L4). A `swapRoute` logs every hop in one frame, so a route through several custody-heavy
+   pools can still reach the limit.
 
 Not covered (accepted, FINAL-SPEC §8): a custody BeforeSwap hook can trade ahead of the swapper (the user's
 `minAmountOut` and admin approval are the protection); a hook can always revert (pause plus
@@ -291,7 +296,9 @@ including `emergencyRemoveLiquidity`, safe from a receipt that could be clawed b
 ### 8.1 Vault side (§4.4, §10 A16-A18)
 
 A launch pool is a native pool with virtual offsets. It needs `graduationThreshold > 0` and a non-zero
-quote-side offset; a pool without offsets must have threshold 0 (errPdlb).
+quote-side offset; a pool without offsets must have threshold 0 (errPdlb). Each offset plus the most its
+asset can ever hold (the ASA's total, or 10^16 µALGO) must fit a uint64 (errPdlb), so a donation can never
+overflow the effective reserves.
 
 - `initializeLaunch(tokenDeposit, reserveDeposit, poolId)` (creator only, once, unpaused):
   - adds S tokens to the token reserve and locks the graduation reserve M (`locked_t`);
@@ -319,7 +326,7 @@ known before the group that references its pair-index box.
 | `setDevBuy(rewards, maxBps, minVestSeconds, maxVestSeconds)` | admin | dev-buy policy for future launches: the Rewards app, the cap on tokens out in bps of S (≤ 1,000, immutable; 0 = off), the vesting bounds (errLmpr if `maxBps > 1,000` or `min > max`) |
 | `createToken(payment, TokenParams) → launchId` | anyone | mints a fair-launch ASA (no manager, reserve, freeze or clawback; whole supply held by the manager) and records a pending launch |
 | `launch(payment, launchId, LaunchParams, maxLaunchFee, maxBounty) → {launchId, asset, poolId}` | the token's creator, once | **fails errLmcp if the current launch fee or bounty exceeds the caller's caps**. Validates `0 < S < T`, offsets > 0, `M ≥ ceil(S·vB/(S+vB))`, `0 < G ≤ vA·S/vB`, `feeBps ≤ 1,000`, `startFeeBps ≤ 9,000`. Pays the fee to the treasury, creates the ALGO-quoted pool, `initializeLaunch`es it, runs the optional dev buy, escrows the bounty and refunds the rest |
-| `graduate(launchId)` | anyone, once | calls `PluginDex.graduate` if still bonding and pays the bounty to the caller. If the pool was already graduated directly, it refunds the bounty to the creator, or to the caller when the creator's account cannot receive it. **Then, best effort, it calls `collectProtocolFees`** when there is something booked and the Vault treasury can receive every side |
+| `graduate(launchId)` | anyone, once | calls `PluginDex.graduate` if still bonding and pays the bounty to the caller, also when the pool was already graduated directly (a refund to the creator would let the creator take the bounty back by graduating first; audit A-L6). **Then, best effort, it calls `collectProtocolFees`** when there is something booked and the Vault treasury can receive every side |
 | `getLaunch`, `opUp` | anyone | read; reference/budget carrier |
 
 Pool config set by `launch`: `curve 0`, `quoteIsA = true` (ALGO), `maxFeeBps = max(startFeeBps, feeBps)`,
@@ -347,65 +354,35 @@ cannot cover it), so a dev buy never draws on Rewards' own ALGO (OPEN-DECISIONS 
 | **ImpactFeeHook** | BeforeSwap, Quote | DynamicFee | `fee = min + slope·amountIn/reserveIn`, capped at its max; overflow-safe; other points pass. Returns **`max(running, fee)`** (OPEN-DECISIONS #21, FINAL-SPEC §10 A44): it never lowers the pool's base fee or a fee set by an earlier hook, so stack order does not matter against fee-raising hooks. A `minFeeBps` below the pool's base fee no longer discounts small trades (set the base fee to the floor you want); a later GatedFee can still lower the result. One deployment per parameter set |
 | **SwapTaxHook** | BeforeSwap, Quote | HookFee | `taxBps` of every input (≤ the pool's `maxHookFeeBps`); single-tenant; owner `optIn`/`withdraw` |
 | **VolatilityFeeHook** | BeforeSwap, AfterSwap, Quote, Poke | DynamicFee | LB v2.1 variable fee `A·v²` on realized volatility. Per-pool box via permissionless `initPool(mbr, poolId)`. Returns `max(running, min(running + varFee, max_fee))`: **max_fee clamps only its own contribution and never lowers a fee set earlier**. Only AfterSwap advances the accumulator; **Poke only seeds an unseeded box or refreshes `lastPrice`/`lastId`** (never `tLast`, the reference, `vRef` or `vAcc`), so pokes cannot suppress the fee. Bins pools use `|Δid|·binStep` from the curve's hook data. Pools need `maxFeeBps ≥ max_fee` |
-| **BackrunArbHook** | AfterSwap, Poke | Custody, LazyCustody | Arbitrages the pool against the Tinyman v2 pool of its pair (inlined venue library). Admin `registerPool(poolId, minSurplusA, minSurplusB, maxTradeBps)` for native, non-launch, slotless pools. Trades only when `surplus ≥ guardFee + minSurplus`. **No keeper tip, no gas tank, no rebate** (OPEN-DECISIONS #19, A42): every inner it issues is fee 0, op-ups included (group credit), so the swapper's or poker's group pays for the whole arbitrage path and all of the surplus above the guard fee stays with LPs. Callers add a fee buffer of `BackrunMaxExtraInners` (11) × min fee per backrun pool (§12.1). Never reverts the user's swap |
-| **GatedFeeHook** | AfterInitialize, BeforeSwap, Quote | DynamicFee | Per-pool immutable FeeSchedule from F6 `initData` (or the DAO default); funding = schedule box MBR. Hot path reads two boxes (`p‖ctx.caller`, `s‖poolId`) and only lowers the fee (floor, max discount ≤ 90%). FeePass (power, impact, gate bits, TTL 1 h-7 d, default 1 d) keyed by **principal** (§6.12): `ctx.caller` without a hint; with `ctx.wallet` the verified principal at BeforeSwap (`resolvePrincipalFromDexCtx`, strict: an invalid hint reverts the swap, except that inside an app call a hint that is not a wallet of the hook's factory is priced as hint 0, i.e. `ctx.caller`, so router swaps of non-Akita ARC-58 wallets pay the full fee instead of reverting) and the at-rest `thirdPartyPrincipal` at Quote. Wallet users manage their pass through **GatedFeePassPlugin** (`arc58/plugins/gated-fee-pass`, pinned to one hook; key = the window's principal; forwards `windowHint(wallet)`). Only the principal opens its pass (`openPass(mbr, key, measure, gateArgs, wallet)`, `key == principalOf(F, wallet).principal`, errGfau); refresh/close of a live pass by the key, the funder or the key's principal by hint; `refreshFromGate` asserts `Gate.mustCheckFor(gateCtx(p))` (`gateCheckCtx`). Gate bits are measured with `Gate.checkFor(ctx)`. No EscrowFactory registry read (`hooks/shared/origin.ts` deleted). **Daily cap** (OPEN-DECISIONS #18, A41): at most `maxDiscountedSwapsPerDay` (default 500, DAO-settable, 0 = unlimited) discounted swaps per pass per UTC day; past the cap it prices at the incoming fee (never reverts). Only a BeforeSwap that actually lowers the fee counts; Quote reads the same counter without writing (quote == swap). The count survives refresh, and `closePass` fails with errGfdy on a day the pass took a discount, so close-and-reopen cannot reset it. Per principal (one pass and one count across a wallet's escrows); a route counts once per gated hop, so `quoteRoute` can overstate the discount when the cap is hit mid-route. `PassMbr` 47,700 µALGO (80-byte pass); `getDiscountedSwapsToday(key)` |
+| **BackrunArbHook** | AfterSwap, Poke | Custody, LazyCustody | Arbitrages the pool against the Tinyman v2 pool of its pair (inlined `hooks/shared/tinyman-v2.ts`). Admin `registerPool(poolId, minSurplusA, minSurplusB, maxTradeBps)` for native, non-launch, slotless pools. Trades only when `surplus ≥ guardFee + minSurplus`. **No keeper tip, no gas tank, no rebate** (OPEN-DECISIONS #19, A42): every inner it issues is fee 0, op-ups included (group credit), so the swapper's or poker's group pays for the whole arbitrage path and all of the surplus above the guard fee stays with LPs. Callers add a fee buffer of `BackrunMaxExtraInners` (11) × min fee per backrun pool (§12.1). Never reverts the user's swap |
+| **GatedFeeHook** | AfterInitialize, BeforeSwap, Quote | DynamicFee | Per-pool immutable FeeSchedule from F6 `initData` (or the DAO default); funding = schedule box MBR. Hot path reads two boxes (`p‖ctx.caller`, `s‖poolId`) and only lowers the fee (floor, max discount ≤ 90%). FeePass (power, impact, gate bits, TTL 1 h-7 d, default 1 d) keyed by **principal** (§6.12): `ctx.caller` without a hint; with `ctx.wallet` the verified principal at BeforeSwap (`resolvePrincipalFromDexCtx`, strict: an invalid hint reverts the swap, except that inside an app call a hint that is not a wallet of the hook's factory is priced as hint 0, i.e. `ctx.caller`, so plugin swaps of non-Akita ARC-58 wallets pay the full fee instead of reverting) and the at-rest `thirdPartyPrincipal` at Quote. Wallet users manage their pass through **GatedFeePassPlugin** (`arc58/plugins/gated-fee-pass`, pinned to one hook; key = the window's principal; forwards `windowHint(wallet)`). Only the principal opens its pass (`openPass(mbr, key, measure, gateArgs, wallet)`, `key == principalOf(F, wallet).principal`, errGfau); refresh/close of a live pass by the key, the funder or the key's principal by hint; `refreshFromGate` asserts `Gate.mustCheckFor(gateCtx(p))` (`gateCheckCtx`). Gate bits are measured with `Gate.checkFor(ctx)`. No EscrowFactory registry read (`hooks/shared/origin.ts` deleted). **Daily cap** (OPEN-DECISIONS #18, A41): at most `maxDiscountedSwapsPerDay` (default 500, DAO-settable, 0 = unlimited) discounted swaps per pass per UTC day; past the cap it prices at the incoming fee (never reverts). Only a BeforeSwap that actually lowers the fee counts; Quote reads the same counter without writing (quote == swap). The count survives refresh, and `closePass` fails with errGfdy on a day the pass took a discount, so close-and-reopen cannot reset it. Per principal (one pass and one count across a wallet's escrows); a route counts once per gated hop, so `quoteRoute` can overstate the discount when the cap is hit mid-route. `PassMbr` 47,700 µALGO (80-byte pass); `getDiscountedSwapsToday(key)` |
 | **AntiSnipeFeeHook** | AfterInitialize, BeforeSwap, Quote (+ AfterAddLiquidity for FirstLiquidity) | DynamicFee | Linear or halving decay from `startFeeBps` (≤ 9,000) to `endFeeBps` (≤ 1,000) over ≤ 100,000 rounds; returns `max(running, decay)`. An unstarted clock starts at the first BeforeSwap. `exempt` (the creator) pays the running fee at e = 0. Funding = config box MBR. Pools need `maxFeeBps ≥ startFeeBps` |
 | **LaunchTaxHook** | AfterInitialize, BeforeSwap, Quote (+ AfterSwap when sell tax > 0) | HookFee (buy tax) and/or HookFeeOut (sell tax) | Multi-tenant; taxes ≤ 500 bps each, paid in the quote asset; `untilRound` sunset; owner `claim`, and `close` after the sunset. Funding = box MBR + quote opt-in. Pools need `maxHookFeeBps ≥ max(buy, sell)` |
 | **ConsensusKeyregHook** | Poke | Custody, LazyCustody | Admin sets per-pool keys and an operator. The operator's `poke(poolId, i, [1])` / `[0]` takes the escrow online / offline; anyone else's poke is a no-op (1 inner). The 2 ALGO incentive fee is pre-donated from the hook's tank only when the escrow is not yet eligible. Rewards arrive as surplus and `sync` books them |
 
 The approval must grant at least the perms listed. The SDK and LaunchManager build the installs.
 
-## 10. Router and venues
+## 10. Wallet swaps (PluginDexPlugin)
 
-### 10.1 AkitaRouterPlugin
+An Akita wallet trades on the Vault through PluginDexPlugin, the same immutable, adminless ARC-58 plugin
+that creates pools and manages liquidity. There is no router app and no venue registry: outside venues are
+reached through Haystack (`HaystackRouterPlugin`), and the app picks the source with the larger quote.
 
-The router is an immutable, adminless ARC-58 plugin. One outer plugin call does the whole swap in inner
-transactions while it holds the flash-rekeyed spending account `S`.
-
-- **ABI.** `create(version, dex, registry)`, `init(payment)` (creates the leg escrow `E` once),
-  `optInLegEscrow(payment, assets)`, `opUp()`, `swap(wallet, rekeyBack, assetIn, assetOut, minAmountOut,
-  flags, legs)`, `swapBest(wallet, rekeyBack, assetIn, assetOut, amountIn, minAmountOut, flags, chunks,
-  toleranceBps, candidates)`. Limits: 4 legs, 3 segments per leg, 4 candidates, 4 chunks.
-- **Entry checks.** `S = getSpendingAccount(wallet)`, `S ≠ E`, `auth(S) == router` (errRtcu), `flags == 0`.
-  DIRECT custody (`FlagAllowDirect`) is reserved and reverts with errRtdi.
-- **Native segments.** `PluginDex.swapRoute` is **sent as S**, so hooks see `ctx.caller == S`. The deposit
-  comes from the current holder (S or E). Output goes to S on a leg's last segment, else to E. `swapBest`
-  quotes native candidates with `tryQuoteRoute(swapper = S)`, also sent as S. Both pass `windowHint(wallet)` as
-  the trailing wallet hint (§6.11/§6.12).
-- **Adapter segments, SANDBOX custody only.** The input moves to E, E is flash-rekeyed to the pinned adapter,
-  and then:
-
-  | Check | Error |
-  |---|---|
-  | E rekeyed back to the router | errRtrb |
-  | E's min balance unchanged (no opt-ins added or closed) | errRtal |
-  | `in1 + amount ≥ in0` (spent ≤ amount) and `in1 ≤ in0` | errRtos |
-  | `out1 ≥ out0` | errRtsl |
-  | ALGO not lower on an ASA/ASA segment | errRtal |
-
-- **Unspent input.** `unspent = in1 + amount − in0` is refunded from E to S. **Partial-fill rule:** the
-  refund happens only when S can receive the input (ALGO, or S opted in). Otherwise the adapter must fill the
-  whole input (errRtsl). In practice an intermediate segment must fill fully unless S holds that asset.
-- **Finish.** The aggregate guard on S (input spent ≤ Σ amountIn, output ≥ `minAmountOut`, no ALGO leak on
-  ASA/ASA routes), then `RouteEvent`. The handback asserts `getSpendingAccount(wallet) === S` (errRtcu) and
-  rekeys the **cached** S, never a re-read (stabilize fix).
-- **`swapBest`.** Per chunk it quotes every candidate, executes the best, and enforces the **quote promise**:
-  the chunk must deliver `≥ quote − quote·toleranceBps/1e4` (errRtqt).
-- **Opt-ins** happen before any snapshot. S is opted into `assetOut` (0.1 ALGO from S). E is opted into each
-  adapter asset, paid inline from S once per asset globally, or pre-funded through `optInLegEscrow`.
-
-### 10.2 VenueRegistry and adapters
-
-- **VenueRegistry.** Entries live in global state under `itob(adapterId)` → `AdapterInfo {version, flags,
-  innerTxns, opBudget}`, with up to 63 adapters. `readAdapter` reads one with no inner call and requires
-  `AdapterEnabled` and the pinned version. Callers also pass `rejectVersion = version + 1`.
-- **Adapter ABI** (`venues/venue-adapter.ts`): `akitaVenueSwap(account, assetIn, amountIn, assetOut,
-  minAmountOut, venueData, returnTo)` and the readonly `akitaVenueQuote` (returns 0, never reverts).
-  `requireVenueCustody` checks `auth(account) == adapter` and `returnTo == caller app`.
-- **TinymanV2Adapter.** Derives the pool on chain from the pair (`venueData` is ignored). A swap is 3 fee-0
-  inners (deposit; the Tinyman appl, which carries the handback rekey; the Tinyman payout). Tinyman enforces
-  `minAmountOut`. Callers must make the pool account, the Tinyman app, the `(pool, Tinyman)` local, both
-  assets and the `(account, assetOut)` holding available.
+- **ABI.** `swap(wallet, rekeyBack, poolId, assetIn, amountIn, minAmountOut, data)` and
+  `swapRoute(wallet, rekeyBack, route, assetIn, assetOut, amountIn, minAmountOut, data)`, with `route` 1-4
+  pool ids (the Vault's `MaxRouteHops`). Both return the amount out.
+- **Custody.** `S = getControlledSpendingAccount(wallet)`: S must be rekeyed to the plugin (errNath). The
+  deposit (pay or axfer from S to the first pool's escrow) and the Vault call are inner transactions **sent
+  as S**, so hooks see `ctx.caller == S`, and the trailing wallet hint is `windowHint(wallet)` (§6.11/§6.12).
+  The recipient is the zero address, so the output goes to S. S is opted into the output asset first (0.1
+  ALGO from S) when it is not already.
+- **Slippage.** The Vault enforces `minAmountOut` (errPdsl); the plugin adds no check of its own.
+- **Handback.** With `rekeyBack = true` the Vault call carries the rekey back to the wallet. Several plugin
+  calls in one window pass `rekeyBack = false` on all but the last (the bins split below).
+- **Bins split.** A bins swap past `maxBinsPerSwap` quotes 0 (§4). The app splits it into 2-4 equal chunks
+  (the last takes the remainder), simulates them as consecutive Vault swaps, and sends them as consecutive
+  `swap` calls in one window. Each chunk's `minAmountOut` is its simulated output less the slippage, so the
+  chunk minimums add up to the aggregate minimum. One chunk short of its share reverts the whole group.
 
 ## 11. Measured costs (LocalNet, 2026-10-02/03)
 
@@ -431,7 +408,7 @@ transactions while it holds the flash-rekeyed spending account `S`.
 
   Explicit-reference callers add `ceil((len − 8192 + Σ box bytes read)/2048)` refs, empty ones included
   (`readQuotaEmptyRefs` in the fixture). The SDK's access-list builder does this automatically (§12).
-- **Inner calls.** The router's inner call to the Vault is covered by the same group-pooled quota.
+- **Inner calls.** PluginDexPlugin's inner call to the Vault is covered by the same group-pooled quota.
 
 ### 11.2 Opcodes (simulate, `appBudgetConsumed`)
 
@@ -454,9 +431,6 @@ takes the post-stack `HookTailBudget` checkpoint (L8 fix, OPEN-DECISIONS #3).
 | 2-slot external pool: poke deposit / revalue / removeLiquidity | 2,141 / 1,075 / 2,218 | 0 |
 | hookless swap on a hooked 2-slot pool (reads `p:` only) | 672 | 0 |
 | ConsensusKeyregHook go-online poke (lazy, incl. hook) | 1,221 | 0 |
-| router route 1 (wallet group: ALGO→TKA, 1 native hop) | 2,406 | 0 |
-| router route 3 (70% native + 30% Tinyman) | 4,320 | 1 |
-| router route 5 (`swapBest`, 4 chunks × 3 candidates) | 11,713 | 0 |
 
 ### 11.3 Inner transactions (pooled: 256 per group, not 16 per call)
 
@@ -466,18 +440,15 @@ takes the post-stack `HookTailBudget` checkpoint (L8 fix, OPEN-DECISIONS #3).
 | 3 eager custody hooks at Before/AfterSwap | 13 from the Vault's frame (+1 op-up), 20 with descendants |
 | 4 eager custody hooks at Before/AfterSwap (P0 d) | 17 from the Vault's frame, 25 with descendants |
 | keyreg go-online poke, lazy | 5 |
-| router route 1 / 2 / 3 / 4 / 5 (`G1`, op-ups excluded) | 5 / 7 / 12 / 12 / 26 (3 outer txns each) |
-| router route 6 (4 legs × 4 hooked native hops) | 90 inners, 5 outer txns (2 SDK carriers for refs/budget, 0 inners on carriers) |
 
 ### 11.4 Depth (inner app-call nesting; AVM limit 8)
 
 | Path | Depth |
 |---|---|
 | user → Vault → External hook → lender as the escrow → receipt mint | 3 |
-| router → Vault → BackrunArbHook → Tinyman → payout (measured, WP3 13) | 4 |
+| wallet plugin → Vault → BackrunArbHook → Tinyman → payout (measured with the removed router plugin, which had the same shape) | 4 |
 
-Hooks, curves, valuators and adapters can never call back into an app already on the stack (no reentry), so
-the registry is read without a call.
+Hooks, curves and valuators can never call back into an app already on the stack (no reentry).
 
 ## 12. SDK notes
 
@@ -514,17 +485,13 @@ the registry is read without a call.
     §12.1) and `maxFeeBps ≤ 1,000`.
 - **Deployment** (`scripts/deploy-immutable.ts`; `--help` prints the order of §1 with each item's
   dependency arguments and approvals).
-  - Per-deploy inputs with no catalog default: the Tinyman v2 validator app id (BackrunArbHook,
-    TinymanV2Adapter, via `--config`), ImpactFeeHook min/max/slope, VolatilityFeeHook parameters and
+  - Per-deploy inputs with no catalog default: the Tinyman v2 validator app id (BackrunArbHook, via
+    `--config`), ImpactFeeHook min/max/slope, VolatilityFeeHook parameters and
     SwapTaxHook owner/taxBps.
-  - On MainNet pass the DAO wallet as `admin` (Vault, VenueRegistry, BackrunArbHook, ConsensusKeyregHook,
-    LaunchManager); the default admin is the sender.
+  - On MainNet pass the DAO wallet as `admin` (Vault, BackrunArbHook, ConsensusKeyregHook, LaunchManager); the default admin is the sender.
   - The printed admin steps go through DAO proposals: `setHookApproval` (perms ImpactFee 2, SwapTax 4,
     Volatility 2, Backrun 1, Gated 2, AntiSnipe 2, LaunchTax 12, ConsensusKeyreg 1), `setCurveApproval
-    (BinEngine, lpMode 1)`, registry `setAdapter(adapter, (0, Enabled|ExactQuote = 5, 3, 400))`, router
-    `init(payment)`, LaunchManager `setFees`/`setHooks`/`setDevBuy`.
-  - Leg-escrow opt-ins (OPEN-DECISIONS #23): after router `init`, the DAO pre-funds the popular adapter assets
-    with `optInLegEscrow(payment, assets)` (§12.1). Also in the router's catalog notes.
+    (BinEngine, lpMode 1)`, LaunchManager `setFees`/`setHooks`/`setDevBuy`.
   - Dependency verification compares on-chain programs with the current artifacts, so rebuild nothing
     mid-deploy (or pass `--allow-dependency-mismatch`, which only warns).
 
@@ -556,25 +523,18 @@ without one forfeits its share of unsynced LP-owned surplus (consensus rewards, 
 `PluginDex.sync(poolId)` to every remove on a pool with `curve != 0` (native pools sync inline; adds sync
 inline everywhere).
 
-**3. Router slicing for bins (#14, A39).** A bins swap that needs more than the pool's `maxBinsPerSwap`
-(≤ 128) bin moves reverts, and its Quote returns 0. The SDK treats a Quote of 0 on a bins pool as "split": it
-halves the amount until each slice quotes non-zero (each slice ≤ `maxBinsPerSwap` moves) and sends the slices
-as consecutive calls in one group, or as separate router legs / `swapBest` chunks (≤ 4 each), with the
-`minAmountOut` on the aggregate. Build each slice's resources from its own simulate (the bins it crosses
-differ per slice).
+**3. Slicing for bins (#14, A39).** A bins swap that needs more than the pool's `maxBinsPerSwap`
+(≤ 128) bin moves reverts, and its Quote returns 0. The app treats a Quote of 0 on a bins pool as "split": it
+tries 2, 3, then 4 equal slices, simulated as consecutive Vault swaps, until every slice fills, and sends the
+slices as consecutive PluginDexPlugin `swap` calls in one group (§10). Each slice's `minAmountOut` is its
+simulated output less the slippage, so the slice minimums sum to the aggregate minimum. Build each slice's
+resources from its own simulate (the bins it crosses differ per slice).
 
-**4. Leg-escrow opt-ins (#23, router.md §13.7).** The router's leg escrow E must hold every asset an adapter
-segment trades. The first user to route an asset pays E's opt-in inline (0.1 ALGO from S, +2 inners); the SDK
-must include that in the user's ALGO and fee estimate when `E` is not opted in. At deploy, after router
-`init(payment)`, the DAO pre-funds the popular adapter assets with the permissionless
-`optInLegEscrow(payment, assets)` (0.1 ALGO and 2 inners per new opt-in; held assets are skipped and the rest
-of the payment is refunded). Recorded in the `AkitaRouterPlugin` catalog notes.
-
-**5. `minBinShares` default (#14).** The SDK default `10^decimals(Y) · 2^32` (one whole Y token per new bin) is
+**4. `minBinShares` default (#14).** The SDK default `10^decimals(Y) · 2^32` (one whole Y token per new bin) is
 a uint64 and overflows for Y with **≥ 10 decimals** (10^10 · 2^32 ≈ 4.3·10^19 > 2^64 ≈ 1.8·10^19; 9 decimals
 gives ≈ 4.3·10^18 and fits). For such tokens the SDK must clamp: the largest floor is `2^64 − 1`, about
 4.29·10^9 base units of Y (0.43 of a 10-decimal token, ~4·10^-9 of an 18-decimal token). That is a much weaker
-dust defence, so on high-decimal Y pools router slicing (item 3) carries more of the load. Never compute the
+dust defence, so on high-decimal Y pools slicing (item 3) carries more of the load. Never compute the
 default in a type that wraps silently.
 
 ## 13. Known limitations
@@ -596,7 +556,8 @@ default in a type that wraps silently.
   want their donations kept should keep liquidity on both sides of the active bin. `closeChunk` cannot
   delete a chunk holding such a parked bin.
 - **Receipt ASAs with clawback or freeze** would break in-kind exits and let an issuer take LP value outside
-  the custody guard. `createPool` refuses them (errPdex, decided 2026-10-31); the valuator approval
+  the custody guard. `createPool` refuses them, and receipts that are frozen by default (errPdex, decided
+  2026-10-31); the valuator approval
   checklist rule (§7, OPEN-DECISIONS #6) stays as a second line.
 - **Pool assets with clawback or freeze** are allowed. An issuer clawback from the escrow fails every sync
   (errPdki), so adds and normal removes revert until the admin pauses the pool; the emergency exit then pays
@@ -607,8 +568,8 @@ default in a type that wraps silently.
   position can keep a stake below the floor through a partial Remove or a co-add. The SDK pool draft
   defaults `minBinShares` to one whole Y token per new bin (`defaultMinBinShares`), which makes each dust bin
   cost a whole token. A swap that needs more moves than `maxBinsPerSwap` quotes 0 (reverts in `quote`); the
-  app then splits it into 2-4 equal chunks through `AkitaRouterPlugin.swapBest`, which runs them one after
-  another. This costs liveness, not funds.
+  app then splits it into 2-4 equal chunks, sent as consecutive PluginDexPlugin swaps in one group (§10).
+  This costs liveness, not funds.
 - **Fee caps, and how they stack** (decided 2026-10-31: keep the bins cap). A swapper pays, in order: hook
   fees taken from the input at BeforeSwap (with any HookFeeOut, at most `maxHookFeeBps` ≤ 10% of the input,
   checked by the Vault); then the LP fee on what is left, at most the pool's `maxFeeBps`. Bins pools cap
@@ -617,11 +578,22 @@ default in a type that wraps silently.
   top. `custodyFeeBps` is not charged to swappers: it is the minimum edge a custody trade (a backrun, a
   keyreg donation) must leave for LPs, and it is at most `maxFeeBps`.
 - **Pair index** holds 64 pools per pair; later pools are unindexed and junk pools can fill it.
-- **Router**: SANDBOX only (OPEN-DECISIONS #16). The wallet-side T7 escalation is judged not a concern for
-  SANDBOX (#24); test E9 will not be written and its `test.todo` stays only as a marker. A DIRECT router would
-  have to revisit it.
+- **No on-chain best-route search.** The removed AkitaRouterPlugin (with its venue adapters and `swapBest`)
+  is gone; the app quotes Plugin DEX routes (`quoteRoute`) and Haystack off chain and executes one source.
+  A split bins swap holds each chunk to its share of the minimum, not only the aggregate.
 - **AntiSnipeFeeHook** cannot see its install's points. A FirstLiquidity install without AfterAddLiquidity
-  starts its clock at the first BeforeSwap.
+  starts its clock at the first BeforeSwap. Any add or swap starts an unstarted clock, so a creator who seeds
+  in a later transaction than `createPool` lets anyone start it early with a dust add (audit A-L3, accepted):
+  create and seed in one group, as LaunchManager does.
+- **Launch pools have no emergency exit** (audit A-L1, accepted): all their LP is locked, so pause plus
+  `emergencyRemoveLiquidity` cannot free them. A hook that starts to revert stops their swaps for good. Hooks
+  cannot be updated, and LaunchManager's AntiSnipe and LaunchTax make no outside calls; a creator who puts a
+  hook that reads other apps (GatedFee) on a launch pool depends on those apps staying live.
+- **ConsensusKeyregHook tank** (audit A-L2, accepted): each offline/online cycle pays the 2 ALGO go-online
+  fee again from the tank. The operator is admin-appointed; replace a misbehaving one with `setPoolKeys` or
+  `deletePoolKeys` and keep the tank small.
+- **Bins Settle** crosses at most `maxBinsPerSwap` bins in one call (audit I-11). No production custody hook
+  runs on curve pools (BackrunArb refuses them); check this before approving one.
 - **GatedFeeHook daily cap** counts once per gated hop, so `quoteRoute` can overstate the discount when a pass
   reaches its cap inside a route (#18); users rely on `minAmountOut`.
 - **Lazy-custody fees**: a backrun that skips under simulate can run at submit; callers add the §12.1 buffer.
@@ -641,7 +613,7 @@ default in a type that wraps silently.
 | `curves/bins/*` | 36 e2e + 9 model | BinEngine through the Vault, B1-B4, fee cap (A38), value floor (A39), fuzz |
 | `hooks/*.e2e.spec.ts` | 14 + 16 + 23 + 14 + 6 | volatility, backrun (no tip/tank, fee buffer: #19), gated (incl. ACC-01, daily cap T-16/T-17: #18), keyreg, legacy ImpactFee (`max(running, own)`: #21)/SwapTax |
 | `launch/launch-hooks.e2e.spec.ts` | 33 | AntiSnipe, LaunchTax, LaunchManager lifecycle, dev buy (#20: Rewards MBR top-up, cap boundary, gated launch, `devRewards`) |
-| `venues/tinyman-v2.e2e.spec.ts` | 16 | Tinyman v2 library and fixture |
-| `../arc58/plugins/akita-router/akita-router.e2e.spec.ts` | 44 (+3 todo) | router A-H, G1/G2 measurements, E11 handback. The E9 todo will not be written (OPEN-DECISIONS #24) |
+| `hooks/shared/tinyman-v2.e2e.spec.ts` | 16 | Tinyman v2 library and fixture |
+| `../arc58/plugins/plugin-dex/plugin-dex.e2e.spec.ts` | 2 | wallet swaps both ways, swapRoute, slippage floor, a bins split as consecutive swaps in one window, pools and liquidity |
 | `../../tests/migration-dry-run.test.ts`, `migration-scripts.e2e.spec.ts` | dry run + LocalNet | catalog, deploy order, dependency verification, postDeploy approvals (A40) |
 | `size.test.ts` | 3 | size gates and the `errPdni` release gate |

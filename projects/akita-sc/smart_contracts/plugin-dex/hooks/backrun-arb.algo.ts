@@ -24,7 +24,7 @@ import { BpsDivisor, CurveFlagBonding, HookPermCustody, HookPointAfterSwap, Hook
 import { passResult, rekeyBackToDex, requireDexCaller } from '../hook-interface'
 import { mulDiv, mulDivUp } from '../math'
 import { HookContext, HookResult } from '../types'
-import { TmPool, tmFixedInputOut, tmPoolAddress, tmReadPool, tmSwapAs } from '../venues/tinyman-v2'
+import { TmPool, tmFixedInputOut, tmPoolAddress, tmReadPool, tmSwapAs } from './shared/tinyman-v2'
 
 // CONTRACT IMPORTS
 import type { PluginDex } from '../contract.algo'

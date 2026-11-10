@@ -593,11 +593,9 @@ export class LaunchManager extends Contract {
   }
 
   /**
-   * Graduate a launch through `PluginDex.graduate` and pay its bounty to the caller. If the pool was
-   * already graduated directly on the Vault (for example appended by a frontend), the bounty is
-   * refunded to the launch creator instead; when the creator's account cannot receive it (closed, and
-   * the bounty is below the minimum balance) it goes to the caller, so settlement can never be blocked.
-   * Either way the launch is settled once. The graduation quote surplus (booked as protocol fees, §10
+   * Graduate a launch through `PluginDex.graduate` (unless it was already graduated directly on the Vault)
+   * and pay its bounty to the caller. The caller is paid either way: refunding the creator after a direct
+   * graduation would let the creator take the bounty back by graduating first. The launch is settled once. The graduation quote surplus (booked as protocol fees, §10
    * A17) is then swept to the Vault treasury when the treasury can receive it; otherwise it stays booked
    * for a later permissionless `PluginDex.collectProtocolFees`.
    */
@@ -613,10 +611,7 @@ export class LaunchManager extends Contract {
     if (bonding) {
       abiCall<typeof PluginDex.prototype.graduate>({ appId: vault, args: [launch.poolId] })
     }
-    let recipient = bonding ? Txn.sender : launch.creator
-    if (launch.bounty > 0 && launch.bounty < Global.minBalance && balanceOf(recipient) === 0) {
-      recipient = Txn.sender
-    }
+    const recipient = Txn.sender
 
     this.launches(launchId).value.settled = true
     this.launches(launchId).value.bounty = 0

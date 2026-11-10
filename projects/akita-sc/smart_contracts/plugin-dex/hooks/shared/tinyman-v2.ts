@@ -1,11 +1,11 @@
 import { Account, Application, Bytes, bytes, itxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 
 /**
- * Tinyman v2 AMM venue library (inlined PuyaTs helpers, not a contract).
+ * Tinyman v2 AMM library (inlined PuyaTs helpers, not a contract).
  *
- * Shared by the TinymanV2Adapter (router venue) and the BackrunArbHook, so a
- * caller that already controls an account (a flash-rekeyed spending account or
- * a pool escrow) can swap on Tinyman without an extra adapter hop.
+ * Used by the BackrunArbHook and the LocalNet mock Haystack router, so a
+ * caller that already controls an account (a rekeyed account or a pool
+ * escrow) can swap on Tinyman without an extra app hop.
  *
  * Facts (research/venues.md §1, verified on LocalNet against the official
  * bytecode):

@@ -54,6 +54,7 @@ const MODE = {
   keyreg: 9n,
   requestCustody: 10n,
   hookFeeOut: 11n,
+  closeHolding: 18n,
 }
 const MODE_STEAL_BOTH = MODE.stealBoth
 const ZERO = ALGORAND_ZERO_ADDRESS_STRING
@@ -128,8 +129,13 @@ describe('PluginDex v2 core', () => {
   const configure = (hook: MockDexHookClient, mode: bigint, value = 0n, value2 = 0n, target = ZERO) =>
     hook.send.configure({ args: { mode, value, value2, target }, ...send })
 
+  /** poke behind an opUp reference carrier: a trading custody hook needs more than one call's 8 references */
   const poke = (poolId: bigint, hookIndex: bigint, data = NO_DATA) =>
-    dex.send.poke({ sender: trader.addr, args: { poolId, hookIndex, data }, ...send })
+    dex
+      .newGroup()
+      .opUp({ sender: trader.addr, args: [], note: 'reference carrier', maxFee: send.maxFee })
+      .poke({ sender: trader.addr, args: { poolId, hookIndex, data }, maxFee: send.maxFee })
+      .send(send)
 
   const quote = async (poolId: bigint, assetIn: bigint, amountIn: bigint, swapper = ZERO, data = NO_DATA) =>
     (await dex.send.quote({ args: { poolId, assetIn, amountIn, swapper, data, wallet: 0n }, ...send })).return!
@@ -218,22 +224,29 @@ describe('PluginDex v2 core', () => {
    * issues no inner transactions; the read quota is group-pooled). Returns the group result and the number
    * of carriers.
    */
-  const swapExplicit = async (poolId: bigint, assetIn: bigint, amountIn: bigint, hookApps: bigint[], fee = 60_000n) => {
+  const swapExplicit = async (poolId: bigint, assetIn: bigint, amountIn: bigint, hookApps: bigint[], fee = 60_000n, budgetCalls = 0) => {
     const pool = await dex.getPool({ args: { poolId } })
     const apps = [pool.escrow, ...hookApps]
     const assets = [pool.assetA === 0n ? pool.assetB : pool.assetA, ...(pool.assetA === 0n ? [] : [pool.assetB])]
     const boxes = [box('p', poolId), box('h', poolId)]
     const empty = await readQuotaEmptyRefs(algorand, dex, boxes)
-    const inline = Math.min(empty, Math.max(0, 8 - apps.length - assets.length - boxes.length))
-    const carried = empty - inline
+    // app references that do not fit the swap's 8 ride on the carriers too (references are group-shared)
+    const room = 8 - assets.length - boxes.length
+    const carriedApps = apps.slice(room)
+    const inline = Math.min(empty, Math.max(0, room - apps.length))
+    let carried = empty - inline
     let group = dex.newGroup() as PluginDexComposer<unknown[]>
-    const carriers = Math.ceil(carried / 8)
+    const carriers = Math.ceil((carriedApps.length + carried) / 8) + budgetCalls
     for (let c = 0; c < carriers; c++) {
+      const carrierApps = carriedApps.slice(8 * c, 8 * c + 8)
+      const carrierBoxes = Math.min(8 - carrierApps.length, carried)
+      carried -= carrierBoxes
       group = group.opUp({
         sender: trader.addr,
         args: [],
         note: `reference carrier ${c}`,
-        boxReferences: Array.from({ length: Math.min(8, carried - 8 * c) }, emptyBoxRef),
+        appReferences: carrierApps,
+        boxReferences: Array.from({ length: carrierBoxes }, emptyBoxRef),
         staticFee: microAlgo(1_000),
       }) as PluginDexComposer<unknown[]>
     }
@@ -247,7 +260,7 @@ describe('PluginDex v2 core', () => {
         data: new Uint8Array(),
         wallet: 0n,
       },
-      appReferences: apps,
+      appReferences: apps.slice(0, room),
       assetReferences: assets,
       boxReferences: [...boxes, ...Array.from({ length: inline }, emptyBoxRef)],
       staticFee: microAlgo(fee),
@@ -1301,6 +1314,28 @@ describe('PluginDex v2 core', () => {
     })
   })
 
+  describe('custody on ASA/ASA pools', () => {
+    test('a custody hook that closes an empty escrow holding to take the freed MBR fails with errPdki', async () => {
+      const tkc = (
+        await algorand.send.assetCreate({ sender: admin.addr, total: 10n ** 12n, decimals: 6, unitName: 'TKC' })
+      ).assetId
+      const hook = await deployMockHook()
+      await hook.send.configure({ args: { mode: MODE.closeHolding, value: 100_000n, value2: tkc, target: ZERO } })
+      await expectContractError(
+        createPool({
+          algorand,
+          dex,
+          sender: admin,
+          assetA: tka,
+          assetB: tkc,
+          config: poolConfig(30n),
+          hooks: [hookInstall({ app: hook.appId, points: AFTER_INITIALIZE, perms: CUSTODY })],
+        }),
+        'errPdki',
+      )
+    })
+  })
+
   describe('§4.12 (12) inner transaction pool', () => {
     test('3 eager custody hooks at Before and AfterSwap: more than 16 inners, no carriers', async () => {
       const hooks: bigint[] = []
@@ -1325,6 +1360,30 @@ describe('PluginDex v2 core', () => {
       expect(work.length).toBe(13)
       expect(total - opUps).toBe(19)
       expect(total).toBeGreaterThan(16)
+      await assertEscrowIdentity(algorand, dex, poolId)
+    })
+
+    test('8 eager custody hooks at Before and AfterSwap fit the 1,024 B log limit of one swap', async () => {
+      const hooks: bigint[] = []
+      for (let i = 0; i < 8; i++) hooks.push((await deployMockHook()).appId)
+      const { poolId } = await createPool({
+        algorand,
+        dex,
+        sender: admin,
+        assetA: 0n,
+        assetB: tka,
+        config: poolConfig(30n),
+        hooks: hooks.map((app) => hookInstall({ app, points: BEFORE_SWAP | AFTER_SWAP, perms: CUSTODY })),
+        optInLp: [trader],
+        budgetCalls: 4,
+      })
+      await addLiquidity(algorand, dex, trader, poolId, 10_000_000n, 10_000_000n)
+      // 16 custody events, the swap event and the ABI return in the Vault's frame
+      // plain opUp calls add 700 opcodes each to the group's pooled budget for the stack's checks
+      const result = await swapExplicit(poolId, 0n, 100_000n, hooks, 200_000n, 6)
+      const logs = result.confirmations.at(-1)!.logs ?? []
+      expect(logs.length).toBe(18)
+      expect(logs.reduce((n, log) => n + log.length, 0)).toBeLessThanOrEqual(1_024)
       await assertEscrowIdentity(algorand, dex, poolId)
     })
   })

@@ -183,7 +183,7 @@ Y → X (swapForX, price moves up):
   maxNet = ceil(xb · P / 2^128)
   …same pattern…;           out = min(xb, floor((rem − fee) · 2^128 / P))
 
-protoFee   = floor(fee · protocolFeeBps / 10^4)  // stays out of the bin, as the core's protocolFees today
+protoFee   = ceil(fee · protocolFeeBps / 10^4)  // stays out of the bin, as the core's protocolFees today
 bin.in    += in − protoFee
 bin.out   −= out
 ```
@@ -209,7 +209,7 @@ pool with `baseFactor = 5000` has a 0.5 bp fee. A hook's `feeBps` converts as
 | Base | `base = baseFactor · s · 10` | `baseFactor = 10,000` gives fee = binStep (s = 25 gives 0.25%). A `DynamicFee` hook may override it per swap. |
 | Variable | `vfee = ceil((va · s)^2 · A / 10^11)` | LB v2.1 `variableFeeControl = A`. It is evaluated **for each bin swapped**. |
 | Total | `f = min(base + vfee, MaxFee = 10^8)` | 10% cap, the same as `MaxFeeBps`. |
-| Protocol | `floor(fee · protocolFeeBps / 10^4)` | Reuses the core's global `protocolFeeBps`. |
+| Protocol | `ceil(fee · protocolFeeBps / 10^4)` | Reuses the core's global `protocolFeeBps`. |
 | Hook fees | taken from the input before the loop | Same as the core today: summed, capped by `maxHookFeeBps`, and paid out of the escrow at `BeforeSwap`. |
 | Composition | `cf(a) = floor(a · f · (f + FS) / FS^2)` | Applies only to active-bin deposits with a mismatched ratio (§4.5). |
 
@@ -382,7 +382,7 @@ swapExactIn(poolId, xForY, amountIn, baseFeeOverride?, maxBins, write):
        f = min(base + vfee(st.va), MaxFee)
        P = chunk.anchor + shr128(chunk.anchor · F[id&31])
        (in, fee, o) = binSwap(§2.4)
-       p = floor(fee · protocolBps / 10^4)
+       p = ceil(fee · protocolBps / 10^4)
        if write: chunk.replace(rec, x', y')
        rem −= in; out += o; proto += p
     if rem == 0: break

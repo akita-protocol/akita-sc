@@ -1150,7 +1150,7 @@ describe('WP5b launch hooks and LaunchManager', () => {
       expect(await hookBalance(tax.appId)).toBe(taxBalance)
     })
 
-    test('graduate after a direct Vault graduation refunds the bounty to the creator', async () => {
+    test('graduate after a direct Vault graduation pays the bounty to the caller, not back to the creator', async () => {
       const sent = await launch(params())
       const { launchId, asset, poolId } = sent.return!
       await algorand.send.assetOptIn({ sender: trader.addr, assetId: asset })
@@ -1158,10 +1158,13 @@ describe('WP5b launch hooks and LaunchManager', () => {
       await quoteAndSwap(trader, poolId, 0n, ((G - pool.reserveA) * 10_000n) / 9_700n + 1_000_000n)
       await dex.send.graduate({ sender: admin.addr, args: { poolId }, ...send })
 
+      // a creator who graduates directly first cannot take the bounty back
       const creatorBefore = (await algorand.account.getInformation(trader.addr)).balance.microAlgo
-      await manager.send.graduate({ sender: owner.addr, signer: owner.signer, args: { launchId }, ...send })
-      const creatorAfter = (await algorand.account.getInformation(trader.addr)).balance.microAlgo
-      expect(creatorAfter - creatorBefore).toBe(BOUNTY)
+      const callerBefore = (await algorand.account.getInformation(owner.addr)).balance.microAlgo
+      const result = await manager.send.graduate({ sender: owner.addr, signer: owner.signer, args: { launchId }, ...send })
+      const callerAfter = (await algorand.account.getInformation(owner.addr)).balance.microAlgo
+      expect((await algorand.account.getInformation(trader.addr)).balance.microAlgo).toBe(creatorBefore)
+      expect(callerAfter - callerBefore).toBe(BOUNTY - result.transaction.fee)
       expect(await manager.getLaunch({ args: { launchId } })).toMatchObject({ settled: true, bounty: 0n })
     })
 
@@ -1205,7 +1208,7 @@ describe('WP5b launch hooks and LaunchManager', () => {
       expect(poolId).toBeGreaterThan(0n)
     })
 
-    test('(stabilize) graduate cannot be blocked by a closed creator: a sub-MBR bounty goes to the caller instead', async () => {
+    test('(stabilize) graduate cannot be blocked by a closed creator: a sub-MBR bounty goes to the caller', async () => {
       const SMALL = 50_000n
       const creator = await localnet.context.generateAccount({ initialFunds: (30).algo() })
       await setFees(LAUNCH_FEE, SMALL)

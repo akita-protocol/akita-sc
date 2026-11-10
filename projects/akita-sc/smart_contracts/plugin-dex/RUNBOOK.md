@@ -22,19 +22,18 @@ network and sender. These scripts have no extra MainNet guard: check `-n` before
 
    Order (dependencies are read from the earlier receipts and checked on chain): PluginDex (`admin` = the
    deployer for now), BinEngine, ImpactFeeHook, SwapTaxHook, VolatilityFeeHook, BackrunArbHook (`tinyman`),
-   GatedFeeHook, AntiSnipeFeeHook, LaunchTaxHook, ConsensusKeyregHook, VenueRegistry, TinymanV2Adapter
-   (`tinyman`), AkitaRouterPlugin, PluginDexPlugin, LaunchManager, GatedFeePassPlugin. A failed step is
-   resumed by rerunning it with the same `--manifest`.
+   GatedFeeHook, AntiSnipeFeeHook, LaunchTaxHook, ConsensusKeyregHook, PluginDexPlugin, LaunchManager,
+   GatedFeePassPlugin. A failed step is resumed by rerunning it with the same `--manifest`.
 4. **Activate.** `scripts/activate-plugin-dex.ts -n <network> --receipts receipts/dex-<network> --policy
-   <policy.json>` makes the curve and hook approvals, registers the Tinyman adapter, inits the router's leg
-   escrow, configures LaunchManager, then hands every admin to the DAO wallet. Rerunning skips what is done.
-   Once the DAO wallet is admin, any remaining call is printed for a DAO proposal instead of sent.
+   <policy.json>` makes the curve and hook approvals, configures LaunchManager, then hands every admin to
+   the DAO wallet. Rerunning skips what is done. Once the DAO wallet is admin, any remaining call is printed for a DAO proposal instead of sent.
 5. **Verify on chain.** Every receipt's program hash matches the build; `getHookApproval` and the curve
-   approval are set; `VenueRegistry` lists the adapter; every app's admin is the DAO wallet.
+   approval are set; every app's admin is the DAO wallet.
 6. **Publish the IDs.** Rerun step 3 with `--register` (or edit `akita-sdk/src/networks.ts`) so `pluginDex`,
-   `akitaRouterPlugin`, `pluginDexPlugin` and the rest are in the network map; release the SDK; ship the apps.
-7. **Smoke test with small amounts**: create a pool, add liquidity, swap direct and through the router,
-   remove liquidity. Then tell aggregators the Vault id (INTEGRATION.md).
+   `pluginDexPlugin` and the rest are in the network map; release the SDK; ship the apps.
+7. **Smoke test with small amounts**: create a pool, add liquidity, swap direct, from an Akita wallet
+   (PluginDexPlugin) and through Haystack, remove liquidity. Then tell aggregators the Vault id
+   (INTEGRATION.md).
 
 ## Pause a pool
 

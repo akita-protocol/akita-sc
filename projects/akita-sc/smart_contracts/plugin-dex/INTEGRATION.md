@@ -136,7 +136,9 @@ applies to the final output.
 `SwapEvent(uint64 poolId, address caller, uint64 assetIn, uint64 amountIn, uint64 assetOut,
 uint64 amountOut, uint64 feeBps, uint64 hookFees, uint64 reserveA, uint64 reserveB)` is logged on every swap
 (ARC-28). It carries the post-swap reserves, so an indexer can track pool state from logs. `LiquidityEvent`
-does the same for adds and removes.
+does the same for adds and removes. A swap through a pool with a custody hook also logs
+`CustodyEvent(uint64 poolId, uint64 hook, uint64 point, uint64 deltaA, bool negA, uint64 deltaB, bool negB)`
+once per custody call. It carries no reserves, so read them from the `SwapEvent` of the same call.
 
 ## 5. Errors an aggregator can hit
 

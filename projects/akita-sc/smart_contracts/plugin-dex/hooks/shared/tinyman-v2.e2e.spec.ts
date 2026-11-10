@@ -2,8 +2,8 @@ import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import { beforeAll, describe, expect, test } from 'vitest'
-import { MockVenueProbeClient, MockVenueProbeFactory } from '../../artifacts/plugin-dex/tests/MockVenueProbeClient'
-import { expectContractError } from '../../../tests/utils/errors'
+import { MockVenueProbeClient, MockVenueProbeFactory } from '../../../artifacts/plugin-dex/tests/MockVenueProbeClient'
+import { expectContractError } from '../../../../tests/utils/errors'
 import {
   addInitialLiquidity,
   bootstrapPool,
@@ -19,7 +19,7 @@ import {
   TM_DEFAULT_PROTOCOL_FEE_RATIO,
   TM_LOCKED_POOL_TOKENS,
   TM_MIN_POOL_BALANCE,
-} from '../../../tests/fixtures/external/tinyman-v2'
+} from '../../../../tests/fixtures/external/tinyman-v2'
 
 const MIN_FEE = 1_000n
 const MAX_UINT64 = (1n << 64n) - 1n
@@ -36,7 +36,7 @@ const isqrt = (n: bigint): bigint => {
   return x
 }
 
-describe('Tinyman v2 venue library', () => {
+describe('Tinyman v2 library', () => {
   const localnet = algorandFixture()
   let algorand: AlgorandClient
   let admin: TransactionSignerAccount
