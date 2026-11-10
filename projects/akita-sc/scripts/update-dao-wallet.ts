@@ -8,8 +8,13 @@
  * already stored in the wallet factory's box.
  *
  * Prerequisites:
- *   - The wallet factory's boxed child contract must already be up to date.
- *     If not, run update:wallet-factory first.
+ *   - The wallet factory must run this tree's AbstractedAccountFactory with the
+ *     AbstractedAccount child staged. Stage both in one group with
+ *     `npm run update:wallet-factory -- --update-factory` (or Phase 2
+ *     `--target AbstractedAccountFactory`). Never stage the AVM 13 wallet alone
+ *     into the deployed AVM 11 factory: every newAccount and updateWallet would
+ *     revert (ACCT-3). Once the DAO wallet runs the AVM 13 program it can never
+ *     go back to an older version.
  *
  * Usage:
  *   npm run update:dao-wallet -- -n testnet -m "your mnemonic"

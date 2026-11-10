@@ -279,8 +279,8 @@ Resume example:
   const migrations: RevenueMigration[] = []
   const usedManagedAssetOverrides = new Set<string>()
   if (!extra.allowStateReset) {
-    const status = await ctx.algorand.client.algod.status()
-    const latestBlock = await ctx.algorand.client.algod.block(status.lastRound)
+    const status = await ctx.algorand.client.algod.status().do()
+    const latestBlock = await ctx.algorand.client.algod.block(status.lastRound).do()
     const latestTimestamp = BigInt(latestBlock.block.header.timestamp)
 
     if (receiveAssets.size > 0) {
@@ -541,9 +541,10 @@ Resume example:
   let resumedPlugin: RevenueManagerPluginSDK | undefined
   if (extra.newPluginId !== undefined) {
     const [appInfo, compiled] = await Promise.all([
-      ctx.algorand.client.algod.applicationById(extra.newPluginId),
+      ctx.algorand.client.algod.getApplicationByID(extra.newPluginId).do(),
       factory.appFactory.compile(),
     ])
+    if (!appInfo.params) throw new Error(`RevenueManagerPlugin ${extra.newPluginId} has no application parameters`)
     if (
       !bytesEqual(appInfo.params.approvalProgram, compiled.approvalProgram) ||
       !bytesEqual(appInfo.params.clearStateProgram, compiled.clearStateProgram)

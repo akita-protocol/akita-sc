@@ -115,7 +115,7 @@ async function searchApps(indexer: algosdk.Indexer, creator: string): Promise<al
   while (true) {
     const response = await request.do()
     apps.push(...(response.applications ?? []))
-    const next = response.nextToken ?? response['next-token']
+    const next = response.nextToken
     if (!next) break
     request = indexer.searchForApplications().creator(creator).limit(1000).nextToken(next)
   }
@@ -128,7 +128,7 @@ async function searchAssets(indexer: algosdk.Indexer, creator: string): Promise<
   while (true) {
     const response = await request.do()
     assets.push(...(response.assets ?? []))
-    const next = response.nextToken ?? response['next-token']
+    const next = response.nextToken
     if (!next) break
     request = indexer.searchForAssets().creator(creator).limit(1000).nextToken(next)
   }
@@ -168,7 +168,7 @@ async function assetInfo(indexer: algosdk.Indexer, asset: algosdk.indexerModels.
       nonZeroHolders++
       if (holderSample.length < 10) holderSample.push({ address: address(balance.address), amount: balance.amount.toString() })
     }
-    const next = response.nextToken ?? response['next-token']
+    const next = response.nextToken
     if (!next) break
     request = indexer.lookupAssetBalances(id).limit(1000).nextToken(next)
   }
@@ -231,6 +231,7 @@ export async function discoverAssets(indexer: algosdk.Indexer, creators: string[
 export async function getEscrowOwner(indexer: algosdk.Indexer, app: AppNode, appIds: ReturnType<typeof getNetworkAppIds>): Promise<EscrowNode | undefined> {
   if (app.creator !== algosdk.getApplicationAddress(appIds.escrowFactory).toString()) return undefined
   const application = (await indexer.lookupApplications(app.id).do()).application
+  if (!application) throw new Error(`Escrow application ${app.id} was not found`)
   const creatorState = (application.params.globalState ?? []).find((kv) => keyString(kv.key) === 'creator')
   if (!creatorState) return { id: app.id, address: app.address, ownerKind: 'unknown' }
 

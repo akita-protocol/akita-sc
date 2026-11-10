@@ -15,7 +15,7 @@
  *   npm run install:dao-social-caller -- -n mainnet -m "DAO_MNEMONIC" --caller PERSONAL_ADDRESS
  */
 
-import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSigner } from 'algosdk';
 import { parseBaseArgs, createAlgorandClient, runScript } from './script-base'
 import { buildAppIdsFromEnv, getNetworkAppIds, setCurrentNetwork } from 'akita-sdk'
 import { AkitaDaoSDK } from 'akita-sdk/dao'
@@ -80,11 +80,12 @@ runScript(async () => {
       sender = account.addr.toString()
       signer = makeBasicAccountTransactionSigner(account) as unknown as TransactionSigner
     } else {
-      const daoApp = await algorand.client.algod.applicationById(daoAppId)
+      const daoApp = await algorand.client.algod.getApplicationByID(daoAppId).do()
+      if (!daoApp.params) throw new Error(`DAO ${daoAppId} has no application parameters`)
       const creator = daoApp.params.creator
       const creatorAccount = await algorand.account.kmd.getWalletAccount(
         'unencrypted-default-wallet',
-        (account) => account.address.equals(creator),
+        (account) => account.address.toString() === creator.toString(),
       )
       if (!creatorAccount) {
         throw new Error(

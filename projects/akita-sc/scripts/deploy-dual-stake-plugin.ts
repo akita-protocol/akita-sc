@@ -36,7 +36,7 @@ runScript(async () => {
     process.exit(1)
   }
 
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log(`DRY RUN - Would deploy new DualStakePlugin with registry=${registry}\n`)
     return
   }

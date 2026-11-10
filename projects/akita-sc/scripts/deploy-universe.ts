@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import { ABIMethod } from '@algorandfoundation/algokit-utils/abi'
+import { ABIMethod } from 'algosdk';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { AlgorandFixture } from '@algorandfoundation/algokit-utils/types/testing'
-import type { AddressWithTransactionSigner, TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
+import type { TransactionSigner } from 'algosdk';
 import algosdk from 'algosdk'
 import { AbstractedAccountMbrFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient'
 import { AkitaDaoApps } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
@@ -31,7 +32,7 @@ interface DeployOptions {
   haystackRouter?: HaystackRouterOptions
 }
 
-const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0xc8, 0x90, 0xdc, 0x20])
+const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0x87, 0x1a, 0x03, 0x54]) // ORDER_ROUTER v4 route call (finalize)
 
 function getMethodSelector(methodSignature: string): Uint8Array {
   return ABIMethod.fromSignature(methodSignature).getSelector()
@@ -114,7 +115,7 @@ function getNetworkHaystackRouterDefaults(network: Network): HaystackRouterOptio
       referrerTreasuryAppId: 0n,
     },
     mainnet: {
-      appId: 3172554435n,
+      appId: 3757715482n,
       methodSelector: HAYSTACK_ROUTER_METHOD_SELECTOR,
       referrerTreasuryAppId: 3041355560n,
     },
@@ -432,6 +433,7 @@ function generateEnvFile(
     `# Gate & Other`,
     `GATE_APP_ID=${universe.gate.appId}`,
     `HYPER_SWAP_APP_ID=${universe.hyperSwap.appId}`,
+    `META_APP_ID=${universe.metaMerkles.appId}`,
     `META_MERKLES_APP_ID=${universe.metaMerkles.appId}`,
     ``,
     `# Subgates`,
@@ -938,6 +940,7 @@ async function formatSummary(
         address: universe.hyperSwap.client.appAddress.toString(),
       },
       metaMerkles: {
+        contractName: 'Meta',
         appId: universe.metaMerkles.appId.toString(),
         address: universe.metaMerkles.client.appAddress.toString(),
       },
@@ -1095,7 +1098,7 @@ async function deploy() {
     // Track initial balance for cost calculation
     let initialBalance = 0n
     if (options.network !== 'localnet') {
-      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
+      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
       initialBalance = BigInt(accountInfo.amount)
       // Estimated actual costs: ~287-317 ALGO (see DEPLOYMENT_COSTS.md for breakdown)
       // We recommend 500-600 ALGO minimum for safety buffer
@@ -1124,7 +1127,7 @@ async function deploy() {
       }
     } else {
       // For localnet, get initial balance for tracking
-      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
+      const accountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
       initialBalance = BigInt(accountInfo.amount)
       console.log(`📊 Starting balance: ${initialBalance / 1_000_000n} ALGO\n`)
     }
@@ -1202,29 +1205,21 @@ async function deploy() {
     // and other scripts can fund test wallets regardless of which algokit-utils version
     // they use to pick a dispenser.
     //
-    // Different algokit-utils versions select different accounts as "the dispenser":
-    //   v9  (akita-rn → mock-init.ts): first online account in unencrypted-default-wallet
-    //                                   with amount > 1000 ALGO.
-    //   v10 (akita-sc → here):          account matching `comment === "Wallet1"` in genesis.
-    //
     // Funding all candidates ensures downstream scripts always find test assets on the account
     // they pick — no cross-version coupling required.
     if (options.network === 'localnet') {
       console.log('\n💰 Transferring test assets to all KMD dispenser candidates...')
       try {
         const kmd = await algorand.account.kmd.kmd()
-        const wallets = (await kmd.listWallets()).wallets.filter((w) => w.name === 'unencrypted-default-wallet')
+        const wallets = (await kmd.listWallets()).wallets.filter((w: { name: string; id: string }) => w.name === 'unencrypted-default-wallet')
         if (wallets.length === 0) {
           throw new Error('unencrypted-default-wallet not found in KMD')
         }
         const walletHandleToken = (
-          await kmd.initWalletHandle({
-            walletId: wallets[0].id,
-            walletPassword: '',
-          })
-        ).walletHandleToken
+          await kmd.initWalletHandle(wallets[0].id, '')
+        ).wallet_handle_token
 
-        const addresses = (await kmd.listKeysInWallet({ walletHandleToken })).addresses
+        const addresses = (await kmd.listKeys(walletHandleToken)).addresses
 
         const testAssets = [
           {
@@ -1242,20 +1237,20 @@ async function deploy() {
         const fundedByAsset = new Map<string, number>()
         for (const addr of addresses) {
           const addrStr = addr.toString()
-          const info = await algorand.client.algod.accountInformation(addr)
+          const info = await algorand.client.algod.accountInformation(addr).do()
           // Must have enough ALGO to cover MBR for opt-in + future transfers.
           // Mirror v9's >1000 ALGO threshold so we cover every candidate dispenser.
           if (BigInt(info.amount) < 1_000_000_000n) continue
 
           // Export the signer for this address via KMD
           const exported = await algorand.account.kmd.getWalletAccount('unencrypted-default-wallet', (a) =>
-            a.address.equals(addr),
+            a.address.toString() === addrStr,
           )
           if (!exported) continue
 
           for (const asset of testAssets) {
             const perAccount = asset.totalAmount / BigInt(Math.max(addresses.length, 1))
-            const latestInfo = await algorand.client.algod.accountInformation(addr)
+            const latestInfo = await algorand.client.algod.accountInformation(addr).do()
             const alreadyOpted = (latestInfo.assets ?? []).some((a) => a.assetId === asset.assetId)
             if (!alreadyOpted) {
               await algorand.send.assetOptIn({
@@ -1295,7 +1290,7 @@ async function deploy() {
     // Calculate actual costs (for testnet/mainnet)
     let actualCost = 0n
     if (options.network !== 'localnet') {
-      const finalAccountInfo = await algorand.client.algod.accountInformation(account.addr.toString())
+      const finalAccountInfo = await algorand.client.algod.accountInformation(account.addr.toString()).do()
       const finalBalance = BigInt(finalAccountInfo.amount)
       actualCost = initialBalance - finalBalance
       console.log(`\n💰 Cost Summary:`)
@@ -1356,7 +1351,7 @@ async function deploy() {
       try {
         const pathModule = await import('path')
         const osModule = await import('os')
-        const { importLoraAppLab } = await import('./import-lora-app-lab')
+        const { importLoraAppLab }: typeof import('./import-lora-app-lab') = require('./import-lora-app-lab')
         await importLoraAppLab({
           network: options.network,
           summaryPath,

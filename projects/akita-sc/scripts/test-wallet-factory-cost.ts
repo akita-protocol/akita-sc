@@ -7,7 +7,7 @@
 
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { AbstractedAccountFactoryClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient'
-import { AbstractedAccountClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
+import { AbstractedAccountMbrClient } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountMBRClient'
 import { EscrowFactoryClient } from '../smart_contracts/artifacts/escrow/EscrowFactoryClient'
 import { buildAppIdsFromEnv } from '../../akita-sdk/src/networks'
 
@@ -76,16 +76,19 @@ async function main() {
   const walletAppId = LOCALNET_APP_IDS.wallet
   console.log(`   Wallet App ID: ${walletAppId}`)
 
-  const walletClient = algorand.client.getTypedAppClientById(AbstractedAccountClient, {
-    appId: walletAppId,
+  const walletMbrClient = algorand.client.getTypedAppClientById(AbstractedAccountMbrClient, {
+    appId: LOCALNET_APP_IDS.walletMbr,
     defaultSender: dispenser.addr,
+    defaultSigner: dispenser.signer,
   })
 
-  console.log(`   Wallet Address: ${walletClient.appAddress}`)
+  console.log(`   MBR Reader Address: ${walletMbrClient.appAddress}`)
   
   // Call mbr with default params to get base costs
-  const mbrData = await walletClient.mbr({
+  const mbrData = await walletMbrClient.mbr({
+    staticFee: (2_000).microAlgo(),
     args: {
+      appId: walletAppId,
       escrow: '',       // No specific escrow
       methodCount: 0n,  // No method restrictions
       plugin: '',       // No specific plugin
@@ -120,4 +123,3 @@ main().catch((error) => {
   console.error('\n❌ Error:', error)
   process.exit(1)
 })
-

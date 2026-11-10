@@ -1,0 +1,5682 @@
+{
+  "kind": "read-only-mainnet-escrow-migration-plan",
+  "snapshot": "mainnet-escrow-migration-snapshot-2026-09-12.json",
+  "snapshotSha256": "e054bd4ec05f9754489dddab8c0af89fec3f79155cac7babb08d65703ac02ff8",
+  "observedAt": "2026-09-12T23:10:05.489Z",
+  "roundStart": "64986740",
+  "roundEnd": "64986750",
+  "executionReady": false,
+  "scope": {
+    "factoryId": "3569555755",
+    "factoryAddress": "L4HTONML2TTAQB5OHTS4IQPRPIZQKKRVOLWC4D2HJLJSZGIFI246VPJNYY",
+    "daoId": "3569556034",
+    "includesDeleted": true,
+    "allPagesConsumed": true,
+    "otherHistoricalFactoriesVerified": false
+  },
+  "summary": {
+    "escrows": 37,
+    "wallets": [
+      {
+        "walletId": "3569559153",
+        "name": "Akita DAO",
+        "escrows": 22,
+        "assetOptIns": 28,
+        "algoMicroAlgos": "1050820735",
+        "admin": "YLIMXW5EJQDPPMEB7LFLARBWYWN56RKMJJSIM3VWIEMVXQI2FCWVC7PMJ4",
+        "controlledAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+        "updateSettingsRaw": "wA==",
+        "existingScopedGrants": 16
+      },
+      {
+        "walletId": "3570353317",
+        "name": "krby",
+        "escrows": 14,
+        "assetOptIns": 11,
+        "algoMicroAlgos": "56214600",
+        "admin": "LRULPBNRHW54EYN3ZXLQXKMGT7QZ4NRRB4FIRA5XARJA5AMVFS7ABG7HUU",
+        "controlledAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+        "updateSettingsRaw": "wA==",
+        "existingScopedGrants": 20
+      },
+      {
+        "walletId": "3606269654",
+        "name": "AkitaTheCity",
+        "escrows": 1,
+        "assetOptIns": 0,
+        "algoMicroAlgos": "100000",
+        "admin": "OW77VJFREJMCOAKVFLHESXMF634DFKCVIWMPO5YNY73HAUQ2XOMEGR6AYM",
+        "controlledAddress": "7O4MT4IO6TDGP2TOD5VKTITCZJ35YHQQZO4K6QS7VETKKETIUCPD4QKECI",
+        "updateSettingsRaw": "wA==",
+        "existingScopedGrants": 0
+      }
+    ],
+    "assetOptIns": 39,
+    "nonzeroAssetPositions": 35,
+    "assetTypes": 19,
+    "allOwnerWalletGrants": 73,
+    "locked": 12,
+    "algoMicroAlgos": "1107135335",
+    "existingScopedGrants": 36
+  },
+  "assetTotals": [
+    {
+      "assetId": "572813090",
+      "unit": "AKC0360",
+      "decimals": "0",
+      "amount": "0"
+    },
+    {
+      "assetId": "1140524618",
+      "unit": "AOG0361",
+      "decimals": "0",
+      "amount": "0"
+    },
+    {
+      "assetId": "1140772987",
+      "unit": "AOG4782",
+      "decimals": "0",
+      "amount": "0"
+    },
+    {
+      "assetId": "523683256",
+      "unit": "AKTA",
+      "decimals": "6",
+      "amount": "9921931798472"
+    },
+    {
+      "assetId": "31566704",
+      "unit": "USDC",
+      "decimals": "6",
+      "amount": "299000000"
+    },
+    {
+      "assetId": "3569571672",
+      "unit": "DOGHRT",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571673",
+      "unit": "GRUMP",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571674",
+      "unit": "LAUGH",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571675",
+      "unit": "SAD",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571790",
+      "unit": "VIBING",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571791",
+      "unit": "WINK",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571792",
+      "unit": "WORRY",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571793",
+      "unit": "ARTIST",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571891",
+      "unit": "DIAMND",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571892",
+      "unit": "HOLDER",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571893",
+      "unit": "PAWHRT",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571894",
+      "unit": "SIR",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569571933",
+      "unit": "THMBS",
+      "decimals": "4",
+      "amount": "9928"
+    },
+    {
+      "assetId": "3569570855",
+      "unit": "BONES",
+      "decimals": "6",
+      "amount": "1000000000000000"
+    }
+  ],
+  "funding": {
+    "escrowMigrationMicroAlgos": "0",
+    "note": "No physical escrow migration is planned. Factory/wallet upgrades and compiler-release plugin replacement retain their separate costs."
+  },
+  "feeRoutes": [
+    {
+      "family": "subscriptions",
+      "appId": "3569556497",
+      "config": [
+        "rev_subscriptions",
+        "3569567427"
+      ]
+    },
+    {
+      "family": "auction",
+      "appId": "3569557408",
+      "config": [
+        "rev_auction",
+        "3569564097"
+      ]
+    },
+    {
+      "family": "raffle",
+      "appId": "3569557743",
+      "config": [
+        "rev_raffle",
+        "3569565681"
+      ]
+    },
+    {
+      "family": "marketplace",
+      "appId": "3569557584",
+      "config": [
+        "rev_marketplace",
+        "3569564836"
+      ]
+    },
+    {
+      "family": "pool",
+      "appId": "3569556570",
+      "config": [
+        "rev_pool",
+        "3569568655"
+      ]
+    },
+    {
+      "family": "poll",
+      "appId": "3569557932",
+      "config": [
+        "rev_poll",
+        "3569569619"
+      ]
+    },
+    {
+      "family": "walletFactory",
+      "appId": "3569556257",
+      "config": [
+        "rev_wallet",
+        "3569560223"
+      ]
+    },
+    {
+      "family": "social",
+      "appId": "3569557130",
+      "config": [
+        "rev_social",
+        "3569566288"
+      ]
+    }
+  ],
+  "revenueConfiguration": [
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_poll"
+      },
+      "value": {
+        "source": "XGCU43HGUGUSZL6PJU7UPZS3B2NB5CLOEAUFXSG6SKSQYS4C6T4GOWV464",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521904"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_pool"
+      },
+      "value": {
+        "source": "JHIWFEWBQQE2Z5DVQRDLVYPNQ3RYEYT37MO2DAOM4ONI4ND6DOLGPQFFWA",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521850"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_raffle"
+      },
+      "value": {
+        "source": "ITZ4UYMF5IR5NJ34JCBATNO2XJCV6HLPMU3I275EDJFFTKHZ3ROTIMABRA",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521632"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_social"
+      },
+      "value": {
+        "source": "EHQBG4QX2Z3P7DERF4T4BPXI26EYPA66UWMF2MB42H3W6MKZUYZEDUROTQ",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "1",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521687"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_wallet"
+      },
+      "value": {
+        "source": "IK5AGM7SJ3TJRUIXJPKFKJWJVMXYQMMVIRO2VY6AJE6KILP3DOR6FFI7NI",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521485"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_auction"
+      },
+      "value": {
+        "source": "HGYKRZIX6PSKI7EM2F2Z7F2MXTGLYBT7KJGT6NQJUF25ZPN5DLCLK4MPAE",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521523"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_haystack"
+      },
+      "value": {
+        "source": "ESPO2SMA5BPAAAFAN66EFNHGR3HJ63U2OYM6RJXSEP6YOBU4HJTWZG7D5A",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "0",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521812"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_marketplace"
+      },
+      "value": {
+        "source": "2Y6OR6PSGXB56ZBSBR3THUPA7KSJR6SHLH5BFDIMNJ5SBSOHXVSQCDVUNA",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "3",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521578"
+      }
+    },
+    {
+      "prefix": "e",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_subscriptions"
+      },
+      "value": {
+        "source": "3RG6EP66NXHAX5NK2Y3JNFFRXYHRJLJYIVAJRCCUQTB43MMFKAYGVBYIYA",
+        "allocatable": true,
+        "optinAllowed": true,
+        "optinCount": "2",
+        "phase": "0",
+        "allocationCounter": "0",
+        "lastDisbursement": "0",
+        "creationDate": "1779521768"
+      }
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_subscriptions",
+        "asset": "31566704"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_social",
+        "asset": "523683256"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_subscriptions",
+        "asset": "523683256"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_marketplace",
+        "asset": "572813090"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_marketplace",
+        "asset": "1140524618"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "m",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_marketplace",
+        "asset": "1140772987"
+      },
+      "value": ""
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_poll"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_pool"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_raffle"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_social"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_wallet"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_auction"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_haystack"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_marketplace"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    },
+    {
+      "prefix": "r",
+      "key": {
+        "wallet": "3569559153",
+        "escrow": "rev_subscriptions"
+      },
+      "value": {
+        "app": "3569556034",
+        "key": [
+          114,
+          101,
+          118,
+          101,
+          110,
+          117,
+          101,
+          95,
+          115,
+          112,
+          108,
+          105,
+          116,
+          115
+        ]
+      }
+    }
+  ],
+  "subscriptionDependencies": [
+    {
+      "prefix": "l",
+      "key": {
+        "address": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE"
+      },
+      "value": "3"
+    },
+    {
+      "prefix": "o",
+      "key": {
+        "address": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+        "id": "1"
+      },
+      "value": {
+        "status": "20",
+        "interval": "2592000",
+        "asset": "31566704",
+        "amount": "20000000",
+        "passes": "0",
+        "gateID": "0",
+        "payoutAddress": "IVSQN4IUK6NHZ2GQ7EV7RVXEXVE7ADTJHRSD25GJGB53VOM3K3LKARY3W4",
+        "title": "Plus",
+        "description": "Boost your social impact, unlock gated experiences, and customize your app theme across the Akita ecosystem.\n\n- Social impact boost\n- Core agent access\n- Exclusive Plus badge\n- Gated staking pools, auctions, and raffles\n- Customizable gallery\n- Custom app theme\n- Higher post upload limits: 15 MB per image, 24 MB post bundles, and up to 128 files per post.",
+        "bannerImage": [
+          1,
+          112,
+          18,
+          32,
+          162,
+          158,
+          40,
+          209,
+          252,
+          176,
+          124,
+          34,
+          41,
+          170,
+          253,
+          204,
+          139,
+          92,
+          208,
+          217,
+          199,
+          120,
+          43,
+          240,
+          98,
+          80,
+          83,
+          10,
+          126,
+          67,
+          56,
+          234,
+          47,
+          233,
+          7,
+          90
+        ],
+        "highlightMessage": "2",
+        "highlightColor": [
+          62,
+          225,
+          161
+        ]
+      }
+    },
+    {
+      "prefix": "o",
+      "key": {
+        "address": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+        "id": "2"
+      },
+      "value": {
+        "status": "20",
+        "interval": "2592000",
+        "asset": "31566704",
+        "amount": "60000000",
+        "passes": "0",
+        "gateID": "0",
+        "payoutAddress": "IVSQN4IUK6NHZ2GQ7EV7RVXEXVE7ADTJHRSD25GJGB53VOM3K3LKARY3W4",
+        "title": "Pro",
+        "description": "Enhanced social impact with everything in Plus and Pro-exclusive events.\n\n- Enhanced social impact boost\n- Expanded agent access\n- Exclusive Pro badge\n- Everything in Plus\n- Pro-exclusive staking pools, auctions, and raffles\n- Higher post upload limits: 15 MB per image, 24 MB post bundles, and up to 128 files per post.",
+        "bannerImage": [
+          1,
+          112,
+          18,
+          32,
+          201,
+          49,
+          224,
+          190,
+          100,
+          250,
+          19,
+          236,
+          246,
+          175,
+          126,
+          248,
+          131,
+          61,
+          215,
+          28,
+          151,
+          231,
+          24,
+          9,
+          188,
+          255,
+          237,
+          103,
+          88,
+          28,
+          206,
+          112,
+          88,
+          153,
+          20,
+          73
+        ],
+        "highlightMessage": "0",
+        "highlightColor": [
+          75,
+          201,
+          255
+        ]
+      }
+    },
+    {
+      "prefix": "o",
+      "key": {
+        "address": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+        "id": "3"
+      },
+      "value": {
+        "status": "20",
+        "interval": "2592000",
+        "asset": "31566704",
+        "amount": "100000000",
+        "passes": "0",
+        "gateID": "0",
+        "payoutAddress": "IVSQN4IUK6NHZ2GQ7EV7RVXEXVE7ADTJHRSD25GJGB53VOM3K3LKARY3W4",
+        "title": "Ultra",
+        "description": "Maximum social impact with everything in Pro, Ultra-exclusive events, and early access to new features.\n\n- Maximum social impact boost\n- Priority agent access\n- Exclusive Ultra badge\n- Everything in Pro\n- Ultra-exclusive staking pools, auctions, and raffles\n- Early access to new features\n- Higher post upload limits: 15 MB per image, 24 MB post bundles, and up to 128 files per post.",
+        "bannerImage": [
+          1,
+          112,
+          18,
+          32,
+          190,
+          1,
+          89,
+          77,
+          121,
+          117,
+          16,
+          234,
+          155,
+          70,
+          68,
+          60,
+          181,
+          151,
+          164,
+          0,
+          245,
+          32,
+          246,
+          219,
+          77,
+          48,
+          209,
+          163,
+          78,
+          92,
+          121,
+          61,
+          151,
+          217,
+          207,
+          7
+        ],
+        "highlightMessage": "0",
+        "highlightColor": [
+          209,
+          107,
+          165
+        ]
+      }
+    },
+    {
+      "prefix": "s",
+      "key": {
+        "address": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE",
+        "id": "1"
+      },
+      "value": {
+        "recipient": "FISHERMANBPAHXQJEBJNIMMTBVNCOTXG6TUHYXQNE64FEJRVDTO3E3A43E",
+        "serviceID": "0",
+        "startDate": "1788392364",
+        "amount": "100000000",
+        "interval": "604800",
+        "asset": "523683256",
+        "gateID": "0",
+        "lastPayment": "1788392364",
+        "streak": "1",
+        "escrowed": "0"
+      }
+    },
+    {
+      "prefix": "s",
+      "key": {
+        "address": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE",
+        "id": "2"
+      },
+      "value": {
+        "recipient": "YFN66NKXPMN5YM36H7ZOOBEGZBY7FFNOJ2JKJI6MNUYDXGKJPOQQPZ6Q3E",
+        "serviceID": "0",
+        "startDate": "1788393449",
+        "amount": "100000000",
+        "interval": "604800",
+        "asset": "523683256",
+        "gateID": "0",
+        "lastPayment": "1788393449",
+        "streak": "1",
+        "escrowed": "0"
+      }
+    }
+  ],
+  "listingDependencies": [
+    {
+      "id": "3643990817",
+      "seller": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "prize": "1140772987",
+      "price": "400000000",
+      "paymentAsset": "0",
+      "reservedFor": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+      "expiration": "0",
+      "feeConfig": [
+        "rev_marketplace",
+        "3569564836"
+      ],
+      "deleted": false
+    },
+    {
+      "id": "3691743616",
+      "seller": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE",
+      "prize": "572813090",
+      "price": "1000000",
+      "paymentAsset": "0",
+      "reservedFor": "OUVVJ4BDBO4ZA4C436UCAF55Y6DSA5NAQJD7VKNIBI6Y3GWJYET4JIDESA",
+      "expiration": "0",
+      "feeConfig": [
+        "rev_marketplace",
+        "3569564836"
+      ],
+      "deleted": false
+    }
+  ],
+  "rewards": {
+    "appId": "3569556095",
+    "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+    "disbursementCount": 144,
+    "outstandingDisbursements": [
+      {
+        "kind": "disbursement",
+        "id": "7",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "17",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "18",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "29",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "30",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "55",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "59",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "108",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "109",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "114",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "6",
+          "distributed": "7",
+          "mbrCredits": "177100",
+          "usedMbrCredits": "151800",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "126",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "128",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "9",
+          "distributed": "4",
+          "mbrCredits": "101200",
+          "usedMbrCredits": "227700",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "130",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "131",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "134",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "135",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "136",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "137",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "138",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "139",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "142",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome Sticker Pack",
+          "amount": "13",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "13",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "328900",
+          "note": "Your welcome gift! Claim your Akita sticker NFTs to use as reactions."
+        }
+      },
+      {
+        "kind": "disbursement",
+        "id": "143",
+        "details": {
+          "creator": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+          "finalized": true,
+          "title": "Welcome AKTA",
+          "amount": "2000000000",
+          "timeToUnlock": "0",
+          "expiration": "4102444800",
+          "allocations": "1",
+          "distributed": "0",
+          "mbrCredits": "0",
+          "usedMbrCredits": "25300",
+          "note": "Welcome to Akita. Here are 2,000 AKTA to get started."
+        }
+      }
+    ],
+    "outstandingAllocationCount": 179,
+    "availableMbrCredits": "20973700",
+    "usedMbrCredits": "4528700",
+    "allocations": [
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571672",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571673",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571674",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571675",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571790",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571791",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571792",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571793",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571891",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571892",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571893",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571894",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ANOW25NEL5IMNAQ4RDGAZI3LPHSYN75WRR3PZ2Y47KVM5LNNYBXTZG6PPI",
+          "asset": "3569571933",
+          "disbursementID": "59"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "523683256",
+          "disbursementID": "109"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571672",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571673",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571674",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571675",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571790",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571791",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571792",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571793",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571891",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571892",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571893",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571894",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "BUSHCZU7AZ3MSAM4LTAOTGRZPSOQNSLJIFD7Z6WW5TLBAQM3SM3SJ6FYYM",
+          "asset": "3569571933",
+          "disbursementID": "108"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "523683256",
+          "disbursementID": "139"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571672",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571673",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571674",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571675",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571790",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571791",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571792",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571793",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571891",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571892",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571893",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571894",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "CMYUIPA7Y4ADDZQU7PFCSL2MN6UZPMYHQZ7WW5CNVHRT6PSQWVTCS6725A",
+          "asset": "3569571933",
+          "disbursementID": "138"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571672",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571673",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571674",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571675",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571790",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571791",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571792",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571793",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571891",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571892",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571893",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571894",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "EFU4VYBN7MUEYVIWM42QE3FIWUSWCPKPNQDDNZPDNCHD5WOMCHOB64FEYI",
+          "asset": "3569571933",
+          "disbursementID": "126"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "523683256",
+          "disbursementID": "143"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571672",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571673",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571674",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571675",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571790",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571791",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571792",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571793",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571891",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571892",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571893",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571894",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LS7L7QFCUYFQTJIK6PH7U6N3PWF3BKIKWT7FEGREISHGDMJINRWM636RWU",
+          "asset": "3569571933",
+          "disbursementID": "142"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571790",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571791",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571792",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571793",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571891",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571892",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571893",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571894",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "LZAEWI32N7R6B4JJMQZJYG2C344OY77RTQTG3ERHLD4KNUWYQ5CT3A2A4Y",
+          "asset": "3569571933",
+          "disbursementID": "128"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "523683256",
+          "disbursementID": "137"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571672",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571673",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571674",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571675",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571790",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571791",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571792",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571793",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571891",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571892",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571893",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571894",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "NEO74SEXMQZL5VTC2NBAT53DBDMFSZSY25JJTKM5JHW2FDFBPZM6EFTJ3M",
+          "asset": "3569571933",
+          "disbursementID": "136"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "523683256",
+          "disbursementID": "135"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571672",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571673",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571674",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571675",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571790",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571791",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571792",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571793",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571891",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571892",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571893",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571894",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OMXXQGQBJUIVFGVLGMGMLHSYIXIDO4BEAS2U36DBS62X5MP3P332WSL5II",
+          "asset": "3569571933",
+          "disbursementID": "134"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "523683256",
+          "disbursementID": "30"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571672",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571673",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571674",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571675",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571790",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571791",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571792",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571793",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571891",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571892",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571893",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571894",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "ONU74ECT3R6U5LOET3ARW6G6HE7MPLC6KLJ4J42MPIG3EXK3LUV22QPQ7U",
+          "asset": "3569571933",
+          "disbursementID": "29"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "523683256",
+          "disbursementID": "131"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571672",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571673",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571674",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571675",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571790",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571791",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571792",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571793",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571891",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571892",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571893",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571894",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "OYKW3ITX5EHNQVXNERUQUY3I5755FT6EKC5ZN756PGF33T44X6L5CHTJVA",
+          "asset": "3569571933",
+          "disbursementID": "130"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571672",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571673",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571674",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571675",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571790",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571791",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571792",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571793",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571891",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571892",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571893",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571894",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "SB3F4H4UGGQSBS6OA77CTKDIJ6BVU63TWIXXIADAVK3SC54D4LHQULSK24",
+          "asset": "3569571933",
+          "disbursementID": "55"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571672",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571673",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571674",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571675",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571790",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571791",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571792",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571793",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571891",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571892",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571893",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571894",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "TMHOZBHM5IN2L26MKA3OFFXWWRKAOWUA7BV6AZ2IA5WAD2OHBAJW3QMESI",
+          "asset": "3569571933",
+          "disbursementID": "7"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "523683256",
+          "disbursementID": "18"
+        },
+        "amount": "2000000000"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571672",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571673",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571674",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571675",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571790",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571791",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571792",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571793",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571891",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571892",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571893",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571894",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "2Y3ZRIIYMEPWQNTHFPV2FNNJ3ZRKSPQRMT74SH3IHT2YV3YNTRH54JV35E",
+          "asset": "3569571933",
+          "disbursementID": "17"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571793",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571891",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571892",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571893",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571894",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      },
+      {
+        "kind": "allocation",
+        "key": {
+          "address": "53LFYMH7VOTSRHBT7PNI2AHDLO6EAXOX553ZLMAAFVFG6O5NCCJAX7J3NQ",
+          "asset": "3569571933",
+          "disbursementID": "114"
+        },
+        "amount": "1"
+      }
+    ],
+    "outstandingByAsset": [
+      {
+        "assetId": "523683256",
+        "unit": "AKTA",
+        "decimals": "6",
+        "amount": "16000000000"
+      },
+      {
+        "assetId": "3569571672",
+        "unit": "DOGHRT",
+        "decimals": "4",
+        "amount": "12"
+      },
+      {
+        "assetId": "3569571673",
+        "unit": "GRUMP",
+        "decimals": "4",
+        "amount": "12"
+      },
+      {
+        "assetId": "3569571674",
+        "unit": "LAUGH",
+        "decimals": "4",
+        "amount": "12"
+      },
+      {
+        "assetId": "3569571675",
+        "unit": "SAD",
+        "decimals": "4",
+        "amount": "12"
+      },
+      {
+        "assetId": "3569571790",
+        "unit": "VIBING",
+        "decimals": "4",
+        "amount": "13"
+      },
+      {
+        "assetId": "3569571791",
+        "unit": "WINK",
+        "decimals": "4",
+        "amount": "13"
+      },
+      {
+        "assetId": "3569571792",
+        "unit": "WORRY",
+        "decimals": "4",
+        "amount": "13"
+      },
+      {
+        "assetId": "3569571793",
+        "unit": "ARTIST",
+        "decimals": "4",
+        "amount": "14"
+      },
+      {
+        "assetId": "3569571891",
+        "unit": "DIAMND",
+        "decimals": "4",
+        "amount": "14"
+      },
+      {
+        "assetId": "3569571892",
+        "unit": "HOLDER",
+        "decimals": "4",
+        "amount": "14"
+      },
+      {
+        "assetId": "3569571893",
+        "unit": "PAWHRT",
+        "decimals": "4",
+        "amount": "14"
+      },
+      {
+        "assetId": "3569571894",
+        "unit": "SIR",
+        "decimals": "4",
+        "amount": "14"
+      },
+      {
+        "assetId": "3569571933",
+        "unit": "THMBS",
+        "decimals": "4",
+        "amount": "14"
+      }
+    ]
+  },
+  "escrows": [
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_wallet",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_wallet",
+        "expectedLock": true,
+        "expectedAppId": "3569560223",
+        "expectedAddress": "7YF272RXCWHNEIFYMLFPVVCQCXIXUYRBRVTIIBNDTXZWG7RUZMCCF5PZFI"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569560223",
+      "address": "7YF272RXCWHNEIFYMLFPVVCQCXIXUYRBRVTIIBNDTXZWG7RUZMCCF5PZFI",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_wallet",
+          "permissions": {
+            "escrow": "3569560223",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424450"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAKcmV2X3dhbGxldA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_haystack",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_haystack",
+        "expectedLock": true,
+        "expectedAppId": "3569560967",
+        "expectedAddress": "YOIPMYT4NRBL7NGRXGIDILLLGZ7VG2CV3PYVEDSMJKE5TY5BMT7PP7J62Y"
+      },
+      "dependencies": [
+        "Preserve the existing external source/referrer payout address."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3569560967",
+      "address": "YOIPMYT4NRBL7NGRXGIDILLLGZ7VG2CV3PYVEDSMJKE5TY5BMT7PP7J62Y",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_haystack",
+          "permissions": {
+            "escrow": "3569560967",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424362"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAMcmV2X2hheXN0YWNr"
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rec_krby",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rec_krby",
+        "expectedLock": true,
+        "expectedAppId": "3569562434",
+        "expectedAddress": "SVRPVKK3ZZ35JBOWPBTLTNDT3RPINIB73BSUA4F6SKNKTVJAVHVGBE743Q"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569562434",
+      "address": "SVRPVKK3ZZ35JBOWPBTLTNDT3RPINIB73BSUA4F6SKNKTVJAVHVGBE743Q",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560490",
+          "family": "OptIn",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rec_krby",
+          "permissions": {
+            "escrow": "3569562434",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1779521414"
+          },
+          "boxName": "cAAAAADUwyuqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAIcmVjX2tyYnk="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rec_mod",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rec_mod",
+        "expectedLock": true,
+        "expectedAppId": "3569562713",
+        "expectedAddress": "PBAM6VXG5ROAWUDRZL3UOAWMJSQQ2QA63MDI466DDH6MNZCSA2SBAT7QGM"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569562713",
+      "address": "PBAM6VXG5ROAWUDRZL3UOAWMJSQQ2QA63MDI466DDH6MNZCSA2SBAT7QGM",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560490",
+          "family": "OptIn",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rec_mod",
+          "permissions": {
+            "escrow": "3569562713",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1779521436"
+          },
+          "boxName": "cAAAAADUwyuqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAHcmVjX21vZA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rec_gov",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rec_gov",
+        "expectedLock": true,
+        "expectedAppId": "3569563200",
+        "expectedAddress": "UTLUCHXBIO2AWJJNQQZHDERS7PLUB3GOMHXY2JKBIODDUL7KSZMNW4IWDU"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569563200",
+      "address": "UTLUCHXBIO2AWJJNQQZHDERS7PLUB3GOMHXY2JKBIODDUL7KSZMNW4IWDU",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560490",
+          "family": "OptIn",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rec_gov",
+          "permissions": {
+            "escrow": "3569563200",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1779521458"
+          },
+          "boxName": "cAAAAADUwyuqAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAHcmVjX2dvdg=="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_auction",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_auction",
+        "expectedLock": true,
+        "expectedAppId": "3569564097",
+        "expectedAddress": "YUPM2HE5OUTXCJOLC2NGC5FFA3BKQMBWUZKNXJF3WXAHKTULJSZZJ2ENLI"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569564097",
+      "address": "YUPM2HE5OUTXCJOLC2NGC5FFA3BKQMBWUZKNXJF3WXAHKTULJSZZJ2ENLI",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_auction",
+          "permissions": {
+            "escrow": "3569564097",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424351"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgALcmV2X2F1Y3Rpb24="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_marketplace",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "3886000",
+      "minimumBalanceMicroAlgos": "400000",
+      "holdings": [
+        {
+          "assetId": "572813090",
+          "unit": "AKC0360",
+          "decimals": "0",
+          "amount": "0",
+          "displayAmount": "0",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "1140524618",
+          "unit": "AOG0361",
+          "decimals": "0",
+          "amount": "0",
+          "displayAmount": "0",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "1140772987",
+          "unit": "AOG4782",
+          "decimals": "0",
+          "amount": "0",
+          "displayAmount": "0",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_marketplace",
+        "expectedLock": true,
+        "expectedAppId": "3569564836",
+        "expectedAddress": "KOJPE7FD5BCVSBT23TRZQ4MMGSYWVGI7GPD4I5G6RMF6X5M6CXPZ5RPSJE"
+      },
+      "dependencies": [
+        "Preserve fee routing for Listings 3643990817 and 3691743616."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3569564836",
+      "address": "KOJPE7FD5BCVSBT23TRZQ4MMGSYWVGI7GPD4I5G6RMF6X5M6CXPZ5RPSJE",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_marketplace",
+          "permissions": {
+            "escrow": "3569564836",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "1788305563",
+            "start": "1784424373"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAPcmV2X21hcmtldHBsYWNl"
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_raffle",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_raffle",
+        "expectedLock": true,
+        "expectedAppId": "3569565681",
+        "expectedAddress": "AQEGRHJ7R7CHE5IMXFER4S6KTD2UGGS3GPGLF4MXB3T4JQRBQNQZZOUL24"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569565681",
+      "address": "AQEGRHJ7R7CHE5IMXFER4S6KTD2UGGS3GPGLF4MXB3T4JQRBQNQZZOUL24",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_raffle",
+          "permissions": {
+            "escrow": "3569565681",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424417"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAKcmV2X3JhZmZsZQ=="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_social",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "13572402723",
+          "displayAmount": "13,572.402723",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_social",
+        "expectedLock": true,
+        "expectedAppId": "3569566288",
+        "expectedAddress": "CVTWT2FO22JBONQN2ARS2THD4EVDW7VJACTXYZCHIKDSBUOQ6XMFAVGAOI"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569566288",
+      "address": "CVTWT2FO22JBONQN2ARS2THD4EVDW7VJACTXYZCHIKDSBUOQ6XMFAVGAOI",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_social",
+          "permissions": {
+            "escrow": "3569566288",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424428"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAKcmV2X3NvY2lhbA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_subscriptions",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "400900000",
+      "minimumBalanceMicroAlgos": "300000",
+      "holdings": [
+        {
+          "assetId": "31566704",
+          "unit": "USDC",
+          "decimals": "6",
+          "amount": "299000000",
+          "displayAmount": "299",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "8000000",
+          "displayAmount": "8",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_subscriptions",
+        "expectedLock": true,
+        "expectedAppId": "3569567427",
+        "expectedAddress": "IVSQN4IUK6NHZ2GQ7EV7RVXEXVE7ADTJHRSD25GJGB53VOM3K3LKARY3W4"
+      },
+      "dependencies": [
+        "Preserve payoutAddress for DAO services 1/2/3."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3569567427",
+      "address": "IVSQN4IUK6NHZ2GQ7EV7RVXEXVE7ADTJHRSD25GJGB53VOM3K3LKARY3W4",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_subscriptions",
+          "permissions": {
+            "escrow": "3569567427",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "1788391420",
+            "start": "1784424439"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgARcmV2X3N1YnNjcmlwdGlvbnM="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_pool",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_pool",
+        "expectedLock": true,
+        "expectedAppId": "3569568655",
+        "expectedAddress": "PJAJB7F2NBK4PGHKJEMPYUCE5V55GDQQZU6DCJQGB7OBTUZNWV6HOHBLCE"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569568655",
+      "address": "PJAJB7F2NBK4PGHKJEMPYUCE5V55GDQQZU6DCJQGB7OBTUZNWV6HOHBLCE",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_pool",
+          "permissions": {
+            "escrow": "3569568655",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424406"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAIcmV2X3Bvb2w="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_poll",
+      "lock": true,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_poll",
+        "expectedLock": true,
+        "expectedAppId": "3569569619",
+        "expectedAddress": "36HVBMOZLGEO2PIKLOGDIM6TK5I5TGKEA7M3T4UKSEKW6C7UJDWTEUDZKM"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569569619",
+      "address": "36HVBMOZLGEO2PIKLOGDIM6TK5I5TGKEA7M3T4UKSEKW6C7UJDWTEUDZKM",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "rev_poll",
+          "permissions": {
+            "escrow": "3569569619",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424395"
+          },
+          "boxName": "cAAAAADZGXh+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgAIcmV2X3BvbGw="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "stickers",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "89929821",
+      "minimumBalanceMicroAlgos": "1500000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "858651395749",
+          "displayAmount": "858,651.395749",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571672",
+          "unit": "DOGHRT",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571673",
+          "unit": "GRUMP",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571674",
+          "unit": "LAUGH",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571675",
+          "unit": "SAD",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571790",
+          "unit": "VIBING",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571791",
+          "unit": "WINK",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571792",
+          "unit": "WORRY",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571793",
+          "unit": "ARTIST",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571891",
+          "unit": "DIAMND",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571892",
+          "unit": "HOLDER",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571893",
+          "unit": "PAWHRT",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571894",
+          "unit": "SIR",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "3569571933",
+          "unit": "THMBS",
+          "decimals": "4",
+          "amount": "9928",
+          "displayAmount": "0.9928",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "stickers",
+        "expectedLock": false,
+        "expectedAppId": "3569571360",
+        "expectedAddress": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM"
+      },
+      "dependencies": [
+        "Preserve old Rewards creator authority, outstanding allocations and MBR-credit rights."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3569571360",
+      "address": "I3SHCU7ZPV4LU3LQFHO465HF6BN36JT74EFKK2JT7AODVY6PM663E3ATQM",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560545",
+          "family": "SelfOptIn (old)",
+          "caller": "R2MOGXW7CILK33VEET2F2DN5ENGNWGSKXG3I4U5KGP7I26TZTHDVOP6BLE",
+          "name": "stickers",
+          "permissions": {
+            "escrow": "3569571360",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  37,
+                  239,
+                  81,
+                  145
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1779533874"
+          },
+          "boxName": "cAAAAADUwyvhjpjjXt8SFq3upCT0XQ29I0zbGkq5to5TqjP+jXp5mccAKgAIc3RpY2tlcnM="
+        },
+        {
+          "pluginId": "3569561963",
+          "family": "Rewards",
+          "caller": "E3H5NBMSKM2IKBSE5YCVQKMMLPVP3HKLMK3RJ7Z3VLW6FLM6O7B3ND22CQ",
+          "name": "stickers",
+          "permissions": {
+            "escrow": "3569571360",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  58,
+                  174,
+                  24,
+                  43
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  92,
+                  44,
+                  145,
+                  15
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  134,
+                  153,
+                  237,
+                  76
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "1788047831",
+            "start": "1779522162"
+          },
+          "boxName": "cAAAAADUwzFrJs/WhZJTNIUGRO4FWCmMW+r9nUtitxT/O6rt4q2ed8MAKgAIc3RpY2tlcnM="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_dau",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "200000000000000",
+          "displayAmount": "200,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_dau",
+        "expectedLock": false,
+        "expectedAppId": "3569573983",
+        "expectedAddress": "QI3PQ75AJJJMSKYQDS3LMEBR6PGOXHTNXZ6POPZYO3WI4S3LHLZD4RES5E"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569573983",
+      "address": "QI3PQ75AJJJMSKYQDS3LMEBR6PGOXHTNXZ6POPZYO3WI4S3LHLZD4RES5E",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_gov",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "200000000000000",
+          "displayAmount": "200,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_gov",
+        "expectedLock": false,
+        "expectedAppId": "3569574392",
+        "expectedAddress": "TE2LKL3QAXOPZVNFDPD6WA2XAUH4IAYUJJXCCWU3MZZVM57KC7FACAGSTI"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569574392",
+      "address": "TE2LKL3QAXOPZVNFDPD6WA2XAUH4IAYUJJXCCWU3MZZVM57KC7FACAGSTI",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_public",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "150000000000000",
+          "displayAmount": "150,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_public",
+        "expectedLock": false,
+        "expectedAppId": "3569574919",
+        "expectedAddress": "A7L75HTXAXPDPBZWPX6MIX2MBLFKTGM5NDM2RUTJNFVCGPQYN2NJKULHM4"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569574919",
+      "address": "A7L75HTXAXPDPBZWPX6MIX2MBLFKTGM5NDM2RUTJNFVCGPQYN2NJKULHM4",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_liquidity",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "50000000000000",
+          "displayAmount": "50,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_liquidity",
+        "expectedLock": false,
+        "expectedAppId": "3569575314",
+        "expectedAddress": "LESVC3IUO22OWWSJSAWUUFETFIJQFMPMEKZZSKDUYM2DHZKH4JLTO65MIU"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569575314",
+      "address": "LESVC3IUO22OWWSJSAWUUFETFIJQFMPMEKZZSKDUYM2DHZKH4JLTO65MIU",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_akta",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "100000000000000",
+          "displayAmount": "100,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_akta",
+        "expectedLock": false,
+        "expectedAppId": "3569576084",
+        "expectedAddress": "YAPPRSCMUGS6XAQ4BHBAMYAA24EA4BQJQSXOLK3DLIHL6EK34A72FWFUGM"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569576084",
+      "address": "YAPPRSCMUGS6XAQ4BHBAMYAA24EA4BQJQSXOLK3DLIHL6EK34A72FWFUGM",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_nft",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "100000000000000",
+          "displayAmount": "100,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_nft",
+        "expectedLock": false,
+        "expectedAppId": "3569576567",
+        "expectedAddress": "J3D3NWJ3CXMAIMJDLES6NH4L2G24L5W6RER2YOHZRGQPRER2HK3E5HAPHY"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569576567",
+      "address": "J3D3NWJ3CXMAIMJDLES6NH4L2G24L5W6RER2YOHZRGQPRER2HK3E5HAPHY",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_team",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "100000000000000",
+          "displayAmount": "100,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_team",
+        "expectedLock": false,
+        "expectedAppId": "3569579006",
+        "expectedAddress": "T4NC3WVVAV36BVATS6IRL2IFXI6735XMCALISAMP26YXJPXXWGJ2GFQBTE"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569579006",
+      "address": "T4NC3WVVAV36BVATS6IRL2IFXI6735XMCALISAMP26YXJPXXWGJ2GFQBTE",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "bones_event",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "200000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "3569570855",
+          "unit": "BONES",
+          "decimals": "6",
+          "amount": "100000000000000",
+          "displayAmount": "100,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "bones_event",
+        "expectedLock": false,
+        "expectedAppId": "3569579934",
+        "expectedAddress": "WR3UIWBC45KEM4OTYNUB2OM2D7HYV3QXQMRHCWOK37SRFBDP54RKYWGZ4M"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3569579934",
+      "address": "WR3UIWBC45KEM4OTYNUB2OM2D7HYV3QXQMRHCWOK37SRFBDP54RKYWGZ4M",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Savings",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "22734000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Savings",
+        "expectedLock": false,
+        "expectedAppId": "3570685003",
+        "expectedAddress": "4VKRI75S4I3CJVUDNGP6VSZ5HYW7YRB2HCUBGKVYE3ZEZBV46SHETENRAE"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3570685003",
+      "address": "4VKRI75S4I3CJVUDNGP6VSZ5HYW7YRB2HCUBGKVYE3ZEZBV46SHETENRAE",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Jess",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Jess",
+        "expectedLock": false,
+        "expectedAppId": "3581629188",
+        "expectedAddress": "SJEJW4AJBUPI4RWEJVQ5JFLZUBVTGVY74CRGBWPRJ4OABPLINGKZDVUFYU"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581629188",
+      "address": "SJEJW4AJBUPI4RWEJVQ5JFLZUBVTGVY74CRGBWPRJ4OABPLINGKZDVUFYU",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Jess",
+          "permissions": {
+            "escrow": "3581629188",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778402"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAESmVzcw=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Erin",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1195000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Erin",
+        "expectedLock": false,
+        "expectedAppId": "3581629639",
+        "expectedAddress": "VQXJDZJEDMTDMJ6YEVEAKIXOJGHTALILTM4FC4MTHALWVKF4OKHE44GNGY"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581629639",
+      "address": "VQXJDZJEDMTDMJ6YEVEAKIXOJGHTALILTM4FC4MTHALWVKF4OKHE44GNGY",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Erin",
+          "permissions": {
+            "escrow": "3581629639",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778419"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAERXJpbg=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Reagan",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1195000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Reagan",
+        "expectedLock": false,
+        "expectedAppId": "3581629766",
+        "expectedAddress": "LJOZV3BHCJSDV3NEL2BWBRPCB7QDIIHM35OGA6WQRXX4FFDOAMU3RHKFXU"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581629766",
+      "address": "LJOZV3BHCJSDV3NEL2BWBRPCB7QDIIHM35OGA6WQRXX4FFDOAMU3RHKFXU",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Reagan",
+          "permissions": {
+            "escrow": "3581629766",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778432"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAGUmVhZ2Fu"
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Mom",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Mom",
+        "expectedLock": false,
+        "expectedAppId": "3581629909",
+        "expectedAddress": "GLJEXDKMCLTIGFQTXQ2ZLW4O2Z2UYIQ4C2X3CJCJLDYVYWSKTUCT7TVGYE"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581629909",
+      "address": "GLJEXDKMCLTIGFQTXQ2ZLW4O2Z2UYIQ4C2X3CJCJLDYVYWSKTUCT7TVGYE",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Mom",
+          "permissions": {
+            "escrow": "3581629909",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778449"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgADTW9t"
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Dad",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Dad",
+        "expectedLock": false,
+        "expectedAppId": "3581630068",
+        "expectedAddress": "R3XLRX2UVFYVBJSMAZO2CCQTZGNRFLLSXNVURT2X7COSQLF2J27P6H6H3A"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581630068",
+      "address": "R3XLRX2UVFYVBJSMAZO2CCQTZGNRFLLSXNVURT2X7COSQLF2J27P6H6H3A",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Dad",
+          "permissions": {
+            "escrow": "3581630068",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778465"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgADRGFk"
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Kadin",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Kadin",
+        "expectedLock": false,
+        "expectedAppId": "3581630172",
+        "expectedAddress": "HPHCVKQDX4XAAJ3PYLSLJQPP4K2YIAIWUNND2ZAR3E3LPPI3YXSU4FE2YM"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581630172",
+      "address": "HPHCVKQDX4XAAJ3PYLSLJQPP4K2YIAIWUNND2ZAR3E3LPPI3YXSU4FE2YM",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560545",
+          "family": "SelfOptIn (old)",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Kadin",
+          "permissions": {
+            "escrow": "3581630172",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "1783127216",
+            "start": "1783127197"
+          },
+          "boxName": "cAAAAADUwyvhwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAFS2FkaW4="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Kelly",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Kelly",
+        "expectedLock": false,
+        "expectedAppId": "3581630293",
+        "expectedAddress": "ZIS3O4GXIJCNQMZIQMQNFS5XDGJQ4DLMZBRSGYTIKZUHLARBUA5PPPTRGI"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3581630293",
+      "address": "ZIS3O4GXIJCNQMZIQMQNFS5XDGJQ4DLMZBRSGYTIKZUHLARBUA5PPPTRGI",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Kelly",
+          "permissions": {
+            "escrow": "3581630293",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778487"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAFS2VsbHk="
+        }
+      ]
+    },
+    {
+      "walletId": "3569559153",
+      "walletName": "Akita DAO",
+      "name": "rev_nfd",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "expectedAuthAddress": "H253USMECYAT7MAF54OQQKZ3RUODZYUDCVBR22BOHUZPNMW4LYOK7CORP4",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "553404914",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3569559153",
+        "expectedName": "rev_nfd",
+        "expectedLock": false,
+        "expectedAppId": "3605321297",
+        "expectedAddress": "L5KVJHURFUID2VEWUS5TNMWZUBAPE43ITHF5UJRUWSFTBJME2SOPCKOFQU"
+      },
+      "dependencies": [
+        "Separate configuration finding: no receive-escrow state in current or three historical RevenueManager apps."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3605321297",
+      "address": "L5KVJHURFUID2VEWUS5TNMWZUBAPE43ITHF5UJRUWSFTBJME2SOPCKOFQU",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3572944055",
+          "family": "NFD",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "rev_nfd",
+          "permissions": {
+            "escrow": "3605321297",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "1785104170",
+            "start": "1781731240"
+          },
+          "boxName": "cAAAAADU9sy3whDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAHcmV2X25mZA=="
+        },
+        {
+          "pluginId": "3642325118",
+          "family": "RevenueManager",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "rev_nfd",
+          "permissions": {
+            "escrow": "3605321297",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  104,
+                  53,
+                  227,
+                  188
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  132,
+                  243,
+                  76,
+                  4
+                ],
+                "0",
+                "0"
+              ],
+              [
+                [
+                  254,
+                  65,
+                  15,
+                  68
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": false,
+            "lastCalled": "0",
+            "start": "1784424384"
+          },
+          "boxName": "cAAAAADZGXh+whDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAHcmV2X25mZA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3606269654",
+      "walletName": "AkitaTheCity",
+      "name": "AkitaTheCity",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "7O4MT4IO6TDGP2TOD5VKTITCZJ35YHQQZO4K6QS7VETKKETIUCPD4QKECI",
+      "expectedAuthAddress": "7O4MT4IO6TDGP2TOD5VKTITCZJ35YHQQZO4K6QS7VETKKETIUCPD4QKECI",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3606269654",
+        "expectedName": "AkitaTheCity",
+        "expectedLock": false,
+        "expectedAppId": "3606276599",
+        "expectedAddress": "VK2TYUZMYLOAHY2IPQTZVWFUTFI3IOGCTU2LWECBBOUUHYPHBJ7W3M2OTQ"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3606276599",
+      "address": "VK2TYUZMYLOAHY2IPQTZVWFUTFI3IOGCTU2LWECBBOUUHYPHBJ7W3M2OTQ",
+      "existingScopedGrants": []
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Rylee",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Rylee",
+        "expectedLock": false,
+        "expectedAppId": "3625469775",
+        "expectedAddress": "IREVHUQUQ2ALAZBYYVTNV23BWPHY5FNBUNBQPPYUPALJ6GZO5OUJUCLIQY"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3625469775",
+      "address": "IREVHUQUQ2ALAZBYYVTNV23BWPHY5FNBUNBQPPYUPALJ6GZO5OUJUCLIQY",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Rylee",
+          "permissions": {
+            "escrow": "3625469775",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778306"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAFUnlsZWU="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "Dave",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "1095000",
+      "minimumBalanceMicroAlgos": "200000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "1000000000000",
+          "displayAmount": "1,000,000",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "Dave",
+        "expectedLock": false,
+        "expectedAppId": "3625472977",
+        "expectedAddress": "IMCDN2523MVPMXYJ34OQUUK5TFT2IONBWZVWG3YHPSO4SNIRDRRBLKUOCQ"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3625472977",
+      "address": "IMCDN2523MVPMXYJ34OQUUK5TFT2IONBWZVWG3YHPSO4SNIRDRRBLKUOCQ",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "Dave",
+          "permissions": {
+            "escrow": "3625472977",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787778383"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgAERGF2ZQ=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "agent:x.agent",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "5125600",
+      "minimumBalanceMicroAlgos": "300000",
+      "holdings": [
+        {
+          "assetId": "523683256",
+          "unit": "AKTA",
+          "decimals": "6",
+          "amount": "49700000000",
+          "displayAmount": "49,700",
+          "frozen": false,
+          "newOptInRequired": true
+        },
+        {
+          "assetId": "572813090",
+          "unit": "AKC0360",
+          "decimals": "0",
+          "amount": "0",
+          "displayAmount": "0",
+          "frozen": false,
+          "newOptInRequired": true
+        }
+      ],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "agent:x.agent",
+        "expectedLock": false,
+        "expectedAppId": "3663125094",
+        "expectedAddress": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE"
+      },
+      "dependencies": [
+        "Preserve subscriptions 1/2 and seller identity for Listing 3691743616."
+      ],
+      "phase": "retain-existing-account",
+      "appId": "3663125094",
+      "address": "JTBLX5HJSYO4PX2Q4TSTYRCEZH4QTRYOBZ3FMSRWDOW4MRZV3GN75DIXQE",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560828",
+          "family": "Pay",
+          "caller": "OZGZW5MEIB37XIMCQZB3CVGPY44UB4DRGJ3DIL2735553TFAPZH4BGW64U",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "1788319825",
+            "start": "1785958083"
+          },
+          "boxName": "cAAAAADUwyz8dk2bdYRAd/uhgoZDsVTPxzlA8HEydjQvX9973cygfk8AKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3569561107",
+          "family": "Subscriptions",
+          "caller": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [
+              [
+                [
+                  191,
+                  17,
+                  217,
+                  78
+                ],
+                "0",
+                "0"
+              ]
+            ],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1789092992"
+          },
+          "boxName": "cAAAAADUwy4TAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3569561107",
+          "family": "Subscriptions",
+          "caller": "OZGZW5MEIB37XIMCQZB3CVGPY44UB4DRGJ3DIL2735553TFAPZH4BGW64U",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "1788393449",
+            "start": "1788317186"
+          },
+          "boxName": "cAAAAADUwy4Tdk2bdYRAd/uhgoZDsVTPxzlA8HEydjQvX9973cygfk8AKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3569561141",
+          "family": "Auction",
+          "caller": "OZGZW5MEIB37XIMCQZB3CVGPY44UB4DRGJ3DIL2735553TFAPZH4BGW64U",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787717817"
+          },
+          "boxName": "cAAAAADUwy41dk2bdYRAd/uhgoZDsVTPxzlA8HEydjQvX9973cygfk8AKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3569561455",
+          "family": "Marketplace",
+          "caller": "OZGZW5MEIB37XIMCQZB3CVGPY44UB4DRGJ3DIL2735553TFAPZH4BGW64U",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "1788305563",
+            "start": "1785875337"
+          },
+          "boxName": "cAAAAADUwy9vdk2bdYRAd/uhgoZDsVTPxzlA8HEydjQvX9973cygfk8AKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "OZGZW5MEIB37XIMCQZB3CVGPY44UB4DRGJ3DIL2735553TFAPZH4BGW64U",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1785888851"
+          },
+          "boxName": "cAAAAADZM3EHdk2bdYRAd/uhgoZDsVTPxzlA8HEydjQvX9973cygfk8AKgANYWdlbnQ6eC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YIIMG4OHC4SBM2HGVU3PHZSUL7YCFTGVR4U2ADA5RZZGDLIBAM5IEK5RUY",
+          "name": "agent:x.agent",
+          "permissions": {
+            "escrow": "3663125094",
+            "delegationType": "1",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": true,
+            "canReclaim": true,
+            "lastCalled": "1788317254",
+            "start": "1788225209"
+          },
+          "boxName": "cAAAAADZM3EHwhDDcccXJBZo5q028+ZUX/AizNWPKaAMHY5yYa0BAzoAKgANYWdlbnQ6eC5hZ2VudA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "agent:d.agent",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "9100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "agent:d.agent",
+        "expectedLock": false,
+        "expectedAppId": "3679862114",
+        "expectedAddress": "45TLSGBXSL2JDUQ2FGQUVSKZFGHCPM2RPXNQ6W6CZ2CT53EHRWEWS4S64E"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3679862114",
+      "address": "45TLSGBXSL2JDUQ2FGQUVSKZFGHCPM2RPXNQ6W6CZ2CT53EHRWEWS4S64E",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560828",
+          "family": "Pay",
+          "caller": "I4FO773MSP2Y5FGY5XCV2WPFU7HOBQOPWFRB4JUV3YOSAH54KBGTZ3DSNQ",
+          "name": "agent:d.agent",
+          "permissions": {
+            "escrow": "3679862114",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "1787251498",
+            "start": "1787249456"
+          },
+          "boxName": "cAAAAADUwyz8Rwrv/2yT9Y6U2O3FXVnlp87gwc+xYh4mld4dIB+8UE0AKgANYWdlbnQ6ZC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "I4FO773MSP2Y5FGY5XCV2WPFU7HOBQOPWFRB4JUV3YOSAH54KBGTZ3DSNQ",
+          "name": "agent:d.agent",
+          "permissions": {
+            "escrow": "3679862114",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787249500"
+          },
+          "boxName": "cAAAAADZM3EHRwrv/2yT9Y6U2O3FXVnlp87gwc+xYh4mld4dIB+8UE0AKgANYWdlbnQ6ZC5hZ2VudA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "agent:t.agent",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": true,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "9100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "agent:t.agent",
+        "expectedLock": false,
+        "expectedAppId": "3680087213",
+        "expectedAddress": "K2T666BF6UMC5OXXDUXXPVKPVFGTVV5BNDBWNJWJAZVT3RLGBTVEZZTI6Q"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3680087213",
+      "address": "K2T666BF6UMC5OXXDUXXPVKPVFGTVV5BNDBWNJWJAZVT3RLGBTVEZZTI6Q",
+      "existingScopedGrants": [
+        {
+          "pluginId": "3569560828",
+          "family": "Pay",
+          "caller": "YXTDJ47HCOHP4IV6JTLFEPSWQH43SK67ATHBHNC5JH2RVZKA472BBKXCBI",
+          "name": "agent:t.agent",
+          "permissions": {
+            "escrow": "3680087213",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "1787277883",
+            "start": "1787274883"
+          },
+          "boxName": "cAAAAADUwyz8xeY08+cTjv4ivkzWUj5Wgfm5K98EzhO0XUn1GuVA5/QAKgANYWdlbnQ6dC5hZ2VudA=="
+        },
+        {
+          "pluginId": "3644027143",
+          "family": "SelfOptIn",
+          "caller": "YXTDJ47HCOHP4IV6JTLFEPSWQH43SK67ATHBHNC5JH2RVZKA472BBKXCBI",
+          "name": "agent:t.agent",
+          "permissions": {
+            "escrow": "3680087213",
+            "delegationType": "0",
+            "lastValid": "18446744073709551615",
+            "cooldown": "0",
+            "methods": [],
+            "admin": false,
+            "useRounds": false,
+            "useExecutionKey": false,
+            "coverFees": false,
+            "canReclaim": true,
+            "lastCalled": "0",
+            "start": "1787274992"
+          },
+          "boxName": "cAAAAADZM3EHxeY08+cTjv4ivkzWUj5Wgfm5K98EzhO0XUn1GuVA5/QAKgANYWdlbnQ6dC5hZ2VudA=="
+        }
+      ]
+    },
+    {
+      "walletId": "3570353317",
+      "walletName": "krby",
+      "name": "agent:qt314",
+      "lock": false,
+      "membershipValueBytes": 41,
+      "legacyRegistryEntry": false,
+      "authAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "expectedAuthAddress": "YSUC4WOTVEDF5DHRTDZUDJICLZYBQVODWMAZCIMBVYRGEN67QXFMMWYGVM",
+      "authMatches": true,
+      "approvalSha256": "023671365f089b6520da77759e5396984a39745e208016597ab7dcc683df7228",
+      "algoMicroAlgos": "100000",
+      "minimumBalanceMicroAlgos": "100000",
+      "holdings": [],
+      "createdAssets": [],
+      "localAppState": [],
+      "receiptGuard": {
+        "expectedWallet": "3570353317",
+        "expectedName": "agent:qt314",
+        "expectedLock": false,
+        "expectedAppId": "3689816353",
+        "expectedAddress": "4CZT4MVZDEF67F5OQJC5ITQNG4SXWEKZCG7P6UPRJG3XC3NHJYLFW4OTFA"
+      },
+      "dependencies": [],
+      "phase": "retain-existing-account",
+      "appId": "3689816353",
+      "address": "4CZT4MVZDEF67F5OQJC5ITQNG4SXWEKZCG7P6UPRJG3XC3NHJYLFW4OTFA",
+      "existingScopedGrants": []
+    }
+  ],
+  "validation": {
+    "snapshotReconciled": true,
+    "recollectionRoundStart": "64986883",
+    "recollectionRoundEnd": "64986893",
+    "contractTestFilesPassed": 77,
+    "contractTestsPassed": 1144,
+    "existingTodoTests": 5,
+    "contractTestDurationSeconds": 1115.64,
+    "scriptSyntaxChecked": true,
+    "mainnetWrites": 0,
+    "migrationSimulationPerformed": false,
+    "contractTestScope": "Historical merged-implementation run; see puyats-migration-plan.md for rollback validation."
+  },
+  "strategy": "retain-existing-escrows-and-separate-factories",
+  "decision": "Escrow registry merge and account-factory AVM 13 upload/child-deployment expansion withdrawn. Preserve existing identities and DAO discovery; no address migration.",
+  "plannedEscrowActions": {
+    "newChildren": 0,
+    "assetOptIns": 0,
+    "assetTransfers": 0,
+    "addressChanges": 0,
+    "nameChanges": 0,
+    "migrationDrivenPluginReinstalls": 0,
+    "mergedRegistryRegistrations": 0,
+    "deletions": 0
+  },
+  "rollbackValidation": {
+    "contractBuildPassed": true,
+    "sdkBuildPassed": true,
+    "typeCheckPassed": true,
+    "contractTestFilesPassed": 76,
+    "contractTestsPassed": 1119,
+    "existingTodoTests": 5,
+    "contractTestDurationSeconds": 1133.39,
+    "sdkTestFilesPassed": 28,
+    "sdkTestsPassed": 244,
+    "snapshotBoxesDecodedIdentically": 113,
+    "rawSnapshotUnchanged": true,
+    "mainnetWrites": 0,
+    "note": "Initial full run stopped for an AVM 13 factory mock / restored AVM 11 factory mismatch. Restored the factory mock target; all 14 DAO upgrade tests and the final complete suite passed."
+  }
+}

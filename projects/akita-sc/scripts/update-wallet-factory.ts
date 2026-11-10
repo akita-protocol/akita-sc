@@ -1,44 +1,26 @@
 #!/usr/bin/env node
 
 /**
- * Upload the latest AbstractedAccount bytecode to the wallet factory.
+ * Upload the latest AbstractedAccount bytecode to the wallet factory, through the Phase 2 runner
+ * (scripts/lib/principal-phase2-cli.ts: ABI guard, clear program, atomic factory + child group).
  *
- * By default this only updates the factory's boxed child contract. Use
- * --update-factory when the factory app bytecode itself also needs an update.
- * Use update-dao-wallet.ts after this when the DAO wallet should be updated
- * through the DAO's dedicated UpdateWallet proposal type.
+ * By default this pushes only the wallet child. That is refused while the live factory cannot create
+ * the new wallet: the deployed factory pairs it with its AVM 11 clear program and calls the old create
+ * selector, so every newAccount and updateWallet would revert (ACCT-3). Pass --update-factory to upgrade
+ * the factory and the wallet child in one group. Run update-dao-wallet.ts afterwards to move the DAO
+ * wallet onto the staged version.
  */
 
-import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
-import { AbstractedAccountFactory as AbstractedAccountChildFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountClient'
-import { AbstractedAccountFactoryFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient'
+import { runScript } from './script-base'
+import { runPhase2Cli } from './lib/principal-phase2-cli'
 
-function hasFlag(flag: string): boolean {
-  return process.argv.slice(2).includes(flag)
-}
-
-runScript(async () => {
-  const options = parseBaseArgs('update-wallet-factory.ts', `
+runScript(() => runPhase2Cli('update-wallet-factory.ts', {
+  targets: ['AbstractedAccountFactory'],
+  childOnly: !process.argv.slice(2).includes('--update-factory'),
+  help: `
 Wallet factory options:
-  --update-factory            Also update the wallet factory app itself
+  --update-factory            Also upgrade the wallet factory app (factory + wallet in one group)
 
 Examples:
-  npm run update:wallet-factory -- -n testnet -m "$MNEMONIC" -v "1.2.3"
-  npm run update:wallet-factory -- -n testnet -m "$MNEMONIC" -v "1.2.3" --update-factory
-`)
-  const updateFactory = hasFlag('--update-factory')
-
-  console.log(`\nStarting Wallet Factory ${updateFactory ? 'factory + child' : 'child bytecode'} update on ${options.network}...\n`)
-  const ctx = await setupContext(options)
-
-  await runUpdate(ctx, [
-    {
-      name: 'WalletFactory',
-      leasePrefix: updateFactory ? 'wallet_upg' : 'wallet_child',
-      appIdKey: 'walletFactory',
-      createFactory: (p) => new AbstractedAccountFactoryFactory(p),
-      childFactory: (p) => new AbstractedAccountChildFactory(p),
-      skipAppUpdate: !updateFactory,
-    },
-  ])
-})
+  npm run update:wallet-factory -- -n testnet -m "$MNEMONIC" -v "1.2.3" --update-factory --confirm`,
+}))

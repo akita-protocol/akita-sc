@@ -1,0 +1,37 @@
+{
+  "description": "ARC-4 methods that Phase 2 (scripts/principal-phase2-upgrade-targets.ts) may remove from a deployed program without --accept-removed, because Kyle accepted each removal as a decision. Each entry names the decision (docs/principal-resolution/PHASE-0-SPEC.md section 9.4, or a review finding id that Kyle decided), its date, the Phase 2 target, the sha256 of the deployed approval program that routes the method (a key of principal-deployed-abi.json), and the exact signature. Any removal not listed here is still refused. Unit test: smart_contracts/arc58/plugins/update-akita-dao/rollout.test.ts checks that every entry exists in the deployed-ABI snapshot.",
+  "removals": [
+    {
+      "decision": "K2",
+      "date": "2026-10-04",
+      "contract": "AbstractedAccountFactory",
+      "programSha256": "f01f9bc7bc7fe7b80521336d220c617db664e4cb47e2adeea8dae3673e180d00",
+      "signature": "newAccount(pay,address,address,string,address,byte[32],string,uint64,uint64[],(uint64,address,string,bool,uint8,uint64,uint64,(byte[4],uint64)[],bool,bool,bool,bool,bool)[])uint64",
+      "note": "Deployed 10-argument newAccount; replaced by the 11-argument form with automaticUpdates (ABI change decided 2026-10-03). No shim. Ship the SDK release with the 11-argument newAccount in lockstep with the AbstractedAccountFactory upgrade: older SDKs (HEAD/published WalletFactorySDK.new/newWallet) cannot create wallets on the upgraded factory, and the new SDK cannot create wallets before it; every off-chain service that creates wallets updates at the same time. Welcome and the Guild contracts call the 11-argument form: deploy them (or switch any existing instance over) in the same execution as the factory upgrade or right after it, never before. None is deployed on MainNet or TestNet."
+    },
+    {
+      "decision": "K6",
+      "date": "2026-10-04",
+      "contract": "RaffleFactory",
+      "programSha256": "4b3e8a2ca9ea9e18c1cca12241e6e687a5857148ae93b30e6c2e56e510aff408",
+      "signature": "newRaffle(pay,axfer,uint64,uint64,uint64,uint64,uint64,uint64,address,string,byte[32][],uint64)uint64",
+      "note": "Deployed creation selector (no minEntries, no hint). Legacy creation shims deleted: the HEAD SDK direct quote hard-codes the old child schema and is 107,000 microALGO short of the new child. Raffle creation through deployed RafflePlugins already fails on the deployed factory (audit AR-14); nothing changes for them. Direct creation with the HEAD SDK works today and stops when this upgrade executes: ship the new SDK in lockstep. Wallet users get raffle creation with the Phase 3 v3 RafflePlugin."
+    },
+    {
+      "decision": "K6",
+      "date": "2026-10-04",
+      "contract": "RaffleFactory",
+      "programSha256": "4b3e8a2ca9ea9e18c1cca12241e6e687a5857148ae93b30e6c2e56e510aff408",
+      "signature": "newPrizeBoxRaffle(appl,pay,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64",
+      "note": "Deployed prize-box creation selector (no minEntries, no hint). Same decision and consequence as the newRaffle entry."
+    },
+    {
+      "decision": "ROLLOUT-2",
+      "date": "2026-10-05",
+      "contract": "HyperSwap",
+      "programSha256": "ce5d5f4f3f5b8037cd600877c9686499834875aa51ab4b2afa7c253da14b9a41",
+      "signature": "accept(pay,uint64,byte[32][])void",
+      "note": "Deployed accept without the offer terms hash; replaced by accept(pay,uint64,byte[32][],byte[32])void, which binds acceptance to the offer terms (audit C-3). A shim with the old selector would reintroduce C-3. Kyle, 2026-10-05: \"fix all of them\" (review 2026-10-05, ROLLOUT-2). Live callers: HyperSwapPlugin 3569561068 (granted in 7 user wallets) and 3368399121. HyperSwap has never held an offer on MainNet (offer_cursor = 0), so no open offer is stranded. The Phase 2 run of this target deploys the new HyperSwapPlugin and swaps the DAO wallet grants in the same run; user wallets reinstall through getPluginUpdate once the new id is in the SDK registry."
+    }
+  ]
+}

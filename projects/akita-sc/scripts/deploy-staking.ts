@@ -97,7 +97,8 @@ async function auditLegacyStaking(
   discardSoftStakes: boolean,
 ): Promise<LegacyAudit> {
   const algod = ctx.algorand.client.algod
-  const app = await algod.applicationById(appId)
+  const app = await algod.getApplicationByID(appId).do()
+  if (!app.params) throw new Error(`Staking ${appId} has no application parameters`)
   const creator = app.params.creator.toString()
   if (creator !== ctx.sender) {
     throw new Error(`Legacy Staking ${appId} creator ${creator} does not match deployer ${ctx.sender}`)
@@ -113,18 +114,18 @@ async function auditLegacyStaking(
     )
   }
 
-  const appAccount = await algod.accountInformation(algosdk.getApplicationAddress(appId))
+  const appAccount = await algod.accountInformation(algosdk.getApplicationAddress(appId)).do()
   if ((appAccount.assets ?? []).length !== 0) {
     throw new Error(`Legacy Staking ${appId} has ASA holdings/opt-ins and cannot be clean-reset safely`)
   }
 
-  const listing = await algod.applicationBoxes(appId, { max: 1000 })
+  const listing = await algod.getApplicationBoxes(appId).max(1000).do()
   let softStakeCount = 0
   let totalsCount = 0
 
   for (const descriptor of listing.boxes) {
     const name = descriptor.name
-    const box = await algod.applicationBoxByName(appId, name)
+    const box = await algod.getApplicationBoxByName(appId, name).do()
     const value = box.value
 
     if (name[0] === STAKE_PREFIX) {
@@ -198,7 +199,7 @@ async function compileStaking(ctx: ScriptContext): Promise<{
 async function getInitializedTotals(ctx: ScriptContext, appId: bigint): Promise<Uint8Array | undefined> {
   const name = Buffer.concat([Buffer.from('t'), Buffer.alloc(8)])
   try {
-    return (await ctx.algorand.client.algod.applicationBoxByName(appId, name)).value
+    return (await ctx.algorand.client.algod.getApplicationBoxByName(appId, name).do()).value
   } catch (error) {
     if (typeof error === 'object' && error !== null && 'status' in error && error.status === 404) {
       return undefined
@@ -213,7 +214,8 @@ async function verifyReplacementIdentity(
   compiled: CompiledStaking,
 ): Promise<void> {
   const algod = ctx.algorand.client.algod
-  const app = await algod.applicationById(appId)
+  const app = await algod.getApplicationByID(appId).do()
+  if (!app.params) throw new Error(`Staking ${appId} has no application parameters`)
   if (app.params.creator.toString() !== ctx.sender) {
     throw new Error(`Replacement Staking ${appId} was not created by ${ctx.sender}`)
   }
@@ -247,7 +249,7 @@ async function verifyReplacementState(
 ): Promise<void> {
   const algod = ctx.algorand.client.algod
 
-  const boxes = await algod.applicationBoxes(appId, { max: 1000 })
+  const boxes = await algod.getApplicationBoxes(appId).max(1000).do()
   if (requireCleanState && boxes.boxes.length !== 1) {
     throw new Error(`Replacement Staking ${appId} has ${boxes.boxes.length} boxes; expected only totals(0)`)
   }
@@ -264,7 +266,7 @@ async function verifyReplacementState(
     throw new Error(`Replacement Staking ${appId} totals(0) is not clean`)
   }
 
-  const account = await algod.accountInformation(algosdk.getApplicationAddress(appId))
+  const account = await algod.accountInformation(algosdk.getApplicationAddress(appId)).do()
   if (requireCleanState && (account.assets ?? []).length !== 0) {
     throw new Error(`Replacement Staking ${appId} unexpectedly has ASA holdings/opt-ins`)
   }
@@ -281,7 +283,7 @@ async function ensureReplacementInitialized(
   appId: bigint,
 ): Promise<void> {
   const client = factory.getAppClientById({ appId })
-  const boxes = await ctx.algorand.client.algod.applicationBoxes(appId, { max: 1000 })
+  const boxes = await ctx.algorand.client.algod.getApplicationBoxes(appId).max(1000).do()
   const totals = await getInitializedTotals(ctx, appId)
   if (totals === undefined && boxes.boxes.length !== 0) {
     throw new Error(`Existing replacement ${appId} has boxes but no totals(0); refusing to initialize it`)
@@ -301,7 +303,7 @@ async function ensureReplacementInitialized(
   let accountAmount = 0n
   try {
     accountAmount = (
-      await ctx.algorand.client.algod.accountInformation(algosdk.getApplicationAddress(appId))
+      await ctx.algorand.client.algod.accountInformation(algosdk.getApplicationAddress(appId)).do()
     ).amount
   } catch (error) {
     if (!(typeof error === 'object' && error !== null && 'status' in error && error.status === 404)) {

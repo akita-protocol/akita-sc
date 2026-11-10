@@ -36,8 +36,6 @@ type Step = {
   requires?: () => Promise<void>
   /** µALGO the target app must hold above its minimum balance before the call (box MBR) */
   fund?: bigint
-  /** the first ABI arg is a payment of this many µALGO to the target app */
-  payment?: bigint
 }
 
 export type StepReport = { label: string; status: 'done' | 'sent' | 'pending'; signer?: string }
@@ -46,8 +44,6 @@ export type StepReport = { label: string; status: 'done' | 'sent' | 'pending'; s
 const MaxDevBuyBps = 1_000n
 /** Approval box: 1-byte prefix + uint64 key, 16-byte value → 2,500 + 400 × 25 µALGO */
 const ApprovalBoxMbr = 12_500n
-/** AkitaRouterPlugin.init: the leg escrow's create and funding; the router refunds the excess */
-const RouterInitPayment = 1_000_000n
 const sendParams = { populateAppCallResources: true, coverAppCallInnerTransactionFees: true, maxFee: microAlgo(100_000) }
 
 const sha256 = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest('hex')
@@ -83,7 +79,7 @@ function dexClients(ctx: ScriptContext, stack: DexStack) {
 }
 
 /**
- * Reads `<dir>/<Contract>.json` for all 15 contracts. Each receipt must belong to this network and a
+ * Reads `<dir>/<Contract>.json` for all 13 contracts. Each receipt must belong to this network and a
  * finished deployment whose live programs match it, and each dependency arg stored on chain must name
  * the app in its dependency's receipt, so receipts from two different stacks cannot be mixed.
  */
@@ -135,8 +131,8 @@ export async function daoWalletAddress(ctx: ScriptContext): Promise<string> {
 }
 
 /**
- * The activation calls in send order: the catalog's post-deploy approvals (curve, hooks, adapter),
- * router init, LaunchManager policy, then every admin handed to `finalAdmin`. Admin handoff comes last,
+ * The activation calls in send order: the catalog's post-deploy approvals (curve, hooks),
+ * LaunchManager policy, then every admin handed to `finalAdmin`. Admin handoff comes last,
  * so a rerun after a partial handoff finds all configuration done and only handoffs pending.
  */
 export function planActivation(ctx: ScriptContext, stack: DexStack, policy: ActivationPolicy,
@@ -145,11 +141,6 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
   const globals = (name: DexContract) => client(name).state.global.getAll()
   const approval = async (map: 'approvedHooks' | 'approvedCurves', id: bigint) =>
     (await client('PluginDex').state.box.getMap(map)).get(id) as Record<string, bigint> | undefined
-  const adapterEntry = async (adapter: bigint) => {
-    const state = (await ctx.algorand.client.algod.getApplicationByID(stack.VenueRegistry).do()).params?.globalState ?? []
-    const raw = state.find(kv => Buffer.from(kv.key).equals(algosdk.encodeUint64(adapter)))?.value.bytes
-    return raw && algosdk.ABIType.from('(uint64,uint64,uint64,uint64)').decode(raw) as bigint[]
-  }
 
   const steps: Step[] = []
   for (const name of pluginDexDeployOrder) for (const step of postDeploySteps(name, stack[name])) {
@@ -170,16 +161,10 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
       const [curve, lpMode, approved] = args as [bigint, bigint, boolean]
       if (!approved) throw new Error(`Catalog error: ${step.method} for ${name} revokes`)
       steps.push({ ...base, fund: ApprovalBoxMbr, isDone: async () => (await approval('approvedCurves', curve))?.lpMode === lpMode })
-    } else if (step.method === 'setAdapter') {
-      const [adapter, info] = args as [bigint, bigint[]]
-      steps.push({ ...base, isDone: async () => json(await adapterEntry(adapter)) === json(info) })
     } else {
       throw new Error(`No on-chain check for post-deploy step ${app}.${step.method}; teach plugin-dex-activation.ts before activating`)
     }
   }
-
-  steps.push({ label: 'AkitaRouterPlugin.init (leg escrow)', app: 'AkitaRouterPlugin', method: 'init', args: [], admin: false,
-    payment: RouterInitPayment, isDone: async () => (await globals('AkitaRouterPlugin')).legEscrow !== 0n })
 
   const launchManager = (method: string, args: unknown[], expected: Record<string, unknown>): Step => ({
     label: `LaunchManager.${method}(${json(expected)})`, app: 'LaunchManager', method, args, admin: true,
@@ -239,9 +224,7 @@ export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string,
     await step.requires?.()
     const target = client(step.app)
     if (step.fund) await ctx.algorand.account.ensureFunded(target.appAddress, ctx.sender, microAlgo(step.fund))
-    const args = step.payment === undefined ? step.args : [ctx.algorand.createTransaction.payment({ sender: ctx.sender, receiver: target.appAddress,
-      amount: microAlgo(step.payment) }), ...step.args]
-    await target.send.call({ method: step.method, args: args as any, ...sendParams })
+    await target.send.call({ method: step.method, args: step.args as any, ...sendParams })
     if (!(await step.isDone())) throw new Error(`${step.label} was sent but its on-chain state does not match`)
     report[i].status = 'sent'
     console.log(`  sent ${step.label}`)

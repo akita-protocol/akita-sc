@@ -245,6 +245,7 @@ async function main() {
     calls,
   })
   const admin = await daoWallet.client.state.global.admin()
+  if (admin === undefined) throw new Error(`Wallet ${walletAppId} has no admin state`)
   const suggestedParams = await algorand.getSuggestedParams()
 
   const builtGroup = await (await prepared.group.composer()).build()

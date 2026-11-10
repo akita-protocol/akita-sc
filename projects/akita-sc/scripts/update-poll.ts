@@ -3,29 +3,18 @@
 /**
  * Update Poll Factory Contract Script
  *
- * Updates the PollFactory app. The child Poll contract bytecode is
- * embedded in the factory via compileArc4(), so updating the factory app
- * automatically includes the latest child contract code.
+ * Upgrades the PollFactory app through the Phase 2 runner. The child Poll bytecode is embedded in the
+ * factory via compileArc4(), so the factory upgrade carries the latest child. The upgraded factory
+ * charges the Poll's program pages, which the deployed PollPlugin does not pay (MISC-6): the run deploys
+ * the new PollPluginContract and swaps the DAO wallet grants with the upgrade (--manifest-dir, or
+ * --lockstep-deployed PollPluginContract=<id>).
  *
  * Usage:
- *   npm run update:poll -- -n testnet -m "your mnemonic" -v "0.0.2"
+ *   npm run update:poll -- -n testnet --dry-run
+ *   npm run update:poll -- -n testnet -m "your mnemonic" -v "0.0.2" --manifest-dir receipts/poll --register --confirm
  */
 
-import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
-import { PollFactoryFactory } from '../smart_contracts/artifacts/poll/PollFactoryClient'
+import { runScript } from './script-base'
+import { runPhase2Cli } from './lib/principal-phase2-cli'
 
-runScript(async () => {
-  const options = parseBaseArgs('update-poll.ts')
-  console.log(`\nStarting Poll Factory update on ${options.network}...\n`)
-
-  const ctx = await setupContext(options)
-
-  await runUpdate(ctx, [
-    {
-      name: 'PollFactory',
-      leasePrefix: 'poll_upg',
-      appIdKey: 'pollFactory',
-      createFactory: (p) => new PollFactoryFactory(p),
-    },
-  ])
-})
+runScript(() => runPhase2Cli('update-poll.ts', { targets: ['PollFactory'] }))

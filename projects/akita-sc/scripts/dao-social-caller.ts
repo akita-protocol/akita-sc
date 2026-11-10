@@ -1,5 +1,5 @@
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
-import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSigner } from 'algosdk';
 import type { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { AsaManagerPluginSDK, CallerType, NFDPluginSDK, SelfOptInPluginSDK, SocialPluginSDK } from 'akita-sdk/wallet'

@@ -1,41 +1,11 @@
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
-import { decodeTransaction, encodeTransactionRaw } from '@algorandfoundation/algokit-utils/transact'
-import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import { decodeUnsignedTransaction as decodeTransaction, encodeUnsignedTransaction as encodeTransactionRaw } from 'algosdk';
+import type { TransactionSigner } from 'algosdk';
 import { SDKClient } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction } from 'akita-sdk/dao'
 import algosdk from 'algosdk'
 
-export function wrapUtils10Signer(signer: unknown): TransactionSigner {
-  return async (txnGroup, indexesToSign) => {
-    const utils10Group: unknown[] = txnGroup.map((txn) => {
-      if (typeof (txn as { getEncodingSchema?: unknown }).getEncodingSchema === 'function') {
-        return decodeTransaction(algosdk.encodeUnsignedTransaction(txn as unknown as algosdk.Transaction))
-      }
-      return txn
-    })
 
-    try {
-      return await (signer as (g: unknown[], i: number[]) => Promise<Uint8Array[]>)(utils10Group, indexesToSign)
-    } catch (error) {
-      if (error instanceof TypeError && /signTxn is not a function/.test(error.message)) {
-        const algosdkGroup: algosdk.Transaction[] = txnGroup.map((txn) => {
-          if (typeof (txn as { signTxn?: unknown }).signTxn === 'function') {
-            return txn as unknown as algosdk.Transaction
-          }
-          return algosdk.decodeUnsignedTransaction(encodeTransactionRaw(txn as never))
-        })
-        return (signer as algosdk.TransactionSigner)(algosdkGroup, indexesToSign)
-      }
-      throw error
-    }
-  }
-}
-
-/**
- * Checks if an app account needs funding and returns the amount to send.
- * Adds a 10 ALGO buffer when funding is needed so we don't fund on every call.
- * Returns 0n if the account already has sufficient surplus.
- */
 export async function getAppFundingNeeded(
   algorand: AlgorandClient,
   appAddress: string,
@@ -55,7 +25,8 @@ export async function getAppFundingNeeded(
 export async function proposeAndExecute<TClient extends SDKClient>(
   algorand: AlgorandClient,
   dao: AkitaDaoSDK,
-  actions: ProposalAction<TClient>[]
+  actions: ProposalAction<TClient>[],
+  expectedProposalId?: bigint,
 ): Promise<bigint> {
   const info = await dao.proposalCost({
     sender: dao.sendParams.sender!,
@@ -80,6 +51,10 @@ export async function proposeAndExecute<TClient extends SDKClient>(
   if (proposalId === undefined) {
     throw new Error('Failed to create proposal')
   }
+  // Groups bound to a predicted proposal id (K1 proposal read) only verify under that id.
+  if (expectedProposalId !== undefined && proposalId !== expectedProposalId) {
+    throw new Error(`Proposal ${proposalId} was created, but its execution groups reference proposal ${expectedProposalId}; not executing it`)
+  }
 
   if (dao.appId === 0n || dao.client.appId === 0n) {
     throw new Error(`Cannot execute proposal ${proposalId}: DAO client app ID resolved to 0`)
@@ -87,7 +62,7 @@ export async function proposeAndExecute<TClient extends SDKClient>(
 
   await dao.client.send.executeProposal({
     sender: dao.sendParams.sender!,
-    signer: wrapUtils10Signer(dao.sendParams.signer!),
+    signer: (dao.sendParams.signer!),
     args: { proposalId },
     coverAppCallInnerTransactionFees: true,
     populateAppCallResources: true,
@@ -99,7 +74,7 @@ export async function proposeAndExecute<TClient extends SDKClient>(
 export async function executeProposal(dao: AkitaDaoSDK, proposalId: bigint): Promise<void> {
   await dao.client.send.executeProposal({
     sender: dao.sendParams.sender!,
-    signer: wrapUtils10Signer(dao.sendParams.signer!),
+    signer: (dao.sendParams.signer!),
     args: { proposalId },
     coverAppCallInnerTransactionFees: true,
     populateAppCallResources: true,

@@ -75,7 +75,7 @@ async function main() {
   console.log(`Deployer: ${deployer.addr.toString()}`)
   console.log(`NFD registry: ${options.registry.toString()}`)
 
-  const accountInfo = await algorand.client.algod.accountInformation(deployer.addr.toString())
+  const accountInfo = await algorand.client.algod.accountInformation(deployer.addr.toString()).do()
   console.log(`Balance: ${BigInt(accountInfo.amount) / 1_000_000n} ALGO`)
 
   const factory = algorand.client.getTypedAppFactory(NfdPluginFactory, {

@@ -12,7 +12,7 @@
  *   npm run deploy:haystack-router-plugin -- -n mainnet -m "..." --referrer YOIP...
  */
 
-import { ABIMethod } from '@algorandfoundation/algokit-utils/abi'
+import { ABIMethod } from 'algosdk';
 import { HaystackRouterPluginSDK } from 'akita-sdk/wallet'
 import algosdk from 'algosdk'
 import { HaystackRouterPluginFactory } from '../smart_contracts/artifacts/arc58/plugins/haystack-router/HaystackRouterPluginClient'
@@ -26,7 +26,7 @@ type HaystackRouterOptions = {
 }
 
 const DEFAULT_REFERRER_ADDRESS = 'S3JIY7ACMZWTTM7C3RAI5TSTW22UFYBW7TPXSJU6PAOHPKNXFN33AWEV2U'
-const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0xc8, 0x90, 0xdc, 0x20])
+const HAYSTACK_ROUTER_METHOD_SELECTOR = new Uint8Array([0x87, 0x1a, 0x03, 0x54]) // ORDER_ROUTER v4 route call (finalize)
 
 function getMethodSelector(methodSignature: string): Uint8Array {
   return ABIMethod.fromSignature(methodSignature).getSelector()
@@ -58,7 +58,7 @@ function getNetworkHaystackRouterDefaults(network: Network): Required<HaystackRo
       referrerTreasuryAppId: 0n,
     },
     mainnet: {
-      routerAppId: 3172554435n,
+      routerAppId: 3757715482n,
       routerMethod: HAYSTACK_ROUTER_METHOD_SELECTOR,
       referrerAddress: DEFAULT_REFERRER_ADDRESS,
       referrerTreasuryAppId: 3041355560n,
@@ -115,9 +115,9 @@ function parseHaystackArgs(): HaystackRouterOptions {
 
 runScript(async () => {
   const extraHelp = `
-  --router, --router-app-id <id>             Haystack Router app ID. Mainnet default: 3172554435
+  --router, --router-app-id <id>             Haystack Router app ID. Mainnet default: 3757715482
   --haystack-router <id>                    Alias for --router
-  --haystack-router-method <signature>      Haystack finalize ABI method signature. Defaults to c890dc20 selector.
+  --haystack-router-method <signature>      Haystack finalize ABI method signature. Defaults to 871a0354 selector (ORDER_ROUTER v4).
   --haystack-router-method-signature <sig>  Alias for --haystack-router-method
   --referrer <address>                      Referrer address. Defaults to ${DEFAULT_REFERRER_ADDRESS}
   --referrer-treasury <id>                  Haystack referrer treasury app ID. Mainnet default: 3041355560
@@ -148,7 +148,7 @@ runScript(async () => {
     throw new Error('Haystack referrer treasury app ID must be greater than 0. Pass --referrer-treasury <appId>.')
   }
 
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log('DRY RUN - Would deploy new HaystackRouterPlugin contract\n')
     return
   }

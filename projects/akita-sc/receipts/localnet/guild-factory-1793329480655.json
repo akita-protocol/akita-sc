@@ -1,0 +1,43 @@
+{
+  "identity": "3c2ff4b7a5dafc75fc117b8bcec3f74db9377e87b01ac654075a1b92ed7f6d95",
+  "network": "localnet",
+  "genesisHash": "qwRbJENvCJ/glN7mT5Iis+zPUynpociQKrbK+5ZppdE=",
+  "sender": "J5RJDBSGTWLPQYHSU53GUG5HJ76JSZT5Y3JSG2GMK5YQKXFCZ3NFY36HZQ",
+  "dao": "1008",
+  "version": "localnet",
+  "inputs": {
+    "contract": "GuildFactory",
+    "revenueEscrow": {
+      "name": "rev_wallet",
+      "app": "1194"
+    },
+    "consensusFactory": {
+      "approval": "47721794817de52d851f2520131ba6d912d55ddfeca9fddc6e2b411e626ff8b0",
+      "clear": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+    },
+    "guildFactory": {
+      "approval": "712d9e01ed7592d6d00dabc0dc3d9d99940ffe7d944d3b078adc3e34ca4e0d2e",
+      "clear": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33"
+    },
+    "programs": {
+      "fixed-signers": "76871bda050a87ae11887ba4fe60ec048ea0e06968bd7e4c1b4d47c18b12051b",
+      "locked-token": "c07c6140652430f94fe17d692a98db781437a7fb99cb4c02a9c414a1955811d6",
+      "subscription": "ca14e8f433beb98aff90d06ea6030d3b5d0dba8025c92558755f2248f89fd6db",
+      "guild": "066eb741ea8bb7e4c1e7bdfb0ecf78c2e9d71904001649d2054b45312ef67c6e"
+    }
+  },
+  "apps": {
+    "GuildConsensusFactory": {
+      "approvalHash": "47721794817de52d851f2520131ba6d912d55ddfeca9fddc6e2b411e626ff8b0",
+      "clearHash": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "appId": "2417",
+      "txId": "BWZFG4ZJHWEFFWD2KAZLAWDFJX6FMYEE2N52EIQF5V2UJNB7RIRQ"
+    },
+    "GuildFactory": {
+      "approvalHash": "712d9e01ed7592d6d00dabc0dc3d9d99940ffe7d944d3b078adc3e34ca4e0d2e",
+      "clearHash": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "appId": "2433",
+      "txId": "3DUL25INGPR7V725MJWLFINND5YAXA3254MHEZRYZ56SF4P7OV3A"
+    }
+  }
+}

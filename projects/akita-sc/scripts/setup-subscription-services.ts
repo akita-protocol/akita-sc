@@ -41,7 +41,7 @@ import {
 } from '../smart_contracts/utils/defaults'
 import { createHash } from 'crypto'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import type { TransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSigner } from 'algosdk';
 import algosdk from 'algosdk'
 import type { AkitaUniverse } from '../tests/fixtures/dao'
 
@@ -609,7 +609,7 @@ if (require.main === module) {
       signer = account.signer
 
       const dispenser = await algorand.account.dispenserFromEnvironment()
-      await algorand.account.ensureFunded(sender, dispenser, (500).algos())
+      await algorand.account.ensureFunded(sender, dispenser.addr, (500).algos())
     } else if (options.mnemonic) {
       const account = algorand.account.fromMnemonic(options.mnemonic)
       sender = account.addr.toString()

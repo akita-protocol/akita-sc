@@ -19,7 +19,7 @@ runScript(async () => {
 
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
 
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log('DRY RUN - Would deploy new AkitaSocialPlugin contract\n')
     return
   }

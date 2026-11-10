@@ -168,7 +168,7 @@ async function deploySocialFollowerIndexGate(
 
     return {
         appId: client.appId,
-        appAddress: client.appAddress,
+        appAddress: client.appAddress.toString(),
     }
 }
 

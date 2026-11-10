@@ -4,14 +4,17 @@
  * Update AkitaDAO Contract Script
  *
  * Deploys the immutable proposal validator for the current wallet ABI, points
- * the DAO at it, then updates the AkitaDAO contract via the update plugin.
+ * the DAO at it, then upgrades the AkitaDAO contract through the Phase 2 runner
+ * (`--target AkitaDAO`: ABI guard, page growth with the schema kept, DAO binding).
+ * Requires Phase 2a (a page-growing Update plugin at pal.update).
  *
  * Usage:
  *   npm run update:dao -- -n testnet -m "your mnemonic" -v "1.1.0"
  */
 
-import { parseBaseArgs, recordDaoEscrowActionV2Round, setupContext, runUpdate, runScript } from './script-base'
-import { AkitaDaoFactory } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOClient'
+import { parseBaseArgs, recordDaoEscrowActionV2Round, setupContext, runScript } from './script-base'
+import { requirePhase2aDone, runPhase2 } from './lib/principal-rollout-run'
+import { PHASE2_DAO_TARGET } from './lib/principal-rollout'
 import { AkitaDaoProposalValidatorFactory } from '../smart_contracts/artifacts/arc58/dao/AkitaDAOProposalValidatorClient'
 import { ProposalActionEnum } from 'akita-sdk/dao'
 import { proposeAndExecute } from './utils'
@@ -50,6 +53,9 @@ Examples:
   if (options.proposalId !== undefined && !daoOnly) {
     throw new Error('--proposal-id must be combined with --dao-only after the validator pointer update')
   }
+
+  // Refuse before the validator steps: the DAO upgrade itself needs the Phase 2a plugin.
+  if (!options.dryRun) await requirePhase2aDone(ctx)
 
   if (!daoOnly) {
     const validatorFactory = new AkitaDaoProposalValidatorFactory({
@@ -102,17 +108,14 @@ Examples:
     }
   }
 
-  const [result] = await runUpdate(ctx, [
-    {
-      name: 'AkitaDAO',
-      leasePrefix: 'dao_upg',
-      appIdKey: 'dao',
-      createFactory: (p) => new AkitaDaoFactory(p),
-    },
-  ])
+  const [result] = await runPhase2(ctx, {
+    targets: [PHASE2_DAO_TARGET],
+    confirm: !options.dryRun,
+    proposalId: options.proposalId,
+  })
 
   if (!options.dryRun && result?.confirmedRound !== undefined) {
-    const block = await ctx.algorand.client.algod.block(result.confirmedRound)
+    const block = await ctx.algorand.client.algod.block(result.confirmedRound).do()
     await recordDaoEscrowActionV2Round(options.network, result.confirmedRound, BigInt(block.block.header.timestamp))
   }
 })

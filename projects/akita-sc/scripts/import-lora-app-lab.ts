@@ -11,6 +11,7 @@ import path from 'path'
 type Network = 'localnet' | 'testnet' | 'mainnet'
 
 type ContractSummary = {
+  contractName?: string
   appId?: string
   address?: string
 }
@@ -90,6 +91,7 @@ const CONTRACT_SPEC_BY_SUMMARY_KEY: Record<string, string> = {
   stakingPoolPlugin: 'StakingPoolPlugin',
   gate: 'Gate',
   hyperSwap: 'HyperSwap',
+  meta: 'Meta',
   metaMerkles: 'MetaMerkles',
   akitaReferrerGate: 'AkitaReferrerGate',
   assetGate: 'AssetGate',
@@ -196,7 +198,7 @@ function flattenContracts(contracts: Record<string, unknown>): Array<{ key: stri
       flattened.push({ key, summary: value as ContractSummary })
       continue
     }
-    for (const [nestedKey, nestedValue] of Object.entries(value as Record<string, unknown>)) {
+    for (const [nestedKey, nestedValue] of Object.entries(value as unknown as Record<string, unknown>)) {
       if (nestedValue && typeof nestedValue === 'object' && 'appId' in nestedValue) {
         flattened.push({ key: nestedKey, summary: nestedValue as ContractSummary })
       }
@@ -228,6 +230,8 @@ async function findArc56Specs(): Promise<Map<string, string>> {
   }
 
   await walk(artifactsDir)
+  // Existing deployment summaries still refer to immutable MetaMerkles apps.
+  specs.set('MetaMerkles', path.resolve(process.cwd(), '../akita-sdk/legacy/MetaMerkles.arc56.json'))
   return specs
 }
 
@@ -239,7 +243,9 @@ async function buildLoraEntries(summary: DeploymentSummary): Promise<{ entries: 
 
   for (const { key, summary: contract } of flattenContracts(summary.contracts)) {
     if (!contract.appId || contract.appId === 'N/A' || contract.appId === 'See DAO akitaAppList') continue
-    const specName = CONTRACT_SPEC_BY_SUMMARY_KEY[key]
+    const specName = key === 'metaMerkles' && contract.contractName === 'Meta'
+      ? 'Meta'
+      : CONTRACT_SPEC_BY_SUMMARY_KEY[key]
     if (!specName) continue
     const specPath = specsByName.get(specName)
     if (!specPath) {
@@ -264,7 +270,7 @@ async function getGenesisHash(network: Network): Promise<string> {
     : network === 'mainnet'
       ? AlgorandClient.mainNet()
       : AlgorandClient.fromEnvironment()
-  const version = await algorand.client.algod.version()
+  const version = await algorand.client.algod.versionsCheck().do()
   return Buffer.from(version.genesisHashB64).toString('base64')
 }
 

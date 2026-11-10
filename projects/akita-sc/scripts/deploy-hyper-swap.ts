@@ -3,8 +3,7 @@
 /**
  * Deploy HyperSwap Contract Script
  *
- * HyperSwap extends AkitaBaseContract (not UpgradeableAkitaBaseContract),
- * so it CANNOT be updated in place. This script deploys a fresh instance.
+ * This script deploys and funds a fresh HyperSwap instance.
  *
  * After deployment, the DAO's hyperSwap app ID must be updated via a
  * DAO proposal (UpdateFields).
@@ -14,6 +13,7 @@
  */
 
 import { parseBaseArgs, setupContext, runScript } from './script-base'
+import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { HyperSwapFactory } from '../smart_contracts/artifacts/hyper-swap/HyperSwapClient'
 
 runScript(async () => {
@@ -22,7 +22,7 @@ runScript(async () => {
 
   const ctx = await setupContext(options, { minBalance: 10_000_000n })
 
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log('DRY RUN - Would deploy new HyperSwap contract\n')
     return
   }
@@ -42,6 +42,8 @@ runScript(async () => {
       akitaDao: ctx.appIds.dao,
     },
   })
+
+  await client.appClient.fundAppAccount({ amount: microAlgo(100_000) })
 
   console.log(`   New HyperSwap: ${client.appId}`)
   console.log(`   Old HyperSwap: ${ctx.appIds.hyperSwap}\n`)

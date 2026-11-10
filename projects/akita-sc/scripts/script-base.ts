@@ -12,15 +12,23 @@
  *   - Standard update flow (compile → build execution → propose → execute → verify)
  */
 
-import { AlgorandClient } from '@algorandfoundation/algokit-utils'
+import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { getNetworkAppIds, SDKClient, setCurrentNetwork, type AkitaNetwork } from 'akita-sdk'
 import { AkitaDaoSDK, ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
-import { CallerType, UpdateAkitaDAOPluginSDK } from 'akita-sdk/wallet'
-import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner } from 'algosdk'
-import { executeProposal, proposeAndExecute, wrapUtils10Signer } from './utils'
+import { CallerType, UpdateAkitaDAOPluginSDK, type UpgradeDaoBinding } from 'akita-sdk/wallet'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
+import { executeProposal, getAppFundingNeeded, proposeAndExecute } from './utils'
+import { recordedLease } from './lib/execution-lease'
+import { ALL_PHASE2_TARGETS, childPushProblems, createSignatures, daoBindingMode } from './lib/principal-rollout'
 
 export type Network = AkitaNetwork
+
+const BLOCKWATCHER_APP_FIELDS: Record<string, string> = {
+  social: 'Social',
+  socialGraph: 'SocialGraph',
+  socialPlugin: 'SocialPlugin',
+}
 
 export interface ScriptOptions {
   network: Network
@@ -29,6 +37,8 @@ export interface ScriptOptions {
   dryRun?: boolean
   algodToken?: string
   proposalId?: bigint
+  sender?: string
+  daoAppId?: bigint
 }
 
 export interface ScriptContext {
@@ -39,6 +49,99 @@ export interface ScriptContext {
   appIds: ReturnType<typeof getNetworkAppIds>
   dao: AkitaDaoSDK
   updatePlugin: UpdateAkitaDAOPluginSDK
+}
+
+/** Regenerate the Go selector tables from the compiled ARC-56 artifacts. */
+export async function syncIndexerMethodSelectors(): Promise<void> {
+  const path = await import('path')
+  const { execFile } = await import('child_process')
+  const { promisify } = await import('util')
+  const execFileAsync = promisify(execFile)
+  const rnRoot = path.resolve(__dirname, '../../../../akita-rn')
+  const generator = path.join(rnRoot, 'scripts/generate-method-selectors.js')
+
+  const { stdout, stderr } = await execFileAsync(process.execPath, [generator], { cwd: rnRoot })
+  if (stdout.trim()) console.log(stdout.trim())
+  if (stderr.trim()) console.warn(stderr.trim())
+  console.log('Blockwatcher selector mappings synchronized from ARC-56 artifacts\n')
+}
+
+/**
+ * Fields of akita-backend's contract registry (server/contract_networks.go), keyed by SDK key. A list field
+ * keeps every historical id (wallets and old disbursements still reference them); a scalar field is replaced.
+ */
+const BACKEND_APP_FIELDS: Record<string, { field: string; list: boolean }> = {
+  subscriptions: { field: 'SubscriptionsAppID', list: false },
+  subscriptionsPlugin: { field: 'SubscriptionsPluginAppIDs', list: true },
+  rewards: { field: 'RewardsAppIDs', list: true },
+}
+
+/**
+ * `source` (akita-backend server/contract_networks.go) with `appId` recorded for `key` on `network`;
+ * undefined when nothing changes (unmapped key, or the id is already listed).
+ */
+export function updateBackendRegistry(source: string, network: Network, key: string, appId: bigint): string | undefined {
+  const target = BACKEND_APP_FIELDS[key]
+  if (!target || network === 'localnet') return undefined
+  const blockStart = source.indexOf(`\t"${network}": {`)
+  if (blockStart === -1) throw new Error(`Could not find akita-backend contractNetworks[${network}]`)
+  const blockEnd = source.indexOf('\n\t},', blockStart)
+  if (blockEnd === -1) throw new Error(`Could not parse akita-backend contractNetworks[${network}]`)
+
+  const block = source.slice(blockStart, blockEnd)
+  const pattern = target.list
+    ? new RegExp(`(\\b${target.field}:\\s*\\[\\]uint64\\{)([\\d,\\s]*)(\\})`)
+    : new RegExp(`(\\b${target.field}:\\s*)(\\d+)()`)
+  const match = block.match(pattern)
+  if (!match) throw new Error(`Could not find akita-backend contractNetworks[${network}].${target.field}`)
+
+  let value = String(appId)
+  if (target.list) {
+    const ids = match[2].split(',').map((id) => id.trim()).filter(Boolean)
+    if (ids.includes(value)) return undefined
+    value = [...ids, value].join(', ')
+  } else if (match[2] === value) {
+    return undefined
+  }
+  return source.slice(0, blockStart) + block.replace(pattern, `$1${value}$3`) + source.slice(blockEnd)
+}
+
+/** Keep akita-backend's contract registry aligned with SDK deployment metadata. */
+async function recordBackendAppID(network: Network, key: string, appId: bigint): Promise<void> {
+  if (!BACKEND_APP_FIELDS[key] || network === 'localnet') return
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const registryPath = path.resolve(__dirname, '../../../../akita-backend/server/contract_networks.go')
+  const next = updateBackendRegistry(await fs.readFile(registryPath, 'utf8'), network, key, appId)
+  if (next === undefined) return
+  await fs.writeFile(registryPath, next, 'utf8')
+  console.log(`Recorded akita-backend contractNetworks[${network}].${BACKEND_APP_FIELDS[key].field} += ${appId}`)
+}
+
+/** Keep blockwatcher's baked-in network IDs aligned with SDK deployment metadata. */
+async function recordBlockwatcherAppID(network: Network, key: string, appId: bigint): Promise<void> {
+  const field = BLOCKWATCHER_APP_FIELDS[key]
+  if (!field || network === 'localnet') return
+
+  const fs = await import('fs/promises')
+  const path = await import('path')
+  const networksPath = path.resolve(__dirname, '../../../../blockwatcher/server/networks.go')
+  const source = await fs.readFile(networksPath, 'utf8')
+  const blockStart = source.indexOf(`\t"${network}": {`)
+  if (blockStart === -1) throw new Error(`Could not find blockwatcher ${network} network config`)
+  const blockEnd = source.indexOf('\n\t},', blockStart)
+  if (blockEnd === -1) throw new Error(`Could not parse blockwatcher ${network} network config`)
+
+  const block = source.slice(blockStart, blockEnd)
+  const fieldPattern = new RegExp(`(\\b${field}\\s*:\\s*)\\d+`)
+  if (!fieldPattern.test(block)) {
+    throw new Error(`Could not find blockwatcher NetworkConfigs[${network}].${field}`)
+  }
+  const nextBlock = block.replace(fieldPattern, `$1${appId}`)
+  if (nextBlock !== block) {
+    await fs.writeFile(networksPath, source.slice(0, blockStart) + nextBlock + source.slice(blockEnd), 'utf8')
+    console.log(`Recorded blockwatcher NetworkConfigs[${network}].${field}=${appId}`)
+  }
 }
 
 /**
@@ -53,6 +156,8 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
   let dryRun = false
   let algodToken: string | undefined
   let proposalId: bigint | undefined
+  let sender: string | undefined
+  let daoAppId: bigint | undefined
 
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--network' || args[i] === '-n') {
@@ -64,6 +169,12 @@ export function parseBaseArgs(scriptName: string, extraHelp?: string): ScriptOpt
         console.error(`Invalid network: ${v}. Must be one of: localnet, testnet, mainnet`)
         process.exit(1)
       }
+    } else if (args[i] === '--dao-app-id') {
+      daoAppId = BigInt(args[++i])
+      if (daoAppId <= 0n) throw new Error('--dao-app-id must be positive')
+    } else if (args[i] === '--sender') {
+      sender = args[++i]
+      if (!sender || !algosdk.isValidAddress(sender)) throw new Error('--sender must be a valid Algorand address')
     } else if (args[i] === '--mnemonic' || args[i] === '-m') {
       mnemonic = args[i + 1]
       i++
@@ -88,6 +199,8 @@ Options:
   --version, -v <version>     New version string. Default: "1.0.0"
   --token, -t <token>         Algod API token (e.g. Nodely API key)
   --proposal-id <id>          Resume an existing upgrade proposal instead of creating one
+  --sender <address>          Read-only sender for --dry-run
+  --dao-app-id <id>           Explicit DAO ID, e.g. a LocalNet deployment
   --dry-run                   Compile and prepare but don't execute
   --help, -h                  Show this help message
 ${extraHelp || ''}`)
@@ -100,7 +213,7 @@ ${extraHelp || ''}`)
     process.exit(1)
   }
 
-  return { network, mnemonic, version, dryRun, algodToken, proposalId }
+  return { network, mnemonic, version, dryRun, algodToken, proposalId, sender, daoAppId }
 }
 
 /** Create an AlgorandClient for the given network. */
@@ -126,7 +239,7 @@ export function createAlgorandClient(network: Network, algodToken?: string): Alg
   switch (network) {
     case 'testnet': return AlgorandClient.testNet()
     case 'mainnet': return AlgorandClient.mainNet()
-    default: return AlgorandClient.fromEnvironment()
+    default: return process.env.ALGOD_SERVER ? AlgorandClient.fromEnvironment() : AlgorandClient.defaultLocalNet()
   }
 }
 
@@ -138,33 +251,36 @@ export async function setupContext(
   options: ScriptOptions,
   { minBalance = 5_000_000n }: { minBalance?: bigint } = {},
 ): Promise<ScriptContext> {
-  const appIds = getNetworkAppIds(options.network)
+  const appIds = { ...getNetworkAppIds(options.network) }
+  if (options.daoAppId) appIds.dao = options.daoAppId
   const algorand = createAlgorandClient(options.network, options.algodToken)
 
   let sender: string
   let signer: algosdk.TransactionSigner
 
-  if (options.network === 'localnet') {
+  if (options.dryRun) {
+    // Never load a secret or create/fund a fixture account during a dry run.
+    sender = options.sender ?? ALGORAND_ZERO_ADDRESS_STRING
+    signer = async () => { throw new Error('Dry-run context cannot sign transactions') }
+  } else if (options.network === 'localnet') {
     const fixture = algorandFixture()
     await fixture.newScope()
     const account = fixture.context.testAccount as algosdk.Account
     sender = account.addr.toString()
-    signer = wrapUtils10Signer((account as any).signer) as algosdk.TransactionSigner
+    signer = ((account as any).signer) as algosdk.TransactionSigner
   } else if (options.mnemonic) {
     const account = algorand.account.fromMnemonic(options.mnemonic)
     sender = account.addr.toString()
-    signer = wrapUtils10Signer(account.signer) as algosdk.TransactionSigner
+    signer = (account.signer) as algosdk.TransactionSigner
     console.log(`Using account: ${sender}\n`)
-  } else if (options.dryRun) {
-    sender = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ'
-    signer = wrapUtils10Signer(makeBasicAccountTransactionSigner({ addr: sender, sk: new Uint8Array(64) } as any)) as algosdk.TransactionSigner
   } else {
     throw new Error('Mnemonic is required for non-localnet networks')
   }
+  algorand.setSigner(sender, signer)
 
   // Check balance
-  if (options.mnemonic || options.network === 'localnet') {
-    const info = await algorand.client.algod.accountInformation(sender)
+  if (!options.dryRun && (options.mnemonic || options.network === 'localnet')) {
+    const info = await algorand.client.algod.accountInformation(sender).do()
     const balance = BigInt(info.amount)
     console.log(`Account balance: ${balance / 1_000_000n} ALGO\n`)
     if (balance < minBalance) {
@@ -175,7 +291,10 @@ export async function setupContext(
 
   setCurrentNetwork(options.network)
 
-  const dao = new AkitaDaoSDK({
+  // Deploy-only flows do not need DAO/update-plugin clients (LocalNet IDs may be unset).
+  let dao: AkitaDaoSDK | undefined
+  let updatePlugin: UpdateAkitaDAOPluginSDK | undefined
+  const getDao = () => dao ??= new AkitaDaoSDK({
     algorand,
     factoryParams: {
       appId: appIds.dao,
@@ -184,7 +303,7 @@ export async function setupContext(
     },
   })
 
-  const updatePlugin = new UpdateAkitaDAOPluginSDK({
+  const getUpdatePlugin = () => updatePlugin ??= new UpdateAkitaDAOPluginSDK({
     algorand,
     factoryParams: {
       appId: appIds.updatePlugin,
@@ -193,29 +312,22 @@ export async function setupContext(
     },
   })
 
-  console.log(`DAO: ${dao.appId}, Update Plugin: ${updatePlugin.appId}\n`)
+  console.log(`DAO: ${appIds.dao}, Update Plugin: ${appIds.updatePlugin}\n`)
 
-  return { options, algorand, sender, signer, appIds, dao, updatePlugin }
+  return { options, algorand, sender, signer, appIds, get dao() { return getDao() }, set dao(value) { dao = value }, get updatePlugin() { return getUpdatePlugin() } }
 }
 
 /** Verify that the UpdateAkitaDAO plugin is installed on the DAO wallet. */
 export async function verifyUpdatePlugin(ctx: ScriptContext): Promise<void> {
   await ctx.dao.getWallet()
-  await ctx.dao.wallet.getPlugins()
-  try {
-    const info = ctx.dao.wallet.plugins.get({
-      plugin: ctx.appIds.updatePlugin,
-      caller: ALGORAND_ZERO_ADDRESS_STRING,
-      escrow: '',
-    })
-    if (info) {
-      console.log(`Update plugin installed globally (${info.methods.length} methods)\n`)
-    } else {
-      console.warn('Could not find update plugin\n')
-    }
-  } catch (e) {
-    console.error('Failed to read wallet plugins:', e)
+  const pal = await ctx.dao.client.state.global.pluginAppList()
+  if (pal?.update !== ctx.updatePlugin.appId || ctx.appIds.updatePlugin !== ctx.updatePlugin.appId) {
+    throw new Error('Update plugin does not match the DAO PAL and selected SDK deployment')
   }
+  await ctx.dao.wallet.getPlugins()
+  const info = ctx.dao.wallet.plugins.get({ plugin: ctx.updatePlugin.appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '' })
+  if (!info) throw new Error('Update plugin has no global DAO-wallet grant')
+  console.log(`Update plugin installed globally (${info.methods.length} methods)\n`)
 }
 
 // ---------------------------------------------------------------------------
@@ -238,6 +350,10 @@ export interface UpdateTarget {
   childFactory?: (p: FactoryParams) => any
   /** Only upload the child contract bytecode; do not update the factory app itself. */
   skipAppUpdate?: boolean
+  /** Explicit ID for an existing child instance; takes precedence over appIdKey. */
+  appId?: bigint
+  /** Skip sibling repository publication when called by an isolated rehearsal. */
+  syncSelectors?: boolean
 }
 
 type FactoryParams = {
@@ -250,9 +366,21 @@ function groupIdHex(groupId: Uint8Array): string {
   return Buffer.from(groupId).toString('hex')
 }
 
+type UpgradeAppAction = Extract<Awaited<ReturnType<ScriptContext['dao']['getProposal']>>['actions'][number], { type: typeof ProposalActionEnum.UpgradeApp }>
+
+/**
+ * The lease to build a target's update execution with. A new proposal gets a fresh
+ * `${leasePrefix}_${timestamp}` lease. A resumed proposal (`--proposal-id`) must reuse the lease its
+ * UpgradeApp action recorded: the wallet's execution box reference ('x' + lease) is part of each hashed
+ * group, so a fresh lease rebuilds groups whose ids no longer match the proposal.
+ */
+export function updateExecutionLease(leasePrefix: string, resumed?: Pick<UpgradeAppAction, 'executionKey'>, now = Date.now()): string {
+  return resumed ? recordedLease(resumed.executionKey) : `${leasePrefix}_${now % 1_000_000}`
+}
+
 function restampExecutionFromProposal(
   execution: Awaited<ReturnType<ScriptContext['dao']['wallet']['build']['usePlugin']>>,
-  upgradeAction: Extract<Awaited<ReturnType<ScriptContext['dao']['getProposal']>>['actions'][number], { type: typeof ProposalActionEnum.UpgradeApp }>,
+  upgradeAction: UpgradeAppAction,
 ): void {
   if (execution.windows.length !== upgradeAction.groups.length) {
     throw new Error(
@@ -326,17 +454,36 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     throw new Error('--proposal-id resume mode supports exactly one update target')
   }
 
-  await verifyUpdatePlugin(ctx)
+  if (!ctx.options.dryRun) {
+    await verifyUpdatePlugin(ctx)
+    if (targets.some((target) => target.syncSelectors !== false)) await syncIndexerMethodSelectors()
+  }
+
+  // ROLLOUT-3: these apps upgrade only through the Phase 2 runner (ABI guard, matching clear program,
+  // factory and child in one group, dependency and lockstep plugin checks).
+  for (const target of targets) {
+    const appId = target.appId ?? (ctx.appIds as any)[target.appIdKey] as bigint | undefined
+    const phase2 = ALL_PHASE2_TARGETS.find((t) => {
+      const id = (ctx.appIds as unknown as Record<string, bigint | undefined>)[t.appIdKey]
+      return t.appIdKey === target.appIdKey || (appId !== undefined && id !== undefined && id > 0n && id === appId)
+    })
+    if (phase2) {
+      throw new Error(`${target.name} (app ${appId}) is the Phase 2 target ${phase2.name}; upgrade it with ` +
+        `scripts/principal-phase2-upgrade-targets.ts --target ${phase2.name} (generic runUpdate skips the ABI guard, the clear program and the child checks)`)
+    }
+  }
 
   const results: UpdateResult[] = []
 
   for (const target of targets) {
-    const appId = (ctx.appIds as any)[target.appIdKey] as bigint
+    const appId = target.appId ?? (ctx.appIds as any)[target.appIdKey] as bigint
+    if (!appId || appId <= 0n) throw new Error(`Missing positive app ID for ${target.name}`)
 
     console.log(`${'─'.repeat(60)}`)
 
     // Compile child contract if factory+child update
-    let childCompiled: { approvalProgram: Uint8Array } | undefined
+    let childCompiled: { approvalProgram: Uint8Array; clearStateProgram: Uint8Array } | undefined
+    let childCreates: string[] = []
     if (target.childFactory) {
       console.log(`Compiling ${target.name} child contract...`)
       const cf = target.childFactory({
@@ -345,7 +492,9 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
         defaultSigner: ctx.signer,
       })
       childCompiled = await cf.appFactory.compile()
-      console.log(`   Child approval: ${childCompiled!.approvalProgram.length} bytes`)
+      if (!childCompiled) throw new Error(`${target.name} child compilation returned no result`)
+      childCreates = createSignatures(cf.appFactory.appSpec)
+      console.log(`   Child approval: ${childCompiled.approvalProgram.length} bytes`)
     }
 
     const factory = target.createFactory({
@@ -358,6 +507,7 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
     if (!target.skipAppUpdate) {
       console.log(`Compiling ${target.name} contract...`)
       compiled = await factory.appFactory.compile()
+      if (!compiled) throw new Error(`${target.name} compilation returned no result`)
       console.log(`   Approval: ${compiled.approvalProgram.length} bytes\n`)
     } else if (!childCompiled) {
       throw new Error(`${target.name} has skipAppUpdate=true but no childFactory`)
@@ -365,86 +515,144 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       console.log(`Skipping ${target.name} app compile; uploading child bytecode only\n`)
     }
 
+    // The factory that receives the child must create it: its create selector and its clear program
+    // (ACCT-3: an AVM 13 child staged into a factory that pairs it with an AVM 11 clear stops all creation).
+    if (childCompiled) {
+      const factoryProgram = compiled?.approvalProgram
+        ?? (await ctx.algorand.client.algod.getApplicationByID(appId).do()).params!.approvalProgram
+      const problems = childPushProblems(factoryProgram, {
+        approval: childCompiled.approvalProgram, clear: childCompiled.clearStateProgram, createSignatures: childCreates,
+      })
+      if (problems.length > 0) {
+        throw new Error(`${target.name}: refusing to stage the child into ${compiled ? 'the new' : `the live (app ${appId})`} factory:\n  ${problems.join('\n  ')}`)
+      }
+    }
+
     // Dry-run compile-only exit
-    if (ctx.options.dryRun && !ctx.options.mnemonic && ctx.options.network !== 'localnet') {
+    if (ctx.options.dryRun) {
       console.log(`DRY RUN - ${target.name} compiled successfully, target app: ${appId}\n`)
       results.push({ name: target.name, appId })
       continue
     }
 
-    // Build plugin execution calls
-    const calls: any[] = []
-    if (childCompiled) {
-      // Update child contract bytecode in the factory's box storage.
-      // Combined child+factory updates keep the spending addr rekeyed for the
-      // updateApp call that follows; child-only updates rekey back immediately.
-      calls.push(
-        ctx.updatePlugin.updateFactoryChildContract({
-          sender: ctx.sender,
-          signer: ctx.signer,
-          factoryAppId: appId,
-          version: ctx.options.version,
-          data: childCompiled.approvalProgram,
-          rekeyBack: Boolean(target.skipAppUpdate),
-        }),
-      )
+    const walletMbr = await ctx.dao.wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 2n })
+    const walletFunding = await getAppFundingNeeded(ctx.algorand, ctx.dao.wallet.client.appAddress.toString(), walletMbr.executions + 5_000_000n)
+    if (walletFunding > 0n) await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer,
+      receiver: ctx.dao.wallet.client.appAddress, amount: microAlgo(walletFunding) })
+    // usePlugin simulates as the wallet admin before the proposal authorizes the
+    // real caller. Its temporary maximum fees must not cross the admin's MBR.
+    const admin = await ctx.dao.wallet.client.state.global.admin()
+    if (!admin) throw new Error('DAO wallet admin is missing')
+    const adminFunding = await getAppFundingNeeded(ctx.algorand, admin, 5_000_000n)
+    if (adminFunding > 0n) await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver: admin, amount: microAlgo(adminFunding) })
+    // The temporary upload box must fit the largest program used by this execution.
+    const uploadSize = Math.max(compiled?.approvalProgram.length ?? 0, childCompiled?.approvalProgram.length ?? 0)
+    await ctx.algorand.account.ensureFunded(ctx.updatePlugin.client.appAddress, ctx.sender, microAlgo(2_500n + 400n * BigInt(2 + uploadSize)))
+
+    const buildCalls = (daoBinding?: UpgradeDaoBinding) => {
+      const calls: any[] = []
+      if (childCompiled) {
+        // Update child contract bytecode in the factory's box storage.
+        // Combined child+factory updates keep the spending addr rekeyed for the
+        // updateApp call that follows; child-only updates rekey back immediately.
+        calls.push(
+          ctx.updatePlugin.updateFactoryChildContract({
+            sender: ctx.sender,
+            signer: ctx.signer,
+            factoryAppId: appId,
+            version: ctx.options.version,
+            data: childCompiled.approvalProgram,
+            rekeyBack: Boolean(target.skipAppUpdate),
+            daoBinding,
+          }),
+        )
+      }
+      if (!target.skipAppUpdate) {
+        calls.push(
+          ctx.updatePlugin.updateApp({
+            sender: ctx.sender,
+            signer: ctx.signer,
+            appId,
+            version: ctx.options.version,
+            data: compiled!.approvalProgram,
+            daoBinding,
+          }),
+        )
+      }
+      return calls
     }
 
-    if (!target.skipAppUpdate) {
-      calls.push(
-        ctx.updatePlugin.updateApp({
-          sender: ctx.sender,
-          signer: ctx.signer,
-          appId,
-          version: ctx.options.version,
-          data: compiled!.approvalProgram,
-        }),
-      )
-    }
-
-    const shortTimestamp = Date.now() % 1_000_000
-    console.log(`Building ${target.name} update execution...`)
-    const execution = await ctx.dao.wallet.build.usePlugin({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      lease: `${target.leasePrefix}_${shortTimestamp}`,
-      windowSize: 2000n,
-      callerType: CallerType.Global,
-      calls,
-    })
-    console.log(`   Lease: ${execution.lease}, Groups: ${execution.windows.length}\n`)
-
-    if (ctx.options.dryRun) {
-      console.log(`DRY RUN - ${target.name} update prepared (${execution.windows.length} groups)\n`)
-      results.push({ name: target.name, appId })
-      continue
-    }
-
-    let proposalId: bigint
+    // --proposal-id: read the recorded UpgradeApp action first, so the rebuild uses its lease.
+    let resumed: { proposalId: bigint; status: number; upgradeAction: UpgradeAppAction } | undefined
     if (ctx.options.proposalId !== undefined) {
-      proposalId = ctx.options.proposalId
+      const proposalId = ctx.options.proposalId
       console.log(`Resuming existing ${target.name} upgrade proposal ${proposalId}...`)
       const rawProposal = await ctx.dao.client.state.box.proposals.value(proposalId)
       if (!rawProposal) {
         throw new Error(`Proposal ${proposalId} not found`)
       }
-      const proposal = {
-        ...rawProposal,
-        actions: rawProposal.actions.map(([actionType, actionData]) =>
-          (ctx.dao as any).decodeProposalAction(actionType, actionData),
-        ),
-      }
-      const upgradeAction = proposal.actions.find(
+      const actions = rawProposal.actions.map(([actionType, actionData]) =>
+        (ctx.dao as any).decodeProposalAction(actionType, actionData),
+      )
+      const upgradeAction = actions.find(
         (action) => action.type === ProposalActionEnum.UpgradeApp && action.app === appId,
       )
       if (!upgradeAction || upgradeAction.type !== ProposalActionEnum.UpgradeApp) {
         throw new Error(`Proposal ${proposalId} does not contain an upgrade action for app ${appId}`)
       }
+      resumed = { proposalId, status: rawProposal.status, upgradeAction }
+    }
 
-      restampExecutionFromProposal(execution, upgradeAction)
+    // A DAO without `isUpgradeLease` (the deployed one) is read through the proposal (K1): the Phase 2a
+    // plugin then needs groups that name the proposal id they will get, or every update reverts between
+    // Phase 2a and the DAO upgrade. Earlier plugins ignore the binding note and references.
+    const bindingMode = daoBindingMode((await ctx.algorand.client.algod.getApplicationByID(ctx.dao.appId).do()).params!.approvalProgram)
+    if (bindingMode === undefined) throw new Error(`DAO ${ctx.dao.appId} cannot bind upgrades (no isUpgradeLease, mustGetExecution or getProposal)`)
+    const lease = updateExecutionLease(target.leasePrefix, resumed?.upgradeAction)
+    const predictedId = !resumed && bindingMode === 'proposal' ? await ctx.dao.client.state.global.proposalId() : undefined
+    if (!resumed && bindingMode === 'proposal' && predictedId === undefined) throw new Error('DAO proposal_id is not readable')
+    const build = (daoBinding?: UpgradeDaoBinding) => ctx.dao.wallet.build.usePlugin({
+      sender: ctx.sender,
+      signer: ctx.signer,
+      lease,
+      windowSize: 2000n,
+      callerType: CallerType.Global,
+      calls: buildCalls(daoBinding),
+    })
+
+    console.log(`Building ${target.name} update execution...`)
+    let execution: Awaited<ReturnType<typeof build>>
+    if (resumed) {
+      // The groups must be rebuilt in the binding they were proposed with, which can differ from the DAO's
+      // current mode (ROLLOUT-4: proposed on the deployed DAO, resumed after the DAO upgrade; or proposed
+      // unbound before Phase 2a). Try the current mode first, then the other.
+      const bound: UpgradeDaoBinding = { lease, proposalId: resumed.proposalId }
+      const candidates = bindingMode === 'proposal' ? [bound, undefined] : [undefined, bound]
+      let matched: Awaited<ReturnType<typeof build>> | undefined
+      let lastError: unknown
+      for (const candidate of candidates) {
+        const rebuilt = await build(candidate)
+        try {
+          restampExecutionFromProposal(rebuilt, resumed.upgradeAction)
+          matched = rebuilt
+          break
+        } catch (error) {
+          lastError = error
+        }
+      }
+      if (!matched) throw lastError
+      execution = matched
+    } else {
+      execution = await build(predictedId !== undefined ? { lease, proposalId: predictedId } : undefined)
+    }
+    console.log(`   Lease: ${lease}, Groups: ${execution.windows.length}, DAO binding: ${bindingMode}\n`)
+
+    let proposalId: bigint
+    if (resumed) {
+      proposalId = resumed.proposalId
       console.log(`   Proposal group ids match rebuilt ${target.name} execution`)
 
-      if (proposal.status === 50) {
+      if (resumed.status === 50) {
         console.log(`   Proposal ${proposalId} is already executed`)
       } else {
         console.log(`   Executing proposal ${proposalId}...`)
@@ -463,7 +671,7 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
         lastValid: execution.lastValid,
       }
 
-      proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [upgradeAction])
+      proposalId = await proposeAndExecute(ctx.algorand, ctx.dao, [upgradeAction], predictedId)
       console.log(`   Proposal ${proposalId} created and executed`)
     }
 
@@ -480,6 +688,11 @@ export async function runUpdate(ctx: ScriptContext, targets: UpdateTarget[]): Pr
       console.log(`   New child contract version: ${childVersion}\n`)
     } else {
       const newVersion = await client.state.global.version()
+      if (newVersion !== ctx.options.version) throw new Error(`${target.name} version verification failed`)
+      const live = (await ctx.algorand.client.algod.getApplicationByID(appId).do()).params
+      if (!live || !Buffer.from(live.approvalProgram).equals(Buffer.from(compiled!.approvalProgram))) {
+        throw new Error(`${target.name} approval bytecode verification failed`)
+      }
       console.log(`   New version: ${newVersion}\n`)
     }
 
@@ -573,6 +786,11 @@ const README_PLUGIN_KEYS: Record<string, string> = {
 }
 
 /** Record a replacement app ID in the SDK's canonical network map and README. */
+/** A README deployment-table row: an explorer link, or `—` for a network not deployed yet. */
+function isReadmeDeploymentRow(line: string, key: string): boolean {
+  return line.startsWith(`| \`${key}\` |`) && (line.includes('lora.algokit.io/') || line.includes('| — |'))
+}
+
 export async function recordNetworkAppDeployment(network: Network, key: string, appId: bigint): Promise<void> {
   if (network === 'localnet') {
     console.log('Skipping baked-in deployment metadata for ephemeral localnet app ID')
@@ -614,9 +832,7 @@ export async function recordNetworkAppDeployment(network: Network, key: string, 
     : networkSource.slice(0, initializer.getStart(source)) + appIdLiteral + networkSource.slice(initializer.end)
 
   const readmeLines = readmeSource.split('\n')
-  const rowIndex = readmeLines.findIndex(
-    (line) => line.startsWith(`| \`${key}\` |`) && line.includes('lora.algokit.io/testnet/application'),
-  )
+  const rowIndex = readmeLines.findIndex((line) => isReadmeDeploymentRow(line, key))
   if (rowIndex === -1) throw new Error(`Could not find README deployment row for ${key}`)
 
   const columns = readmeLines[rowIndex].split('|')
@@ -630,6 +846,8 @@ export async function recordNetworkAppDeployment(network: Network, key: string, 
     nextNetworkSource === networkSource ? Promise.resolve() : fs.writeFile(networksPath, nextNetworkSource, 'utf8'),
     nextReadmeSource === readmeSource ? Promise.resolve() : fs.writeFile(readmePath, nextReadmeSource, 'utf8'),
   ])
+  await recordBlockwatcherAppID(network, key, appId)
+  await recordBackendAppID(network, key, appId)
 
   console.log(
     current === appIdLiteral
@@ -648,6 +866,8 @@ export async function recordPluginDeployment(
     console.log('Skipping baked-in plugin deployment metadata for ephemeral localnet app ID')
     return
   }
+
+  await syncIndexerMethodSelectors()
 
   const fs = await import('fs/promises')
   const path = await import('path')
@@ -710,9 +930,7 @@ export async function recordPluginDeployment(
 
   const readmeKey = README_PLUGIN_KEYS[key] ?? key
   const readmeLines = readmeSource.split('\n')
-  const rowIndex = readmeLines.findIndex(
-    (line) => line.startsWith(`| \`${readmeKey}\` |`) && line.includes('lora.algokit.io/testnet/application'),
-  )
+  const rowIndex = readmeLines.findIndex((line) => isReadmeDeploymentRow(line, readmeKey))
   if (rowIndex === -1) throw new Error(`Could not find README plugin row for ${readmeKey}`)
 
   const columns = readmeLines[rowIndex].split('|')
@@ -726,6 +944,8 @@ export async function recordPluginDeployment(
     nextNetworkSource === networkSource ? Promise.resolve() : fs.writeFile(networksPath, nextNetworkSource, 'utf8'),
     nextReadmeSource === readmeSource ? Promise.resolve() : fs.writeFile(readmePath, nextReadmeSource, 'utf8'),
   ])
+  await recordBlockwatcherAppID(network, key, appId)
+  await recordBackendAppID(network, key, appId)
 
   console.log(
     existingIndex === -1

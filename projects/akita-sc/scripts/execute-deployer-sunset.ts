@@ -7,6 +7,7 @@ import { WalletSDK } from 'akita-sdk/wallet'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, makeBasicAccountTransactionSigner, makeEmptyTransactionSigner } from 'algosdk'
 import { createAlgorandClient, setupContext, type ScriptContext } from './script-base'
 import { proposeAndExecute } from './utils'
+import { daoWalletSunsetSteps, sendDaoWalletSunset, simulateDaoWalletSunset, walletAssetCloses, walletFactorySunsetCalls } from './lib/sunset-steps'
 import { prepareGroup, type PreparedGroup } from '../../akita-sdk/src/simulate/prepare'
 import { executionBoxKey } from '../../akita-sdk/src/wallet/utils'
 import {
@@ -140,6 +141,7 @@ function bytesAddress(bytes: Uint8Array): string {
 
 async function walletAdmin(indexer: algosdk.Indexer, walletAppId: bigint): Promise<string> {
   const app = (await indexer.lookupApplications(Number(walletAppId)).do()).application
+  if (!app) throw new Error(`Wallet ${walletAppId} was not found`)
   const admin = (app.params.globalState ?? []).find((kv) => keyString(kv.key) === 'admin')
   if (!admin?.value.bytes) throw new Error(`Could not read admin for wallet ${walletAppId}`)
   return bytesAddress(admin.value.bytes)
@@ -253,10 +255,19 @@ async function buildLegacyDaoWalletUsePlugin(
   )
   const verifyAuthAddress = algosdk.ABIMethod.fromSignature('arc58_verifyAuthAddress()void')
 
-  const composer = ctx.algorand.newGroup()
+  // Consecutive calls to one plugin share one rekey window, as in WalletSDK.build.usePlugin (a call
+  // with rekeyBack: false leaves the window open for the next one).
+  const segments: { appId: bigint; txns: any[] }[] = []
   for (const call of calls) {
     const { appId, getTxns } = call(spendingAddress)
     const txns = await getTxns({ wallet: ctx.dao.wallet.client.appId })
+    const last = segments[segments.length - 1]
+    if (last && last.appId === appId) last.txns.push(...txns)
+    else segments.push({ appId, txns })
+  }
+
+  const composer = ctx.algorand.newGroup()
+  for (const { appId, txns } of segments) {
     const key = { plugin: appId, caller: ALGORAND_ZERO_ADDRESS_STRING, escrow: '' }
     const plugin = ctx.dao.wallet.plugins.has(key)
       ? ctx.dao.wallet.plugins.get(key)!
@@ -370,18 +381,23 @@ async function compileApprovals(ctx: ScriptContext): Promise<CompiledApprovals> 
       SUNSET_CALLER: algosdk.decodeAddress(ctx.sender).publicKey,
     },
   })
-  const walletFactorySunset = await walletFactorySunsetFactory.appFactory.compile()
+  // The factory sunset approval is caller-gated by the same SUNSET_CALLER as SunsetContract.
+  const walletFactorySunset = await walletFactorySunsetFactory.appFactory.compile({
+    deployTimeParams: {
+      SUNSET_CALLER: algosdk.decodeAddress(ctx.sender).publicKey,
+    },
+  })
   return { sunset, walletFactorySunset }
 }
 
 async function waitForConfirmation(algorand: AlgorandClient, txid: string, rounds = 4): Promise<void> {
-  const status = await algorand.client.algod.status()
+  const status = await algorand.client.algod.status().do()
   const start = BigInt(status.lastRound)
   for (let round = start; round <= start + BigInt(rounds); round++) {
-    const pending = await algorand.client.algod.pendingTransactionInformation(txid)
+    const pending = await algorand.client.algod.pendingTransactionInformation(txid).do()
     if (pending.confirmedRound && BigInt(pending.confirmedRound) > 0n) return
     if (pending.poolError) throw new Error(`Transaction ${txid} rejected: ${pending.poolError}`)
-    await algorand.client.algod.statusAfterBlock(round + 1n)
+    await algorand.client.algod.statusAfterBlock(round + 1n).do()
   }
   throw new Error(`Transaction ${txid} was not confirmed after ${rounds} rounds`)
 }
@@ -391,7 +407,7 @@ async function directUpdateToSunset(
   appId: bigint,
   compiled: CompiledApprovals,
 ): Promise<void> {
-  const sp = await ctx.algorand.client.algod.transactionParams()
+  const sp = await ctx.algorand.client.algod.getTransactionParams().do()
   const method = algosdk.ABIMethod.fromSignature(DIRECT_UPDATE_SIGNATURE)
   const versionArg = new algosdk.ABIStringType().encode(ctx.options.version)
   const txn = algosdk.makeApplicationUpdateTxnFromObject({
@@ -403,7 +419,7 @@ async function directUpdateToSunset(
     appArgs: [method.getSelector(), versionArg],
   })
   const signed = await ctx.signer([txn], [0])
-  const { txid } = await ctx.algorand.client.algod.sendRawTransaction(signed)
+  const { txid } = await ctx.algorand.client.algod.sendRawTransaction(signed).do()
   await waitForConfirmation(ctx.algorand, txid, 4)
 }
 
@@ -415,6 +431,7 @@ async function updateAppViaDao(ctx: ScriptContext, appId: bigint, compiled: Comp
       appId,
       version: ctx.options.version,
       data: compiled.sunset.approvalProgram,
+      clearProgram: compiled.sunset.clearStateProgram,
     }),
   ])
   return submitExecution(ctx, appId, execution)
@@ -499,10 +516,7 @@ async function cleanupSunsetApp(
       sender: ctx.sender,
       signer: ctx.signer,
       args: {
-        closes: app.assetsHeld.map((holding) => ({
-          assetCloseTo: ctx.sender,
-          xferAsset: BigInt(holding.assetId),
-        })),
+        closes: app.assetsHeld.map((holding) => [ctx.sender, BigInt(holding.assetId)]),
       },
       maxFee: microAlgo(BigInt(app.assetsHeld.length) * 2_000n + 2_000n),
       coverAppCallInnerTransactionFees: true,
@@ -602,29 +616,49 @@ async function teardownFinalInfrastructure(
   await ctx.dao.getWallet()
   const stamp = Date.now() % 1_000_000
 
-  console.log('\nPhase final: storing SunsetContract as wallet factory child')
-  const childExecution = await buildLegacyDaoWalletUsePlugin(ctx, `sun_child_${stamp}`, [
-    ctx.updatePlugin.updateFactoryChildContract({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      factoryAppId: ctx.appIds.walletFactory,
-      version: ctx.options.version,
-      data: compiled.sunset.approvalProgram,
-    }),
-  ])
-  console.log(`  proposal ${await submitExecution(ctx, ctx.appIds.walletFactory, childExecution)} executed`)
-
-  console.log('Phase final: updating wallet factory to special sunset approval')
-  const factoryExecution = await buildLegacyDaoWalletUsePlugin(ctx, `sun_factory_${stamp}`, [
-    ctx.updatePlugin.updateApp({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      appId: ctx.appIds.walletFactory,
-      version: ctx.options.version,
-      data: compiled.walletFactorySunset.approvalProgram,
-    }),
-  ])
+  // ACCT-2: child staging and factory swap in one execution group (no window with SunsetContract
+  // staged under the live, permissionless updateWallet).
+  console.log('\nPhase final: staging SunsetContract and swapping the wallet factory to its sunset approval (one group)')
+  const factoryExecution = await buildLegacyDaoWalletUsePlugin(ctx, `sun_factory_${stamp}`, walletFactorySunsetCalls(ctx.updatePlugin, {
+    sender: ctx.sender,
+    signer: ctx.signer,
+    walletFactory: ctx.appIds.walletFactory,
+    version: ctx.options.version,
+    sunset: compiled.sunset,
+    walletFactorySunset: compiled.walletFactorySunset,
+  }))
   console.log(`  proposal ${await submitExecution(ctx, ctx.appIds.walletFactory, factoryExecution)} executed`)
+
+  const factorySunset = new WalletFactorySunsetContractClient({
+    algorand: ctx.algorand,
+    appId: ctx.appIds.walletFactory,
+    defaultSender: ctx.sender,
+    defaultSigner: ctx.signer,
+  })
+  const indexer = getIndexer(ctx.options.network)
+  const walletAddress = appAddress(ctx.appIds.wallet)
+  const walletSteps = async () => daoWalletSunsetSteps({
+    sender: ctx.sender,
+    signer: ctx.signer,
+    wallet: ctx.appIds.wallet,
+    escrowFactory: ctx.appIds.escrowFactory,
+    closeTo,
+    inventory: {
+      heldAssets: await walletAssetCloses(ctx.algorand, walletAddress, ctx.sender),
+      managedAssets: inventory.assets
+        .filter((asset) => !asset.deleted && asset.manager === walletAddress && asset.nonZeroHolders <= 1)
+        .map((asset) => BigInt(asset.id)),
+      escrowIds: inventory.escrows
+        .filter((escrow) => escrow.ownerAppId === Number(ctx.appIds.wallet))
+        .map((escrow) => BigInt(escrow.id))
+        .sort((a, b) => (a > b ? -1 : a < b ? 1 : 0)),
+      boxes: (await ctx.algorand.app.getBoxNames(ctx.appIds.wallet)).map((b) => b.nameRaw),
+    },
+  })
+
+  // ACCT-1: prove the DAO wallet sunset works before the DAO stops governing.
+  console.log('Phase final: simulating the DAO wallet sunset while the DAO is still live')
+  console.log(`  ${await simulateDaoWalletSunset(factorySunset, await walletSteps())} step(s) simulated`)
 
   console.log('Phase final: updating DAO to SunsetContract')
   const daoExecution = await buildLegacyDaoWalletUsePlugin(ctx, `sun_dao_${stamp}`, [
@@ -634,13 +668,20 @@ async function teardownFinalInfrastructure(
       appId: ctx.appIds.dao,
       version: ctx.options.version,
       data: compiled.sunset.approvalProgram,
+      clearProgram: compiled.sunset.clearStateProgram,
     }),
   ])
   console.log(`  proposal ${await submitExecution(ctx, ctx.appIds.dao, daoExecution)} executed`)
 
-  const indexer = getIndexer(ctx.options.network)
   console.log('Phase final: reclaiming DAO wallet escrow assets through sunset DAO')
   await reclaimDaoWalletEscrows(ctx, indexer)
+
+  // The DAO app (the wallet's admin) is deleted only after the wallet is gone.
+  const steps = await walletSteps()
+  console.log('Phase final: simulating the DAO wallet sunset again before the push')
+  console.log(`  ${await simulateDaoWalletSunset(factorySunset, steps)} step(s) simulated`)
+  console.log('Phase final: sunsetting the DAO wallet via special factory')
+  await sendDaoWalletSunset(factorySunset, steps)
 
   const sunsetDao = new SunsetContractClient({
     algorand: ctx.algorand,
@@ -659,100 +700,6 @@ async function teardownFinalInfrastructure(
     coverAppCallInnerTransactionFees: true,
   })
 
-  const factorySunset = new WalletFactorySunsetContractClient({
-    algorand: ctx.algorand,
-    appId: ctx.appIds.walletFactory,
-    defaultSender: ctx.sender,
-    defaultSigner: ctx.signer,
-  })
-
-  console.log('Phase final: updating DAO wallet to SunsetContract via special factory')
-  await factorySunset.send.updateWallet({
-    sender: ctx.sender,
-    signer: ctx.signer,
-    args: { wallet: ctx.appIds.wallet },
-    maxFee: microAlgo(10_000n),
-    coverAppCallInnerTransactionFees: true,
-  })
-
-  const walletAddress = appAddress(ctx.appIds.wallet)
-  const walletHeldAssets = await accountHoldings(indexer, walletAddress)
-  if (walletHeldAssets.length > 0) {
-    console.log(`Phase final: closing ${walletHeldAssets.length} DAO wallet asset holding(s)`)
-    await factorySunset.send.closeOutWallet({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      args: {
-        wallet: ctx.appIds.wallet,
-        closes: walletHeldAssets.map((holding) => ({
-          assetCloseTo: ctx.sender,
-          xferAsset: holding.assetId,
-        })),
-      },
-      maxFee: microAlgo(BigInt(walletHeldAssets.length) * 2_000n + 2_000n),
-      coverAppCallInnerTransactionFees: true,
-      populateAppCallResources: true,
-    })
-  }
-
-  const walletManagedAssets = inventory.assets
-    .filter((asset) => !asset.deleted && asset.manager === walletAddress && asset.nonZeroHolders <= 1)
-    .map((asset) => BigInt(asset.id))
-  if (walletManagedAssets.length > 0) {
-    console.log(`Phase final: destroying ${walletManagedAssets.length} DAO wallet-managed asset(s)`)
-    await factorySunset.send.deleteWalletAssets({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      args: { wallet: ctx.appIds.wallet, assets: walletManagedAssets },
-      maxFee: microAlgo(BigInt(walletManagedAssets.length) * 2_000n + 2_000n),
-      coverAppCallInnerTransactionFees: true,
-      populateAppCallResources: true,
-    })
-  }
-
-  const walletEscrows = inventory.escrows
-    .filter((escrow) => escrow.ownerAppId === Number(ctx.appIds.wallet))
-    .map((escrow) => escrow.id)
-    .sort((a, b) => b - a)
-  if (walletEscrows.length > 0) {
-    console.log(`Phase final: deleting ${walletEscrows.length} DAO wallet-owned escrow app(s)`)
-    await factorySunset.send.deleteWalletEscrows({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      args: {
-        wallet: ctx.appIds.wallet,
-        escrowFactory: ctx.appIds.escrowFactory,
-        escrowIds: walletEscrows,
-      },
-      maxFee: microAlgo(BigInt(walletEscrows.length) * 5_000n + 2_000n),
-      coverAppCallInnerTransactionFees: true,
-      populateAppCallResources: true,
-    })
-  }
-
-  console.log('Phase final: deleting DAO wallet boxes and app')
-  const walletBoxes = await ctx.algorand.app.getBoxNames(ctx.appIds.wallet)
-  for (let i = 0; i < walletBoxes.length; i += BOX_BATCH_SIZE) {
-    await factorySunset.send.deleteWalletBoxes({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      args: {
-        wallet: ctx.appIds.wallet,
-        boxes: walletBoxes.slice(i, i + BOX_BATCH_SIZE).map((b) => b.nameRaw),
-      },
-      maxFee: microAlgo(10_000n),
-      coverAppCallInnerTransactionFees: true,
-      populateAppCallResources: true,
-    })
-  }
-  await factorySunset.send.deleteWallet({
-    sender: ctx.sender,
-    signer: ctx.signer,
-    args: { wallet: ctx.appIds.wallet, closeRemainderTo: closeTo },
-    maxFee: microAlgo(10_000n),
-    coverAppCallInnerTransactionFees: true,
-  })
-
   console.log('Phase final: deleting escrow factory')
   const escrowFactoryApp = inventory.apps.find((app) => app.id === Number(ctx.appIds.escrowFactory))
   if (!escrowFactoryApp) throw new Error(`Could not find escrow factory ${ctx.appIds.escrowFactory} in inventory`)
@@ -760,7 +707,7 @@ async function teardownFinalInfrastructure(
   await cleanupSunsetApp(ctx, escrowFactoryApp, inventory.assets, [], closeTo)
 
   console.log('Phase final: deleting wallet factory')
-  await factorySunset.send.deleteBoxedContract({ sender: ctx.sender, signer: ctx.signer })
+  await factorySunset.send.deleteBoxedContract({ sender: ctx.sender, signer: ctx.signer, args: [] })
   await deleteBoxes(ctx.algorand, factorySunset, ctx.appIds.walletFactory, ctx.sender, ctx.signer)
   await factorySunset.send.delete.delete({
     sender: ctx.sender,
@@ -793,7 +740,8 @@ function printDryRunSummary(
   console.log(`  - preserve critical infra until final stage: ${[...criticalIds].sort((a, b) => a - b).join(', ')}`)
   console.log(`  - reclaim ${reclaimHoldings} DAO-wallet escrow ASA holding(s) before deleting the DAO`)
   console.log('  - delete DAO-wallet escrow apps before deleting escrowFactory')
-  console.log('  - delete DAO, DAO wallet, escrowFactory, and walletFactory in dependency order')
+  console.log('  - stage SunsetContract and swap the wallet factory in one group, then simulate the DAO wallet sunset')
+  console.log('  - sunset and delete the DAO wallet before deleting the DAO, then escrowFactory and walletFactory')
   console.log('\nUse --phase apps or --phase final to resume a specific half, and --limit n for a small first slice.')
 }
 

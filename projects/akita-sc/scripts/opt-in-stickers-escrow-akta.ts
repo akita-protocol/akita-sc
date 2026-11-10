@@ -82,8 +82,8 @@ async function readEscrow(
 ): Promise<{ id: bigint; address: string; locked: boolean }> {
   const boxName = new Uint8Array(Buffer.from(`e${escrow}`))
   const boxCall = typeof algod.getApplicationBoxByName === 'function'
-    ? algod.getApplicationBoxByName(Number(walletAppId), boxName)
-    : algod.applicationBoxByName(Number(walletAppId), boxName)
+    ? algod.getApplicationBoxByName(Number(walletAppId), boxName).do()
+    : algod.getApplicationBoxByName(Number(walletAppId), boxName).do()
   const box: any = await resolve(boxCall)
   const value = box.value instanceof Uint8Array ? box.value : new Uint8Array(box.value)
   const id = uint64FromBytes(value)
@@ -96,8 +96,8 @@ async function readEscrow(
 
 async function readControlledAddress(algod: any, walletAppId: bigint): Promise<string> {
   const appCall = typeof algod.getApplicationByID === 'function'
-    ? algod.getApplicationByID(Number(walletAppId))
-    : algod.applicationById(Number(walletAppId))
+    ? algod.getApplicationByID(Number(walletAppId)).do()
+    : algod.getApplicationByID(Number(walletAppId)).do()
   const app: any = await resolve(appCall)
   const state = app.params?.globalState ?? app.params?.['global-state'] ?? []
   const entry = state.find((item: any) => {
@@ -116,7 +116,7 @@ async function isAssetOptedIn(
   assetId: bigint,
 ): Promise<boolean> {
   try {
-    const info: any = await resolve((algod as any).accountInformation(address))
+    const info: any = await resolve((algod as any).accountInformation(address).do())
     const assets: any[] = info.assets ?? info.account?.assets ?? []
     return assets.some((asset) => BigInt(asset.assetId ?? asset['asset-id']) === assetId)
   } catch (error) {
@@ -138,6 +138,10 @@ runScript(async () => {
 
   console.log(`\nOpting DAO ${extra.escrow} escrow into AKTA on ${options.network}...\n`)
   const ctx = await setupContext(options, { minBalance: 1_000_000n })
+  if (options.dryRun) {
+    console.log(`DRY RUN - Would inspect and opt ${extra.escrow} into asset ${aktaAssetId}; no signing, funding or proposals.\n`)
+    return
+  }
   if (options.mnemonic) {
     const account = ctx.algorand.account.fromMnemonic(options.mnemonic)
     ctx.sender = account.addr.toString()
@@ -180,7 +184,7 @@ runScript(async () => {
   }
 
   let pluginInstalled = true
-  if (options.dryRun && !options.mnemonic && options.network !== 'localnet') {
+  if (options.dryRun) {
     console.log('DRY RUN - skipping plugin grant lookup because no signing account was provided.\n')
   } else {
     const canCall = await ctx.dao.wallet.canCall({

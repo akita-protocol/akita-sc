@@ -6,7 +6,10 @@
  * The important dependency is:
  * - the DAO wallet can update DAO-owned apps while it is still ARC58;
  * - the wallet factory created the DAO wallet, so a special final factory
- *   approval can update and delete the DAO wallet after the DAO is gone;
+ *   approval can update and delete the DAO wallet;
+ * - the DAO wallet is sunset and deleted before the DAO (ACCT-1: once the push
+ *   is sent the wallet cannot go back, so it is simulated first while the DAO
+ *   still governs);
  * - the factory itself is deleted last.
  */
 
@@ -14,9 +17,11 @@ import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { AlgorandClient } from '@algorandfoundation/algokit-utils'
 import { ProposalAction, ProposalActionEnum } from 'akita-sdk/dao'
 import { SDKClient, sendPrepared } from 'akita-sdk'
+import { CallerType } from 'akita-sdk/wallet'
 import algosdk from 'algosdk'
 import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { proposeAndExecute } from './utils'
+import { daoWalletSunsetSteps, sendDaoWalletSunset, simulateDaoWalletSunset, walletAssetCloses, walletFactorySunsetCalls } from './lib/sunset-steps'
 import { SunsetContractClient, SunsetContractFactory } from '../smart_contracts/artifacts/sunset/SunsetContractClient'
 import { WalletFactorySunsetContractClient, WalletFactorySunsetContractFactory } from '../smart_contracts/artifacts/sunset/WalletFactorySunsetContractClient'
 
@@ -98,18 +103,23 @@ runScript(async () => {
       SUNSET_CALLER: algosdk.decodeAddress(ctx.sender).publicKey,
     },
   })
-  const factorySunsetCompiled = await walletFactorySunsetFactory.appFactory.compile()
+  // The factory sunset approval is caller-gated by the same SUNSET_CALLER as SunsetContract.
+  const factorySunsetCompiled = await walletFactorySunsetFactory.appFactory.compile({
+    deployTimeParams: {
+      SUNSET_CALLER: algosdk.decodeAddress(ctx.sender).publicKey,
+    },
+  })
   console.log(`  SunsetContract approval: ${sunsetCompiled.approvalProgram.length} bytes`)
   console.log(`  WalletFactorySunset approval: ${factorySunsetCompiled.approvalProgram.length} bytes\n`)
 
   if (options.dryRun) {
     console.log('DRY RUN - planned order:')
-    console.log('  1. Store SunsetContract as the wallet factory child contract')
-    console.log('  2. Update the wallet factory app to WalletFactorySunsetContract')
-    console.log('  3. Update the DAO app to SunsetContract and delete it')
-    console.log('  4. Use the special factory to update the DAO wallet to SunsetContract')
-    console.log('  5. Use the special factory to delete the DAO wallet')
-    console.log('  6. Delete the factory boxed child contract and then delete the factory')
+    console.log('  1. In ONE execution group: store SunsetContract as the wallet factory child and update the')
+    console.log('     wallet factory app to WalletFactorySunsetContract (ACCT-2: no window with SunsetContract staged)')
+    console.log('  2. Simulate the DAO wallet sunset (push, asset close-outs, box deletes, delete)')
+    console.log('  3. Use the special factory to update the DAO wallet to SunsetContract and delete it')
+    console.log('  4. Update the DAO app to SunsetContract and delete it')
+    console.log('  5. Delete the factory boxed child contract and then delete the factory')
     return
   }
 
@@ -117,53 +127,62 @@ runScript(async () => {
 
   const stamp = Date.now() % 1_000_000
 
-  console.log('Step 1: storing SunsetContract as factory child...')
-  const childExecution = await ctx.dao.wallet.build.usePlugin({
-    sender: ctx.sender,
-    signer: ctx.signer,
-    lease: `sun_child_${stamp}`,
-    windowSize: 2000n,
-    global: true,
-    calls: [
-      ctx.updatePlugin.updateFactoryChildContract({
-        sender: ctx.sender,
-        signer: ctx.signer,
-        factoryAppId: ctx.appIds.walletFactory,
-        version: options.version,
-        data: sunsetCompiled.approvalProgram,
-      }),
-    ],
-  })
-  const childProposal = await submitExecution(ctx, ctx.appIds.walletFactory, childExecution)
-  console.log(`  proposal ${childProposal} executed\n`)
-
-  console.log('Step 2: updating wallet factory to special sunset approval...')
+  console.log('Step 1: staging SunsetContract and swapping the wallet factory approval (one group)...')
   const factoryExecution = await ctx.dao.wallet.build.usePlugin({
     sender: ctx.sender,
     signer: ctx.signer,
     lease: `sun_factory_${stamp}`,
     windowSize: 2000n,
-    global: true,
-    calls: [
-      ctx.updatePlugin.updateApp({
-        sender: ctx.sender,
-        signer: ctx.signer,
-        appId: ctx.appIds.walletFactory,
-        version: options.version,
-        data: factorySunsetCompiled.approvalProgram,
-      }),
-    ],
+    callerType: CallerType.Global,
+    calls: walletFactorySunsetCalls(ctx.updatePlugin, {
+      sender: ctx.sender,
+      signer: ctx.signer,
+      walletFactory: ctx.appIds.walletFactory,
+      version: options.version,
+      sunset: sunsetCompiled,
+      walletFactorySunset: factorySunsetCompiled,
+    }),
   })
   const factoryProposal = await submitExecution(ctx, ctx.appIds.walletFactory, factoryExecution)
   console.log(`  proposal ${factoryProposal} executed\n`)
 
-  console.log('Step 3: updating DAO to SunsetContract...')
+  const factorySunset = new WalletFactorySunsetContractClient({
+    algorand: ctx.algorand,
+    appId: ctx.appIds.walletFactory,
+    defaultSender: ctx.sender,
+    defaultSigner: ctx.signer,
+  })
+
+  const walletAddress = algosdk.getApplicationAddress(ctx.appIds.wallet).toString()
+  const steps = daoWalletSunsetSteps({
+    sender: ctx.sender,
+    signer: ctx.signer,
+    wallet: ctx.appIds.wallet,
+    escrowFactory: ctx.appIds.escrowFactory,
+    closeTo,
+    inventory: {
+      heldAssets: await walletAssetCloses(ctx.algorand, walletAddress, ctx.sender),
+      managedAssets: [],
+      escrowIds: [],
+      boxes: (await ctx.algorand.app.getBoxNames(ctx.appIds.wallet)).map((b) => b.nameRaw),
+    },
+  })
+
+  // ACCT-1: the DAO wallet push is irreversible; simulate it with every step after it while the DAO is live.
+  console.log('Step 2: simulating the DAO wallet sunset...')
+  console.log(`  ${await simulateDaoWalletSunset(factorySunset, steps)} step(s) simulated\n`)
+
+  console.log('Step 3: sunsetting and deleting the DAO wallet via special factory...')
+  await sendDaoWalletSunset(factorySunset, steps)
+  console.log('  DAO wallet deleted\n')
+
+  console.log('Step 4: updating DAO to SunsetContract and deleting it...')
   const daoExecution = await ctx.dao.wallet.build.usePlugin({
     sender: ctx.sender,
     signer: ctx.signer,
     lease: `sun_dao_${stamp}`,
     windowSize: 2000n,
-    global: true,
+    callerType: CallerType.Global,
     calls: [
       ctx.updatePlugin.updateApp({
         sender: ctx.sender,
@@ -171,6 +190,7 @@ runScript(async () => {
         appId: ctx.appIds.dao,
         version: options.version,
         data: sunsetCompiled.approvalProgram,
+        clearProgram: sunsetCompiled.clearStateProgram,
       }),
     ],
   })
@@ -183,8 +203,6 @@ runScript(async () => {
     defaultSender: ctx.sender,
     defaultSigner: ctx.signer,
   })
-
-  console.log('Step 4: deleting DAO boxes and DAO app...')
   await deleteBoxes(ctx.algorand, sunsetDao, ctx.appIds.dao, ctx.sender, ctx.signer)
   await sunsetDao.send.delete.delete({
     sender: ctx.sender,
@@ -195,49 +213,8 @@ runScript(async () => {
   })
   console.log('  DAO deleted\n')
 
-  const factorySunset = new WalletFactorySunsetContractClient({
-    algorand: ctx.algorand,
-    appId: ctx.appIds.walletFactory,
-    defaultSender: ctx.sender,
-    defaultSigner: ctx.signer,
-  })
-
-  console.log('Step 5: updating DAO wallet to SunsetContract via special factory...')
-  await factorySunset.send.updateWallet({
-    sender: ctx.sender,
-    signer: ctx.signer,
-    args: { wallet: ctx.appIds.wallet },
-    maxFee: microAlgo(10_000n),
-    coverAppCallInnerTransactionFees: true,
-  })
-  console.log('  DAO wallet updated\n')
-
-  console.log('Step 6: deleting DAO wallet boxes and DAO wallet app via special factory...')
-  const walletBoxes = await ctx.algorand.app.getBoxNames(ctx.appIds.wallet)
-  for (let i = 0; i < walletBoxes.length; i += BOX_BATCH_SIZE) {
-    await factorySunset.send.deleteWalletBoxes({
-      sender: ctx.sender,
-      signer: ctx.signer,
-      args: {
-        wallet: ctx.appIds.wallet,
-        boxes: walletBoxes.slice(i, i + BOX_BATCH_SIZE).map((b) => b.nameRaw),
-      },
-      maxFee: microAlgo(10_000n),
-      coverAppCallInnerTransactionFees: true,
-      populateAppCallResources: true,
-    })
-  }
-  await factorySunset.send.deleteWallet({
-    sender: ctx.sender,
-    signer: ctx.signer,
-    args: { wallet: ctx.appIds.wallet, closeRemainderTo: closeTo },
-    maxFee: microAlgo(10_000n),
-    coverAppCallInnerTransactionFees: true,
-  })
-  console.log('  DAO wallet deleted\n')
-
-  console.log('Step 7: deleting wallet factory...')
-  await factorySunset.send.deleteBoxedContract({ sender: ctx.sender, signer: ctx.signer })
+  console.log('Step 5: deleting wallet factory...')
+  await factorySunset.send.deleteBoxedContract({ sender: ctx.sender, signer: ctx.signer, args: [] })
   await deleteBoxes(ctx.algorand, factorySunset, ctx.appIds.walletFactory, ctx.sender, ctx.signer)
   await factorySunset.send.delete.delete({
     sender: ctx.sender,
@@ -252,5 +229,5 @@ runScript(async () => {
   console.log('='.repeat(80))
   console.log(`Network: ${options.network}`)
   console.log(`Close remainder to: ${closeTo}`)
-  console.log(`Proposals: child=${childProposal}, factory=${factoryProposal}, dao=${daoProposal}`)
+  console.log(`Proposals: factory=${factoryProposal}, dao=${daoProposal}`)
 })

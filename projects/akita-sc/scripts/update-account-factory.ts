@@ -3,28 +3,16 @@
 /**
  * Update Account Factory Contract Script
  *
- * Updates the AbstractedAccountFactory app itself. This does not update the
- * boxed AbstractedAccount child contract bytecode.
+ * Upgrades the AbstractedAccountFactory app through the Phase 2 runner, always together with the
+ * AbstractedAccount child in one group: the upgraded factory creates only the AVM 13 wallet, so a factory
+ * upgrade without its child would stop all wallet creation (ACCT-3, ROLLOUT-3).
  *
  * Usage:
- *   npm run update:account-factory -- -n testnet -m "your mnemonic" -v "1.2.0"
+ *   npm run update:account-factory -- -n testnet --dry-run
+ *   npm run update:account-factory -- -n testnet -m "your mnemonic" -v "1.2.0" --confirm
  */
 
-import { parseBaseArgs, setupContext, runUpdate, runScript } from './script-base'
-import { AbstractedAccountFactoryFactory } from '../smart_contracts/artifacts/arc58/account/AbstractedAccountFactoryClient'
+import { runScript } from './script-base'
+import { runPhase2Cli } from './lib/principal-phase2-cli'
 
-runScript(async () => {
-  const options = parseBaseArgs('update-account-factory.ts')
-  console.log(`\nStarting Account Factory contract update on ${options.network}...\n`)
-
-  const ctx = await setupContext(options)
-
-  await runUpdate(ctx, [
-    {
-      name: 'AccountFactory',
-      leasePrefix: 'acct_upg',
-      appIdKey: 'walletFactory',
-      createFactory: (p) => new AbstractedAccountFactoryFactory(p),
-    },
-  ])
-})
+runScript(() => runPhase2Cli('update-account-factory.ts', { targets: ['AbstractedAccountFactory'] }))
