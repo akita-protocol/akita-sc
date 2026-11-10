@@ -20,6 +20,10 @@ export type SocialClaimPlatform = 'x' | 'telegram' | 'discord'
 export const SOCIAL_CLAIM_ATTESTATION_DOMAIN = 'akita/social-claim/v1'
 export const SOCIAL_CLAIM_MIN_TTL = 86_400n
 export const SOCIAL_CLAIM_MAX_TTL = 365n * 86_400n
+/** Storage deposit for a subject's entry, paid with the first gift and never returned. Must match the contract. */
+export const SOCIAL_CLAIM_SUBJECT_MBR = 18_900n
+/** Storage deposit for one gift box, returned to the sender's wallet when the box is deleted. Must match the contract. */
+export const SOCIAL_CLAIM_GIFT_MBR = 28_500n
 
 const GIFT_PREFIX = 'g'
 const GIFT_VALUE_TYPE = new ABITupleType([new ABIUintType(64), new ABIUintType(64)])
@@ -36,7 +40,7 @@ const concat = (...parts: Uint8Array[]): Uint8Array => {
   return out
 }
 
-// claim and refund issue inner txns with fee 0; a caller that replaced the SDK send params
+// claim, refund and prune issue inner txns with fee 0; a caller that replaced the SDK send params
 // (setSendParams) must still get pooled-fee coverage, so these ride along explicitly.
 const INNER_FEE_SEND_PARAMS = { populateAppCallResources: true, coverAppCallInnerTransactionFees: true }
 
@@ -113,7 +117,7 @@ export type SocialClaimClaimParams = MaybeSigner & {
   newAdmin: string
   expires: bigint
   signature: Uint8Array
-  /** Also delete the subject's gift boxes in the same group, returning their MBR to the app. */
+  /** Also delete the subject's gift boxes in the same group, returning each storage deposit to its sender's wallet. */
   prune?: boolean
 }
 
@@ -121,7 +125,9 @@ export type SocialClaimClaimParams = MaybeSigner & {
  * Escrow-free admin for "send to anyone" wallets. A subject (platform identity) has at most one
  * gift wallet. Its admin is this app until the attestor (Akita's claim portal) signs for the
  * recipient. Each sender's gift per asset is one box; after its expiry anyone may refund it to the
- * sender's wallet. Box MBR comes from the app's own balance, which Akita prefunds.
+ * sender's wallet. Whoever sends a gift pays its storage deposit in the same group: the subject's
+ * entry with the first gift, and each new gift box. A gift box's deposit comes back to the sender's
+ * wallet when the box is deleted.
  */
 export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
   constructor(params: NewContractSDKParams) {
@@ -135,7 +141,8 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
 
   /**
    * First gift, one atomic group: the sponsor wallet's usePlugin txns for welcome.sendToAnyone
-   * with this app as admin, then `bind` pointing at that call. Returns the new wallet id.
+   * with this app as admin, then the storage payment and `bind` pointing at that call. Returns the
+   * new wallet id. The account that sends the group pays the deposit.
    *
    * The wallet's usePlugin group is [arc58_rekeyToPlugin, sendToAnyone, arc58_verifyAuthAddress];
    * the wallet only inspects txns between the rekey and the verify, so `bind` rides after it.
@@ -150,7 +157,12 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     const welcomeCallIndex = this.pluginCallIndex(composer, welcome.appId, length)
     composer.addAppCallMethodCall(await this.client.params.bind({
       ...sendParams,
-      args: { welcomeCallIndex, subject, ttl },
+      args: {
+        mbrPayment: await this.storagePayment(sendParams.sender, SOCIAL_CLAIM_SUBJECT_MBR + SOCIAL_CLAIM_GIFT_MBR),
+        welcomeCallIndex,
+        subject,
+        ttl,
+      },
     }))
     await this.capPluginFees(composer)
     const result = await group.send({ ...sendParams }) as unknown as GroupReturn
@@ -161,7 +173,8 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
 
   /**
    * Top-up of a pending wallet, one atomic group: the sponsor wallet's usePlugin txns for one
-   * pay.pay payment to the pending wallet, then `contribute` pointing at that call.
+   * pay.pay payment to the pending wallet, then the storage payment and `contribute` pointing at
+   * that call. The deposit is due only for this wallet's first gift to the subject in this asset.
    */
   async topUp({ wallet, pay, subject, asset, amount, ttl, usePlugin = {} }: SocialClaimTopUpParams): Promise<GroupReturn> {
     assertByteArrayLength(subject, 'subject', 32)
@@ -173,9 +186,15 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     })
     const composer = await group.composer()
     const payCallIndex = this.pluginCallIndex(composer, pay.appId, length)
+    const existing = await this.getGift({ subject, senderWallet: wallet.appId, asset })
     composer.addAppCallMethodCall(await this.client.params.contribute({
       ...sendParams,
-      args: { payCallIndex, subject, ttl },
+      args: {
+        mbrPayment: await this.storagePayment(sendParams.sender, existing === undefined ? SOCIAL_CLAIM_GIFT_MBR : 0n),
+        payCallIndex,
+        subject,
+        ttl,
+      },
     }))
     await this.capPluginFees(composer)
     return await group.send({ ...sendParams }) as unknown as GroupReturn
@@ -191,7 +210,7 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     group.claim({ ...sendParams, args: { subject, newAdmin, expires, signature }, maxFee })
     if (prune) {
       for (const { senderWallet, asset } of await this.listGifts(subject)) {
-        group.prune({ ...sendParams, args: { subject, senderWallet, asset } })
+        group.prune({ ...sendParams, args: { subject, senderWallet, asset }, maxFee })
       }
     }
     return await group.send({ ...sendParams, ...INNER_FEE_SEND_PARAMS }) as unknown as GroupReturn
@@ -214,7 +233,9 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     assertByteArrayLength(subject, 'subject', 32)
     return await this.client.send.prune({
       ...this.getRequiredSendParams(params),
+      ...INNER_FEE_SEND_PARAMS,
       args: { subject, senderWallet, asset },
+      maxFee: await this.innerFeeLimit(),
     }) as unknown as GroupReturn
   }
 
@@ -264,9 +285,14 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     })
   }
 
+  /** The storage deposit a bind or contribute call takes as its payment argument. */
+  private storagePayment(sender: WalletUsePluginParams['sender'], amount: bigint) {
+    return this.algorand.createTransaction.payment({ sender: sender!, receiver: this.address, amount: microAlgo(amount) })
+  }
+
   /**
-   * The contract reads the plugin call two txns before bind/contribute, so the group must end
-   * [plugin call, verifyAuthAddress] right before our call. Options that append txns after the
+   * The contract reads the plugin call three txns before bind/contribute, so the group must end
+   * [plugin call, verifyAuthAddress] right before our storage payment and call. Options that append txns after the
    * verify (seedPrincipalResources) break that shape; fail here with a reason instead of on chain.
    */
   private pluginCallIndex(composer: TransactionComposer, plugin: bigint, groupLength: number): bigint {
@@ -297,7 +323,10 @@ export class SocialClaimSDK extends BaseSDK<SocialClaimClient> {
     }
   }
 
-  /** claim: one inner changeAdmin plus opcode budget. refund: rekeyTo (with its nested payment) plus the transfer. */
+  /**
+   * claim: one inner changeAdmin plus opcode budget. refund: rekeyTo (with its nested payment), the
+   * transfer and the deposit's return. prune: the deposit's return.
+   */
   private async innerFeeLimit() {
     const { minFee } = await this.algorand.getSuggestedParams()
     return microAlgo(BigInt(minFee) * 8n)

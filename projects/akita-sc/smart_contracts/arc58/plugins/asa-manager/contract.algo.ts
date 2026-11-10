@@ -1,6 +1,6 @@
 import { Application, Asset, Global, gtxn, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript";
 import { Contract } from "@algorandfoundation/algorand-typescript/arc4";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { errInvalidPayment } from "./errors";
 import { CreateAssetParams } from "./types";
 
@@ -21,7 +21,7 @@ export class AsaManagerPlugin extends Contract {
     assets: CreateAssetParams[],
     mbrPayment: gtxn.PaymentTxn
   ): uint64[] {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(mbrPayment.receiver === sender, errInvalidPayment)
     loggedAssert(mbrPayment.amount === Global.assetCreateMinBalance * assets.length, errInvalidPayment)
@@ -69,7 +69,7 @@ export class AsaManagerPlugin extends Contract {
     rekeyBack: boolean,
     assets: uint64[],
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     for (let i: uint64 = 0; i < assets.length; i++) {
       itxn

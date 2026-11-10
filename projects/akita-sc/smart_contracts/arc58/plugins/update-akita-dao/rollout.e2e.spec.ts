@@ -442,7 +442,8 @@ describe('P2-UPD-01: Phase 2a rehearsal from the deployed Update plugin and Akit
   })
 
   test('Phase 2 factory path: the factory upgrade and its child push land in ONE group', async () => {
-    // RaffleFactory + Raffle plan to 13 txns (3,751 B factory = 2 upload chunks since K6, + 7,945 B child).
+    // RaffleFactory + Raffle plan to 14 txns (factory = 2 upload chunks since K6, + the 8,106 B child in 5
+    // since AUD-C6; 4 chunks hold 8,104 B).
     // StakingPoolFactory + StakingPool plan to exactly 16 today (see the update-plugin section of
     // IMPLEMENTATION-LOG.md); --split-children is the fallback.
     ctx.appIds.raffleFactory = universe.raffleFactory.appId
@@ -451,7 +452,7 @@ describe('P2-UPD-01: Phase 2a rehearsal from the deployed Update plugin and Akit
     // Force a full re-push of the same bytes so the combined path runs on the universe's factory.
     const groups = planGroups({ approvalSize: base.next.approval.length, withClear: true }, base.child!.approval.length)
     expect(groups.atomic).toBe(true)
-    expect(groups.groups.map((g) => g.txns)).toEqual([13])
+    expect(groups.groups.map((g) => g.txns)).toEqual([14])
     const result = await executeTargetPlan(ctx, { ...base, appUpToDate: false, childUpToDate: false, groups }, { log: () => {} })
     expect(result.status).toBe('upgraded')
 

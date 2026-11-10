@@ -1,6 +1,6 @@
 import { Account, Application, Contract, Global, GlobalState, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abimethod } from "@algorandfoundation/algorand-typescript/arc4";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { PaySiloPluginGlobalStateKeyRecipient } from "./constants";
 import { PaySiloParams } from "./types";
 
@@ -14,7 +14,7 @@ export class PaySiloPlugin extends Contract {
   }
 
   pay(wallet: Application, rekeyBack: boolean, payments: PaySiloParams[]): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     for (let i: uint64 = 0; i < payments.length; i++) {
       const { asset, amount } = payments[i];

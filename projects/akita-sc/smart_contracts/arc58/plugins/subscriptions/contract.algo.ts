@@ -3,7 +3,7 @@ import { abiCall, abimethod, encodeArc4, methodSelector, Uint8 } from "@algorand
 import { classes } from 'polytype'
 import { GateArgs } from "../../../gates/types"
 import { ServiceID, SubscriptionID, SubscriptionKey } from "../../../subscriptions/types"
-import { GateMustCheckForAbiMethod, getAkitaAppList, getSpendingAccount, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions"
+import { GateMustCheckForAbiMethod, getAkitaAppList, getControlledSpendingAccount, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions"
 import { gateCtx, windowHint } from "../../../utils/principal"
 import { CID } from "../../../utils/types/base"
 
@@ -60,7 +60,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     asset: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -125,7 +125,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     highlightMessage: Uint8,
     highlightColor: bytes<3>
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const txn = gtxn.Transaction(Txn.groupIndex - 1)
     // require loadDescription to be called first
@@ -230,7 +230,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     id: ServiceID,
     title: string
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -249,7 +249,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     offset: uint64,
     data: bytes
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -266,7 +266,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     id: SubscriptionID
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -283,7 +283,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     index: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -300,7 +300,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     address: Account
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -324,7 +324,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     address: Account
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -346,7 +346,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     index: uint64,
     args: GateArgs
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const hint = windowHint(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
@@ -480,7 +480,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     id: SubscriptionID,
     args: GateArgs
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -539,7 +539,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     id: SubscriptionID
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     const key: SubscriptionKey = { address: sender, id }
@@ -604,7 +604,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     id: SubscriptionID,
     amount: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
     if (asset === 0) {
@@ -642,7 +642,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     id: SubscriptionID,
     amount: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
     abiCall<typeof Subscriptions.prototype.withdraw>({
@@ -659,7 +659,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     id: SubscriptionID
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
     abiCall<typeof Subscriptions.prototype.unsubscribe>({
@@ -675,7 +675,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     rekeyBack: boolean,
     key: SubscriptionKey
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
 
@@ -693,7 +693,7 @@ export class SubscriptionsPlugin extends classes(BaseSubscriptions, AkitaBaseCon
     id: SubscriptionID,
     addresses: Account[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).subscriptions)
     abiCall<typeof Subscriptions.prototype.setPasses>({

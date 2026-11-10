@@ -966,5 +966,70 @@ describe('Auction SDK', () => {
       // A's losing bid (minus its 1% fee) and its raffle prize wait for A as Rewards disbursements
       expect(await rewardsHolding() - rewardsBefore).toBeGreaterThan(990_000n)
     })
+
+    /** opts the account out of the prize asset and closes it, so a payment below 0.1 ALGO can no longer reach it */
+    const closeAccount = async (account: TransactionSignerAccount) => {
+      await algorand.send.assetOptOut({ sender: account.addr, signer: account.signer, assetId: testAssetId, creator: deployer.addr, ensureZeroBalance: true })
+      await algorand.send.payment({
+        sender: account.addr, signer: account.signer, receiver: dispenser.addr, amount: algokit.microAlgos(0), closeRemainderTo: dispenser.addr,
+      })
+      expect(await getAccountBalance(algorand, account.addr.toString())).toBe(0n)
+    }
+
+    test('AUD-C6: a bidder who took their bid back and closed their account blocks neither the refunds nor the delete', async () => {
+      const owner = await newSeller()
+      const [leaver, winner] = [await newBidder(), await newBidder()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner, { bidFee: 0n })
+      await timeWarp.timeWarp(70n)
+      await bid(auction, leaver, 1_000_000n)
+      await bid(auction, winner, 1_100_000n)
+
+      // The outbid bidder takes the bid back, then closes the account: only its storage deposit is still owed.
+      const leaverBefore = await getAccountBalance(algorand, leaver.addr.toString())
+      await auction.refundBid({ sender: deployer.addr, signer: deployer.signer, id: 1n })
+      expect(await getAccountBalance(algorand, leaver.addr.toString()) - leaverBefore).toBe(1_000_000n)
+      await closeAccount(leaver)
+
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(winner.addr, testAssetId)).balance).toBe(1n)
+
+      const { bids, bidsByAddress } = await auction.mbr()
+      expect(bids + bidsByAddress).toBeLessThan(100_000n)
+      const winnerBefore = await getAccountBalance(algorand, winner.addr.toString())
+      await cleanupAndDelete(auction, owner)
+
+      // The closed account, first in the list, is passed over and the bidder after it gets its deposit back.
+      expect(await getAccountBalance(algorand, winner.addr.toString()) - winnerBefore).toBe(bids + bidsByAddress)
+      expect(await getAccountBalance(algorand, leaver.addr.toString())).toBe(0n)
+      // The deposit that could not be returned leaves with the auction's account and stays in the factory.
+      expect(await getAccountBalance(algorand, factoryAddress()) - factoryBefore).toBe(bids + bidsByAddress)
+    })
+
+    test('AUD-C6: a single refund to a closed account is not skipped, and the cleanup still passes over it', async () => {
+      const owner = await newSeller()
+      const [leaver, winner] = [await newBidder(), await newBidder()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      // Bids small enough that the refund itself is below the minimum balance.
+      const auction = await createAuction(owner, { bidFee: 0n, startingBid: 50_000n })
+      await timeWarp.timeWarp(70n)
+      await bid(auction, leaver, 50_000n)
+      await bid(auction, winner, 150_000n)
+      await closeAccount(leaver)
+
+      // On its own the refund fails as a whole and the bid stays unrefunded.
+      await expect(auction.refundBid({ sender: deployer.addr, signer: deployer.signer, id: 1n }).then(() => 'refunded')).rejects.toThrow()
+
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      const { bids, bidsByAddress } = await auction.mbr()
+      await cleanupAndDelete(auction, owner)
+      expect(await getAccountBalance(algorand, leaver.addr.toString())).toBe(0n)
+      expect(await getAccountBalance(algorand, factoryAddress()) - factoryBefore).toBe(50_000n + bids + bidsByAddress)
+    })
   })
 })

@@ -1,11 +1,11 @@
 import { Application, Asset, Global, gtxn, itxn, loggedAssert, uint64, Contract } from "@algorandfoundation/algorand-typescript";
 import { errAlreadyOptedIn, errInvalidPayment } from "./errors";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 
 export class OptInPlugin extends Contract {
 
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     loggedAssert(mbrPayment.receiver === sender, errInvalidPayment)
     loggedAssert(mbrPayment.amount === Global.assetOptInMinBalance * assets.length, errInvalidPayment)
 

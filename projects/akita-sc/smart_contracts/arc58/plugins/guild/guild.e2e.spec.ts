@@ -45,7 +45,7 @@ import {
   type GuildTestEnvironment,
   ZERO_CID,
 } from '../../guilds/tests/test-helpers'
-import { errGuildNotFromFactory } from './errors'
+import { errGuildCostLimitExceeded, errGuildNotFromFactory } from './errors'
 import {
   createGuild,
   defaultGuildBaseConfig,
@@ -409,9 +409,10 @@ describe('Guild ARC-58 wallet plugin', () => {
     const consensus = Array.isArray(deployment) ? deployment[1] : deployment.consensus
     plugin = primaryPlugin
     const before = await environment.algorand.account.getInformation(controlledAddress)
+    // a target that is no Guild has no cost to read, so these calls name their limit
     for (const target of [sibling, consensus]) {
       await expectContractError(usePlugin(plugin.newProposal({
-        guild: target, cid: ZERO_CID, actions: [setLimitAction(5n)],
+        guild: target, cid: ZERO_CID, actions: [setLimitAction(5n)], maxCost: 0n,
       }), 5), errGuildNotFromFactory)
     }
     await expectContractError(usePlugin(plugin.newGuild({
@@ -420,7 +421,7 @@ describe('Guild ARC-58 wallet plugin', () => {
     }), 5), errGuildNotFromFactory)
     plugin = creationPlugin
     await expectContractError(usePlugin(plugin.newProposal({
-      guild: consensus, cid: ZERO_CID, actions: [setLimitAction(5n)],
+      guild: consensus, cid: ZERO_CID, actions: [setLimitAction(5n)], maxCost: 0n,
     }), 5), errGuildNotFromFactory)
     plugin = primaryPlugin
     expect((await environment.algorand.account.getInformation(controlledAddress)).balance.microAlgos).toBe(before.balance.microAlgos)
@@ -488,6 +489,73 @@ describe('Guild ARC-58 wallet plugin', () => {
     await expectWalletAuthorizationHealthy()
   }, 240_000)
 
+  // AUD-C3: the plugin reads each cost from the factory or the Guild when the call runs. `maxCost` is the
+  // cost quoted when the call was built; a call that would pay more fails before any wallet funds move.
+  test('fails a paying call whose cost is above the quoted maximum', async () => {
+    const reader = environment.creator.addr
+    const balance = async () => (await environment.algorand.account.getInformation(controlledAddress)).balance.microAlgos
+    const expectOverQuote = async (call: PluginSDKReturn, opUps: number) => {
+      const before = await balance()
+      await expectContractError(usePlugin(call, opUps), errGuildCostLimitExceeded)
+      expect(await balance()).toBe(before)
+      await expectWalletAuthorizationHealthy()
+    }
+
+    // a proposal
+    const actions: GuildAction[] = [setLimitAction(6n)]
+    const proposalCost = await plugin.proposalCost(guild.appId, actions, reader)
+    expect(proposalCost).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.newProposal({ guild: guild.appId, cid: ZERO_CID, actions, maxCost: proposalCost - 1n }), 7)
+    const created = await usePlugin(plugin.newProposal({ guild: guild.appId, cid: ZERO_CID, actions, maxCost: proposalCost }), 7)
+    const proposalId = BigInt(lastReturnValue<bigint>(created))
+
+    // an edit is held to its top-up; one that needs no top-up passes with a zero limit
+    const larger: GuildAction[] = [setLimitAction(6n), setSettingsAction(ACTION_SET_LIMIT, proposalSettings())]
+    const topUp = await plugin.proposalEditCost(guild.appId, proposalId, larger, reader)
+    expect(topUp).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.editProposal({ guild: guild.appId, proposalId, cid: ZERO_CID, actions: larger, maxCost: topUp - 1n }), 7)
+    await usePlugin(plugin.editProposal({ guild: guild.appId, proposalId, cid: ZERO_CID, actions: larger, maxCost: topUp }), 7)
+    expect(await plugin.proposalEditCost(guild.appId, proposalId, actions, reader)).toBe(0n)
+    await usePlugin(plugin.editProposal({ guild: guild.appId, proposalId, cid: ZERO_CID, actions, maxCost: 0n }), 7)
+
+    // a first vote pays for its receipt; changing the vote is free
+    await usePlugin(plugin.submitProposal({ guild: guild.appId, proposalId }), 5)
+    const voteCost = await plugin.voteCost(guild.appId, proposalId, controlledAddress, reader)
+    expect(voteCost).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.voteProposal({ guild: guild.appId, proposalId, vote: APPROVE, maxCost: voteCost - 1n }), 4)
+    await usePlugin(plugin.voteProposal({ guild: guild.appId, proposalId, vote: APPROVE, maxCost: voteCost }), 4)
+    expect(await plugin.voteCost(guild.appId, proposalId, controlledAddress, reader)).toBe(0n)
+    await usePlugin(plugin.voteProposal({ guild: guild.appId, proposalId, vote: APPROVE, maxCost: 0n }), 4)
+    await endVoting(timeWarp)
+    await usePlugin(plugin.finalizeProposal({ guild: guild.appId, proposalId }), 4)
+    await usePlugin(plugin.executeProposal({ guild: guild.appId, proposalId }), 6)
+
+    // creating a Guild and configuring its draft
+    plugin = creationPlugin
+    const newGuildArgs = { consensusName: FIXED_SIGNERS, baseConfig: baseConfig(), governanceConfig: encodeAbi('(uint64)', [1n]) }
+    const creationCost = await plugin.guildCreationCost(FIXED_SIGNERS, reader)
+    expect(creationCost).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.newGuild({ ...newGuildArgs, maxCost: creationCost - 1n }), 5)
+    const deployment = lastReturnValue<{ guild: bigint } | [bigint, bigint]>(
+      await usePlugin(plugin.newGuild({ ...newGuildArgs, maxCost: creationCost }), 5),
+    )
+    const draft = Array.isArray(deployment) ? deployment[0] : deployment.guild
+    await installGuildPlugin(draft)
+
+    const config = encodeAbi('(uint8,(address,uint64)[])', [1, [[controlledAddress, 1n]]])
+    const configurationCost = await plugin.consensusConfigurationCost(draft, config, reader)
+    expect(configurationCost).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.configureConsensus({ guild: draft, config, maxCost: configurationCost - 1n }), 5)
+    await usePlugin(plugin.configureConsensus({ guild: draft, config, maxCost: configurationCost }), 5)
+
+    const treasury = { guild: draft, nickname: 'Quoted treasury', salt: new Uint8Array(32).fill(3) }
+    const setupCost = await plugin.setupCost(draft, reader)
+    expect(setupCost).toBeGreaterThan(0n)
+    await expectOverQuote(plugin.setup({ ...treasury, maxCost: setupCost - 1n }), 8)
+    await usePlugin(plugin.setup({ ...treasury, maxCost: setupCost }), 8)
+    plugin = primaryPlugin
+  }, 360_000)
+
   test('deletes wallet-authored drafts and leaves the wallet authorization healthy after a revert', async () => {
     const created = await usePlugin(
       plugin.newProposal({ guild: guild.appId, cid: ZERO_CID, actions: [setLimitAction(7n)] }),
@@ -511,6 +579,7 @@ describe('Guild ARC-58 wallet plugin', () => {
           cid: ZERO_CID,
           actions: [setLimitAction(6n)],
           evidence: EMPTY_EVIDENCE,
+          maxCost: 0n,
         }),
         2,
       ),

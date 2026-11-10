@@ -1,6 +1,6 @@
 import { Account, Application, Asset, bytes, Contract, OnCompleteAction } from "@algorandfoundation/algorand-typescript"
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions"
 import { SunsetContract } from "../../../sunset/contract.algo"
 import { AssetCloseParams } from "../../../sunset/types"
 
@@ -12,7 +12,7 @@ export class SunsetPlugin extends Contract {
     appId: Application,
     closeRemainderTo: Account
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof SunsetContract.prototype.delete>({
       sender,
       appId,
@@ -28,7 +28,7 @@ export class SunsetPlugin extends Contract {
     appId: Application,
     boxes: bytes[]
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof SunsetContract.prototype.deleteBoxes>({
       sender,
       appId,
@@ -43,7 +43,7 @@ export class SunsetPlugin extends Contract {
     appId: Application,
     closes: AssetCloseParams[]
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof SunsetContract.prototype.closeOut>({
       sender,
       appId,
@@ -58,7 +58,7 @@ export class SunsetPlugin extends Contract {
     appId: Application,
     assets: Asset[]
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof SunsetContract.prototype.deleteAssets>({
       sender,
       appId,

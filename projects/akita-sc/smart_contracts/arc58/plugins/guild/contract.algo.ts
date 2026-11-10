@@ -11,7 +11,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { bzero } from '@algorandfoundation/algorand-typescript/op'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import type { CID } from '../../../utils/types/base'
 import type {
   GuildBaseConfig,
@@ -21,7 +21,7 @@ import type {
   GuildProposalSettings,
   GuildVoteType,
 } from '../../guilds/core/types'
-import { errGuildNotFromFactory } from './errors'
+import { errGuildCostLimitExceeded, errGuildNotFromFactory } from './errors'
 
 // CONTRACT IMPORTS
 import type { Guild } from '../../guilds/core/contract.algo'
@@ -39,6 +39,12 @@ export type GuildCreated = {
  *
  * Each participating adapter is bound to one Guild and its factory. A separate
  * creation-only adapter can mint Guilds but cannot participate in them.
+ *
+ * Every method that pays takes `maxCost`: the most the wallet may pay the factory or the Guild in that
+ * call, quoted when the call was built. The amounts themselves are read at execution from apps the wallet
+ * does not control (Akita DAO sets creation fees, a Guild's own governance sets its proposal fees and
+ * can upgrade the Guild), so a price that moved after the call was built or approved fails the call
+ * instead of being paid.
  */
 export class GuildPlugin extends Contract {
   factory = GlobalState<Application>({ key: 'factory' })
@@ -67,6 +73,11 @@ export class GuildPlugin extends Contract {
     loggedAssert(guild.creator === this.factory.value.address, errGuildNotFromFactory)
   }
 
+  /** The wallet never pays more than the caller quoted when the call was built. */
+  private requireWithinQuote(cost: uint64, maxCost: uint64): void {
+    loggedAssert(cost <= maxCost, errGuildCostLimitExceeded)
+  }
+
   // FACTORY AND DRAFT CONFIGURATION -------------------------------------------------------------
 
   newGuild(
@@ -75,15 +86,17 @@ export class GuildPlugin extends Contract {
     consensusName: string,
     baseConfig: GuildBaseConfig,
     governanceConfig: bytes,
+    maxCost: uint64,
   ): GuildDeployment {
     loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const cost = abiCall<typeof GuildFactory.prototype.cost>({
       sender,
       appId: this.factory.value,
       args: [consensusName],
     }).returnValue
+    this.requireWithinQuote(cost, maxCost)
 
     const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
       sender,
@@ -109,6 +122,9 @@ export class GuildPlugin extends Contract {
    * treasury wallet, fund it with `funding`, and, when `actions` is not empty, propose and execute them as
    * the creator's instant draft proposal (e.g. AddPlugin grants on the treasury). New app IDs pass from step
    * to step here, so the caller names none of them; only the last inner transaction hands the wallet back.
+   *
+   * `maxCost` covers everything the call pays except `funding`: the factory's cost, the consensus
+   * configuration storage, the treasury wallet's creation cost and the draft proposal's storage.
    */
   createGuild(
     wallet: Application,
@@ -121,15 +137,17 @@ export class GuildPlugin extends Contract {
     salt: bytes<32>,
     funding: uint64,
     actions: GuildProposalAction[],
+    maxCost: uint64,
   ): GuildCreated {
     loggedAssert(this.guild.value.id === 0, errGuildNotFromFactory)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const cost = abiCall<typeof GuildFactory.prototype.cost>({
       sender,
       appId: this.factory.value,
       args: [consensusName],
     }).returnValue
+    this.requireWithinQuote(cost, maxCost)
     const deployment = abiCall<typeof GuildFactory.prototype.newGuild>({
       sender,
       appId: this.factory.value,
@@ -147,6 +165,7 @@ export class GuildPlugin extends Contract {
       appId: guild,
       args: [consensusConfig],
     }).returnValue
+    this.requireWithinQuote(cost + configurationMbr, maxCost)
     abiCall<typeof Guild.prototype.configureConsensus>({
       sender,
       appId: guild,
@@ -154,6 +173,7 @@ export class GuildPlugin extends Contract {
     })
 
     const setupCost = abiCall<typeof Guild.prototype.setupCost>({ sender, appId: guild }).returnValue
+    this.requireWithinQuote(cost + configurationMbr + setupCost, maxCost)
     itxn.payment({ sender, receiver: guild.address, amount: setupCost }).submit()
     const treasury = Application(
       abiCall<typeof Guild.prototype.setup>({ sender, appId: guild, args: [nickname, salt] }).returnValue,
@@ -171,6 +191,7 @@ export class GuildPlugin extends Contract {
         appId: guild,
         args: [actions],
       }).returnValue
+      this.requireWithinQuote(cost + configurationMbr + setupCost + proposalCost.mbr, maxCost)
       if (proposalCost.mbr > 0) {
         itxn.payment({ sender, receiver: guild.address, amount: proposalCost.mbr }).submit()
       }
@@ -188,14 +209,15 @@ export class GuildPlugin extends Contract {
     return { guild: guild.id, consensus: deployment.consensus.id, wallet: treasury.id }
   }
 
-  configureConsensus(wallet: Application, rekeyBack: boolean, guild: Application, config: bytes): void {
+  configureConsensus(wallet: Application, rekeyBack: boolean, guild: Application, config: bytes, maxCost: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const amount = abiCall<typeof Guild.prototype.consensusConfigurationMbr>({
       sender,
       appId: guild,
       args: [config],
     }).returnValue
+    this.requireWithinQuote(amount, maxCost)
     abiCall<typeof Guild.prototype.configureConsensus>({
       sender,
       appId: guild,
@@ -211,10 +233,18 @@ export class GuildPlugin extends Contract {
     })
   }
 
-  setup(wallet: Application, rekeyBack: boolean, guild: Application, nickname: string, salt: bytes<32>): uint64 {
+  setup(
+    wallet: Application,
+    rekeyBack: boolean,
+    guild: Application,
+    nickname: string,
+    salt: bytes<32>,
+    maxCost: uint64,
+  ): uint64 {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const cost = abiCall<typeof Guild.prototype.setupCost>({ sender, appId: guild }).returnValue
+    this.requireWithinQuote(cost, maxCost)
 
     itxn
       .payment({
@@ -241,7 +271,7 @@ export class GuildPlugin extends Contract {
     settings: GuildProposalSettings,
   ): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.setProposalSettings>({
       sender,
       appId: guild,
@@ -252,7 +282,7 @@ export class GuildPlugin extends Contract {
 
   setProposalActionLimit(wallet: Application, rekeyBack: boolean, guild: Application, limit: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.setProposalActionLimit>({
       sender,
       appId: guild,
@@ -269,7 +299,7 @@ export class GuildPlugin extends Contract {
     settings: GuildProposalSettings,
   ): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.setConsensusActionSettings>({
       sender,
       appId: guild,
@@ -280,7 +310,7 @@ export class GuildPlugin extends Contract {
 
   lockPluginSet(wallet: Application, rekeyBack: boolean, guild: Application): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.lockPluginSet>({
       sender,
       appId: guild,
@@ -290,7 +320,7 @@ export class GuildPlugin extends Contract {
 
   partiallyInitialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.partiallyInitialize>({
       sender,
       appId: guild,
@@ -300,7 +330,7 @@ export class GuildPlugin extends Contract {
 
   initialize(wallet: Application, rekeyBack: boolean, guild: Application): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.initialize>({
       sender,
       appId: guild,
@@ -317,14 +347,16 @@ export class GuildPlugin extends Contract {
     cid: CID,
     actions: GuildProposalAction[],
     evidence: bytes,
+    maxCost: uint64,
   ): uint64 {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const cost = abiCall<typeof Guild.prototype.proposalCost>({
       sender,
       appId: guild,
       args: [actions],
     }).returnValue
+    this.requireWithinQuote(cost.total, maxCost)
 
     const proposalID = abiCall<typeof Guild.prototype.newProposal>({
       sender,
@@ -352,9 +384,10 @@ export class GuildPlugin extends Contract {
     cid: CID,
     actions: GuildProposalAction[],
     evidence: bytes,
+    maxCost: uint64,
   ): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const proposal = abiCall<typeof Guild.prototype.getProposal>({
       sender,
       appId: guild,
@@ -367,6 +400,8 @@ export class GuildPlugin extends Contract {
     }).returnValue
 
     if (proposal.feesPaid < cost.total) {
+      // `maxCost` bounds the top-up, not the proposal's whole price
+      this.requireWithinQuote(cost.total - proposal.feesPaid, maxCost)
       abiCall<typeof Guild.prototype.editProposalWithPayment>({
         sender,
         appId: guild,
@@ -395,7 +430,7 @@ export class GuildPlugin extends Contract {
 
   deleteProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.deleteProposal>({
       sender,
       appId: guild,
@@ -412,7 +447,7 @@ export class GuildPlugin extends Contract {
     evidence: bytes,
   ): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.submitProposal>({
       sender,
       appId: guild,
@@ -428,11 +463,13 @@ export class GuildPlugin extends Contract {
     proposalID: uint64,
     vote: GuildVoteType,
     evidence: bytes,
+    maxCost: uint64,
   ): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     // a first vote funds its receipt; changing a vote is free
     const voteMbr = abiCall<typeof Guild.prototype.voteCost>({ sender, appId: guild, args: [proposalID, sender] }).returnValue
+    this.requireWithinQuote(voteMbr, maxCost)
     abiCall<typeof Guild.prototype.voteProposal>({
       sender,
       appId: guild,
@@ -452,7 +489,7 @@ export class GuildPlugin extends Contract {
 
   finalizeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.finalizeProposal>({
       sender,
       appId: guild,
@@ -469,7 +506,7 @@ export class GuildPlugin extends Contract {
     voters: Account[],
   ): uint64 {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const amount = abiCall<typeof Guild.prototype.cleanupProposalConsensus>({
       sender,
       appId: guild,
@@ -482,7 +519,7 @@ export class GuildPlugin extends Contract {
   /** Abandon an approved proposal this wallet proposed, recovering its execution reserve. */
   cancelProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.cancelProposal>({
       sender,
       appId: guild,
@@ -493,7 +530,7 @@ export class GuildPlugin extends Contract {
 
   executeProposal(wallet: Application, rekeyBack: boolean, guild: Application, proposalID: uint64): void {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     abiCall<typeof Guild.prototype.executeProposal>({
       sender,
       appId: guild,
@@ -505,7 +542,7 @@ export class GuildPlugin extends Contract {
   /** Forward unreserved Guild balance to its treasury wallet. */
   sweep(wallet: Application, rekeyBack: boolean, guild: Application): uint64 {
     this.requireGuild(guild)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     return abiCall<typeof Guild.prototype.sweep>({
       sender,
       appId: guild,

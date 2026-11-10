@@ -14,7 +14,7 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { extract, extractUint16, extractUint64, itob, Txn } from '@algorandfoundation/algorand-typescript/op'
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import {
   errInvalidBeneficiary,
   errInvalidFunding,
@@ -203,7 +203,7 @@ export class HaystackRouterPlugin extends Contract {
     minOutputAmount: uint64,
   ): void {
     this.executeSwap(
-      getSpendingAccount(wallet),
+      getControlledSpendingAccount(wallet),
       rekeyBack,
       wallet,
       asset,

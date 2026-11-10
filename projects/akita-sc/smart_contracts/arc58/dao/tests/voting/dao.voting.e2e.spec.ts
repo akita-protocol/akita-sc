@@ -4,16 +4,18 @@ import { afterAll, beforeAll, describe, expect, test } from 'vitest';
 import { AkitaDaoSDK, EMPTY_CID, ProposalActionEnum, DAOParticipationMBR, DAOProposalVotesMBR } from 'akita-sdk/dao';
 import { CallerType, DAOPluginSDK, newWallet, WalletFactorySDK } from 'akita-sdk/wallet';
 import type { TransactionSigner } from 'algosdk';
-import { ABIType, encodeUint64 } from 'algosdk';
-import { AkitaDaoPluginFactory } from '../../../../artifacts/arc58/plugins/dao/AkitaDAOPluginClient';
+import { ABIType, ALGORAND_ZERO_ADDRESS_STRING, encodeUint64, getApplicationAddress } from 'algosdk';
+import { AkitaDaoPluginClient, AkitaDaoPluginFactory } from '../../../../artifacts/arc58/plugins/dao/AkitaDAOPluginClient';
 import { deployAbstractedAccountFactory } from '../../../../../tests/fixtures/abstracted-account';
 import { deployAkitaDAO, deployAkitaDAOProposalValidator } from '../../../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../../../tests/fixtures/escrow';
 import { deployStaking } from '../../../../../tests/fixtures/staking';
+import { expectContractError } from '../../../../../tests/utils/errors';
 import { logger } from '../../../../../tests/utils/logger';
 import { TimeWarp } from '../../../../../tests/utils/time';
 import { AbstractedAccountMbrFactory } from '../../../../artifacts/arc58/account/AbstractedAccountMBRClient';
 import { EscrowFactoryClient } from '../../../../artifacts/escrow/EscrowFactoryClient';
+import { MockFakeWalletFactory } from '../../../../artifacts/mocks/fake-wallet/MockFakeWalletClient';
 import { StakingClient } from '../../../../artifacts/staking/StakingClient';
 import { proposeAndExecute } from '../utils';
 
@@ -1576,6 +1578,52 @@ describe('ARC58 DAO Voting', () => {
             await votes(second.id, VOTE_APPROVE);
             expect(before - await balanceOf(ownerAddr)).toBe(DAOProposalVotesMBR);
             expect(await dao.getGovernanceParticipation(ownerAddr)).toMatchObject({ votes: 2n, lastProposalId: second.id });
+        });
+
+        test('AUD-C1: a spoofed wallet cannot rekey the DAO plugin account that serves real voters', async () => {
+            const { algorand } = fixture.context;
+            const dispenser = await algorand.account.dispenserFromEnvironment();
+            // the shared sender funds drafts and hands out the locked tokens
+            await algorand.account.ensureFunded(sender, dispenser.addr, algo(50));
+            const { owner, wallet, daoPlugin } = await pluginWallet();
+            const pluginAddr = getApplicationAddress(daoPlugin.appId).toString();
+
+            // An app that is not a wallet, naming the plugin's own app account as its spending account.
+            const attacker = await algorand.account.random();
+            await algorand.account.ensureFunded(attacker.addr, dispenser.addr, algo(10));
+            const fakeFactory = algorand.client.getTypedAppFactory(MockFakeWalletFactory, { defaultSender: attacker.addr, defaultSigner: attacker.signer });
+            const { appClient: fake } = await fakeFactory.send.create.create({
+                args: { controlledAddress: ALGORAND_ZERO_ADDRESS_STRING, referrer: ALGORAND_ZERO_ADDRESS_STRING, spendingAddress: pluginAddr },
+            });
+            await algorand.send.payment({ sender: attacker.addr, signer: attacker.signer, receiver: pluginAddr, amount: microAlgo(200_000) });
+
+            const { id } = await newDraft(minRewardsAction(971));
+            await dao.submitProposal({ proposalId: id });
+
+            // The plugin never needs a rekey to spend from its own account, so before the fix these calls
+            // ran from it and, with rekeyBack, handed that account to the fake wallet: every later vote
+            // through the plugin then failed on its own-account participation read.
+            const plugin = algorand.client.getTypedAppClientById(AkitaDaoPluginClient, { appId: daoPlugin.appId, defaultSender: attacker.addr, defaultSigner: attacker.signer });
+            const spoofed = { wallet: fake.appId, rekeyBack: true, proposalId: id };
+            const extraFee = microAlgo(3_000);
+            await expectContractError(plugin.send.setup({ args: { wallet: fake.appId, rekeyBack: true, nickname: 'spoof', salt: new Uint8Array(32) }, extraFee }), 'errNath');
+            await expectContractError(plugin.send.submitProposal({ args: spoofed, extraFee }), 'errNath');
+            await expectContractError(plugin.send.finalizeProposal({ args: spoofed, extraFee }), 'errNath');
+            await expectContractError(plugin.send.executeProposal({ args: spoofed, extraFee }), 'errNath');
+            await expectContractError(plugin.send.deleteProposal({ args: spoofed, extraFee }), 'errNath');
+            await expectContractError(plugin.send.cancelProposal({ args: spoofed, extraFee }), 'errNath');
+            await expectContractError(plugin.send.voteProposal({ args: { ...spoofed, vote: VOTE_APPROVE }, extraFee }), 'errNath');
+
+            const pluginAccount = await algorand.account.getInformation(pluginAddr);
+            expect(pluginAccount.authAddr).toBeUndefined();
+            expect(pluginAccount.balance.microAlgo).toBe(200_000n);
+
+            // The real wallet still votes through the same plugin instance.
+            await wallet.usePlugin({
+                sender: voter2, signer: voter2Signer, callerType: CallerType.Global,
+                calls: [daoPlugin.voteProposal({ sender: voter2, signer: voter2Signer, proposalId: id, vote: VOTE_APPROVE })],
+            });
+            expect(await dao.getVoteReceipt({ proposalId: id, voter: owner.addr.toString() })).toMatchObject({ type: VOTE_APPROVE });
         });
 
         test('DAO-R4: a voter who closed their account does not block deleting the proposal', async () => {

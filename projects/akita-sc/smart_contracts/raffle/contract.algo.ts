@@ -245,14 +245,26 @@ export class Raffle extends classes(
     return this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64()
   }
 
-  /** sends `amount` of the ticket asset, skipping zero amounts */
+  /**
+   * A closed (empty) account cannot receive an ALGO payment below the minimum balance. Such a payment
+   * is skipped: the amount stays here and leaves with the rest of the account when the raffle is
+   * deleted, so one closed account never blocks the settlement, the refunds after it or the delete.
+   */
+  private canReceiveAlgo(receiver: Account, amount: uint64): boolean {
+    const [balance] = op.AcctParams.acctBalance(receiver)
+    return balance > 0 || amount >= Global.minBalance
+  }
+
+  /** sends `amount` of the ticket asset, skipping zero amounts and ALGO a closed account cannot take */
   private sendTickets(receiver: Account, amount: uint64): void {
     if (amount === 0) {
       return
     }
 
     if (this.ticketAsset.value.id === 0) {
-      itxn.payment({ receiver, amount }).submit()
+      if (this.canReceiveAlgo(receiver, amount)) {
+        itxn.payment({ receiver, amount }).submit()
+      }
     } else {
       itxn
         .assetTransfer({
@@ -473,7 +485,7 @@ export class Raffle extends classes(
     const costs = this.mbr()
     const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
 
-    const opUpIterationAmount: uint64 = iterationAmount * 100
+    const opUpIterationAmount: uint64 = iterationAmount * 120
     ensureBudget(opUpIterationAmount)
 
     for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
@@ -486,7 +498,7 @@ export class Raffle extends classes(
       this.entries(i).delete()
       this.entriesByAddress(account).delete()
       // TRADE-5: an entrant who left the ticket asset pays its refund disbursement out of its released MBR
-      if (entryTotalMBR > disbursementCost) {
+      if (entryTotalMBR > disbursementCost && this.canReceiveAlgo(account, entryTotalMBR - disbursementCost)) {
         itxn
           .payment({
             amount: entryTotalMBR - disbursementCost,

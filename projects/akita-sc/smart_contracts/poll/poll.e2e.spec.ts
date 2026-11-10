@@ -311,6 +311,43 @@ describe('Poll SDK', () => {
       })).rejects.toThrow(/errIpms/)
       expect(await poll.hasVoted({ user: voter2.addr.toString() })).toBe(false)
     })
+
+    test('AUD-C6: a voter who closed their account does not block the cleanup or the delete', async () => {
+      const factory = akitaUniverse.pollFactory.client.appAddress.toString()
+      const leaver = await fixture.context.generateAccount({ initialFunds: (1).algo() })
+      const poll = await newShortPoll()
+      const pollAddress = poll.client.appAddress.toString()
+
+      await poll.vote({ sender: leaver.addr, signer: leaver.signer, votes: [0n] })
+      await poll.vote({ sender: voter1.addr, signer: voter1.signer, votes: [1n] })
+
+      // The leaver empties and closes their account: a 15,300 µALGO refund can no longer be delivered to it.
+      await algorand.send.payment({
+        sender: leaver.addr, signer: leaver.signer, receiver: dispenser.addr, amount: microAlgos(0), closeRemainderTo: dispenser.addr,
+      })
+      expect((await algorand.account.getInformation(leaver.addr)).balance.microAlgos).toBe(0n)
+
+      await timeWarp.timeWarp(61n)
+      const factoryBefore = await spendable(factory)
+      const stayerBefore = await getAccountBalance(algorand, voter1.addr.toString())
+
+      await poll.deleteBoxes({
+        sender: creator.addr,
+        signer: creator.signer,
+        addresses: [leaver.addr.toString(), voter1.addr.toString()],
+      })
+
+      // Both vote boxes are gone; the voter who is still there is refunded, the closed account is skipped.
+      expect(await poll.hasVoted({ user: leaver.addr.toString() })).toBe(false)
+      expect(await poll.hasVoted({ user: voter1.addr.toString() })).toBe(false)
+      expect(await getAccountBalance(algorand, voter1.addr.toString()) - stayerBefore).toBe(15_300n)
+      expect((await algorand.account.getInformation(leaver.addr)).balance.microAlgos).toBe(0n)
+
+      await akitaUniverse.pollFactory.deletePoll({ sender: creator.addr, signer: creator.signer, appId: poll.client.appId })
+      expect((await algorand.account.getInformation(pollAddress)).balance.microAlgos).toBe(0n)
+      // The deposit that could not be returned leaves with the poll's account and stays in the factory.
+      expect(await spendable(factory) - factoryBefore).toBe(15_300n)
+    })
   })
 
   describe('Fee System & Revenue Collection', () => {

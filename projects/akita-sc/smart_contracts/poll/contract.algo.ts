@@ -11,7 +11,7 @@ import {
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { Global, Txn } from '@algorandfoundation/algorand-typescript/op'
+import { AcctParams, Global, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { GlobalStateKeyFunder } from '../constants'
 import { errHasGate } from '../social/errors'
 import { AkitaBaseContract } from '../utils/base-contracts/upgradeable'
@@ -215,13 +215,19 @@ export class Poll extends AkitaBaseContract {
       loggedAssert(this.votes(addresses[i]).exists, errNotVoted)
       this.votes(addresses[i]).delete()
 
-      itxn
-        .payment({
-          receiver: addresses[i],
-          amount: votesMBR,
-          note: 'MBR refund for poll vote',
-        })
-        .submit()
+      // A closed (empty) account cannot receive a payment below the minimum balance. Its deposit stays
+      // here and leaves with the rest of the account when the poll is deleted, so a voter who closed
+      // their account never blocks the cleanup or the delete.
+      const [balance] = AcctParams.acctBalance(addresses[i])
+      if (balance > 0) {
+        itxn
+          .payment({
+            receiver: addresses[i],
+            amount: votesMBR,
+            note: 'MBR refund for poll vote',
+          })
+          .submit()
+      }
 
       this.boxCount.value -= 1
     }

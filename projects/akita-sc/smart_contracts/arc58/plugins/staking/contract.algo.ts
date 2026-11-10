@@ -3,7 +3,7 @@ import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4
 import { classes } from 'polytype'
 import { SettingsMBR, totalsMBR } from "../../../staking/constants"
 import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, StakingType, StakeCheck } from "../../../staking/types"
-import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions"
 
 // CONTRACT IMPORTS
 import { BaseStaking } from "../../../staking/base"
@@ -33,7 +33,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     expiration: uint64,
     isUpdate: boolean
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const stakingAppID = getAkitaAppList(this.akitaDAO.value).staking
     const stakingApp = Application(stakingAppID)
 
@@ -117,7 +117,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     asset: uint64,
     type: StakingType
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.withdraw>({
       sender,
@@ -133,7 +133,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     address: Account,
     asset: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.createHeartbeat>({
       sender,
@@ -150,7 +150,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
   ): StakeCheck[] {
     // an empty batch would emit no inner txn and never rekey back
     loggedAssert(stakeKeys.length > 0, errEmptyBatch)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     let results: StakeCheck[] = []
     for (let i: uint64 = 0; i < stakeKeys.length; i++) {
       results.push(
@@ -171,7 +171,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     appStakeKeys: AppSoftStakeKey[]
   ): StakeCheck[] {
     loggedAssert(appStakeKeys.length > 0, errEmptyBatch)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     let results: StakeCheck[] = []
     for (let i: uint64 = 0; i < appStakeKeys.length; i++) {
       results.push(
@@ -192,7 +192,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     asset: uint64,
     value: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const appId = getAkitaAppList(this.akitaDAO.value).staking
 
     const settings = abiCall<typeof Staking.prototype.getSettings>({
@@ -222,7 +222,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
    * meant to be executed by the DAO wallet (ST-4).
    */
   setHeartbeatManager(wallet: Application, rekeyBack: boolean, manager: Account): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.setHeartbeatManager>({
       sender,
@@ -234,7 +234,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
   /** Closes the wallet's SOFT stake; the stake box MBR returns to the spending account. */
   closeSoftStake(wallet: Application, rekeyBack: boolean, asset: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.closeSoftStake>({
       sender,
@@ -246,7 +246,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
   /** Closes the wallet's heartbeat stake and history; MBR returns to the spending account. */
   closeHeartbeat(wallet: Application, rekeyBack: boolean, asset: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.closeHeartbeat>({
       sender,
@@ -258,7 +258,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
   /** Releases an app-scoped commitment of the wallet whose consuming app was deleted. */
   releaseAppStake(wallet: Application, rekeyBack: boolean, app: uint64, asset: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Staking.prototype.releaseAppStake>({
       sender,

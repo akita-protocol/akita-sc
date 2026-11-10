@@ -771,5 +771,90 @@ describe('Raffle SDK', () => {
       expect(await holding(p2.addr) - p2Before).toBe(3_000_000n)
       expect(await rewardsHolding() - rewardsBefore).toBe(2_000_000n)
     })
+
+    /** opts the account out of the prize asset and closes it, so a payment below 0.1 ALGO can no longer reach it */
+    const closeAccount = async (account: TransactionSignerAccount) => {
+      await algorand.send.assetOptOut({ sender: account.addr, signer: account.signer, assetId: testAssetId, creator: deployer.addr, ensureZeroBalance: true })
+      await algorand.send.payment({
+        sender: account.addr, signer: account.signer, receiver: dispenser.addr, amount: algokit.microAlgos(0), closeRemainderTo: dispenser.addr,
+      })
+      expect(await getAccountBalance(algorand, account.addr.toString())).toBe(0n)
+    }
+
+    /** balances of everyone a cleanup and delete can pay; the deployer sends those calls and pays their fees */
+    const settlementBalances = async (raffle: RaffleSDK, owner: TransactionSignerAccount, stayer: TransactionSignerAccount) => ({
+      raffle: await getAccountBalance(algorand, raffle.client.appAddress.toString()),
+      owner: await getAccountBalance(algorand, owner.addr.toString()),
+      stayer: await getAccountBalance(algorand, stayer.addr.toString()),
+      factory: await getAccountBalance(algorand, factoryAddress()),
+    })
+
+    test('AUD-C6: after a settled raffle an entrant who closed their account blocks neither the refunds nor the delete', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 5_000_000n)
+      await enter(raffle, p2, 10_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      await timeWarp.roundWarp(await raffle.drawReadyRound())
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const winner = await findWinner(raffle)
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      // The entrant who did not win leaves: its entry storage deposit is below the minimum balance.
+      const [leaver, stayer] = winner === p1.addr.toString() ? [p2, p1] : [p1, p2]
+      await closeAccount(leaver)
+
+      const { entries, entriesByAddress } = await raffle.mbr()
+      expect(entries + entriesByAddress).toBeLessThan(100_000n)
+      const before = await settlementBalances(raffle, owner, stayer)
+      await cleanupAndDelete(raffle)
+      const after = await settlementBalances(raffle, owner, stayer)
+
+      expect(after.stayer - before.stayer).toBe(entries + entriesByAddress)
+      expect(await getAccountBalance(algorand, leaver.addr.toString())).toBe(0n)
+      // The deposit that could not be returned leaves with the raffle's account (into the seller's
+      // storage refund, or the factory once that refund reaches the seller's deposit): nothing is
+      // stranded in the deleted app, and the factory is not out of pocket.
+      expect(after.raffle).toBe(0n)
+      expect(after.owner).toBeGreaterThan(before.owner)
+      expect(after.factory).toBeGreaterThanOrEqual(factoryBefore)
+    })
+
+    test('AUD-C6: in a failed raffle a closed account owed less than the minimum balance is skipped and the others are refunded', async () => {
+      const owner = await newSeller()
+      const [leaver, stayer] = [await newEntrant(), await newEntrant()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const raffle = await createRaffle(owner, { minTickets: 10_000n, minEntries: 3n })
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, leaver, 20_000n)
+      await enter(raffle, stayer, 3_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      expect((await raffle.state()).failed).toBeTruthy()
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+
+      await closeAccount(leaver)
+
+      const { entries, entriesByAddress } = await raffle.mbr()
+      const before = await settlementBalances(raffle, owner, stayer)
+      await cleanupAndDelete(raffle)
+      const after = await settlementBalances(raffle, owner, stayer)
+
+      // Listed first, the closed account is passed over: neither its 20,000 µALGO of tickets nor its deposit can be delivered.
+      expect(after.stayer - before.stayer).toBe(3_000_000n + entries + entriesByAddress)
+      expect(await getAccountBalance(algorand, leaver.addr.toString())).toBe(0n)
+      expect(after.raffle).toBe(0n)
+      expect(after.owner).toBeGreaterThan(before.owner)
+      expect(after.factory).toBeGreaterThanOrEqual(factoryBefore)
+    })
   })
 })

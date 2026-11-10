@@ -2,7 +2,7 @@ import { Account, Application, Asset, GlobalState, itxn, loggedAssert, uint64 } 
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { AllocationReclaimDetails, ClaimDetails, UserAllocation } from '../../../rewards/types'
-import { getAkitaAppList, getSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
 import { errInvalidRewardsApp } from './errors'
 
 // CONTRACT IMPORTS
@@ -51,7 +51,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     mbrCredits: uint64,
     reclaimTo: Account
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const { disbursements: mbrAmount } = this.mbr(title, note)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
@@ -86,7 +86,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     note: string,
     mbrCredits: uint64
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const { disbursements: mbrAmount } = this.mbr(title, note)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
@@ -118,7 +118,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     expiration: uint64,
     note: string
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Rewards.prototype.editDisbursement>({
       sender,
@@ -135,7 +135,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     allocations: UserAllocation[],
     sum: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
 
     abiCall<typeof Rewards.prototype.createUserAllocations>({
@@ -162,7 +162,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     allocations: UserAllocation[],
     sum: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
     const rewardsApp = Application(rewardsID)
 
@@ -188,7 +188,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     rekeyBack: boolean,
     id: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Rewards.prototype.finalizeDisbursement>({
       sender,
@@ -206,7 +206,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     allocations: UserAllocation[],
     sum: uint64
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
     const rewardsApp = Application(rewardsID)
     const costs = this.mbr('', '')
@@ -238,7 +238,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     allocations: UserAllocation[],
     sum: uint64
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const rewardsID = getAkitaAppList(this.akitaDAO.value).rewards
     const rewardsApp = Application(rewardsID)
     const costs = this.mbr('', '')
@@ -272,7 +272,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     rekeyBack: boolean,
     rewards: ClaimDetails[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Rewards.prototype.claimRewards>({
       sender,
@@ -288,7 +288,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     id: uint64,
     reclaims: AllocationReclaimDetails[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Rewards.prototype.reclaimRewards>({
       sender,
@@ -304,7 +304,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     rekeyBack: boolean,
     rewards: ClaimDetails[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     loggedAssert(this.legacyRewards.value !== 0, errInvalidRewardsApp)
 
     abiCall<typeof Rewards.prototype.claimRewards>({
@@ -322,7 +322,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     id: uint64,
     reclaims: AllocationReclaimDetails[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     loggedAssert(this.legacyRewards.value !== 0, errInvalidRewardsApp)
 
     abiCall<typeof Rewards.prototype.reclaimRewards>({
@@ -341,7 +341,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     id: uint64,
     amount: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     this.assertKnownRewards(rewardsApp)
 
     abiCall<typeof Rewards.prototype.withdrawMbrCredits>({
@@ -362,7 +362,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
     rewardsApp: uint64,
     id: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     this.assertKnownRewards(rewardsApp)
 
     abiCall<typeof Rewards.prototype.closeDisbursement>({
@@ -379,7 +379,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
 
   /** Claim an ASA from the wallet's ARC-59 inbox, opting the spending account in first when needed. */
   claimInbox(wallet: Application, rekeyBack: boolean, asset: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     if (!sender.isOptedIn(Asset(asset))) {
       itxn
@@ -402,7 +402,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
 
   /** Reject an ASA in the wallet's ARC-59 inbox, returning it to the asset creator. */
   rejectInbox(wallet: Application, rekeyBack: boolean, asset: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AssetInbox.prototype.arc59_reject>({
       sender,
@@ -417,7 +417,7 @@ export class RewardsPlugin extends classes(BaseRewards, AkitaBaseContract) {
    * inbox holds extra receiver funding for the asset opt-in.
    */
   claimInboxAlgo(wallet: Application, rekeyBack: boolean): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AssetInbox.prototype.arc59_claimAlgo>({
       sender,

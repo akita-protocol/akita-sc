@@ -1,6 +1,6 @@
 import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions';
+import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions';
 import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey, DualStakePluginGlobalStateKeyLSTID } from './constants';
 import { errNotADualstakeApp, errNotEnoughOfAsa } from './errors';
 
@@ -29,7 +29,7 @@ export class DualStakePlugin extends Contract {
     appId: Application,
     amount: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
 
@@ -84,7 +84,7 @@ export class DualStakePlugin extends Contract {
   }
 
   redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     

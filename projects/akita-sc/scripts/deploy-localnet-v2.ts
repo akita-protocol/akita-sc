@@ -151,7 +151,8 @@ async function main() {
         manager: sender,
       },
     })
-    await fund(appClient.appAddress.toString(), 5_000_000n)
+    // only the account minimum: whoever sends a gift pays for its storage
+    await fund(appClient.appAddress.toString(), 100_000n)
     record('SOCIAL_CLAIM_APP_ID', appClient.appId)
     record('LOCALNET_SOCIAL_CLAIM_ATTESTOR_MNEMONIC', `"${algosdk.secretKeyToMnemonic(attestor.sk)}"`)
   }

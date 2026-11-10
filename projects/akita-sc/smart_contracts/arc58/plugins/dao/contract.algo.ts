@@ -1,6 +1,6 @@
 import { Application, bytes, Contract, GlobalState, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
-import { getControlledSpendingAccount, getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { CID } from "../../../utils/types/base";
 import { DAOParticipationMBR, DAOProposalVotesMBR, ProposalStatusDraft } from "../../dao/constants";
 import { ProposalAction, ProposalVoteType } from "../../dao/types";
@@ -35,7 +35,7 @@ export class AkitaDAOPlugin extends Contract {
    * pre-initialization (DAO-11), so this only succeeds when the wallet's spending account is the DAO creator.
    */
   setup(wallet: Application, rekeyBack: boolean, nickname: string, salt: bytes<32>): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.setup>({
       sender,
@@ -125,7 +125,7 @@ export class AkitaDAOPlugin extends Contract {
   }
 
   submitProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.submitProposal>({
       sender,
@@ -141,6 +141,7 @@ export class AkitaDAOPlugin extends Contract {
     // Always deposit a receipt (the DAO refunds it on a re-vote), plus the participation record with the
     // account's first vote. A record always counts at least one vote.
     const { votes } = abiCall<typeof AkitaDAO.prototype.getGovernanceParticipation>({
+      sender,
       appId: this.daoAppID.value,
       args: [sender],
     }).returnValue
@@ -164,7 +165,7 @@ export class AkitaDAOPlugin extends Contract {
   }
 
   finalizeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.finalizeProposal>({
       sender,
@@ -175,7 +176,7 @@ export class AkitaDAOPlugin extends Contract {
   }
 
   executeProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.executeProposal>({
       sender,
@@ -187,7 +188,7 @@ export class AkitaDAOPlugin extends Contract {
 
   /** Delete one of this wallet's proposals; the DAO refunds the released prepayment to the wallet. */
   deleteProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.deleteProposal>({
       sender,
@@ -199,7 +200,7 @@ export class AkitaDAOPlugin extends Contract {
 
   /** Abandon one of this wallet's approved, unexecuted proposals. */
   cancelProposal(wallet: Application, rekeyBack: boolean, proposalID: uint64): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof AkitaDAO.prototype.cancelProposal>({
       sender,

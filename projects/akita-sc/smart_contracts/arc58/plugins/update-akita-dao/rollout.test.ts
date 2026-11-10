@@ -229,9 +229,10 @@ describe('group planning', () => {
       if (child) expect(child.name).toBe(target.child!.name)
       const plan = planGroups({ approvalSize: next.approval.length, withClear: true }, child?.approval.length)
       expect(plan.groups.length).toBeGreaterThan(0)
-      // K6 shrank RaffleFactory to 3,751 B (2 upload chunks): factory 5 + Raffle child 6 + wrap 2 = 13 txns, atomic
+      // K6 shrank RaffleFactory to 2 upload chunks. AUD-C6 took the Raffle child to 8,106 B, two bytes past
+      // 4 chunks (4 x 2,026 = 8,104), so it uploads in 5: factory 5 + Raffle child 7 + wrap 2 = 14 txns, atomic
       // (rollout.e2e.spec.ts asserts the same number on LocalNet)
-      if (target.name === 'RaffleFactory') expect(plan).toEqual({ groups: [{ app: true, child: true, txns: 13 }], atomic: true })
+      if (target.name === 'RaffleFactory') expect(plan).toEqual({ groups: [{ app: true, child: true, txns: 14 }], atomic: true })
     }
     expect(PHASE2_TARGETS.map((t) => t.name)).toContain('RaffleFactory')
     expect(selectPhase2Targets(['akitasocial', 'walletFactory']).map((t) => t.name)).toEqual(['AkitaSocial', 'AbstractedAccountFactory'])

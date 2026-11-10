@@ -393,6 +393,32 @@ export class MetaSDK extends BaseSDK<MetaClient> {
     });
   }
 
+  /**
+   * Type fees collected and not yet sent to the DAO's revenue escrow: each 100 ALGO fee less the
+   * storage its type occupies.
+   */
+  async typeFees(): Promise<bigint> {
+    return (await this.client.state.global.typeFees()) ?? 0n;
+  }
+
+  /**
+   * Sends the collected type fees to the DAO's revenue escrow and returns the amount sent. Anyone may
+   * call it. It fails until the DAO has named the escrow (`updateAkitaDAOEscrow`), and it never takes
+   * the app below its minimum balance: whatever cannot be sent yet stays owed for a later call.
+   */
+  async collectTypeFees({ sender, signer }: MaybeSigner = {}): Promise<bigint> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    const { return: amount } = await this.client.send.collectTypeFees({
+      ...sendParams,
+      // Extra fee for the inner payment to the escrow
+      extraFee: microAlgo(1000),
+      args: {},
+    });
+
+    return amount ?? 0n;
+  }
+
   // ========== High-Level Merkle Tree Methods ==========
 
   /**

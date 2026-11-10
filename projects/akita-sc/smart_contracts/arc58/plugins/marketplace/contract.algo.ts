@@ -3,7 +3,7 @@ import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundat
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
 import { GateArgs } from '../../../gates/types'
 import { ListingGlobalStateKeyGateID, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice } from '../../../marketplace/constants'
-import { GateMustCheckForAbiMethod, getAkitaAppList, getControlledSpendingAccount, getPrizeBoxOwner, getSpendingAccount, pluginPrincipalOf, rekeyAddress } from '../../../utils/functions'
+import { GateMustCheckForAbiMethod, getAkitaAppList, getControlledSpendingAccount, getPrizeBoxOwner, pluginPrincipalOf, rekeyAddress } from '../../../utils/functions'
 import { gateCtx, windowHint } from '../../../utils/principal'
 import { Proof } from '../../../utils/types/merkles'
 import { MarketplacePluginGlobalStateKeyFactory } from './constants'
@@ -333,7 +333,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     appId: Application,
     price: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(appId.creator === this.factory.value.address, errListingCreatorNotMarketplace)
 
@@ -350,7 +350,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     loggedAssert(appId.creator === this.factory.value.address, errListingCreatorNotMarketplace)
 

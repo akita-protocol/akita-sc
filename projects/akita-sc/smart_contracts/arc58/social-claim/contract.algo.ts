@@ -1,6 +1,6 @@
 import {
   Account, Application, Asset, BoxMap, Bytes, bytes, clone, Contract, emit, ensureBudget, Global, GlobalState,
-  gtxn, itxn, loggedAssert, OnCompleteAction, op, OpUpFeeSource, Txn, uint64,
+  gtxn, itxn, loggedAssert, match, OnCompleteAction, op, OpUpFeeSource, Txn, uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi, itob } from '@algorandfoundation/algorand-typescript/op'
@@ -11,7 +11,8 @@ import type { PayPlugin } from '../plugins/pay/contract.algo'
 import { PayParams } from '../plugins/pay/types'
 import type { WelcomePlugin } from '../plugins/welcome/contract.algo'
 import {
-  SOCIAL_CLAIM_ATTESTATION_DOMAIN, SOCIAL_CLAIM_MAX_TTL, SOCIAL_CLAIM_MIN_TTL, SOCIAL_CLAIM_VERIFY_BUDGET,
+  SOCIAL_CLAIM_ATTESTATION_DOMAIN, SOCIAL_CLAIM_GIFT_MBR, SOCIAL_CLAIM_MAX_TTL, SOCIAL_CLAIM_MIN_TTL,
+  SOCIAL_CLAIM_SUBJECT_MBR, SOCIAL_CLAIM_VERIFY_BUDGET,
 } from './constants'
 import {
   Gift, GiftKey, SocialClaimBound, SocialClaimClaimed, SocialClaimContributed, SocialClaimDropped,
@@ -38,9 +39,11 @@ import {
  * `prune` frees a gift box once the subject is CLAIMED. Akita never holds funds; the attestor key
  * is the only trust point and the manager can rotate it.
  *
- * Box MBR comes from this app's own balance (18,900 per pending or directory entry, 28,500 per gift).
- * Akita prefunds it; a bind or contribute fails when the balance runs out. Every gift box can be
- * freed once its gift expires, by refund or drop, or once the subject is CLAIMED, by prune.
+ * Whoever sends a gift pays for its storage: `bind` and `contribute` take a payment to this app for
+ * the boxes they create (18,900 for the subject entry, 28,500 per gift box), so this app needs no
+ * balance beyond its own minimum and nobody can use up storage someone else paid for. The subject
+ * entry is permanent. A gift box's deposit goes back to its sender's wallet when the box is deleted
+ * (refund or prune); when that wallet cannot take it, it goes to the gift wallet.
  *
  * Immutable: no update or delete routes.
  */
@@ -80,12 +83,16 @@ export class SocialClaim extends Contract {
 
   /**
    * First gift: record the wallet WelcomePlugin.sendToAnyone just created for `subject`.
-   * The welcome call must sit at `welcomeCallIndex` = this index - 2, so this call closes the
-   * sponsor's usePlugin group [rekeyToPlugin, sendToAnyone, verifyAuthAddress] and no other call
-   * can consume the same sendToAnyone. Returns the new wallet id read from that call's ABI return.
+   * The welcome call must sit at `welcomeCallIndex` = this index - 3, so this call and its storage
+   * payment close the sponsor's usePlugin group [rekeyToPlugin, sendToAnyone, verifyAuthAddress] and
+   * no other call can consume the same sendToAnyone. Returns the new wallet id read from that call's
+   * ABI return.
+   *
+   * `mbrPayment` pays this app for the subject entry and the gift box.
    */
-  bind(welcomeCallIndex: uint64, subject: bytes<32>, ttl: uint64): uint64 {
+  bind(mbrPayment: gtxn.PaymentTxn, welcomeCallIndex: uint64, subject: bytes<32>, ttl: uint64): uint64 {
     this.requirePosition(welcomeCallIndex)
+    this.requireStorage(mbrPayment, SOCIAL_CLAIM_SUBJECT_MBR + SOCIAL_CLAIM_GIFT_MBR)
     const welcomeCall = gtxn.ApplicationCallTxn(welcomeCallIndex)
     loggedAssert(welcomeCall.appId === this.welcome.value, 'socialClaimNotWelcome')
     loggedAssert(welcomeCall.onCompletion === OnCompleteAction.NoOp, 'socialClaimNotNoOp')
@@ -114,8 +121,11 @@ export class SocialClaim extends Contract {
    * Top-up: record a PayPlugin.pay call that paid the pending wallet of `subject`. Same position
    * rule as `bind`. The pay call must carry exactly one payment, to the pending wallet's address.
    * The sender's gift box for that asset sums the amount and keeps the later expiry.
+   *
+   * `mbrPayment` pays this app for a new gift box, and is a zero payment when the sender already has
+   * one for this subject and asset.
    */
-  contribute(payCallIndex: uint64, subject: bytes<32>, ttl: uint64): void {
+  contribute(mbrPayment: gtxn.PaymentTxn, payCallIndex: uint64, subject: bytes<32>, ttl: uint64): void {
     this.requirePosition(payCallIndex)
     const payCall = gtxn.ApplicationCallTxn(payCallIndex)
     loggedAssert(payCall.appId === this.pay.value, 'socialClaimNotPay')
@@ -136,7 +146,12 @@ export class SocialClaim extends Contract {
     // Only a factory wallet has a controlled address a refund can always reach.
     this.requireAkitaWallet(key.senderWallet)
     let gift: Gift = { amount: 0, expiry: 0 }
-    if (this.gifts(key).exists) gift = clone(this.gifts(key).value)
+    if (this.gifts(key).exists) {
+      gift = clone(this.gifts(key).value)
+      this.requireStorage(mbrPayment, 0)
+    } else {
+      this.requireStorage(mbrPayment, SOCIAL_CLAIM_GIFT_MBR)
+    }
     gift.amount += payment.amount
     const expiry: uint64 = Global.latestTimestamp + ttl
     if (expiry > gift.expiry) gift.expiry = expiry
@@ -181,9 +196,11 @@ export class SocialClaim extends Contract {
    * (its controlled address). Anyone may call. The wallet stays PENDING for its subject.
    *
    * When the refund cannot be delivered, the gift box is dropped instead: the funds stay in the
-   * gift wallet for its recipient and the box MBR is freed. That is the case when the sender wallet
-   * no longer exists, its controlled address is not opted into the ASA, or an ALGO refund would
-   * leave an empty controlled address below the minimum balance.
+   * gift wallet for its recipient. That is the case when the sender wallet no longer exists, its
+   * controlled address is not opted into the ASA, or an ALGO refund would leave an empty controlled
+   * address below the minimum balance.
+   *
+   * Either way the gift box's storage deposit is returned (see `returnGiftStorage`).
    *
    * This app is the gift wallet's admin, so arc58_rekeyTo lends it the wallet account for this
    * group. The transfer itself rekeys the account back to its own address, which clears auth-addr.
@@ -202,6 +219,7 @@ export class SocialClaim extends Contract {
     const refundedTo = Account(controlledBytes)
     if (!exists || !this.canReceive(refundedTo, asset, amount)) {
       this.gifts(key).delete()
+      this.returnGiftStorage(senderWallet, wallet)
       emit<SocialClaimDropped>({ subject, wallet: wallet.id, senderWallet, asset, amount })
       return
     }
@@ -223,18 +241,23 @@ export class SocialClaim extends Contract {
     }
 
     this.gifts(key).delete()
+    this.returnGiftStorage(senderWallet, wallet)
     emit<SocialClaimRefunded>({ subject, wallet: wallet.id, senderWallet, asset, amount, refundedTo })
   }
 
   /**
-   * Free an absorbed gift box once its subject is no longer PENDING. Anyone may call. A missing
-   * box is not an error: the portal appends prunes to the claim group, and a refund that lands
-   * first must not fail the claim.
+   * Free an absorbed gift box once its subject is no longer PENDING, returning its storage deposit.
+   * Anyone may call. A missing box is not an error: the portal appends prunes to the claim group,
+   * and a refund that lands first must not fail the claim.
    */
   prune(subject: bytes<32>, senderWallet: uint64, asset: uint64): void {
     loggedAssert(!this.pending(subject).exists, 'socialClaimStillPending')
     const key: GiftKey = { subject, senderWallet, asset }
-    if (this.gifts(key).exists) this.gifts(key).delete()
+    if (this.gifts(key).exists) {
+      this.gifts(key).delete()
+      // a gift box only ever exists for a subject that was bound, so a subject that is not PENDING is CLAIMED
+      this.returnGiftStorage(senderWallet, Application(this.directory(subject).value))
+    }
   }
 
   @abimethod({ readonly: true })
@@ -259,15 +282,43 @@ export class SocialClaim extends Contract {
     return optedIn
   }
 
+  /** The storage payment that sits right before a bind or contribute call. */
+  private requireStorage(mbrPayment: gtxn.PaymentTxn, amount: uint64): void {
+    loggedAssert(
+      match(mbrPayment, { receiver: Global.currentApplicationAddress, amount }),
+      'socialClaimInvalidStoragePayment',
+    )
+  }
+
+  /**
+   * Return a deleted gift box's storage deposit to the wallet that sent the gift (its controlled
+   * address). When that wallet is gone or its account is empty the deposit goes to the gift wallet,
+   * and when neither can take it, it stays here. A deposit can therefore never make a refund, a
+   * drop or a prune fail.
+   */
+  private returnGiftStorage(senderWallet: uint64, giftWallet: Application): void {
+    const [controlledBytes, exists] = op.AppGlobal.getExBytes(
+      Application(senderWallet), Bytes(AbstractAccountGlobalStateKeysControlledAddress),
+    )
+    if (exists && this.canReceive(Account(controlledBytes), 0, SOCIAL_CLAIM_GIFT_MBR)) {
+      itxn.payment({ receiver: Account(controlledBytes), amount: SOCIAL_CLAIM_GIFT_MBR, fee: 0 }).submit()
+    } else if (this.canReceive(giftWallet.address, 0, SOCIAL_CLAIM_GIFT_MBR)) {
+      itxn.payment({ receiver: giftWallet.address, amount: SOCIAL_CLAIM_GIFT_MBR, fee: 0 }).submit()
+    }
+  }
+
   /** `senderWallet` must be an ARC-58 wallet created by the factory WelcomePlugin uses. */
   private requireAkitaWallet(senderWallet: uint64): void {
     const [factory, exists] = op.AppGlobal.getExUint64(this.welcome.value, Bytes('factory'))
     loggedAssert(exists && isAkitaWallet(senderWallet, factory), 'socialClaimSenderNotWallet')
   }
 
-  /** The recorded plugin call sits two before this call: [rekeyToPlugin, plugin call, verifyAuthAddress, this]. */
+  /**
+   * The recorded plugin call sits three before this call:
+   * [rekeyToPlugin, plugin call, verifyAuthAddress, storage payment, this].
+   */
   private requirePosition(pluginCallIndex: uint64): void {
-    loggedAssert(pluginCallIndex + 2 === Txn.groupIndex, 'socialClaimBadPosition')
+    loggedAssert(pluginCallIndex + 3 === Txn.groupIndex, 'socialClaimBadPosition')
   }
 
   private requireTtl(ttl: uint64): void {

@@ -1,11 +1,11 @@
 import { Application, Asset, Global, itxn, uint64, loggedAssert, Contract, op } from "@algorandfoundation/algorand-typescript";
 import { errAlreadyOptedIn, errNotOptedIn, errInvalidAssetAmount } from "./errors";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 
 export class SelfOptInPlugin extends Contract {
 
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[]): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     for (let i: uint64 = 0; i < assets.length; i++) {
       loggedAssert(!sender.isOptedIn(Asset(assets[i])), errAlreadyOptedIn)
@@ -23,7 +23,7 @@ export class SelfOptInPlugin extends Contract {
   }
 
   optOut(wallet: Application, rekeyBack: boolean, assets: uint64[]): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     for (let i: uint64 = 0; i < assets.length; i++) {
       const [balance, optedIn] = op.AssetHolding.assetBalance(sender, Asset(assets[i]))
 

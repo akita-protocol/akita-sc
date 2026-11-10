@@ -7,7 +7,7 @@ import { RootKey } from "../../../meta/types";
 import { PoolGlobalStateKeyPrincipalVersion, WinnerCountCap } from "../../../staking-pool/constants";
 import { AddRewardParams, StakeEntry } from "../../../staking-pool/types";
 import { StakingType } from "../../../staking/types";
-import { GateMustCheckForAbiMethod, getAkitaAppList, getOriginAccount, getSpendingAccount, getStakingPoolGateID, legacyWalletOf, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions";
+import { GateMustCheckForAbiMethod, getAkitaAppList, getOriginAccount, getControlledSpendingAccount, getStakingPoolGateID, legacyWalletOf, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions";
 import { gateCtx, windowHint } from "../../../utils/principal";
 import { PoolPluginGlobalStateKeyFactory } from "./constants";
 import { errNotAValidPool } from "./errors";
@@ -143,7 +143,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     gateID: uint64,
     maxEntries: uint64,
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     // §3.8 rule 6: the only hint a plugin forwards is the wallet whose window it serves
     const hint = windowHint(wallet)
 
@@ -187,7 +187,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
   ): void {
     loggedAssert(Application(poolID).creator === this.factory.value.address, errNotAValidPool)
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof StakingPool.prototype.init>({
       sender,
@@ -204,7 +204,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
   ): void {
     loggedAssert(appId.creator === this.factory.value.address, errNotAValidPool)
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof StakingPoolFactory.prototype.deletePool>({
       sender,
@@ -223,7 +223,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
   ): void {
     loggedAssert(appId.creator === this.factory.value.address, errNotAValidPool)
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     if (reward.asset === 0) {
       abiCall<typeof StakingPool.prototype.addReward>({
@@ -298,7 +298,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
   ): void {
     loggedAssert(Application(poolID).creator === this.factory.value.address, errNotAValidPool)
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof StakingPool.prototype.finalize>({
       sender,
@@ -320,7 +320,7 @@ export class StakingPoolPlugin extends BaseStakingPool {
     args: GateArgs
   ): void {
     loggedAssert(appId.creator === this.factory.value.address, errNotAValidPool)
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const gateID = getStakingPoolGateID(appId)
 
     if (!this.isHintedPool(appId)) {

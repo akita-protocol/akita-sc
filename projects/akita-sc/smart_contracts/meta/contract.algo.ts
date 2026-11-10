@@ -18,8 +18,9 @@ import {
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, Uint16, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { itob, sha256, Txn } from '@algorandfoundation/algorand-typescript/op'
+import { errEscrowDoesNotExist } from '../arc58/account/errors'
 import { errInvalidPaymentAmount, errInvalidPaymentReceiver } from '../utils/errors'
-import { UpgradeableAkitaBaseContract } from '../utils/base-contracts/upgradeable'
+import { AkitaBaseFeeGeneratorContractWithoutAkitaOptIn } from '../utils/base-contracts/base'
 import { Leaf, Proof } from '../utils/types/merkles'
 import {
   maxDataKeyLength,
@@ -27,7 +28,9 @@ import {
   MerkleTreeTypeUnspecified,
   MetaBoxPrefixRoots,
   MetaBoxPrefixTypes,
+  MetaGlobalStateKeyTypeFees,
   MetaGlobalStateKeyTypesID,
+  MetaTypeFee,
   reservedDataKeyPrefix,
   SchemaPartAddress,
   SchemaPartAddressString,
@@ -106,7 +109,7 @@ import {
 } from './types'
 
 @contract({ avmVersion: 13 })
-export class Meta extends UpgradeableAkitaBaseContract {
+export class Meta extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
   // GLOBAL STATE ---------------------------------------------------------------------------------
 
   // 0: Unspecified
@@ -114,6 +117,11 @@ export class Meta extends UpgradeableAkitaBaseContract {
   // 2: Trait
   // 3: Trade
   typesID = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypesID })
+  /**
+   * Type fees collected and not yet sent to the DAO's revenue escrow (AUD-C7). Each fee is counted
+   * less the storage its type occupies, so this is never more than what the app can spare.
+   */
+  typeFees = GlobalState<uint64>({ initialValue: 0, key: MetaGlobalStateKeyTypeFees })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -387,7 +395,7 @@ export class Meta extends UpgradeableAkitaBaseContract {
 
   addType(payment: gtxn.PaymentTxn, description: string, schemaList: SchemaList): void {
     loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
-    loggedAssert(payment.amount === 100_000_000, errInvalidPaymentAmount)
+    loggedAssert(payment.amount === MetaTypeFee, errInvalidPaymentAmount)
     loggedAssert(Bytes(description).length <= 800, errDataTooLong)
 
     let schema: string = '('
@@ -455,10 +463,35 @@ export class Meta extends UpgradeableAkitaBaseContract {
 
     const id = this.newTypesID()
 
+    const minBalanceBefore: uint64 = Global.currentApplicationAddress.minBalance
     this.types(id).value = {
       description: description,
       schema: schema + ')',
     }
+    // The fee pays for the type's storage; the rest is owed to the DAO (see `collectTypeFees`).
+    const storage: uint64 = Global.currentApplicationAddress.minBalance - minBalanceBefore
+    this.typeFees.value += MetaTypeFee - storage
+  }
+
+  /**
+   * Sends the type fees collected so far to the DAO's revenue escrow and returns the amount sent.
+   * Anyone may call it: the receiver and the amount both come from this app's state. It fails until
+   * the DAO has named the escrow with `updateAkitaDAOEscrow`. The payment never takes the app below
+   * its minimum balance; whatever cannot be sent yet stays owed for a later call.
+   */
+  collectTypeFees(): uint64 {
+    loggedAssert(this.akitaDAOEscrow.hasValue && this.akitaDAOEscrow.value.app.id !== 0, errEscrowDoesNotExist)
+
+    const app = Global.currentApplicationAddress
+    const spare: uint64 = app.balance > app.minBalance ? app.balance - app.minBalance : 0
+    const amount: uint64 = this.typeFees.value < spare ? this.typeFees.value : spare
+    if (amount === 0) {
+      return 0
+    }
+
+    this.typeFees.value -= amount
+    itxn.payment({ receiver: this.akitaDAOEscrow.value.app.address, amount, fee: 0 }).submit()
+    return amount
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------

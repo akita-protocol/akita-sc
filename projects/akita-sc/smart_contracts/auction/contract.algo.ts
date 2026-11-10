@@ -300,10 +300,25 @@ export class Auction extends classes(
     }
   }
 
-  /** pays `amount` of the bid asset (ALGO payment or ASA transfer) to `receiver` */
+  /**
+   * A closed (empty) account cannot receive an ALGO payment below the minimum balance. Such a payment
+   * is skipped: the amount stays here and leaves with the rest of the account when the auction is
+   * deleted, so one closed account never blocks the settlement, the refunds after it or the delete.
+   */
+  private canReceiveAlgo(receiver: Account, amount: uint64): boolean {
+    const [balance] = op.AcctParams.acctBalance(receiver)
+    return balance > 0 || amount >= Global.minBalance
+  }
+
+  /**
+   * pays `amount` of the bid asset (ALGO payment or ASA transfer) to `receiver`, skipping ALGO a
+   * closed account cannot take
+   */
   private sendBidAsset(receiver: Account, amount: uint64): void {
     if (this.bidAsset.value.id === 0) {
-      itxn.payment({ receiver, amount }).submit()
+      if (this.canReceiveAlgo(receiver, amount)) {
+        itxn.payment({ receiver, amount }).submit()
+      }
     } else {
       itxn
         .assetTransfer({
@@ -755,7 +770,14 @@ export class Auction extends classes(
 
   refundBid(id: uint64): void {
     const [receiver, returnAmount] = this.markRefunded(id)
-    this.sendBidAsset(receiver, returnAmount)
+    // A single refund is never skipped. When the bidder closed their account and the amount is below
+    // the minimum balance this call fails as a whole, so the bid stays unrefunded until the account is
+    // funded again or the cleanup in `refundMBR` reaches it.
+    if (this.bidAsset.value.id === 0) {
+      itxn.payment({ receiver, amount: returnAmount }).submit()
+    } else {
+      this.sendBidAsset(receiver, returnAmount)
+    }
   }
 
   /** marks bid `id` refunded and returns who gets how much back */
@@ -904,7 +926,7 @@ export class Auction extends classes(
     const remainder: uint64 = this.bidID.value - this.refundMBRCursor.value
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
-    ensureBudget((iterationAmount * 60))
+    ensureBudget((iterationAmount * 80))
 
     const { bids, bidsByAddress, locations } = this.mbr()
 
@@ -934,7 +956,7 @@ export class Auction extends classes(
       }
 
       // that bidder pays its disbursement out of its released MBR
-      if (refundAmount > disbursementCost) {
+      if (refundAmount > disbursementCost && this.canReceiveAlgo(account, refundAmount - disbursementCost)) {
         itxn
           .payment({
             receiver: account,

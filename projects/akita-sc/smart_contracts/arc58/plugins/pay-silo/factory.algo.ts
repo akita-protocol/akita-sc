@@ -1,6 +1,6 @@
 import { Account, Application, Contract, uint64 } from "@algorandfoundation/algorand-typescript";
 import { compileArc4 } from "@algorandfoundation/algorand-typescript/arc4";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { PaySiloPlugin } from "./contract.algo";
 
 // OKAY SO THIS IS THE PLAN
@@ -19,7 +19,7 @@ export class PaySiloFactoryPlugin extends Contract {
     rekeyBack: boolean,
     recipient: Account
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const paySilo = compileArc4(PaySiloPlugin)
 

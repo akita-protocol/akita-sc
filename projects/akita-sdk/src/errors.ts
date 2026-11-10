@@ -45,6 +45,7 @@ export const COMMON_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliase
   MBFF: 'Must be called from the factory',
   NCRE: 'Not the creator',
   GNFF: 'Guild was not created by the configured factory',
+  GCLE: 'The cost is above the limit set when this was prepared',
 
   // --- Lifecycle -----------------------------------------------------------
   IUPG: 'Invalid upgrade',

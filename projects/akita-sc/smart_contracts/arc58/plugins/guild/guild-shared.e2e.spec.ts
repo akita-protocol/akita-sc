@@ -22,7 +22,7 @@ import {
   FIXED_SIGNERS,
   type GuildTestEnvironment,
 } from '../../guilds/tests/test-helpers'
-import { errGuildNotFromFactory } from './errors'
+import { errGuildCostLimitExceeded, errGuildNotFromFactory } from './errors'
 import { addPluginAction } from '../../../../../akita-sdk/src/guild'
 
 const fixture = algorandFixture()
@@ -116,7 +116,10 @@ describe('Shared GuildPlugin', () => {
     return wallet
   }
 
-  const createGuild = async (wallet: WalletSDK, options: { members?: string[]; funding?: bigint; actions?: [number | bigint, Uint8Array][] } = {}) => {
+  const createGuild = async (
+    wallet: WalletSDK,
+    options: { members?: string[]; funding?: bigint; actions?: [number | bigint, Uint8Array][]; maxCost?: bigint } = {},
+  ) => {
     const controlled = (await wallet.client.state.global.controlledAddress())!
     const result = await use(
       wallet,
@@ -128,6 +131,7 @@ describe('Shared GuildPlugin', () => {
         nickname: 'One-call guild',
         funding: options.funding ?? 0n,
         actions: (options.actions ?? []) as never,
+        ...(options.maxCost !== undefined ? { maxCost: options.maxCost } : {}),
       }),
       6,
     )
@@ -205,6 +209,30 @@ describe('Shared GuildPlugin', () => {
     const controlled = (await creator.client.state.global.controlledAddress())!
     expect((await environment.algorand.account.getInformation(controlled)).authAddr).toBeUndefined()
     expect(await creator.client.state.global.spendingAddress()).toBe(ALGORAND_ZERO_ADDRESS_STRING)
+  })
+
+  // AUD-C3: `maxCost` limits everything a one-call creation pays except `funding`. The plugin reads those
+  // costs from the factory and the new Guild as it runs, so the limit is what ties them to the quote.
+  test('holds a one-call creation to its quoted maximum, apart from funding', async () => {
+    const controlled = (await creator.client.state.global.controlledAddress())!
+    const balance = async () => (await environment.algorand.account.getInformation(controlled)).balance.microAlgos
+    const actions = [addPluginAction({ plugin: plugin.appId, caller: environment.creator.addr.toString() })]
+    // an AddPlugin grant is stored on the new treasury wallet, which `funding` pays for
+    const funding = 1_000_000n
+
+    // what a creation costs besides funding: the factory, the member list, the treasury wallet and the draft proposal
+    const before = await balance()
+    await createGuild(creator, { actions, funding })
+    const cost = before - (await balance()) - funding
+    expect(cost).toBeGreaterThan(await plugin.guildCreationCost(FIXED_SIGNERS, environment.creator.addr))
+
+    const unchanged = await balance()
+    await expectContractError(createGuild(creator, { actions, funding, maxCost: cost - 1n }), errGuildCostLimitExceeded)
+    expect(await balance()).toBe(unchanged)
+    expect((await environment.algorand.account.getInformation(controlled)).authAddr).toBeUndefined()
+
+    await createGuild(creator, { actions, funding, maxCost: cost })
+    expect(unchanged - (await balance())).toBe(cost + funding)
   })
 
   test('acts on two Guilds through one install', async () => {
