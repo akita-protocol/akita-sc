@@ -1,26 +1,29 @@
-import { Application, GlobalState, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
+import { Application, itxn, uint64 } from "@algorandfoundation/algorand-typescript";
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateArgs, GateFilter } from "../../../gates/types";
-import { getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 
 // CONTRACT IMPORTS
-import { BaseGate } from "../../../gates/base";
-import { Gate } from "../../../gates/contract.algo";
+import type { Gate } from "../../../gates/contract.algo";
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable";
 
 
-export const GatePluginGlobalStateKeyGateAppID = 'gate_app_id'
-
-export class GatePlugin extends BaseGate {
-
-  // GLOBAL STATE ---------------------------------------------------------------------------------
-
-  gateAppID = GlobalState<Application>({ key: GatePluginGlobalStateKeyGateAppID })
+/**
+ * Gate plugin v2: registers composite gates from an ARC-58 wallet.
+ *
+ * Resolves the canonical Gate app from the DAO registry on every call (audit SG-16), so a
+ * Gate redeploy only needs a DAO registry update, not a plugin redeploy. The Gate app
+ * itself enforces the sub-gate allowlist and per-filter cost cap, which bounds how much the
+ * wallet can be charged.
+ */
+export class GatePlugin extends AkitaBaseContract {
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(gateAppID: uint64): void {
-    this.gateAppID.value = Application(gateAppID)
+  create(akitaDAO: uint64, version: string): void {
+    this.version.value = version
+    this.akitaDAO.value = Application(akitaDAO)
   }
 
   // GATE PLUGIN METHODS --------------------------------------------------------------------------
@@ -30,26 +33,29 @@ export class GatePlugin extends BaseGate {
     rekeyBack: boolean,
     filters: GateFilter[],
     args: GateArgs
-  ): void {
-    const sender = getSpendingAccount(wallet)
+  ): uint64 {
+    const sender = getControlledSpendingAccount(wallet)
+    const gate = Application(getAkitaAppList(this.akitaDAO.value).gate)
+
     const amount = abiCall<typeof Gate.prototype.cost>({
-      appId: this.gateAppID.value,
+      sender,
+      appId: gate,
       args: [filters, args],
     }).returnValue
 
-    abiCall<typeof Gate.prototype.register>({
+    return abiCall<typeof Gate.prototype.register>({
       sender,
-      appId: this.gateAppID.value,
+      appId: gate,
       args: [
         itxn.payment({
           sender,
-          receiver: this.gateAppID.value.address,
+          receiver: gate.address,
           amount,
         }),
         filters,
         args,
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
-    })
+    }).returnValue
   }
 }

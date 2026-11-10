@@ -10,12 +10,12 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, OperatorAndValueRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator, OperatorAndValue } from '../../types'
 
 // CONTRACT IMPORTS
 import type { AkitaSocial } from '../../../social/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 /** [op: 1][value: 8] */
@@ -46,8 +46,18 @@ export class SocialFollowerCountGate extends AkitaBaseContract {
 
   private followerCountGate(user: Account, op: Operator, value: uint64): boolean {
 
+    // audit SG-13: follower counts live in the social app's meta (the graph app has no ABI getMeta)
+    const social = getAkitaSocialAppList(this.akitaDAO.value).social
+    const hasMeta = abiCall<typeof AkitaSocial.prototype.getMetaExists>({
+      appId: social,
+      args: [user],
+    }).returnValue
+    if (!hasMeta) {
+      return false
+    }
+
     const meta = abiCall<typeof AkitaSocial.prototype.getMeta>({
-      appId: getAkitaSocialAppList(this.akitaDAO.value).graph,
+      appId: social,
       args: [user],
     }).returnValue
 
@@ -77,9 +87,9 @@ export class SocialFollowerCountGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === RegisterByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<OperatorAndValue>(args)
@@ -87,7 +97,7 @@ export class SocialFollowerCountGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, errInvalidArgCount)
     const { op, value } = clone(this.registry(registryID).value)
     return this.followerCountGate(caller, op, value)
   }

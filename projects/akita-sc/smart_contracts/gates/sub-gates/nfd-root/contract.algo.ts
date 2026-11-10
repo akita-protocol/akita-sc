@@ -1,18 +1,20 @@
 import { Account, Application, BoxMap, Bytes, bytes, Global, GlobalState, gtxn, loggedAssert, op, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
-import { BoxCostPerBox, Uint64ByteLength } from '../../../utils/constants'
-import { NFDGlobalStateKeysName, NFDGlobalStateKeysParentAppID, NFDMetaKeyVerifiedAddresses } from '../../../utils/constants/nfd'
+import { BoxCostPerByte, Uint64ByteLength } from '../../../utils/constants'
+import { NFDGlobalStateKeysName, NFDMetaKeyVerifiedAddresses } from '../../../utils/constants/nfd'
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment, errInvalidRegistryArg } from '../../errors'
 
 // CONTRACT IMPORTS
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 import type { NFD } from '../../../utils/types/nfd'
 import type { NFDRegistry } from '../../../utils/types/nfd-registry'
 
 const MinNFDRootGateRegistryMBR: uint64 = 5_700
+/** generous upper bound for a root label (bounds the dot scan) */
+const MaxRootLength: uint64 = 64
 
 export class NFDRootGate extends AkitaBaseContract {
 
@@ -38,17 +40,20 @@ export class NFDRootGate extends AkitaBaseContract {
   }
 
   private nfdGate(user: Account, appID: uint64, root: string): boolean {
-    const nfdName = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysName))[0]
-    const parentExists = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysParentAppID))[1]
+    const [nfdName, hasName] = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysName))
+    if (!hasName) {
+      return false
+    }
 
-    const rootBytes = Bytes(root)
-    if (
-      parentExists &&
-      rootBytes !== nfdName.slice(
-        nfdName.length - (rootBytes.length + 5),
-        nfdName.length - 5
-      )
-    ) {
+    // audit SG-07: the NFD must be the root itself (`root.algo`) or one of its segments
+    // (`<segment>.root.algo`). NFDs have a single segment level, so together with the
+    // registry validity check below this proves membership of `root`.
+    const exact = Bytes(root).concat(Bytes('.algo'))
+    const suffix = Bytes('.').concat(exact)
+    const isRoot = nfdName === exact
+    const isSegment = nfdName.length > suffix.length
+      && nfdName.slice(nfdName.length - suffix.length) === suffix
+    if (!isRoot && !isSegment) {
       return false
     }
 
@@ -66,15 +71,14 @@ export class NFDRootGate extends AkitaBaseContract {
       args: [Bytes(NFDMetaKeyVerifiedAddresses)],
     }).returnValue
 
-    let exists: boolean = false
-    for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
-      const addr = caAlgoData.slice(i, 32)
-      if (addr === user.bytes) {
-        exists = true
+    // audit SG-14: slice takes an end index, so every 32-byte entry is compared
+    for (let i: uint64 = 0; i + 32 <= caAlgoData.length; i += 32) {
+      if (caAlgoData.slice(i, i + 32) === user.bytes) {
+        return true
       }
     }
 
-    return exists
+    return false
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -88,13 +92,18 @@ export class NFDRootGate extends AkitaBaseContract {
   // NFD ROOT GATE METHODS ------------------------------------------------------------------------
 
   cost(args: bytes): uint64 {
-    return MinNFDRootGateRegistryMBR + (BoxCostPerBox * args.length)
+    // key 8 bytes (5_700 incl. base) + ARC-4 string value (2-byte length + root)
+    return MinNFDRootGateRegistryMBR + (BoxCostPerByte * (2 + args.length))
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length >= 0, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
+    // a bare root label: non-empty, no dots, no ".algo" suffix
+    loggedAssert(args.length > 0 && args.length <= MaxRootLength, errInvalidArgCount)
+    for (let i: uint64 = 0; i < args.length; i += 1) {
+      loggedAssert(args.slice(i, i + 1) !== Bytes('.'), errInvalidRegistryArg)
+    }
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === this.cost(args), errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = String(args)
@@ -102,7 +111,8 @@ export class NFDRootGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === Uint64ByteLength, errInvalidArgCount)
+    loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
     const root = this.registry(registryID).value
     return this.nfdGate(caller, btoi(args), root)
   }

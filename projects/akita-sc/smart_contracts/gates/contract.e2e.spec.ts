@@ -16,6 +16,12 @@ import { deployNFDGate } from '../../tests/fixtures/gates/sub-gates/nfd';
 import { deployNFDRootGate } from '../../tests/fixtures/gates/sub-gates/nfd-root';
 import { deployAsaManagerPlugin } from '../../tests/fixtures/plugins/asa-manager';
 import { AssetGateClient } from '../artifacts/gates/sub-gates/asset/AssetGateClient';
+import { AbstractedAccountMbrFactory } from '../artifacts/arc58/account/AbstractedAccountMBRClient';
+
+// newAccount still pre-funds ARC58WalletIDsByAccountsMbr (Phase 4 removes it). Only the legacy
+// register() spends it, and newWallet no longer registers (principal resolution, Phase 3), so the
+// wallet holds exactly this much above its minimum balance. addPlugin below creates no escrow.
+const REGISTRATION_PREFUND = 12_100n
 
 /**
  * Gate Contract Tests
@@ -56,7 +62,18 @@ describe('Gate Contract', () => {
     const signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
+    // The wallet SDK needs the wallet-MBR helper app; only buildAkitaUniverse creates it, so
+    // this spec used to depend on running after a universe-based spec in the same worker.
+    if (!process.env.WALLET_MBR_APP_ID) {
+      const walletMbrFactory = algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+        defaultSender: sender,
+        defaultSigner: signer,
+      });
+      const { appClient: walletMbrClient } = await walletMbrFactory.send.create.bare();
+      process.env.WALLET_MBR_APP_ID = walletMbrClient.appId.toString();
+    }
 
     const dao = await deployAkitaDAO({
       fixture: localnet,
@@ -98,7 +115,7 @@ describe('Gate Contract', () => {
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
 
     let walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-    expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+    expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
     const fundAmount = mbr.plugins;
 
@@ -112,7 +129,7 @@ describe('Gate Contract', () => {
     });
 
     walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-    expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+    expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
     const results = await wallet.usePlugin({
       callerType: CallerType.Global,
@@ -213,8 +230,9 @@ describe('Gate Contract', () => {
 
         const state = await gateClient.state.global.getAll();
 
-        // Gate cursor should start at 1
-        expect(state.gateCursor).toBe(1n);
+        // Gate v2 issues ids from 2^32 (lower ids are reserved for legacy imports)
+        expect(state.gateCursor).toBe(4_294_967_296n);
+        expect(state.importsSealed).toBe(0n);
       });
     });
   });

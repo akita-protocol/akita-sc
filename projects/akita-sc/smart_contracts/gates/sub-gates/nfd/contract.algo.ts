@@ -5,10 +5,10 @@ import { Uint64ByteLength } from '../../../utils/constants'
 import { NFDGlobalStateKeysName, NFDMetaKeyVerifiedAddresses } from '../../../utils/constants/nfd'
 import { getOtherAppList } from '../../../utils/functions'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT, ERR_INVALID_REGISTRY_ARG } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment, errInvalidRegistryArg } from '../../errors'
 
 // CONTRACT IMPORTS
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 import type { NFD } from '../../../utils/types/nfd'
 import type { NFDRegistry } from '../../../utils/types/nfd-registry'
 
@@ -24,7 +24,10 @@ export class NFDGate extends AkitaBaseContract {
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
   private nfdGate(user: Account, appID: uint64): boolean {
-    const [nfdName] = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysName))
+    const [nfdName, hasName] = op.AppGlobal.getExBytes(appID, Bytes(NFDGlobalStateKeysName))
+    if (!hasName) {
+      return false
+    }
 
     const verified = abiCall<typeof NFDRegistry.prototype.isValidNfdAppId>({
       appId: getOtherAppList(this.akitaDAO.value).nfdRegistry,
@@ -40,15 +43,14 @@ export class NFDGate extends AkitaBaseContract {
       args: [Bytes(NFDMetaKeyVerifiedAddresses)],
     }).returnValue
 
-    let exists: boolean = false
-    for (let i: uint64 = 0; i < caAlgoData.length; i += 32) {
-      const addr = caAlgoData.slice(i, 32)
-      if (addr === user.bytes) {
-        exists = true
+    // audit SG-14: slice takes an end index, so every 32-byte entry is compared
+    for (let i: uint64 = 0; i + 32 <= caAlgoData.length; i += 32) {
+      if (caAlgoData.slice(i, i + 32) === user.bytes) {
+        return true
       }
     }
 
-    return exists
+    return false
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -66,16 +68,16 @@ export class NFDGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === 0, ERR_INVALID_PAYMENT)
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === 0, errInvalidPayment)
+    loggedAssert(args.length === 0, errInvalidArgCount)
 
     return 0
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === Uint64ByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(registryID === 0, ERR_INVALID_REGISTRY_ARG)
+    loggedAssert(args.length === Uint64ByteLength, errInvalidArgCount)
+    loggedAssert(registryID === 0, errInvalidRegistryArg)
     return this.nfdGate(caller, btoi(args))
   }
 

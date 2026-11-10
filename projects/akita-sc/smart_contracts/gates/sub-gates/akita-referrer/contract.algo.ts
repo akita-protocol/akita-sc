@@ -1,21 +1,32 @@
 import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi, Global } from '@algorandfoundation/algorand-typescript/op'
-import { getAkitaAppList, getOtherAppList, getReferrerAccount } from '../../../utils/functions'
+import { getAkitaAppList, getOtherAppList } from '../../../utils/functions'
+import { GateCtx, isGenuineWallet, quoteReferrer } from '../../../utils/principal'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment, errInvalidRegistryArg } from '../../errors'
 import { AkitaReferrerGateRegistryMBR } from './constants'
-import { ERR_INVALID_WALLET_ID } from './errors'
 
 // CONTRACT IMPORTS
 import type { EscrowFactory } from '../../../escrow/factory.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 export type AkitaReferrerGateRegistryInfo = {
   referrer: Account
 }
 
+/**
+ * Passes when the acting Akita wallet's `referrer` is the registered referrer. The referrer is
+ * self-asserted (residual R-REFERRER): it was chosen at wallet creation and an admin-updated
+ * wallet can rewrite it.
+ *
+ * Context-aware (principal-resolution spec §6.9): `checkFor(ctx, ...)` uses `ctx.wallet`, the
+ * wallet the first hop verified for this action. No registry read, so it also works for wallets
+ * with an external controlled address and for wallets that never registered. Args are ignored.
+ * The plain `check(caller, ...)` keeps the legacy registry rule (args = the 8-byte wallet id
+ * registered for `caller`) but returns false instead of reverting when `caller` is unregistered.
+ */
 export class AkitaReferrerGate extends AkitaBaseContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -39,14 +50,10 @@ export class AkitaReferrerGate extends AkitaBaseContract {
     return id
   }
 
-  private referrerGate(wallet: Application, referrer: Account): boolean {
-    const { wallet: factory } = getAkitaAppList(this.akitaDAO.value)
-    const fetchedReferrer = getReferrerAccount(wallet)
-
-    return (
-      wallet.creator === Application(factory).address &&
-      fetchedReferrer === referrer
-    )
+  /** `wallet` is a genuine Akita wallet (creator == the DAO's wallet factory) whose referrer is `referrer`. */
+  private referrerGate(wallet: uint64, referrer: Account): boolean {
+    const factory = getAkitaAppList(this.akitaDAO.value).wallet
+    return wallet !== 0 && isGenuineWallet(wallet, factory) && quoteReferrer(factory, wallet) === referrer
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------  
@@ -64,31 +71,48 @@ export class AkitaReferrerGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === 32, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === AkitaReferrerGateRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === 32, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === AkitaReferrerGateRegistryMBR, errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<AkitaReferrerGateRegistryInfo>(args)
     return id
   }
 
+  /**
+   * LEGACY subject rule (EscrowFactory registry): `args` is the 8-byte wallet id registered for
+   * `caller`. Returns false (no revert) when `caller` is not registered or is registered to
+   * another wallet, so OR groups keep working.
+   */
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 8, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 8, errInvalidArgCount)
+    loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
 
     const { referrer } = clone(this.registry(registryID).value)
-    const wallet = Application(btoi(args))
 
-    const appId = getOtherAppList(this.akitaDAO.value).escrow
-
-    const id = abiCall<typeof EscrowFactory.prototype.mustGet>({
-      appId,
+    const registered = abiCall<typeof EscrowFactory.prototype.get>({
+      appId: getOtherAppList(this.akitaDAO.value).escrow,
       args: [caller]
     }).returnValue
 
-    loggedAssert(id === args, ERR_INVALID_WALLET_ID)
+    if (registered !== args) {
+      return false
+    }
 
-    return this.referrerGate(wallet, referrer)
+    return this.referrerGate(btoi(args), referrer)
+  }
+
+  /**
+   * Context-aware check: rule `ctx.wallet != 0 && referrer(ctx.wallet) == registered`. `ctx.wallet`
+   * is the actor's own wallet, verified by the first hop (spec §3.5), so no one can borrow another
+   * wallet's referrer. `args` are ignored (any value, including the legacy 8-byte wallet id).
+   * Resource: P(ctx.wallet).
+   */
+  checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
+    const { referrer } = clone(this.registry(registryID).value)
+    return this.referrerGate(ctx.wallet, referrer)
   }
 
   @abimethod({ readonly: true })

@@ -10,12 +10,12 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, UserOperatorValueRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator } from '../../types'
 
 // CONTRACT IMPORTS
 import { AkitaSocialGraph } from '../../../social/graph.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 type SocialFollowerIndexGateRegistryInfo = {
@@ -95,9 +95,9 @@ export class SocialFollowerIndexGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === UserOperatorValueRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === RegisterByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === UserOperatorValueRegistryMBR, errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<SocialFollowerIndexGateRegistryInfo>(args)

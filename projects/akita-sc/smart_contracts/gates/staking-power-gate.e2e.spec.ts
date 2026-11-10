@@ -1,7 +1,7 @@
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import type { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import type { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { LogicalOperator, Operator } from 'akita-sdk/gates'
 import { StakingType } from 'akita-sdk/staking'
@@ -29,8 +29,8 @@ const encodeRegistration = () =>
   ABIType.from(REGISTRATION_SHAPE).encode([Operator.GreaterThanOrEqualTo, 0n, POWER_THRESHOLD])
 
 const getBlockTimestamp = async (algorand: AlgorandClient): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
@@ -198,8 +198,9 @@ describe('StakingPowerGate', () => {
       }],
     })
 
-    expect(registered.return).toBe(1n)
-    expect(await gate.getGate({ gateId: 1n })).toEqual([{
+    // Gate v2 issues ids from 2^32
+    expect(registered.return).toBe(4_294_967_296n)
+    expect(await gate.getGate({ gateId: 4_294_967_296n })).toEqual([{
       type: 'staking_power',
       op: Operator.GreaterThanOrEqualTo,
       asset: 0n,

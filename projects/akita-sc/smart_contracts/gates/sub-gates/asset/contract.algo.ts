@@ -1,7 +1,7 @@
 import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 import {
   Equal,
   GreaterThan,
@@ -10,8 +10,8 @@ import {
   LessThanOrEqualTo,
   NotEqual,
 } from '../../../utils/operators'
-import { AssetGateRegistryInfoByteLength, GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, OperatorAndValueRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { AssetGateRegistryInfoByteLength, GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, AssetGateRegistryMBR } from '../../constants'
+import { errBadOperation, errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator } from '../../types'
 
 type AssetGateRegistryInfo = {
@@ -45,10 +45,14 @@ export class AssetGate extends AkitaBaseContract {
 
   // gates based on holding an asset
   private assetGate(user: Account, asset: uint64, op: Operator, value: uint64): boolean {
-    const [balance, optedIn] = AssetHolding.assetBalance(user, asset)
-
-    if (!optedIn) {
-      return false
+    // asset 0 is ALGO (audit SG-17): use the account balance, never the ASA holding API
+    let balance: uint64 = user.balance
+    if (asset !== 0) {
+      const [holding, optedIn] = AssetHolding.assetBalance(user, asset)
+      if (!optedIn) {
+        return false
+      }
+      balance = holding
     }
 
     switch (op) {
@@ -73,21 +77,23 @@ export class AssetGate extends AkitaBaseContract {
   // ASSET GATE METHODS ---------------------------------------------------------------------------
 
   cost(args: bytes): uint64 {
-    return OperatorAndValueRegistryMBR
+    return AssetGateRegistryMBR
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === AssetGateRegistryInfoByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === AssetGateRegistryInfoByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === AssetGateRegistryMBR, errInvalidPayment)
 
+    const params = decodeArc4<AssetGateRegistryInfo>(args)
+    loggedAssert(params.op.asUint64() >= Equal.asUint64() && params.op.asUint64() <= GreaterThanOrEqualTo.asUint64(), errBadOperation)
     const id = this.newRegistryID()
-    this.registry(id).value = decodeArc4<AssetGateRegistryInfo>(args)
+    this.registry(id).value = clone(params)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, errInvalidArgCount)
     const { asset, op, value } = clone(this.registry(registryID).value)
     return this.assetGate(caller, asset, op, value)
   }

@@ -10,12 +10,12 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, OperatorAndValueRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator, OperatorAndValue } from '../../types'
 
 // CONTRACT IMPORTS
 import type { AkitaSocial } from '../../../social/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 /** [op: 1][value: 8] */
@@ -80,9 +80,9 @@ export class SocialActivityGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === RegisterByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === OperatorAndValueRegistryMBR, errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<OperatorAndValue>(args)
@@ -90,7 +90,7 @@ export class SocialActivityGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, errInvalidArgCount)
     const { op, value } = clone(this.registry(registryID).value)
     return this.activityGate(caller, op, value)
   }

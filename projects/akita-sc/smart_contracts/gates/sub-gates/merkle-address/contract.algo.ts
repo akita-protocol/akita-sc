@@ -1,16 +1,16 @@
 import { Account, Application, BoxMap, bytes, clone, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Global, sha256 } from '@algorandfoundation/algorand-typescript/op'
-import { MerkleTreeTypeUnspecified } from '../../../meta-merkles/constants'
+import { MerkleTreeTypeUnspecified } from '../../../meta/constants'
 import { BoxCostPerBox } from '../../../utils/constants'
 import { getAkitaAppList } from '../../../utils/functions'
 import { Proof } from '../../../utils/types/merkles'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor, MinMetaMerkleRegistryMBR } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment } from '../../errors'
 
 // CONTRACT IMPORTS
-import type { MetaMerkles } from '../../../meta-merkles/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import type { Meta } from '../../../meta/contract.algo'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 type MerkleAddressGateRegistryInfo = {
   creator: Account
@@ -56,14 +56,14 @@ export class MerkleAddressGate extends AkitaBaseContract {
   // MERKLE ADDRESS GATE METHODS ------------------------------------------------------------------
 
   cost(args: bytes): uint64 {
-    loggedAssert(args.length >= MinRegisterArgsLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length >= MinRegisterArgsLength, errInvalidArgCount)
     return MinMetaMerkleRegistryMBR + (BoxCostPerBox * (args.length - 32))
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length >= MinRegisterArgsLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === this.cost(args), ERR_INVALID_PAYMENT)
+    loggedAssert(args.length >= MinRegisterArgsLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === this.cost(args), errInvalidPayment)
 
     const id = this.newRegistryID()
     this.registry(id).value = decodeArc4<MerkleAddressGateRegistryInfo>(args)
@@ -71,11 +71,11 @@ export class MerkleAddressGate extends AkitaBaseContract {
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length >= MinCheckArgsLength, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length >= MinCheckArgsLength, errInvalidArgCount)
     const proof = decodeArc4<Proof>(args)
     const { creator, name } = clone(this.registry(registryID).value)
 
-    return abiCall<typeof MetaMerkles.prototype.verify>({
+    return abiCall<typeof Meta.prototype.verify>({
       appId: getAkitaAppList(this.akitaDAO.value).metaMerkles,
       args: [
         creator,

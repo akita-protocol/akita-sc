@@ -1,6 +1,6 @@
 import { Account, Application, BoxMap, bytes, clone, Global, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
-import { STAKING_TYPE_HEARTBEAT, StakingType } from '../../../staking/types'
+import { STAKING_TYPE_HARD, STAKING_TYPE_HEARTBEAT, STAKING_TYPE_LOCK, STAKING_TYPE_SOFT, StakingType } from '../../../staking/types'
 import { getAkitaAppList } from '../../../utils/functions'
 import {
   Equal,
@@ -11,12 +11,12 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_BAD_OPERATION, ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errBadOperation, errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator } from '../../types'
 
 // CONTRACT IMPORTS
 import type { Staking } from '../../../staking/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 type StakingAmountGateRegistryInfo = {
@@ -70,12 +70,24 @@ export class StakingAmountGate extends AkitaBaseContract {
         args: [user, asset, includeEscrowed],
       }).returnValue
     } else {
-      const info = abiCall<typeof Staking.prototype.mustGetInfo>({
+      // getInfo returns an empty stake instead of failing (audit SG-17)
+      const info = abiCall<typeof Staking.prototype.getInfo>({
         appId,
         args: [user, { asset, type }],
       }).returnValue
 
       staked = info.amount
+
+      // audit SG-10: a SOFT stake is only a commitment; never count more than is held now
+      if (type === STAKING_TYPE_SOFT && staked > 0) {
+        const { balance } = abiCall<typeof Staking.prototype.softCheck>({
+          appId,
+          args: [user, asset],
+        }).returnValue
+        if (balance < staked) {
+          staked = balance
+        }
+      }
     }
 
     switch (op) {
@@ -104,20 +116,27 @@ export class StakingAmountGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === RegisterByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === StakingAmountGateRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === RegisterByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === StakingAmountGateRegistryMBR, errInvalidPayment)
 
     const params = decodeArc4<StakingAmountGateRegistryInfo>(args)
     // dont include the list operators includes & not includes
-    loggedAssert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
+    loggedAssert(params.op.asUint64() >= Equal.asUint64() && params.op.asUint64() <= GreaterThanOrEqualTo.asUint64(), errBadOperation)
+    loggedAssert(
+      params.type === STAKING_TYPE_HEARTBEAT ||
+      params.type === STAKING_TYPE_SOFT ||
+      params.type === STAKING_TYPE_HARD ||
+      params.type === STAKING_TYPE_LOCK,
+      errBadOperation
+    )
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, errInvalidArgCount)
     const { op, asset, amount, type, includeEscrowed } = clone(this.registry(registryID).value)
     return this.stakingAmountGate(
       caller,

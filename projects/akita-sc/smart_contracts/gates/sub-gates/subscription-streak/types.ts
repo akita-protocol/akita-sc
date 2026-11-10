@@ -3,7 +3,8 @@ import { Operator } from '../../types'
 
 export type SubscriptionStreakGateRegistryInfo = {
   merchant: Account
-  id: uint64
+  /** the merchant's service id (never 0) */
+  serviceID: uint64
   op: Operator
   streak: uint64
 }

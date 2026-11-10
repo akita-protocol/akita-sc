@@ -1,19 +1,34 @@
 import { Account, Application, BoxMap, bytes, clone, Global, GlobalState, gtxn, loggedAssert, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, decodeArc4, encodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
-import { getAkitaAppList } from '../../../utils/functions'
+import { ctxOwnsOf, getAkitaAppList } from '../../../utils/functions'
+import { GateCtx } from '../../../utils/principal'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT, ERR_INVALID_REGISTRY_ARG } from '../../errors'
+import { errInvalidArgCount, errInvalidPayment, errInvalidRegistryArg } from '../../errors'
 import { SubscriptionGateRegistryMBR } from './constants'
-import { SubscriptionGateRegistryInfo } from './types'
+import { SubscriptionGateCheckParams, SubscriptionGateRegistryInfo } from './types'
+import { getActiveSubscription, subscriberControlledBy } from './utils'
 
 // CONTRACT IMPORTS
 import type { Subscriptions } from '../../../subscriptions/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
-/** [merchant:32][id:8] */
+/** [merchant:32][serviceID:8] */
 const RegisterArgsByteLength: uint64 = 40
+/** [subscriber:32][subscriptionID:8] */
+const CheckArgsByteLength: uint64 = 40
 
+/**
+ * Passes when the caller (or the Akita wallet it controls) holds a live subscription to a
+ * specific merchant service. Audit SG-03: the registry names a service (not a subscription
+ * index), donations never count, and the subscription is supplied by the caller and
+ * proven to belong to them.
+ *
+ * Context-aware (principal-resolution spec §6.9): Gate v2 `checkFor` / `mustCheckFor` call
+ * `checkFor(ctx, ...)`, which proves ownership with `ctxOwns` (subscriber is the verified principal,
+ * the spender, or an account the verified wallet owns at rest). No registry read. The plain
+ * `check(caller, ...)` keeps the legacy registry rule for legacy callers.
+ */
 export class SubscriptionGate extends AkitaBaseContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -22,7 +37,7 @@ export class SubscriptionGate extends AkitaBaseContract {
   /** the abi string for the register args */
   registrationShape = GlobalState<string>({ initialValue: '(address,uint64)', key: GateGlobalStateKeyRegistrationShape })
   /** the abi string for the check args */
-  checkShape = GlobalState<string>({ initialValue: '', key: GateGlobalStateKeyCheckShape })
+  checkShape = GlobalState<string>({ initialValue: '(address,uint64)', key: GateGlobalStateKeyCheckShape })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -34,28 +49,6 @@ export class SubscriptionGate extends AkitaBaseContract {
     const id = this.registryCursor.value
     this.registryCursor.value += 1
     return id
-  }
-
-  private subscriptionGate(address: Account, merchant: Account, id: uint64): boolean {
-    const info = abiCall<typeof Subscriptions.prototype.getSubscription>({
-      appId: getAkitaAppList(this.akitaDAO.value).subscriptions,
-      args: [{address, id}],
-    }).returnValue
-    if (!info.exists) {
-      return false
-    }
-
-    const toMerchant = info.recipient === merchant
-
-    const lastWindowStart: uint64 =
-      Global.latestTimestamp -
-      (((Global.latestTimestamp - info.startDate) % info.interval) + info.interval)
-
-    // this doesn't tell us about the consistency of their payments,
-    // only that their subscription isn't currently stale
-    const notStale = info.lastPayment > lastWindowStart
-
-    return toMerchant && notStale
   }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
@@ -73,24 +66,64 @@ export class SubscriptionGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === RegisterArgsByteLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === SubscriptionGateRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === RegisterArgsByteLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === SubscriptionGateRegistryMBR, errInvalidPayment)
+
+    const info = decodeArc4<SubscriptionGateRegistryInfo>(args)
+    loggedAssert(info.serviceID !== 0, errInvalidRegistryArg)
+    // asserts the service exists
+    abiCall<typeof Subscriptions.prototype.getService>({
+      appId: getAkitaAppList(this.akitaDAO.value).subscriptions,
+      args: [info.merchant, info.serviceID],
+    })
 
     const id = this.newRegistryID()
-    this.registry(id).value = decodeArc4<SubscriptionGateRegistryInfo>(args)
+    this.registry(id).value = clone(info)
     return id
   }
 
+  /** LEGACY subject rule (registry): `subscriberControlledBy(subscriber, caller)`. */
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
-    loggedAssert(this.registry(registryID).exists, ERR_INVALID_REGISTRY_ARG)
-    const { merchant, id } = clone(this.registry(registryID).value)
-    return this.subscriptionGate(caller, merchant, id)
+    loggedAssert(args.length === CheckArgsByteLength, errInvalidArgCount)
+    loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
+    const { merchant, serviceID } = clone(this.registry(registryID).value)
+    const { subscriber, id } = decodeArc4<SubscriptionGateCheckParams>(args)
+
+    if (!subscriberControlledBy(this.akitaDAO.value, subscriber, caller)) {
+      return false
+    }
+
+    return getActiveSubscription(this.akitaDAO.value, subscriber, id, merchant, serviceID).active
+  }
+
+  /**
+   * Context-aware check: `ctx` is the first hop's verified context, forwarded by Gate v2. Same args
+   * as `check` (`(address subscriber, uint64 id)`, 40 bytes). Subject rule: `ctxOwns(ctx, subscriber)`.
+   * Because `ctx.wallet` is the actor's own verified wallet, no one can borrow another user's
+   * subscription. Resources: P(ctx.wallet) and A(subscriber) when the subscriber is neither the
+   * principal nor the spender.
+   */
+  checkFor(ctx: GateCtx, registryID: uint64, args: bytes): boolean {
+    loggedAssert(args.length === CheckArgsByteLength, errInvalidArgCount)
+    loggedAssert(this.registry(registryID).exists, errInvalidRegistryArg)
+    const { merchant, serviceID } = clone(this.registry(registryID).value)
+    const { subscriber, id } = decodeArc4<SubscriptionGateCheckParams>(args)
+
+    if (!ctxOwnsOf(this.akitaDAO.value, ctx, subscriber)) {
+      return false
+    }
+
+    return getActiveSubscription(this.akitaDAO.value, subscriber, id, merchant, serviceID).active
   }
 
   @abimethod({ readonly: true })
   getRegistrationShape(shape: SubscriptionGateRegistryInfo): SubscriptionGateRegistryInfo {
+    return shape
+  }
+
+  @abimethod({ readonly: true })
+  getCheckShape(shape: SubscriptionGateCheckParams): SubscriptionGateCheckParams {
     return shape
   }
 

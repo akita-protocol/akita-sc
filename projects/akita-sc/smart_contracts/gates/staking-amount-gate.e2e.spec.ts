@@ -1,7 +1,7 @@
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import type { AlgorandClient } from '@algorandfoundation/algokit-utils'
-import type { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
 import { LogicalOperator, Operator } from 'akita-sdk/gates'
 import { StakingType } from 'akita-sdk/staking'
@@ -163,9 +163,69 @@ describe('StakingAmountGate', () => {
         registryId,
         args: new Uint8Array(),
       },
-      extraFee: microAlgo(1_000n),
+      // check -> Staking.getInfo + Staking.softCheck (SOFT stakes are clamped to the balance)
+      extraFee: microAlgo(2_000n),
     })
     expect(checked.return).toBe(true)
+  })
+
+  test('SG-10: a SOFT stake only counts up to the balance currently held', async () => {
+    const client = await deployGate()
+    const { registryId } = await register(client)
+
+    // a second staker soft-stakes 1 ALGO, then moves most of its ALGO away
+    const mover = await fixture.context.generateAccount({ initialFunds: microAlgo(1_500_000n) })
+    const stakeMbrPayment = await algorand.createTransaction.payment({
+      sender: mover.addr,
+      signer: mover.signer,
+      receiver: staking.appAddress,
+      amount: microAlgo(STAKE_BOX_MBR),
+    })
+    await staking.send.stake({
+      sender: mover.addr,
+      signer: mover.signer,
+      args: { payment: stakeMbrPayment, type: StakingType.Soft, amount: STAKE_AMOUNT, expiration: 0n },
+    })
+
+    const check = async () => (await client.send.check({
+      args: { caller: mover.addr.toString(), registryId, args: new Uint8Array() },
+      extraFee: microAlgo(2_000n),
+    })).return
+
+    expect(await check()).toBe(true)
+
+    await algorand.send.payment({
+      sender: mover.addr,
+      signer: mover.signer,
+      receiver: deployer.addr,
+      amount: microAlgo(1_200_000n),
+    })
+
+    // the recorded stake is still 1 ALGO, but only ~0.27 ALGO is held now
+    expect(await check()).toBe(false)
+  })
+
+  test('a caller without a stake record fails the gate instead of erroring', async () => {
+    const client = await deployGate()
+    const { registryId } = await register(client)
+    const nobody = await fixture.context.generateAccount({ initialFunds: microAlgo(1_000_000n) })
+    const checked = await client.send.check({
+      args: { caller: nobody.addr.toString(), registryId, args: new Uint8Array() },
+      extraFee: microAlgo(2_000n),
+    })
+    expect(checked.return).toBe(false)
+  })
+
+  test('register rejects an unknown staking type', async () => {
+    const client = await deployGate()
+    const args = ABIType.from(REGISTRATION_SHAPE).encode([Operator.GreaterThanOrEqualTo, 0n, 99, STAKE_AMOUNT, false])
+    const mbrPayment = await algorand.createTransaction.payment({
+      sender: deployer.addr,
+      signer: deployer.signer,
+      receiver: client.appAddress,
+      amount: microAlgo(REGISTRY_MBR),
+    })
+    await expect(client.send.register({ args: { mbrPayment, args } })).rejects.toThrow('errBopr')
   })
 
   test('encodes and registers staking amount filters through GateSDK', async () => {
@@ -192,8 +252,9 @@ describe('StakingAmountGate', () => {
       }],
     })
 
-    expect(registered.return).toBe(1n)
-    expect(await gate.getGate({ gateId: 1n })).toEqual([{
+    // Gate v2 issues ids from 2^32
+    expect(registered.return).toBe(4_294_967_296n)
+    expect(await gate.getGate({ gateId: 4_294_967_296n })).toEqual([{
       type: 'staking_amount',
       op: Operator.GreaterThanOrEqualTo,
       asset: 0n,

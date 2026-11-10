@@ -14,11 +14,11 @@ import {
   NotEqual,
 } from '../../../utils/operators'
 import { GateGlobalStateKeyCheckShape, GateGlobalStateKeyRegistrationShape, GateGlobalStateKeyRegistryCursor } from '../../constants'
-import { ERR_BAD_OPERATION, ERR_INVALID_ARG_COUNT, ERR_INVALID_PAYMENT } from '../../errors'
+import { errBadOperation, errInvalidArgCount, errInvalidPayment } from '../../errors'
 import { Operator } from '../../types'
 
 // CONTRACT IMPORTS
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 type StakingPowerGateRegistryInfo = {
@@ -86,19 +86,19 @@ export class StakingPowerGate extends AkitaBaseContract {
   }
 
   register(mbrPayment: gtxn.PaymentTxn, args: bytes): uint64 {
-    loggedAssert(args.length === CheckArgsBytesLength, ERR_INVALID_ARG_COUNT)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === StakingPowerGateRegistryMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(args.length === CheckArgsBytesLength, errInvalidArgCount)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === StakingPowerGateRegistryMBR, errInvalidPayment)
 
     const params = decodeArc4<StakingPowerGateRegistryInfo>(args)
-    loggedAssert(params.op.asUint64() <= 60, ERR_BAD_OPERATION)
+    loggedAssert(params.op.asUint64() <= 60, errBadOperation)
     const id = this.newRegistryID()
     this.registry(id).value = clone(params)
     return id
   }
 
   check(caller: Account, registryID: uint64, args: bytes): boolean {
-    loggedAssert(args.length === 0, ERR_INVALID_ARG_COUNT)
+    loggedAssert(args.length === 0, errInvalidArgCount)
     const { op, asset, power } = clone(this.registry(registryID).value)
     return this.stakingPowerGate(caller, op, asset, power)
   }

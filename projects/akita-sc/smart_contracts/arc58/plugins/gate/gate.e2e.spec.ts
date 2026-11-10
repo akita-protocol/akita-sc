@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { GatePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { LogicalOperator, Operator } from 'akita-sdk/gates';
@@ -8,17 +9,20 @@ import algosdk from 'algosdk';
 import { ABIType } from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { deployGatePlugin } from '../../../../tests/fixtures/plugins/gate';
-import { ERR_INVALID_LAYER } from '../../../gates/errors';
+import { errInvalidLayer } from '../../../gates/errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
 
+/** Gate v2 issues ids from 2^32 (ids below are reserved for legacy imports) */
+const FIRST_GATE_V2_ID = 4_294_967_296n;
+
 describe('Gate plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let gatePluginSdk: GatePluginSDK;
@@ -32,8 +36,8 @@ describe('Gate plugin contract', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -67,12 +71,12 @@ describe('Gate plugin contract', () => {
       nickname: 'Test Wallet',
     });
 
-    // Deploy a test-local plugin wired to the real Gate app.
+    // Deploy a test-local plugin; it resolves the Gate app from the DAO registry.
     gatePluginSdk = await deployGatePlugin({
       fixture,
       sender: deployer.addr,
       signer: deployer.signer,
-      args: { gateAppId: akitaUniverse.gate.appId },
+      args: { akitaDao: akitaUniverse.dao.appId },
     });
     const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
     await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 100_000n) });
@@ -131,7 +135,7 @@ describe('Gate plugin contract', () => {
       const size = await akitaUniverse.gate.client.send.size({
         sender: user.addr,
         signer: user.signer,
-        args: { gateId: 1n },
+        args: { gateId: FIRST_GATE_V2_ID },
       });
       expect(size.return).toBe(1n);
 
@@ -139,7 +143,7 @@ describe('Gate plugin contract', () => {
         sender: user.addr,
         signer: user.signer,
         extraFee: algokit.microAlgo(1_000n),
-        args: { gateId: 1n },
+        args: { gateId: FIRST_GATE_V2_ID },
       });
       expect(gate.return).toHaveLength(1);
     });
@@ -160,7 +164,7 @@ describe('Gate plugin contract', () => {
             args: [assetGateArgs(), assetGateArgs()],
           }),
         ],
-      })).rejects.toThrow(ERR_INVALID_LAYER);
+      })).rejects.toThrow(errInvalidLayer);
     });
   });
 });

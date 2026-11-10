@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { GatePluginArgs, GatePluginClient, GatePluginFactory } from "../../generated/GatePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -9,7 +9,7 @@ import { getTxns } from "../utils";
 type ContractArgs = GatePluginArgs["obj"];
 
 type RegisterArgs = (
-  Omit<ContractArgs['register(uint64,bool,(uint64,uint64,uint8)[],byte[][])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['register(uint64,bool,(uint64,uint64,uint8)[],byte[][])uint64'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );

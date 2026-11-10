@@ -2,6 +2,7 @@ import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import { TxnReturn } from '../types'
 import { GateArgs, GateClient, GateFactory, GateFilterEntryWithArgsFromTuple } from '../generated/GateClient'
+import type { GateCtx } from '../principal'
 import { MaybeSigner, NewContractSDKParams } from "../types";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { emptySigner } from "../constants";
@@ -20,13 +21,27 @@ import { APP_SPEC as SocialFollowerCountAppSpec } from '../generated/SocialFollo
 import { APP_SPEC as SocialFollowerIndexGateAppSpec, SocialFollowerIndexGateRegistryInfo } from '../generated/SocialFollowerIndexGateClient'
 import { APP_SPEC as SocialImpactGateAppSpec } from '../generated/SocialImpactGateClient'
 import { APP_SPEC as SocialModeratorGateAppSpec } from '../generated/SocialModeratorGateClient'
+import { APP_SPEC as ModeratorActivityGateAppSpec, ModeratorActivityGateRegistryInfo } from '../generated/ModeratorActivityGateClient'
+import { APP_SPEC as GovernanceParticipationGateAppSpec, GovernanceParticipationGateRegistryInfo } from '../generated/GovernanceParticipationGateClient'
 import { APP_SPEC as StakingAmountGateAppSpec, StakingAmountGateRegistryInfo } from '../generated/StakingAmountGateClient'
 import { APP_SPEC as StakingPowerGateAppSpec, StakingPowerGateRegistryInfo } from '../generated/StakingPowerGateClient'
 import { APP_SPEC as SubscriptionGateAppSpec, SubscriptionGateRegistryInfo } from '../generated/SubscriptionGateClient'
 import { APP_SPEC as SubscriptionStreakGateAppSpec, SubscriptionStreakGateRegistryInfo } from '../generated/SubscriptionStreakGateClient'
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 
 type ContractArgs = GateArgs["obj"];
+
+/**
+ * Args of the context-aware Gate v2 calls (principal-resolution spec §3.5, §6.9). `ctx` must be the
+ * context the target will verify: `gateCtx(principal)` from `akita-sdk/principal` (`predictPrincipal` /
+ * `predictWindowPrincipal`) for the wallet hint the target receives. A ctx that differs in any field
+ * makes the target's `gateCheckCtx` fail.
+ */
+export type GateCheckForParams = {
+  ctx: GateCtx
+  gateId: bigint | number
+  args: GateCheckArg[]
+}
 
 export * from './errors'
 export * from './types'
@@ -48,7 +63,8 @@ export class GateSDK extends BaseSDK<GateClient> {
     },
     merkle_address: {
       registerShape: 'MerkleAddressGateRegistryInfo',
-      checkShape: 'Proof',
+      // `Proof` is a type alias, not an ARC-56 struct: encode with the ABI type directly
+      checkShape: 'byte[32][]',
       structs: MerkleAddressAppSpec.structs
     },
     merkle_asset: {
@@ -63,7 +79,7 @@ export class GateSDK extends BaseSDK<GateClient> {
     },
     nfd_root: {
       registerShape: 'NFDRootGateRegistryInfo',
-      checkShape: 'string',
+      checkShape: 'uint64',
       structs: NFDRootAppSpec.structs
     },
     poll: {
@@ -72,12 +88,12 @@ export class GateSDK extends BaseSDK<GateClient> {
       structs: PollAppSpec.structs
     },
     social_activity: {
-      registerShape: 'SocialActivityGateRegistryInfo',
+      registerShape: 'OperatorAndValue',
       checkShape: 'None',
       structs: SocialActivityAppSpec.structs
     },
     social_follower_count: {
-      registerShape: 'SocialFollowerCountGateRegistryInfo',
+      registerShape: 'OperatorAndValue',
       checkShape: 'None',
       structs: SocialFollowerCountAppSpec.structs
     },
@@ -87,14 +103,24 @@ export class GateSDK extends BaseSDK<GateClient> {
       structs: SocialFollowerIndexGateAppSpec.structs
     },
     social_impact: {
-      registerShape: 'SocialImpactGateRegistryInfo',
+      registerShape: 'OperatorAndValue',
       checkShape: 'None',
       structs: SocialImpactGateAppSpec.structs
     },
     social_moderator: {
-      registerShape: 'SocialModeratorGateRegistryInfo',
+      registerShape: 'OperatorAndValue',
       checkShape: 'None',
       structs: SocialModeratorGateAppSpec.structs
+    },
+    moderator_activity: {
+      registerShape: 'ModeratorActivityGateRegistryInfo',
+      checkShape: 'None',
+      structs: ModeratorActivityGateAppSpec.structs
+    },
+    governance_participation: {
+      registerShape: 'GovernanceParticipationGateRegistryInfo',
+      checkShape: 'None',
+      structs: GovernanceParticipationGateAppSpec.structs
     },
     staking_amount: {
       registerShape: 'StakingAmountGateRegistryInfo',
@@ -108,12 +134,12 @@ export class GateSDK extends BaseSDK<GateClient> {
     },
     subscription: {
       registerShape: 'SubscriptionGateRegistryInfo',
-      checkShape: 'None',
+      checkShape: 'SubscriptionGateCheckParams',
       structs: SubscriptionGateAppSpec.structs
     },
     subscription_streak: {
       registerShape: 'SubscriptionStreakGateRegistryInfo',
-      checkShape: 'None',
+      checkShape: 'SubscriptionGateCheckParams',
       structs: SubscriptionStreakGateAppSpec.structs
     }
   }
@@ -152,7 +178,8 @@ export class GateSDK extends BaseSDK<GateClient> {
 
       const name = this.gateEncodings[arg.type].registerShape;
       if (name === 'None') {
-        preppedArgs.push(data);
+        // empty args (do not reuse `data`: it still holds the previous filter's encoding)
+        preppedArgs.push(new Uint8Array());
         continue;
       }
 
@@ -229,6 +256,24 @@ export class GateSDK extends BaseSDK<GateClient> {
           );
           break;
         }
+        case 'moderator_activity': {
+          const { minActions, epochsBack } = arg;
+          data = getABIEncodedValue(
+            { minActions, epochsBack },
+            name,
+            this.gateEncodings[type].structs
+          );
+          break;
+        }
+        case 'governance_participation': {
+          const { withinSeconds, minVotes } = arg;
+          data = getABIEncodedValue(
+            { withinSeconds, minVotes },
+            name,
+            this.gateEncodings[type].structs
+          );
+          break;
+        }
         case 'staking_amount': {
           const { op, asset, stakingType, amount, includeEscrowed } = arg;
           data = getABIEncodedValue(
@@ -248,18 +293,18 @@ export class GateSDK extends BaseSDK<GateClient> {
           break;
         }
         case 'subscription': {
-          const { merchant, id } = arg;
+          const { merchant, serviceId } = arg;
           data = getABIEncodedValue(
-            { merchant, id },
+            { merchant, serviceId },
             name,
             this.gateEncodings[type].structs
           );
           break;
         }
         case 'subscription_streak': {
-          const { merchant, id, op, streak } = arg;
+          const { merchant, serviceId, op, streak } = arg;
           data = getABIEncodedValue(
-            { merchant, id, op, streak },
+            { merchant, serviceId, op, streak },
             name,
             this.gateEncodings[type].structs
           );
@@ -299,7 +344,7 @@ export class GateSDK extends BaseSDK<GateClient> {
         return { type, ...decoded }
       }
       case 'nfd_root': {
-        return { type, root: encoded.toString() };
+        return { type, root: new TextDecoder().decode(encoded) };
       }
       case 'social_activity':
       case 'social_follower_count':
@@ -310,6 +355,14 @@ export class GateSDK extends BaseSDK<GateClient> {
       }
       case 'social_follower_index': {
         const decoded = getABIDecodedValue(encoded, registrationName, structs) as SocialFollowerIndexGateRegistryInfo
+        return { type, ...decoded }
+      }
+      case 'moderator_activity': {
+        const decoded = getABIDecodedValue(encoded, registrationName, structs) as ModeratorActivityGateRegistryInfo
+        return { type, ...decoded }
+      }
+      case 'governance_participation': {
+        const decoded = getABIDecodedValue(encoded, registrationName, structs) as GovernanceParticipationGateRegistryInfo
         return { type, ...decoded }
       }
       case 'staking_amount': {
@@ -344,7 +397,8 @@ export class GateSDK extends BaseSDK<GateClient> {
 
       const name = this.gateEncodings[arg.type].checkShape;
       if (name === 'None') {
-        preppedArgs.push(data);
+        // empty args (do not reuse `data`: it still holds the previous filter's encoding)
+        preppedArgs.push(new Uint8Array());
         continue;
       }
 
@@ -378,8 +432,18 @@ export class GateSDK extends BaseSDK<GateClient> {
           break;
         }
         case 'nfd_root': {
-          const { root } = arg;
-          data = Buffer.from(root)
+          const { appId } = arg;
+          data = encodeUint64(appId);
+          break;
+        }
+        case 'subscription':
+        case 'subscription_streak': {
+          const { subscriber, id } = arg;
+          data = getABIEncodedValue(
+            { subscriber, id },
+            name,
+            this.gateEncodings[type].structs
+          );
           break;
         }
         case 'social_follower_index': {
@@ -443,6 +507,38 @@ export class GateSDK extends BaseSDK<GateClient> {
     });
   }
 
+  /**
+   * Context evaluation (readonly, simulated): context-aware sub-gates receive `checkFor(ctx, ...)`,
+   * all others `check(ctx.principal, ...)`.
+   */
+  async checkFor({ sender, signer, ctx, gateId, args }: GateCheckForParams & MaybeSigner): Promise<boolean> {
+    const sendParams = this.getSendParams({
+      sender: sender ?? this.readerAccount,
+      signer: signer ?? emptySigner
+    });
+
+    const preppedArgs = await this.encodeGateCheckArgs(args);
+
+    const { return: passed } = await this.client.send.checkFor({
+      ...sendParams,
+      args: { ctx, gateId, args: preppedArgs }
+    });
+
+    return passed ?? false;
+  }
+
+  /** `checkFor`, asserted on chain (`errFgte`). Targets pin this call with `gateCheckCtx`. */
+  async mustCheckFor({ sender, signer, ctx, gateId, args }: GateCheckForParams & MaybeSigner): Promise<TxnReturn<void>> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const preppedArgs = await this.encodeGateCheckArgs(args);
+
+    return this.client.send.mustCheckFor({
+      ...sendParams,
+      args: { ctx, gateId, args: preppedArgs }
+    });
+  }
+
   async getGate({ sender, signer, gateId }: ContractArgs['getGate(uint64)(uint64,uint64,uint64,uint8,byte[])[]'] & MaybeSigner): Promise<any> {
     const sendParams = this.getSendParams({
       sender: sender ?? this.readerAccount,
@@ -480,6 +576,38 @@ export class GateSDK extends BaseSDK<GateClient> {
     }
 
     return cost;
+  }
+
+  /**
+   * Allowlist (or remove) a sub-gate app. Only the Gate creator (before imports are sealed)
+   * or the DAO wallet (after) may call this. `ctxAware` (default false) marks a sub-gate that
+   * implements `checkFor(ctx, ...)` (see `CTX_AWARE_GATE_TYPES`); calling again with
+   * `allowed = true` re-flags it in place. Box MBR from the Gate's balance: 6_100 plain,
+   * 6_500 context-aware.
+   */
+  async setSubGate({ sender, signer, app, allowed, ctxAware = false }: { app: bigint | number, allowed: boolean, ctxAware?: boolean } & MaybeSigner): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+    await this.client.send.setSubGate({ ...sendParams, args: { app, allowed, ctxAware } });
+  }
+
+  /** Whether `app` is allowlisted as a context-aware sub-gate. */
+  async isCtxSubGate({ sender, signer, app }: { app: bigint | number } & MaybeSigner): Promise<boolean> {
+    const sendParams = this.getSendParams({
+      sender: sender ?? this.readerAccount,
+      signer: signer ?? emptySigner
+    });
+    const { return: flagged } = await this.client.send.isCtxSubGate({ ...sendParams, args: { app } });
+    return flagged ?? false;
+  }
+
+  /** Whether `app` is an allowlisted sub-gate. */
+  async isSubGate({ sender, signer, app }: { app: bigint | number } & MaybeSigner): Promise<boolean> {
+    const sendParams = this.getSendParams({
+      sender: sender ?? this.readerAccount,
+      signer: signer ?? emptySigner
+    });
+    const { return: allowed } = await this.client.send.isSubGate({ ...sendParams, args: { app } });
+    return allowed ?? false;
   }
 
   readonly build = {
@@ -525,6 +653,43 @@ export class GateSDK extends BaseSDK<GateClient> {
       return await this.client.params.mustCheck({
         ...sendParams,
         args: { caller, gateId, args: preppedArgs }
+      });
+    },
+
+    /** The gate txn a direct caller puts before a hinted target method (`gateCheckCtx` asserts it). */
+    mustCheckFor: async ({
+      sender,
+      signer,
+      ctx,
+      gateId,
+      args
+    }: GateCheckForParams & MaybeSigner): Promise<AppCallMethodCall> => {
+
+      const sendParams = this.getRequiredSendParams({ sender, signer });
+
+      const preppedArgs = await this.encodeGateCheckArgs(args);
+
+      return await this.client.params.mustCheckFor({
+        ...sendParams,
+        args: { ctx, gateId, args: preppedArgs }
+      });
+    },
+
+    checkFor: async ({
+      sender,
+      signer,
+      ctx,
+      gateId,
+      args
+    }: GateCheckForParams & MaybeSigner): Promise<AppCallMethodCall> => {
+
+      const sendParams = this.getRequiredSendParams({ sender, signer });
+
+      const preppedArgs = await this.encodeGateCheckArgs(args);
+
+      return await this.client.params.checkFor({
+        ...sendParams,
+        args: { ctx, gateId, args: preppedArgs }
       });
     }
   }

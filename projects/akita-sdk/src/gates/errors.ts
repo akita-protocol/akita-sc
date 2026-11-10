@@ -10,13 +10,13 @@
  * message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Gate contract and
  * sub-gates can emit. Ordered roughly the same way as the contract-side file.
  */
-export const GATES_ERROR_MESSAGES: Record<string, string> = {
+export const GATES_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Gate registry lifecycle --------------------------------------------
   IARG: 'Invalid number of arguments',
   IRGA: 'Invalid registry ID for this gate',
@@ -25,11 +25,17 @@ export const GATES_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Filter / evaluation ------------------------------------------------
   NGAT: 'Gate not found',
-  ILYR: 'Gate filter layers must be monotonically non-decreasing',
+  ILYR: 'Invalid gate structure: 1-8 filters, layers start at 0 and grow by at most 1',
 
   // --- Sub-gate specific --------------------------------------------------
   IWID: 'Invalid wallet ID provided',
-}
+
+  // --- Gate v2 -------------------------------------------------------------
+  ISGT: 'Sub-gate app is not on the Gate allowlist',
+  SCST: 'Sub-gate registration cost exceeds the per-filter cap',
+  ICLS: 'Legacy gate imports are closed (sealed or caller is not the migrator)',
+  IGID: 'Gate id is outside the allowed range',
+})
 
 /**
  * Translates a short Gate error code (or raw ARC-65 log entry) into a
