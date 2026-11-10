@@ -1,3 +1,4 @@
+import { decodeAddress } from "algosdk";
 import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
@@ -96,8 +97,7 @@ export class MetaMerklesSDK extends BaseSDK<MetaMerklesClient> {
    */
   async getData({ address, name, key }: GetDataParams): Promise<string | undefined> {
     // Truncate address to first 16 bytes for the data key
-    const addressBytes = Uint8Array.from(Buffer.from(address.slice(0, 32), 'base64'));
-    const truncatedAddress = addressBytes.slice(0, 16);
+    const truncatedAddress = decodeAddress(address).publicKey.slice(0, 16);
 
     try {
       return await this.client.state.box.data.value({

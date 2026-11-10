@@ -1,25 +1,22 @@
+import { deployAkitaDAO } from '../../tests/fixtures/dao'
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest'
-import {
-  MerkleTreeType,
-  MetaMerklesSDK,
-  SchemaPart,
-  bytesToHex,
-  createUint64Tree,
-} from 'akita-sdk/meta-merkles'
+import { MerkleTreeType, MetaSDK, SchemaPart, bytesToHex, createUint64Tree } from 'akita-sdk/meta'
 import algosdk from 'algosdk'
 import { installAccessListResourcePopulator } from '../../../akita-sdk/src/simulate/access-list'
-import { MetaMerklesFactory } from '../artifacts/meta-merkles/MetaMerklesClient'
+import { MetaFactory } from '../artifacts/meta/MetaClient'
 import {
-  ERR_FAILED_TO_VERIFY_INCLUSION,
-  ERR_NAME_TAKEN,
-  ERR_NO_NAME,
-  ERR_NO_ROOT_FOR_DATA,
-  ERR_NO_TREE_TYPE,
-  ERR_RESERVED_KEY_PREFIX
+  errFailedToVerifyInclusion,
+  errNameTaken,
+  errNameTooLong,
+  errNoName,
+  errNoRootForData,
+  errNoTreeType,
+  errReservedKeyPrefix,
 } from './errors'
+import { errInvalidName } from './errors'
 
 algokit.Config.configure({
   debug: true,
@@ -31,12 +28,12 @@ installAccessListResourcePopulator()
 const randomSuffix = () => Math.random().toString(36).slice(2, 8)
 const uniqueName = (base: string) => `${base}-${randomSuffix()}`
 
-describe('MetaMerkles SDK Tests', () => {
+describe('Meta SDK Tests', () => {
   const fixture = algorandFixture()
 
-  let deployer: algosdk.Address & TransactionSignerAccount
-  let otherAccount: algosdk.Address & TransactionSignerAccount
-  let sdk: MetaMerklesSDK
+  let deployer: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount
+  let otherAccount: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount
+  let sdk: MetaSDK
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
   beforeAll(async () => {
@@ -53,18 +50,19 @@ describe('MetaMerkles SDK Tests', () => {
     await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (1000).algos())
     await algorand.account.ensureFunded(otherAccount.addr, dispenser.addr, (100).algos())
 
-    // Create the MetaMerkles contract
-    const factory = algorand.client.getTypedAppFactory(MetaMerklesFactory, {
+    // Create the Meta contract
+    const dao = await deployAkitaDAO({ fixture, sender: testAccount.toString(), signer: testAccount.signer, apps: {} })
+    const factory = algorand.client.getTypedAppFactory(MetaFactory, {
       defaultSender: deployer.addr,
       defaultSigner: deployer.signer,
     })
 
     const results = await factory.send.create.create({
-      args: {},
+      args: { version: 'test', akitaDao: dao.appId },
     })
 
     // Initialize the SDK
-    sdk = new MetaMerklesSDK({
+    sdk = new MetaSDK({
       factoryParams: {
         appId: results.appClient.appId,
         defaultSender: deployer.addr,
@@ -81,8 +79,8 @@ describe('MetaMerkles SDK Tests', () => {
       amount: algokit.microAlgo(500_000_000n),
     })
 
-    console.log('MetaMerkles App ID:', sdk.appId)
-    console.log('MetaMerkles Address:', sdk.client.appAddress.toString())
+    console.log('Meta App ID:', sdk.appId)
+    console.log('Meta Address:', sdk.client.appAddress.toString())
 
     // Create initial tree types for all tests to use
     await sdk.addType({
@@ -129,14 +127,16 @@ describe('MetaMerkles SDK Tests', () => {
       expect(costs).toBeGreaterThan(0n)
     })
 
-    test('dataCosts returns valid costs', async () => {
+    test.each(['', '500', 'é🎨'])('dataCosts quotes native UTF-8 payload bytes for %j', async (value) => {
       const costs = await sdk.dataCosts({
         name: 'test-root',
         key: 'royalty',
-        value: '500',
+        value,
       })
 
-      expect(costs).toBeGreaterThan(0n)
+      // Box name: m + owner[32] + namespace length[1] + name[9] + key[7].
+      // Stored value: revision/ARC-4 header[12] + UTF-8 data, without its argument prefix.
+      expect(costs).toBe(2500n + 400n * BigInt(50 + 12 + new TextEncoder().encode(value).length))
     })
 
     test('dataCosts increases with longer values', async () => {
@@ -172,6 +172,7 @@ describe('MetaMerkles SDK Tests', () => {
 
       const newState = await sdk.getState()
       expect(newState.typesId).toBe(initialTypesId + 1n)
+      expect((await sdk.getType({ id: initialTypesId }))!.schema).toBe('()')
     })
 
     test('addType with uint64 schema', async () => {
@@ -182,21 +183,19 @@ describe('MetaMerkles SDK Tests', () => {
 
       const state = await sdk.getState()
       expect(state.typesId).toBeGreaterThan(0n)
+      expect((await sdk.getType({ id: state.typesId - 1n }))!.schema).toBe('(uint64)')
     })
 
     test('addType with complex schema', async () => {
       await sdk.addType({
         description: 'Trade - address,address,uint64,uint64',
-        schemaList: [
-          SchemaPart.Address,
-          SchemaPart.Address,
-          SchemaPart.Uint64,
-          SchemaPart.Uint64,
-        ],
+        schemaList: [SchemaPart.Address, SchemaPart.Address, SchemaPart.Uint64, SchemaPart.Uint64],
       })
 
       const types = await sdk.getTypes()
       expect(types.size).toBeGreaterThan(0)
+      const state = await sdk.getState()
+      expect(types.get(state.typesId - 1n)!.schema).toBe('(address,address,uint64,uint64)')
     })
 
     test('getType retrieves created type', async () => {
@@ -254,13 +253,13 @@ describe('MetaMerkles SDK Tests', () => {
         signer: deployer.signer,
         args: { payment, name, root: tree.root, type: collectionTypeId },
       })
-      const appCall = result.transactions.find((transaction) => transaction.appCall)?.appCall
+      const appCall = result.transactions.find((transaction) => transaction.applicationCall)?.applicationCall
 
-      expect(appCall?.accessReferences?.length).toBeGreaterThan(0)
-      expect(appCall?.accountReferences ?? []).toHaveLength(0)
-      expect(appCall?.appReferences ?? []).toHaveLength(0)
-      expect(appCall?.assetReferences ?? []).toHaveLength(0)
-      expect(appCall?.boxReferences ?? []).toHaveLength(0)
+      expect(appCall?.access?.length).toBeGreaterThan(0)
+      expect(appCall?.accounts ?? []).toHaveLength(0)
+      expect(appCall?.foreignApps ?? []).toHaveLength(0)
+      expect(appCall?.foreignAssets ?? []).toHaveLength(0)
+      expect(appCall?.boxes ?? []).toHaveLength(0)
     })
 
     test('addRootFromTree convenience method works', async () => {
@@ -326,8 +325,8 @@ describe('MetaMerkles SDK Tests', () => {
           name,
           root: tree.root,
           type: collectionTypeId,
-        })
-      ).rejects.toThrow(ERR_NAME_TAKEN)
+        }),
+      ).rejects.toThrow(errNameTaken)
     })
 
     test('addRoot fails for non-existent type', async () => {
@@ -338,8 +337,8 @@ describe('MetaMerkles SDK Tests', () => {
           name: uniqueName('bad-type'),
           root: tree.root,
           type: 9999n, // Non-existent type
-        })
-      ).rejects.toThrow(ERR_NO_TREE_TYPE)
+        }),
+      ).rejects.toThrow(errNoTreeType)
     })
 
     test('updateRoot modifies existing root', async () => {
@@ -374,8 +373,8 @@ describe('MetaMerkles SDK Tests', () => {
         sdk.updateRoot({
           name: uniqueName('non-existent'),
           newRoot: tree.root,
-        })
-      ).rejects.toThrow(ERR_NO_NAME)
+        }),
+      ).rejects.toThrow(errNoName)
     })
 
     test('deleteRoot removes root and returns MBR', async () => {
@@ -393,7 +392,7 @@ describe('MetaMerkles SDK Tests', () => {
         await sdk.hasRoot({
           address: deployer.addr.toString(),
           name,
-        })
+        }),
       ).toBe(true)
 
       // Delete it
@@ -404,14 +403,12 @@ describe('MetaMerkles SDK Tests', () => {
         await sdk.hasRoot({
           address: deployer.addr.toString(),
           name,
-        })
+        }),
       ).toBe(false)
     })
 
     test('deleteRoot fails for non-existent root', async () => {
-      await expect(
-        sdk.deleteRoot({ name: uniqueName('non-existent') })
-      ).rejects.toThrow(ERR_NO_NAME)
+      await expect(sdk.deleteRoot({ name: uniqueName('non-existent') })).rejects.toThrow(errNoName)
     })
   })
 
@@ -490,8 +487,8 @@ describe('MetaMerkles SDK Tests', () => {
           name: uniqueName('non-existent'),
           key: 'test',
           value: 'value',
-        })
-      ).rejects.toThrow(ERR_NO_ROOT_FOR_DATA)
+        }),
+      ).rejects.toThrow(errNoRootForData)
     })
 
     test('addData fails with reserved key prefix', async () => {
@@ -509,8 +506,8 @@ describe('MetaMerkles SDK Tests', () => {
           name,
           key: 'l.forbidden',
           value: 'test',
-        })
-      ).rejects.toThrow(ERR_RESERVED_KEY_PREFIX)
+        }),
+      ).rejects.toThrow(errReservedKeyPrefix)
     })
 
     test('deleteData removes metadata', async () => {
@@ -697,8 +694,8 @@ describe('MetaMerkles SDK Tests', () => {
           proof: testTree.getProof(0),
           type: verifyTypeId,
           key: 'royalty',
-        })
-      ).rejects.toThrow(ERR_FAILED_TO_VERIFY_INCLUSION)
+        }),
+      ).rejects.toThrow(errFailedToVerifyInclusion)
     })
 
     test('verifiedMustRead returns value for valid proof', async () => {
@@ -781,10 +778,10 @@ describe('MetaMerkles SDK Tests', () => {
       }
     })
 
-    test('handles max name length (31 bytes)', async () => {
+    test('handles the actual 31-byte root-name limit', async () => {
       const tree = createUint64Tree([1n])
-      // Create a unique max-length name (26 chars base + '-' + unique suffix)
-      const maxName = uniqueName('max').slice(0, 31)
+      const maxName = uniqueName('max').padEnd(31, 'x')
+      expect(new TextEncoder().encode(maxName).length).toBe(31)
 
       await sdk.addRoot({
         name: maxName,
@@ -797,6 +794,11 @@ describe('MetaMerkles SDK Tests', () => {
         name: maxName,
       })
       expect(hasRoot).toBe(true)
+      expect([...(await sdk.getRoots()).keys()].some((key) => key.address === deployer.addr.toString() && key.name === maxName)).toBe(true)
+      await expect(sdk.addRoot({ name: maxName + 'x', root: tree.root, type: edgeCaseTypeId })).rejects.toThrow(errNameTooLong)
+      await expect(sdk.addRoot({ name: '', root: tree.root, type: edgeCaseTypeId })).rejects.toThrow(
+        new RegExp(errInvalidName),
+      )
     })
 
     test('handles unicode in metadata values', async () => {
@@ -857,7 +859,7 @@ describe('MetaMerkles SDK Tests', () => {
     // Use collection type (id 1) created in beforeAll
     const multiUserTypeId = 1n
 
-    test('can read another user\'s root', async () => {
+    test("can read another user's root", async () => {
       const tree = createUint64Tree([1n, 2n, 3n])
       const name = uniqueName('readable')
 

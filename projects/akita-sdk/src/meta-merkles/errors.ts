@@ -10,13 +10,13 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the MetaMerkles
  * contracts can emit. Ordered roughly the same way as the contract-side file.
  */
-export const META_MERKLES_ERROR_MESSAGES: Record<string, string> = {
+export const META_MERKLES_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Box key / data validation -----------------------------------------
   KTL: 'Max key length is 32 bytes',
   DTL: 'Max data length is 1024 bytes',
@@ -42,7 +42,7 @@ export const META_MERKLES_ERROR_MESSAGES: Record<string, string> = {
   // --- Tree types ---------------------------------------------------------
   NTRT: 'Tree type does not exist',
   ETRK: 'Tree type key already exists for this root',
-}
+})
 
 /**
  * Translates a short MetaMerkles error code (or raw ARC-65 log entry) into a
