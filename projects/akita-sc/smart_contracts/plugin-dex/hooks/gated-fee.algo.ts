@@ -471,7 +471,7 @@ export class GatedFeeHook extends Contract {
    * BeforeSwap from inside an app call (`ctx.callerApp != 0`) with a hint that is not a wallet of `F` (a
    * third-party ARC-58 wallet, or a wallet of another deployment's factory) is priced as hint 0: the key is
    * the authenticated `ctx.caller`, never anything read through the hint. Such a hint can only ever resolve
-   * to `ctx.caller`, and immutable plugins (AkitaRouterPlugin) forward their window hint unconditionally, so
+   * to `ctx.caller`, and immutable plugins (PluginDexPlugin) forward their window hint unconditionally, so
    * a revert here would only block their swaps (IMPLEMENTATION-LOG, plugin-dex review fixes, deviation 1).
    * Quote agrees: `thirdPartyPrincipal` returns the swapper for such a hint. A top-level hint stays strict
    * (errHnwl / errHtop), and a genuine wallet's hint stays strict everywhere (errHnbd, errIwlt).

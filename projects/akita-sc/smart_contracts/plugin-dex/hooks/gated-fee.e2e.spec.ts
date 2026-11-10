@@ -14,6 +14,7 @@ import { ImpactFeeHookFactory } from '../../artifacts/plugin-dex/hooks/ImpactFee
 import { PluginDexClient } from '../../artifacts/plugin-dex/PluginDexClient'
 import { MockDexHookFactory } from '../../artifacts/plugin-dex/tests/MockDexHookClient'
 import { GatedFeePassPluginFactory } from '../../artifacts/arc58/plugins/gated-fee-pass/GatedFeePassPluginClient'
+import { PluginDexPluginClient, PluginDexPluginFactory } from '../../artifacts/arc58/plugins/plugin-dex/PluginDexPluginClient'
 import { MockGatedFeePluginClient, MockGatedFeePluginFactory } from '../../artifacts/plugin-dex/tests/MockGatedFeePluginClient'
 import { MockMirrorDaoFactory } from '../../artifacts/plugin-dex/tests/MockMirrorDAOClient'
 import { APP_SPEC as ForgedWalletSpec, MockForgedWalletClient } from '../../artifacts/mocks/forged-wallet/MockForgedWalletClient'
@@ -36,7 +37,6 @@ import {
   poolConfig,
   transferTxn,
 } from '../../../tests/fixtures/plugin-dex'
-import { deployAkitaRouterPlugin, deployVenueRegistry, legTuple, native } from '../../../tests/fixtures/plugins/akita-router'
 import { addRawPlugin, assertUnregistered, newUnregisteredWallet } from '../../../tests/fixtures/unregistered-wallet'
 import { deployStaking } from '../../../tests/fixtures/staking'
 import { deployStakingPowerGate } from '../../../tests/fixtures/subgates'
@@ -910,9 +910,8 @@ describe('GatedFeeHook (WP5a)', () => {
     let dao2: bigint
     let hook2: GatedFeeHookClient
     let pool2: bigint
-    let escrow2: string
     let plugin: MockGatedFeePluginClient
-    let router: Awaited<ReturnType<typeof deployAkitaRouterPlugin>>
+    let dexPlugin: PluginDexPluginClient
     /** admin of every wallet below (signs the window groups) */
     let owner: TransactionSignerAccount
     /** Wx: external controlled address `holder` (a one-year 10 ALGO lock: power 9), escrow 'e' at WxE */
@@ -939,7 +938,7 @@ describe('GatedFeeHook (WP5a)', () => {
       for (const call of calls) group.addAppCallMethodCall(call)
       group.addAppCallMethodCall(await wallet.client.params.arc58VerifyAuthAddress({ sender: owner.addr, signer: owner.signer, args: {}, maxFee }))
       for (let i = 0; i < carriers; i++) {
-        group.addAppCallMethodCall(await router.client.params.opUp({ sender: owner.addr, signer: owner.signer, args: {}, note: `carrier ${i}`, maxFee }))
+        group.addAppCallMethodCall(await dexPlugin.params.opUp({ sender: owner.addr, signer: owner.signer, args: {}, note: `carrier ${i}`, maxFee }))
       }
       const result = await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
       return result.returns!.slice(1, 1 + calls.length).map((r) => r.returnValue)
@@ -963,34 +962,34 @@ describe('GatedFeeHook (WP5a)', () => {
         args: { wallet: w.appId, rekeyBack: true, key, slot: 0n, gateId, args: [NO_DATA] },
         maxFee,
       })
-    /** router swap of `amountIn` ALGO → TKA on pool2, inside `w`'s window (escrow '' = default grant) */
-    const routerSwap = async (w: WalletSDK, amountIn: bigint, minAmountOut: bigint, escrow = '') =>
+    /** PluginDexPlugin swap of `amountIn` ALGO → TKA on pool2, inside `w`'s window (escrow '' = default grant) */
+    const pluginSwap = async (w: WalletSDK, amountIn: bigint, minAmountOut: bigint, escrow = '') =>
       inWindow(
         w,
         [
-          await router.client.params.swap({
+          await dexPlugin.params.swap({
             sender: owner.addr,
             signer: owner.signer,
-            args: { wallet: w.appId, rekeyBack: true, assetIn: 0n, assetOut: tka, minAmountOut, flags: 0n, legs: [legTuple({ amountIn, segments: [native(tka, [pool2], escrow2)] })] },
+            args: { wallet: w.appId, rekeyBack: true, poolId: pool2, assetIn: 0n, amountIn, minAmountOut, data: NO_DATA },
             maxFee,
           }),
         ],
         escrow,
-        router.appId,
+        dexPlugin.appId,
         1,
       )
     const quote2 = async (swapper: string, wallet: bigint, amountIn = 1_000_000n) =>
       (await dex.send.quote({ args: { poolId: pool2, assetIn: 0n, amountIn, swapper, data: NO_DATA, wallet }, ...send })).return!
     const tkaOf = async (address: string) => (await algorand.asset.getAccountInformation(address, tka)).balance
 
-    /** a router swap from `w`'s window is priced at `feeBps`; the client quote (swapper, wallet) predicts it exactly */
-    const expectRouterSwapAtFee = async (w: WalletSDK, S: string, escrow: string, quoteSwapper: string, feeBps: bigint) => {
+    /** a plugin swap from `w`'s window is priced at `feeBps`; the client quote (swapper, wallet) predicts it exactly */
+    const expectPluginSwapAtFee = async (w: WalletSDK, S: string, escrow: string, quoteSwapper: string, feeBps: bigint) => {
       const amountIn = 1_000_000n
       const before = await dex.getPool({ args: { poolId: pool2 } })
       const quoted = await quote2(quoteSwapper, w.appId, amountIn)
       expect(quoted).toBe(expectedOut(amountIn, before.reserveA, before.reserveB, feeBps))
       const out0 = await tkaOf(S).catch(() => 0n)
-      await routerSwap(w, amountIn, quoted, escrow)
+      await pluginSwap(w, amountIn, quoted, escrow)
       expect((await tkaOf(S)) - out0).toBe(quoted)
       const after = await dex.getPool({ args: { poolId: pool2 } })
       const lpFee = (amountIn * feeBps) / 10_000n
@@ -1024,7 +1023,6 @@ describe('GatedFeeHook (WP5a)', () => {
       // the mirror DAO's admin wallet is the main DAO wallet (signed by admin)
       await hook2.send.setGateSlots({ sender: daoWallet.addr, signer: daoWallet.signer, args: { slots: [gateId] }, ...send })
       pool2 = await newPool([hookInstall({ app: hook2.appId, points: GATED_POINTS, perms: DYNAMIC_FEE, funding: 17_300n + 12_800n * 4n, initData: encodeSchedule(MAIN_SCHEDULE) })])
-      escrow2 = getApplicationAddress((await dex.getPool({ args: { poolId: pool2 } })).escrow).toString()
 
       plugin = (
         await algorand.client
@@ -1032,7 +1030,11 @@ describe('GatedFeeHook (WP5a)', () => {
           .send.create.create({ args: { hook: hook2.appId, akitaDao: dao2 } })
       ).appClient
       await plugin.appClient.fundAppAccount({ amount: microAlgo(200_000n) })
-      router = await deployAkitaRouterPlugin({ algorand, sender: admin, dex: dex.appId, registry: (await deployVenueRegistry(algorand, admin)).appId, legAssets: [tka] })
+      dexPlugin = (
+        await algorand.client
+          .getTypedAppFactory(PluginDexPluginFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
+          .send.create.create({ args: { version: 'test', dex: dex.appId } })
+      ).appClient
 
       owner = await newAccount(200)
       holder = await newAccount()
@@ -1050,7 +1052,7 @@ describe('GatedFeeHook (WP5a)', () => {
       Wd = await newUnregisteredWallet({ walletFactory: accountFactory, sender: owner.addr, signer: owner.signer, nickname: 'gated wd', fund: (20).algo() })
       const raw = { sender: owner.addr, signer: owner.signer }
       for (const w of [Wx, Wd]) {
-        for (const app of [plugin.appId, router.appId]) {
+        for (const app of [plugin.appId, dexPlugin.appId]) {
           await addRawPlugin(w, { plugin: app }, raw)
           await addRawPlugin(w, { plugin: app, escrow: 'e' }, raw)
         }
@@ -1117,12 +1119,12 @@ describe('GatedFeeHook (WP5a)', () => {
       }
     })
 
-    test('BeforeSwap (T-15 rewrite): router swaps from default and escrow windows use the principal\'s one pass; quote(swapper, W) == swap', async () => {
+    test('BeforeSwap (T-15 rewrite): plugin swaps from default and escrow windows use the principal\'s one pass; quote(swapper, W) == swap', async () => {
       await ensureDayMargin()
       // Wx (external C): principal holder in both windows
       await inWindow(Wx, [await pOpen(Wx, holder.addr.toString(), MEASURE_POWER)])
-      await expectRouterSwapAtFee(Wx, holder.addr.toString(), '', holder.addr.toString(), 50n)
-      await expectRouterSwapAtFee(Wx, WxE, 'e', WxE, 50n)
+      await expectPluginSwapAtFee(Wx, holder.addr.toString(), '', holder.addr.toString(), 50n)
+      await expectPluginSwapAtFee(Wx, WxE, 'e', WxE, 50n)
       // one pass and one daily count across the wallet's escrows
       expect(await hook2.getDiscountedSwapsToday({ args: { key: holder.addr.toString() } })).toBe(2n)
       expect((await hook2.getPass({ args: { key: WxE } })).validUntil).toBe(0n)
@@ -1130,11 +1132,11 @@ describe('GatedFeeHook (WP5a)', () => {
       // Wd (default wallet): the pass is keyed by Wd.address; the default window has S == C, the escrow window S = WdE
       const [wdPass] = await inWindow(Wd, [await pOpen(Wd, addr(Wd), MEASURE_IMPACT)])
       expect(asPass(wdPass)).toMatchObject({ impact: 800n, funder: addr(Wd) })
-      await expectRouterSwapAtFee(Wd, addr(Wd), '', addr(Wd), 50n)
-      await expectRouterSwapAtFee(Wd, WdE, 'e', WdE, 50n)
+      await expectPluginSwapAtFee(Wd, addr(Wd), '', addr(Wd), 50n)
+      await expectPluginSwapAtFee(Wd, WdE, 'e', WdE, 50n)
       expect(await hook2.getDiscountedSwapsToday({ args: { key: addr(Wd) } })).toBe(2n)
-      // neither the wallets' admin nor the router has a pass: the discount can only come from the hinted principal
-      for (const key of [owner.addr.toString(), router.client.appAddress.toString(), WdE]) {
+      // neither the wallets' admin nor the plugin has a pass: the discount can only come from the hinted principal
+      for (const key of [owner.addr.toString(), dexPlugin.appAddress.toString(), WdE]) {
         expect(await hook2.previewFee({ args: { poolId: pool2, key, feeBps: POOL_FEE } })).toBe(POOL_FEE)
       }
       // a top-level swap that names Wd as its hint is not Wd acting: errHtop (genuine wallet, no caller app)
@@ -1143,20 +1145,19 @@ describe('GatedFeeHook (WP5a)', () => {
     })
 
     /**
-     * Review fix (IMPLEMENTATION-LOG, plugin-dex review fixes, deviation 1). The router always forwards
+     * Review fix (IMPLEMENTATION-LOG, plugin-dex review fixes, deviation 1). PluginDexPlugin always forwards
      * windowHint(wallet). Before the fix, any wallet that is not a wallet of the hook's own factory F reverted
-     * every router swap into a GatedFee pool (errHnwl), while the router's quote for the same wallet succeeded.
+     * every plugin swap into a GatedFee pool (errHnwl), while the quote for the same wallet succeeded.
      * Now such a hint, inside an app call, is priced as hint 0: key = the Vault's authenticated Txn.sender (S).
      */
-    test('router into a GatedFee pool for a wallet that is not of the hook\'s factory: priced as hint 0 (S), never reverts, never prices the claimed identity', async () => {
+    test('plugin swap into a GatedFee pool for a wallet that is not of the hook\'s factory: priced as hint 0 (S), never reverts, never prices the claimed identity', async () => {
       await ensureDayMargin()
       const amountIn = 1_000_000n
-      const gatedEscrow = getApplicationAddress((await dex.getPool({ args: { poolId: gatedPool } })).escrow).toString()
-      const routerSwapParams = (wallet: bigint, sender: TransactionSignerAccount, minAmountOut: bigint) =>
-        router.client.params.swap({
+      const pluginSwapParams = (wallet: bigint, sender: TransactionSignerAccount, minAmountOut: bigint) =>
+        dexPlugin.params.swap({
           sender: sender.addr,
           signer: sender.signer,
-          args: { wallet, rekeyBack: true, assetIn: 0n, assetOut: tka, minAmountOut, flags: 0n, legs: [legTuple({ amountIn, segments: [native(tka, [gatedPool], gatedEscrow)] })] },
+          args: { wallet, rekeyBack: true, poolId: gatedPool, assetIn: 0n, amountIn, minAmountOut, data: NO_DATA },
           maxFee,
         })
       const fullOut = async () => {
@@ -1169,12 +1170,12 @@ describe('GatedFeeHook (WP5a)', () => {
       const wdFull = await fullOut()
       expect(await quote(gatedPool, 0n, amountIn, addr(Wd), admin, Wd.appId)).toBe(wdFull)
       const wdOut0 = await tkaOf(addr(Wd)).catch(() => 0n)
-      await inWindow(Wd, [await routerSwapParams(Wd.appId, owner, wdFull)], '', router.appId, 1)
+      await inWindow(Wd, [await pluginSwapParams(Wd.appId, owner, wdFull)], '', dexPlugin.appId, 1)
       expect((await tkaOf(addr(Wd))) - wdOut0).toBe(wdFull)
       expect(await swapsToday(addr(Wd))).toBe(0n)
 
       // (b) a third-party ARC-58 wallet stand-in (test-only raw TEAL, created by an EOA, never by a factory) that
-      // claims a pass holder as its controlled address and A as its spending account. A is rekeyed to the router.
+      // claims a pass holder as its controlled address and A as its spending account. A is rekeyed to the plugin.
       const claimed = await newImpactPassHolder()
       expect(await hook.previewFee({ args: { poolId: gatedPool, key: claimed.caller, feeBps: POOL_FEE } })).toBe(50n)
       const A = await newAccount()
@@ -1199,16 +1200,16 @@ describe('GatedFeeHook (WP5a)', () => {
         schema: { globalInts: 0, globalByteSlices: 2, localInts: 0, localByteSlices: 0 },
         args: [A.addr.publicKey, claimed.user.addr.publicKey],
       })
-      await algorand.send.payment({ sender: A.addr, signer: A.signer, receiver: A.addr, amount: microAlgo(0), rekeyTo: router.client.appAddress })
+      await algorand.send.payment({ sender: A.addr, signer: A.signer, receiver: A.addr, amount: microAlgo(0), rekeyTo: dexPlugin.appAddress })
 
-      // the router's quote path (thirdPartyPrincipal) and the swap agree: S = A, full fee
+      // the quote path (thirdPartyPrincipal) and the plugin swap agree: S = A, full fee
       const aFull = await fullOut()
       expect(await quote(gatedPool, 0n, amountIn, A.addr.toString(), admin, thirdPartyWallet)).toBe(aFull)
       const aOut0 = await tkaOf(A.addr.toString())
       const claimedSwaps0 = await swapsToday(claimed.caller)
-      const group = algorand.newGroup().addAppCallMethodCall(await routerSwapParams(thirdPartyWallet, attacker, aFull))
+      const group = algorand.newGroup().addAppCallMethodCall(await pluginSwapParams(thirdPartyWallet, attacker, aFull))
       for (let i = 0; i < 2; i++) {
-        group.addAppCallMethodCall(await router.client.params.opUp({ sender: attacker.addr, signer: attacker.signer, args: {}, note: `carrier ${i}`, maxFee }))
+        group.addAppCallMethodCall(await dexPlugin.params.opUp({ sender: attacker.addr, signer: attacker.signer, args: {}, note: `carrier ${i}`, maxFee }))
       }
       await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
       expect((await tkaOf(A.addr.toString())) - aOut0).toBe(aFull)
@@ -1288,7 +1289,7 @@ describe('GatedFeeHook (WP5a)', () => {
      * caller-supplied (derived from pluginPrincipal), the hook is pinned at create, and every call forwards
      * windowHint(wallet). Wp: external controlled address pHolder (one-year 10 ALGO lock: power 9), escrow 'e'.
      */
-    test('GatedFeePassPlugin (production): open, refresh, refreshFromGate and close the principal\'s pass from default and escrow windows; the pass prices router swaps', async () => {
+    test('GatedFeePassPlugin (production): open, refresh, refreshFromGate and close the principal\'s pass from default and escrow windows; the pass prices plugin swaps', async () => {
       await ensureDayMargin()
       const passPlugin = (
         await algorand.client
@@ -1311,7 +1312,7 @@ describe('GatedFeeHook (WP5a)', () => {
         fund: (5).algo(),
       })
       const raw = { sender: owner.addr, signer: owner.signer }
-      for (const app of [passPlugin.appId, router.appId]) {
+      for (const app of [passPlugin.appId, dexPlugin.appId]) {
         await addRawPlugin(Wp, { plugin: app }, raw)
         await addRawPlugin(Wp, { plugin: app, escrow: 'e' }, raw)
       }
@@ -1362,9 +1363,9 @@ describe('GatedFeeHook (WP5a)', () => {
       // reopen from the escrow window: the escrow funds it, the key is still the principal
       const [reopened] = await inWindow(Wp, [await p.open(MEASURE_POWER)], 'e', passPlugin.appId)
       expect(asPass(reopened)).toMatchObject({ power: 9n, funder: WpE })
-      // the pass prices router swaps of the wallet (default window, S = pHolder; escrow window, S = WpE)
-      await expectRouterSwapAtFee(Wp, key, '', key, 50n)
-      await expectRouterSwapAtFee(Wp, WpE, 'e', WpE, 50n)
+      // the pass prices plugin swaps of the wallet (default window, S = pHolder; escrow window, S = WpE)
+      await expectPluginSwapAtFee(Wp, key, '', key, 50n)
+      await expectPluginSwapAtFee(Wp, WpE, 'e', WpE, 50n)
       expect(await hook2.getDiscountedSwapsToday({ args: { key } })).toBe(2n)
       // a pass with discounted swaps today cannot be closed until the next UTC day
       await expectContractError(inWindow(Wp, [await p.close()], 'e', passPlugin.appId), 'errGfdy')
@@ -1382,11 +1383,11 @@ describe('GatedFeeHook (WP5a)', () => {
       const open = await mainPlugin.params.openPass({ sender: owner.addr, signer: owner.signer, args: { wallet: Wd.appId, rekeyBack: true, measure: MEASURE_IMPACT, gateArgs: [] }, maxFee })
       await expectContractError(inWindow(Wd, [open], '', mainPlugin.appId), 'errHnwl')
       expect((await hook.getPass({ args: { key: addr(Wd) } })).validUntil).toBe(0n)
-      // the router has no `akita_dao` global: not a GatedFeeHook
+      // PluginDexPlugin has no `akita_dao` global: not a GatedFeeHook
       await expectContractError(
         algorand.client
           .getTypedAppFactory(GatedFeePassPluginFactory, { defaultSender: admin.addr, defaultSigner: admin.signer })
-          .send.create.create({ args: { version: 'test', hook: router.appId } }),
+          .send.create.create({ args: { version: 'test', hook: dexPlugin.appId } }),
         'errGpHk',
       )
     })

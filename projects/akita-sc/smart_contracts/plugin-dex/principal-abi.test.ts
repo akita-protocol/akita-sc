@@ -52,7 +52,6 @@ describe('PluginDex principal resolution (§6.12) — static', () => {
       'plugin-dex/hooks/SwapTaxHook.arc56.json',
       'plugin-dex/hooks/VolatilityFeeHook.arc56.json',
       'plugin-dex/tests/RecordingDexHook.arc56.json',
-      'plugin-dex/tests/RouterRecordingHook.arc56.json',
       'plugin-dex/tests/MockDexHook.arc56.json',
       'plugin-dex/tests/MockUpdatableHook.arc56.json',
       'plugin-dex/curves/bins/tests/BinsTradeHook.arc56.json',
@@ -99,10 +98,10 @@ describe('PluginDex principal resolution (§6.12) — static', () => {
     expect(passKey.split('isGenuineWallet').length - 1).toBe(1)
   })
 
-  test('no PluginDex or router source reads the EscrowFactory registry (no legacy* helpers, no shared/origin.ts)', () => {
+  test('no PluginDex or PluginDexPlugin source reads the EscrowFactory registry (no legacy* helpers, no shared/origin.ts)', () => {
     const files = [
       ...sources(path.join(root, 'plugin-dex')),
-      ...sources(path.join(root, 'arc58/plugins/akita-router')),
+      ...sources(path.join(root, 'arc58/plugins/plugin-dex')),
       ...sources(path.join(root, 'arc58/plugins/gated-fee-pass')),
     ]
     expect(files.length).toBeGreaterThan(20)
@@ -114,19 +113,18 @@ describe('PluginDex principal resolution (§6.12) — static', () => {
     }
   })
 
-  test('the router forwards windowHint(wallet) to every native swap and quote (invariant 6)', () => {
-    const src = readFileSync(path.join(root, 'arc58/plugins/akita-router/contract.algo.ts'), 'utf8')
-    expect(src.match(/const hint = windowHint\(wallet\)/g)).toHaveLength(2)
-    const calls = src.split('abiCall<typeof PluginDex.prototype.').slice(1)
-    expect(calls).toHaveLength(3)
-    for (const call of calls) {
-      // the hint is the last ABI argument, right after the segment/candidate data
-      expect(call).toMatch(/(seg|candidate)\.data,\s*hint,?\s*\]/)
+  test('PluginDexPlugin forwards windowHint(wallet) to every swap (invariant 6)', () => {
+    const src = readFileSync(path.join(root, 'arc58/plugins/plugin-dex/contract.algo.ts'), 'utf8')
+    const swaps = src.split(/abiCall<typeof PluginDex\.prototype\.swap(?:Route)?>/).slice(1)
+    expect(swaps).toHaveLength(4)
+    for (const call of swaps) {
+      // the hint is the last ABI argument, right after the caller's data
+      expect(call).toMatch(/data,\s*windowHint\(wallet\),?\s*\]/)
     }
-    const router = spec('arc58/plugins/akita-router/AkitaRouterPlugin.arc56.json')
-    // the router ABI itself is unchanged: the wallet is still its pinned first argument
-    expect(method(router, 'swap').args[0].name).toBe('wallet')
-    expect(method(router, 'swapBest').args[0].name).toBe('wallet')
+    const plugin = spec('arc58/plugins/plugin-dex/PluginDexPlugin.arc56.json')
+    // the wallet is the pinned first argument of each swap method
+    expect(method(plugin, 'swap').args[0].name).toBe('wallet')
+    expect(method(plugin, 'swapRoute').args[0].name).toBe('wallet')
   })
 
   test('GatedFeePassPlugin (production pass plugin): no caller-chosen key or hook, windowHint on every hook call', () => {
