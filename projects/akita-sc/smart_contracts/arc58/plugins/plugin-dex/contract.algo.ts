@@ -23,13 +23,14 @@ import {
   RemoveResult,
 } from '../../../plugin-dex/types'
 import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { windowHint } from '../../../utils/principal'
 
 /**
- * PluginDexPlugin: the ARC-58 plugin a wallet uses to create pools and provide liquidity on the PluginDex
- * Vault. Swaps go through AkitaRouterPlugin.
+ * PluginDexPlugin: the ARC-58 plugin a wallet uses to trade and provide liquidity on the PluginDex Vault.
  *
- * Every Vault call is an inner transaction sent as the wallet's spending account S, so pools, LP tokens and
- * curve positions belong to S. The last inner transaction of each method carries the rekey back to the wallet.
+ * Every Vault call is an inner transaction sent as the wallet's spending account S, so pools, LP tokens,
+ * curve positions and swap output belong to S, and hooks see `ctx.caller == S` with the wallet hint
+ * `wallet.id`. The last inner transaction of each method carries the rekey back to the wallet.
  *
  * Never updated: the ARC-58 wallet only accepts plugins whose Application.version is 0.
  */
@@ -47,6 +48,86 @@ export class PluginDexPlugin extends Contract {
 
   /** No-op carrier for opcode budget and resource references */
   opUp(): void {}
+
+  // SWAPS ----------------------------------------------------------------------------------------
+
+  /** Swap `amountIn` of `assetIn` through one pool; the output goes to S. Returns the amount out. */
+  swap(
+    wallet: Application,
+    rekeyBack: boolean,
+    poolId: uint64,
+    assetIn: uint64,
+    amountIn: uint64,
+    minAmountOut: uint64,
+    data: bytes,
+  ): uint64 {
+    const sender = getControlledSpendingAccount(wallet)
+    const pool = this.pool(poolId)
+    this.ensureOptIn(sender, assetIn === pool.assetA ? pool.assetB : pool.assetA)
+    const escrow = Application(pool.escrow).address
+    const rekeyTo = rekeyAddress(rekeyBack, wallet)
+
+    if (assetIn === 0) {
+      return abiCall<typeof PluginDex.prototype.swap>({
+        appId: this.dex.value,
+        sender,
+        args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), poolId, minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
+        rekeyTo,
+      }).returnValue
+    }
+    return abiCall<typeof PluginDex.prototype.swap>({
+      appId: this.dex.value,
+      sender,
+      args: [
+        itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
+        poolId,
+        minAmountOut,
+        Global.zeroAddress,
+        data,
+        windowHint(wallet),
+      ],
+      rekeyTo,
+    }).returnValue
+  }
+
+  /** Swap through 1..4 pools (each hop runs its pool's hooks); `assetOut` is the route's final asset */
+  swapRoute(
+    wallet: Application,
+    rekeyBack: boolean,
+    route: uint64[],
+    assetIn: uint64,
+    assetOut: uint64,
+    amountIn: uint64,
+    minAmountOut: uint64,
+    data: bytes,
+  ): uint64 {
+    const sender = getControlledSpendingAccount(wallet)
+    this.ensureOptIn(sender, assetOut)
+    const escrow = Application(this.pool(route[0]).escrow).address
+    const rekeyTo = rekeyAddress(rekeyBack, wallet)
+
+    if (assetIn === 0) {
+      return abiCall<typeof PluginDex.prototype.swapRoute>({
+        appId: this.dex.value,
+        sender,
+        args: [itxn.payment({ sender, receiver: escrow, amount: amountIn }), clone(route), minAmountOut, Global.zeroAddress, data, windowHint(wallet)],
+        rekeyTo,
+      }).returnValue
+    }
+    return abiCall<typeof PluginDex.prototype.swapRoute>({
+      appId: this.dex.value,
+      sender,
+      args: [
+        itxn.assetTransfer({ sender, assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn }),
+        clone(route),
+        minAmountOut,
+        Global.zeroAddress,
+        data,
+        windowHint(wallet),
+      ],
+      rekeyTo,
+    }).returnValue
+  }
 
   // POOLS ----------------------------------------------------------------------------------------
 
