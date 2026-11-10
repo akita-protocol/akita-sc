@@ -29,7 +29,6 @@ export const deploySocialPlugin = async ({ fixture, sender, signer, args: { vers
     args: {
       version,
       akitaDao,
-      escrow,
     }
   })
 

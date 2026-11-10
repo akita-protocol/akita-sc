@@ -10,4 +10,3 @@ export class MockAbstractedAccountFactory extends Contract {
         return 4242
     }
 }
-

@@ -20,14 +20,13 @@ async function getAccountBalances(
   algod: algosdk.Algodv2,
   address: string
 ): Promise<{ algo: bigint; assets: Map<bigint, bigint> }> {
-  const info = await algod.accountInformation(address);
+  const info = await algod.accountInformation(address).do();
   const algo = BigInt(info.amount ?? 0);
   const assets = new Map<bigint, bigint>();
   
   if (info.assets && Array.isArray(info.assets)) {
     for (const asset of info.assets) {
-      // Handle both camelCase and kebab-case field names
-      const assetId = asset['asset-id'] ?? asset.assetId;
+      const assetId = asset.assetId;
       const amount = asset.amount;
       if (assetId !== undefined && amount !== undefined) {
         assets.set(BigInt(assetId), BigInt(amount));
@@ -82,7 +81,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
     const dispenser = await algorand.account.dispenserFromEnvironment();
     
     // Fund test account generously
-    await algorand.account.ensureFunded(testAccount, dispenser, (500).algos());
+    await algorand.account.ensureFunded(testAccount, dispenser.addr, (500).algos());
 
     // WalletSDK delegates box-MBR calculations to this immutable helper. Keep
     // this standalone fixture self-contained just like buildAkitaUniverse.
@@ -98,7 +97,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
     const receiverAccount = algorand.account.random();
     receiverAddress = receiverAccount.addr.toString();
     receiverSigner = receiverAccount.signer;
-    await algorand.account.ensureFunded(receiverAccount, dispenser, (10).algos());
+    await algorand.account.ensureFunded(receiverAccount, dispenser.addr, (10).algos());
     
     // Deploy escrow factory first
     const escrowFactory = await deployEscrowFactory({
@@ -128,7 +127,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
     });
     
     // Fund wallet factory
-    await algorand.account.ensureFunded(walletFactory.client.appAddress, dispenser, (10).algos());
+    await algorand.account.ensureFunded(walletFactory.client.appAddress, dispenser.addr, (10).algos());
     
     // Create a wallet using factory.new()
     const createWalletCost = await walletFactory.cost();
@@ -141,7 +140,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
     });
     
     // Fund the wallet generously
-    await algorand.account.ensureFunded(wallet.client.appAddress, dispenser, (100).algos());
+    await algorand.account.ensureFunded(wallet.client.appAddress, dispenser.addr, (100).algos());
     
     // Deploy pay plugin
     payPlugin = await deployPayPlugin({
@@ -319,7 +318,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
       // Create a second receiver
       const receiver2 = fixture.algorand.account.random();
       const dispenser = await fixture.algorand.account.dispenserFromEnvironment();
-      await fixture.algorand.account.ensureFunded(receiver2, dispenser, (1).algos());
+      await fixture.algorand.account.ensureFunded(receiver2, dispenser.addr, (1).algos());
       
       // Build to get expected cost
       const buildResult = await wallet.build.usePlugin({
@@ -583,15 +582,8 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
         amount: microAlgo(externalFundAmount),
       });
 
-      // Rekey external account to the factory BEFORE wallet creation
-      // The factory will rekey it to the new wallet during newAccount()
-      await fixture.algorand.send.payment({
-        sender: externalAddress,
-        signer: externalAccount.signer,
-        receiver: externalAddress,
-        amount: (0).microAlgo(),
-        rekeyTo: walletFactory.client.appAddress,
-      });
+      // SG-04: the SDK rekeys the external account to the factory inside the creation group;
+      // the factory then rekeys it to the new wallet during newAccount()
 
       // Create wallet cost payment
       const createWalletCost = await walletFactory.cost();
@@ -604,6 +596,7 @@ describe('WalletSDK.build.usePlugin cost accuracy', () => {
         signer,
         nickname: 'external-control-wallet',
         controlledAddress: externalAddress,
+        controlledSigner: externalAccount.signer,
       });
 
       // Register the wallet

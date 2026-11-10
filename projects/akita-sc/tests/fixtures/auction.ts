@@ -43,14 +43,6 @@ export const deployAuctionFactory = async ({
 
   const client = results.appClient;
 
-  // Fund the factory for box storage
-  const fundAmount = (
-    100_000 + // min balance
-    3_280_100 // boxed contract storage (same as abstracted account factory)
-  );
-
-  await client.appClient.fundAppAccount({ amount: fundAmount.microAlgos() });
-
   // Compile the Auction contract to get its approval program
   const auctionFactory = algorand.client.getTypedAppFactory(
     AuctionFactory,
@@ -62,6 +54,14 @@ export const deployAuctionFactory = async ({
 
   const compiledAuction = await auctionFactory.appFactory.compile();
   const size = compiledAuction.approvalProgram.length;
+
+  // Fund the factory for box storage: the 'bc' box holds the child approval (8,192 B before it grew to 5 pages)
+  const fundAmount = (
+    100_000 + // min balance
+    Math.max(3_280_100, 2_500 + 400 * (2 + size)) // boxed contract storage
+  );
+
+  await client.appClient.fundAppAccount({ amount: fundAmount.microAlgos() });
   const perTxn = (
     2048 // max args
     - 4 // selector

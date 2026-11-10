@@ -7,7 +7,7 @@ export const getAccountBalance = async (
     algorand: AlgorandClient,
     address: string
 ): Promise<bigint> => {
-    const info = await algorand.client.algod.accountInformation(address)
+    const info = await algorand.client.algod.accountInformation(address).do()
     return BigInt(info.amount)
 }
 

@@ -1,3 +1,4 @@
+import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { setCurrentNetwork } from 'akita-sdk';
 import { SocialSDK } from 'akita-sdk/social';
 import { AkitaSocialClient, AkitaSocialFactory } from '../../smart_contracts/artifacts/social/AkitaSocialClient';
@@ -91,7 +92,9 @@ export const deploySocialSystem = async ({
     const socialResults = await socialFactory.send.create.create({
         // Reserve max program pages up front — extra_program_pages is immutable
         // after creation, so we pre-pay MBR to leave room for future upgrades.
-        extraProgramPages: 3,
+        extraProgramPages: 7, // AkitaSocial is > 8 KB since the 2026-10 audit fixes
+        // a > 8 KB create transaction exceeds the flat minimum fee on LocalNet's per-byte fee rule
+        extraFee: microAlgo(1_000),
         args: {
             version,
             akitaDao,
@@ -186,7 +189,9 @@ export const deploySocial = async ({
     const results = await factory.send.create.create({
         // Reserve max program pages up front — extra_program_pages is immutable
         // after creation, so we pre-pay MBR to leave room for future upgrades.
-        extraProgramPages: 3,
+        extraProgramPages: 7, // AkitaSocial is > 8 KB since the 2026-10 audit fixes
+        // a > 8 KB create transaction exceeds the flat minimum fee on LocalNet's per-byte fee rule
+        extraFee: microAlgo(1_000),
         args: {
             version,
             akitaDao,

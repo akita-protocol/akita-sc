@@ -1,3 +1,4 @@
+import { microAlgo } from '@algorandfoundation/algokit-utils'
 import { setCurrentNetwork } from 'akita-sdk';
 import { SubscriptionsSDK } from 'akita-sdk/subscriptions';
 import { SubscriptionsArgs, SubscriptionsFactory } from '../../smart_contracts/artifacts/subscriptions/SubscriptionsClient';
@@ -34,9 +35,11 @@ export const deploySubscriptions = async ({
   }
 
   const { appClient: client } = await factory.send.create.create({
-    // Reserve max program pages up front — extra_program_pages is immutable
-    // after creation, so we pre-pay MBR to leave room for future upgrades.
-    extraProgramPages: 3,
+    // Subscriptions grew past 8 KB (audit fixes); 4 extra pages = 10 KB.
+    // Upgrades can grow pages further through the DAO update plugin.
+    extraProgramPages: 4,
+    // > 8 KB programs pay a small per-byte fee on top of the min fee
+    extraFee: microAlgo(1_000),
     args: {
       akitaDao,
       akitaDaoEscrow,

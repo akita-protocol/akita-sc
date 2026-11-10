@@ -5,7 +5,9 @@ import { FixtureAndAccount } from '../../types';
 
 type DeployParams = FixtureAndAccount & {
   args?: {
-    gateAppId?: bigint;
+    /** DAO app id; the plugin resolves the Gate app from the DAO registry */
+    akitaDao?: bigint;
+    version?: string;
   }
 }
 
@@ -23,11 +25,10 @@ export const deployGatePlugin = async ({ fixture, sender, signer, args }: Deploy
     }
   )
 
-  const gateAppId = args?.gateAppId ?? 0n;
-
   const { appClient: client } = await factoryClient.send.create.create({
     args: {
-      gateAppId,
+      akitaDao: args?.akitaDao ?? 0n,
+      version: args?.version ?? '0.0.2',
     }
   })
 

@@ -1,7 +1,7 @@
 import { MerkleAddressGateArgs, MerkleAddressGateClient, MerkleAddressGateFactory } from '../../../../smart_contracts/artifacts/gates/sub-gates/merkle-address/MerkleAddressGateClient';
 import { FixtureAndAccount } from '../../../types';
 
-type CreateArgs = MerkleAddressGateArgs['obj']['create(string,uint64,string,string)void'];
+type CreateArgs = MerkleAddressGateArgs['obj']['create(string,uint64)void'];
 type DeployParams = FixtureAndAccount & { args: Partial<CreateArgs> };
 
 export const deployMerkleAddressGate = async ({
@@ -11,8 +11,6 @@ export const deployMerkleAddressGate = async ({
   args: {
     akitaDao = 0n,
     version = '0.0.1',
-    registrationShape = '(address,string)',
-    checkShape = 'byte[32][]',
   },
 }: DeployParams): Promise<MerkleAddressGateClient> => {
   const { algorand } = fixture.context;
@@ -26,8 +24,6 @@ export const deployMerkleAddressGate = async ({
     args: {
       akitaDao,
       version,
-      registrationShape,
-      checkShape,
     },
   });
 

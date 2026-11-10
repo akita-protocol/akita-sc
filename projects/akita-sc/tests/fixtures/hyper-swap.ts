@@ -1,4 +1,5 @@
 import { HyperSwapSDK, setCurrentNetwork } from 'akita-sdk';
+import { microAlgo } from '@algorandfoundation/algokit-utils';
 import { HyperSwapFactory } from '../../smart_contracts/artifacts/hyper-swap/HyperSwapClient';
 import { FixtureAndAccount } from '../types';
 
@@ -36,6 +37,7 @@ export const deployHyperSwap = async ({
   });
 
   const client = results.appClient;
+  await client.appClient.fundAppAccount({ amount: microAlgo(100_000) });
 
   return new HyperSwapSDK({
     algorand,

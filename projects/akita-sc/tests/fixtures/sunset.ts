@@ -6,6 +6,10 @@ import {
   SunsetContractFactory,
 } from '../../smart_contracts/artifacts/sunset/SunsetContractClient';
 import { SunsetPluginFactory } from '../../smart_contracts/artifacts/arc58/plugins/sunset/SunsetPluginClient';
+import {
+  WalletFactorySunsetContractClient,
+  WalletFactorySunsetContractFactory,
+} from '../../smart_contracts/artifacts/sunset/WalletFactorySunsetContractClient';
 import { FixtureAndAccount } from '../types';
 
 /**
@@ -87,4 +91,32 @@ export const deploySunsetPlugin = async ({
   });
 
   return new SunsetPluginSDK({ algorand, factoryParams: { appId: client.appId } });
+};
+
+/**
+ * Deploys a bare {@link WalletFactorySunsetContractClient} with `SUNSET_CALLER`
+ * pinned to `sunsetCaller`. In production this approval is only ever installed
+ * as an update over the live wallet factory; a bare create is enough to
+ * exercise its caller gate.
+ */
+export const deployWalletFactorySunset = async ({
+  fixture,
+  sender,
+  signer,
+  sunsetCaller,
+}: DeploySunsetContractParams): Promise<WalletFactorySunsetContractClient> => {
+  const { algorand } = fixture.context;
+
+  const factory = algorand.client.getTypedAppFactory(WalletFactorySunsetContractFactory, {
+    defaultSender: sender,
+    defaultSigner: signer,
+    deployTimeParams: {
+      SUNSET_CALLER: algosdk.decodeAddress(sunsetCaller).publicKey,
+    },
+  });
+
+  const { appClient: client } = await factory.send.create.bare();
+  await client.appClient.fundAppAccount({ amount: microAlgo(1_000_000) });
+
+  return client;
 };

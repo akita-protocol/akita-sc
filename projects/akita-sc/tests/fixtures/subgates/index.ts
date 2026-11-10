@@ -4,6 +4,7 @@ import { MerkleAddressGateClient, MerkleAddressGateFactory } from '../../../smar
 import { MerkleAssetGateClient, MerkleAssetGateFactory } from '../../../smart_contracts/artifacts/gates/sub-gates/merkle-asset/MerkleAssetGateClient';
 import { NfdRootGateClient, NfdRootGateFactory } from '../../../smart_contracts/artifacts/gates/sub-gates/nfd-root/NFDRootGateClient';
 import { NfdGateClient, NfdGateFactory } from '../../../smart_contracts/artifacts/gates/sub-gates/nfd/NFDGateClient';
+import { ModeratorActivityGateClient, ModeratorActivityGateFactory } from '../../../smart_contracts/artifacts/gates/sub-gates/moderator-activity/ModeratorActivityGateClient';
 
 
 import { PollGateClient, PollGateFactory } from '../../../smart_contracts/artifacts/gates/sub-gates/poll/PollGateClient';
@@ -229,6 +230,23 @@ export const deploySocialModeratorGate = async ({
     return { client: results.appClient, appId: results.appClient.appId };
 };
 
+export const deployModeratorActivityGate = async ({
+    fixture,
+    sender,
+    signer,
+    args,
+}: DeploySubgateParams): Promise<{ client: ModeratorActivityGateClient; appId: bigint }> => {
+    const { algorand } = fixture.context;
+    const factory = algorand.client.getTypedAppFactory(ModeratorActivityGateFactory, {
+        defaultSender: sender,
+        defaultSigner: signer,
+    });
+    const results = await factory.send.create.create({
+        args: { version: args.version, akitaDao: args.akitaDao },
+    });
+    return { client: results.appClient, appId: results.appClient.appId };
+};
+
 export const deployStakingAmountGate = async ({
     fixture,
     sender,
@@ -310,6 +328,7 @@ export type SubgateClients = {
     socialFollowerIndexGate: { client: SocialFollowerIndexGateClient; appId: bigint };
     socialImpactGate: { client: SocialImpactGateClient; appId: bigint };
     socialModeratorGate: { client: SocialModeratorGateClient; appId: bigint };
+    moderatorActivityGate: { client: ModeratorActivityGateClient; appId: bigint };
     stakingAmountGate: { client: StakingAmountGateClient; appId: bigint };
     stakingPowerGate: { client: StakingPowerGateClient; appId: bigint };
     subscriptionGate: { client: SubscriptionGateClient; appId: bigint };
@@ -330,6 +349,7 @@ export const deployAllSubgates = async (params: DeploySubgateParams): Promise<Su
         socialFollowerIndexGate,
         socialImpactGate,
         socialModeratorGate,
+        moderatorActivityGate,
         stakingAmountGate,
         stakingPowerGate,
         subscriptionGate,
@@ -347,6 +367,7 @@ export const deployAllSubgates = async (params: DeploySubgateParams): Promise<Su
         deploySocialFollowerIndexGate(params),
         deploySocialImpactGate(params),
         deploySocialModeratorGate(params),
+        deployModeratorActivityGate(params),
         deployStakingAmountGate(params),
         deployStakingPowerGate(params),
         deploySubscriptionGate(params),
@@ -366,6 +387,7 @@ export const deployAllSubgates = async (params: DeploySubgateParams): Promise<Su
         socialFollowerIndexGate,
         socialImpactGate,
         socialModeratorGate,
+        moderatorActivityGate,
         stakingAmountGate,
         stakingPowerGate,
         subscriptionGate,
@@ -385,6 +407,7 @@ export const deployAllSubgates = async (params: DeploySubgateParams): Promise<Su
         socialFollowerIndexGate,
         socialImpactGate,
         socialModeratorGate,
+        moderatorActivityGate,
         stakingAmountGate,
         stakingPowerGate,
         subscriptionGate,

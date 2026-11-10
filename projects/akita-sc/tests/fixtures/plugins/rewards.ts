@@ -7,10 +7,14 @@ type DeployParams = FixtureAndAccount & {
   args: {
     akitaDao: bigint;
     version: string;
+    /** previous Rewards app the plugin may recover credits from (0 = none) */
+    legacyRewards?: bigint;
+    /** ARC-59 ASA inbox router the inbox methods call (0 = none) */
+    inboxRouter?: bigint;
   }
 }
 
-export const deployRewardsPlugin = async ({ fixture, sender, signer, args: { akitaDao, version } }: DeployParams): Promise<RewardsPluginSDK> => {
+export const deployRewardsPlugin = async ({ fixture, sender, signer, args: { akitaDao, version, legacyRewards = 0n, inboxRouter = 0n } }: DeployParams): Promise<RewardsPluginSDK> => {
   // Ensure network is set for SDK initialization (fixtures are always localnet)
   setCurrentNetwork('localnet');
   
@@ -28,6 +32,8 @@ export const deployRewardsPlugin = async ({ fixture, sender, signer, args: { aki
     args: {
       akitaDao,
       version,
+      legacyRewards,
+      inboxRouter,
     }
   })
 

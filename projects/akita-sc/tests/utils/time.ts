@@ -9,12 +9,12 @@ export class TimeWarp {
   }
 
   private async getLastRound(): Promise<bigint> {
-    return (await this.algorand.client.algod.status()).lastRound;
+    return (await this.algorand.client.algod.status().do()).lastRound;
   }
 
   private async getLatestTimestamp(): Promise<bigint> {
     const lastRound = await this.getLastRound();
-    const block = await this.algorand.client.algod.block(lastRound);
+    const block = await this.algorand.client.algod.block(lastRound).do();
     return block.block.header.timestamp;
   }
 
@@ -65,14 +65,17 @@ export class TimeWarp {
     this.algorand.setSuggestedParamsCacheTimeout(0);
     if (seconds < 0n) throw new Error('Cannot warp backwards in time');
 
-    // LocalNet's offset is relative to wall-clock time, not relative to the
-    // latest block. Targeting the current chain timestamp makes repeated calls
-    // reliable even when a long-lived LocalNet is already ahead of the clock.
-    const targetTimestamp = (await this.getLatestTimestamp()) + seconds;
-    await this.algorand.network.localNet.timeWarp(targetTimestamp);
+    // Dev mode offsets the next block relative to the current chain timestamp.
+    const algod = this.algorand.client.algod;
+    await algod.setBlockOffsetTimestamp(seconds).do();
+    try {
+      await this.warpForwardRounds(1n);
+    } finally {
+      await algod.setBlockOffsetTimestamp(0).do();
+    }
   }
 
   async resetTimeWarp(): Promise<void> {
-    await this.algorand.client.algod.setBlockTimeStampOffset(0);
+    await this.algorand.client.algod.setBlockOffsetTimestamp(0).do();
   }
 }
