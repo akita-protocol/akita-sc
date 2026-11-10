@@ -7,3 +7,6 @@ export const ARC58_SPENDING_ADDRESS_KEY = 'spending_address'
 export const ARC58_REFERRER_KEY = 'referrer'
 export const ARC58_CURRENT_PLUGIN_KEY = 'current_plugin'
 export const ARC58_REKEY_INDEX_KEY = 'rekey_index'
+
+/** ARC-65 error logged when a plugin does not control the wallet's spending account. */
+export const ARC58_ERR_PLUGIN_NOT_AUTH_ADDR = 'errNath'

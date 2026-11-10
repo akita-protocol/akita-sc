@@ -9,7 +9,7 @@ import {
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { ERR_INVALID_PAYMENT_AMOUNT, ERR_INVALID_PAYMENT_RECEIVER, ERR_FORBIDDEN } from '../../errors'
+import { errInvalidPaymentAmount, errInvalidPaymentReceiver, errForbidden } from '../../errors'
 
 export class ContractWithOptIn extends Contract {
 
@@ -22,8 +22,8 @@ export class ContractWithOptIn extends Contract {
    */
   optIn(payment: gtxn.PaymentTxn, asset: Asset): void {
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-    loggedAssert(payment.amount === Global.assetOptInMinBalance, ERR_INVALID_PAYMENT_AMOUNT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance, errInvalidPaymentAmount)
 
     itxn
       .assetTransfer({
@@ -45,10 +45,10 @@ export class ContractWithCreatorOnlyOptIn extends Contract {
    * @param asset The asset to be opted into
    */
   optin(payment: gtxn.PaymentTxn, asset: uint64): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_FORBIDDEN)
+    loggedAssert(Txn.sender === Global.creatorAddress, errForbidden)
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-    loggedAssert(payment.amount === Global.assetOptInMinBalance, ERR_INVALID_PAYMENT_AMOUNT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance, errInvalidPaymentAmount)
 
     itxn.assetTransfer({
       assetReceiver: Global.currentApplicationAddress,

@@ -1,10 +1,10 @@
 import { uint64, op, bytes, Bytes, loggedAssert, Uint64 } from '@algorandfoundation/algorand-typescript'
 import { DynamicArray, Uint } from '@algorandfoundation/algorand-typescript/arc4'
 import {
-    ERR_INVALID_RANDOM_BIT_SIZE,
-    ERR_INVALID_RANDOM_BOUNDS,
-    ERR_INVALID_RANDOM_LENGTH,
-    ERR_INVALID_RANDOM_SEED,
+    errInvalidRandomBitSize,
+    errInvalidRandomBounds,
+    errInvalidRandomLength,
+    errInvalidRandomSeed,
 } from '../../errors'
 import { pcgFirstIncrement, pcgMultiplier } from './consts.algo'
 
@@ -45,10 +45,10 @@ function __pcg32BoundedSequence(
 ): [PCG32STATE, bytes] {
     let result: bytes = Bytes('')
 
-    loggedAssert(length < op.shl(1, 16), ERR_INVALID_RANDOM_LENGTH)
+    loggedAssert(length < op.shl(1, 16), errInvalidRandomLength)
     result = new Uint<16>(length).bytes
 
-    loggedAssert(bitSize === 8 || bitSize === 16 || bitSize === 32, ERR_INVALID_RANDOM_BIT_SIZE)
+    loggedAssert(bitSize === 8 || bitSize === 16 || bitSize === 32, errInvalidRandomBitSize)
     const byteSize = op.shr(bitSize, 3)
     const truncatedStartCached: uint64 = Uint64(8) - byteSize
 
@@ -63,13 +63,13 @@ function __pcg32BoundedSequence(
         }
     } else {
         if (upperBound !== 0) {
-            loggedAssert(upperBound > 1, ERR_INVALID_RANDOM_BOUNDS)
-            loggedAssert(upperBound < op.shl(1, bitSize), ERR_INVALID_RANDOM_BOUNDS)
-            loggedAssert(lowerBound < upperBound - 1, ERR_INVALID_RANDOM_BOUNDS)
+            loggedAssert(upperBound > 1, errInvalidRandomBounds)
+            loggedAssert(upperBound < op.shl(1, bitSize), errInvalidRandomBounds)
+            loggedAssert(lowerBound < upperBound - 1, errInvalidRandomBounds)
 
             absoluteBound = upperBound - lowerBound
         } else {
-            loggedAssert(lowerBound < op.shl(1, bitSize) - 1, ERR_INVALID_RANDOM_BOUNDS)
+            loggedAssert(lowerBound < op.shl(1, bitSize) - 1, errInvalidRandomBounds)
 
             absoluteBound = op.shl(1, bitSize) - lowerBound
         }
@@ -102,7 +102,7 @@ export function __pcg32Init(initialState: PCG32STATE, incr: uint64): PCG32STATE 
 }
 
 export function pcg32Init(seed: bytes): PCG32STATE {
-    loggedAssert(seed.length === 8, ERR_INVALID_RANDOM_SEED)
+    loggedAssert(seed.length === 8, errInvalidRandomSeed)
 
     return __pcg32Init(op.btoi(seed), pcgFirstIncrement)
 }

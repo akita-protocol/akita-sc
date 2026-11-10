@@ -1,6 +1,6 @@
 import { arc4, BigUint, Bytes, bytes, clone, loggedAssert, op, uint64, Uint64 } from '@algorandfoundation/algorand-typescript'
 import { DynamicArray } from '@algorandfoundation/algorand-typescript/arc4'
-import { ERR_INVALID_RANDOM_BOUNDS, ERR_INVALID_RANDOM_SEED } from '../../errors'
+import { errInvalidRandomBounds, errInvalidRandomSeed } from '../../errors'
 import { pcgFirstIncrement, pcgSecondIncrement } from './consts.algo'
 import { __pcg32Init, __pcg32Output, __pcg32Step, __uint64Twos } from './pcg32.algo'
 
@@ -14,7 +14,7 @@ export function __pcg64UnboundedRandom(state: PCG64STATE): [PCG64STATE, uint64] 
 }
 
 export function pcg64Init(seed: bytes): PCG64STATE {
-    loggedAssert(seed.length === 16, ERR_INVALID_RANDOM_SEED)
+    loggedAssert(seed.length === 16, errInvalidRandomSeed)
 
     return [
         __pcg32Init(op.extractUint64(seed, 0), pcgFirstIncrement),
@@ -41,12 +41,12 @@ export function pcg64Random(
         }
     } else {
         if (upperBound !== 0) {
-            loggedAssert(upperBound > 1, ERR_INVALID_RANDOM_BOUNDS)
-            loggedAssert(lowerBound < upperBound - 1, ERR_INVALID_RANDOM_BOUNDS)
+            loggedAssert(upperBound > 1, errInvalidRandomBounds)
+            loggedAssert(lowerBound < upperBound - 1, errInvalidRandomBounds)
 
             absoluteBound = upperBound - lowerBound
         } else {
-            loggedAssert(lowerBound < 2 ** 64 - 1, ERR_INVALID_RANDOM_BOUNDS)
+            loggedAssert(lowerBound < 2 ** 64 - 1, errInvalidRandomBounds)
 
             absoluteBound = op.btoi(Bytes(BigUint(2 ** 64) - BigUint(lowerBound)))
         }

@@ -24,4 +24,14 @@ export class AssetInbox extends Contract {
   arc59_sendAsset(axfer: gtxn.AssetTransferTxn, receiver: Account, additionalReceiverFunds: uint64): Account {
     return Global.zeroAddress
   }
+
+  arc59_claim(asa: uint64): void { }
+
+  arc59_reject(asa: uint64): void { }
+
+  arc59_claimAlgo(): void { }
+
+  arc59_getInbox(receiver: Account): Account {
+    return Global.zeroAddress
+  }
 }

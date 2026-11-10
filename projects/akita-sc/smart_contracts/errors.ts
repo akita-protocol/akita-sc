@@ -5,8 +5,8 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/errors.ts` — keep
- * the two files in sync when adding or changing a code. Constant NAMES are
- * preserved from the pre-ARC-65 layout so call sites don't change.
+ * the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  *
  * Codes defined here are SHARED across multiple domains. Domain-specific
  * codes live in each domain's own `errors.ts`. When a domain needs a code
@@ -21,46 +21,56 @@
 
 // --- Admin / authorization --------------------------------------------------
 
-export const ERR_NOT_AKITA_DAO = 'NDAO'
-export const ERR_INVALID_CALLER = 'ICAL'
-export const ERR_FORBIDDEN = 'FORB'
-export const ERR_MUST_BE_CALLED_FROM_FACTORY = 'MBFF'
-export const ERR_NOT_CREATOR = 'NCRE'
+export const errNotAkitaDao = 'errNdao'
+export const errInvalidCaller = 'errIcal'
+export const errForbidden = 'errForb'
+export const errMustBeCalledFromFactory = 'errMbff'
+export const errNotCreator = 'errNcre'
 
 // --- Lifecycle --------------------------------------------------------------
 
-export const ERR_INVALID_UPGRADE = 'IUPG'
-export const ERR_BAD_DEPLOYER = 'BDEP'
+export const errInvalidUpgrade = 'errIupg'
+export const errBadDeployer = 'errBdep'
 
 // --- Payments / transfers --------------------------------------------------
 
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_PAYMENT_AMOUNT = 'IPMA'
-export const ERR_INVALID_PAYMENT_RECEIVER = 'IPMR'
-export const ERR_INVALID_TRANSFER = 'IXFR'
-export const ERR_INVALID_ASSET_AMOUNT = 'IAAM'
-export const ERR_INVALID_ASSET_RECEIVER = 'IARE'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidPaymentAmount = 'errIpma'
+export const errInvalidPaymentReceiver = 'errIpmr'
+export const errInvalidTransfer = 'errIxfr'
+export const errInvalidAssetAmount = 'errIaam'
+export const errInvalidAssetReceiver = 'errIare'
+/** A grouped payment/transfer was not sent by the expected account. */
+export const errInvalidPaymentSender = 'errIpms'
+/** A grouped asset transfer used clawback (`assetSender` set). */
+export const errClawbackForbidden = 'errNclw'
+/** A grouped transfer closes the sender out (`closeRemainderTo` / `assetCloseTo`). */
+export const errCloseForbidden = 'errNcls'
+/** A grouped transfer rekeys its sender. */
+export const errRekeyForbidden = 'errNrky'
 
 // --- Asset / app validation ------------------------------------------------
 
-export const ERR_INVALID_ASSET = 'IAST'
-export const ERR_INVALID_APP = 'IAPP'
-export const ERR_ASA_MISMATCH = 'ASAM'
-export const ERR_NOT_ASSET_CREATOR = 'NACR'
+export const errInvalidAsset = 'errIast'
+export const errInvalidApp = 'errIapp'
+export const errAsaMismatch = 'errAsam'
+export const errNotAssetCreator = 'errNacr'
 
 // --- Plugin / wallet --------------------------------------------------------
 
-export const ERR_PLUGIN_NOT_AUTH_ADDR = 'NATH'
+export const errPluginNotAuthAddr = 'errNath'
+/** A registered wallet app lacks a 32-byte `controlled_address` global. */
+export const errInvalidWallet = 'errIwlt'
 
 // --- Gates ------------------------------------------------------------------
 
-export const ERR_FAILED_GATE = 'FGTE'
+export const errFailedGate = 'errFgte'
 
 // --- Opt-in -----------------------------------------------------------------
 
-export const ERR_ALREADY_OPTED_IN = 'AOPT'
-export const ERR_NOT_OPTED_IN = 'NOPT'
+export const errAlreadyOptedIn = 'errAopt'
+export const errNotOptedIn = 'errNopt'
 
 // --- Blocking (shared with social graph) -----------------------------------
 
-export const ERR_BLOCKED = 'BLKD'
+export const errBlocked = 'errBlkd'

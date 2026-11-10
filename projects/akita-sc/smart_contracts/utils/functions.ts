@@ -1,8 +1,8 @@
-import { Account, Application, assert, Asset, Bytes, Global, gtxn, itxn, itxnCompose, OnCompleteAction, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, assert, Asset, Bytes, Global, gtxn, itxn, itxnCompose, loggedAssert, OnCompleteAction, op, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, Address, decodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { btoi, itob, sha256 } from "@algorandfoundation/algorand-typescript/op"
 import { AbstractAccountGlobalStateKeysControlledAddress, AbstractAccountGlobalStateKeysCurrentPlugin, AbstractAccountGlobalStateKeysReferrer, AbstractAccountGlobalStateKeysRekeyIndex, AbstractAccountGlobalStateKeysSpendingAddress } from "../arc58/account/constants"
-import { ERR_ESCROW_DOES_NOT_EXIST } from "../arc58/account/errors"
+import { errEscrowDoesNotExist } from "../arc58/account/errors"
 import { CallerTypeGlobal, EscrowInfo, PluginKey } from "../arc58/account/types"
 import { AkitaDAOGlobalStateKeysAkitaAppList, AkitaDAOGlobalStateKeysAkitaAssets, AkitaDAOGlobalStateKeysAkitaSocialAppList, AkitaDAOGlobalStateKeysNFTFees, AkitaDAOGlobalStateKeysOtherAppList, AkitaDAOGlobalStateKeysPluginAppList, AkitaDAOGlobalStateKeysRevenueSplits, AkitaDAOGlobalStateKeysSocialFees, AkitaDAOGlobalStateKeysStakingFees, AkitaDAOGlobalStateKeysSubscriptionFees, AkitaDAOGlobalStateKeysSwapFees, AkitaDAOGlobalStateKeysWallet, AkitaDAOGlobalStateKeysWalletFees } from "../arc58/dao/constants"
 import { AkitaAppList, AkitaAssets, AkitaSocialAppList, NFTFees, OtherAppList, PluginAppList, SocialFees, StakingFees, SubscriptionFees, SwapFees, WalletFees } from "../arc58/dao/types"
@@ -12,8 +12,25 @@ import { PrizeBoxGlobalStateKeyOwner } from "../prize-box/constants"
 import { MinDisbursementsMBR, UserAllocationMBR } from "../rewards/constants"
 import { UserAllocation } from "../rewards/types"
 import { STAKING_TYPE_LOCK } from "../staking/types"
-import { CreatorRoyaltyDefault, CreatorRoyaltyMaximumSingle, DIVISOR, IMPACT_DIVISOR, ONE_DAY, ONE_WEEK, ONE_YEAR_IN_DAYS } from "./constants"
-import { ERR_ASSETS_AND_AMOUNTS_MISMATCH, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN, ERR_INVALID_PERCENTAGE, ERR_INVALID_PERCENTAGE_OF_ARGS, ERR_NOT_A_PRIZE_BOX } from "./errors"
+import { CreatorRoyaltyDefault, CreatorRoyaltyMaximumSingle, DIVISOR, IMPACT_DIVISOR, ONE_DAY, ONE_WEEK, ONE_YEAR_IN_DAYS, THIRTY_DAYS } from "./constants"
+import {
+  errAssetsAndAmountsMismatch,
+  errCannotCloseOutOfAlgoForbidden,
+  errClawbackForbidden,
+  errCloseForbidden,
+  errInvalidAsset,
+  errInvalidAssetAmount,
+  errInvalidAssetReceiver,
+  errInvalidPaymentAmount,
+  errInvalidPaymentReceiver,
+  errInvalidPaymentSender,
+  errInvalidPercentage,
+  errInvalidPercentageOfArgs,
+  errInvalidWallet,
+  errNotAPrizeBox,
+  errPluginNotAuthAddr,
+  errRekeyForbidden,
+} from "./errors"
 import { FunderInfo } from "./types/mbr"
 import { Proof } from "./types/merkles"
 import { ReferralPaymentInfo } from "./types/referral"
@@ -24,7 +41,7 @@ import type { OptInPlugin } from "../arc58/plugins/optin/contract.algo"
 import { Split } from "../arc58/plugins/revenue-manager/types"
 import type { EscrowFactory } from "../escrow/factory.algo"
 import type { Gate } from "../gates/contract.algo"
-import type { MetaMerkles } from "../meta-merkles/contract.algo"
+import type { Meta } from "../meta/contract.algo"
 import type { Rewards } from "../rewards/contract.algo"
 import { AkitaSocialImpact } from "../social/impact.algo"
 import { PoolGlobalStateKeyGateID } from "../staking-pool/constants"
@@ -33,6 +50,57 @@ import type { AssetInbox } from "./types/asset-inbox"
 
 export function controls(sender: Account): boolean {
   return sender.authAddress === Global.currentApplicationAddress
+}
+
+// GROUPED TRANSFER BINDING -------------------------------------------------------------------------
+
+/**
+ * Assert a grouped payment is a plain transfer from `sender`: no close-out and no rekey.
+ * Receiver and amount are left to the caller (see `assertBoundPayment`).
+ */
+export function assertSafePayment(txn: gtxn.PaymentTxn, sender: Account): void {
+  loggedAssert(txn.sender === sender, errInvalidPaymentSender)
+  loggedAssert(txn.closeRemainderTo === Global.zeroAddress, errCloseForbidden)
+  loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
+}
+
+/**
+ * Assert a grouped payment is exactly `amount` µALGO from `sender` to `receiver`,
+ * with no close-out and no rekey.
+ */
+export function assertBoundPayment(txn: gtxn.PaymentTxn, sender: Account, receiver: Account, amount: uint64): void {
+  assertSafePayment(txn, sender)
+  loggedAssert(txn.receiver === receiver, errInvalidPaymentReceiver)
+  loggedAssert(txn.amount === amount, errInvalidPaymentAmount)
+}
+
+/**
+ * Assert a grouped asset transfer is a plain transfer from `sender`: not a clawback
+ * (`assetSender` unset), no `assetCloseTo` and no rekey.
+ * Receiver, asset and amount are left to the caller (see `assertBoundAssetTransfer`).
+ */
+export function assertSafeAssetTransfer(txn: gtxn.AssetTransferTxn, sender: Account): void {
+  loggedAssert(txn.sender === sender, errInvalidPaymentSender)
+  loggedAssert(txn.assetSender === Global.zeroAddress, errClawbackForbidden)
+  loggedAssert(txn.assetCloseTo === Global.zeroAddress, errCloseForbidden)
+  loggedAssert(txn.rekeyTo === Global.zeroAddress, errRekeyForbidden)
+}
+
+/**
+ * Assert a grouped asset transfer moves exactly `amount` of `asset` from `sender` to
+ * `receiver`: not a clawback, no `assetCloseTo` and no rekey.
+ */
+export function assertBoundAssetTransfer(
+  txn: gtxn.AssetTransferTxn,
+  sender: Account,
+  receiver: Account,
+  asset: Asset,
+  amount: uint64
+): void {
+  assertSafeAssetTransfer(txn, sender)
+  loggedAssert(txn.assetReceiver === receiver, errInvalidAssetReceiver)
+  loggedAssert(txn.xferAsset === asset, errInvalidAsset)
+  loggedAssert(txn.assetAmount === amount, errInvalidAssetAmount)
 }
 
 export function getDAOARC58Wallet(akitaDAO: Application): Application {
@@ -105,19 +173,19 @@ export function getSplits(akitaDAO: Application): Split[] {
 }
 
 export function calcPercent(a: uint64, p: uint64): uint64 {
-  assert(p <= DIVISOR, ERR_INVALID_PERCENTAGE)
+  assert(p <= DIVISOR, errInvalidPercentage)
   return op.divw(...op.mulw(a, p), DIVISOR)
 }
 
 export function percentageOf(a: uint64, b: uint64): uint64 {
-  assert(a < b, ERR_INVALID_PERCENTAGE_OF_ARGS)
+  assert(a < b, errInvalidPercentageOfArgs)
   return op.divw(...op.mulw(a, DIVISOR), b)
 }
 
 export function wideRatio(numerators: [uint64, uint64], denominators: [uint64, uint64]): uint64 {
-  assert(denominators[0] > 0 && denominators[1] > 0, ERR_INVALID_PERCENTAGE)
+  assert(denominators[0] > 0 && denominators[1] > 0, errInvalidPercentage)
   const [overflow, result] = op.divmodw(...op.mulw(...numerators), ...op.mulw(...denominators))
-  assert(overflow === 0, ERR_INVALID_PERCENTAGE)
+  assert(overflow === 0, errInvalidPercentage)
   return result
 }
 
@@ -139,15 +207,28 @@ export function getUserImpact(akitaDAO: Application, account: Account): uint64 {
   }).returnValue
 }
 
-export function originOr(walletID: Application, or: Account): Account {
+/** LEGACY (registry semantics; legacy shims only, delete in Phase 4: use principalOf / atRestPrincipalOf).
+ * The origin (controlled address) of an authenticated wallet, or `or` when `walletID` is 0.
+ *
+ * `walletID` must come from `legacyWalletOf` (creator-checked). In addition, an
+ * external controlled address only counts if it is provably under the wallet's control right
+ * now: it is the wallet's own app address, it is the current sender (it is the spending account
+ * rekeyed to a plugin), or it is rekeyed to the wallet app. Otherwise `or` is returned. This
+ * stops wallets created with an arbitrary `controlledAddress` from borrowing someone's identity.
+ */
+export function legacyOriginOr(walletID: Application, or: Account): Account {
   if (walletID.id === 0) {
     return or
   }
-  return getOriginAccount(walletID)
+  const origin = getOriginAccount(walletID)
+  if (origin !== walletID.address && origin !== Txn.sender && origin.authAddress !== walletID.address) {
+    return or
+  }
+  return origin
 }
 
-export function originOrTxnSender(walletID: Application): Account {
-  return originOr(walletID, Txn.sender)
+export function legacyOriginOrTxnSender(walletID: Application): Account {
+  return legacyOriginOr(walletID, Txn.sender)
 }
 
 export function referrerOr(walletID: Application, or: Account): Account {
@@ -161,12 +242,14 @@ export function referrerOrZeroAddress(walletID: Application): Account {
   return referrerOr(walletID, Global.zeroAddress)
 }
 
+/** The wallet's `controlled_address`. Fails if the app has no 32-byte value under that key. */
 export function getOriginAccount(walletID: Application): Account {
-  const [controlledAccountBytes] = op.AppGlobal.getExBytes(
+  const [controlledAccountBytes, exists] = op.AppGlobal.getExBytes(
     walletID,
     Bytes(AbstractAccountGlobalStateKeysControlledAddress)
   )
-  return Account(Bytes(controlledAccountBytes))
+  loggedAssert(exists && controlledAccountBytes.length === 32, errInvalidWallet)
+  return Account(controlledAccountBytes)
 }
 
 export function getReferrerAccount(walletID: Application): Account {
@@ -177,32 +260,48 @@ export function getReferrerAccount(walletID: Application): Account {
   return Account(Bytes(referrerBytes))
 }
 
-export function getWalletIDUsingAkitaDAO(akitaDAO: Application, address: Account): Application {
-  const escrowFactory = getEscrowFactory(akitaDAO)
-  return Application(getWalletID(escrowFactory, address))
+/** Address of application `appId`, computed without needing the app as a resource. */
+export function appAddress(appId: uint64): Account {
+  return Account(op.sha512_256(Bytes('appID').concat(itob(appId))))
 }
 
-export function getWalletID(escrowFactory: uint64, address: Account): uint64 {
+/** True if `wallet` exists and was created by the ARC-58 wallet factory `walletFactory`. */
+export function isAkitaWallet(wallet: uint64, walletFactory: uint64): boolean {
+  if (wallet === 0 || walletFactory === 0) {
+    return false
+  }
+  const [creator, exists] = op.AppParams.appCreator(wallet)
+  return exists && creator === appAddress(walletFactory)
+}
+
+/** LEGACY (EscrowFactory registry read; legacy shims only, delete in Phase 4: use principalOf).
+ * Authenticated wallet lookup: the ARC-58 wallet registered for `address` (a wallet app address
+ * or one of its escrows) in the DAO's escrow factory, or `Application(0)`.
+ *
+ * The escrow factory lets any app register itself, so the registered app only counts if it was
+ * created by the DAO-registered wallet factory (`AkitaAppList.wallet`). Use this (never a raw
+ * escrow-factory read) before trusting `getOriginAccount` / `getReferrerAccount`.
+ */
+export function legacyWalletOf(akitaDAO: Application, address: Account): Application {
+  return Application(legacyWalletID(getEscrowFactory(akitaDAO), getAkitaAppList(akitaDAO).wallet, address))
+}
+
+/** LEGACY (EscrowFactory registry read; only via legacyWalletOf, delete in Phase 4).
+ * Wallet app id registered for `address` in `escrowFactory`, or 0 if none is registered or the
+ * registered app was not created by `walletFactory`.
+ */
+export function legacyWalletID(escrowFactory: uint64, walletFactory: uint64, address: Account): uint64 {
   const data = abiCall<typeof EscrowFactory.prototype.get>({
     appId: escrowFactory,
     args: [address]
   }).returnValue
 
-  if (Bytes(data).length === 0 || Bytes(data).length !== 8) {
+  if (Bytes(data).length !== 8) {
     return 0
   }
 
-  return btoi(data)
-}
-
-export function getOrigin(escrowFactory: uint64, address: Account): Account {
-  const wallet = getWalletID(escrowFactory, address)
-
-  if (wallet === 0) {
-    return Txn.sender
-  }
-
-  return getOriginAccount(Application(wallet))
+  const wallet = btoi(data)
+  return isAkitaWallet(wallet, walletFactory) ? wallet : 0
 }
 
 export function gateCall(akitaDAO: Application, caller: Account, id: uint64, args: GateArgs): boolean {
@@ -290,6 +389,18 @@ export function getSpendingAccount(wallet: Application): Account {
   return Account(Bytes(spendingAddressBytes))
 }
 
+/**
+ * Like `getSpendingAccount`, but also asserts the spending account is currently rekeyed to the
+ * calling app (the plugin). A spoofed `wallet` whose `spending_address` points at an account
+ * this app does not control (for example the plugin's own, never-rekeyed app account) fails
+ * with `errNath`. Prefer this in plugin methods that spend from the account.
+ */
+export function getControlledSpendingAccount(wallet: Application): Account {
+  const sender = getSpendingAccount(wallet)
+  loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+  return sender
+}
+
 export function getEscrow(wallet: Application): string {
   // The escrow is stored in the currentPlugin struct (PluginKey)
   // which contains { plugin: uint64, caller: address, escrow: string }
@@ -312,7 +423,7 @@ export function getEscrowInfo(wallet: Application): EscrowInfo {
 
 export function mustGetEscrowInfo(wallet: Application): EscrowInfo {
   const info = getEscrowInfo(wallet)
-  assert(info.address !== Global.zeroAddress, ERR_ESCROW_DOES_NOT_EXIST)
+  assert(info.address !== Global.zeroAddress, errEscrowDoesNotExist)
   return info
 }
 
@@ -389,7 +500,7 @@ export function arc59OptInAndSend(akitaDAO: Application, recipient: Account, ass
 }
 
 export function arc58OptInAndSend(akitaDAO: Application, recipientWallet: Application, escrow: string, assets: uint64[], amounts: uint64[]): void {
-  assert(assets.length === amounts.length, ERR_ASSETS_AND_AMOUNTS_MISMATCH)
+  assert(assets.length === amounts.length, errAssetsAndAmountsMismatch)
   const optinPlugin = getPluginAppList(akitaDAO).optin
   const origin = getOriginAccount(recipientWallet)
 
@@ -437,8 +548,9 @@ export function royalties(akitaDAO: Application, asset: Asset, name: string, pro
     return CreatorRoyaltyDefault
   }
 
-  // fetch the royalty set for the asset being sold
-  const creatorRoyaltyString = abiCall<typeof MetaMerkles.prototype.verifiedRead>({
+  // A supplied proof has to verify. verifiedRead turns failure into an empty
+  // string, which this helper would charge as a 0% royalty.
+  const creatorRoyaltyString = abiCall<typeof Meta.prototype.verifiedMustRead>({
     appId: getAkitaAppList(akitaDAO).metaMerkles,
     args: [
       asset.creator,
@@ -462,7 +574,7 @@ export function royalties(akitaDAO: Application, asset: Asset, name: string, pro
 }
 
 export function getPrizeBoxOwner(akitaDAO: Application, prizeBox: Application): Account {
-  assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, ERR_NOT_A_PRIZE_BOX)
+  assert(prizeBox.creator === Application(getAkitaAppList(akitaDAO).prizeBox).address, errNotAPrizeBox)
   const [ownerBytes] = op.AppGlobal.getExBytes(prizeBox, Bytes(PrizeBoxGlobalStateKeyOwner))
   return new Address(ownerBytes).native
 }
@@ -472,7 +584,12 @@ export function getFunder(appId: Application): FunderInfo {
   return decodeArc4<FunderInfo>(funderBytes)
 }
 
-export function getStakingPower(stakingApp: uint64, user: Account, asset: uint64): uint64 {
+export function getStakingPowerThrough(
+  stakingApp: uint64,
+  user: Account,
+  asset: uint64,
+  requiredThrough: uint64,
+): uint64 {
   const info = abiCall<typeof Staking.prototype.getInfo>({
     appId: stakingApp,
     args: [
@@ -484,7 +601,7 @@ export function getStakingPower(stakingApp: uint64, user: Account, asset: uint64
     ],
   }).returnValue
 
-  if (info.expiration <= Global.latestTimestamp) {
+  if (info.expiration <= requiredThrough) {
     return 0
   }
 
@@ -496,6 +613,10 @@ export function getStakingPower(stakingApp: uint64, user: Account, asset: uint64
 
   const remainingDays: uint64 = remainingTime / ONE_DAY
   return op.divw(...op.mulw(wideRatio([info.amount, 1_000_000], [ONE_YEAR_IN_DAYS, 1_000_000]), remainingDays), 1_000_000)
+}
+
+export function getStakingPower(stakingApp: uint64, user: Account, asset: uint64): uint64 {
+  return getStakingPowerThrough(stakingApp, user, asset, Global.latestTimestamp)
 }
 
 export function costInstantDisbursement(akitaDAO: Application, asset: uint64, allocationsLength: uint64): uint64 {
@@ -531,23 +652,29 @@ export function rewardsOptInCost(akitaDAO: Application, asset: uint64): uint64 {
   return 0
 }
 
-export function createInstantDisbursement(akitaDAO: Application, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: UserAllocation[], sum: uint64, closeOut: boolean): { id: uint64, cost: uint64 } {
-  assert(asset !== 0 || closeOut === false, ERR_CANNOT_CLOSE_OUT_OF_ALGO_FORBIDDEN)
+/**
+ * Funds a Rewards instant disbursement from the calling app. A non-zero `reclaimTo` lets anyone sweep
+ * what is unclaimed at `expiration` to it (`Rewards.sweepExpired`).
+ */
+export function createInstantDisbursement(akitaDAO: Application, asset: uint64, timeToUnlock: uint64, expiration: uint64, allocations: UserAllocation[], sum: uint64, closeOut: boolean, reclaimTo: Account): { id: uint64, cost: uint64 } {
+  assert(asset !== 0 || closeOut === false, errCannotCloseOutOfAlgoForbidden)
   const rewardsApp = getAkitaAppList(akitaDAO).rewards
 
   let id: uint64 = 0
-  let cost: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
+  const mbr: uint64 = MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
+  let cost: uint64 = mbr
   if (asset === 0) {
     id = abiCall<typeof Rewards.prototype.createInstantDisbursement>({
       appId: rewardsApp,
       args: [
         itxn.payment({
           receiver: Application(rewardsApp).address,
-          amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length) + sum
+          amount: mbr + sum
         }),
         timeToUnlock,
         expiration,
-        allocations
+        allocations,
+        reclaimTo
       ]
     }).returnValue
   } else {
@@ -580,12 +707,13 @@ export function createInstantDisbursement(akitaDAO: Application, asset: uint64, 
       args: [
         itxn.payment({
           receiver: Application(rewardsApp).address,
-          amount: MinDisbursementsMBR + (UserAllocationMBR * allocations.length)
+          amount: mbr
         }),
         transferTxn,
         timeToUnlock,
         expiration,
-        allocations
+        allocations,
+        reclaimTo
       ]
     }).returnValue
   }
@@ -593,8 +721,17 @@ export function createInstantDisbursement(akitaDAO: Application, asset: uint64, 
   return { id, cost }
 }
 
-export function referralFee(akitaDAO: Application, asset: uint64): uint64 {
-  const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
+/** LEGACY shims only (registry referrer of `Txn.sender`; new code: referralFeeTo(dao, p.referrer, asset)). See `legacyReferralFeeFor`. */
+export function legacyReferralFee(akitaDAO: Application, asset: uint64): uint64 {
+  return legacyReferralFeeFor(akitaDAO, Txn.sender, asset)
+}
+
+/** LEGACY (registry referrer; legacy shims only, delete in Phase 4: use referralFeeTo).
+ * Referral disbursement MBR charged when a fee is attributed to `account`: 0 if `account` has no
+ * authenticated wallet with a referrer, otherwise `costInstantDisbursement(akitaDAO, asset, 1)`.
+ */
+export function legacyReferralFeeFor(akitaDAO: Application, account: Account, asset: uint64): uint64 {
+  const wallet = legacyWalletOf(akitaDAO, account)
   const referrer = referrerOrZeroAddress(wallet)
 
   if (referrer === Global.zeroAddress) {
@@ -604,8 +741,23 @@ export function referralFee(akitaDAO: Application, asset: uint64): uint64 {
   return costInstantDisbursement(akitaDAO, asset, 1)
 }
 
-export function sendReferralPayment(akitaDAO: Application, asset: uint64, amount: uint64): ReferralPaymentInfo {
-  const wallet = getWalletIDUsingAkitaDAO(akitaDAO, Txn.sender)
+/** LEGACY shims only (registry referrer of `Txn.sender`; new code: sendReferralPaymentTo(dao, p.referrer, ...)). */
+export function legacySendReferralPayment(akitaDAO: Application, asset: uint64, amount: uint64, reclaimTo: Account): ReferralPaymentInfo {
+  return legacySendReferralPaymentFor(akitaDAO, Txn.sender, asset, amount, reclaimTo)
+}
+
+/** LEGACY (registry referrer; legacy shims only, delete in Phase 4: use sendReferralPaymentTo).
+ * Pay the referral cut of `amount` (in `asset`) to the referrer of `account`'s authenticated
+ * wallet, as a Rewards instant disbursement funded by the calling app.
+ *
+ * Use this when the fee is attributable to someone other than the caller (for example the seller
+ * of a listing settled by a buyer or keeper). Returns the remainder of `amount` and the
+ * disbursement MBR the calling app spent; `{ leftover: amount, referralMbr: 0 }` if there is no
+ * referrer. The referrer has `THIRTY_DAYS` to claim; after that anyone can sweep the cut and the MBR
+ * to `reclaimTo` (the paying service's DAO escrow).
+ */
+export function legacySendReferralPaymentFor(akitaDAO: Application, account: Account, asset: uint64, amount: uint64, reclaimTo: Account): ReferralPaymentInfo {
+  const wallet = legacyWalletOf(akitaDAO, account)
   const referrer = referrerOrZeroAddress(wallet)
 
   let referralFee: uint64 = 0
@@ -622,10 +774,11 @@ export function sendReferralPayment(akitaDAO: Application, asset: uint64, amount
       akitaDAO,
       asset,
       Global.latestTimestamp,
-      (Global.latestTimestamp + ONE_WEEK),
+      (Global.latestTimestamp + THIRTY_DAYS),
       [{ address: referrer, amount: referralFee }],
       referralFee,
-      false
+      false,
+      reclaimTo
     )
 
     return { leftover: (amount - referralFee), referralMbr }
@@ -645,4 +798,141 @@ export function splitOptInCount(akitaDAO: Application, escrow: Account, asset: A
   }
 
   return count
+}
+
+// PRINCIPAL RESOLUTION -----------------------------------------------------------------------------
+// Additive (Phase 0, docs/principal-resolution/PHASE-0-SPEC.md §3.3). DAO-aware wrappers around
+// utils/principal.ts: each pins the wallet factory to `AkitaAppList(akitaDAO).wallet` of the
+// CONSUMER's own DAO reference (never a DAO read from the wallet). Kept at the end of the file (with
+// their imports) so the TEAL source comments of existing contracts keep their line numbers.
+
+import { encodeArc4 } from "@algorandfoundation/algorand-typescript/arc4"
+import {
+  atRestPrincipal,
+  ctxOwns,
+  GateCtx,
+  ownsAtRest,
+  pluginPrincipal,
+  Principal,
+  quoteReferrer,
+  resolvePrincipal,
+  thirdPartyPrincipal,
+  tipWalletFor,
+  tryResolvePrincipal,
+} from "./principal"
+
+/** ARC-4 signature of Gate v2 `mustCheckFor(ctx, gateID, args)` (Gate track implements it; see IMPLEMENTATION-LOG.md). */
+export const GateMustCheckForAbiMethod = 'mustCheckFor((address,uint64,address),uint64,byte[][])void'
+
+/** Strict first-hop resolution (`resolvePrincipal`) against the DAO's wallet factory. Invalid hints revert. */
+export function principalOf(akitaDAO: Application, hint: uint64): Principal {
+  return resolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+}
+
+/** `tryResolvePrincipal` against the DAO's wallet factory (contextual quotes only, never third-party paths). */
+export function tryPrincipalOf(akitaDAO: Application, hint: uint64): Principal {
+  return tryResolvePrincipal(getAkitaAppList(akitaDAO).wallet, hint)
+}
+
+/** `quoteReferrer` against the DAO's wallet factory (readonly cost methods). */
+export function quoteReferrerOf(akitaDAO: Application, hint: uint64): Account {
+  return quoteReferrer(getAkitaAppList(akitaDAO).wallet, hint)
+}
+
+/** `ownsAtRest` against the DAO's wallet factory (no call context, no wallet-global reads). */
+export function ownsAtRestOf(akitaDAO: Application, wallet: uint64, account: Account): boolean {
+  return ownsAtRest(getAkitaAppList(akitaDAO).wallet, wallet, account)
+}
+
+/** `atRestPrincipal` against the DAO's wallet factory (stored-pair re-check; third-party safe). */
+export function atRestPrincipalOf(akitaDAO: Application, account: Account, wallet: uint64, stored: Account): Account {
+  return atRestPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet, stored)
+}
+
+/** QUOTE-ONLY: `thirdPartyPrincipal` against the DAO's wallet factory (reads W.controlled_address). */
+export function thirdPartyPrincipalOf(akitaDAO: Application, account: Account, wallet: uint64): Account {
+  return thirdPartyPrincipal(getAkitaAppList(akitaDAO).wallet, account, wallet)
+}
+
+/** `ctxOwns` against the DAO's wallet factory (context-aware sub-gates). */
+export function ctxOwnsOf(akitaDAO: Application, ctx: GateCtx, account: Account): boolean {
+  return ctxOwns(getAkitaAppList(akitaDAO).wallet, ctx, account)
+}
+
+/** Plugin side, inside the window: `pluginPrincipal` against the DAO's wallet factory. */
+export function pluginPrincipalOf(akitaDAO: Application, wallet: Application): Principal {
+  return pluginPrincipal(wallet, getAkitaAppList(akitaDAO).wallet)
+}
+
+/**
+ * The `Gate.mustCheckFor` twin of `gateCheck`: `gateTxn` is a NoOp call to the DAO's gate with
+ * `appArgs = [selector(mustCheckFor), encode(ctx), itob(id), args]`. The target passes the `ctx` it
+ * verified itself (`gateCtx(principalOf(...))`), so a gate txn built for any other context fails.
+ */
+export function gateCheckCtx(gateTxn: gtxn.ApplicationCallTxn, akitaDAO: Application, ctx: GateCtx, id: uint64): boolean {
+  return (
+    gateTxn.appId === Application(getAkitaAppList(akitaDAO).gate) &&
+    gateTxn.onCompletion === OnCompleteAction.NoOp &&
+    gateTxn.numAppArgs === 4 &&
+    gateTxn.appArgs(0) === methodSelector(GateMustCheckForAbiMethod) &&
+    gateTxn.appArgs(1) === encodeArc4(ctx) &&
+    gateTxn.appArgs(2) === itob(id)
+  )
+}
+
+/**
+ * Referral disbursement MBR for a fee whose referrer is already known (no registry lookup):
+ * 0 for the zero address, otherwise `costInstantDisbursement(akitaDAO, asset, 1)`.
+ */
+export function referralFeeTo(akitaDAO: Application, referrer: Account, asset: uint64): uint64 {
+  if (referrer === Global.zeroAddress) {
+    return 0
+  }
+
+  return costInstantDisbursement(akitaDAO, asset, 1)
+}
+
+/**
+ * Pay the referral cut of `amount` (in `asset`) to `referrer` (any address; usually the verified
+ * principal's `referrer` or a creation-time stored referrer), as a Rewards instant disbursement funded
+ * by the calling app. Same economics as `legacySendReferralPaymentFor`, without the registry lookup:
+ * unclaimed after `THIRTY_DAYS`, the cut and the MBR can be swept to `reclaimTo`.
+ */
+export function sendReferralPaymentTo(akitaDAO: Application, referrer: Account, asset: uint64, amount: uint64, reclaimTo: Account): ReferralPaymentInfo {
+  let referralFee: uint64 = 0
+  if (amount > 0 && referrer !== Global.zeroAddress) {
+
+    const { referrerPercentage } = getWalletFees(akitaDAO)
+
+    referralFee = calcPercent(amount, referrerPercentage)
+    if (referralFee === 0 && amount > 0) {
+      referralFee = 1
+    }
+
+    const { cost: referralMbr } = createInstantDisbursement(
+      akitaDAO,
+      asset,
+      Global.latestTimestamp,
+      (Global.latestTimestamp + THIRTY_DAYS),
+      [{ address: referrer, amount: referralFee }],
+      referralFee,
+      false,
+      reclaimTo
+    )
+
+    return { leftover: (amount - referralFee), referralMbr }
+  }
+
+  return { leftover: amount, referralMbr: 0 }
+}
+
+/**
+ * Tip routing wallet for `creator`, given the wallet id `stored` in the creator's social meta:
+ * `stored` if it is a genuine wallet that owns `creator` at rest and still has live control of its
+ * controlled address relative to `creator`, else 0 (direct tip). Reads a global of the CREATOR's own
+ * wallet (deliberate exception to the no-global-reads rule, residual R-CREATOR): a missing or short
+ * `controlled_address` gives 0; a uint64-typed one panics (only the creator's own posts are affected).
+ */
+export function tipWallet(akitaDAO: Application, creator: Account, stored: uint64): uint64 {
+  return tipWalletFor(getAkitaAppList(akitaDAO).wallet, creator, stored)
 }

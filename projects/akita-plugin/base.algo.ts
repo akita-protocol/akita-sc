@@ -13,7 +13,11 @@ import { Contract } from '@algorandfoundation/algorand-typescript/arc4'
  * 3. Rekey back to the wallet on the **last** inner transaction when `rekeyBack` is true
  *
  * Use the standalone utility functions from this package to satisfy these requirements:
- * - `getSpendingAccount(wallet)` - get the account to use as `sender`
+ * - `getControlledSpendingAccount(wallet)` - get the account to use as `sender`, asserting it
+ *   is rekeyed to this plugin (preferred; `wallet` is caller-supplied and may be fake)
+ * - `getSpendingAccount(wallet)` - same without the control check (read-only uses)
+ * - `isAkitaWallet(wallet, walletFactory)` - check the wallet was created by the Akita wallet
+ *   factory before trusting its origin/referrer for identity or gating
  * - `rekeyAddress(rekeyBack, wallet)` - get the address for the `rekeyTo` field
  * - `rekeyBackIfNecessary(rekeyBack, wallet)` - submit a no-op rekey when your last
  *   operation isn't an inner transaction

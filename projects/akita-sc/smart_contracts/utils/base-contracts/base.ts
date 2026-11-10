@@ -1,54 +1,20 @@
-import { Application, Asset, Bytes, clone, Global, GlobalState, gtxn, itxn, itxnCompose, loggedAssert, op, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
+import { UpgradeableAkitaBaseContract } from './upgradeable'
+
+import { Application, Asset, clone, Global, GlobalState, gtxn, itxn, itxnCompose, loggedAssert, Txn, uint64 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
-import { ERR_ESCROW_DOES_NOT_EXIST, ERR_WRONG_ESCROW_FOR_OPERATION } from '../../arc58/account/errors'
+import { errEscrowDoesNotExist, errWrongEscrowForOperation } from '../../arc58/account/errors'
 import { CallerTypeGlobal, EscrowInfo } from '../../arc58/account/types'
-import { AkitaDAOGlobalStateKeysWallet } from '../../arc58/dao/constants'
-import { GlobalStateKeyAkitaDAO, GlobalStateKeyAkitaEscrow, GlobalStateKeyVersion } from '../../constants'
-import { ERR_NOT_AKITA_DAO, ERR_INVALID_UPGRADE } from '../../errors'
+import { GlobalStateKeyAkitaEscrow } from '../../constants'
+import { errNotAkitaDao } from '../../errors'
 
 // CONTRACT IMPORTS
 import type { AbstractedAccount } from '../../arc58/account/contract.algo'
-import { ERR_INVALID_PAYMENT_AMOUNT, ERR_INVALID_PAYMENT_RECEIVER } from '../errors'
+import { errInvalidPaymentAmount, errInvalidPaymentReceiver } from '../errors'
 import { getPluginAppList, splitOptInCount } from '../functions'
 
 class RevenueManagerPluginStub extends Contract {
   optIn(wallet: Application, rekeyBack: boolean, assets: uint64[], mbrPayment: gtxn.PaymentTxn): void {
     return
-  }
-}
-
-export class AkitaBaseContract extends Contract {
-
-  // GLOBAL STATE ---------------------------------------------------------------------------------
-
-  /** the current version of the contract */
-  version = GlobalState<string>({ key: GlobalStateKeyVersion })
-  /** the app ID of the Akita DAO */
-  akitaDAO = GlobalState<Application>({ key: GlobalStateKeyAkitaDAO })
-
-  protected getAkitaDAOWallet(): Application {
-    const [walletID] = op.AppGlobal.getExUint64(this.akitaDAO.value, Bytes(AkitaDAOGlobalStateKeysWallet))
-    return Application(walletID)
-  }
-
-  // AKITA BASE CONTRACT METHODS ------------------------------------------------------------------
-
-  updateAkitaDAO(akitaDAO: Application): void {
-    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    this.akitaDAO.value = akitaDAO
-  }
-
-  opUp(): void { }
-}
-
-export class UpgradeableAkitaBaseContract extends AkitaBaseContract {
-
-  @abimethod({ allowActions: ['UpdateApplication'] })
-  update(newVersion: string): void {
-    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
-    const updatePlugin = getPluginAppList(this.akitaDAO.value).update
-    loggedAssert(Global.callerApplicationId === updatePlugin, ERR_INVALID_UPGRADE)
-    this.version.value = newVersion
   }
 }
 
@@ -82,13 +48,14 @@ export class AkitaBaseFeeGeneratorContractWithoutAkitaOptIn extends UpgradeableA
   akitaDAOEscrow = GlobalState<EscrowConfig>({ key: GlobalStateKeyAkitaEscrow })
 
   updateAkitaDAOEscrow(config: EscrowConfig): void {
-    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, ERR_NOT_AKITA_DAO)
+    loggedAssert(Txn.sender === this.getAkitaDAOWallet().address, errNotAkitaDao)
     this.akitaDAOEscrow.value = clone(config)
   }
 }
 
 export class AkitaBaseFeeGeneratorContract extends AkitaBaseFeeGeneratorContractWithoutAkitaOptIn {
 
+  /** this will error if escrow id is zero meaning we cant have a rev escrow thats a regular account */
   protected getEscrow(name: string): EscrowInfo {
     const appId = this.getAkitaDAOWallet()
 
@@ -97,7 +64,7 @@ export class AkitaBaseFeeGeneratorContract extends AkitaBaseFeeGeneratorContract
       args: [[name]],
     }).returnValue[0]
 
-    loggedAssert(escrow.id !== 0, ERR_ESCROW_DOES_NOT_EXIST)
+    loggedAssert(escrow.id !== 0, errEscrowDoesNotExist)
 
     return escrow
   }
@@ -119,7 +86,7 @@ export class AkitaBaseFeeGeneratorContract extends AkitaBaseFeeGeneratorContract
 
     const escrow = clone(this.akitaDAOEscrow.value)
     const { id } = this.getEscrow(escrow.name)
-    loggedAssert(id === escrow.app.id, ERR_WRONG_ESCROW_FOR_OPERATION)
+    loggedAssert(id === escrow.app.id, errWrongEscrowForOperation)
 
     itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
       appId: wallet,
@@ -169,6 +136,32 @@ export class AkitaBaseFeeGeneratorContract extends AkitaBaseFeeGeneratorContract
 
     return mbrAmount
   }
+
+  /**
+   * Send `amount` of `asset` (asset 0 = ALGO) from this app to its configured DAO revenue escrow
+   * (`akitaDAOEscrow`). If the escrow is not opted into the ASA yet, it is opted in through the
+   * revenue-manager plugin first (this app pays that opt-in MBR, see `optAkitaEscrowInAndSend`).
+   * No-op for `amount === 0`. Returns the opt-in MBR this app spent (0 if none).
+   */
+  protected sendToAkitaEscrow(asset: Asset, amount: uint64): uint64 {
+    if (amount === 0) {
+      return 0
+    }
+
+    const escrow = this.akitaDAOEscrow.value.app.address
+
+    if (asset.id === 0) {
+      itxn.payment({ receiver: escrow, amount }).submit()
+      return 0
+    }
+
+    if (escrow.isOptedIn(asset)) {
+      itxn.assetTransfer({ assetReceiver: escrow, assetAmount: amount, xferAsset: asset }).submit()
+      return 0
+    }
+
+    return this.optAkitaEscrowInAndSend(asset, amount)
+  }
 }
 
 export class AkitaFeeGeneratorContractWithOptIn extends AkitaBaseFeeGeneratorContract {
@@ -196,8 +189,8 @@ export class AkitaFeeGeneratorContractWithOptIn extends AkitaBaseFeeGeneratorCon
     const escrow = clone(this.akitaDAOEscrow.value)
     const count = splitOptInCount(this.akitaDAO.value, escrow.app.address, asset)
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT_RECEIVER)
-    loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), ERR_INVALID_PAYMENT_AMOUNT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPaymentReceiver)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance * (1 + count), errInvalidPaymentAmount)
 
     itxn
       .assetTransfer({
