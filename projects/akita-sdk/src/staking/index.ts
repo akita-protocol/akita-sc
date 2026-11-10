@@ -15,6 +15,9 @@ import {
   StakeArgs,
   WithdrawArgs,
   CreateHeartbeatArgs,
+  SetHeartbeatManagerArgs,
+  CloseStakeArgs,
+  ReleaseAppStakeArgs,
   UpdateSettingsArgs,
   SoftCheckArgs,
   CheckpointSoftStakeArgs,
@@ -312,7 +315,9 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     let expiration: bigint;
     if (isEscrowed) {
       // ensure args.expiration is in the future
-      const latestTimestamp = await this.client.algorand.network.getLatestTimestamp();
+      const algod = this.client.algorand.client.algod;
+      const status = await algod.status().do();
+      const latestTimestamp = (await algod.block(status.lastRound).do()).block.header.timestamp;
       if (args.expiration < latestTimestamp) {
         throw new Error('Expiration must be in the future');
       }
@@ -321,7 +326,8 @@ export class StakingSDK extends BaseSDK<StakingClient> {
       expiration = 0n;
     }
 
-    const cost = await this.stakeCost(asset, type);
+    // quoted for the staker: a top-up of an existing stake owes no MBR
+    const cost = await this.stakeCost(asset, type, sendParams.sender.toString());
 
     if (asset === 0n) {
 
@@ -376,9 +382,50 @@ export class StakingSDK extends BaseSDK<StakingClient> {
    * @param type - The staking type
    */
   async withdraw({ sender, signer, asset, type }: WithdrawArgs): Promise<AppReturn<void>> {
+    // returns custody plus the stake box MBR (two inner txns for an ASA)
     return await this.client.send.withdraw({
       ...this.getSendParams({ sender, signer }),
-      args: { asset, type }
+      args: { asset, type },
+      extraFee: microAlgo(BigInt(asset) === 0n ? 1_000 : 2_000),
+    });
+  }
+
+  /** Sets the heartbeat manager. Staking only accepts this from the DAO wallet. */
+  async setHeartbeatManager({ sender, signer, manager }: SetHeartbeatManagerArgs): Promise<AppReturn<void>> {
+    return await this.client.send.setHeartbeatManager({
+      ...this.getSendParams({ sender, signer }),
+      args: { manager },
+    });
+  }
+
+  /** Closes the sender's SOFT stake for `asset` and refunds its box MBR. */
+  async closeSoftStake({ sender, signer, asset }: CloseStakeArgs): Promise<AppReturn<void>> {
+    return await this.client.send.closeSoftStake({
+      ...this.getSendParams({ sender, signer }),
+      args: { asset },
+      extraFee: microAlgo(1_000),
+    });
+  }
+
+  /** Closes the sender's heartbeat stake and history for `asset` and refunds both boxes' MBR. */
+  async closeHeartbeat({ sender, signer, asset }: CloseStakeArgs): Promise<AppReturn<void>> {
+    return await this.client.send.closeHeartbeat({
+      ...this.getSendParams({ sender, signer }),
+      args: { asset },
+      extraFee: microAlgo(1_000),
+    });
+  }
+
+  /**
+   * Releases an app-scoped commitment and refunds its MBR to `address`. Callable by the owner
+   * once the consuming app has been deleted (the app itself releases otherwise).
+   */
+  async releaseAppStake({ sender, signer, app, address, asset }: ReleaseAppStakeArgs): Promise<AppReturn<void>> {
+    return await this.client.send.releaseAppStake({
+      ...this.getSendParams({ sender, signer }),
+      args: { app, address, asset },
+      extraFee: microAlgo(1_000),
+      populateAppCallResources: true,
     });
   }
 
@@ -403,9 +450,11 @@ export class StakingSDK extends BaseSDK<StakingClient> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
+    // the first setting for an asset creates a box (SettingsMBR); later updates are free
+    const [current] = await this.client.getSettings({ args: { assets: [BigInt(asset)] } });
     const payment = this.client.algorand.createTransaction.payment({
       ...sendParams,
-      amount: microAlgo(0), // May need adjustment based on operation
+      amount: microAlgo(current?.[1] ? 0 : 9_300),
       receiver: this.client.appAddress,
     });
 
@@ -440,9 +489,11 @@ export class StakingSDK extends BaseSDK<StakingClient> {
     return await this.client.optInCost();
   }
 
-  async stakeCost(asset: bigint | number, type: StakingType): Promise<bigint> {
-    return await this.client.stakeCost({ 
-      args: { asset, type } 
+  /** MBR `staker` pays for a new stake of this kind; 0 when it already has one (a top-up). */
+  async stakeCost(asset: bigint | number, type: StakingType, staker?: string): Promise<bigint> {
+    return await this.client.stakeCost({
+      ...(staker ? { sender: staker } : {}),
+      args: { asset, type }
     });
   }
 

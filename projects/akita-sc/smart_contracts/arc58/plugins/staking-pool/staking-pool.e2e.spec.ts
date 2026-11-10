@@ -1,13 +1,15 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact';
+import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, StakingPoolPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { StakingType } from 'akita-sdk/staking';
 import { StakingPoolSDK } from 'akita-sdk/staking-pool';
 import algosdk from 'algosdk';
+import { MetaSDK, MerkleTree, SchemaPart } from '../../../../../akita-sdk/src/meta';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { buildAddPluginAction, proposeAndExecute } from '../../dao/tests/utils';
+import { errFactoryOnlyInit } from '../../../staking-pool/errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -26,8 +28,8 @@ const ONE_MINUTE = 60;
 const getBlockTimestamp = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
 ): Promise<bigint> => {
-  const status = await algorand.client.algod.status();
-  const block = await algorand.client.algod.block(status.lastRound);
+  const status = await algorand.client.algod.status().do();
+  const block = await algorand.client.algod.block(status.lastRound).do();
   return BigInt(block.block.header.timestamp);
 };
 
@@ -55,7 +57,7 @@ const findLastCreatedAppId = (nodes: unknown[]): bigint | undefined => {
 
   const walk = (node: unknown): void => {
     if (node === null || typeof node !== 'object') return;
-    const txn = node as Record<string, unknown>;
+    const txn = node as unknown as Record<string, unknown>;
     const created = txn.applicationIndex ?? txn['application-index'] ?? txn.createdApplicationIndex;
     if (typeof created === 'bigint') {
       appId = created;
@@ -75,15 +77,15 @@ const findLastCreatedAppId = (nodes: unknown[]): bigint | undefined => {
 
 const getCreatedAppIds = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
-  address: algokit.Address,
+  address: import('algosdk').Address,
 ): Promise<bigint[]> => {
-  const accountInfo = await algorand.client.algod.accountInformation(address) as Record<string, unknown>;
+  const accountInfo = await algorand.client.algod.accountInformation(address).do() as unknown as Record<string, unknown>;
   const createdApps = accountInfo.createdApps ?? accountInfo['created-apps'];
   if (!Array.isArray(createdApps)) return [];
 
   return createdApps
     .map((app) => {
-      const appRecord = app as Record<string, unknown>;
+      const appRecord = app as unknown as Record<string, unknown>;
       const id = appRecord.id ?? appRecord.index ?? appRecord.applicationIndex ?? appRecord['application-index'];
       return typeof id === 'bigint' ? id : typeof id === 'number' ? BigInt(id) : undefined;
     })
@@ -143,7 +145,7 @@ describe('StakingPool plugin contract', () => {
 
   const createPluginPool = async (
     title = 'Plugin Staking Pool',
-    overrides: { allowLateSignups?: boolean; type?: number } = {},
+    overrides: { allowLateSignups?: boolean; type?: number; stakeKey?: { address: string; name: string } } = {},
   ): Promise<StakingPoolSDK> => {
     const factoryAddress = akitaUniverse.stakingPoolFactory.client.appAddress;
     const createdBefore = new Set(await getCreatedAppIds(algorand, factoryAddress));
@@ -155,7 +157,7 @@ describe('StakingPool plugin contract', () => {
           title,
           type: overrides.type ?? POOL_STAKING_TYPE_NONE,
           marketplace: user.addr.toString(),
-          stakeKey: {
+          stakeKey: overrides.stakeKey ?? {
             address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
             name: '',
           },
@@ -231,7 +233,7 @@ describe('StakingPool plugin contract', () => {
       if (!escrow?.app) throw new Error('Staking pool DAO escrow is not configured');
 
       const escrowAddress = algosdk.getApplicationAddress(escrow.app).toString();
-      const escrowBalanceBefore = BigInt((await algorand.client.algod.accountInformation(escrowAddress)).amount);
+      const escrowBalanceBefore = BigInt((await algorand.client.algod.accountInformation(escrowAddress).do()).amount);
 
       const result = await daoWallet.usePlugin({
         sender: deployer.addr,
@@ -261,7 +263,7 @@ describe('StakingPool plugin contract', () => {
       const pool = factory.get({ appId: poolAppId! });
       const state = await pool.getState();
       const royalty = await pool.client.state.global.akitaRoyalty();
-      const escrowBalanceAfter = BigInt((await algorand.client.algod.accountInformation(escrowAddress)).amount);
+      const escrowBalanceAfter = BigInt((await algorand.client.algod.accountInformation(escrowAddress).do()).amount);
 
       expect(state.creator).toBe(daoWallet.client.appAddress.toString());
       expect(royalty).toBe(0n);
@@ -278,7 +280,7 @@ describe('StakingPool plugin contract', () => {
             poolId: pool.appId,
           }),
         ],
-      })).rejects.toThrow(/assert failed|FOIN|Runtime error/);
+      })).rejects.toThrow(new RegExp(`assert failed|${errFactoryOnlyInit}|Runtime error`));
 
       const state = await pool.getState();
       expect(state.title).toBe('Plugin Init Pool');
@@ -379,9 +381,18 @@ describe('StakingPool plugin contract', () => {
         ],
       });
 
+      // H-2 (2026-10 audit): typed pools need an asset stake key; this one admits ALGO only
+      const tree = MerkleTree.of([[0n]], [SchemaPart.Uint64]);
+      const meta = new MetaSDK({
+        algorand, readerAccount: deployer.addr.toString(),
+        factoryParams: { appId: akitaUniverse.metaMerkles.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+      });
+      await meta.addRoot({ name: 'plugin-pool-algo', root: tree.root, type: 1n });
+
       const pool = await createPluginPool('Plugin SOFT Entry Pool', {
         allowLateSignups: true,
         type: POOL_STAKING_TYPE_SOFT,
+        stakeKey: { address: deployer.addr.toString(), name: 'plugin-pool-algo' },
       });
       const now = await getBlockTimestamp(algorand);
       await wallet.usePlugin({
@@ -402,7 +413,7 @@ describe('StakingPool plugin contract', () => {
         calls: [
           stakingPoolPluginSdk.enter({
             appId: pool.appId,
-            entries: [[0n, poolCommitment, []]],
+            entries: [[0n, poolCommitment, tree.getProof(0)]],
             args: [],
           }),
         ],

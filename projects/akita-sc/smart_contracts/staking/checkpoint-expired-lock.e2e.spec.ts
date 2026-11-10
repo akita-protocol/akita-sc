@@ -13,8 +13,8 @@ const ONE_DAY = 86_400n
 
 const latestTimestamp = async () => {
   const { algorand } = fixture.context
-  const status = await algorand.client.algod.status()
-  return (await algorand.client.algod.block(status.lastRound)).block.header.timestamp
+  const status = await algorand.client.algod.status().do()
+  return (await algorand.client.algod.block(status.lastRound).do()).block.header.timestamp
 }
 
 describe('expired lock checkpointing', () => {
@@ -139,7 +139,8 @@ describe('expired lock checkpointing', () => {
         sender: user,
         signer: user.signer,
         args: { asset: assetId, type: STAKING_TYPE_LOCK },
-        extraFee: microAlgo(1_000),
+        // asset transfer + stake box MBR refund
+        extraFee: microAlgo(2_000),
       })
       expect(await client.getTotals({ args: { assets: [assetId] } })).toEqual([[0n, 0n, 0n]])
     } finally {

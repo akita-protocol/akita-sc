@@ -17,10 +17,14 @@ export type DisbursementDetails = {
   allocations: uint64
   /** the amount already distributed from this allocation */
   distributed: uint64
-  /** MBR credits available for creating allocation boxes or withdrawing released MBR */
+  /**
+   * MBR credits available for creating allocation boxes or withdrawing released MBR. Credits held by
+   * open allocation boxes are `allocations * UserAllocationMBR` and are not stored, so the box stays
+   * the size `MinDisbursementsMBR` charges for (STAKE-3).
+   */
   mbrCredits: uint64
-  /** MBR credits consumed by allocation boxes */
-  usedMbrCredits: uint64
+  /** where `sweepExpired` sends what is left after expiration; the zero address = not sweepable */
+  reclaimTo: Account
   /** notes */
   note: string
 }

@@ -10,13 +10,13 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Rewards contract
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const REWARDS_ERROR_MESSAGES: Record<string, string> = {
+export const REWARDS_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Plugin / wallet ----------------------------------------------------
   PNCW: 'Plugin does not control wallet',
 
@@ -50,7 +50,18 @@ export const REWARDS_ERROR_MESSAGES: Record<string, string> = {
   // --- Totals -------------------------------------------------------------
   ISUM: 'Invalid sum',
   IMBR: 'Invalid MBR amount',
-}
+
+  // --- Rewards v2 (2026-10 audit) -----------------------------------------
+  DBNL: 'Disbursement is not finalized',
+  DBNY: 'Disbursement still has allocations',
+  IGIX: 'Funding transactions must immediately precede the call',
+  ICTO: 'Asset transfer may only close out to the rewards app',
+  DBNS: 'Disbursement has no reclaim target to sweep to',
+  RCOI: 'Reclaim target is not opted into the asset',
+
+  // --- RewardsPlugin (STAKE-4) --------------------------------------------
+  RWAP: 'Not the current or the legacy Rewards app',
+})
 
 /**
  * Translates a short Rewards error code (or raw ARC-65 log entry) into a

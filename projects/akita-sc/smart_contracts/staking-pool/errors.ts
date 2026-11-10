@@ -5,74 +5,108 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/staking-pool/errors.ts` —
- * keep the two files in sync when adding or changing a code. Constant NAMES
- * are preserved from the pre-ARC-65 layout so call sites don't change.
+ * keep the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  */
 
 // Mirror common codes used by staking-pool so domain call sites keep their
 // previous names but share the wire format with the top-level `errors.ts`.
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values.
-export const ERR_FAILED_GATE = 'FGTE'
-export const ERR_FORBIDDEN = 'FORB'
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_TRANSFER = 'IXFR'
-export const ERR_NOT_CREATOR = 'NCRE'
+export const errFailedGate = 'errFgte'
+export const errForbidden = 'errForb'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidTransfer = 'errIxfr'
+export const errNotCreator = 'errNcre'
 
 // --- Reward validation ------------------------------------------------------
 
-export const ERR_STAKE_KEY_REQUIRED = 'SKYR'
-export const ERR_RATE_MUST_BE_GREATER_THAN_ZERO = 'RMGZ'
-export const ERR_RATE_MUST_BE_GREATER_THAN_WINNER_COUNT = 'RMGW'
-export const ERR_MAX_ENTRIES_CANNOT_BE_GREATER_THAN_RATE = 'MEGR'
+export const errStakeKeyRequired = 'errSkyr'
+export const errRateMustBeGreaterThanZero = 'errRmgz'
+export const errRateMustBeGreaterThanWinnerCount = 'errRmgw'
+export const errMaxEntriesCannotBeGreaterThanRate = 'errMegr'
 
 // --- Disbursement state -----------------------------------------------------
 
-export const ERR_NOT_ENOUGH_FUNDS = 'NEFD'
-export const ERR_NOT_READY_TO_DISBURSE = 'NRTD'
-export const ERR_INVALID_DISBURSEMENT_PHASE = 'IDPH'
-export const ERR_WINNING_TICKETS_ALREADY_EXIST = 'WTAE'
-export const ERR_INVALID_POOL_TYPE_FOR_CHECK = 'IPTC'
-export const ERR_DISBURSEMENT_NOT_READY_FOR_FINALIZATION = 'DNRF'
-export const ERR_REWARD_NOT_FOUND = 'RNFD'
-export const ERR_REWARD_ALREADY_IN_DISBURSEMENT = 'RAID'
-export const ERR_DISTRIBUTION_WINDOW_NOT_OPEN = 'DWNO'
-export const ERR_UNKNOWN_REWARD_RATE_TYPE = 'URRT'
+export const errNotEnoughFunds = 'errNefd'
+export const errNotReadyToDisburse = 'errNrtd'
+export const errInvalidDisbursementPhase = 'errIdph'
+export const errWinningTicketsAlreadyExist = 'errWtae'
+export const errInvalidPoolTypeForCheck = 'errIptc'
+export const errDisbursementNotReadyForFinalization = 'errDnrf'
+export const errRewardNotFound = 'errRnfd'
+export const errRewardAlreadyInDisbursement = 'errRaid'
+export const errDistributionWindowNotOpen = 'errDwno'
+export const errUnknownRewardRateType = 'errUrrt'
 
 // --- Pool lifecycle ---------------------------------------------------------
 
-export const ERR_POOL_MUST_BE_DRAFT = 'PMBD'
-export const ERR_POOL_NOT_DRAFT_OR_ENDED = 'PNDE'
-export const ERR_POOL_NOT_LIVE = 'PNLV'
-export const ERR_SIGNUPS_NOT_OPEN = 'SUNO'
-export const ERR_POOL_MAX_ENTRIES_REACHED = 'PMER'
-export const ERR_FACTORY_ONLY_INIT = 'FOIN'
-export const ERR_FACTORY_ONLY_DELETE = 'FODE'
-export const ERR_CREATOR_ONLY_DELETE = 'CODE'
-export const ERR_CREATOR_ONLY_FINALIZE = 'COFZ'
+export const errPoolMustBeDraft = 'errPmbd'
+export const errPoolNotDraftOrEnded = 'errPnde'
+export const errPoolNotLive = 'errPnlv'
+export const errSignupsNotOpen = 'errSuno'
+export const errPoolMaxEntriesReached = 'errPmer'
+export const errFactoryOnlyInit = 'errFoin'
+export const errFactoryOnlyDelete = 'errFode'
+export const errCreatorOnlyDelete = 'errCode'
+export const errCreatorOnlyFinalize = 'errCofz'
 
 // --- Finalize timestamps ----------------------------------------------------
 
-export const ERR_INVALID_SIGNUP_TIMESTAMP = 'ISUT'
-export const ERR_INVALID_START_TIMESTAMP = 'ISTT'
-export const ERR_INVALID_START_ZERO_REQUIRES_LATE = 'ISZL'
-export const ERR_INVALID_END_TIMESTAMP = 'IETT'
+export const errInvalidSignupTimestamp = 'errIsut'
+export const errInvalidStartTimestamp = 'errIstt'
+export const errInvalidStartZeroRequiresLate = 'errIszl'
+export const errInvalidEndTimestamp = 'errIett'
 
 // --- Asset / opt-in ---------------------------------------------------------
 
-export const ERR_NOT_ALGO = 'NALG'
-export const ERR_MUST_BE_ASA = 'MBAS'
-export const ERR_DAO_NOT_OPTED_IN = 'DNOI'
+export const errNotAlgo = 'errNalg'
+export const errMustBeAsa = 'errMbas'
+export const errDaoNotOptedIn = 'errDnoi'
 
 // --- Entry validation -------------------------------------------------------
 
-export const ERR_QUANTITY_BELOW_MIN_STAKE = 'QBMS'
-export const ERR_ENTRY_ALREADY_EXISTS = 'EEXS'
-export const ERR_FAILED_STAKE_VERIFY = 'FSVF'
-export const ERR_USER_BALANCE_TOO_LOW = 'UBLO'
-export const ERR_USER_STAKE_TOO_LOW = 'USLO'
+export const errQuantityBelowMinStake = 'errQbms'
+export const errEntryAlreadyExists = 'errEexs'
+export const errFailedStakeVerify = 'errFsvf'
+export const errUserBalanceTooLow = 'errUblo'
+export const errUserStakeTooLow = 'errUslo'
 
 // --- Gate -------------------------------------------------------------------
 
-export const ERR_GATE_ID_NOT_SET = 'GINS'
-export const ERR_GATE_ID_SET = 'GIST'
+export const errGateIdNotSet = 'errGins'
+export const errGateIdSet = 'errGist'
+
+// --- 2026-10 audit fixes ----------------------------------------------------
+
+export const errNotAkitaDao = 'errNdao'
+/** A reward round is open: entries, checks and removals are frozen until it closes (H-4). */
+export const errRoundOpen = 'errRopn'
+/** Reward budget too small for the round or the requested withdrawal (M-5). */
+export const errRewardBudget = 'errRbud'
+/** The pool must be in draft or past its end for this operation (M-5). */
+export const errPoolNotEnded = 'errPnen'
+/** Only the creator or the DAO wallet may abort a round (M-1). */
+export const errAbortForbidden = 'errAbrt'
+/** Typed pools need an asset merkle stake key (H-2). */
+export const errTypedPoolNeedsStakeKey = 'errTyrq'
+/** Staked quantity must be positive in a typed pool (H-2). */
+export const errInvalidQuantity = 'errIqty'
+/** Unknown pool staking type (L-3). */
+export const errInvalidPoolType = 'errIvtp'
+/** Reward interval must be positive and expiration at least one hour (L-1). */
+export const errInvalidRewardTiming = 'errIrtm'
+/** Shuffle cursor ran past the last entry without placing every ticket (H-6). */
+export const errShuffleExhausted = 'errShfx'
+/** Raffle only applies to shuffle rewards (H-6). */
+export const errNotShuffle = 'errNshf'
+/** Only the entrant may remove an entry before the pool ends (M-5). */
+export const errNotEntrant = 'errNent'
+/** Asset still has reward budgets assigned (M-5). */
+export const errAssetCommitted = 'errAcmt'
+/** No entry for that address and asset. */
+export const errEntryNotFound = 'errEnfd'
+/** SOFT stakes are not escrowed, so SOFT pools cannot weigh rewards by stake (STAKE-2). */
+export const errSoftValueWeighted = 'errSvwt'
+/** The committed beacon round has no value yet; the commitment stands until BEACON_MAX_WAIT_ROUNDS (TRADE-3). */
+export const errBeaconNotReady = 'errBnrd'

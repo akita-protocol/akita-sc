@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { StakingPoolPluginArgs, StakingPoolPluginClient, StakingPoolPluginFactory } from "../../generated/StakingPoolPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";

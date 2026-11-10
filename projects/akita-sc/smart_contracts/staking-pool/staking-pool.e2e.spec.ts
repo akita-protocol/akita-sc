@@ -1,13 +1,25 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
 import { StakingSDK, StakingType } from 'akita-sdk/staking'
 import { DisbursementPhase, StakingPoolFactorySDK, StakingPoolSDK } from 'akita-sdk/staking-pool'
 import { GateSDK, LogicalOperator, Operator } from 'akita-sdk/gates'
+import { MetaSDK, MerkleTree, SchemaPart } from '../../../akita-sdk/src/meta'
+import {
+  errAbortForbidden,
+  errFailedStakeVerify,
+  errInvalidPoolType,
+  errInvalidRewardTiming,
+  errNotEntrant,
+  errPoolNotEnded,
+  errRoundOpen,
+  errSoftValueWeighted,
+  errTypedPoolNeedsStakeKey,
+} from './errors'
 import algosdk from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
-import { MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
+import { MockRandomnessBeaconClient, MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 import {
   completeBalanceVerification,
   createExpectedCost,
@@ -21,6 +33,17 @@ import { TimeWarp } from '../../tests/utils/time'
 algokit.Config.configure({ populateAppCallResources: true })
 
 const fixture = algorandFixture()
+
+// H-2 (2026-10 audit): typed pools (HEARTBEAT/SOFT/HARD/LOCK) must restrict entries to the assets of
+// a merkle stake key. Every test pool shares one root over the assets the tests stake.
+let poolAssetTree: MerkleTree
+let poolAssetLeaves: bigint[] = []
+let poolStakeKey: { address: string; name: string }
+const proofsFor = (asset: bigint | number): Uint8Array[] => {
+  const index = poolAssetLeaves.findIndex((a) => a === BigInt(asset))
+  if (index < 0) return []
+  return poolAssetTree.getProof(index)
+}
 
 // Staking Pool Type Constants (matches contract)
 const POOL_STAKING_TYPE_NONE = 0
@@ -39,10 +62,13 @@ const DISTRIBUTION_TYPE_SHUFFLE = 40
 const POOL_STATUS_DRAFT = 0
 const POOL_STATUS_FINAL = 10
 
-// MBR Constants (from contract constants.ts)
-const POOL_ENTRIES_MBR = 25_300n
+// MBR Constants (from contract constants.ts). Q14 (principal resolution §6.5): entries are charged
+// their exact box MBR; an ungated entry stores no gate args: 2_500 + 400 * (60 + 2) = 27_300, and
+// `entriesByAddress` is 2_500 + 400 * 49 = 22_100 (the pre-Q14 flat 25_300 + 25_300 stays only for
+// legacy-shim / hard-coded payments).
+const POOL_ENTRIES_MBR = 27_300n
 const POOL_UNIQUES_MBR = 18_900n
-const POOL_ENTRIES_BY_ADDRESS_MBR = 25_300n
+const POOL_ENTRIES_BY_ADDRESS_MBR = 22_100n
 const STAKING_APP_STAKES_MBR = 34_900n
 const WINNER_COUNT_CAP = 10n
 const MIN_POOL_REWARDS_MBR = 59_700n
@@ -99,8 +125,8 @@ const ONE_MINUTE = 60
  * Get the current Algorand block timestamp
  */
 const getBlockTimestamp = async (algorand: import('@algorandfoundation/algokit-utils').AlgorandClient): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
@@ -144,6 +170,7 @@ describe('Staking Pool Contract', () => {
   let poolSDK: StakingPoolSDK
   let testAssetId: bigint
   let timeWarp: TimeWarp
+  let mockBeacon: MockRandomnessBeaconClient
   let dispenser: AddressWithTransactionSigner
   // Store algorand client for consistent access across tests
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -182,7 +209,7 @@ describe('Staking Pool Contract', () => {
       defaultSender: deployer.addr,
       defaultSigner: deployer.signer,
     })
-    const { appClient: mockBeacon } = await mockBeaconFactory.send.create.bare()
+    ;({ appClient: mockBeacon } = await mockBeaconFactory.send.create.bare())
 
     // Build the full Akita DAO universe (required for staking pool factory to work)
     akitaUniverse = await buildAkitaUniverse({
@@ -216,6 +243,15 @@ describe('Staking Pool Contract', () => {
       unitName: 'TRWD',
     })
     testAssetId = BigInt(assetCreateTxn.assetId)
+
+    poolAssetLeaves = [0n, testAssetId, akitaUniverse.aktaAssetId, akitaUniverse.bonesAssetId]
+    poolAssetTree = MerkleTree.of(poolAssetLeaves.map((a) => [a]), [SchemaPart.Uint64])
+    const poolAssetMeta = new MetaSDK({
+      algorand, readerAccount: deployer.addr.toString(),
+      factoryParams: { appId: akitaUniverse.metaMerkles.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+    })
+    await poolAssetMeta.addRoot({ name: 'pool-assets', root: poolAssetTree.root, type: 1n })
+    poolStakeKey = { address: deployer.addr.toString(), name: 'pool-assets' }
 
     // Opt users into the test asset
     await algorand.send.assetOptIn({
@@ -265,7 +301,9 @@ describe('Staking Pool Contract', () => {
 
       // Account for the composed group and covered inner-transaction fees. Any
       // required opcode-budget carriers are selected by simulation.
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 11n)
+      // 10 fees: the SDK calls the hinted newPool(…, wallet = 0), which resolves the referrer from the
+      // hint without the legacy EscrowFactory registry lookup (one inner call fewer than the legacy shim).
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 10n)
       const verification = await verifyBalanceChange(
         algorand,
         creator.addr.toString(),
@@ -280,10 +318,7 @@ describe('Staking Pool Contract', () => {
         title: 'Test Staking Pool',
         type: POOL_STAKING_TYPE_SOFT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -297,7 +332,11 @@ describe('Staking Pool Contract', () => {
         creator.addr.toString()
       )
       expectBalanceChange(completed, 'create new staking pool')
-      expect(completed.actualCost).toBe(expectedCost.total)
+      // The payment itself is checked for exact equality on-chain (`payment.amount === totalMBR`).
+      // AlgoKit's fee coverage can add a few µALGO of per-byte fee once the populated newPool
+      // call exceeds ~925 bytes, so allow sub-min-fee slack on the fee part only.
+      expect(completed.actualCost).toBeGreaterThanOrEqual(expectedCost.total)
+      expect(completed.actualCost - expectedCost.total).toBeLessThan(MIN_TXN_FEE)
 
       expect(poolSDK.appId).toBeGreaterThan(0n)
       const poolAccount = await algorand.account.getInformation(poolSDK.client.appAddress)
@@ -316,7 +355,8 @@ describe('Staking Pool Contract', () => {
       })
 
       await expect(
-        factorySDK.client.send.newPool({
+        // hinted newPool(…, wallet) (principal resolution §6.5); the legacy selector is the 9-argument overload
+        factorySDK.client.send.newPoolPayStringUint8AddressAddressStringUint64BoolUint64Uint64Uint64Uint64({
           sender: creator.addr,
           signer: creator.signer,
           args: {
@@ -324,14 +364,12 @@ describe('Staking Pool Contract', () => {
             title: 'Underfunded Pool',
             type: POOL_STAKING_TYPE_SOFT,
             marketplace: creator.addr.toString(),
-            stakeKey: {
-              address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-              name: '',
-            },
+            stakeKey: poolStakeKey,
             minimumStakeAmount: 0,
             allowLateSignups: false,
             gateId: 0,
             maxEntries: 0,
+            wallet: 0,
           },
           extraFee: algokit.microAlgos(10_000),
         })
@@ -390,10 +428,7 @@ describe('Staking Pool Contract', () => {
           title: 'Finalize Test Pool',
           type: POOL_STAKING_TYPE_SOFT,
           marketplace: creator.addr.toString(),
-          stakeKey: {
-            address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-            name: '',
-          },
+          stakeKey: poolStakeKey,
           minimumStakeAmount: 0n,
           allowLateSignups: false,
           gateId: 0n,
@@ -434,10 +469,7 @@ describe('Staking Pool Contract', () => {
           title: 'Invalid Timestamp Pool',
           type: POOL_STAKING_TYPE_SOFT,
           marketplace: creator.addr.toString(),
-          stakeKey: {
-            address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-            name: '',
-          },
+          stakeKey: poolStakeKey,
           minimumStakeAmount: 0n,
           allowLateSignups: false,
           gateId: 0n,
@@ -884,10 +916,7 @@ describe('Staking Pool Contract', () => {
         title: 'Entry Test Pool',
         type: POOL_STAKING_TYPE_SOFT, // Soft staking - validates user's staked balance
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: true,
         gateId: 0n,
@@ -949,7 +978,7 @@ describe('Staking Pool Contract', () => {
       // Verify expected cost before operation
       // Account for: app call fee + payment transaction fee + inner txns
       // Note: inner transaction fees are covered by extraFee in the SDK call
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 3n) // payment + app call + staking payment/app call
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 4n) // payment + app call + staking payment/app call + stake-key merkle verify (H-2)
       const verification = await verifyBalanceChange(
         algorand,
         entryUser1.addr.toString(),
@@ -965,6 +994,7 @@ describe('Staking Pool Contract', () => {
           {
             asset: 0n,
             amount: 1_000_000n, // 1 ALGO entry (less than 10 ALGO staked)
+            proofs: proofsFor(0n),
           },
         ],
       })
@@ -995,8 +1025,8 @@ describe('Staking Pool Contract', () => {
           sender: entryUser2.addr,
           signer: entryUser2.signer,
           entries: [
-            { asset: 0n, amount: 500_000n },
-            { asset: 0n, amount: 500_000n },
+            { asset: 0n, amount: 500_000n, proofs: proofsFor(0n) },
+            { asset: 0n, amount: 500_000n, proofs: proofsFor(0n) },
           ],
         }),
       ).rejects.toThrow('Each asset can only be entered once per staking pool request')
@@ -1024,8 +1054,8 @@ describe('Staking Pool Contract', () => {
           args: {
             payment,
             entries: [
-              [0n, 500_000n, []],
-              [0n, 500_000n, []],
+              [0n, 500_000n, proofsFor(0n)],
+              [0n, 500_000n, proofsFor(0n)],
             ],
           },
         }),
@@ -1043,7 +1073,7 @@ describe('Staking Pool Contract', () => {
         POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR + STAKING_APP_STAKES_MBR,
       )
 
-      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 3n)
+      const expectedCost = createExpectedCost(expectedPayment, 0, MIN_TXN_FEE * 4n) // + stake-key merkle verify (H-2)
       const verification = await verifyBalanceChange(
         algorand,
         entryUser2.addr.toString(),
@@ -1058,6 +1088,7 @@ describe('Staking Pool Contract', () => {
           {
             asset: 0n,
             amount: 1_000_000n,
+            proofs: proofsFor(0n),
           },
         ],
       })
@@ -1080,7 +1111,7 @@ describe('Staking Pool Contract', () => {
         entryPoolSDK.enter({
           sender: entryUser2.addr,
           signer: entryUser2.signer,
-          entries: [{ asset: 0n, amount: 500_000n }],
+          entries: [{ asset: 0n, amount: 500_000n, proofs: proofsFor(0n) }],
         }),
       ).rejects.toThrow()
 
@@ -1141,7 +1172,7 @@ describe('Staking Pool Contract', () => {
         await limitedPoolSDK.enter({
           sender: user.addr,
           signer: user.signer,
-          entries: [{ asset: 0n, amount: 1n }],
+          entries: [{ asset: 0n, amount: 1n, proofs: proofsFor(0n) }],
         })
       }
 
@@ -1151,8 +1182,8 @@ describe('Staking Pool Contract', () => {
       await expect(limitedPoolSDK.enter({
         sender: thirdUser.addr,
         signer: thirdUser.signer,
-        entries: [{ asset: 0n, amount: 1n }],
-      })).rejects.toThrow('ERR:PMER')
+        entries: [{ asset: 0n, amount: 1n, proofs: proofsFor(0n) }],
+      })).rejects.toThrow('ERR:errPmer')
 
       expect((await limitedPoolSDK.getState()).entryCount).toBe(2n)
       expect(await limitedPoolSDK.isEntered({ address: thirdUser.addr.toString() })).toBe(false)
@@ -1192,15 +1223,43 @@ describe('Staking Pool Contract', () => {
         sender: batchUser.addr,
         signer: batchUser.signer,
         entries: [
-          { asset: 0n, amount: 1n },
-          { asset: akitaUniverse.aktaAssetId, amount: 1n },
-          { asset: akitaUniverse.bonesAssetId, amount: 1n },
+          { asset: 0n, amount: 1n, proofs: proofsFor(0n) },
+          { asset: akitaUniverse.aktaAssetId, amount: 1n, proofs: proofsFor(akitaUniverse.aktaAssetId) },
+          { asset: akitaUniverse.bonesAssetId, amount: 1n, proofs: proofsFor(akitaUniverse.bonesAssetId) },
         ],
-      })).rejects.toThrow('ERR:PMER')
+      })).rejects.toThrow('ERR:errPmer')
 
       expect((await batchPool.getState()).entryCount).toBe(0n)
       expect(await batchPool.isEntered({ address: batchUser.addr.toString() })).toBe(false)
     })
+  })
+
+  test('Meta collection proofs admit the listed asset and reject a mismatched proof', async () => {
+    const meta = new MetaSDK({
+      algorand, readerAccount: deployer.addr.toString(),
+      factoryParams: { appId: akitaUniverse.metaMerkles.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+    })
+    const tree = MerkleTree.of([[testAssetId], [akitaUniverse.aktaAssetId], [akitaUniverse.bonesAssetId], [0n]], [SchemaPart.Uint64])
+    const name = 'pool-compatibility'
+    await meta.addRoot({ name, root: tree.root, type: 1n })
+    const pool = await factorySDK.new({
+      sender: creator.addr, signer: creator.signer, title: 'Meta Collection Pool',
+      type: POOL_STAKING_TYPE_NONE, marketplace: creator.addr.toString(),
+      stakeKey: { address: deployer.addr.toString(), name },
+      minimumStakeAmount: 0n, allowLateSignups: true, gateId: 0n, maxEntries: 0n,
+    })
+    await pool.finalize({ signupTimestamp: 0n, startTimestamp: 0n, endTimestamp: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY) })
+    await expect(pool.enter({
+      sender: user2.addr, signer: user2.signer,
+      entries: [{ asset: testAssetId, amount: 1n, proofs: tree.getProof(1) }],
+    })).rejects.toThrow(new RegExp(errFailedStakeVerify))
+    expect((await pool.getState()).entryCount).toBe(0n)
+    await pool.enter({
+      sender: user1.addr, signer: user1.signer,
+      entries: [{ asset: testAssetId, amount: 1n, proofs: tree.getProof(0) }],
+    })
+    expect((await pool.getState()).entryCount).toBe(1n)
+    expect(await pool.isEntered({ address: user1.addr.toString() })).toBe(true)
   })
 
   describe('Pool with Minimum Stake', () => {
@@ -1231,10 +1290,7 @@ describe('Staking Pool Contract', () => {
         title: 'Min Stake Pool',
         type: POOL_STAKING_TYPE_SOFT, // Use SOFT staking
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 5_000_000n, // 5 ALGO minimum
         allowLateSignups: true,
         gateId: 0n,
@@ -1297,7 +1353,7 @@ describe('Staking Pool Contract', () => {
           extraFee: algokit.microAlgos(1000),
           args: {
             payment,
-            entries: [[0n, 1_000_000n, []]], // Only 1 ALGO, below 5 ALGO minimum
+            entries: [[0n, 1_000_000n, proofsFor(0n)]], // Only 1 ALGO, below 5 ALGO minimum
           },
         })
       ).rejects.toThrow()
@@ -1317,14 +1373,14 @@ describe('Staking Pool Contract', () => {
       })
 
       // Use direct client call with 10 ALGO entry (above 5 ALGO minimum)
-      // extraFee covers the inner payment and app call to Staking.
+      // extraFee covers the inner payment and app call to Staking, plus the stake-key merkle verify (H-2).
       await minStakePoolSDK.client.send.enter({
         sender: minStakeUser.addr,
         signer: minStakeUser.signer,
-        extraFee: algokit.microAlgos(2000),
+        extraFee: algokit.microAlgos(3000),
         args: {
           payment,
-          entries: [[0n, 10_000_000n, []]], // 10 ALGO, above minimum
+          entries: [[0n, 10_000_000n, proofsFor(0n)]], // 10 ALGO, above minimum
         },
       })
 
@@ -1351,7 +1407,7 @@ describe('Staking Pool Contract', () => {
         amount: algokit.microAlgo(poolCost),
       })
       const group = factorySDK.client.newGroup()
-      group.newPool({
+      group.newPoolPayStringUint8AddressAddressStringUint64BoolUint64Uint64Uint64Uint64({
         sender: creator.addr,
         signer: creator.signer,
         maxFee: algokit.microAlgos(20_000),
@@ -1360,14 +1416,12 @@ describe('Staking Pool Contract', () => {
           title: 'Delete Refund Test Pool',
           type: POOL_STAKING_TYPE_SOFT,
           marketplace: creator.addr.toString(),
-          stakeKey: {
-            address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-            name: '',
-          },
+          stakeKey: poolStakeKey,
           minimumStakeAmount: 0n,
           allowLateSignups: false,
           gateId: 0n,
           maxEntries: 0n,
+          wallet: 0n,
         },
       })
       group.opUp({
@@ -1437,10 +1491,7 @@ describe('Staking Pool Contract', () => {
         title: 'Cannot Delete Pool',
         type: POOL_STAKING_TYPE_SOFT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -1466,10 +1517,7 @@ describe('Staking Pool Contract', () => {
         title: 'Active Pool',
         type: POOL_STAKING_TYPE_SOFT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -1505,10 +1553,7 @@ describe('Staking Pool Contract', () => {
         title: 'Heartbeat Pool',
         type: POOL_STAKING_TYPE_HEARTBEAT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -1526,10 +1571,7 @@ describe('Staking Pool Contract', () => {
         title: 'Hard Staking Pool',
         type: POOL_STAKING_TYPE_HARD,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -1547,10 +1589,7 @@ describe('Staking Pool Contract', () => {
         title: 'Lock Staking Pool',
         type: POOL_STAKING_TYPE_LOCK,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -1765,10 +1804,7 @@ describe('Staking Pool Contract', () => {
         title: 'Hard ALGO eligibility pool',
         type: POOL_STAKING_TYPE_HARD,
         marketplace: poolCreator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 1_000_000n,
         allowLateSignups: true,
         gateId: 0n,
@@ -1805,7 +1841,7 @@ describe('Staking Pool Contract', () => {
       await eligibilityPool.enter({
         sender: staker.addr,
         signer: staker.signer,
-        entries: [{ asset: 0n, amount: 1_000_000n }],
+        entries: [{ asset: 0n, amount: 1_000_000n, proofs: proofsFor(0n) }],
       })
 
       await expect(
@@ -1840,7 +1876,7 @@ describe('Staking Pool Contract', () => {
         marketplace: creator.addr.toString(),
         stakeKey: {
           // Use creator's address as stake key for percentage distribution
-          // In production, this would be a MetaMerkles root key address
+          // In production, this would be a Meta root key address
           address: creator.addr.toString(),
           name: 'TestStakeKey',
         },
@@ -2106,10 +2142,7 @@ describe('Staking Pool Contract', () => {
         title: 'Check Methods Pool',
         type: POOL_STAKING_TYPE_SOFT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: false,
         gateId: 0n,
@@ -2217,7 +2250,7 @@ describe('Staking Pool Contract', () => {
         extraFee: algokit.microAlgos(2000),
         args: {
           payment,
-          entries: [[0n, 1_000_000n, []]],
+          entries: [[0n, 1_000_000n, proofsFor(0n)]],
         },
       })
 
@@ -2298,7 +2331,7 @@ describe('Staking Pool Contract', () => {
           extraFee: algokit.microAlgos(2000),
           args: {
             payment,
-            entries: [[0n, 1_000_000n, []]],
+            entries: [[0n, 1_000_000n, proofsFor(0n)]],
           },
         })
       ).rejects.toThrow()
@@ -2531,10 +2564,7 @@ describe('Staking Pool Contract', () => {
         title: 'Soft Gate Check Pool',
         type: POOL_STAKING_TYPE_SOFT,
         marketplace: creator.addr.toString(),
-        stakeKey: {
-          address: algosdk.ALGORAND_ZERO_ADDRESS_STRING,
-          name: '',
-        },
+        stakeKey: poolStakeKey,
         minimumStakeAmount: 0n,
         allowLateSignups: true,
         gateId,
@@ -2571,19 +2601,15 @@ describe('Staking Pool Contract', () => {
       await gatedPoolSDK.enter({
         sender: gatedUser.addr,
         signer: gatedUser.signer,
-        entries: [{ asset: 0n, amount: 1_000_000n }],
+        entries: [{ asset: 0n, amount: 1_000_000n, proofs: proofsFor(0n) }],
         gateTxn: entryGateTxn,
       })
 
-      const passingGateTxn = await gateSDK.build.check({
+      // H-5 (2026-10 audit): anyone may re-run the gate, but only with the arguments the entrant
+      // supplied at entry; there is no way to feed it a failing proof or argument.
+      await gatedPoolSDK.gateCheck({
         sender: deployer.addr,
         signer: deployer.signer,
-        caller: gatedUser.addr.toString(),
-        gateId,
-        args: [{ type: 'asset' }],
-      })
-      await gatedPoolSDK.gateCheck({
-        gateTxn: passingGateTxn,
         address: gatedUser.addr.toString(),
         asset: 0n,
       })
@@ -2596,15 +2622,10 @@ describe('Staking Pool Contract', () => {
         assetId: testAssetId,
         amount: 1n,
       })
-      const failingGateTxn = await gateSDK.build.check({
+      // the entrant really no longer passes the gate: disqualified
+      await gatedPoolSDK.gateCheck({
         sender: deployer.addr,
         signer: deployer.signer,
-        caller: gatedUser.addr.toString(),
-        gateId,
-        args: [{ type: 'asset' }],
-      })
-      await gatedPoolSDK.gateCheck({
-        gateTxn: failingGateTxn,
         address: gatedUser.addr.toString(),
         asset: 0n,
       })
@@ -2868,6 +2889,7 @@ describe('Staking Pool Contract', () => {
           {
             asset: 0n,
             amount: 1_000_000n,
+            proofs: proofsFor(0n),
           },
         ],
       })
@@ -2879,6 +2901,7 @@ describe('Staking Pool Contract', () => {
           {
             asset: 0n,
             amount: 2_000_000n,
+            proofs: proofsFor(0n),
           },
         ],
       })
@@ -2909,7 +2932,8 @@ describe('Staking Pool Contract', () => {
     })
 
     test('should process preparation phase', async () => {
-      // Process preparation phase - first call processes entries
+      // One call processes every entry and, having reached the last one, moves straight to the
+      // allocation phase (the qualified set is frozen while the round is open).
       await disbursementPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -2917,13 +2941,9 @@ describe('Staking Pool Contract', () => {
         iterationAmount: 100n, // Process all entries
       })
 
-      // Second call detects all entries processed and transitions to allocation phase
-      await disbursementPoolSDK.disburseRewards({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId: 1n,
-        iterationAmount: 100n,
-      })
+      const rewards = await disbursementPoolSDK.getRewards()
+      expect(rewards.get(1)?.phase).toBe(DisbursementPhase.Allocation)
+      expect(rewards.get(1)?.qualifiedStakers).toBe(2n)
     })
 
     test('should process allocation phase', async () => {
@@ -3126,7 +3146,8 @@ describe('Staking Pool Contract', () => {
           expiration: BigInt(ONE_DAY),
         })
 
-        const mbr = await feeTestPoolSDK.getMbr({ winningTickets: 0 })
+        // reward box + budget bookkeeping boxes come out of the deposit; the rest is the budget (M-5)
+        const mbr = { rewards: await feeTestPoolSDK.getAddRewardCost({ winnerCount: 0n, asset: 0n }) }
         const payment = await algorand.createTransaction.payment({
           sender: creator.addr,
           receiver: feeTestPoolSDK.client.appAddress,
@@ -3154,7 +3175,7 @@ describe('Staking Pool Contract', () => {
       expect(state.rewardCount).toBe(2n)
     })
 
-    test('should isolate royalties across concurrent reward disbursements', async () => {
+    test('should isolate royalties across consecutive reward disbursements (one open round per pool)', async () => {
       const localTimeWarp = new TimeWarp(algorand)
       await localTimeWarp.resetTimeWarp()
       await localTimeWarp.roundWarp()
@@ -3183,7 +3204,7 @@ describe('Staking Pool Contract', () => {
       await feeTestPoolSDK.enter({
         sender: feeTestUser.addr,
         signer: feeTestUser.signer,
-        entries: [{ asset: 0n, amount: 1_000_000n }],
+        entries: [{ asset: 0n, amount: 1_000_000n, proofs: proofsFor(0n) }],
       })
 
       // Time warp past the reward interval
@@ -3199,18 +3220,11 @@ describe('Staking Pool Contract', () => {
       const escrowAddress = algosdk.getApplicationAddress(escrow.app).toString()
       const escrowBalanceBefore = await getAccountBalance(algorand, escrowAddress)
 
-      // Start both disbursements before either one allocates rewards.
+      // one round per pool (STAKE-1): reward two waits until reward one closes
       await feeTestPoolSDK.startDisbursement({ rewardId: 1n })
-      await feeTestPoolSDK.startDisbursement({ rewardId: 2n })
+      await expect(feeTestPoolSDK.startDisbursement({ rewardId: 2n })).rejects.toThrow(errRoundOpen)
 
-      // Prepare reward one and pay its royalty.
-      await feeTestPoolSDK.disburseRewards({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId: 1n,
-        iterationAmount: 100n,
-      })
-
+      // one call prepares every entry, pays the royalty and moves the round to allocation
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -3223,13 +3237,27 @@ describe('Staking Pool Contract', () => {
       expect(rewardOnePrepared.phase).toBe(DisbursementPhase.Allocation)
       expect(rewardOnePrepared.royaltyAmount).toBe(expectedRoyaltyOne)
 
-      // Preparing reward two used to overwrite reward one's global royalty.
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
-        rewardId: 2n,
+        rewardId: 1n,
         iterationAmount: 100n,
       })
+
+      const allocationOne = await akitaUniverse.rewards.client.state.box.userAllocations.value({
+        address: feeTestUser.addr.toString(),
+        asset: 0n,
+        disbursementId: rewardOnePrepared.activeDisbursementId,
+      })
+      expect(allocationOne).toBe(rewardOnePrepared.rate - rewardOnePrepared.royaltyAmount)
+
+      await feeTestPoolSDK.finalizeDistribution({
+        sender: creator.addr,
+        signer: creator.signer,
+        rewardId: 1n,
+      })
+
+      await feeTestPoolSDK.startDisbursement({ rewardId: 2n })
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -3246,21 +3274,6 @@ describe('Staking Pool Contract', () => {
       const escrowBalanceAfter = await getAccountBalance(algorand, escrowAddress)
       expect(escrowBalanceAfter - escrowBalanceBefore).toBe(expectedRoyaltyOne + expectedRoyaltyTwo)
 
-      // Allocate reward one after reward two has paid its different royalty.
-      await feeTestPoolSDK.disburseRewards({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId: 1n,
-        iterationAmount: 100n,
-      })
-
-      const allocationOne = await akitaUniverse.rewards.client.state.box.userAllocations.value({
-        address: feeTestUser.addr.toString(),
-        asset: 0n,
-        disbursementId: rewardOnePrepared.activeDisbursementId,
-      })
-      expect(allocationOne).toBe(rewardOnePrepared.rate - rewardOnePrepared.royaltyAmount)
-
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -3275,11 +3288,6 @@ describe('Staking Pool Contract', () => {
       })
       expect(allocationTwo).toBe(rewardTwoPrepared.rate - rewardTwoPrepared.royaltyAmount)
 
-      await feeTestPoolSDK.finalizeDistribution({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId: 1n,
-      })
       await feeTestPoolSDK.finalizeDistribution({
         sender: creator.addr,
         signer: creator.signer,
@@ -3303,7 +3311,7 @@ describe('Staking Pool Contract', () => {
         expiration: BigInt(ONE_DAY),
         winnerCount,
       })
-      const mbr = await feeTestPoolSDK.getMbr({ winningTickets: Number(winnerCount) })
+      const mbr = { rewards: await feeTestPoolSDK.getAddRewardCost({ winnerCount, asset: 0n }) }
       const payment = await algorand.createTransaction.payment({
         sender: creator.addr,
         receiver: feeTestPoolSDK.client.appAddress,
@@ -3318,12 +3326,6 @@ describe('Staking Pool Contract', () => {
 
       const rewardId = 3n
       await feeTestPoolSDK.startDisbursement({ rewardId })
-      await feeTestPoolSDK.disburseRewards({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId,
-        iterationAmount: 100n,
-      })
       await feeTestPoolSDK.disburseRewards({
         sender: creator.addr,
         signer: creator.signer,
@@ -3364,6 +3366,581 @@ describe('Staking Pool Contract', () => {
       const finalized = await feeTestPoolSDK.getReward(Number(rewardId))
       expect(finalized.phase).toBe(DisbursementPhase.Idle)
       expect(finalized.royaltyAmount).toBe(0n)
+    })
+  })
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // 2026-10 AUDIT REGRESSIONS (H-1 … H-6, M-1, M-5, L-1, L-3)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  describe('2026-10 audit regressions', () => {
+    const ZERO_KEY = { address: algosdk.ALGORAND_ZERO_ADDRESS_STRING, name: '' }
+
+    beforeAll(async () => {
+      // every test below creates its own pool
+      await algorand.account.ensureFunded(creator.addr, dispenser.addr, (2000).algo())
+      await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (1000).algo())
+    })
+
+    const fundedUser = async (amount = 50_000_000n) => {
+      const user = generateSignerAccount(algorand)
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: user.addr,
+        amount: algokit.microAlgos(amount),
+      })
+      return user
+    }
+
+    const newPool = async (overrides: Partial<Parameters<StakingPoolFactorySDK['new']>[0]> = {}) => factorySDK.new({
+      sender: creator.addr,
+      signer: creator.signer,
+      title: 'Audit Pool',
+      type: POOL_STAKING_TYPE_NONE,
+      marketplace: creator.addr.toString(),
+      stakeKey: ZERO_KEY,
+      minimumStakeAmount: 0n,
+      allowLateSignups: true,
+      gateId: 0n,
+      maxEntries: 0n,
+      ...overrides,
+    } as Parameters<StakingPoolFactorySDK['new']>[0])
+
+    /** Free ALGO for round operations (Rewards MBR, credits, bookkeeping boxes). */
+    const fundOps = async (pool: StakingPoolSDK, amount = 3_000_000n) => algorand.send.payment({
+      sender: creator.addr,
+      signer: creator.signer,
+      receiver: pool.client.appAddress,
+      amount: algokit.microAlgos(amount),
+    })
+
+    const addAlgoReward = async (pool: StakingPoolSDK, reward: AddRewardInput, budget: bigint) => {
+      // reward box + budget bookkeeping boxes; the surplus becomes the reward's budget (M-5)
+      const cost = await pool.getAddRewardCost({ winnerCount: reward.winnerCount, asset: reward.asset })
+      const payment = await algorand.createTransaction.payment({
+        sender: creator.addr,
+        receiver: pool.client.appAddress,
+        amount: algokit.microAlgos(cost + budget),
+      })
+      await pool.client.send.addReward({ sender: creator.addr, signer: creator.signer, args: { payment, reward } })
+    }
+
+    const goLive = async (pool: StakingPoolSDK, endIn = BigInt(ONE_DAY)) => {
+      await pool.finalize({
+        signupTimestamp: 0n,
+        startTimestamp: 0n,
+        endTimestamp: (await getBlockTimestamp(algorand)) + endIn,
+      })
+    }
+
+    const disburse = (pool: StakingPoolSDK, rewardId: bigint, iterationAmount = 100n) => pool.disburseRewards({
+      sender: creator.addr,
+      signer: creator.signer,
+      rewardId,
+      iterationAmount,
+    })
+
+    /** Advances the chain to the round a pending shuffle draw may read its committed beacon round (TRADE-3). */
+    const waitForDraw = async (pool: StakingPoolSDK, rewardId: bigint) => {
+      const ready = await pool.drawReadyRound(Number(rewardId))
+      const { lastRound } = await algorand.client.algod.status().do()
+      if (ready > lastRound + 1n) await timeWarp.roundWarp(ready - 1n)
+    }
+
+    /** Runs preparation + allocation; returns the reward as it was when allocation started. */
+    const runRound = async (pool: StakingPoolSDK, rewardId: bigint, iterationAmount = 100n) => {
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId })
+      let allocating: Awaited<ReturnType<StakingPoolSDK['getReward']>> | undefined
+      let tickets: bigint[] = []
+      for (let i = 0; i < 200; i++) {
+        const reward = await pool.getReward(Number(rewardId))
+        if (reward.phase === DisbursementPhase.Idle) break
+        if (reward.phase === DisbursementPhase.Finalization) {
+          await pool.finalizeDistribution({ sender: creator.addr, signer: creator.signer, rewardId })
+          break
+        }
+        if (reward.phase === DisbursementPhase.Allocation) {
+          allocating = allocating ?? reward
+          if (reward.winningTickets.length > 0 && tickets.length === 0) tickets = [...reward.winningTickets]
+          await waitForDraw(pool, rewardId)
+        }
+        await disburse(pool, rewardId, iterationAmount)
+      }
+      return { allocating, tickets, after: await pool.getReward(Number(rewardId)) }
+    }
+
+    const allocationOf = async (disbursementId: bigint, address: string): Promise<bigint | undefined> => {
+      try {
+        return await akitaUniverse.rewards.client.state.box.userAllocations.value({ address, asset: 0n, disbursementId })
+      } catch {
+        return undefined // no allocation box
+      }
+    }
+
+    test('L-3 / H-2: factory rejects unknown pool types and typed pools without a stake key', async () => {
+      await expect(newPool({ type: 50 })).rejects.toThrow(errInvalidPoolType)
+      await expect(newPool({ type: POOL_STAKING_TYPE_HARD })).rejects.toThrow(errTypedPoolNeedsStakeKey)
+    })
+
+    test('L-1: rewards need a positive interval and at least an hour to claim', async () => {
+      const pool = await newPool()
+      await expect(addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 0n }), 1_000_000n))
+        .rejects.toThrow(errInvalidRewardTiming)
+      await expect(addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, expiration: 60n }), 1_000_000n))
+        .rejects.toThrow(errInvalidRewardTiming)
+    })
+
+    test('H-2: a NONE pool entry weighs 1 whatever quantity it claims', async () => {
+      const pool = await newPool()
+      await goLive(pool)
+      const user = await fundedUser()
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 2n ** 63n }] })
+      const entry = await pool.client.state.box.entries.value(1n)
+      expect(entry?.quantity).toBe(1n)
+    })
+
+    test('H-2: a HEARTBEAT entry backed only by a momentary balance is disqualified at the round', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_HEARTBEAT, stakeKey: poolStakeKey })
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      const user = await fundedUser(20_000_000n)
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 10_000_000n, proofs: proofsFor(0n) }] })
+
+      const { allocating, after } = await runRound(pool, 1n)
+      // no manager-sampled heartbeat backs the quantity: nobody qualifies, no disbursement is created
+      expect(allocating).toBeUndefined()
+      expect(after.phase).toBe(DisbursementPhase.Idle)
+      expect((await pool.client.state.box.entries.value(1n))?.disqualified).toBe(true)
+    })
+
+    test('H-1: an entrant cannot stay valid by shrinking its own SOFT commitment', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_SOFT, stakeKey: poolStakeKey })
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+
+      const attacker = await fundedUser(20_000_000n)
+      await akitaUniverse.staking.stake({ sender: attacker.addr, signer: attacker.signer, type: StakingType.Soft, asset: 0n, amount: 10_000_000n })
+      await pool.enter({ sender: attacker.addr, signer: attacker.signer, entries: [{ asset: 0n, amount: 10_000_000n, proofs: proofsFor(0n) }] })
+
+      // move the tokens away, then try to lower the pool's commitment directly
+      await algorand.send.payment({ sender: attacker.addr, signer: attacker.signer, receiver: deployer.addr, amount: algokit.microAlgos(15_000_000n) })
+      const direct = await akitaUniverse.staking.client.send.checkpointAppSoftStake({
+        sender: attacker.addr,
+        signer: attacker.signer,
+        args: { app: pool.appId, address: attacker.addr.toString(), asset: 0n },
+      })
+      expect(direct.return?.valid).toBe(false)
+      const commitment = await akitaUniverse.staking.client.state.box.appStakes.value({ app: pool.appId, address: attacker.addr.toString(), asset: 0n })
+      expect(commitment?.amount).toBe(10_000_000n)
+
+      const { allocating, after } = await runRound(pool, 1n)
+      expect(allocating).toBeUndefined()
+      expect(after.phase).toBe(DisbursementPhase.Idle)
+      expect((await pool.client.state.box.entries.value(1n))?.disqualified).toBe(true)
+    })
+
+    test('L-3: a LOCK pool does not count an expired lock', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_LOCK, stakeKey: poolStakeKey })
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      const user = await fundedUser(20_000_000n)
+      await akitaUniverse.staking.stake({
+        sender: user.addr, signer: user.signer, type: StakingType.Lock, asset: 0n, amount: 5_000_000n,
+        expiration: (await getBlockTimestamp(algorand)) + 30n,
+      })
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 5_000_000n, proofs: proofsFor(0n) }] })
+
+      const { allocating } = await runRound(pool, 1n) // warps 65s: the lock has expired
+      expect(allocating).toBeUndefined()
+      expect((await pool.client.state.box.entries.value(1n))?.disqualified).toBe(true)
+    })
+
+    test('M-1: a round with nobody qualified closes without a Rewards disbursement', async () => {
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_EVEN, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      const { allocating, after } = await runRound(pool, 1n)
+      expect(allocating).toBeUndefined()
+      expect(after.phase).toBe(DisbursementPhase.Idle)
+      expect(after.activeDisbursementId).toBe(0n)
+      expect(await pool.getOpenRounds()).toBe(0n)
+      expect(await pool.getRewardBudget(1n)).toBe(1_000_000n)
+    })
+
+    test('M-1: a single percentage staker receives the whole net reward', async () => {
+      const pool = await newPool({ stakeKey: poolStakeKey })
+      const rate = 1_000_000n
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_PERCENTAGE, rate, interval: 60n }), rate)
+      await fundOps(pool)
+      await goLive(pool)
+      const user = await fundedUser()
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 1n, proofs: proofsFor(0n) }] })
+
+      const { allocating, after } = await runRound(pool, 1n)
+      expect(allocating).toBeDefined()
+      expect(after.phase).toBe(DisbursementPhase.Idle)
+      const allocation = await allocationOf(allocating!.activeDisbursementId, user.addr.toString())
+      expect(allocation).toBe(rate - allocating!.royaltyAmount)
+    })
+
+    test('H-3 / H-4 / M-5: multi-asset entrant settles, sign-ups freeze during the round, unspent budget is tracked and reclaimable', async () => {
+      const pool = await newPool({ stakeKey: poolStakeKey })
+      const rate = 1_000n
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, rate, interval: 60n, expiration: 3_600n }), 10_000n)
+      expect(await pool.getRewardBudget(1n)).toBe(10_000n)
+      await fundOps(pool)
+      await goLive(pool)
+
+      const holder = await fundedUser()
+      await algorand.send.assetOptIn({ sender: holder.addr, signer: holder.signer, assetId: testAssetId })
+      await pool.enter({
+        sender: holder.addr,
+        signer: holder.signer,
+        entries: [
+          { asset: 0n, amount: 1n, proofs: proofsFor(0n) },
+          { asset: testAssetId, amount: 1n, proofs: proofsFor(testAssetId) },
+        ],
+      })
+
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+
+      // H-4: the qualified set is frozen while the round is open
+      const late = await fundedUser()
+      await expect(pool.enter({ sender: late.addr, signer: late.signer, entries: [{ asset: 0n, amount: 1n }] }))
+        .rejects.toThrow(errRoundOpen)
+
+      await disburse(pool, 1n) // preparation -> allocation
+      const allocating = await pool.getReward(1)
+      expect(allocating.qualifiedStakers).toBe(2n)
+      await disburse(pool, 1n) // allocation (both entries pay the same address) -> finalization
+      await pool.finalizeDistribution({ sender: creator.addr, signer: creator.signer, rewardId: 1n })
+
+      // H-3: one allocation box holding both shares
+      const perEntry = ((2n * rate) - allocating.royaltyAmount) / 2n
+      expect(await allocationOf(allocating.activeDisbursementId, holder.addr.toString())).toBe(perEntry * 2n)
+      expect(await pool.getRewardBudget(1n)).toBe(10_000n - allocating.royaltyAmount - perEntry * 2n)
+
+      // sign-ups reopen once the round is closed
+      await pool.enter({ sender: late.addr, signer: late.signer, entries: [{ asset: 0n, amount: 1n, proofs: proofsFor(0n) }] })
+
+      // M-5: unclaimed allocations come back to the reward's budget after the claim window
+      await timeWarp.timeWarp(3_700n)
+      const budgetBefore = await pool.getRewardBudget(1n)
+      await pool.reclaimRound({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        disbursementId: allocating.activeDisbursementId,
+        reclaims: [{ address: holder.addr.toString(), asset: 0n }],
+        close: true,
+      })
+      expect(await pool.getRewardBudget(1n)).toBe(budgetBefore + perEntry * 2n)
+      // the round record and its Rewards disbursement are gone
+      await expect(pool.client.state.box.roundRewards.value(allocating.activeDisbursementId)).rejects.toThrow()
+      await expect(akitaUniverse.rewards.client.state.box.disbursements.value(allocating.activeDisbursementId)).rejects.toThrow()
+    })
+
+    test('H-6: shuffle winners do not depend on batch size and follow the drawn tickets', async () => {
+      const winnerCount = 3n
+      const rate = 3_000_000n
+      const users = [] as AddressWithTransactionSigner[]
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate, interval: 60n, winnerCount }), rate)
+      await fundOps(pool)
+      await goLive(pool)
+      for (let i = 0; i < 6; i++) {
+        const u = await fundedUser(5_000_000n)
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+        users.push(u)
+      }
+
+      const { allocating, tickets, after } = await runRound(pool, 1n, 1n) // one entry per call
+      expect(after.phase).toBe(DisbursementPhase.Idle)
+      expect(tickets).toHaveLength(Number(winnerCount))
+      const amount = (rate - allocating!.royaltyAmount) / winnerCount
+
+      // weights are 1 and nobody is disqualified: ticket t belongs to entry t + 1
+      const expected = new Map<string, bigint>()
+      for (const t of tickets) {
+        expect(t).toBeLessThan(6n)
+        const winner = users[Number(t)].addr.toString()
+        expected.set(winner, (expected.get(winner) ?? 0n) + amount)
+      }
+      for (const u of users) {
+        const got = await allocationOf(allocating!.activeDisbursementId, u.addr.toString())
+        expect(got ?? 0n).toBe(expected.get(u.addr.toString()) ?? 0n)
+      }
+    })
+
+    test('STAKE-1: a second reward round cannot open while another round is open', async () => {
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate: 2_000_000n, interval: 60n, winnerCount: 1n }), 2_000_000n)
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      for (let i = 0; i < 2; i++) {
+        const u = await fundedUser(5_000_000n)
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+      }
+
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n) // preparation -> allocation: the shuffle ticket space is fixed
+      expect((await pool.getReward(1)).phase).toBe(DisbursementPhase.Allocation)
+
+      // another reward's preparation would disqualify entries under the open shuffle
+      await expect(pool.startDisbursement({ rewardId: 2n })).rejects.toThrow(errRoundOpen)
+
+      for (let i = 0; i < 10 && (await pool.getReward(1)).phase === DisbursementPhase.Allocation; i++) {
+        await waitForDraw(pool, 1n)
+        await disburse(pool, 1n)
+      }
+      await pool.finalizeDistribution({ sender: creator.addr, signer: creator.signer, rewardId: 1n })
+      await pool.startDisbursement({ rewardId: 2n })
+      expect((await pool.getReward(2)).phase).toBe(DisbursementPhase.Preparation)
+    })
+
+    test('STAKE-2: a HARD stake (re)created after the round started does not count', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_HARD, stakeKey: poolStakeKey })
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_PERCENTAGE, rate: 1_000_000n, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+
+      const stake = 10_000_000n
+      const sybils = [await fundedUser(30_000_000n), await fundedUser(30_000_000n)]
+      for (const s of sybils) {
+        await akitaUniverse.staking.stake({ sender: s.addr, signer: s.signer, type: StakingType.Hard, asset: 0n, amount: stake, expiration: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY) })
+        await pool.enter({ sender: s.addr, signer: s.signer, entries: [{ asset: 0n, amount: stake, proofs: proofsFor(0n) }] })
+      }
+      // only the first sybil holds the stake when the round starts
+      await akitaUniverse.staking.withdraw({ sender: sybils[1].addr, signer: sybils[1].signer, asset: 0n, type: StakingType.Hard })
+
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n, 1n) // checks sybil 0 while it holds the stake
+      // the same capital moves to sybil 1 before its batch
+      await akitaUniverse.staking.withdraw({ sender: sybils[0].addr, signer: sybils[0].signer, asset: 0n, type: StakingType.Hard })
+      await akitaUniverse.staking.stake({ sender: sybils[1].addr, signer: sybils[1].signer, type: StakingType.Hard, asset: 0n, amount: stake, expiration: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY) })
+      await disburse(pool, 1n, 1n)
+
+      const prepared = await pool.getReward(1)
+      expect(prepared.phase).toBe(DisbursementPhase.Allocation)
+      expect(prepared.qualifiedStakers).toBe(1n)
+      expect(prepared.qualifiedStake).toBe(stake)
+      // the re-staked capital sits this round out; it is not disqualified for later rounds
+      expect(await pool.client.state.box.entries.value(2n)).toMatchObject({ disqualified: false, heldOut: true })
+    })
+
+    test('STAKE-2: a HARD top-up during preparation sits out that round only and counts again in the next', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_HARD, stakeKey: poolStakeKey })
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, rate: 100_000n, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+
+      const stake = 10_000_000n
+      const users = [await fundedUser(30_000_000n), await fundedUser(30_000_000n)]
+      for (const u of users) {
+        await akitaUniverse.staking.stake({ sender: u.addr, signer: u.signer, type: StakingType.Hard, asset: 0n, amount: stake, expiration: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY) })
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: stake, proofs: proofsFor(0n) }] })
+      }
+
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n, 1n)
+      // the second entrant tops up before its batch: it still covers its entry
+      await akitaUniverse.staking.stake({ sender: users[1].addr, signer: users[1].signer, type: StakingType.Hard, asset: 0n, amount: 1_000_000n, expiration: (await getBlockTimestamp(algorand)) + BigInt(ONE_DAY) })
+      await disburse(pool, 1n, 1n)
+      const first = await pool.getReward(1)
+      expect(first.qualifiedStakers).toBe(1n)
+      expect(await pool.client.state.box.entries.value(2n)).toMatchObject({ disqualified: false, heldOut: true })
+      for (let i = 0; i < 10 && (await pool.getReward(1)).phase === DisbursementPhase.Allocation; i++) await disburse(pool, 1n)
+      await pool.finalizeDistribution({ sender: creator.addr, signer: creator.signer, rewardId: 1n })
+
+      // next round: the top-up predates it, so both entries qualify and the hold-out is cleared
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n)
+      expect((await pool.getReward(1)).qualifiedStakers).toBe(2n)
+      expect(await pool.client.state.box.entries.value(2n)).toMatchObject({ disqualified: false, heldOut: false })
+    })
+
+    test('TRADE-3: a shuffle draw commits to a future beacon round; early or empty reads revert and cannot move it', async () => {
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate: 2_000_000n, interval: 60n, winnerCount: 1n }), 2_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      for (let i = 0; i < 3; i++) {
+        const u = await fundedUser(5_000_000n)
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+      }
+
+      // MainNet beacon timing: one value per multiple of 8, submitted 2 rounds later
+      await mockBeacon.send.setSubmitLag({ args: { lag: 2n } })
+      try {
+        await timeWarp.timeWarp(65n)
+        await pool.startDisbursement({ rewardId: 1n })
+        await disburse(pool, 1n) // preparation -> allocation commits the draw round
+        const committed = await pool.getReward(1)
+        expect(committed.phase).toBe(DisbursementPhase.Allocation)
+        const { lastRound } = await algorand.client.algod.status().do()
+        expect(committed.activeDisbursementRoundStart % 8n).toBe(0n)
+        expect(committed.activeDisbursementRoundStart).toBeGreaterThan(lastRound)
+
+        // anyone calling early is rejected: the commitment and failure count do not move
+        await expect(disburse(pool, 1n)).rejects.toThrow(/Bnrd/)
+        await expect(pool.raffle({ sender: user1.addr, signer: user1.signer, rewardId: 1n })).rejects.toThrow(/Bnrd/)
+
+        // an empty read in the allowed window also reverts until BEACON_MAX_WAIT_ROUNDS
+        await waitForDraw(pool, 1n)
+        await mockBeacon.send.setEmpty({ args: { empty: true } })
+        try {
+          await expect(disburse(pool, 1n)).rejects.toThrow(/Bnrd/)
+        } finally {
+          await mockBeacon.send.setEmpty({ args: { empty: false } })
+        }
+        const kept = await pool.getReward(1)
+        expect(kept.activeDisbursementRoundStart).toBe(committed.activeDisbursementRoundStart)
+        expect(kept.vrfFailureCount).toBe(0n)
+        expect(kept.winningTickets).toHaveLength(0)
+
+        // the first allowed read draws from the committed round
+        await disburse(pool, 1n)
+        const drawn = await pool.getReward(1)
+        expect(drawn.winningTickets).toHaveLength(1)
+        expect(drawn.activeDisbursementRoundStart).toBe(committed.activeDisbursementRoundStart)
+      } finally {
+        await mockBeacon.send.setSubmitLag({ args: { lag: 0n } })
+      }
+    })
+
+    test('TRADE-3: after BEACON_MAX_WAIT_ROUNDS an empty read re-commits forward instead of reverting', async () => {
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate: 2_000_000n, interval: 60n, winnerCount: 1n }), 2_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      for (let i = 0; i < 3; i++) {
+        const u = await fundedUser(5_000_000n)
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+      }
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n)
+      const committed = await pool.getReward(1)
+
+      await mockBeacon.send.setEmpty({ args: { empty: true } })
+      try {
+        await timeWarp.roundWarp(committed.activeDisbursementRoundStart + 1_000n - 1n)
+        await disburse(pool, 1n)
+      } finally {
+        await mockBeacon.send.setEmpty({ args: { empty: false } })
+      }
+      const moved = await pool.getReward(1)
+      expect(moved.vrfFailureCount).toBe(1n)
+      expect(moved.activeDisbursementRoundStart).toBeGreaterThan(committed.activeDisbursementRoundStart + 1_000n)
+      expect(moved.activeDisbursementRoundStart % 8n).toBe(0n)
+      expect(moved.winningTickets).toHaveLength(0)
+
+      await waitForDraw(pool, 1n)
+      await disburse(pool, 1n)
+      const drawn = await pool.getReward(1)
+      expect(drawn.winningTickets).toHaveLength(1)
+      expect(drawn.vrfFailureCount).toBe(0n)
+    })
+
+    test('an Even reward whose split would round to 0 per staker closes the round without paying the royalty', async () => {
+      const pool = await newPool()
+      // maxEntries = 0 (unlimited) passes the Even check maxEntries <= rate, so the head count can outgrow the rate
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_EVEN, rate: 2n, interval: 60n }), 1_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      for (let i = 0; i < 3; i++) {
+        const u = await fundedUser(5_000_000n)
+        await pool.enter({ sender: u.addr, signer: u.signer, entries: [{ asset: 0n, amount: 1n }] })
+      }
+      const budget = await pool.getRewardBudget(1n)
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+      await disburse(pool, 1n)
+      const reward = await pool.getReward(1)
+      expect(reward.phase).toBe(DisbursementPhase.Idle)
+      expect(reward.activeDisbursementId).toBe(0n)
+      expect(reward.royaltyAmount).toBe(0n)
+      expect(await pool.getRewardBudget(1n)).toBe(budget)
+      expect(await pool.getOpenRounds()).toBe(0n)
+    })
+
+    test('STAKE-2: SOFT pools reject stake-weighted rewards; head-count rewards stay allowed', async () => {
+      const pool = await newPool({ type: POOL_STAKING_TYPE_SOFT, stakeKey: poolStakeKey })
+      await expect(addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_PERCENTAGE, interval: 60n }), 1_000_000n))
+        .rejects.toThrow(errSoftValueWeighted)
+      await expect(addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_SHUFFLE, rate: 2_000_000n, interval: 60n, winnerCount: 1n }), 2_000_000n))
+        .rejects.toThrow(errSoftValueWeighted)
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_EVEN, interval: 60n }), 1_000_000n)
+      expect((await pool.getState()).rewardCount).toBe(2n)
+    })
+
+    test('M-1: only the creator or the DAO wallet can abort a round', async () => {
+      const pool = await newPool()
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), 1_000_000n)
+      await fundOps(pool)
+      await goLive(pool)
+      const user = await fundedUser()
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 1n }] })
+      await timeWarp.timeWarp(65n)
+      await pool.startDisbursement({ rewardId: 1n })
+
+      await expect(pool.abortRound({ sender: user.addr, signer: user.signer, rewardId: 1n, mode: 0 }))
+        .rejects.toThrow(errAbortForbidden)
+      await pool.abortRound({ sender: creator.addr, signer: creator.signer, rewardId: 1n, mode: 0 })
+      expect((await pool.getReward(1)).phase).toBe(DisbursementPhase.Idle)
+      expect(await pool.getOpenRounds()).toBe(0n)
+    })
+
+    test('M-5: entrants exit with their MBR; after the end the creator withdraws the budget and cleans up', async () => {
+      const pool = await newPool()
+      const budget = 2_000_000n
+      await addAlgoReward(pool, createReward({ distribution: DISTRIBUTION_TYPE_FLAT, interval: 60n }), budget)
+      await goLive(pool, 300n)
+
+      const user = await fundedUser()
+      const other = await fundedUser()
+      await pool.enter({ sender: user.addr, signer: user.signer, entries: [{ asset: 0n, amount: 1n }] })
+
+      // only the entrant may leave before the end, and gets its exact MBR back (minus 2 fees)
+      await expect(pool.removeEntry({ sender: other.addr, signer: other.signer, address: user.addr.toString(), asset: 0n }))
+        .rejects.toThrow(errNotEntrant)
+      const before = await getAccountBalance(algorand, user.addr.toString())
+      await pool.removeEntry({ sender: user.addr, signer: user.signer, address: user.addr.toString(), asset: 0n })
+      const after = await getAccountBalance(algorand, user.addr.toString())
+      expect(after - before).toBe(POOL_ENTRIES_MBR + POOL_ENTRIES_BY_ADDRESS_MBR + POOL_UNIQUES_MBR - 2_000n)
+      expect(await pool.isEntered({ address: user.addr.toString() })).toBe(false)
+
+      // budgets are locked while the pool runs
+      await expect(pool.withdrawReward({ sender: creator.addr, signer: creator.signer, rewardId: 1n, amount: budget }))
+        .rejects.toThrow(errPoolNotEnded)
+
+      await timeWarp.timeWarp(400n)
+      const creatorBefore = await getAccountBalance(algorand, creator.addr.toString())
+      await pool.withdrawReward({ sender: creator.addr, signer: creator.signer, rewardId: 1n, amount: budget })
+      await pool.closeReward({ sender: creator.addr, signer: creator.signer, rewardId: 1n })
+      const creatorAfter = await getAccountBalance(algorand, creator.addr.toString())
+      // the budget plus the reward's freed box MBR, minus fees
+      expect(creatorAfter - creatorBefore).toBeGreaterThan(budget)
+
+      await factorySDK.client.send.deletePool({
+        sender: creator.addr,
+        signer: creator.signer,
+        args: { appId: pool.appId },
+        extraFee: algokit.microAlgos(4_000),
+      })
+      await expect(pool.getState()).rejects.toThrow()
     })
   })
 
@@ -3408,7 +3985,8 @@ describe('Staking Pool Contract', () => {
         expiration: BigInt(ONE_DAY),
       })
 
-      const mbr = await evenPoolSDK.getMbr({ winningTickets: 0 })
+      // reward box + budget bookkeeping boxes come out of the deposit (M-5)
+      const mbr = { rewards: await evenPoolSDK.getAddRewardCost({ winnerCount: 0n, asset: 0n }) }
 
       const payment = await algorand.createTransaction.payment({
         sender: creator.addr,
@@ -3490,17 +4068,17 @@ describe('Staking Pool Contract', () => {
       await evenPoolSDK.enter({
         sender: evenUser1.addr,
         signer: evenUser1.signer,
-        entries: [{ asset: 0n, amount: 1_000_000n }], // 1 ALGO
+        entries: [{ asset: 0n, amount: 1_000_000n, proofs: proofsFor(0n) }], // 1 ALGO
       })
       await evenPoolSDK.enter({
         sender: evenUser2.addr,
         signer: evenUser2.signer,
-        entries: [{ asset: 0n, amount: 5_000_000n }], // 5 ALGO
+        entries: [{ asset: 0n, amount: 5_000_000n, proofs: proofsFor(0n) }], // 5 ALGO
       })
       await evenPoolSDK.enter({
         sender: evenUser3.addr,
         signer: evenUser3.signer,
-        entries: [{ asset: 0n, amount: 10_000_000n }], // 10 ALGO
+        entries: [{ asset: 0n, amount: 10_000_000n, proofs: proofsFor(0n) }], // 10 ALGO
       })
 
       // Verify all users entered
@@ -3525,13 +4103,7 @@ describe('Staking Pool Contract', () => {
         iterationAmount: 100n,
       })
 
-      // Transition to allocation phase
-      await evenPoolSDK.disburseRewards({
-        sender: creator.addr,
-        signer: creator.signer,
-        rewardId: 1n,
-        iterationAmount: 100n,
-      })
+      // (reaching the last entry moves the round straight to allocation)
 
       // Process allocation phase - process entries one at a time to avoid reference limits
       // Each call processes up to iterationAmount entries

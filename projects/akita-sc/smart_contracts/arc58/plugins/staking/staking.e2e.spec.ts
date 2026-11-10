@@ -1,21 +1,23 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, StakingPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { StakingType } from 'akita-sdk/staking';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { buildAddPluginAction, proposeAndExecute } from '../../dao/tests/utils';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
 
 describe('Staking plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let stakingPluginSdk: StakingPluginSDK;
@@ -29,8 +31,8 @@ describe('Staking plugin contract', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -116,7 +118,7 @@ describe('Staking plugin contract', () => {
       // must then report the summed amount.
       //
       // Note: the base Staking contract explicitly rejects `withdraw` for
-      // SOFT stakes (ERR_WITHDRAW_IS_ONLY_FOR_HARD_OR_LOCK). Commitments remain
+      // SOFT stakes (errWithdrawIsOnlyForHardOrLock). Commitments remain
       // balance-backed; permissionless `checkpointSoftStake` records a shortfall.
       const additionalAmount = 500_000n; // 0.5 ALGO
 
@@ -201,6 +203,97 @@ describe('Staking plugin contract', () => {
 
       expect(info.amount).toBe(stakeAmount);
       expect(walletInfo.assets?.find((asset) => asset.assetId === stakeAsset)?.amount).toBe(stakeAmount);
+    });
+  });
+  describe('DAO-governed staking settings (2026-10 audit)', () => {
+    beforeAll(async () => {
+      await proposeAndExecute(akitaUniverse.dao, [
+        buildAddPluginAction({
+          client: stakingPluginSdk,
+          callerType: CallerType.Global,
+          useExecutionKey: false,
+        }),
+      ]);
+      // the DAO wallet pays the settings box MBR and inner fees
+      await algorand.account.ensureFunded(akitaUniverse.dao.wallet.client.appAddress, dispenser.addr, (10).algo());
+    });
+
+    test('ST-4 / M-2: the DAO wallet sets the heartbeat manager, whose beats then count', async () => {
+      const manager = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) });
+
+      await akitaUniverse.dao.wallet.usePlugin({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.setHeartbeatManager({ manager: manager.addr.toString() })],
+      });
+      const stored = await akitaUniverse.staking.client.state.global.heartbeatManagerAddress();
+      expect(stored?.toString()).toBe(manager.addr.toString());
+
+      // the user's wallet opens an ALGO heartbeat record: it starts with no samples
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.stake({ assetId: 0n, type: StakingType.Heartbeat, amount: 0n, expiration: 0n, isUpdate: false })],
+      });
+      const walletAddress = wallet.client.appAddress.toString();
+      expect(await akitaUniverse.staking.getHeartbeatAverage({ address: walletAddress, asset: 0n, includeEscrowed: false })).toBe(0n);
+
+      // the manager samples the native ALGO balance (asset 0 no longer uses an ASA lookup)
+      await akitaUniverse.staking.createHeartbeat({ sender: manager.addr, signer: manager.signer, address: walletAddress, asset: 0n });
+      const balance = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
+      expect(await akitaUniverse.staking.getHeartbeatAverage({ address: walletAddress, asset: 0n, includeEscrowed: false })).toBe(balance);
+    });
+
+    test('DAO-05: only the DAO wallet sets the max lockup of a governance asset, and never lower', async () => {
+      const akta = akitaUniverse.aktaAssetId;
+      const twoYears = 2n * 31_536_000n;
+
+      // the asset creator is no longer enough for AKTA / BONES
+      await expect(akitaUniverse.staking.updateSettings({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        asset: akta,
+        value: twoYears,
+      })).rejects.toThrow('errNdao');
+
+      await akitaUniverse.dao.wallet.usePlugin({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.updateSettings({ asset: akta, value: twoYears })],
+      });
+      const [settings] = await akitaUniverse.staking.client.getSettings({ args: { assets: [akta] } });
+      expect(settings[0]).toBe(twoYears);
+      expect(settings[1]).toBe(true);
+
+      await expect(akitaUniverse.dao.wallet.usePlugin({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.updateSettings({ asset: akta, value: 31_536_000n })],
+      })).rejects.toThrow();
+    });
+
+    test('L-2: a wallet closes its SOFT stake through the plugin and gets the MBR back', async () => {
+      const before = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.closeSoftStake({ asset: 0n })],
+      });
+      const after = (await algorand.account.getInformation(wallet.client.appAddress)).balance.microAlgos;
+      expect(after - before).toBe(32_100n);
+      const info = await akitaUniverse.staking.getInfo({
+        address: wallet.client.appAddress.toString(),
+        stake: { asset: 0n, type: StakingType.Soft },
+      });
+      expect(info.amount).toBe(0n);
+    });
+
+    test('empty checkpoint batches are rejected', async () => {
+      await expect(wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [stakingPluginSdk.checkpointSoftStake({ stakeKeys: [] })],
+      })).rejects.toThrow();
     });
   });
 });

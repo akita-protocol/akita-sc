@@ -1,4 +1,4 @@
-import { Account, Application, Asset, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { Account, Application, Asset, Global, itxn, loggedAssert, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
 import { SettingsMBR, totalsMBR } from "../../../staking/constants"
@@ -8,8 +8,9 @@ import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../util
 // CONTRACT IMPORTS
 import { BaseStaking } from "../../../staking/base"
 import type { Staking } from "../../../staking/contract.algo"
-import { AkitaBaseContract } from "../../../utils/base-contracts/base"
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable"
 import { AppSoftStakeKey, SoftStakeKey } from "./types"
+import { errEmptyBatch } from "./errors"
 
 export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
 
@@ -147,6 +148,8 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     rekeyBack: boolean,
     stakeKeys: SoftStakeKey[]
   ): StakeCheck[] {
+    // an empty batch would emit no inner txn and never rekey back
+    loggedAssert(stakeKeys.length > 0, errEmptyBatch)
     const sender = getSpendingAccount(wallet)
     let results: StakeCheck[] = []
     for (let i: uint64 = 0; i < stakeKeys.length; i++) {
@@ -167,6 +170,7 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
     rekeyBack: boolean,
     appStakeKeys: AppSoftStakeKey[]
   ): StakeCheck[] {
+    loggedAssert(appStakeKeys.length > 0, errEmptyBatch)
     const sender = getSpendingAccount(wallet)
     let results: StakeCheck[] = []
     for (let i: uint64 = 0; i < appStakeKeys.length; i++) {
@@ -209,6 +213,57 @@ export class StakingPlugin extends classes(BaseStaking, AkitaBaseContract) {
         asset,
         value
       ],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /**
+   * Sets the Staking heartbeat manager. Staking only accepts this from the DAO wallet, so this is
+   * meant to be executed by the DAO wallet (ST-4).
+   */
+  setHeartbeatManager(wallet: Application, rekeyBack: boolean, manager: Account): void {
+    const sender = getSpendingAccount(wallet)
+
+    abiCall<typeof Staking.prototype.setHeartbeatManager>({
+      sender,
+      appId: getAkitaAppList(this.akitaDAO.value).staking,
+      args: [manager],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** Closes the wallet's SOFT stake; the stake box MBR returns to the spending account. */
+  closeSoftStake(wallet: Application, rekeyBack: boolean, asset: uint64): void {
+    const sender = getSpendingAccount(wallet)
+
+    abiCall<typeof Staking.prototype.closeSoftStake>({
+      sender,
+      appId: getAkitaAppList(this.akitaDAO.value).staking,
+      args: [asset],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** Closes the wallet's heartbeat stake and history; MBR returns to the spending account. */
+  closeHeartbeat(wallet: Application, rekeyBack: boolean, asset: uint64): void {
+    const sender = getSpendingAccount(wallet)
+
+    abiCall<typeof Staking.prototype.closeHeartbeat>({
+      sender,
+      appId: getAkitaAppList(this.akitaDAO.value).staking,
+      args: [asset],
+      rekeyTo: rekeyAddress(rekeyBack, wallet),
+    })
+  }
+
+  /** Releases an app-scoped commitment of the wallet whose consuming app was deleted. */
+  releaseAppStake(wallet: Application, rekeyBack: boolean, app: uint64, asset: uint64): void {
+    const sender = getSpendingAccount(wallet)
+
+    abiCall<typeof Staking.prototype.releaseAppStake>({
+      sender,
+      appId: getAkitaAppList(this.akitaDAO.value).staking,
+      args: [app, sender, asset],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     })
   }

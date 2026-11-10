@@ -5,55 +5,70 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/rewards/errors.ts` —
- * keep the two files in sync when adding or changing a code. Constant NAMES
- * are preserved from the pre-ARC-65 layout so call sites don't change.
+ * keep the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  */
 
 // Mirror common codes used by rewards so domain call sites keep their previous
 // names but share the wire format with the top-level `errors.ts`. PuyaTs
 // doesn't support `export { X } from` re-export syntax, so the constants are
 // redeclared here with identical values.
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_TRANSFER = 'IXFR'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidTransfer = 'errIxfr'
 
 // --- Plugin / wallet --------------------------------------------------------
 
-export const ERR_PLUGIN_DOES_NOT_CONTROL_WALLET = 'PNCW'
+export const errPluginDoesNotControlWallet = 'errPncw'
 
 // --- Token allocation boxes -------------------------------------------------
 
-export const ERR_TOKEN_ALLOCATION_BOX_ALREADY_EXISTS = 'TABE'
-export const ERR_TOKEN_ALLOCATION_BOX_DOES_NOT_EXIST = 'TBNE'
+export const errTokenAllocationBoxAlreadyExists = 'errTabe'
+export const errTokenAllocationBoxDoesNotExist = 'errTbne'
 
 // --- Disbursement authorization --------------------------------------------
 
-export const ERR_YOU_ARE_NOT_THE_CREATOR = 'YNCR'
+export const errYouAreNotTheCreator = 'errYncr'
 
 // --- Asset opt-in -----------------------------------------------------------
 
-export const ERR_APP_NOT_OPTED_INTO_ASSET = 'ANOI'
+export const errAppNotOptedIntoAsset = 'errAnoi'
 
 // --- Disbursement lifecycle -------------------------------------------------
 
-export const ERR_DISBURSEMENT_DOES_NOT_EXIST = 'DBNE'
-export const ERR_DISBURSEMENT_ALREADY_FINAL = 'DBAF'
-export const ERR_DISBURSEMENT_LOCKED = 'DBLK'
-export const ERR_DISBURSEMENT_FULLY_DISTRIBUTED = 'DBFD'
-export const ERR_DISBURSEMENT_NOT_EXPIRED = 'DBNX'
+export const errDisbursementDoesNotExist = 'errDbne'
+export const errDisbursementAlreadyFinal = 'errDbaf'
+export const errDisbursementLocked = 'errDblk'
+export const errDisbursementFullyDistributed = 'errDbfd'
+export const errDisbursementNotExpired = 'errDbnx'
 
 // --- Disbursement validation ------------------------------------------------
 
-export const ERR_INVALID_DISBURSEMENT_UNLOCK_TIME = 'IDUT'
-export const ERR_INVALID_DISBURSEMENT_EXPIRATION_TIME = 'IDXT'
-export const ERR_DISBURSEMENTS_CANNOT_BE_EMPTY = 'DBEM'
-export const ERR_DISBURSEMENTS_MUST_HAVE_ALLOCATIONS = 'DBMA'
+export const errInvalidDisbursementUnlockTime = 'errIdut'
+export const errInvalidDisbursementExpirationTime = 'errIdxt'
+export const errDisbursementsCannotBeEmpty = 'errDbem'
+export const errDisbursementsMustHaveAllocations = 'errDbma'
 
 // --- Allocations ------------------------------------------------------------
 
-export const ERR_ALLOCATION_ALREADY_EXISTS = 'ALAE'
-export const ERR_ALLOCATION_DOES_NOT_EXIST = 'ALNE'
+export const errAllocationAlreadyExists = 'errAlae'
+export const errAllocationDoesNotExist = 'errAlne'
 
 // --- Totals -----------------------------------------------------------------
 
-export const ERR_INVALID_SUM = 'ISUM'
-export const ERR_INVALID_MBR_AMOUNT = 'IMBR'
+export const errInvalidSum = 'errIsum'
+export const errInvalidMbrAmount = 'errImbr'
+
+// --- Rewards v2 (2026-10 audit) ---------------------------------------------
+
+/** Claim attempted before the disbursement was finalized (M-4). */
+export const errDisbursementNotFinal = 'errDbnl'
+/** Close/cancel attempted while allocations or used MBR credits remain. */
+export const errDisbursementNotEmpty = 'errDbny'
+/** Group-indexed funding txns are not the slots immediately before the call (C-1). */
+export const errInvalidGroupIndex = 'errIgix'
+/** A grouped asset transfer closes out to someone other than this app. */
+export const errInvalidCloseTo = 'errIcto'
+/** Sweep of a disbursement created without a reclaim target. */
+export const errDisbursementNotSweepable = 'errDbns'
+/** Sweep of an ASA allocation to a reclaim target that is not opted into the asset. */
+export const errReclaimTargetNotOptedIn = 'errRcoi'

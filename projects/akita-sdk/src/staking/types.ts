@@ -39,6 +39,12 @@ export type WithdrawArgs = MaybeSigner & ContractArgs['withdraw(uint64,uint8)voi
 /** Create heartbeat parameters */
 export type CreateHeartbeatArgs = MaybeSigner & ContractArgs['createHeartbeat(address,uint64)void'];
 
+export type SetHeartbeatManagerArgs = MaybeSigner & ContractArgs['setHeartbeatManager(address)void'];
+
+export type CloseStakeArgs = MaybeSigner & ContractArgs['closeSoftStake(uint64)void'];
+
+export type ReleaseAppStakeArgs = MaybeSigner & ContractArgs['releaseAppStake(uint64,address,uint64)void'];
+
 /** Update settings parameters */
 export type UpdateSettingsArgs = MaybeSigner & Omit<ContractArgs['updateSettings(pay,uint64,uint64)void'], 'payment'>;
 

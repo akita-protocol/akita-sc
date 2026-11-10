@@ -5,7 +5,7 @@ import { BaseSDK } from '../base';
 import { ENV_VAR_NAMES } from '../config';
 import { emptySigner } from '../constants';
 import { microAlgo } from '@algorandfoundation/algokit-utils';
-import { NewPoolParams, DeletePoolParams, StakingPoolMbrParams } from './types';
+import { NewPoolParams, NewPoolCostParams, DeletePoolParams, StakingPoolMbrParams } from './types';
 import { StakingPoolMbrData } from '../generated/StakingPoolClient';
 
 export type StakingPoolFactoryContractArgs = StakingPoolFactoryArgs["obj"];
@@ -34,12 +34,13 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
     minimumStakeAmount,
     allowLateSignups = false,
     gateId = 0n,
-    maxEntries = 0n
+    maxEntries = 0n,
+    wallet = 0n,
   }: NewPoolParams): Promise<StakingPoolSDK> {
 
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    const poolCost = await this.cost(sendParams);
+    const poolCost = await this.cost({ ...sendParams, wallet });
 
     const payment = this.client.algorand.createTransaction.payment({
       ...sendParams,
@@ -49,7 +50,8 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
 
     const group = this.client.newGroup();
 
-    group.newPool({
+    // hinted newPool(…, wallet) (PHASE-0-SPEC §6.5); the legacy 9-argument selector stays on the factory
+    group.newPoolPayStringUint8AddressAddressStringUint64BoolUint64Uint64Uint64Uint64({
       ...sendParams,
       args: {
         payment,
@@ -60,7 +62,8 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
         minimumStakeAmount,
         allowLateSignups,
         gateId,
-        maxEntries
+        maxEntries,
+        wallet: BigInt(wallet),
       }
     });
 
@@ -101,9 +104,10 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
   }
 
   /**
-   * Gets the cost to create a new staking pool.
+   * Gets the cost to create a new staking pool: the exact payment `newPool(…, wallet)` requires
+   * from the sender (the referral MBR is included when `wallet`'s referrer is set).
    */
-  async cost(params?: MaybeSigner): Promise<bigint> {
+  async cost({ wallet = 0n, ...params }: NewPoolCostParams = {}): Promise<bigint> {
 
     const sendParams = this.getSendParams({
       sender: this.readerAccount,
@@ -111,9 +115,9 @@ export class StakingPoolFactorySDK extends BaseSDK<StakingPoolFactoryClient> {
       ...params
     });
 
-    const cost = await this.client.newPoolCost({
+    const cost = await this.client.newPoolCostUint64Uint64({
       ...sendParams,
-      args: {}
+      args: { wallet: BigInt(wallet) }
     });
 
     return cost;

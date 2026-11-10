@@ -13,9 +13,10 @@ import { deployAkitaDAO } from '../../tests/fixtures/dao'
 import { deploySocialImpact } from '../../tests/fixtures/social'
 import { AkitaSocialImpactClient } from '../artifacts/social/AkitaSocialImpactClient'
 import { StakingClient, StakingFactory } from '../artifacts/staking/StakingClient'
-import { Address, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
+import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import { TimeWarp } from '../../tests/utils/time'
-import { ERR_ALREADY_INITIALIZED } from './errors'
+import { errAlreadyInitialized, errAppStakeInUse, errInvalidLockupSetting, errInvalidStakeType, errLockupDecrease, errNotAkitaDao, errNotCreator, errStakeDoesntExist } from './errors'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
@@ -48,8 +49,8 @@ const VALID_LOCK_DURATION = ONE_YEAR - ONE_DAY
 const getBlockTimestamp = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
 ): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
@@ -58,7 +59,7 @@ const getAssetBalance = async (
   address: string,
   assetId: bigint,
 ): Promise<bigint> => {
-  const info = await algorand.client.algod.accountInformation(address)
+  const info = await algorand.client.algod.accountInformation(address).do()
 
   for (const asset of info.assets ?? []) {
     const record = asset as { ['asset-id']?: bigint | number; assetId?: bigint | number; amount?: bigint | number }
@@ -72,10 +73,10 @@ const getAssetBalance = async (
 }
 
 describe('Staking Contract', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user1: Address & TransactionSignerAccount
-  let user2: Address & TransactionSignerAccount
-  let heartbeatManager: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user1: TransactionSignerAccount
+  let user2: TransactionSignerAccount
+  let heartbeatManager: TransactionSignerAccount
   let client: StakingClient
   let consumer: AkitaSocialImpactClient
   let testAssetId: bigint
@@ -93,10 +94,10 @@ describe('Staking Contract', () => {
     user2 = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(100_000_000) })
     heartbeatManager = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(100_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (100).algo())
-    await algorand.account.ensureFunded(user1.addr, dispenser, (100).algo())
-    await algorand.account.ensureFunded(user2.addr, dispenser, (100).algo())
-    await algorand.account.ensureFunded(heartbeatManager.addr, dispenser, (100).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (100).algo())
+    await algorand.account.ensureFunded(user1.addr, dispenser.addr, (100).algo())
+    await algorand.account.ensureFunded(user2.addr, dispenser.addr, (100).algo())
+    await algorand.account.ensureFunded(heartbeatManager.addr, dispenser.addr, (100).algo())
 
     // Deploy the staking contract
     const factory = new StakingFactory({
@@ -182,7 +183,7 @@ describe('Staking Contract', () => {
     })
 
     test('should reject reinitialization once ALGO totals exist', async () => {
-      await expect(client.send.init({ args: {} })).rejects.toThrow(`ERR:${ERR_ALREADY_INITIALIZED}`)
+      await expect(client.send.init({ args: {} })).rejects.toThrow(`ERR:${errAlreadyInitialized}`)
     })
 
     test('balance should match min balance after funding', async () => {
@@ -655,11 +656,12 @@ describe('Staking Contract', () => {
           },
         })
 
-        // Should have 4 heartbeat entries (one populated, 3 empty)
+        // M-2 (2026-10 audit): no caller-timed snapshot is recorded at creation (it could be a
+        // borrowed balance); only heartbeat-manager beats count, so the history starts empty.
         expect(heartbeats).toHaveLength(4)
-        // First entry should have timestamp > 0
-        const hasValidEntry = heartbeats.some((hb) => hb[3] > 0n) // timestamp
-        expect(hasValidEntry).toBe(true)
+        expect(heartbeats.every((hb) => hb[3] === 0n)).toBe(true)
+        const average = await client.getHeartbeatAverage({ args: { address: user1.addr.toString(), asset: 0n, includeEscrowed: true } })
+        expect(average).toBe(0n)
       })
 
       test('should fail to update heartbeat stake', async () => {
@@ -887,7 +889,7 @@ describe('Staking Contract', () => {
         const stakeAmount = 10_000_000n
         const timeWarp = new TimeWarp(algorand)
 
-        await algorand.account.ensureFunded(checkpointUser, dispenser, algokit.algo(10))
+        await algorand.account.ensureFunded(checkpointUser, dispenser.addr, algokit.algo(10))
         await algorand.send.assetOptIn({
           sender: checkpointUser.addr,
           signer: checkpointUser.signer,
@@ -1031,9 +1033,9 @@ describe('Staking Contract', () => {
           },
         })
 
+        // M-2: the history starts empty; only manager beats count
         expect(heartbeats).toHaveLength(4)
-        const hasValidEntry = heartbeats.some((hb) => hb[3] > 0n)
-        expect(hasValidEntry).toBe(true)
+        expect(heartbeats.every((hb) => hb[3] === 0n)).toBe(true)
       })
     })
   })
@@ -1481,7 +1483,8 @@ describe('Staking Contract', () => {
   describe('Update Settings', () => {
     test('should allow asset creator to update settings', async () => {
       const { algorand } = fixture.context
-      const maxLockupDuration = BigInt(ONE_YEAR / 2) // 6 months
+      // DAO-05 / G-5: settings are bounded [2 weeks, 4 years] and never below the 1-year default
+      const maxLockupDuration = BigInt(ONE_YEAR * 2) // 2 years
 
       const payment = await algorand.createTransaction.payment({
         sender: deployer.addr,
@@ -1527,6 +1530,31 @@ describe('Staking Contract', () => {
           expiration,
         },
       })
+    })
+
+    test('DAO-05 / G-5: max lockup is bounded and can never decrease', async () => {
+      const { algorand } = fixture.context
+      const update = async (value: bigint, amount = 0n) => client.send.updateSettings({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: deployer.addr,
+            receiver: client.appAddress,
+            amount: algokit.microAlgos(Number(amount)),
+          }),
+          asset: testAssetId,
+          value,
+        },
+      })
+
+      // the previous test set 2 years
+      await expect(update(0n)).rejects.toThrow(errInvalidLockupSetting)
+      await expect(update(BigInt(ONE_YEAR * 50))).rejects.toThrow(errInvalidLockupSetting)
+      await expect(update(BigInt(ONE_YEAR))).rejects.toThrow(errLockupDecrease)
+      await update(BigInt(ONE_YEAR * 3))
+      const [settings] = await client.getSettings({ args: { assets: [testAssetId] } })
+      expect(settings[0]).toBe(BigInt(ONE_YEAR * 3))
     })
 
     test('should fail if non-creator tries to update settings', async () => {
@@ -1645,6 +1673,7 @@ describe('Staking Contract', () => {
       expect(infoBefore.amount).toBe(stakeAmount)
 
       // Withdraw (hard stakes can be withdrawn anytime)
+      const algoBefore = (await algorand.account.getInformation(freshUser.addr)).balance.microAlgos
       await client.send.withdraw({
         sender: freshUser.addr,
         signer: freshUser.signer,
@@ -1652,8 +1681,12 @@ describe('Staking Contract', () => {
           asset: withdrawalAssetId,
           type: STAKING_TYPE_HARD,
         },
-        extraFee: algokit.microAlgos(1000), // For inner asset transfer txn
+        // inner asset transfer + inner MBR refund payment (L-2)
+        extraFee: algokit.microAlgos(2000),
       })
+      const algoAfter = (await algorand.account.getInformation(freshUser.addr)).balance.microAlgos
+      // L-2 (2026-10 audit): the stake box MBR comes back to the staker (minus 3 fees)
+      expect(algoAfter - algoBefore).toBe(STAKES_MBR - 3_000n)
 
       // Verify stake no longer exists
       const infoAfter = await client.getInfo({
@@ -2023,8 +2056,27 @@ describe('Staking Contract', () => {
           stake: { asset: 0n, type: STAKING_TYPE_SOFT },
         },
       })
-      expect(infoAfter.amount).toBe(infoBefore.amount)
+      // M-3 (2026-10 audit): reads clamp a SOFT stake to what the holder has now...
+      const balanceNow = (await algorand.account.getInformation(testUser.addr)).balance.microAlgos
+      expect(infoAfter.amount).toBe(balanceNow)
+      expect(infoAfter.amount).toBeLessThan(stakeAmount)
       expect(infoAfter.lastUpdate).toBe(infoBefore.lastUpdate)
+
+      // ...without rewriting the stored commitment: once the balance is back, so is the amount
+      await algorand.send.payment({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        receiver: testUser.addr,
+        amount: algokit.microAlgos(6_000_000),
+      })
+      const infoRestored = await client.getInfo({
+        args: {
+          address: testUser.addr.toString(),
+          stake: { asset: 0n, type: STAKING_TYPE_SOFT },
+        },
+      })
+      expect(infoRestored.amount).toBe(stakeAmount)
+      expect(infoRestored.lastUpdate).toBe(infoBefore.lastUpdate)
     })
 
     test('should fail soft check if no stake exists', async () => {
@@ -2032,7 +2084,7 @@ describe('Staking Contract', () => {
       const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
 
       // Try soft check for a stake that doesn't exist
-      // The contract checks assert(this.stakes(sk).exists, ERR_STAKE_DOESNT_EXIST)
+      // The contract checks assert(this.stakes(sk).exists, errStakeDoesntExist)
       await expect(
         client.send.softCheck({
           sender: freshUser.addr,
@@ -2105,7 +2157,7 @@ describe('Staking Contract', () => {
       }
     })
 
-    test('should aggregate fresh stake added in another type', async () => {
+    test('should return elapsed weighted age and aggregate fresh stake added in another type', async () => {
       const { algorand } = fixture.context
       const testUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(20_000_000) })
       const amount = 1_000_000n
@@ -2129,9 +2181,7 @@ describe('Staking Contract', () => {
         args: { address: testUser.addr.toString(), asset: 0n },
       })
       expect(before.amount).toBe(amount)
-      // The unchanged deployed artifact currently returns zero for encoded
-      // uint64 weighted ages; this test still verifies stake aggregation.
-      expect(before.weightedAge).toBe(0n)
+      expect(before.weightedAge).toBeGreaterThanOrEqual(120n)
 
       const hardPayment = await algorand.createTransaction.payment({
         sender: testUser.addr,
@@ -2148,7 +2198,8 @@ describe('Staking Contract', () => {
         args: { address: testUser.addr.toString(), asset: 0n },
       })
       expect(after.amount).toBe(amount * 2n)
-      expect(after.weightedAge).toBe(0n)
+      expect(after.weightedAge).toBeGreaterThanOrEqual(60n)
+      expect(after.weightedAge).toBeLessThan(before.weightedAge)
     })
 
     test('should let an app inherit portable root age without sharing future checkpoints', async () => {
@@ -2195,7 +2246,7 @@ describe('Staking Contract', () => {
         args: { app, address: testUser.addr.toString(), asset: 0n, acceptInherited: true },
       })
       expect(inherited.amount).toBe(appAmount)
-      expect(inherited.weightedAge).toBe(0n)
+      expect(inherited.weightedAge).toBeGreaterThanOrEqual(120n)
 
       const enrollmentOnly = await client.getAppWeightedStake({
         args: {
@@ -2226,7 +2277,7 @@ describe('Staking Contract', () => {
         args: { app, address: testUser.addr.toString(), asset: 0n, acceptInherited: true },
       })
       expect(appStake.amount).toBe(appAmount)
-      expect(appStake.weightedAge).toBe(0n)
+      expect(appStake.weightedAge).toBeGreaterThanOrEqual(inherited.weightedAge)
 
       const root = await client.getInfo({
         args: { address: testUser.addr.toString(), stake: { asset: 0n, type: STAKING_TYPE_SOFT } },
@@ -2363,6 +2414,245 @@ describe('Staking Contract', () => {
       expect(escrowInfo.return).toBeDefined()
       expect(escrowInfo.return!.hard).toBe(0n)
       expect(escrowInfo.return!.lock).toBe(0n)
+    })
+  })
+  describe('2026-10 audit regressions', () => {
+    const softStake = async (who: TransactionSignerAccount, amount: bigint) => {
+      const { algorand } = fixture.context
+      await client.send.stake({
+        sender: who.addr,
+        signer: who.signer,
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: who.addr,
+            receiver: client.appAddress,
+            amount: algokit.microAlgos(Number(STAKES_MBR)),
+          }),
+          type: STAKING_TYPE_SOFT,
+          amount,
+          expiration: 0n,
+        },
+      })
+    }
+
+    test('H-1: only the consuming app can lower its commitment; others only reset its age', async () => {
+      const { algorand } = fixture.context
+      const testUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(15_000_000) })
+      const app = consumer.appId
+      const amount = 8_000_000n
+
+      const commitGroup = consumer.newGroup()
+      commitGroup.commitStakingImpact({
+        sender: testUser.addr,
+        signer: testUser.signer,
+        maxFee: algokit.microAlgos(4_000),
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: testUser.addr,
+            receiver: consumer.appAddress,
+            amount: algokit.microAlgos(Number(APP_STAKES_MBR)),
+          }),
+          amount,
+          inheritRoot: false,
+        },
+      })
+      await commitGroup.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      // the holder empties their wallet and tries to shrink the commitment themselves
+      const currentBalance = await getAccountBalance(algorand, testUser.addr.toString())
+      await algorand.send.payment({
+        sender: testUser,
+        receiver: deployer.addr,
+        amount: algokit.microAlgos(Number(currentBalance - 1_000_000n)),
+      })
+
+      const direct = await client.send.checkpointAppSoftStake({
+        sender: testUser.addr,
+        signer: testUser.signer,
+        args: { app, address: testUser.addr.toString(), asset: 0n },
+      })
+      expect(direct.return?.valid).toBe(false)
+
+      const key = { app, address: testUser.addr.toString(), asset: 0n }
+      const afterDirect = await client.state.box.appStakes.value(key)
+      expect(afterDirect?.amount).toBe(amount) // not lowered
+      expect(afterDirect?.weightedAge).toBe(0n) // age reset
+
+      // the consuming app itself records the shortfall
+      await consumer.send.checkpointStakingImpact({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        maxFee: algokit.microAlgos(2_000),
+        populateAppCallResources: true,
+        coverAppCallInnerTransactionFees: true,
+        args: { address: testUser.addr.toString() },
+      })
+      const afterApp = await client.state.box.appStakes.value(key)
+      expect(afterApp?.amount).toBeLessThan(amount)
+    })
+
+    test('H-1: a missing app commitment checks as invalid instead of failing', async () => {
+      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000) })
+      const result = await client.send.checkpointAppSoftStake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: { app: 123_456n, address: freshUser.addr.toString(), asset: 0n },
+      })
+      expect(result.return?.valid).toBe(false)
+    })
+
+    test('L-3: unknown stake types are rejected before any state change', async () => {
+      const { algorand } = fixture.context
+      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
+      await expect(client.send.stake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: freshUser.addr,
+            receiver: client.appAddress,
+            amount: algokit.microAlgos(Number(STAKES_MBR)),
+          }),
+          type: 99,
+          amount: 1_000_000n,
+          expiration: 0n,
+        },
+      })).rejects.toThrow(errInvalidStakeType)
+    })
+
+    test('stake funding must come from the staker (its MBR is refunded to the staker)', async () => {
+      const { algorand } = fixture.context
+      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
+      await expect(client.send.stake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: deployer.addr,
+            signer: deployer.signer,
+            receiver: client.appAddress,
+            amount: algokit.microAlgos(Number(STAKES_MBR)),
+          }),
+          type: STAKING_TYPE_SOFT,
+          amount: 1_000_000n,
+          expiration: 0n,
+        },
+      })).rejects.toThrow()
+    })
+
+    test('L-2: owners close SOFT and heartbeat stakes and get the exact MBR back', async () => {
+      const { algorand } = fixture.context
+      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      await softStake(freshUser, 1_000_000n)
+
+      let before = await getAccountBalance(algorand, freshUser.addr.toString())
+      await client.send.closeSoftStake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: { asset: 0n },
+        extraFee: algokit.microAlgos(1_000),
+      })
+      let after = await getAccountBalance(algorand, freshUser.addr.toString())
+      expect(after - before).toBe(STAKES_MBR - 2_000n)
+
+      await client.send.stake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: freshUser.addr,
+            receiver: client.appAddress,
+            amount: algokit.microAlgos(Number(STAKES_MBR + HEARTBEATS_MBR)),
+          }),
+          type: STAKING_TYPE_HEARTBEAT,
+          amount: 0n,
+          expiration: 0n,
+        },
+      })
+      before = await getAccountBalance(algorand, freshUser.addr.toString())
+      await client.send.closeHeartbeat({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: { asset: 0n },
+        extraFee: algokit.microAlgos(1_000),
+      })
+      after = await getAccountBalance(algorand, freshUser.addr.toString())
+      expect(after - before).toBe(STAKES_MBR + HEARTBEATS_MBR - 2_000n)
+
+      await expect(client.send.closeSoftStake({
+        sender: freshUser.addr,
+        signer: freshUser.signer,
+        args: { asset: 0n },
+        extraFee: algokit.microAlgos(1_000),
+      })).rejects.toThrow(errStakeDoesntExist)
+    })
+
+    test('L-2: an app commitment cannot be released by its owner while the app exists', async () => {
+      const { algorand } = fixture.context
+      const testUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(5_000_000) })
+      const commitGroup = consumer.newGroup()
+      commitGroup.commitStakingImpact({
+        sender: testUser.addr,
+        signer: testUser.signer,
+        maxFee: algokit.microAlgos(4_000),
+        args: {
+          payment: await algorand.createTransaction.payment({
+            sender: testUser.addr,
+            receiver: consumer.appAddress,
+            amount: algokit.microAlgos(Number(APP_STAKES_MBR)),
+          }),
+          amount: 1_000_000n,
+          inheritRoot: false,
+        },
+      })
+      await commitGroup.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })
+
+      await expect(client.send.releaseAppStake({
+        sender: testUser.addr,
+        signer: testUser.signer,
+        args: { app: consumer.appId, address: testUser.addr.toString(), asset: 0n },
+        extraFee: algokit.microAlgos(1_000),
+        populateAppCallResources: true,
+      })).rejects.toThrow(errAppStakeInUse)
+    })
+
+    test('M-2 / ST-4: only the DAO wallet sets the heartbeat manager', async () => {
+      await expect(client.send.setHeartbeatManager({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        args: { manager: heartbeatManager.addr.toString() },
+      })).rejects.toThrow(errNotAkitaDao)
+    })
+
+    test('Info: init is creator-only', async () => {
+      await expect(client.send.init({
+        sender: user1.addr,
+        signer: user1.signer,
+        args: {},
+      })).rejects.toThrow(errNotCreator)
+    })
+
+    test('Info: stakeCheck passes when the stake equals the required amount', async () => {
+      const freshUser = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(10_000_000) })
+      await softStake(freshUser, 2_000_000n)
+      const ok = await client.stakeCheck({
+        args: {
+          address: freshUser.addr.toString(),
+          checks: [[0n, 2_000_000n]],
+          type: STAKING_TYPE_SOFT,
+          includeEscrowed: false,
+        },
+      })
+      expect(ok).toBe(true)
+      const tooMuch = await client.stakeCheck({
+        args: {
+          address: freshUser.addr.toString(),
+          checks: [[0n, 2_000_001n]],
+          type: STAKING_TYPE_SOFT,
+          includeEscrowed: false,
+        },
+      })
+      expect(tooMuch).toBe(false)
     })
   })
 })

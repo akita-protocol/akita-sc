@@ -1,7 +1,7 @@
 import { Account, uint64 } from '@algorandfoundation/algorand-typescript'
 import { Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { GateArgs } from '../gates/types'
-import { RootKey } from '../meta-merkles/types'
+import { RootKey } from '../meta/types'
 import { StakingType } from '../staking/types'
 import { Proof } from '../utils/types/merkles'
 
@@ -27,6 +27,26 @@ export type EntryData = {
     quantity: uint64,
     gateArgs: GateArgs
     disqualified: boolean
+    /**
+     * true when the entry was charged (and is refunded) with the flat pre-Q14 box MBR
+     * (`PoolEntriesMBR` + `PoolEntriesByAddressMBR`): entries made through the legacy `gatedEnter`
+     * shim (its quote `enterCost(address, entries)` cannot see the gate args), and `enter` calls
+     * from plugins that hard-code the flat MBR. ARC-4 packs it into the same byte as
+     * `disqualified`, so the box size and every older decoder are unchanged.
+     */
+    legacyCharged: boolean
+    /**
+     * true when the current round's preparation left the entry out because its HARD stake changed
+     * during the round (STAKE-2), though it still covers `quantity`. It counts for this round only:
+     * the next preparation clears it. Packs into the same byte as `disqualified`.
+     */
+    heldOut: boolean
+}
+
+/** The stored pair `(W, principal)` of an entrant (box `'i'`, PHASE-0-SPEC §6.5, §3.8 rule 2). */
+export type StoredPrincipal = {
+    wallet: uint64
+    principal: Account
 }
 
 export type EntryValue = {
@@ -59,7 +79,7 @@ export type Reward = {
     phase: DisbursementPhase // the current phase of disbursement
     disbursementCursor: uint64 // the cursor for the disbursement
     activeDisbursementID: uint64 // the ID of the active disbursement
-    activeDisbursementRoundStart: uint64 // the timestamp window for the active disbursement
+    activeDisbursementRoundStart: uint64 // shuffle: the beacon round the draw is committed to (TRADE-3)
     lastDisbursementTimestamp: uint64 // the timestamp of the last disbursement
 }
 

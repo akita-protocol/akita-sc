@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { StakingPluginArgs, StakingPluginClient, StakingPluginFactory } from "../../generated/StakingPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -54,6 +54,24 @@ type CheckpointAppSoftStakeArgs = (
 
 type UpdateSettingsArgs = (
   Omit<ContractArgs['updateSettings(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type SetHeartbeatManagerArgs = (
+  Omit<ContractArgs['setHeartbeatManager(uint64,bool,address)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type CloseStakeArgs = (
+  Omit<ContractArgs['closeSoftStake(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+);
+
+type ReleaseAppStakeArgs = (
+  Omit<ContractArgs['releaseAppStake(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -273,6 +291,67 @@ export class StakingPluginSDK extends BaseSDK<StakingPluginClient> {
           type: 'methodCall',
           ...params
         }];
+      }
+    });
+  }
+
+  setHeartbeatManager(): PluginSDKReturn;
+  setHeartbeatManager(args: SetHeartbeatManagerArgs): PluginSDKReturn;
+  setHeartbeatManager(args?: SetHeartbeatManagerArgs): PluginSDKReturn {
+    return this.simpleHook('setHeartbeatManager', args, (wallet, rekeyBack, a) =>
+      this.client.params.setHeartbeatManager({
+        ...this.getRequiredSendParams({ sender: a.sender, signer: a.signer }),
+        args: { wallet, rekeyBack, manager: a.manager },
+      }));
+  }
+
+  closeSoftStake(): PluginSDKReturn;
+  closeSoftStake(args: CloseStakeArgs): PluginSDKReturn;
+  closeSoftStake(args?: CloseStakeArgs): PluginSDKReturn {
+    return this.simpleHook('closeSoftStake', args, (wallet, rekeyBack, a) =>
+      this.client.params.closeSoftStake({
+        ...this.getRequiredSendParams({ sender: a.sender, signer: a.signer }),
+        args: { wallet, rekeyBack, asset: a.asset },
+      }));
+  }
+
+  closeHeartbeat(): PluginSDKReturn;
+  closeHeartbeat(args: CloseStakeArgs): PluginSDKReturn;
+  closeHeartbeat(args?: CloseStakeArgs): PluginSDKReturn {
+    return this.simpleHook('closeHeartbeat', args, (wallet, rekeyBack, a) =>
+      this.client.params.closeHeartbeat({
+        ...this.getRequiredSendParams({ sender: a.sender, signer: a.signer }),
+        args: { wallet, rekeyBack, asset: a.asset },
+      }));
+  }
+
+  releaseAppStake(): PluginSDKReturn;
+  releaseAppStake(args: ReleaseAppStakeArgs): PluginSDKReturn;
+  releaseAppStake(args?: ReleaseAppStakeArgs): PluginSDKReturn {
+    return this.simpleHook('releaseAppStake', args, (wallet, rekeyBack, a) =>
+      this.client.params.releaseAppStake({
+        ...this.getRequiredSendParams({ sender: a.sender, signer: a.signer }),
+        args: { wallet, rekeyBack, app: a.app, asset: a.asset },
+      }));
+  }
+
+  /** Shared hook shape for single-call plugin methods. */
+  private simpleHook<A extends MaybeSigner & { rekeyBack?: boolean }>(
+    methodName: string,
+    args: A | undefined,
+    build: (wallet: bigint, rekeyBack: boolean, args: A) => Promise<any>,
+  ): PluginSDKReturn {
+    const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
+    if (args === undefined) {
+      return (spendingAddress?: ReadableAddress) => ({ appId: this.client.appId, selectors, getTxns });
+    }
+
+    return (spendingAddress?: ReadableAddress) => ({
+      appId: this.client.appId,
+      selectors,
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const params = await build(wallet, args.rekeyBack ?? true, args);
+        return [{ type: 'methodCall', ...params }];
       }
     });
   }

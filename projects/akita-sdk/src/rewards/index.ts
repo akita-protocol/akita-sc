@@ -1,5 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
-import { ABIMethod } from "@algorandfoundation/algokit-utils/abi";
+import { ABIMethod, ABIType, Address, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import {
@@ -28,6 +28,8 @@ import {
   CreateAsaDisbursementFromGroupParams,
   ClaimRewardsParams,
   ReclaimRewardsParams,
+  SweepExpiredParams,
+  SweepableAllocation,
   UpdateAkitaDaoParams,
   UserAllocation,
 } from "./types";
@@ -36,6 +38,75 @@ export * from "./types";
 export * from "./errors";
 
 const MAX_ALGORAND_GROUP_SIZE = 16;
+
+/** Disbursement box key: `'d'` + uint64 ID. */
+const DISBURSEMENT_BOX_PREFIX = 0x64;
+/** User allocation box key: `'u'` + address (32) + asset (8) + disbursement ID (8). */
+const USER_ALLOCATION_BOX_PREFIX = 0x75;
+const USER_ALLOCATION_BOX_NAME_LENGTH = 49;
+
+/**
+ * rewards/constants.ts (v2): the disbursement box with an empty title and note, which includes the
+ * 32-byte `reclaimTo`. The v1 app charged 41,700.
+ */
+export const MIN_DISBURSEMENTS_MBR = 54_500n;
+export const USER_ALLOCATION_MBR = 25_300n;
+
+/** v2 stores `reclaimTo` after `mbrCredits`. */
+const DISBURSEMENT_V2 = ABIType.from('(address,bool,string,uint64,uint64,uint64,uint64,uint64,uint64,address,string)');
+/** The v1 app (MainNet 3569556095) stores `usedMbrCredits` after `mbrCredits` and has no `reclaimTo`. */
+const DISBURSEMENT_V1 = ABIType.from('(address,bool,string,uint64,uint64,uint64,uint64,uint64,uint64,uint64,string)');
+/** The title offset is the head size: 117 bytes in v2, 93 in v1. */
+const DISBURSEMENT_V1_HEAD_SIZE = 93;
+
+/**
+ * Decodes a disbursement box of either Rewards layout. v1 boxes have no reclaim target, so their
+ * `reclaimTo` is the zero address.
+ */
+export function decodeDisbursementDetails(value: Uint8Array): DisbursementDetails {
+  const titleOffset = (value[33] << 8) | value[34];
+  const v1 = titleOffset === DISBURSEMENT_V1_HEAD_SIZE;
+  const fields = (v1 ? DISBURSEMENT_V1 : DISBURSEMENT_V2).decode(value) as unknown[];
+  const address = (field: unknown) => field instanceof Address ? field.toString() : String(field);
+  return {
+    creator: address(fields[0]),
+    finalized: fields[1] as boolean,
+    title: fields[2] as string,
+    amount: fields[3] as bigint,
+    timeToUnlock: fields[4] as bigint,
+    expiration: fields[5] as bigint,
+    allocations: fields[6] as bigint,
+    distributed: fields[7] as bigint,
+    mbrCredits: fields[8] as bigint,
+    reclaimTo: v1 ? ALGORAND_ZERO_ADDRESS_STRING : address(fields[9]),
+    note: fields[10] as string,
+  };
+}
+
+function disbursementBoxName(id: bigint | number): Uint8Array {
+  const name = new Uint8Array(9);
+  name[0] = DISBURSEMENT_BOX_PREFIX;
+  new DataView(name.buffer).setBigUint64(1, BigInt(id));
+  return name;
+}
+
+/**
+ * Decodes the user allocation box names of disbursement `id` (any other name is skipped). Exported for
+ * unit tests; `getSweepableAllocations` reads the amounts.
+ */
+export function allocationKeysOf(names: readonly Uint8Array[], id: bigint): { name: Uint8Array; address: string; asset: bigint }[] {
+  return names.flatMap(name => {
+    if (name.length !== USER_ALLOCATION_BOX_NAME_LENGTH || name[0] !== USER_ALLOCATION_BOX_PREFIX) return [];
+    const view = new DataView(name.buffer, name.byteOffset, name.byteLength);
+    if (view.getBigUint64(41) !== id) return [];
+    return [{ name, address: new Address(name.slice(1, 33)).toString(), asset: view.getBigUint64(33) }];
+  });
+}
+
+/** A disbursement is sweepable once it has a reclaim target and its expiration (0 = never) has passed. */
+export function isSweepable(disbursement: Pick<DisbursementDetails, 'expiration' | 'reclaimTo'>, now: bigint): boolean {
+  return disbursement.reclaimTo !== ALGORAND_ZERO_ADDRESS_STRING && disbursement.expiration !== 0n && disbursement.expiration < now;
+}
 const CREATE_ASA_DISBURSEMENT_FROM_GROUP = ABIMethod.fromSignature(
   "createAsaDisbursementFromGroup(uint64,uint64,string,uint64,uint64,string,(address,uint64)[])uint64",
 );
@@ -44,6 +115,26 @@ const CREATE_ASA_DISBURSEMENT_FROM_GROUP = ABIMethod.fromSignature(
  * SDK for interacting with the Rewards contract.
  * Use this to create disbursements, manage allocations, and claim/reclaim rewards.
  */
+/** Read current and retained Rewards deployments without conflating their disbursement IDs.
+ * Supply clients from the same network. Keep each returned client for allocation reads and claims.
+ * A failed deployment read rejects the result rather than hiding potentially claimable rewards.
+ */
+export async function getDisbursementsAcrossDeployments(
+  clients: readonly RewardsSDK[],
+  { currentAppId }: { currentAppId?: bigint } = {},
+) {
+  if (new Set(clients.map(client => client.network)).size > 1) throw new Error('Rewards clients must use the same network');
+  const unique = new Map(clients.map(client => [client.appId, client]));
+  if ([...unique.keys()].some(id => id <= 0n)) throw new Error('Rewards deployment IDs must be positive');
+  return Promise.all([...unique.values()].map(async client => ({
+    appId: client.appId,
+    client,
+    /** Wallet claims from this deployment go through `RewardsPluginSDK.claimLegacyRewards` (see `claimRewardsFrom`). */
+    legacy: currentAppId !== undefined && client.appId !== currentAppId,
+    disbursements: await client.getDisbursements(),
+  })));
+}
+
 export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   constructor(params: NewContractSDKParams) {
@@ -78,31 +169,64 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
    * Gets a specific disbursement by ID.
    */
   async getDisbursement({ id }: GetDisbursementParams): Promise<DisbursementDetails> {
-    const disbursement = await this.client.state.box.disbursements.value(id);
-
-    if (disbursement === undefined) {
+    let value: Uint8Array;
+    try {
+      value = await this.algorand.app.getBoxValue(this.appId, disbursementBoxName(id));
+    } catch {
       throw new Error(`Disbursement ${id} not found`);
     }
-
-    return disbursement;
+    return decodeDisbursementDetails(value);
   }
 
   /**
    * Gets all disbursements as a map.
    */
   async getDisbursements(): Promise<Map<bigint, DisbursementDetails>> {
-    const disbursements = await this.client.state.box.disbursements.getMap();
-    return new Map(Array.from(disbursements.entries()).map(([key, value]) => [BigInt(key), value]));
+    const names = (await this.algorand.app.getBoxNames(this.appId))
+      .map(box => box.nameRaw)
+      .filter(name => name.length === 9 && name[0] === DISBURSEMENT_BOX_PREFIX);
+    const values = await this.algorand.app.getBoxValues(this.appId, names);
+    return new Map(names.map((name, i) => [
+      new DataView(name.buffer, name.byteOffset, name.byteLength).getBigUint64(1),
+      decodeDisbursementDetails(values[i]),
+    ]));
+  }
+
+  /** The reclaim target of disbursement `id`, or undefined when it has none (v1, or created without one). */
+  async getReclaimTarget({ id }: GetDisbursementParams): Promise<string | undefined> {
+    const { reclaimTo } = await this.getDisbursement({ id });
+    return reclaimTo === ALGORAND_ZERO_ADDRESS_STRING ? undefined : reclaimTo;
+  }
+
+  /** The open allocations of disbursement `id`: what `sweepExpired` (or `reclaimRewards`) would move. */
+  async getSweepableAllocations({ id }: GetDisbursementParams): Promise<SweepableAllocation[]> {
+    const names = (await this.algorand.app.getBoxNames(this.appId)).map(box => box.nameRaw);
+    const keys = allocationKeysOf(names, BigInt(id));
+    if (keys.length === 0) return [];
+    const values = await this.algorand.app.getBoxValues(this.appId, keys.map(key => key.name));
+    return keys.map((key, i) => ({
+      address: key.address,
+      asset: key.asset,
+      amount: new DataView(values[i].buffer, values[i].byteOffset, values[i].byteLength).getBigUint64(0),
+    }));
+  }
+
+  /**
+   * IDs of the disbursements anyone may sweep now (reclaim target set, expired at the latest block).
+   * A keeper calls `sweepExpired` for each.
+   */
+  async getSweepableDisbursementIds(): Promise<bigint[]> {
+    const status = await this.algorand.client.algod.status().do();
+    const block = await this.algorand.client.algod.block(status.lastRound).do();
+    const now = BigInt(block.block.header.timestamp);
+    return [...(await this.getDisbursements())]
+      .filter(([, disbursement]) => isSweepable(disbursement, now))
+      .map(([id]) => id);
   }
 
   /**
    * Gets a user's allocation for a specific disbursement and asset.
-   *
-   * NOTE: Property order MUST match the APP_SPEC struct declaration order
-   * (address, asset, disbursementId). v10's ABIStructType encoder uses
-   * Object.values() which iterates in input-object property order and then
-   * maps positionally onto the declared struct fields — a mismatched order
-   * silently produces the wrong box key.
+
    */
   async getUserAllocation({ address, disbursementId, asset }: GetUserAllocationParams): Promise<bigint> {
     const allocation = await this.client.state.box.userAllocations.value({
@@ -175,7 +299,8 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
   }
 
   /**
-   * Creates a new disbursement.
+   * Creates a draft disbursement; add allocations in batches, then finalize it.
+   * With `reclaimTo` (v2 only), anyone can sweep what is unclaimed at `expiration` to that address.
    * Returns the disbursement ID.
    */
   async createDisbursement({
@@ -186,6 +311,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     expiration,
     note,
     mbrCredits = 0n,
+    reclaimTo,
   }: CreateDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
@@ -198,16 +324,13 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    const { return: disbursementId } = await this.client.send.createDisbursement({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        title,
-        timeToUnlock,
-        expiration,
-        note,
-      },
-    });
+    const args = { mbrPayment, title, timeToUnlock, expiration, note };
+    const { return: disbursementId } = reclaimTo === undefined
+      ? await this.client.send.createDisbursementPayStringUint64Uint64StringUint64({ ...sendParams, args })
+      : await this.client.send.createDisbursementPayStringUint64Uint64StringAddressUint64({
+        ...sendParams,
+        args: { ...args, reclaimTo },
+      });
 
     if (disbursementId === undefined) {
       throw new Error('Failed to create disbursement');
@@ -271,6 +394,20 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     await (this.client.send as any).fundMbrCredits({
       ...sendParams,
       args: { id, payment },
+    });
+  }
+
+  /**
+   * Deletes a disbursement with no outstanding allocations and refunds its box MBR plus any
+   * remaining MBR credits to the creator.
+   */
+  async closeDisbursement({ sender, signer, id }: MaybeSigner & { id: bigint | number }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    await this.client.send.closeDisbursement({
+      ...sendParams,
+      extraFee: microAlgo(1000),
+      args: { id },
     });
   }
 
@@ -433,6 +570,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   /**
    * Creates and finalizes an ALGO disbursement in a single call.
+   * With `reclaimTo` (v2 only), anyone can sweep what is unclaimed at `expiration` to that address.
    * Returns the disbursement ID.
    */
   async createInstantDisbursement({
@@ -441,14 +579,11 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     timeToUnlock,
     expiration,
     allocations,
+    reclaimTo,
   }: CreateInstantDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // MinDisbursementsMBR (41,700) + UserAllocationMBR (25,300) per allocation
-    const MIN_DISBURSEMENTS_MBR = 41_700n;
-    const USER_ALLOCATION_MBR = 25_300n;
-
-    const mbrAmount = MIN_DISBURSEMENTS_MBR + (USER_ALLOCATION_MBR * BigInt(allocations.length));
+    const mbrAmount = this.instantMbr(allocations.length);
     const totalAmount = this.sumAllocations(allocations);
 
     const mbrPayment = await this.client.algorand.createTransaction.payment({
@@ -457,16 +592,16 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    const result = await this.client.send.createInstantDisbursement({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        timeToUnlock,
-        expiration,
-        allocations: this.formatAllocations(allocations),
-      },
-    });
-    const disbursementId = result.return;
+    const formatted = this.formatAllocations(allocations);
+    const { return: disbursementId } = reclaimTo === undefined
+      ? await this.client.send.createInstantDisbursementPayUint64Uint64AddressUint64Uint64({
+        ...sendParams,
+        args: { mbrPayment, timeToUnlock, expiration, allocations: formatted },
+      })
+      : await this.client.send.createInstantDisbursementPayUint64Uint64AddressUint64AddressUint64({
+        ...sendParams,
+        args: { mbrPayment, timeToUnlock, expiration, allocations: formatted, reclaimTo },
+      });
 
     if (disbursementId === undefined) {
       throw new Error('Failed to create instant disbursement');
@@ -477,6 +612,7 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
 
   /**
    * Creates and finalizes an ASA disbursement in a single call.
+   * With `reclaimTo` (v2 only), anyone can sweep what is unclaimed at `expiration` to that address.
    * Returns the disbursement ID.
    */
   async createInstantAsaDisbursement({
@@ -486,14 +622,11 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
     expiration,
     asset,
     allocations,
+    reclaimTo,
   }: CreateInstantAsaDisbursementParams): Promise<bigint> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    // MinDisbursementsMBR (41,700) + UserAllocationMBR (25,300) per allocation
-    const MIN_DISBURSEMENTS_MBR = 41_700n;
-    const USER_ALLOCATION_MBR = 25_300n;
-
-    const mbrAmount = MIN_DISBURSEMENTS_MBR + (USER_ALLOCATION_MBR * BigInt(allocations.length));
+    const mbrAmount = this.instantMbr(allocations.length);
     const totalAmount = this.sumAllocations(allocations);
 
     const mbrPayment = await this.client.algorand.createTransaction.payment({
@@ -509,23 +642,27 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       receiver: this.client.appAddress,
     });
 
-    const result = await this.client.send.createInstantAsaDisbursement({
-      ...sendParams,
-      args: {
-        mbrPayment,
-        assetXfer,
-        timeToUnlock,
-        expiration,
-        allocations: this.formatAllocations(allocations),
-      },
-    });
-    const disbursementId = result.return;
+    const formatted = this.formatAllocations(allocations);
+    const { return: disbursementId } = reclaimTo === undefined
+      ? await this.client.send.createInstantAsaDisbursementPayAxferUint64Uint64AddressUint64Uint64({
+        ...sendParams,
+        args: { mbrPayment, assetXfer, timeToUnlock, expiration, allocations: formatted },
+      })
+      : await this.client.send.createInstantAsaDisbursementPayAxferUint64Uint64AddressUint64AddressUint64({
+        ...sendParams,
+        args: { mbrPayment, assetXfer, timeToUnlock, expiration, allocations: formatted, reclaimTo },
+      });
 
     if (disbursementId === undefined) {
       throw new Error('Failed to create instant ASA disbursement');
     }
 
     return disbursementId;
+  }
+
+  /** Exact MBR an instant disbursement charges: the disbursement box plus one allocation box per entry. */
+  private instantMbr(allocationCount: number): bigint {
+    return MIN_DISBURSEMENTS_MBR + (USER_ALLOCATION_MBR * BigInt(allocationCount));
   }
 
   /**
@@ -565,6 +702,26 @@ export class RewardsSDK extends BaseSDK<RewardsClient> {
       args: {
         id,
         reclaims: formattedReclaims,
+      },
+    });
+  }
+
+  /**
+   * Permissionless: after expiration, sends the listed allocations (default: every open one) and the
+   * freed MBR to the disbursement's reclaim target, and closes the disbursement once it is empty.
+   * The reclaim target must be opted into every swept ASA.
+   */
+  async sweepExpired({ sender, signer, id, reclaims }: SweepExpiredParams): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+    const targets = reclaims ?? await this.getSweepableAllocations({ id });
+
+    await this.client.send.sweepExpired({
+      ...sendParams,
+      // one ASA transfer per ASA allocation and at most one payment (ALGO amounts + freed MBR)
+      extraFee: microAlgo(1000 * (targets.filter(r => BigInt(r.asset) !== 0n).length + 1)),
+      args: {
+        id,
+        reclaims: targets.map(r => [r.address, r.asset] as [string, bigint | number]),
       },
     });
   }

@@ -9,7 +9,7 @@ import {
   EntryData
 } from '../generated/StakingPoolClient';
 import { StakingPoolFactoryArgs } from '../generated/StakingPoolFactoryClient';
-import { AppCallMethodCall } from "@algorandfoundation/algokit-utils/composer";
+import { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 
 // Re-export types from generated clients for convenience
 export { StakingPoolState, Reward, RootKey, FunderInfo, StakingPoolMbrData, EntryData };
@@ -17,7 +17,18 @@ export { StakingPoolState, Reward, RootKey, FunderInfo, StakingPoolMbrData, Entr
 // Pool Factory Types
 type FactoryContractArgs = StakingPoolFactoryArgs["obj"];
 
-export type NewPoolParams = MaybeSigner & Omit<FactoryContractArgs['newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64)uint64'], 'payment'>;
+export type NewPoolParams = MaybeSigner & Omit<FactoryContractArgs['newPool(pay,string,uint8,address,(address,string),uint64,bool,uint64,uint64,uint64)uint64'], 'payment' | 'wallet'> & {
+  /**
+   * Wallet hint for the hinted `newPool(…, wallet)` (PHASE-0-SPEC §6.5). Default `0n` (act as the
+   * sender). A non-zero hint only verifies inside an app call (plugin window or the wallet itself).
+   */
+  wallet?: bigint | number;
+};
+
+export type NewPoolCostParams = MaybeSigner & {
+  /** the wallet hint `newPool` will receive (adds the referral MBR of a genuine wallet's referrer) */
+  wallet?: bigint | number;
+};
 
 export type DeletePoolParams = MaybeSigner & FactoryContractArgs['deletePool(uint64)void'];
 
@@ -47,8 +58,36 @@ export type Entry = {
 export type EnterPoolParams = MaybeSigner & {
   /** Array of entries (asset, amount, optional proofs) */
   entries: Entry[];
-  /** Optional additional arguments for gated entry */
+  /**
+   * Gate txn for a gated pool: `Gate.mustCheckFor(ctx, gateId, args)` selects the hinted
+   * `gatedEnter`; `Gate.mustCheck(caller, gateId, args)` selects the legacy shim.
+   */
   gateTxn?: AppCallMethodCall
+  /** Wallet hint for the hinted `gatedEnter` (default `0n`: act as the sender). */
+  wallet?: bigint | number;
+};
+
+export type EnterCostParams = {
+  /** the address that will enter */
+  address: string;
+  /** the assets of the entries */
+  assets: (bigint | number)[];
+  /** hinted pools: the gate args the gate txn will carry (stored per entry, priced per byte) */
+  args?: readonly Uint8Array[];
+  /** hinted pools: the wallet hint `gatedEnter` will receive (adds the stored pair on gated pools) */
+  wallet?: bigint | number;
+  /** quote the legacy `enterCost(address, entries)` (what the legacy `gatedEnter` shim charges) */
+  legacy?: boolean;
+};
+
+/** The pair `(W, principal)` a hinted pool stores per gated entrant (box `'i'`). */
+export type StoredPrincipal = {
+  wallet: bigint;
+  principal: string;
+};
+
+export type GetStoredPrincipalParams = {
+  address: string;
 };
 
 export type StartDisbursementParams = MaybeSigner & PoolContractArgs['startDisbursement(uint64)void'];
@@ -63,7 +102,42 @@ export type OptinAssetParams = MaybeSigner & Omit<PoolContractArgs['optIn(pay,ui
 
 export type CheckParams = PoolContractArgs['check(address,uint64)(bool,uint64)'];
 
-export type GateCheckParams = PoolContractArgs['gateCheck(appl,address,uint64)void'];
+export type GateCheckParams = MaybeSigner & PoolContractArgs['gateCheck(address,uint64)void'] & {
+  /**
+   * Pools created before principal resolution (no `pv` marker, e.g. every live MainNet pool) route only
+   * `gateCheck(appl,address,uint64)void` and re-run the caller-supplied gate txn (`Gate.mustCheck`).
+   * Required for those pools, refused for `pv` pools (they re-run the stored gate args themselves).
+   */
+  gateTxn?: AppCallMethodCall;
+};
+
+export type AssignBudgetParams = MaybeSigner & PoolContractArgs['assignBudget(uint64,uint64)void'];
+
+export type WithdrawRewardParams = MaybeSigner & PoolContractArgs['withdrawReward(uint64,uint64)void'];
+
+export type CloseRewardParams = MaybeSigner & PoolContractArgs['closeReward(uint64)void'];
+
+export type CloseOutAssetParams = MaybeSigner & PoolContractArgs['closeOutAsset(uint64)void'];
+
+export type RemoveEntryParams = MaybeSigner & PoolContractArgs['removeEntry(address,uint64)void'];
+
+/** What `abortRound` does with a Rewards disbursement the round already created. */
+export enum AbortRoundMode {
+  /** leave it untouched (e.g. it lives on a previous Rewards app) */
+  Leave = 0,
+  /** finalize it so the allocations already written become claimable */
+  Finalize = 1,
+  /** close it (only when it has no allocations) */
+  Close = 2,
+}
+
+export type AbortRoundParams = MaybeSigner & { rewardId: bigint | number; mode: AbortRoundMode | bigint | number };
+
+export type ReclaimRoundParams = MaybeSigner & {
+  disbursementId: bigint | number;
+  reclaims: { address: string; asset: bigint | number }[];
+  close: boolean;
+};
 
 export type CheckResult = {
   isEligible: boolean;

@@ -101,3 +101,57 @@ export const PoolDisbursementSMBR: uint64 = 6_100
 
 
 export const WinnerCountCap: uint64 = 10
+
+// --- 2026-10 audit fixes: new boxes (existing children stay layout-compatible) ---------------------
+/** single box: number of reward rounds outside Idle (H-4) */
+export const PoolBoxKeyActiveRounds = 'x'
+/** rewardID -> amount of the reward asset reserved for that reward (M-5) */
+export const PoolBoxPrefixBudgets = 'b'
+/** asset -> sum of all reward budgets in that asset (M-5) */
+export const PoolBoxPrefixCommitted = 'c'
+/** rewardID -> amount allocated in the open round (M-1) */
+export const PoolBoxPrefixRoundPaid = 'p'
+/** Rewards disbursementID -> rewardID for finalized rounds (M-5 reclaim) */
+export const PoolBoxPrefixRoundRewards = 'w'
+
+/** 2_500 + 400 * (1 + 8 + 8) */
+export const PoolUint64BoxMapMBR: uint64 = 9_300
+/** 2_500 + 400 * (1 + 8) */
+export const PoolActiveRoundsMBR: uint64 = 6_100
+/** Minimum reward expiration window (L-1). */
+export const MinRewardExpiration: uint64 = 3_600
+/** Grace period entrants get after `endPool` on a perpetual pool (M-5). */
+export const EndPoolGracePeriod: uint64 = 604_800
+
+// --- Principal resolution (docs/principal-resolution/PHASE-0-SPEC.md §6.5, Q11, Q14) ---------------
+/**
+ * Child global uint ABI marker. Present (= `PoolPrincipalVersion`) only on children built with the
+ * hinted `gatedEnter(…,uint64)` / `enterCost(…,uint64)` and the legacy shims. Plugins and the SDK
+ * read it with `app_global_get_ex` to pick the ABI; older children do not have the key.
+ */
+export const PoolGlobalStateKeyPrincipalVersion = 'pv'
+export const PoolPrincipalVersion: uint64 = 1
+/** entrant address -> stored pair `(W, principal)` written at gated entry (§3.8 rule 2) */
+export const PoolBoxPrefixPrincipals = 'i'
+/** `'i'` box: 2_500 + 400 * ((1 + 32) + (8 + 32)) */
+export const PoolPrincipalsMBR: uint64 = 31_700
+/**
+ * Q14: an `entries` box is `'e'` + uint64 key (9 B) plus the `EntryData` head (address 32 + asset 8 +
+ * quantity 8 + gateArgs offset 2 + packed bools 1 = 51 B), plus the ARC-4 encoded `gateArgs` (its
+ * 2-byte length prefix included). Exact MBR: 2_500 + 400 * (60 + encodedLen(gateArgs)).
+ */
+export const PoolEntriesFixedBytes: uint64 = 60
+/** Q14: exact `entries` MBR for an entry stored with no gate args (60 + 2 bytes). */
+export const PoolEntriesBaseMBR: uint64 = 27_300
+/** Q14: exact `entriesByAddress` MBR: 2_500 + 400 * ((1 + 32 + 8) + 8) */
+export const PoolEntriesByAddressExactMBR: uint64 = 22_100
+
+// VRF draw for shuffle rewards (TRADE-3, same timing as the auction and raffle). The MainNet beacon
+// (1615566206) stores one value per multiple of BEACON_ROUND_INTERVAL rounds and submits it about 2
+// rounds later. Allocation commits to the first stored round at least DRAW_DELAY_ROUNDS ahead; the
+// draw may read it BEACON_LAG_ROUNDS after that round. An empty read reverts until
+// BEACON_MAX_WAIT_ROUNDS have passed (inside the beacon's ~1,512-round window), then re-commits.
+export const DRAW_DELAY_ROUNDS: uint64 = 8
+export const BEACON_ROUND_INTERVAL: uint64 = 8
+export const BEACON_LAG_ROUNDS: uint64 = 4
+export const BEACON_MAX_WAIT_ROUNDS: uint64 = 1_000

@@ -10,13 +10,13 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the StakingPool
  * contracts can emit. Ordered roughly the same way as the contract-side file.
  */
-export const STAKING_POOL_ERROR_MESSAGES: Record<string, string> = {
+export const STAKING_POOL_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Reward validation --------------------------------------------------
   SKYR: 'Stake key required',
   RMGZ: 'Rate must be greater than zero',
@@ -70,7 +70,24 @@ export const STAKING_POOL_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Staking-pool plugin ------------------------------------------------
   NVPL: 'Not a valid staking pool',
-}
+
+  // --- 2026-10 audit fixes ------------------------------------------------
+  ROPN: 'A reward round is open; entries, checks and removals are frozen until it closes',
+  RBUD: 'Reward budget is too small',
+  PNEN: 'Pool must be a draft or past its end',
+  ABRT: 'Only the creator or the DAO wallet can abort a round',
+  TYRQ: 'Typed staking pools require an asset stake key',
+  IQTY: 'Staked quantity must be positive',
+  IVTP: 'Invalid pool staking type',
+  IRTM: 'Reward interval must be positive and expiration at least one hour',
+  SHFX: 'Shuffle ran out of entries before placing every ticket',
+  NSHF: 'Raffle only applies to shuffle rewards',
+  NENT: 'Only the entrant can remove an entry before the pool ends',
+  ACMT: 'Asset is still reserved by a reward budget',
+  ENFD: 'Entry not found',
+  SVWT: 'SOFT pools only support flat and even rewards',
+  BNRD: 'The shuffle draw is not ready: wait for drawReadyRound()',
+})
 
 /**
  * Translates a short StakingPool error code (or raw ARC-65 log entry) into a
