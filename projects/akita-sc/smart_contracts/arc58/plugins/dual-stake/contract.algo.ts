@@ -2,7 +2,7 @@ import { abimethod, Application, Bytes, GlobalState, itxn, itxnCompose, loggedAs
 import { abiCall, Contract } from '@algorandfoundation/algorand-typescript/arc4';
 import { getSpendingAccount, rekeyAddress } from '../../../utils/functions';
 import { DualStakeGlobalStateKeyAsaID, DualStakeGlobalStateKeyRatePrecision, DualStakePluginGlobalStateKey, DualStakePluginGlobalStateKeyLSTID } from './constants';
-import { ERR_NOT_A_DUALSTAKE_APP, ERR_NOT_ENOUGH_OF_ASA } from './errors';
+import { errNotADualstakeApp, errNotEnoughOfAsa } from './errors';
 
 // CONTRACT IMPORTS
 import type { DualStake } from '../../../utils/types/dual-stake';
@@ -31,7 +31,7 @@ export class DualStakePlugin extends Contract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
 
     itxnCompose.begin(
       itxn.payment({
@@ -56,7 +56,7 @@ export class DualStakePlugin extends Contract {
       const asaAmount: uint64 = op.divw(...op.mulw(amount, rate), precision) + 1
 
       const [holdings, isOptedIn] = op.AssetHolding.assetBalance(sender, asaID)
-      loggedAssert(isOptedIn && holdings >= asaAmount, ERR_NOT_ENOUGH_OF_ASA)
+      loggedAssert(isOptedIn && holdings >= asaAmount, errNotEnoughOfAsa)
 
       itxnCompose.next(
         itxn.assetTransfer({
@@ -86,7 +86,7 @@ export class DualStakePlugin extends Contract {
   redeem(wallet: Application, rekeyBack: boolean, appId: Application, amount: uint64): void {
     const sender = getSpendingAccount(wallet)
 
-    loggedAssert(this.registry.value.address === appId.creator, ERR_NOT_A_DUALSTAKE_APP)
+    loggedAssert(this.registry.value.address === appId.creator, errNotADualstakeApp)
     
     const dualStakeTokenId: uint64 = op.AppGlobal.getExUint64(appId, Bytes(DualStakePluginGlobalStateKeyLSTID))[0]
 

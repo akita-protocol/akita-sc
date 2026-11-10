@@ -23,6 +23,7 @@ The table below is a conservative source scan: a method is marked as a gap when 
 | `dao` | `setup`, `newProposal`, `editProposal`, `submitProposal`, `voteProposal`, `finalizeProposal`, `executeProposal` |
 | `dual-stake` | `mint` success path, `redeem` success path |
 | `gate` | None found |
+| `guild` | `guild/guild.e2e.spec.ts`: `newGuild`, `configureConsensus`, `setWallet`, `setup`, `setProposalSettings`, `setConsensusActionSettings`, `setProposalActionLimit`, `lockPluginSet`, `partiallyInitialize`, `initialize`, `newProposal`, `editProposal`, `deleteProposal`, `submitProposal`, `voteProposal`, `finalizeProposal`, `executeProposal`, `cleanupProposalConsensus`, `sweep`, `opUp` |
 | `hyper-swap` | None found |
 | `marketplace` | None |
 | `nfd` | `deleteFields`, `updateFields`, `offerForSale`, `cancelSale`, `postOffer`, `purchase`, `updateHash`, `contractLock`, `segmentLock`, `vaultOptInLock`, `vaultOptIn`, `vaultSend`, `renew`, `setPrimaryAddress` |

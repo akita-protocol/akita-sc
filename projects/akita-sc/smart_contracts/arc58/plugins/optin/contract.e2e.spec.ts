@@ -1,20 +1,28 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { AsaManagerPluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress} from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { expectContractError } from '../../../../tests/utils/errors';
+import { errAlreadyOptedIn } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
 
+// newAccount still pre-funds ARC58WalletIDsByAccountsMbr (Phase 4 removes it). Only the legacy register()
+// spends it, and newWallet no longer registers on LocalNet (REGISTRY_WRITES_STOPPED), so the wallet holds
+// exactly this much above its minimum balance. See arc58/account/contract.e2e.spec.ts.
+const REGISTRATION_PREFUND = 12_100n
+
 describe('Optin plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let asaMintSdk: AsaManagerPluginSDK;
@@ -28,8 +36,8 @@ describe('Optin plugin contract', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -64,7 +72,7 @@ describe('Optin plugin contract', () => {
       let mbr = await wallet.getMbr({ escrow, methodCount: 0n, plugin: '', groups: 0n });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
       const fundAmount = mbr.plugins + mbr.newEscrowMintCost;
 
@@ -79,7 +87,8 @@ describe('Optin plugin contract', () => {
       });
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+      // newEscrowMintCost also pre-funds the escrow's registration, which addPlugin no longer spends.
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + 2n * REGISTRATION_PREFUND);
 
       const escrowInfo = await wallet.getEscrow(escrow);
       const escrowAddress = getApplicationAddress(escrowInfo.id).toString();
@@ -129,13 +138,16 @@ describe('Optin plugin contract', () => {
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
       expect(walletInfo?.assets?.length).toBe(1);
 
-      await wallet.usePlugin({
+      const balanceBeforeDuplicate = walletInfo.balance.microAlgos;
+      await expectContractError(wallet.usePlugin({
         callerType: CallerType.Global,
-        calls: [optinSdk.optOut({ assets: [takta] })]
-      });
+        calls: [optinSdk.optIn({ assets: [takta] })]
+      }), errAlreadyOptedIn);
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletInfo.assets?.some(({ assetId }) => assetId === takta)).toBe(false);
+      expect(walletInfo.assets?.some(({ assetId }) => assetId === takta)).toBe(true);
+      expect(walletInfo.balance.microAlgos).toBe(balanceBeforeDuplicate);
+      expect(walletInfo.authAddr).toBeUndefined();
     });
   });
 });

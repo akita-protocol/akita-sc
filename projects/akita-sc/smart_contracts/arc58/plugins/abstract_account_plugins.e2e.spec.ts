@@ -1,7 +1,7 @@
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils';
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
+import { afterAll, beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, OptInPluginSDK, PayPluginSDK, WalletFactorySDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account';
@@ -9,7 +9,8 @@ import { deployAkitaDAO } from '../../../tests/fixtures/dao';
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow';
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin';
 import { deployPayPlugin } from '../../../tests/fixtures/plugins/pay';
-import { ERR_PLUGIN_DOES_NOT_EXIST } from '../account/errors';
+import { errPluginDoesNotExist } from '../account/errors';
+import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient';
 
 /**
  * Abstracted Account Plugin Tests
@@ -34,8 +35,10 @@ describe('Abstracted Account Plugins', () => {
   let payPluginSdk: PayPluginSDK;
   /** test asset for opt-in tests */
   let testAsset: bigint;
+  let previousWalletMbrAppId: string | undefined;
 
   beforeAll(async () => {
+    previousWalletMbrAppId = process.env.WALLET_MBR_APP_ID;
     Config.configure({
       debug: true,
       // traceAll: true,
@@ -51,7 +54,13 @@ describe('Abstracted Account Plugins', () => {
     const signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
+    const mbrFactory = algorand.client.getTypedAppFactory(AbstractedAccountMbrFactory, {
+      defaultSender: sender,
+      defaultSigner: signer,
+    });
+    process.env.WALLET_MBR_APP_ID = (await mbrFactory.send.create.bare()).appClient.appId.toString();
 
     const dao = await deployAkitaDAO({
       fixture: localnet,
@@ -89,7 +98,12 @@ describe('Abstracted Account Plugins', () => {
       assetName: 'Test Asset',
       unitName: 'TEST',
     });
-    testAsset = BigInt(assetResult.confirmation.assetId!);
+    testAsset = BigInt(assetResult.confirmation.assetIndex!);
+  });
+
+  afterAll(() => {
+    if (previousWalletMbrAppId === undefined) delete process.env.WALLET_MBR_APP_ID;
+    else process.env.WALLET_MBR_APP_ID = previousWalletMbrAppId;
   });
 
   beforeEach(async () => {
@@ -102,7 +116,7 @@ describe('Abstracted Account Plugins', () => {
     const signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
 
     wallet = await newWallet({
       factoryParams: {
@@ -463,7 +477,7 @@ describe('Abstracted Account Plugins', () => {
         error = e.message;
       }
 
-      expect(error).toContain(ERR_PLUGIN_DOES_NOT_EXIST);
+      expect(error).toContain(errPluginDoesNotExist);
     });
   });
 

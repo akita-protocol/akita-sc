@@ -1,6 +1,6 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact';
+import { TransactionSignerAccount as AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ALGORAND_ZERO_ADDRESS_STRING} from 'algosdk';
@@ -9,6 +9,11 @@ import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/da
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
+
+// newAccount still pre-funds ARC58WalletIDsByAccountsMbr (Phase 4 removes it). Only the legacy register()
+// spends it, and newWallet no longer registers on LocalNet (REGISTRY_WRITES_STOPPED), so the wallet holds
+// exactly this much above its minimum balance. See arc58/account/contract.e2e.spec.ts.
+const REGISTRATION_PREFUND = 12_100n
 
 describe('ASA Manager plugin contract', () => {
   let deployer: AddressWithTransactionSigner;
@@ -61,7 +66,7 @@ describe('ASA Manager plugin contract', () => {
       const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
 
       let walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
       const fundAmount = mbr.plugins;
 
@@ -77,7 +82,7 @@ describe('ASA Manager plugin contract', () => {
       });
 
       walletInfo = await algorand.account.getInformation(wallet.client.appAddress);
-      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos);
+      expect(walletInfo.balance.microAlgos).toEqual(walletInfo.minBalance.microAlgos + REGISTRATION_PREFUND);
 
       const results = await wallet.usePlugin({
         callerType: CallerType.Global,

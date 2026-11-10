@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { ReceiveEscrow, RevenueManagerPluginArgs, RevenueManagerPluginClient, RevenueManagerPluginFactory, SplitRef } from "../../generated/RevenueManagerPluginClient"
 import { BaseSDK } from "../../base";
 import { MaybeSigner, NewContractSDKParams, PluginHookParams, PluginSDKReturn } from "../../types";
@@ -72,6 +72,19 @@ type FinalizeEscrowDisbursementContractArgs = (
   & MaybeSigner
   & { rekeyBack?: boolean }
   & { ids: bigint[] }
+)
+
+type SkipEscrowAllocationContractArgs = (
+  Omit<ContractArgs['skipEscrowAllocation(uint64,bool,string,uint64[])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
+  & { ids: bigint[] }
+)
+
+type UpdateSplitsContractArgs = (
+  Omit<ContractArgs['updateSplits(uint64,bool,string,((uint64,string),uint8,uint64)[])void'], 'wallet' | 'rekeyBack'>
+  & MaybeSigner
+  & { rekeyBack?: boolean }
 )
 
 export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient> {
@@ -346,6 +359,70 @@ export class RevenueManagerPluginSDK extends BaseSDK<RevenueManagerPluginClient>
           type: 'methodCall',
           ...params
         }]
+      }
+    });
+  }
+
+  /**
+   * DAO-only escape hatch: mark assets of `escrow` as handled for the current cycle
+   * without transferring (balances roll over). Must be called through the DAO wallet's
+   * main-account (execution-key) grant.
+   */
+  skipEscrowAllocation(): PluginSDKReturn
+  skipEscrowAllocation(args: SkipEscrowAllocationContractArgs): PluginSDKReturn
+  skipEscrowAllocation(args?: SkipEscrowAllocationContractArgs): PluginSDKReturn {
+    const methodName = 'skipEscrowAllocation';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, escrow, ids } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.skipEscrowAllocation({
+          ...sendParams,
+          args: { wallet, rekeyBack, escrow, ids }
+        })
+        return [{ type: 'methodCall', ...params }]
+      }
+    });
+  }
+
+  /** DAO-wallet only: replace the splits of an idle receive escrow (drops any split reference). */
+  updateSplits(): PluginSDKReturn
+  updateSplits(args: UpdateSplitsContractArgs): PluginSDKReturn
+  updateSplits(args?: UpdateSplitsContractArgs): PluginSDKReturn {
+    const methodName = 'updateSplits';
+    if (args === undefined) {
+      return () => ({
+        appId: this.client.appId,
+        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        getTxns
+      });
+    }
+
+    const { sender, signer, escrow, splits } = args;
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    return () => ({
+      appId: this.client.appId,
+      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      getTxns: async ({ wallet }: PluginHookParams) => {
+        const rekeyBack = args.rekeyBack ?? true;
+        const params = await this.client.params.updateSplits({
+          ...sendParams,
+          args: { wallet, rekeyBack, escrow, splits }
+        })
+        return [{ type: 'methodCall', ...params }]
       }
     });
   }

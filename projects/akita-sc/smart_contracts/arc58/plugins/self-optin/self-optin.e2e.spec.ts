@@ -1,11 +1,12 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { Address, SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import algosdk from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { CallerType, newWallet, SelfOptInPluginSDK, WalletSDK } from 'akita-sdk/wallet';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
-import { ERR_ALREADY_OPTED_IN } from './errors';
+import { errAlreadyOptedIn } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -32,14 +33,14 @@ const createAsset = async ({
     unitName: 'SELF',
   });
 
-  return BigInt(result.confirmation.assetId!);
+  return BigInt(result.confirmation.assetIndex!);
 };
 
 describe('Self opt-in plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let selfOptInPluginSdk: SelfOptInPluginSDK;
@@ -52,8 +53,8 @@ describe('Self opt-in plugin contract', () => {
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     akitaUniverse = await buildAkitaUniverse({
       fixture,
@@ -157,7 +158,7 @@ describe('Self opt-in plugin contract', () => {
           callerType: CallerType.Global,
           calls: [selfOptInPluginSdk.optIn({ assets: [assetId] })],
         })
-      ).rejects.toThrow(ERR_ALREADY_OPTED_IN);
+      ).rejects.toThrow(errAlreadyOptedIn);
     });
   });
 });

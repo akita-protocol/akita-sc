@@ -1,30 +1,148 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
-import { ABIAddressType, ABIStringType, ABITupleType, ABIUintType } from '@algorandfoundation/algokit-utils/abi';
+import { ABIAddressType, ABIStringType, ABITupleType, ABIUintType, ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, RevenueManagerPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
-import algosdk from 'algosdk';
+import { PluginSDKReturn, sendPrepared } from 'akita-sdk';
+import { ProposalActionEnum } from 'akita-sdk/dao';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { proposeAndExecute } from '../../../../scripts/utils';
+import { expectContractError } from '../../../../tests/utils/errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
 const fixture = algorandFixture();
 const BOX_BASE_MBR = 2_500n;
 const BOX_BYTE_MBR = 400n;
+const REMAINDER = 30n;
+const PERCENTAGE = 20n;
+const FLAT = 10n;
 
+type SplitArg = [[bigint, string], bigint, bigint];
+
+/**
+ * Revenue Manager configuration is DAO-wallet only (F2): every persistent box
+ * is funded by the plugin's own account. Configuration therefore runs through
+ * the DAO wallet's execution-key grant (proposal + prepared group), while the
+ * per-escrow public grant (optIn/start/process/finalize) is exercised directly.
+ */
 describe('RevenueManager plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
-  let wallet: WalletSDK;
-  let revenueManagerPluginSdk: RevenueManagerPluginSDK;
+  let userWallet: WalletSDK;
+  let daoWallet: WalletSDK;
+  let rm: RevenueManagerPluginSDK;
   let testAssetId: bigint;
   let unmanagedAssetId: bigint;
-  const revenueEscrow = 'rev_test';
-  const disbursementEscrow = 'rev_disburse';
+  let leaseCounter = 0;
+
+  const ESCROWS = {
+    test: 'rev_test',
+    ref: 'rev_ref',
+    migrated: 'rev_migrated',
+    disburse: 'rev_disburse',
+    skip: 'rev_skip',
+    rounding: 'rev_rounding',
+  };
+  const RECEIVER_OPTED = 'rcv_opt';
+  const RECEIVER_NOT_OPTED = 'rcv_no';
+
+  // ── DAO wallet helpers ────────────────────────────────────────────────────
+
+  const ensureDaoExecutionFunds = async () => {
+    const admin = (await daoWallet.client.state.global.admin())!;
+    await algorand.account.ensureFunded(admin, dispenser.addr, (5).algo());
+    await algorand.account.ensureFunded(daoWallet.client.appAddress, dispenser.addr, (20).algo());
+    // The DAO funds the plugin's own account, which pays every box MBR (F2).
+    await algorand.account.ensureFunded(rm.client.appAddress, dispenser.addr, (1).algo());
+  };
+
+  /** Simulate-only build through the DAO wallet's execution-key grant; rejects on invalid calls. */
+  const daoBuild = async (calls: PluginSDKReturn[]) => {
+    await ensureDaoExecutionFunds();
+    leaseCounter += 1;
+    return daoWallet.build.usePlugin({
+      sender: deployer.addr,
+      signer: deployer.signer,
+      lease: `rm_spec_${Date.now() % 100_000}_${leaseCounter}`,
+      callerType: CallerType.Global,
+      windowSize: 2000n,
+      calls,
+    });
+  };
+
+  /** Authorize via DAO proposal and send through the DAO wallet's execution-key grant. */
+  const daoExecute = async (calls: PluginSDKReturn[]) => {
+    const build = await daoBuild(calls);
+    await proposeAndExecute(algorand, akitaUniverse.dao, [{
+      type: ProposalActionEnum.ExecutePlugin,
+      plugin: rm.appId,
+      caller: deployer.addr.toString(),
+      escrow: '',
+      executionKey: build.lease,
+      groups: build.ids,
+      firstValid: build.firstValid,
+      lastValid: build.lastValid,
+    }]);
+    await sendPrepared(build.windows[0], algorand.client.algod);
+  };
+
+  /** Public per-escrow grant on the DAO wallet, called by `caller`. */
+  const daoEscrowCall = (escrow: string, calls: PluginSDKReturn[], caller: TransactionSignerAccount = user) =>
+    daoWallet.usePlugin({ sender: caller.addr, signer: caller.signer, callerType: CallerType.Global, escrow, calls });
+
+  const userSplit = (escrow: string, type: bigint, value: bigint): SplitArg => [[userWallet.appId, escrow], type, value];
+
+  const newEscrowCall = (escrow: string, splits: SplitArg[], opts: { allocatable?: boolean, optinAllowed?: boolean } = {}) =>
+    rm.newReceiveEscrow({
+      sender: deployer.addr,
+      signer: deployer.signer,
+      escrow,
+      source: user.addr.toString(),
+      allocatable: opts.allocatable ?? true,
+      optinAllowed: opts.optinAllowed ?? true,
+      splits,
+    });
+
+  // ── State helpers ─────────────────────────────────────────────────────────
+
+  const getReceiveEscrow = async (escrow: string, walletId = daoWallet.appId) => {
+    try {
+      return await rm.client.state.box.escrows.value({ wallet: walletId, escrow });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('box not found')) return undefined;
+      throw error;
+    }
+  };
+
+  const getBox = async (boxName: Uint8Array) =>
+    algorand.client.algod.getApplicationBoxByName(Number(rm.appId), boxName).do();
+
+  const getReceiveAssetBoxName = (escrowAddress: string, asset: bigint) => {
+    const key = new ABITupleType([new ABIAddressType(), new ABIUintType(64)]).encode([escrowAddress, asset]);
+    return new Uint8Array([...Buffer.from('a'), ...key]);
+  };
+
+  const getManagedAssetBoxName = (escrow: string, asset: bigint) => {
+    const key = new ABITupleType([new ABIUintType(64), new ABIStringType(), new ABIUintType(64)]).encode([
+      daoWallet.appId,
+      escrow,
+      asset,
+    ]);
+    return new Uint8Array([...Buffer.from('m'), ...key]);
+  };
+
+  const boxMbr = (boxName: Uint8Array, valueLength = 0n) => BOX_BASE_MBR + (BOX_BYTE_MBR * (BigInt(boxName.length) + valueLength));
+
+  const info = (address: string | import('algosdk').Address) => algorand.account.getInformation(address);
+  const assetAmount = (account: Awaited<ReturnType<typeof info>>, asset: bigint) =>
+    account.assets?.find((holding) => holding.assetId === asset)?.amount;
+
+  const escrowAddressOf = async (wallet: WalletSDK, escrow: string) => (await wallet.getEscrow(escrow)).address.toString();
 
   beforeAll(async () => {
     await fixture.newScope();
@@ -34,733 +152,330 @@ describe('RevenueManager plugin contract', () => {
     const ctx = fixture.context;
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    akitaUniverse = await buildAkitaUniverse({ fixture, sender: deployer.addr, signer: deployer.signer, apps: {} });
+    rm = akitaUniverse.revenueManagerPlugin;
+    daoWallet = akitaUniverse.dao.wallet;
 
-    // Build the full Akita DAO universe
-    akitaUniverse = await buildAkitaUniverse({
-      fixture,
-      sender: deployer.addr,
-      signer: deployer.signer,
-      apps: {},
-    });
+    testAssetId = BigInt((await algorand.send.assetCreate({
+      sender: deployer.addr, signer: deployer.signer, total: 1_000n, decimals: 0,
+      assetName: 'Revenue Manager Plugin Test', unitName: 'RMPT',
+    })).confirmation.assetIndex!);
+    unmanagedAssetId = BigInt((await algorand.send.assetCreate({
+      sender: deployer.addr, signer: deployer.signer, total: 1_000n, decimals: 0,
+      assetName: 'Unmanaged Revenue Test Asset', unitName: 'URTA',
+    })).confirmation.assetIndex!);
 
-    // Create a user wallet for testing
-    wallet = await newWallet({
+    // A regular (non-DAO) factory wallet: split receiver and F2 negative cases.
+    userWallet = await newWallet({
       algorand,
-      factoryParams: {
-        appId: akitaUniverse.walletFactory.appId,
-        defaultSender: user.addr,
-        defaultSigner: user.signer,
-      },
+      factoryParams: { appId: akitaUniverse.walletFactory.appId, defaultSender: user.addr, defaultSigner: user.signer },
       sender: user.addr,
       signer: user.signer,
       nickname: 'Test Wallet',
     });
+    await userWallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(100_000_000) });
+    await userWallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
+    await userWallet.usePlugin({ callerType: CallerType.Global, calls: [akitaUniverse.optInPlugin.optIn({ assets: [testAssetId] })] });
+    for (const escrow of [RECEIVER_OPTED, RECEIVER_NOT_OPTED]) {
+      await userWallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global, escrow, sender: user.addr, signer: user.signer });
+    }
+    await userWallet.usePlugin({ callerType: CallerType.Global, escrow: RECEIVER_OPTED, calls: [akitaUniverse.optInPlugin.optIn({ assets: [testAssetId] })] });
 
-    // Get plugin SDK and add it to the wallet once
-    revenueManagerPluginSdk = akitaUniverse.revenueManagerPlugin;
-    const mbr = await wallet.getMbr({ escrow: '', methodCount: 0n, plugin: '', groups: 0n });
-    await wallet.client.appClient.fundAppAccount({ amount: algokit.microAlgo(mbr.plugins + 100_000_000n) });
-    await wallet.addPlugin({ client: akitaUniverse.optInPlugin, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
-    await wallet.addPlugin({ client: revenueManagerPluginSdk, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
-
-    // The metadata is identity-bound to an existing ARC58 named escrow.
-    await installRevenueEscrowPlugin(revenueEscrow);
-
-    await wallet.usePlugin({
-      callerType: CallerType.Global,
-      calls: [
-        revenueManagerPluginSdk.newReceiveEscrow({
-          escrow: revenueEscrow,
-          source: user.addr.toString(),
-          allocatable: true,
-          optinAllowed: true,
-          splits: [
-            [[wallet.appId, ''], 30n, 0n],
+    // DAO receive escrows + their public, method-restricted RM grants.
+    await ensureDaoExecutionFunds();
+    const escrowNames = Object.values(ESCROWS);
+    for (let i = 0; i < escrowNames.length; i += 2) {
+      await proposeAndExecute(algorand, akitaUniverse.dao, escrowNames.slice(i, i + 2).flatMap((escrow) => [
+        { type: ProposalActionEnum.NewEscrow, escrow, address: ALGORAND_ZERO_ADDRESS_STRING },
+        {
+          type: ProposalActionEnum.AddPlugin,
+          client: rm,
+          callerType: CallerType.Global,
+          escrow,
+          sourceLink: 'https://github.com/kylebee/akita-sc',
+          useExecutionKey: false,
+          methods: [
+            { name: rm.optIn(), cooldown: 0n },
+            { name: rm.startEscrowDisbursement(), cooldown: 0n },
+            { name: rm.processEscrowAllocation(), cooldown: 0n },
+            { name: rm.finalizeEscrowDisbursement(), cooldown: 0n },
           ],
-        }),
-      ],
-    });
+        },
+      ]) as Parameters<typeof proposeAndExecute>[2]);
+    }
+    await daoWallet.getPlugins();
+    await daoWallet.getEscrows();
 
-    const assetCreate = await algorand.send.assetCreate({
-      sender: deployer.addr,
-      signer: deployer.signer,
-      total: 1_000n,
-      decimals: 0,
-      assetName: 'Revenue Manager Plugin Test',
-      unitName: 'RMPT',
-    });
-    testAssetId = BigInt(assetCreate.confirmation.assetId!);
-
-    const unmanagedAssetCreate = await algorand.send.assetCreate({
-      sender: deployer.addr,
-      signer: deployer.signer,
-      total: 1_000n,
-      decimals: 0,
-      assetName: 'Unmanaged Revenue Test Asset',
-      unitName: 'URTA',
-    });
-    unmanagedAssetId = BigInt(unmanagedAssetCreate.confirmation.assetId!);
+    await daoExecute([newEscrowCall(ESCROWS.test, [userSplit('', REMAINDER, 0n)])]);
   });
 
   beforeEach(fixture.newScope);
 
-  describe('RevenueManagerPlugin SDK', () => {
-    test('plugin can be added to wallet', async () => {
-      // Verify the plugin was successfully added
-      const plugins = await wallet.getPlugins();
-      expect(plugins.size).toBeGreaterThanOrEqual(2);
-      expect(revenueManagerPluginSdk.appId).toBeGreaterThan(0n);
-    });
+  describe('F2: configuration is DAO-wallet only', () => {
+    test('rejects every configuration path from a non-DAO wallet without touching plugin state', async () => {
+      const escrow = 'user_rev';
+      await userWallet.addPlugin({ client: rm, callerType: CallerType.Global, sender: user.addr, signer: user.signer });
+      await userWallet.addPlugin({ client: rm, callerType: CallerType.Global, escrow, sender: user.addr, signer: user.signer });
+      const pluginBefore = await info(rm.client.appAddress);
 
-    test('creates receive escrow metadata with direct splits', async () => {
-      const state = await getReceiveEscrow(revenueEscrow);
+      const attempts: PluginSDKReturn[] = [
+        rm.newReceiveEscrow({ escrow, source: user.addr.toString(), allocatable: true, optinAllowed: true, splits: [userSplit('', REMAINDER, 0n)] }),
+        rm.newReceiveEscrowWithRef({
+          escrow, source: user.addr.toString(), allocatable: true, optinAllowed: true,
+          splitRef: { app: akitaUniverse.dao.appId, key: new Uint8Array(Buffer.from('revenue_splits')) },
+        }),
+        rm.migrateReceiveEscrow({
+          escrow,
+          receiveEscrow: {
+            source: user.addr.toString(), allocatable: true, optinAllowed: true, optinCount: 0n,
+            phase: 0, allocationCounter: 0n, lastDisbursement: 0n, creationDate: 1_600_000_000n,
+          },
+          assets: [], splits: [userSplit('', REMAINDER, 0n)], splitRef: { app: 0n, key: new Uint8Array() }, useSplitRef: false,
+        }),
+        rm.updateSplits({ escrow, splits: [userSplit('', REMAINDER, 0n)] }),
+        rm.skipEscrowAllocation({ escrow, ids: [0n] }),
+      ];
+      for (const call of attempts) {
+        await expectContractError(userWallet.usePlugin({ callerType: CallerType.Global, calls: [call] }), 'errForb');
+      }
 
-      expect(state?.source).toBe(user.addr.toString());
-      expect(state?.allocatable).toBe(true);
-      expect(state?.optinAllowed).toBe(true);
-      expect(state?.phase).toBe(0);
-
-      const splits = await revenueManagerPluginSdk.client.state.box.splits.value({
-        wallet: wallet.appId,
-        escrow: revenueEscrow,
-      });
-      expect(splits).toEqual([[[wallet.appId, ''], 30, 0n]]);
-    });
-
-    test('rejects unauthorized, duplicate, and malformed receive-escrow configurations atomically', async () => {
-      const unauthorizedEscrow = 'rev_unauthorized';
-      await installRevenueEscrowPlugin(unauthorizedEscrow);
-
-      await expect(revenueManagerPluginSdk.client.send.newReceiveEscrow({
-        sender: user.addr,
-        signer: user.signer,
-        args: {
-          wallet: wallet.appId,
-          rekeyBack: false,
-          escrow: unauthorizedEscrow,
-          source: user.addr.toString(),
-          allocatable: true,
-          optinAllowed: true,
-          splits: [[[wallet.appId, ''], 30, 0n]],
-        },
-      })).rejects.toThrow();
-      expect(await getReceiveEscrow(unauthorizedEscrow)).toBeUndefined();
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrow({
-            escrow: revenueEscrow,
-            source: deployer.addr.toString(),
-            allocatable: false,
-            optinAllowed: false,
-            splits: [[[wallet.appId, ''], 30n, 0n]],
-          }),
-        ],
-      })).rejects.toThrow();
-      expect(await getReceiveEscrow(revenueEscrow)).toMatchObject({
-        source: user.addr.toString(),
-        allocatable: true,
-        optinAllowed: true,
-      });
-
-      const malformedEscrow = 'rev_malformed';
-      await installRevenueEscrowPlugin(malformedEscrow);
-      const configure = (splits: [[bigint, string], bigint, bigint][]) => wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrow({
-            escrow: malformedEscrow,
-            source: user.addr.toString(),
-            allocatable: true,
-            optinAllowed: true,
-            splits,
-          }),
-        ],
-      });
-
-      await expect(configure([])).rejects.toThrow();
-      await expect(configure([[[wallet.appId, ''], 99n, 1n]])).rejects.toThrow();
-      await expect(configure([[[wallet.appId, ''], 10n, 1n]])).rejects.toThrow();
-      await expect(configure([[[wallet.appId, 'missing_receiver'], 30n, 0n]])).rejects.toThrow();
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrowWithRef({
-            escrow: malformedEscrow,
-            source: user.addr.toString(),
-            allocatable: true,
-            optinAllowed: true,
-            splitRef: { app: 0n, key: new Uint8Array() },
-          }),
-        ],
-      })).rejects.toThrow();
-
-      expect(await getReceiveEscrow(malformedEscrow)).toBeUndefined();
-      await expect(revenueManagerPluginSdk.client.state.box.splits.value({
-        wallet: wallet.appId,
-        escrow: malformedEscrow,
-      })).rejects.toThrow('box not found');
-      await expect(revenueManagerPluginSdk.client.state.box.splitRefs.value({
-        wallet: wallet.appId,
-        escrow: malformedEscrow,
-      })).rejects.toThrow('box not found');
-    });
-
-    test('creates receive escrow metadata with a split reference', async () => {
-      const escrow = 'rev_ref';
-      await installRevenueEscrowPlugin(escrow);
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrowWithRef({
-            escrow,
-            source: user.addr.toString(),
-            allocatable: false,
-            optinAllowed: false,
-            splitRef: {
-              app: akitaUniverse.dao.appId,
-              key: new Uint8Array(Buffer.from('revenue_splits')),
-            },
-          }),
-        ],
-      });
-
-      const state = await getReceiveEscrow(escrow);
-      expect(state?.source).toBe(user.addr.toString());
-      expect(state?.allocatable).toBe(false);
-      expect(state?.optinAllowed).toBe(false);
-
-      const splitRef = await revenueManagerPluginSdk.client.state.box.splitRefs.value({
-        wallet: wallet.appId,
-        escrow,
-      });
-      expect(splitRef?.app).toBe(akitaUniverse.dao.appId);
-      expect(Buffer.from(splitRef?.key ?? []).toString()).toBe('revenue_splits');
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow,
-        calls: [revenueManagerPluginSdk.optIn({ assets: [testAssetId] })],
-      })).rejects.toThrow();
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow,
-        calls: [revenueManagerPluginSdk.startEscrowDisbursement({})],
-      })).rejects.toThrow();
-      expect(await getReceiveEscrow(escrow)).toMatchObject({
-        optinCount: 0n,
-        phase: 0,
-        allocationCounter: 0n,
-      });
-    });
-
-    test('migrates receive escrow metadata exactly and cannot overwrite it', async () => {
-      const escrow = 'rev_migrated';
-      await installRevenueEscrowPlugin(escrow);
-      const receiveEscrow = {
-        source: user.addr.toString(),
-        allocatable: true,
-        optinAllowed: true,
-        optinCount: 0n,
-        phase: 0,
-        allocationCounter: 0n,
-        lastDisbursement: 1_700_000_000n,
-        creationDate: 1_600_000_000n,
-      };
-      const splitRef = {
-        app: akitaUniverse.dao.appId,
-        key: new Uint8Array(Buffer.from('revenue_splits')),
-      };
-      const migrationSdk = revenueManagerPluginSdk as RevenueManagerPluginSDK & {
-        migrateReceiveEscrow(args: {
-          escrow: string;
-          receiveEscrow: typeof receiveEscrow;
-          assets: bigint[];
-          splits: [];
-          splitRef: typeof splitRef;
-          useSplitRef: boolean;
-        }): ReturnType<RevenueManagerPluginSDK['newReceiveEscrow']>;
-      };
-      const migrate = () => wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          migrationSdk.migrateReceiveEscrow({
-            escrow,
-            receiveEscrow,
-            assets: [],
-            splits: [],
-            splitRef,
-            useSplitRef: true,
-          }),
-        ],
-      });
-
-      await migrate();
-
-      expect(await getReceiveEscrow(escrow)).toEqual(receiveEscrow);
-      expect(await revenueManagerPluginSdk.client.state.box.splitRefs.value({
-        wallet: wallet.appId,
-        escrow,
-      })).toEqual(splitRef);
-      await expect(migrate()).rejects.toThrow();
-
-      const invalidEscrow = 'rev_bad_migration';
-      await installRevenueEscrowPlugin(invalidEscrow);
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          migrationSdk.migrateReceiveEscrow({
-            escrow: invalidEscrow,
-            receiveEscrow: { ...receiveEscrow, optinCount: 1n },
-            assets: [],
-            splits: [],
-            splitRef,
-            useSplitRef: true,
-          }),
-        ],
-      })).rejects.toThrow();
-      expect(await getReceiveEscrow(invalidEscrow)).toBeUndefined();
-      await expect(revenueManagerPluginSdk.client.state.box.splitRefs.value({
-        wallet: wallet.appId,
-        escrow: invalidEscrow,
-      })).rejects.toThrow('box not found');
-    });
-
-    test('opts the receive escrow into assets and tracks opt-in count', async () => {
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: revenueEscrow,
-        calls: [revenueManagerPluginSdk.optIn({ assets: [] })],
-      })).rejects.toThrow();
-
-      await expect(wallet.usePlugin({
-        sender: deployer.addr,
-        signer: deployer.signer,
-        callerType: CallerType.Global,
-        escrow: revenueEscrow,
-        calls: [
-          revenueManagerPluginSdk.optIn({
-            sender: deployer.addr,
-            signer: deployer.signer,
-            assets: [testAssetId],
-          }),
-        ],
-      })).rejects.toThrow();
-      expect((await getReceiveEscrow(revenueEscrow))?.optinCount).toBe(0n);
-
-      const pluginBefore = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: revenueEscrow,
-        calls: [
-          revenueManagerPluginSdk.optIn({
-            assets: [testAssetId],
-          }),
-        ],
-      });
-
-      const escrowInfo = await wallet.getEscrow(revenueEscrow);
-      const escrowAddress = escrowInfo.address.toString();
-      const accountInfo = await algorand.account.getInformation(escrowAddress);
-      const pluginAfter = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      const managedBoxName = getManagedAssetBoxName(revenueEscrow, testAssetId);
-
-      expect(accountInfo.assets?.some((asset) => asset.assetId === testAssetId)).toBe(true);
-      expect((await getReceiveEscrow(revenueEscrow))?.optinCount).toBe(1n);
-      await expect(getBox(managedBoxName)).resolves.toBeDefined();
-      expect(pluginAfter.minBalance.microAlgos - pluginBefore.minBalance.microAlgos).toBe(boxMbr(managedBoxName));
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: revenueEscrow,
-        calls: [revenueManagerPluginSdk.optIn({ assets: [testAssetId] })],
-      })).rejects.toThrow();
-      expect((await getReceiveEscrow(revenueEscrow))?.optinCount).toBe(1n);
-    });
-
-    test('walks an escrow disbursement through allocation and finalization', async () => {
-      await installRevenueEscrowPlugin(disbursementEscrow);
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrow({
-            escrow: disbursementEscrow,
-            source: user.addr.toString(),
-            allocatable: true,
-            optinAllowed: true,
-            splits: [
-              [[wallet.appId, ''], 30n, 0n],
-            ],
-          }),
-        ],
-      });
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [
-          revenueManagerPluginSdk.optIn({
-            assets: [testAssetId],
-          }),
-        ],
-      });
-
-      // Opt into a second ASA through the generic plugin. It is a real holding
-      // but deliberately is not registered in RevenueManager's managed set.
-      await wallet.addPlugin({
-        client: akitaUniverse.optInPlugin,
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        sender: user.addr,
-        signer: user.signer,
-        methods: [{ name: akitaUniverse.optInPlugin.optIn(), cooldown: 0n }],
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [akitaUniverse.optInPlugin.optIn({ assets: [unmanagedAssetId] })],
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          akitaUniverse.optInPlugin.optIn({
-            assets: [testAssetId],
-          }),
-        ],
-      });
-
-      const escrowInfo = await wallet.getEscrow(disbursementEscrow);
-      const escrowAddress = escrowInfo.address.toString();
-      const recipientAddress = (await wallet.client.state.global.controlledAddress())!;
-
-      await algorand.send.payment({
-        sender: user.addr,
-        signer: user.signer,
-        receiver: escrowAddress,
-        amount: algokit.microAlgo(2_000_000),
-      });
-      await algorand.send.assetTransfer({
-        sender: deployer.addr,
-        signer: deployer.signer,
-        receiver: escrowAddress,
-        assetId: testAssetId,
-        amount: 10n,
-      });
-
-      const escrowFunded = await algorand.account.getInformation(escrowAddress);
-      const recipientBefore = await algorand.account.getInformation(recipientAddress);
-      const recipientAssetBefore = recipientBefore.assets?.find((asset) => asset.assetId === testAssetId)?.amount ?? 0n;
-      const distributableAlgo = escrowFunded.balance.microAlgos - escrowFunded.minBalance.microAlgos;
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [
-          revenueManagerPluginSdk.startEscrowDisbursement({}),
-        ],
-      });
-      expect((await getReceiveEscrow(disbursementEscrow))?.phase).toBe(20);
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.processEscrowAllocation({ ids: [] })],
-      })).rejects.toThrow();
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.processEscrowAllocation({ ids: [0n, unmanagedAssetId] })],
-      })).rejects.toThrow();
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.processEscrowAllocation({ ids: [0n, testAssetId, testAssetId + 1n] })],
-      })).rejects.toThrow();
-      expect((await getReceiveEscrow(disbursementEscrow))?.allocationCounter).toBe(0n);
-      const escrowAfterRejectedAllocations = await algorand.account.getInformation(escrowAddress);
-      const recipientAfterRejectedAllocations = await algorand.account.getInformation(recipientAddress);
-      expect(escrowAfterRejectedAllocations.balance.microAlgos).toBe(escrowFunded.balance.microAlgos);
-      expect(recipientAfterRejectedAllocations.balance.microAlgos).toBe(recipientBefore.balance.microAlgos);
-
-      const pluginBeforeAllocation = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [
-          revenueManagerPluginSdk.processEscrowAllocation({
-            ids: [0n, testAssetId],
-          }),
-        ],
-      });
-      const allocatedState = await getReceiveEscrow(disbursementEscrow);
-      const escrowAllocated = await algorand.account.getInformation(escrowAddress);
-      const recipientAfter = await algorand.account.getInformation(recipientAddress);
-      const recipientAssetAfter = recipientAfter.assets?.find((asset) => asset.assetId === testAssetId)?.amount ?? 0n;
-      const pluginAfterAllocation = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      const algoTrackingBox = getReceiveAssetBoxName(escrowAddress, 0n);
-      const asaTrackingBox = getReceiveAssetBoxName(escrowAddress, testAssetId);
-      expect(allocatedState?.phase).toBe(30);
-      expect(allocatedState?.allocationCounter).toBe(2n);
-      expect(recipientAfter.balance.microAlgos - recipientBefore.balance.microAlgos).toBe(distributableAlgo);
-      expect(recipientAssetAfter - recipientAssetBefore).toBe(10n);
-      expect(escrowAllocated.balance.microAlgos).toBe(escrowAllocated.minBalance.microAlgos);
-      expect(escrowAllocated.assets?.find((asset) => asset.assetId === testAssetId)?.amount).toBe(0n);
-      expect(pluginAfterAllocation.minBalance.microAlgos - pluginBeforeAllocation.minBalance.microAlgos).toBe(
-        boxMbr(algoTrackingBox) + boxMbr(asaTrackingBox),
-      );
-      await expect(getReceiveAsset(escrowAddress, 0n)).resolves.toBeDefined();
-      await expect(getReceiveAsset(escrowAddress, testAssetId)).resolves.toBeDefined();
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.finalizeEscrowDisbursement({ ids: [testAssetId + 1n] })],
-      })).rejects.toThrow();
-      expect((await getReceiveEscrow(disbursementEscrow))?.allocationCounter).toBe(2n);
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [
-          revenueManagerPluginSdk.finalizeEscrowDisbursement({
-            ids: [0n],
-          }),
-        ],
-      });
-
-      const partiallyFinalizedState = await getReceiveEscrow(disbursementEscrow);
-      const pluginPartiallyFinalized = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      expect(partiallyFinalizedState?.phase).toBe(30);
-      expect(partiallyFinalizedState?.allocationCounter).toBe(1n);
-      expect(pluginAfterAllocation.minBalance.microAlgos - pluginPartiallyFinalized.minBalance.microAlgos).toBe(boxMbr(algoTrackingBox));
-      await expect(getReceiveAsset(escrowAddress, 0n)).rejects.toThrow();
-      await expect(getReceiveAsset(escrowAddress, testAssetId)).resolves.toBeDefined();
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.finalizeEscrowDisbursement({ ids: [testAssetId] })],
-      });
-
-      const finalizedState = await getReceiveEscrow(disbursementEscrow);
-      const pluginFinalized = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      expect(finalizedState?.phase).toBe(0);
-      expect(finalizedState?.allocationCounter).toBe(0n);
-      expect(pluginFinalized.minBalance.microAlgos).toBe(pluginBeforeAllocation.minBalance.microAlgos);
-      await expect(getReceiveAsset(escrowAddress, testAssetId)).rejects.toThrow();
-
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.finalizeEscrowDisbursement({ ids: [testAssetId] })],
-      })).rejects.toThrow();
-      await expect(wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: disbursementEscrow,
-        calls: [revenueManagerPluginSdk.startEscrowDisbursement({})],
-      })).rejects.toThrow();
-    });
-
-    test('sends to a pre-opted named split receiver and restores both escrow auth addresses', async () => {
-      const sourceEscrow = 'rev_named_source';
-      const receiverEscrow = 'rev_named_receiver';
-      const amount = 17n;
-
-      await installRevenueEscrowPlugin(sourceEscrow);
-      await wallet.addPlugin({
-        client: akitaUniverse.optInPlugin,
-        callerType: CallerType.Global,
-        escrow: receiverEscrow,
-        sender: user.addr,
-        signer: user.signer,
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: receiverEscrow,
-        calls: [akitaUniverse.optInPlugin.optIn({ assets: [testAssetId] })],
-      });
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrow({
-            escrow: sourceEscrow,
-            source: user.addr.toString(),
-            allocatable: true,
-            optinAllowed: true,
-            splits: [
-              [[wallet.appId, receiverEscrow], 30n, 0n],
-            ],
-          }),
-        ],
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: sourceEscrow,
-        calls: [revenueManagerPluginSdk.optIn({ assets: [testAssetId] })],
-      });
-
-      const sourceAddress = (await wallet.getEscrow(sourceEscrow)).address.toString();
-      const receiverAddress = (await wallet.getEscrow(receiverEscrow)).address.toString();
-      await algorand.send.assetTransfer({
-        sender: deployer.addr,
-        signer: deployer.signer,
-        receiver: sourceAddress,
-        assetId: testAssetId,
-        amount,
-      });
-
-      const sourceBefore = await algorand.account.getInformation(sourceAddress);
-      const receiverBefore = await algorand.account.getInformation(receiverAddress);
-      const pluginBefore = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      const expectedAuthAddress = wallet.client.appAddress.toString();
-      expect(sourceBefore.assets?.find((asset) => asset.assetId === testAssetId)?.amount).toBe(amount);
-      expect(receiverBefore.assets?.some((asset) => asset.assetId === testAssetId) ?? false).toBe(true);
-      expect(sourceBefore.authAddr?.toString()).toBe(expectedAuthAddress);
-      expect(receiverBefore.authAddr?.toString()).toBe(expectedAuthAddress);
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: sourceEscrow,
-        calls: [revenueManagerPluginSdk.startEscrowDisbursement({})],
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow: sourceEscrow,
-        calls: [revenueManagerPluginSdk.processEscrowAllocation({ ids: [testAssetId] })],
-      });
-
-      const sourceAfter = await algorand.account.getInformation(sourceAddress);
-      const receiverAfter = await algorand.account.getInformation(receiverAddress);
-      const pluginAfter = await algorand.account.getInformation(revenueManagerPluginSdk.client.appAddress);
-      expect(sourceAfter.assets?.find((asset) => asset.assetId === testAssetId)?.amount).toBe(0n);
-      expect(receiverAfter.assets?.find((asset) => asset.assetId === testAssetId)?.amount).toBe(amount);
-      expect(sourceAfter.balance.microAlgos).toBe(sourceBefore.balance.microAlgos);
-      expect(receiverAfter.balance.microAlgos).toBe(receiverBefore.balance.microAlgos);
-      expect(receiverAfter.minBalance.microAlgos).toBe(receiverBefore.minBalance.microAlgos);
+      const pluginAfter = await info(rm.client.appAddress);
+      expect(pluginAfter.minBalance.microAlgos).toBe(pluginBefore.minBalance.microAlgos);
       expect(pluginAfter.balance.microAlgos).toBe(pluginBefore.balance.microAlgos);
-      expect(sourceAfter.authAddr?.toString()).toBe(sourceBefore.authAddr?.toString());
-      expect(receiverAfter.authAddr?.toString()).toBe(receiverBefore.authAddr?.toString());
-    });
-
-    test('percentage-only splits consume the exact ALGO balance without rounding dust', async () => {
-      const escrow = 'rev_rounding';
-      await installRevenueEscrowPlugin(escrow);
-      // Earlier tests intentionally retain metadata boxes on this shared app.
-      await revenueManagerPluginSdk.client.appClient.fundAppAccount({ amount: algokit.microAlgo(100_000) });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        calls: [
-          revenueManagerPluginSdk.newReceiveEscrow({
-            escrow,
-            source: user.addr.toString(),
-            allocatable: true,
-            optinAllowed: false,
-            splits: [
-              [[wallet.appId, ''], 20n, 33_333n],
-              [[wallet.appId, ''], 20n, 33_333n],
-              [[wallet.appId, ''], 20n, 33_334n],
-            ],
-          }),
-        ],
-      });
-
-      const escrowAddress = (await wallet.getEscrow(escrow)).address.toString();
-      const recipientAddress = (await wallet.client.state.global.controlledAddress())!;
-      await algorand.send.payment({
-        sender: user.addr,
-        signer: user.signer,
-        receiver: escrowAddress,
-        amount: algokit.microAlgo(1_000_003),
-      });
-
-      const escrowBefore = await algorand.account.getInformation(escrowAddress);
-      const recipientBefore = await algorand.account.getInformation(recipientAddress);
-      const expected = escrowBefore.balance.microAlgos - escrowBefore.minBalance.microAlgos;
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow,
-        calls: [revenueManagerPluginSdk.startEscrowDisbursement({})],
-      });
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow,
-        calls: [revenueManagerPluginSdk.processEscrowAllocation({ ids: [0n] })],
-      });
-
-      const escrowAfter = await algorand.account.getInformation(escrowAddress);
-      const recipientAfter = await algorand.account.getInformation(recipientAddress);
-      expect(escrowAfter.balance.microAlgos).toBe(escrowAfter.minBalance.microAlgos);
-      expect(recipientAfter.balance.microAlgos - recipientBefore.balance.microAlgos).toBe(expected);
-      expect((await getReceiveEscrow(escrow))?.phase).toBe(30);
-
-      await wallet.usePlugin({
-        callerType: CallerType.Global,
-        escrow,
-        calls: [revenueManagerPluginSdk.finalizeEscrowDisbursement({ ids: [0n] })],
-      });
-      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n });
+      expect(await getReceiveEscrow(escrow, userWallet.appId)).toBeUndefined();
     });
   });
 
-  const getReceiveEscrow = async (escrow: string) => {
-    try {
-      return await revenueManagerPluginSdk.client.state.box.escrows.value({
-        wallet: wallet.appId,
-        escrow,
+  describe('DAO receive-escrow configuration', () => {
+    test('creates receive escrow metadata with direct splits', async () => {
+      expect(await getReceiveEscrow(ESCROWS.test)).toMatchObject({
+        source: user.addr.toString(), allocatable: true, optinAllowed: true, phase: 0,
       });
-    } catch (error) {
-      if (error instanceof Error && error.message.includes('box not found')) return undefined;
-      throw error;
-    }
-  };
-
-  const getReceiveAsset = async (escrowAddress: string, asset: bigint) => {
-    return getBox(getReceiveAssetBoxName(escrowAddress, asset));
-  };
-
-  const getReceiveAssetBoxName = (escrowAddress: string, asset: bigint) => {
-    const key = new ABITupleType([new ABIAddressType(), new ABIUintType(64)]).encode([escrowAddress, asset]);
-    return new Uint8Array([...Buffer.from('a'), ...key]);
-  };
-
-  const getManagedAssetBoxName = (escrow: string, asset: bigint) => {
-    const key = new ABITupleType([new ABIUintType(64), new ABIStringType(), new ABIUintType(64)]).encode([
-      wallet.appId,
-      escrow,
-      asset,
-    ]);
-    return new Uint8Array([...Buffer.from('m'), ...key]);
-  };
-
-  const getBox = async (boxName: Uint8Array) => {
-    return algorand.client.algod.applicationBoxByName(Number(revenueManagerPluginSdk.appId), boxName);
-  };
-
-  const boxMbr = (boxName: Uint8Array, valueLength = 0n) => {
-    return BOX_BASE_MBR + (BOX_BYTE_MBR * (BigInt(boxName.length) + valueLength));
-  };
-
-  const installRevenueEscrowPlugin = async (escrow: string) => {
-    await wallet.addPlugin({
-      client: revenueManagerPluginSdk,
-      callerType: CallerType.Global,
-      escrow,
-      sender: user.addr,
-      signer: user.signer,
-      methods: [
-        { name: revenueManagerPluginSdk.optIn(), cooldown: 0n },
-        { name: revenueManagerPluginSdk.startEscrowDisbursement(), cooldown: 0n },
-        { name: revenueManagerPluginSdk.processEscrowAllocation(), cooldown: 0n },
-        { name: revenueManagerPluginSdk.finalizeEscrowDisbursement(), cooldown: 0n },
-      ],
+      const splits = await rm.client.state.box.splits.value({ wallet: daoWallet.appId, escrow: ESCROWS.test });
+      expect(splits).toEqual([[[userWallet.appId, ''], 30, 0n]]);
     });
-  };
+
+    test('rejects duplicate and malformed configurations', async () => {
+      const malformed = ESCROWS.rounding; // configured later in this suite
+      await expect(daoBuild([newEscrowCall(ESCROWS.test, [userSplit('', REMAINDER, 0n)])])).rejects.toThrow();
+      await expect(daoBuild([newEscrowCall(malformed, [])])).rejects.toThrow();
+      await expect(daoBuild([newEscrowCall(malformed, [userSplit('', 99n, 1n)])])).rejects.toThrow();
+      await expect(daoBuild([newEscrowCall(malformed, [userSplit('', FLAT, 1n)])])).rejects.toThrow();
+      await expect(daoBuild([newEscrowCall(malformed, [userSplit('missing_receiver', REMAINDER, 0n)])])).rejects.toThrow();
+      await expect(daoBuild([rm.newReceiveEscrowWithRef({
+        escrow: malformed, source: user.addr.toString(), allocatable: true, optinAllowed: true,
+        splitRef: { app: 0n, key: new Uint8Array() },
+      })])).rejects.toThrow();
+      expect(await getReceiveEscrow(malformed)).toBeUndefined();
+    });
+
+    test('creates receive escrow metadata with a split reference', async () => {
+      await daoExecute([rm.newReceiveEscrowWithRef({
+        escrow: ESCROWS.ref,
+        source: user.addr.toString(),
+        allocatable: false,
+        optinAllowed: false,
+        splitRef: { app: akitaUniverse.dao.appId, key: new Uint8Array(Buffer.from('revenue_splits')) },
+      })]);
+
+      expect(await getReceiveEscrow(ESCROWS.ref)).toMatchObject({ source: user.addr.toString(), allocatable: false, optinAllowed: false });
+      const splitRef = await rm.client.state.box.splitRefs.value({ wallet: daoWallet.appId, escrow: ESCROWS.ref });
+      expect(splitRef?.app).toBe(akitaUniverse.dao.appId);
+      expect(Buffer.from(splitRef?.key ?? []).toString()).toBe('revenue_splits');
+
+      await expect(daoEscrowCall(ESCROWS.ref, [rm.optIn({ sender: user.addr, signer: user.signer, assets: [testAssetId] })])).rejects.toThrow();
+      await expect(daoEscrowCall(ESCROWS.ref, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })])).rejects.toThrow();
+      expect(await getReceiveEscrow(ESCROWS.ref)).toMatchObject({ optinCount: 0n, phase: 0, allocationCounter: 0n });
+    });
+
+    test('migrates receive escrow metadata exactly and cannot overwrite it', async () => {
+      const receiveEscrow = {
+        source: user.addr.toString(), allocatable: true, optinAllowed: true, optinCount: 0n,
+        phase: 0, allocationCounter: 0n, lastDisbursement: 1_700_000_000n, creationDate: 1_600_000_000n,
+      };
+      const splitRef = { app: akitaUniverse.dao.appId, key: new Uint8Array(Buffer.from('revenue_splits')) };
+      const migrate = (overrides: Partial<typeof receiveEscrow> = {}) => rm.migrateReceiveEscrow({
+        sender: deployer.addr, signer: deployer.signer,
+        escrow: ESCROWS.migrated, receiveEscrow: { ...receiveEscrow, ...overrides },
+        assets: [], splits: [], splitRef, useSplitRef: true,
+      });
+
+      await expect(daoBuild([migrate({ optinCount: 1n })])).rejects.toThrow();
+      await daoExecute([migrate()]);
+
+      expect(await getReceiveEscrow(ESCROWS.migrated)).toEqual(receiveEscrow);
+      expect(await rm.client.state.box.splitRefs.value({ wallet: daoWallet.appId, escrow: ESCROWS.migrated })).toEqual(splitRef);
+      await expect(daoBuild([migrate()])).rejects.toThrow();
+    });
+
+    test('opts the receive escrow into assets and tracks opt-in count', async () => {
+      const optIn = (caller: TransactionSignerAccount, assets: bigint[]) =>
+        daoEscrowCall(ESCROWS.test, [rm.optIn({ sender: caller.addr, signer: caller.signer, assets })], caller);
+
+      await expect(optIn(user, [])).rejects.toThrow();
+      await expect(optIn(deployer, [testAssetId])).rejects.toThrow(); // not the configured source
+      expect((await getReceiveEscrow(ESCROWS.test))?.optinCount).toBe(0n);
+
+      const pluginBefore = await info(rm.client.appAddress);
+      await optIn(user, [testAssetId]);
+      const pluginAfter = await info(rm.client.appAddress);
+      const managedBoxName = getManagedAssetBoxName(ESCROWS.test, testAssetId);
+
+      expect(assetAmount(await info(await escrowAddressOf(daoWallet, ESCROWS.test)), testAssetId)).toBe(0n);
+      expect((await getReceiveEscrow(ESCROWS.test))?.optinCount).toBe(1n);
+      await expect(getBox(managedBoxName)).resolves.toBeDefined();
+      expect(pluginAfter.minBalance.microAlgos - pluginBefore.minBalance.microAlgos).toBe(boxMbr(managedBoxName));
+
+      await expect(optIn(user, [testAssetId])).rejects.toThrow();
+      expect((await getReceiveEscrow(ESCROWS.test))?.optinCount).toBe(1n);
+    });
+  });
+
+  describe('F3: disbursement never reverts on a receiver that cannot accept an ASA', () => {
+    test('pays opted-in receivers and leaves the undeliverable share in the escrow', async () => {
+      const escrow = ESCROWS.disburse;
+      await daoExecute([newEscrowCall(escrow, [
+        userSplit('', PERCENTAGE, 40_000n),
+        userSplit(RECEIVER_OPTED, PERCENTAGE, 30_000n),
+        userSplit(RECEIVER_NOT_OPTED, REMAINDER, 0n),
+      ])]);
+      await daoEscrowCall(escrow, [rm.optIn({ sender: user.addr, signer: user.signer, assets: [testAssetId] })]);
+
+      const escrowAddress = await escrowAddressOf(daoWallet, escrow);
+      const mainAddress = userWallet.client.appAddress.toString();
+      const optedAddress = await escrowAddressOf(userWallet, RECEIVER_OPTED);
+      const notOptedAddress = await escrowAddressOf(userWallet, RECEIVER_NOT_OPTED);
+      await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(3_000_000) });
+      await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, receiver: escrowAddress, assetId: testAssetId, amount: 10n });
+
+      await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
+      expect((await getReceiveEscrow(escrow))?.phase).toBe(20);
+
+      const process = (ids: bigint[]) => daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids })]);
+      await expect(process([])).rejects.toThrow();
+      await expect(process([0n, unmanagedAssetId])).rejects.toThrow();
+      await expect(process([0n, testAssetId, testAssetId + 1n])).rejects.toThrow();
+      expect((await getReceiveEscrow(escrow))?.allocationCounter).toBe(0n);
+
+      const escrowBefore = await info(escrowAddress);
+      const [mainBefore, optedBefore, notOptedBefore, pluginBefore] = await Promise.all(
+        [mainAddress, optedAddress, notOptedAddress, rm.client.appAddress].map((a) => info(a)),
+      );
+      const distributable = escrowBefore.balance.microAlgos - escrowBefore.minBalance.microAlgos;
+      const mainAlgo = (distributable * 40_000n) / 100_000n;
+      const optedAlgo = (distributable * 30_000n) / 100_000n;
+
+      await process([0n, testAssetId]);
+
+      const escrowAfter = await info(escrowAddress);
+      const [mainAfter, optedAfter, notOptedAfter, pluginAfter] = await Promise.all(
+        [mainAddress, optedAddress, notOptedAddress, rm.client.appAddress].map((a) => info(a)),
+      );
+      // ALGO: everyone is paid, the escrow is drained to its minimum balance.
+      expect(mainAfter.balance.microAlgos - mainBefore.balance.microAlgos).toBe(mainAlgo);
+      expect(optedAfter.balance.microAlgos - optedBefore.balance.microAlgos).toBe(optedAlgo);
+      expect(notOptedAfter.balance.microAlgos - notOptedBefore.balance.microAlgos).toBe(distributable - mainAlgo - optedAlgo);
+      expect(escrowAfter.balance.microAlgos).toBe(escrowAfter.minBalance.microAlgos);
+      // ASA: opted-in receivers are paid; the not-opted-in share stays in the escrow.
+      expect((assetAmount(mainAfter, testAssetId) ?? 0n) - (assetAmount(mainBefore, testAssetId) ?? 0n)).toBe(4n);
+      expect((assetAmount(optedAfter, testAssetId) ?? 0n) - (assetAmount(optedBefore, testAssetId) ?? 0n)).toBe(3n);
+      expect(assetAmount(notOptedAfter, testAssetId)).toBeUndefined();
+      expect(assetAmount(escrowAfter, testAssetId)).toBe(3n);
+      // The plugin pays no receiver opt-in MBR; only its tracking boxes grow.
+      expect(pluginAfter.balance.microAlgos).toBe(pluginBefore.balance.microAlgos);
+      expect(pluginAfter.minBalance.microAlgos - pluginBefore.minBalance.microAlgos).toBe(
+        boxMbr(getReceiveAssetBoxName(escrowAddress, 0n)) + boxMbr(getReceiveAssetBoxName(escrowAddress, testAssetId)),
+      );
+      // Authorization is restored on both sides.
+      expect(escrowAfter.authAddr?.toString()).toBe(daoWallet.client.appAddress.toString());
+      expect(optedAfter.authAddr?.toString()).toBe(userWallet.client.appAddress.toString());
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 30, allocationCounter: 2n });
+
+      const finalize = (ids: bigint[]) => daoEscrowCall(escrow, [rm.finalizeEscrowDisbursement({ sender: user.addr, signer: user.signer, ids })]);
+      await expect(finalize([testAssetId + 1n])).rejects.toThrow();
+      await finalize([0n]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 30, allocationCounter: 1n });
+      await finalize([testAssetId]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n });
+      expect((await info(rm.client.appAddress)).minBalance.microAlgos).toBe(pluginBefore.minBalance.microAlgos);
+      await expect(finalize([testAssetId])).rejects.toThrow();
+      await expect(daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })])).rejects.toThrow();
+    });
+  });
+
+  describe('F3: DAO-only escape hatches', () => {
+    test('skipEscrowAllocation unsticks a cycle; only the DAO main-account grant can call it', async () => {
+      const escrow = ESCROWS.skip;
+      // A flat share larger than any balance makes ALGO processing revert every time.
+      await daoExecute([newEscrowCall(escrow, [userSplit('', FLAT, 10_000_000_000_000n), userSplit('', REMAINDER, 0n)])]);
+      const escrowAddress = await escrowAddressOf(daoWallet, escrow);
+      await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(1_000_000) });
+
+      await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
+      await expectContractError(daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids: [0n] })]), 'errOval');
+
+      // Not callable through the public escrow grant (method restriction), nor while not idle for updateSplits.
+      await expect(daoEscrowCall(escrow, [rm.skipEscrowAllocation({ sender: user.addr, signer: user.signer, escrow, ids: [0n] })])).rejects.toThrow();
+      await expect(daoBuild([rm.updateSplits({ sender: deployer.addr, signer: deployer.signer, escrow, splits: [userSplit('', REMAINDER, 0n)] })])).rejects.toThrow();
+
+      const escrowBefore = await info(escrowAddress);
+      await daoExecute([rm.skipEscrowAllocation({ sender: deployer.addr, signer: deployer.signer, escrow, ids: [0n] })]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 30, allocationCounter: 1n });
+      expect((await info(escrowAddress)).balance.microAlgos).toBe(escrowBefore.balance.microAlgos); // rolls over
+
+      await daoEscrowCall(escrow, [rm.finalizeEscrowDisbursement({ sender: user.addr, signer: user.signer, ids: [0n] })]);
+      expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n });
+    });
+
+    test('updateSplits replaces splits of an idle escrow and drops a split reference', async () => {
+      const replacement = [userSplit(RECEIVER_OPTED, REMAINDER, 0n)];
+      await expect(daoBuild([rm.updateSplits({ sender: deployer.addr, signer: deployer.signer, escrow: ESCROWS.skip, splits: [] })])).rejects.toThrow();
+      await expect(daoBuild([rm.updateSplits({ sender: deployer.addr, signer: deployer.signer, escrow: ESCROWS.skip, splits: [userSplit('missing_receiver', REMAINDER, 0n)] })])).rejects.toThrow();
+
+      await daoExecute([
+        // Chained calls: only the last one rekeys the DAO account back.
+        rm.updateSplits({ sender: deployer.addr, signer: deployer.signer, escrow: ESCROWS.skip, splits: replacement, rekeyBack: false }),
+        rm.updateSplits({ sender: deployer.addr, signer: deployer.signer, escrow: ESCROWS.ref, splits: replacement }),
+      ]);
+
+      expect(await rm.client.state.box.splits.value({ wallet: daoWallet.appId, escrow: ESCROWS.skip }))
+        .toEqual([[[userWallet.appId, RECEIVER_OPTED], 30, 0n]]);
+      expect(await rm.client.state.box.splits.value({ wallet: daoWallet.appId, escrow: ESCROWS.ref }))
+        .toEqual([[[userWallet.appId, RECEIVER_OPTED], 30, 0n]]);
+      await expect(rm.client.state.box.splitRefs.value({ wallet: daoWallet.appId, escrow: ESCROWS.ref })).rejects.toThrow('box not found');
+    });
+  });
+
+  test('percentage-only splits consume the exact ALGO balance without rounding dust', async () => {
+    const escrow = ESCROWS.rounding;
+    await daoExecute([newEscrowCall(escrow, [
+      userSplit('', PERCENTAGE, 33_333n),
+      userSplit('', PERCENTAGE, 33_333n),
+      userSplit('', PERCENTAGE, 33_334n),
+    ], { optinAllowed: false })]);
+
+    const escrowAddress = await escrowAddressOf(daoWallet, escrow);
+    const recipientAddress = userWallet.client.appAddress.toString();
+    await algorand.send.payment({ sender: user.addr, signer: user.signer, receiver: escrowAddress, amount: algokit.microAlgo(1_000_003) });
+
+    await ensureDaoExecutionFunds();
+    const escrowBefore = await info(escrowAddress);
+    const recipientBefore = await info(recipientAddress);
+    const expected = escrowBefore.balance.microAlgos - escrowBefore.minBalance.microAlgos;
+
+    await daoEscrowCall(escrow, [rm.startEscrowDisbursement({ sender: user.addr, signer: user.signer })]);
+    await daoEscrowCall(escrow, [rm.processEscrowAllocation({ sender: user.addr, signer: user.signer, ids: [0n] })]);
+
+    const escrowAfter = await info(escrowAddress);
+    const recipientAfter = await info(recipientAddress);
+    expect(escrowAfter.balance.microAlgos).toBe(escrowAfter.minBalance.microAlgos);
+    expect(recipientAfter.balance.microAlgos - recipientBefore.balance.microAlgos).toBe(expected);
+    expect((await getReceiveEscrow(escrow))?.phase).toBe(30);
+
+    await daoEscrowCall(escrow, [rm.finalizeEscrowDisbursement({ sender: user.addr, signer: user.signer, ids: [0n] })]);
+    expect(await getReceiveEscrow(escrow)).toMatchObject({ phase: 0, allocationCounter: 0n });
+  });
 });

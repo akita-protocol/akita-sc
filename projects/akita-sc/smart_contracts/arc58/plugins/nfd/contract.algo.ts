@@ -2,9 +2,9 @@ import { Account, Application, bytes, Bytes, Global, GlobalState, itxn, loggedAs
 import { abiCall, abimethod, Contract } from '@algorandfoundation/algorand-typescript/arc4'
 import { btoi } from '@algorandfoundation/algorand-typescript/op'
 import { NFDGlobalStateKeysName } from '../../../utils/constants/nfd'
-import { getSpendingAccount, rekeyAddress } from '../../../utils/functions'
-import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry } from './constants'
-import { ERR_CANNOT_AUTO_RENEW, ERR_NOT_AN_NFD, ERR_NO_SALE_AMOUNT } from './errors'
+import { getControlledSpendingAccount, rekeyAddress } from '../../../utils/functions'
+import { NFDGlobalStateKeyExpirationTime, NFDGlobalStateKeyOwner, NFDGlobalStateKeySaleAmountKey, NFDPluginAutoRenewWindow, NFDPluginGlobalStateKeyRegistry } from './constants'
+import { errCannotAutoRenew, errNotAnNfd, errNotNfdOwner, errNoSaleAmount, errPriceAboveMax } from './errors'
 
 // CONTRACT IMPORTS
 import type { NFD } from '../../../utils/types/nfd'
@@ -44,7 +44,7 @@ export class NFDPlugin extends Contract {
     reservedFor: Account,
     linkOnMint: boolean
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const appId = this.registry.value
 
     return abiCall<typeof NFDRegistry.prototype.mintNfd>({
@@ -70,9 +70,9 @@ export class NFDPlugin extends Contract {
     appId: Application,
     fieldNames: bytes[]
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.deleteFields>({
       sender,
@@ -90,9 +90,9 @@ export class NFDPlugin extends Contract {
     mbrCost: uint64
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     if (mbrCost > 0) {
       itxn.payment({
@@ -118,9 +118,9 @@ export class NFDPlugin extends Contract {
     nfdMbrCost: uint64,
     registryMbrCost: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     if (nfdMbrCost > 0) {
       itxn.payment({
@@ -154,9 +154,9 @@ export class NFDPlugin extends Contract {
     nfdName: string,
     address: Account
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFDRegistry.prototype.unlinkNfdAddress>({
       sender,
@@ -174,9 +174,9 @@ export class NFDPlugin extends Contract {
     nfdName: string,
     address: Account
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFDRegistry.prototype.setAddressPrimaryNfd>({
       sender,
@@ -195,9 +195,9 @@ export class NFDPlugin extends Contract {
     reservedFor: Account
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.offerForSale>({
       sender,
@@ -213,9 +213,9 @@ export class NFDPlugin extends Contract {
     appId: Application
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.cancelSale>({
       sender,
@@ -233,9 +233,9 @@ export class NFDPlugin extends Contract {
     note: string
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.postOffer>({
       sender,
@@ -249,14 +249,17 @@ export class NFDPlugin extends Contract {
     wallet: Application,
     rekeyBack: boolean,
     appId: Application,
+    maxPrice: uint64,
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     const [saleAmountBytes, saleAmountBytesExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeySaleAmountKey))
-    loggedAssert(saleAmountBytesExists, ERR_NO_SALE_AMOUNT)
+    loggedAssert(saleAmountBytesExists, errNoSaleAmount)
+    const saleAmount = btoi(saleAmountBytes)
+    loggedAssert(saleAmount <= maxPrice, errPriceAboveMax)
 
     abiCall<typeof NFD.prototype.purchase>({
       sender,
@@ -265,7 +268,7 @@ export class NFDPlugin extends Contract {
         itxn.payment({
           sender,
           receiver: appId.address,
-          amount: btoi(saleAmountBytes)
+          amount: saleAmount
         }),
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
@@ -279,9 +282,9 @@ export class NFDPlugin extends Contract {
     hash: bytes
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.updateHash>({
       sender,
@@ -298,9 +301,9 @@ export class NFDPlugin extends Contract {
     lock: boolean
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.contractLock>({
       sender,
@@ -318,9 +321,9 @@ export class NFDPlugin extends Contract {
     usdPrice: uint64
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.segmentLock>({
       sender,
@@ -337,9 +340,9 @@ export class NFDPlugin extends Contract {
     lock: boolean
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.vaultOptInLock>({
       sender,
@@ -356,9 +359,9 @@ export class NFDPlugin extends Contract {
     assets: uint64[]
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.vaultOptIn>({
       sender,
@@ -379,9 +382,9 @@ export class NFDPlugin extends Contract {
     otherAssets: uint64[]
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.vaultSend>({
       sender,
@@ -395,18 +398,21 @@ export class NFDPlugin extends Contract {
     wallet: Application,
     rekeyBack: boolean,
     appId: Application,
-    years: uint64
+    years: uint64,
+    maxPrice: uint64
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     const price = abiCall<typeof NFD.prototype.getRenewPrice>({
       sender,
       appId,
       args: []
     }).returnValue
+    const total: uint64 = price * years
+    loggedAssert(total <= maxPrice, errPriceAboveMax)
 
     abiCall<typeof NFD.prototype.renew>({
       sender,
@@ -415,7 +421,7 @@ export class NFDPlugin extends Contract {
         itxn.payment({
           sender,
           receiver: appId.address,
-          amount: (price * years)
+          amount: total
         })
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
@@ -425,25 +431,37 @@ export class NFDPlugin extends Contract {
   autoRenew(
     wallet: Application,
     rekeyBack: boolean,
-    appId: Application
+    appId: Application,
+    maxPrice: uint64
   ): void {
 
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
+
+    // autoRenew is meant for keeper/global grants, so it may only spend on an
+    // NFD this spending account actually owns (`renew` stays permissionless).
+    const [ownerBytes, ownerExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyOwner))
+    loggedAssert(ownerExists && ownerBytes.length === 32, errNotNfdOwner)
+    loggedAssert(Account(ownerBytes) === sender, errNotNfdOwner)
 
     const [expirationBytes, expirationExists] = op.AppGlobal.getExBytes(appId.id, Bytes(NFDGlobalStateKeyExpirationTime))
-    loggedAssert(expirationExists, ERR_CANNOT_AUTO_RENEW)
+    loggedAssert(expirationExists, errCannotAutoRenew)
 
     const expiration = btoi(expirationBytes)
-    loggedAssert(expiration > 0, ERR_CANNOT_AUTO_RENEW)
-    loggedAssert(expiration <= Global.latestTimestamp + NFDPluginAutoRenewWindow, ERR_CANNOT_AUTO_RENEW)
+    loggedAssert(expiration > 0, errCannotAutoRenew)
+    // Only renew an NFD that has not expired yet.
+    loggedAssert(expiration >= Global.latestTimestamp, errCannotAutoRenew)
+    loggedAssert(expiration <= Global.latestTimestamp + NFDPluginAutoRenewWindow, errCannotAutoRenew)
 
     const price = abiCall<typeof NFD.prototype.getRenewPrice>({
       sender,
       appId,
       args: []
     }).returnValue
+    // NFD prices the renewal at call time (USD oracle, and possibly the root's segment price),
+    // so the caller bounds it; an execution-key grant fixes this bound in the approved group.
+    loggedAssert(price <= maxPrice, errPriceAboveMax)
 
     abiCall<typeof NFD.prototype.renew>({
       sender,
@@ -466,9 +484,9 @@ export class NFDPlugin extends Contract {
     fieldName: string,
     address: Account
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(this.isNFD(appId), ERR_NOT_AN_NFD)
+    loggedAssert(this.isNFD(appId), errNotAnNfd)
 
     abiCall<typeof NFD.prototype.setPrimaryAddress>({
       sender,

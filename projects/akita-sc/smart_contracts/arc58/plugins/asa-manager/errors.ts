@@ -12,4 +12,4 @@
 // the wire format with the top-level `errors.ts`. PuyaTs doesn't support
 // `export { X } from` re-export syntax, so the constant is redeclared here
 // with an identical value.
-export const ERR_INVALID_PAYMENT = 'IPAY'
+export const errInvalidPayment = 'errIpay'

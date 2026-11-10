@@ -12,6 +12,6 @@
 // the wire format with the top-level `errors.ts`. PuyaTs doesn't support
 // `export { X } from` re-export syntax, so the constant is redeclared here
 // with an identical value.
-export const ERR_ALREADY_OPTED_IN = 'AOPT'
-export const ERR_NOT_OPTED_IN = 'NOPT'
-export const ERR_INVALID_ASSET_AMOUNT = 'IAAM'
+export const errAlreadyOptedIn = 'errAopt'
+export const errNotOptedIn = 'errNopt'
+export const errInvalidAssetAmount = 'errIaam'

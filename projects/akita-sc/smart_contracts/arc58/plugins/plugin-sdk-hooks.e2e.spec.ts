@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { Address, SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 import algosdk from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { SunsetPluginSDK } from 'akita-sdk/wallet';
@@ -17,7 +18,7 @@ type PluginCase = {
 };
 
 const getSdkMethods = (sdk: object) => {
-  const sdkRecord = sdk as Record<string, unknown>;
+  const sdkRecord = sdk as unknown as Record<string, unknown>;
   const client = sdkRecord.client as {
     appSpec?: { methods?: Array<{ name?: string }> };
   } | undefined;
@@ -33,8 +34,8 @@ const getSdkMethods = (sdk: object) => {
 };
 
 describe('ARC58 plugin SDK hooks', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let deployer: TransactionSignerAccount;
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let akitaUniverse: AkitaUniverse;
   let pluginCases: PluginCase[];
 
@@ -43,7 +44,7 @@ describe('ARC58 plugin SDK hooks', () => {
     const { algorand } = fixture.context;
     dispenser = await algorand.account.dispenserFromEnvironment();
     deployer = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
 
     akitaUniverse = await buildAkitaUniverse({
       fixture,
@@ -102,7 +103,7 @@ describe('ARC58 plugin SDK hooks', () => {
       expect(methods, `${pluginCase.name} should expose plugin methods`).not.toHaveLength(0);
 
       for (const method of methods) {
-        const hookFactory = (pluginCase.sdk as Record<string, unknown>)[method] as () => unknown;
+        const hookFactory = (pluginCase.sdk as unknown as Record<string, unknown>)[method] as () => unknown;
         const hook = hookFactory.call(pluginCase.sdk);
         expect(typeof hook, `${pluginCase.name}.${method}() should return a hook`).toBe('function');
 
@@ -130,13 +131,13 @@ describe('ARC58 plugin SDK hooks', () => {
       asset: 0n,
       amount: 100_000n,
       passes: 0n,
-      gateId: 0n,
+      gate: 0n,
       payoutAddress: deployer.addr.toString(),
       title: 'Smoke Test Service',
       description: 'This description is chunked through initDescription and loadDescription.',
       bannerImage: new Uint8Array(36).fill(120),
       highlightMessage: 0,
-      highlightColor: '#AABBCC',
+      highlightColor: new Uint8Array([0xAA, 0xBB, 0xCC]),
     });
 
     expect(hooks).toHaveLength(3);

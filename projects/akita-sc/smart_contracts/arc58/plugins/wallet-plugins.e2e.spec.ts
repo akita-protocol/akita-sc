@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import {
   OptInPluginSDK,
@@ -16,10 +17,10 @@ algokit.Config.configure({ populateAppCallResources: true })
 const fixture = algorandFixture()
 
 describe('Plugin SDKs', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
     account: SigningAccount;
   }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -33,8 +34,8 @@ describe('Plugin SDKs', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo())
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -125,27 +126,12 @@ describe('Plugin SDKs', () => {
       })
     })
 
-    describe('optOut()', () => {
-      test('should return plugin hook when called without args', () => {
-        const hook = optInPluginSDK.optOut()
-        expect(typeof hook).toBe('function')
-
-        const result = hook()
-        expect(result.appId).toBe(optInPluginSDK.client.appId)
-        expect(result.selectors).toBeDefined()
-      })
-
-      test('should return plugin hook with transaction builder when called with args', () => {
-        const hook = optInPluginSDK.optOut({
-          sender: user.addr,
-          signer: user.signer,
-          assets: [0n],
-        })
-
-        const result = hook()
-        expect(result.appId).toBe(optInPluginSDK.client.appId)
-        expect(typeof result.getTxns).toBe('function')
-      })
+    test('exposes only the opt-in capability for delegation restrictions', () => {
+      const methods = optInPluginSDK.client.appClient.appSpec.methods
+      expect(methods.map((method) => method.name)).toEqual(['optIn'])
+      expect(optInPluginSDK.optIn()().selectors).toEqual([
+        optInPluginSDK.client.appClient.getABIMethod('optIn').getSelector(),
+      ])
     })
   })
 
@@ -268,10 +254,10 @@ describe('Plugin SDKs', () => {
 })
 
 describe('Plugin SDK Integration with WalletSDK', () => {
-  let deployer: Address & TransactionSignerAccount
-  let user: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let user: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
     account: SigningAccount;
   }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -285,8 +271,8 @@ describe('Plugin SDK Integration with WalletSDK', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) })
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo())
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -313,7 +299,7 @@ describe('Plugin SDK Integration with WalletSDK', () => {
         assetName: 'Test Asset',
         unitName: 'TEST',
       })
-      const testAssetId = BigInt(assetCreate.confirmation.assetId!)
+      const testAssetId = BigInt(assetCreate.confirmation.assetIndex!)
 
       // Build a plugin transaction using usePlugin
       const buildResult = await wallet.build.usePlugin({

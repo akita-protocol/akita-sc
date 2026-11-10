@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import {
   HaystackRouterPluginArgs,
@@ -22,6 +22,11 @@ export class HaystackRouterPluginSDK extends BaseSDK<HaystackRouterPluginClient>
     super({ factory: HaystackRouterPluginFactory, ...params });
   }
 
+  /**
+   * Find the matching Haystack input transaction in the group and fund its sender.
+   * Append the intact route after the wallet's rekey, plugin, and verify calls,
+   * using the wallet spending address as the route's output beneficiary.
+   */
   swap(): PluginSDKReturn;
   swap(args: SwapArgs): PluginSDKReturn;
   swap(args?: SwapArgs): PluginSDKReturn {

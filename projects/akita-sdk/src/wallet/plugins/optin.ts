@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { OptInPluginArgs, OptInPluginClient, OptInPluginFactory } from "../../generated/OptInPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";

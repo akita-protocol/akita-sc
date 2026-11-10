@@ -1,5 +1,6 @@
-import { getAddress, ReadableAddress } from "@algorandfoundation/algokit-utils/common";
-import type { Arc56Contract } from "@algorandfoundation/algokit-utils/abi";
+type ReadableAddress = string | import('algosdk').Address;
+const getAddress = (address: ReadableAddress) => typeof address === 'string' ? decodeAddress(address) : address;
+import type { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56';
 import { decodeAddress } from "algosdk";
 import { BaseSDK } from "../../base";
 import { NfdPluginArgs, NfdPluginClient, NfdPluginFactory } from "../../generated/NFDPluginClient";
@@ -283,7 +284,7 @@ type PostOfferArgs = (
 );
 
 type PurchaseArgs = (
-  Omit<ContractArgs['purchase(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['purchase(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -325,13 +326,13 @@ type VaultSendArgs = (
 );
 
 type RenewArgs = (
-  Omit<ContractArgs['renew(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['renew(uint64,bool,uint64,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
 type AutoRenewArgs = (
-  Omit<ContractArgs['autoRenew(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['autoRenew(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );

@@ -4,13 +4,15 @@
  * These values are the payload `loggedAssert`/`loggedErr` emits to the log
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
- * Constant NAMES are preserved from the pre-ARC-65 layout so call sites don't
- * change. The human-readable mapping lives alongside the shared SDK translator
+ * Constant names and values use camelCase. The `err` prefix avoids 8-byte logs. The human-readable mapping lives alongside the shared SDK translator
  * via `akita-sdk/src/wallet/errors.ts`.
  */
 
 // --- NFD validation --------------------------------------------------------
 
-export const ERR_NOT_AN_NFD = 'NNFD'
-export const ERR_NO_SALE_AMOUNT = 'NSLA'
-export const ERR_CANNOT_AUTO_RENEW = 'NARN'
+export const errNotAnNfd = 'errNnfd'
+export const errNoSaleAmount = 'errNsla'
+export const errCannotAutoRenew = 'errNarn'
+export const errNotNfdOwner = 'errNnow'
+/** The NFD's sale or renewal price is above the caller's `maxPrice` */
+export const errPriceAboveMax = 'errNpmx'

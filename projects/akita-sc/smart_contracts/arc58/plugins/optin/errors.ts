@@ -4,8 +4,7 @@
  * These values are the payload `loggedAssert`/`loggedErr` emits to the log
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
- * Constant NAMES are preserved from the pre-ARC-65 layout so call sites don't
- * change. The codes used here are shared across multiple domains, so they are
+ * Constant names and values use camelCase. The `err` prefix avoids 8-byte logs. The codes used here are shared across multiple domains, so they are
  * re-exported from the top-level `smart_contracts/errors.ts` to keep a single
  * source of truth. Downstream plugins (e.g. self-optin, revenue-manager) that
  * already import from this file continue to work without changes.
@@ -19,5 +18,5 @@
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values to the top-level
 // `smart_contracts/errors.ts`.
-export const ERR_ALREADY_OPTED_IN = 'AOPT'
-export const ERR_INVALID_PAYMENT = 'IPAY'
+export const errAlreadyOptedIn = 'errAopt'
+export const errInvalidPayment = 'errIpay'

@@ -4,8 +4,7 @@
  * These values are the payload `loggedAssert`/`loggedErr` emits to the log
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
- * Constant NAMES are preserved from the pre-ARC-65 layout so call sites don't
- * change.
+ * Constant names and values use camelCase. The `err` prefix avoids 8-byte logs.
  *
  * The human-readable mapping is shared via `akita-sdk/src/wallet/errors.ts`
  * (the wallet/plugin translator) — no new SDK file is required.
@@ -15,58 +14,58 @@
 // previous names but share the wire format with the top-level `errors.ts`.
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values.
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_PAYMENT_AMOUNT = 'IPMA'
-export const ERR_INVALID_PAYMENT_RECEIVER = 'IPMR'
-export const ERR_INVALID_ASSET = 'IAST'
-export const ERR_ALREADY_OPTED_IN = 'AOPT'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidPaymentAmount = 'errIpma'
+export const errInvalidPaymentReceiver = 'errIpmr'
+export const errInvalidAsset = 'errIast'
+export const errAlreadyOptedIn = 'errAopt'
 
 // --- Escrow lookup ----------------------------------------------------------
 
-export const ERR_RECEIVE_ESCROW_DOES_NOT_EXIST = 'NRES'
-export const ERR_RECEIVE_ESCROW_ALREADY_EXISTS = 'ERES'
-export const ERR_ESCROW_NOT_ALLOWED_TO_OPTIN = 'NESO'
-export const ERR_ESCROW_NAME_TOO_LONG = 'ENLG'
+export const errReceiveEscrowDoesNotExist = 'errNres'
+export const errReceiveEscrowAlreadyExists = 'errEres'
+export const errEscrowNotAllowedToOptin = 'errNeso'
+export const errEscrowNameTooLong = 'errEnlg'
 
 // --- Splits configuration ---------------------------------------------------
 
-export const ERR_SPLITS_CANNOT_BE_EMPTY = 'SPEM'
-export const ERR_SPLITS_CANNOT_BE_MORE_THAN_10 = 'SPGT'
-export const ERR_SPLIT_VALUE_MUST_BE_POSITIVE_OR_REMAINDER = 'SPVR'
-export const ERR_SPLITS_OR_REF_REQUIRED = 'SPOR'
-export const ERR_SPLIT_REF_NOT_FOUND = 'NSRF'
-export const ERR_INVALID_SPLIT_REF = 'ISRF'
-export const ERR_REMAINDER_MUST_BE_LAST = 'RMLT'
-export const ERR_REMAINDER_VALUE_MUST_BE_ZERO = 'RMVZ'
-export const ERR_PERCENTAGE_EXCEEDS_100 = 'PCGT'
-export const ERR_PERCENTAGE_MUST_BE_NOT_BE_100_WITH_REMAINDER = 'PCRM'
-export const ERR_FLAT_WITH_PERCENTAGE_REQUIRES_REMAINDER = 'FPRM'
-export const ERR_SPLITS_MUST_TOTAL_100_OR_HAVE_REMAINDER = 'SPTR'
-export const ERR_INVALID_SPLIT_TYPE = 'ISPT'
-export const ERR_INVALID_WALLET = 'IWAL'
-export const ERR_RECEIVER_ESCROW_DOES_NOT_EXIST = 'RNES'
+export const errSplitsCannotBeEmpty = 'errSpem'
+export const errSplitsCannotBeMoreThan10 = 'errSpgt'
+export const errSplitValueMustBePositiveOrRemainder = 'errSpvr'
+export const errSplitsOrRefRequired = 'errSpor'
+export const errSplitRefNotFound = 'errNsrf'
+export const errInvalidSplitRef = 'errIsrf'
+export const errRemainderMustBeLast = 'errRmlt'
+export const errRemainderValueMustBeZero = 'errRmvz'
+export const errPercentageExceeds100 = 'errPcgt'
+export const errPercentageMustBeNotBe100WithRemainder = 'errPcrm'
+export const errFlatWithPercentageRequiresRemainder = 'errFprm'
+export const errSplitsMustTotal100OrHaveRemainder = 'errSptr'
+export const errInvalidSplitType = 'errIspt'
+export const errInvalidWallet = 'errIwal'
+export const errReceiverEscrowDoesNotExist = 'errRnes'
 
 // --- Escrow phase -----------------------------------------------------------
 
-export const ERR_ESCROW_NOT_IDLE = 'ENID'
-export const ERR_ESCROW_NOT_ALLOCATABLE = 'ENAL'
-export const ERR_ESCROW_NOT_READY_FOR_DISBURSEMENT = 'ENRD'
-export const ERR_ESCROW_NOT_IN_ALLOCATION_PHASE = 'ENAP'
-export const ERR_ESCROW_NOT_IN_FINALIZATION_PHASE = 'ENFP'
+export const errEscrowNotIdle = 'errEnid'
+export const errEscrowNotAllocatable = 'errEnal'
+export const errEscrowNotReadyForDisbursement = 'errEnrd'
+export const errEscrowNotInAllocationPhase = 'errEnap'
+export const errEscrowNotInFinalizationPhase = 'errEnfp'
 
 // --- Asset allocation -------------------------------------------------------
 
-export const ERR_ASSET_NOT_ALLOCATED = 'ANAL'
-export const ERR_ASSET_ALREADY_ALLOCATED = 'AALA'
-export const ERR_ESCROW_NOT_OPTED_IN = 'ENOI'
-export const ERR_ASSET_NOT_REGISTERED = 'ANRG'
-export const ERR_ASSET_ALREADY_REGISTERED = 'AARG'
-export const ERR_ASSET_LIST_CANNOT_BE_EMPTY = 'ALEM'
-export const ERR_TOO_MANY_ASSETS = 'TMAS'
-export const ERR_MIGRATION_ASSET_COUNT_MISMATCH = 'MACM'
-export const ERR_INVALID_MIGRATION_METADATA = 'IMMD'
+export const errAssetNotAllocated = 'errAnal'
+export const errAssetAlreadyAllocated = 'errAala'
+export const errEscrowNotOptedIn = 'errEnoi'
+export const errAssetNotRegistered = 'errAnrg'
+export const errAssetAlreadyRegistered = 'errAarg'
+export const errAssetListCannotBeEmpty = 'errAlem'
+export const errTooManyAssets = 'errTmas'
+export const errMigrationAssetCountMismatch = 'errMacm'
+export const errInvalidMigrationMetadata = 'errImmd'
 
 // --- Disbursement -----------------------------------------------------------
 
-export const ERR_OVER_ALLOCATION = 'OVAL'
-export const ERR_CONTROLLED_ADDRESS_MUST_BE_ESCROW = 'CAME'
+export const errOverAllocation = 'errOval'
+export const errControlledAddressMustBeEscrow = 'errCame'
