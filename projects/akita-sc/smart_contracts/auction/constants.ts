@@ -45,6 +45,11 @@ export const AuctionGlobalStateKeyWinningTicket = 'winning_ticket'
 export const AuctionGlobalStateKeyRaffleWinner = 'raffle_winner'
 export const AuctionGlobalStateKeySalt = 'salt'
 export const AuctionGlobalStateKeyRaffleRound = 'raffle_round'
+/**
+ * Creation-time referrer of the seller's verified wallet (zero address if none), paid at settlement.
+ * Its EXISTENCE marks a child with the principal ABI (hinted `gatedBid`/`gatedBidAsa`; spec §6.6).
+ */
+export const AuctionGlobalStateKeySellerReferrer = 'seller_referrer'
 
 export const AuctionBoxPrefixBids = 'b'
 export const AuctionBoxPrefixWeights = 'w'
@@ -62,8 +67,23 @@ export const MaxChunksPerGroup: uint64 = 4
 export const MaxRefundIterationsPerGroup: uint64 = 64
 
 // MBR (Minimum Balance Requirement) values for auction boxes
-export const AuctionMBRBids: uint64 = 34_900
+// bids: 2500 + 400 * (key 'b' + uint64 = 9, BidInfo 32 + 8 + 32 + 1 = 73) = 35_300
+export const AuctionMBRBids: uint64 = 35_300
 export const AuctionMBRWeights: uint64 = 13_113_300
-export const AuctionMBRBidsByAddress: uint64 = 18_500
+// bidsByAddress: 2500 + 400 * (key 'a' + address = 33, uint64 = 8) = 18_900
+export const AuctionMBRBidsByAddress: uint64 = 18_900
 export const AuctionMBRLocations: uint64 = 18_900
 
+
+// weightTotals is a StaticArray<Uint64, 15>: at most 15 weights boxes
+export const MaxWeightsBoxes: uint64 = 15
+
+// VRF draw (commit-reveal). The MainNet beacon (1615566206) stores one value per multiple of
+// BEACON_ROUND_INTERVAL rounds and submits it about 2 rounds later. The first post-end raffle()
+// call commits to the first stored round at least DRAW_DELAY_ROUNDS ahead; the draw may read it
+// BEACON_LAG_ROUNDS after that round. An empty read reverts until BEACON_MAX_WAIT_ROUNDS have
+// passed (inside the beacon's ~1,512-round window), and only then re-commits forward.
+export const DRAW_DELAY_ROUNDS: uint64 = 8
+export const BEACON_ROUND_INTERVAL: uint64 = 8
+export const BEACON_LAG_ROUNDS: uint64 = 4
+export const BEACON_MAX_WAIT_ROUNDS: uint64 = 1_000

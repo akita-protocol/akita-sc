@@ -1,18 +1,17 @@
 import { abimethod, Account, Application, Bytes, Global, GlobalState, itxn, loggedAssert, op, uint64 } from "@algorandfoundation/algorand-typescript";
-import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
+import { abiCall, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4";
 import { GateMustCheckAbiMethod } from "../../../gates/constants";
 import { GateArgs } from "../../../gates/types";
 import { PollGlobalStateKeyGateID, votesMBR } from "../../../poll/constants";
 import { PollType } from "../../../poll/types";
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from "../../../utils/constants";
-import { getAccounts, getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions";
+import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions";
 import { PollPluginGlobalStateKeyFactory } from "./constant";
-import { ERR_CREATOR_NOT_POLL_FACTORY } from "./errors";
+import { errCreatorNotPollFactory } from "./errors";
 
 // CONTRACT IMPORTS
-import { Poll } from "../../../poll/contract.algo";
+import type { Poll } from "../../../poll/contract.algo";
 import type { PollFactory } from "../../../poll/factory.algo";
-import { AkitaBaseContract } from "../../../utils/base-contracts/base";
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable";
 
 
 export class PollPluginContract extends AkitaBaseContract {
@@ -42,16 +41,13 @@ export class PollPluginContract extends AkitaBaseContract {
     options: string[],
     gateID: uint64,
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    const poll = compileArc4(Poll)
-
-    const amount: uint64 = (
-      MIN_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
-      Global.minBalance
-    )
+    // Quote from the (upgradeable) factory so this immutable plugin stays exact when the
+    // child program or its schema changes.
+    const amount = abiCall<typeof PollFactory.prototype.newPollCost>({
+      appId: this.factory.value.id,
+    }).returnValue
 
     const mbrPayment = itxn.payment({
       sender,
@@ -76,9 +72,9 @@ export class PollPluginContract extends AkitaBaseContract {
   }
 
   deleteBoxes(wallet: Application, rekeyBack: boolean, pollAppID: uint64, addresses: Account[]): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
+    loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
 
     abiCall<typeof Poll.prototype.deleteBoxes>({
       sender,
@@ -89,9 +85,11 @@ export class PollPluginContract extends AkitaBaseContract {
   }
 
   vote(wallet: Application, rekeyBack: boolean, pollAppID: uint64, votes: uint64[], args: GateArgs): void {
-    const { origin, sender } = getAccounts(wallet)
+    // The poll records and gates the vote under the spending account (Txn.sender of the vote
+    // call), so the gate must be evaluated for that same address.
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(Application(pollAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_POLL_FACTORY)
+    loggedAssert(Application(pollAppID).creator === this.factory.value.address, errCreatorNotPollFactory)
 
     const mbrPayment = itxn.payment({
       sender,
@@ -113,7 +111,7 @@ export class PollPluginContract extends AkitaBaseContract {
             appId: gate,
             appArgs: [
               methodSelector(GateMustCheckAbiMethod),
-              origin,
+              sender,
               gateID,
               encodeArc4(args)
             ]

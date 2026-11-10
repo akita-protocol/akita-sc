@@ -10,13 +10,13 @@
  * message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Raffle contract
  * (and factory) can emit. Ordered roughly the same way as the contract-side file.
  */
-export const RAFFLE_ERROR_MESSAGES: Record<string, string> = {
+export const RAFFLE_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Raffle lifecycle ---------------------------------------------------
   IENR: 'Ending round must be in the future',
   NLIV: 'Raffle is not live',
@@ -68,7 +68,14 @@ export const RAFFLE_ERROR_MESSAGES: Record<string, string> = {
   // --- Raffle plugin -----------------------------------------------------
   NENA: 'Not enough of the asset',
   CNRF: 'Creator is not the raffle factory',
-}
+
+  // --- Audit 2026-10 fixes ------------------------------------------------
+  ITBD: 'Invalid ticket bounds (max must be positive and at least min)',
+  PITA: 'The prize cannot be the ticket asset',
+  NSLR: 'Only the seller can do this',
+  PSZB: 'The prize asset has a clawback or freeze address',
+  BNRD: 'The beacon value for the committed round is not available yet',
+})
 
 /**
  * Translates a short Raffle error code (or raw ARC-65 log entry) into a

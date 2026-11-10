@@ -1,5 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
-import { ABIMethod } from "@algorandfoundation/algokit-utils/abi";
+import { ABIMethod } from 'algosdk';
 import { BaseSDK } from "../base";
 import { ENV_VAR_NAMES } from "../config";
 import {

@@ -6,6 +6,8 @@ import {
   BidInfo,
 } from '../generated/AuctionClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
+import type { GateCtx } from "../principal";
+import type { AppCallMethodCall } from "@algorandfoundation/algokit-utils/types/composer";
 import {
   BidParams,
   RefundBidParams,
@@ -19,6 +21,21 @@ import {
 } from "./types";
 
 export * from "./factory";
+
+/** rounds between the commit round and the round its beacon value can be read */
+export const AUCTION_BEACON_LAG_ROUNDS = 4n;
+
+/** Global key whose existence marks an auction (or raffle) child with the principal ABI (spec §6.6). */
+export const SELLER_REFERRER_KEY = 'seller_referrer';
+
+/**
+ * The gate context a hinted target verifies for a DIRECT (top-level) caller, who can only hint 0:
+ * `{ principal: sender, wallet: 0, spender: sender }`. Pass it to `GateSDK.build.mustCheckFor`.
+ * Plugins compute theirs on chain (`pluginPrincipalOf`); off chain use `akita-sdk/principal`.
+ */
+export function directGateCtx(sender: string): GateCtx {
+  return { principal: sender, wallet: 0n, spender: sender };
+}
 export * from "./errors";
 export * from "./types";
 
@@ -42,8 +59,8 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
 
     return {
       prize: state.prize ?? 0n,
-      isPrizeBox: state.isPrizeBox as unknown as boolean ?? false,
-      prizeClaimed: state.prizeClaimed as unknown as boolean ?? false,
+      isPrizeBox: Boolean(state.isPrizeBox ?? 0n),
+      prizeClaimed: Boolean(state.prizeClaimed ?? 0n),
       bidAsset: state.bidAsset ?? 0n,
       bidFee: state.bidFee ?? 0n,
       startingBid: state.startingBid ?? 0n,
@@ -62,13 +79,33 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
       highestBid: state.highestBid ?? 0n,
       bidID: state.bidId ?? 0n,
       raffleAmount: state.raffleAmount ?? 0n,
-      rafflePrizeClaimed: state.rafflePrizeClaimed as unknown as boolean ?? false,
+      rafflePrizeClaimed: Boolean(state.rafflePrizeClaimed ?? 0n),
       uniqueAddressCount: state.uniqueAddressCount ?? 0n,
       weightsBoxCount: state.weightsBoxCount ?? 0n,
       winningTicket: state.winningTicket ?? 0n,
       raffleWinner: state.raffleWinner?.toString() ?? '',
       raffleRound: state.raffleRound ?? 0n,
+      sellerReferrer: state.sellerReferrer?.toString() ?? '',
     };
+  }
+
+  /**
+   * Whether this auction has the principal ABI (created by the Phase 2 factory: it holds
+   * `seller_referrer`). Gated bids then take the hinted `gatedBid`/`gatedBidAsa` and a
+   * `Gate.mustCheckFor` gate txn; older auctions keep `gatedBid(pay,appl,address)` and `Gate.mustCheck`.
+   */
+  async usesPrincipalAbi(): Promise<boolean> {
+    const state = await this.client.appClient.getGlobalState();
+    return state[SELLER_REFERRER_KEY] !== undefined;
+  }
+
+  /**
+   * Whether a gated bid with `gateTxn` takes the hinted overload: the auction has the principal ABI
+   * and the gate txn is not a legacy `Gate.mustCheck` (callers that still build `mustCheck` keep the
+   * registry semantics through the legacy shim, as with `MarketplaceSDK.purchase`).
+   */
+  private async usesHintedGate(gateTxn: AppCallMethodCall): Promise<boolean> {
+    return gateTxn.method.name !== 'mustCheck' && await this.usesPrincipalAbi();
   }
 
   /**
@@ -133,6 +170,7 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
     marketplace,
     isAsa = false,
     gateTxn,
+    wallet = 0n,
     ...rest
   }: BidParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -168,8 +206,14 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        await this.client.send.gatedBidAsa({
+      if (gateTxn && await this.usesHintedGate(gateTxn)) {
+        await this.client.send.gatedBidAsaPayAxferApplAddressUint64Void({
+          ...sendParams,
+          args: { payment, assetXfer, gateTxn, marketplace, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI, registry gate subject
+        await this.client.send.gatedBidAsaPayAxferApplAddressVoid({
           ...sendParams,
           args: { payment, assetXfer, gateTxn, marketplace },
         });
@@ -186,8 +230,14 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        await this.client.send.gatedBid({
+      if (gateTxn && await this.usesHintedGate(gateTxn)) {
+        await this.client.send.gatedBidPayApplAddressUint64Void({
+          ...sendParams,
+          args: { payment, gateTxn, marketplace, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI, registry gate subject
+        await this.client.send.gatedBidPayApplAddressVoid({
           ...sendParams,
           args: { payment, gateTxn, marketplace },
         });
@@ -213,8 +263,18 @@ export class AuctionSDK extends BaseSDK<AuctionClient> {
   }
 
   /**
-   * Triggers the raffle to draw the winning ticket number.
-   * Only applicable for auctions with bid fees (loser raffle).
+   * Round from which the committed loser-raffle draw can be completed (`raffleRound + 4`), or 0n
+   * if nothing has been committed yet. `raffleRound` is a multiple of 8, the rounds the beacon stores.
+   */
+  async drawReadyRound(): Promise<bigint> {
+    const { raffleRound } = await this.state();
+    return raffleRound === 0n ? 0n : raffleRound + AUCTION_BEACON_LAG_ROUNDS;
+  }
+
+  /**
+   * Two-phase loser-raffle draw (commit-reveal), fee auctions only. After the end, the first
+   * call excludes the winner's weight and either settles (no eligible losers) or commits to a
+   * future round. Call again once the chain reaches `drawReadyRound()` to draw the ticket.
    */
   async raffle(params?: MaybeSigner): Promise<void> {
     const sendParams = this.getSendParams(params);

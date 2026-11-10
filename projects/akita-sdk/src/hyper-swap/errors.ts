@@ -10,17 +10,19 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the HyperSwap contract
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const HYPER_SWAP_ERROR_MESSAGES: Record<string, string> = {
+export const HYPER_SWAP_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Offer validation ---------------------------------------------------
   BROT: 'Offer and participants roots cannot be the same',
   OFEX: 'Offer has expired',
   NOFR: 'Offer not found',
+  OTLG: 'Offer expiration is further out than the 30-day maximum',
+  TMIS: 'Offer terms do not match the terms you validated',
 
   // --- Participants -------------------------------------------------------
   NPRT: 'Not a participant in this swap',
@@ -41,7 +43,7 @@ export const HYPER_SWAP_ERROR_MESSAGES: Record<string, string> = {
   // --- Disbursal ----------------------------------------------------------
   RNOI: 'Receiver is not opted into asset',
   RWMM: 'Receiver wallet address does not match receiver',
-}
+})
 
 /**
  * Translates a short HyperSwap error code (or raw ARC-65 log entry) into a

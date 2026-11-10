@@ -16,6 +16,9 @@ import {
   OptInParams,
 } from "./types";
 import { PrizeBoxFactorySDK } from "../prize-box";
+import { MIN_DISBURSEMENTS_MBR, USER_ALLOCATION_MBR } from "../rewards";
+import type { GateCtx } from "../principal";
+import type { AppCallMethodCall } from '@algorandfoundation/algokit-utils/types/composer';
 
 export * from "./errors";
 export * from "./listing";
@@ -29,6 +32,70 @@ type MarketplaceOptInPlan = {
 };
 
 const ASSET_OPT_IN_MIN_BALANCE = 100_000n;
+
+/**
+ * Full ARC-4 signatures of the Marketplace methods that exist twice during the principal-resolution
+ * compatibility window (PHASE-0-SPEC §7.2, P2-ABI-01). The hinted method (trailing `wallet: uint64`)
+ * keeps the canonical name; the legacy shim keeps the deployed selector. The generated client exposes
+ * each overload under a suffixed name (no shared `client.send.list`); this SDK always sends the hinted one,
+ * except `purchase` with a legacy `Gate.mustCheck` gate txn.
+ */
+export const MARKETPLACE_HINTED_METHODS = {
+  list: 'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][],uint64)uint64',
+  listPrizeBox: 'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address,uint64)uint64',
+  gatedPurchase: 'gatedPurchase(pay,appl,uint64,address,uint64)void',
+  gatedPurchaseAsa: 'gatedPurchaseAsa(axfer,appl,uint64,address,uint64)void',
+} as const;
+
+/** Deployed (pre-principal-resolution) selectors, served by the legacy shims until Phase 4. */
+export const MARKETPLACE_LEGACY_METHODS = {
+  list: 'list(pay,axfer,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64',
+  listPrizeBox: 'listPrizeBox(appl,pay,uint64,uint64,uint64,address,uint64,address)uint64',
+  gatedPurchase: 'gatedPurchase(pay,appl,uint64,address)void',
+  gatedPurchaseAsa: 'gatedPurchaseAsa(axfer,appl,uint64,address)void',
+} as const;
+
+/**
+ * Creator MBR of a rev-3 Listing child: 2 program pages + 13 global uints + 7 global byte slices
+ * = 200_000 + 13 * 28_500 + 7 * 50_000. Mirrors the on-chain `listCost`; prefer `quoteListCost()`.
+ * (`seller_referrer` +50,000 and `factory_float` +28,500 over the rev-2 842,000.)
+ */
+export const LISTING_CREATE_MBR = 920_500n;
+
+/**
+ * Creator MBR the deployed MarketplacePlugin (MainNet 3569561455) and pre-audit SDKs bake into their
+ * listing payment (pre-audit Listing: 2 pages, 9 uints, 6 bytes). The legacy `list`/`listPrizeBox`
+ * shims still accept it for ALGO-priced listings; the hinted methods never do. The factory floats
+ * `LISTING_CREATE_MBR - LEGACY_LISTING_CREATE_MBR` (164,000) plus the v2 disbursement MBR increase
+ * (12,800) per quoted disbursement per open legacy-paid listing (189,600 for an ASA listing, 176,800
+ * for a prize box), records it on the child (`factoryFloat`) and takes it back at settlement or delist before refunding the seller.
+ */
+export const LEGACY_LISTING_CREATE_MBR = 756_500n;
+
+/**
+ * The gate context a DIRECT (top-level, wallet hint 0) buyer must pin in `Gate.mustCheckFor`:
+ * the hinted `gatedPurchase` resolves `(principal, wallet, spender) = (sender, 0, sender)`.
+ */
+export function directGateCtx(sender: string | algosdk.Address): GateCtx {
+  const account = sender.toString();
+  return { principal: account, wallet: 0n, spender: account };
+}
+
+/** A `Gate.mustCheck(caller, ...)` txn (legacy subject) rather than `Gate.mustCheckFor(ctx, ...)`. */
+export function isLegacyGateTxn(gateTxn: AppCallMethodCall): boolean {
+  return gateTxn.method.name === 'mustCheck';
+}
+
+/**
+ * Grouped funding transactions are otherwise byte-identical when the same account lists or
+ * buys twice within one validity window (same amount, same suggested params), which makes the
+ * second group fail with "transaction already in ledger". A unique note keeps them distinct.
+ */
+let noteCounter = 0;
+function uniqueNote(tag: string): string {
+  noteCounter += 1;
+  return `akita-marketplace:${tag}:${Date.now()}:${noteCounter}`;
+}
 
 function getHttpStatus(error: unknown): number | undefined {
   if (typeof error !== 'object' || error === null) return undefined;
@@ -74,6 +141,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     reservedFor,
     gateId,
     marketplace,
+    wallet = 0n,
     ...rest
   }: ListParams): Promise<ListingSDK> {
 
@@ -97,6 +165,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     });
 
     const payment = await this.client.algorand.createTransaction.payment({
+      note: uniqueNote('payment'),
       ...sendParams,
       amount: microAlgo(cost),
       receiver: this.client.appAddress,
@@ -109,6 +178,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     if (group) {
       for (const { asset, cost: optInCost } of listingOptIns.assetsToOptIn) {
         const optInPayment = await this.client.algorand.createTransaction.payment({
+      note: uniqueNote('payment'),
           ...sendParams,
           amount: microAlgo(optInCost),
           receiver: this.client.appAddress,
@@ -143,16 +213,17 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         reservedFor,
         gateId,
         marketplace,
+        wallet,
       };
 
       if (group) {
-        group.listPrizeBox({
+        group.listPrizeBoxApplPayUint64Uint64Uint64AddressUint64AddressUint64Uint64({
           ...sendParams,
           args,
           maxFee: microAlgo(2_000_000),
         });
       } else {
-        ({ return: appId } = await this.client.send.listPrizeBox({
+        ({ return: appId } = await this.client.send.listPrizeBoxApplPayUint64Uint64Uint64AddressUint64AddressUint64Uint64({
           ...sendParams,
           args,
         }));
@@ -161,6 +232,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       const { asset, amount, name, proof } = rest as Exclude<ListParams, { isPrizeBox: true }>;
 
       const assetXfer = await this.client.algorand.createTransaction.assetTransfer({
+      note: uniqueNote('assetTransfer'),
         ...sendParams,
         amount: BigInt(amount),
         assetId: BigInt(asset),
@@ -178,16 +250,17 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
         marketplace,
         name,
         proof,
+        wallet,
       };
 
       if (group) {
-        group.list({
+        group.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64({
           ...sendParams,
           args,
           maxFee: microAlgo(2_000_000),
         });
       } else {
-        ({ return: appId } = await this.client.send.list({
+        ({ return: appId } = await this.client.send.listPayAxferUint64Uint64Uint64AddressUint64AddressStringByte_32Uint64Uint64({
           ...sendParams,
           args,
         }));
@@ -246,8 +319,8 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       if (!akitaDaoAppId) return 100_000n;
 
       const algod = this.algorand.client.algod;
-      const daoApp = await algod.applicationById(akitaDaoAppId);
-      const globalState = daoApp.params.globalState;
+      const daoApp = await algod.getApplicationByID(akitaDaoAppId).do();
+      const globalState = daoApp.params?.globalState;
       if (!globalState) return 100_000n;
 
       // Find the 'aal' (akitaAppList) key in AkitaDAO global state
@@ -267,7 +340,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
 
       // Check if rewards app address is already opted into the asset
       const rewardsAddress = algosdk.getApplicationAddress(rewardsAppId).toString();
-      const response = await algod.accountAssetInformation(rewardsAddress, asset);
+      const response = await algod.accountAssetInformation(rewardsAddress, asset).do();
       return response.assetHolding ? 0n : 100_000n;
     } catch {
       // If any lookup fails (e.g. 404 not opted in), assume cost is needed
@@ -314,7 +387,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     if (asset === 0n) return true;
 
     try {
-      const response = await this.algorand.client.algod.accountAssetInformation(this.client.appAddress.toString(), asset);
+      const response = await this.algorand.client.algod.accountAssetInformation(this.client.appAddress.toString(), asset).do();
       return !!response.assetHolding;
     } catch (error) {
       if (getHttpStatus(error) === 404) return false;
@@ -331,17 +404,19 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
    */
   listCost({ isPrizeBox = false, isAlgoPayment = true, prizeRewardsOptInCost = 100_000n, paymentRewardsOptInCost = 100_000n, escrowOptInCost = 0n }: { isPrizeBox?: boolean, isAlgoPayment?: boolean, prizeRewardsOptInCost?: bigint, paymentRewardsOptInCost?: bigint, escrowOptInCost?: bigint } = {}): bigint {
     // Base cost: MIN_PROGRAM_PAGES * (1 + extraProgramPages) + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes)
-    // Listing arc56 schema: 9 global uints, 6 global bytes, extraProgramPages = 1 (2 total pages)
-    //   Listing globals: prize, isPrizeBox, price, paymentAsset, expiration, creatorRoyalty, gateID, marketplaceRoyalties (8 uints)
-    //     + seller, reservedFor, marketplace, akitaDAOEscrow (4 bytes)
+    // Listing arc56 schema (rev 3): 13 global uints, 7 global bytes, extraProgramPages = 1 (2 total pages)
+    //   Listing globals: prize, isPrizeBox, price, paymentAsset, expiration, creatorRoyalty, gateID, marketplaceRoyalties,
+    //     prizeAmount, lastPriceRound, rev, factoryFloat (12 uints)
+    //     + seller, reservedFor, marketplace, akitaDAOEscrow, sellerReferrer (5 bytes)
     //   + AkitaBaseContract: akitaDAO (1 uint), version (1 bytes)
     //   + ChildContract: funder (1 bytes)
-    //   => 9 uints, 6 bytes
-    // = (100_000 * 2) + (28_500 * 9) + (50_000 * 6) = 200_000 + 256_500 + 300_000 = 756_500
-    const baseCost = 756_500n;
+    //   => 13 uints, 7 bytes
+    // = (100_000 * 2) + (28_500 * 13) + (50_000 * 7) = 200_000 + 370_500 + 350_000 = 920_500 (LISTING_CREATE_MBR)
+    // Prefer `quoteListCost()` (on-chain `listCost`), which is exact by construction.
+    const baseCost = LISTING_CREATE_MBR;
     const minBalance = 100_000n;
     const assetOptInMinBalance = 100_000n;
-    const perDisbursement = 67_000n; // MinDisbursementsMBR + UserAllocationMBR
+    const perDisbursement = MIN_DISBURSEMENTS_MBR + USER_ALLOCATION_MBR;
 
     // Asset opt-in MBR for the child contract
     const optinMbr = isPrizeBox
@@ -373,6 +448,15 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     return baseCost + minBalance + optinMbr + disbursementMbr + escrowCost;
   }
 
+  /**
+   * Exact listing payment from the factory's readonly `listCost(prize, paymentAsset, isPrizeBox)`, as
+   * the chain computes it right now (includes the rewards and DAO-escrow opt-in terms). Pass `prize = 0`
+   * for a prize box. Quote after any factory opt-ins the listing group adds, or use `listCost` offline.
+   */
+  async quoteListCost({ prize = 0n, paymentAsset = 0n, isPrizeBox = false }: { prize?: bigint | number, paymentAsset?: bigint | number, isPrizeBox?: boolean } = {}): Promise<bigint> {
+    return await this.client.listCost({ args: { prize, paymentAsset, isPrizeBox } });
+  }
+
   // ========== Purchase Methods ==========
 
   /**
@@ -387,30 +471,45 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     marketplace,
     isAsa = false,
     gateTxn,
+    wallet = 0n,
     ...rest
   }: PurchaseParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     const group = this.client.newGroup();
+    // a legacy `Gate.mustCheck(caller, ...)` gate txn can only satisfy the legacy shim
+    const legacyGate = gateTxn !== undefined && isLegacyGateTxn(gateTxn);
 
     if (isAsa) {
       const { paymentAsset, paymentAmount } = rest as Extract<PurchaseParams, { isAsa: true }>;
 
       const assetXfer = await this.client.algorand.createTransaction.assetTransfer({
+      note: uniqueNote('assetTransfer'),
         ...sendParams,
         amount: BigInt(paymentAmount),
         assetId: BigInt(paymentAsset),
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedPurchaseAsa({
+      if (gateTxn && legacyGate) {
+        group.gatedPurchaseAsaAxferApplUint64AddressVoid({
           ...sendParams,
           args: {
             assetXfer,
             gateTxn,
             appId: listingAppId,
             marketplace,
+          },
+        });
+      } else if (gateTxn) {
+        group.gatedPurchaseAsaAxferApplUint64AddressUint64Void({
+          ...sendParams,
+          args: {
+            assetXfer,
+            gateTxn,
+            appId: listingAppId,
+            marketplace,
+            wallet,
           },
         });
       } else {
@@ -429,19 +528,31 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
       const listingState = await listing.state();
 
       const payment = await this.client.algorand.createTransaction.payment({
+      note: uniqueNote('payment'),
         ...sendParams,
         amount: microAlgo(listingState.price),
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedPurchase({
+      if (gateTxn && legacyGate) {
+        group.gatedPurchasePayApplUint64AddressVoid({
           ...sendParams,
           args: {
             payment,
             gateTxn,
             appId: listingAppId,
             marketplace,
+          },
+        });
+      } else if (gateTxn) {
+        group.gatedPurchasePayApplUint64AddressUint64Void({
+          ...sendParams,
+          args: {
+            payment,
+            gateTxn,
+            appId: listingAppId,
+            marketplace,
+            wallet,
           },
         });
       } else {
@@ -474,6 +585,7 @@ export class MarketplaceSDK extends BaseSDK<MarketplaceClient> {
     const cost = await this.client.optInCost({ args: { asset } });
 
     const payment = await this.client.algorand.createTransaction.payment({
+      note: uniqueNote('payment'),
       ...sendParams,
       amount: microAlgo(cost),
       receiver: this.client.appAddress,

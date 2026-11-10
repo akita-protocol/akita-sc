@@ -1,11 +1,13 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { MarketplacePluginSDK, newWallet, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { ListingSDK } from 'akita-sdk/marketplace';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
+import { expectContractError } from '../../../../tests/utils/errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -14,8 +16,8 @@ const ONE_DAY = 86_400n;
 const ZERO_ADDRESS = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAY5HFKQ';
 
 const getBlockTimestamp = async (algorand: import('@algorandfoundation/algokit-utils').AlgorandClient): Promise<bigint> => {
-  const status = await algorand.client.algod.status();
-  const block = await algorand.client.algod.block(status.lastRound);
+  const status = await algorand.client.algod.status().do();
+  const block = await algorand.client.algod.block(status.lastRound).do();
   return BigInt(block.block.header.timestamp);
 };
 
@@ -24,7 +26,7 @@ const findLastCreatedAppId = (nodes: unknown[]): bigint | undefined => {
 
   const walk = (node: unknown): void => {
     if (node === null || typeof node !== 'object') return;
-    const txn = node as Record<string, unknown>;
+    const txn = node as unknown as Record<string, unknown>;
     const created = txn.applicationIndex ?? txn['application-index'] ?? txn.createdApplicationIndex;
     if (typeof created === 'bigint') {
       appId = created;
@@ -46,13 +48,13 @@ const getCreatedAppIds = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
   address: Address,
 ): Promise<bigint[]> => {
-  const accountInfo = await algorand.client.algod.accountInformation(address) as Record<string, unknown>;
+  const accountInfo = await algorand.client.algod.accountInformation(address).do() as unknown as Record<string, unknown>;
   const createdApps = accountInfo.createdApps ?? accountInfo['created-apps'];
   if (!Array.isArray(createdApps)) return [];
 
   return createdApps
     .map((app) => {
-      const appRecord = app as Record<string, unknown>;
+      const appRecord = app as unknown as Record<string, unknown>;
       const id = appRecord.id ?? appRecord.index ?? appRecord.applicationIndex ?? appRecord['application-index'];
       return typeof id === 'bigint' ? id : typeof id === 'number' ? BigInt(id) : undefined;
     })
@@ -60,11 +62,11 @@ const getCreatedAppIds = async (
 };
 
 describe('Marketplace plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
-  let buyer: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
+  let buyer: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let buyerWallet: WalletSDK;
@@ -82,9 +84,9 @@ describe('Marketplace plugin contract', () => {
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
     buyer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
-    await algorand.account.ensureFunded(buyer.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
+    await algorand.account.ensureFunded(buyer.addr, dispenser.addr, (500).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -137,7 +139,7 @@ describe('Marketplace plugin contract', () => {
       assetName: 'Marketplace Plugin Test',
       unitName: 'MPT',
     });
-    testAssetId = BigInt(assetCreateTxn.confirmation.assetId!);
+    testAssetId = BigInt(assetCreateTxn.confirmation.assetIndex!);
 
     for (const testWallet of [wallet, buyerWallet]) {
       await testWallet.usePlugin({
@@ -158,7 +160,7 @@ describe('Marketplace plugin contract', () => {
       receiver: wallet.client.appAddress,
     });
 
-    await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser, (50).algo());
+    await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser.addr, (50).algo());
     const prizeBox = await akitaUniverse.prizeBoxFactory.mint({
       sender: user.addr,
       signer: user.signer,
@@ -209,7 +211,7 @@ describe('Marketplace plugin contract', () => {
         ],
       });
 
-      await expect(algorand.client.algod.applicationById(Number(listingId))).rejects.toThrow();
+      await expect(algorand.client.algod.getApplicationByID(Number(listingId)).do()).rejects.toThrow();
     });
 
     test('purchases an ASA listing through the plugin path', async () => {
@@ -223,6 +225,7 @@ describe('Marketplace plugin contract', () => {
           marketplacePluginSdk.purchase({
             appId: listingId,
             marketplace: ZERO_ADDRESS,
+            maxPrice: 2_000_000n,
             args: [],
           }),
         ],
@@ -231,7 +234,70 @@ describe('Marketplace plugin contract', () => {
       const buyerInfoAfter = await algorand.account.getInformation(buyerWallet.client.appAddress);
       const buyerAssetAfter = buyerInfoAfter.assets?.find((asset) => asset.assetId === testAssetId)?.amount ?? 0n;
       expect(buyerAssetAfter - buyerAssetBefore).toBe(1n);
-      await expect(algorand.client.algod.applicationById(Number(listingId))).rejects.toThrow();
+      await expect(algorand.client.algod.getApplicationByID(Number(listingId)).do()).rejects.toThrow();
+    });
+
+    test('MKT-02: purchase reverts when the listing price is above the buyer maxPrice', async () => {
+      const listingId = await createListing({ amount: 1n, price: 2_000_000n, name: 'Plugin Repriced ASA' });
+
+      // seller raises the price after the buyer saw 2 ALGO
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [marketplacePluginSdk.changePrice({ appId: listingId, price: 50_000_000n })],
+      });
+
+      const buyerBalanceBefore = (await algorand.account.getInformation(buyerWallet.client.appAddress)).balance.microAlgo;
+      await expectContractError(
+        buyerWallet.usePlugin({
+          callerType: CallerType.Global,
+          calls: [marketplacePluginSdk.purchase({ appId: listingId, marketplace: ZERO_ADDRESS, maxPrice: 2_000_000n, args: [] })],
+        }),
+        'errPamx'
+      );
+      const buyerBalanceAfter = (await algorand.account.getInformation(buyerWallet.client.appAddress)).balance.microAlgo;
+      expect(buyerBalanceAfter).toBe(buyerBalanceBefore);
+      expect(await algorand.client.algod.getApplicationByID(Number(listingId)).do()).toBeDefined();
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [marketplacePluginSdk.delist({ appId: listingId })],
+      });
+    });
+
+    test('MKT-09: lists an ASA priced in a new ASA using the factory quote', async () => {
+      const payCreate = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000n, decimals: 0,
+        assetName: 'Plugin Pay Asset', unitName: 'PPA',
+      });
+      const payAsset = BigInt(payCreate.confirmation.assetIndex!);
+      const currentTimestamp = await getBlockTimestamp(algorand);
+
+      const result = await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [
+          marketplacePluginSdk.list({
+            asset: testAssetId,
+            assetAmount: 1n,
+            price: 1_000n,
+            paymentAsset: payAsset,
+            expiration: currentTimestamp + (ONE_DAY * 30n),
+            reservedFor: ZERO_ADDRESS,
+            gateId: 0n,
+            marketplace: ZERO_ADDRESS,
+            name: '',
+            proof: [],
+          }),
+        ],
+      });
+      const listingId = findLastCreatedAppId(result.confirmations)
+        ?? (await getCreatedAppIds(algorand, akitaUniverse.marketplace.client.appAddress)).at(-1)!;
+      const state = await akitaUniverse.marketplace.getListing({ appId: listingId }).state();
+      expect(state.paymentAsset).toBe(payAsset);
+
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        calls: [marketplacePluginSdk.delist({ appId: listingId })],
+      });
     });
 
     test('lists a prize box through the plugin path', async () => {

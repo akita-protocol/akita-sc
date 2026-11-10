@@ -1,25 +1,38 @@
-import { abimethod, Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
-import { abiCall, compileArc4, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
+import { abimethod, Account, Application, Asset, Bytes, bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abiCall, encodeArc4, methodSelector } from "@algorandfoundation/algorand-typescript/arc4"
 import { AssetHolding, Global } from "@algorandfoundation/algorand-typescript/op"
 import { classes } from "polytype"
-import { AuctionGlobalStateKeyBidAsset, AuctionGlobalStateKeyBidFee, AuctionGlobalStateKeyGateID } from "../../../auction/constants"
-import { GateMustCheckAbiMethod } from "../../../gates/constants"
+import { AuctionGlobalStateKeyBidAsset, AuctionGlobalStateKeyBidFee, AuctionGlobalStateKeyGateID, AuctionGlobalStateKeySellerReferrer } from "../../../auction/constants"
+import { GateMustCheckAbiMethod, GateMustCheckForAbiMethod } from "../../../gates/constants"
 import { GateArgs } from "../../../gates/types"
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from "../../../utils/constants"
-import { getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
-import { ERR_NOT_PRIZE_BOX_OWNER } from "../../../utils/errors"
+import { getAkitaAppList, getControlledSpendingAccount, getPrizeBoxOwner, legacyOriginOr, legacyWalletOf, pluginPrincipalOf, rekeyAddress } from "../../../utils/functions"
+import { gateCtx, windowHint } from "../../../utils/principal"
+import { errNotPrizeBoxOwner } from "../../../utils/errors"
 import { Proof } from "../../../utils/types/merkles"
 import { AuctionPluginGlobalStateKeyFactory } from "./constants"
-import { ERR_AUCTION_PRIZE_CANNOT_BE_ALGO, ERR_CREATOR_NOT_AUCTION_FACTORY, ERR_NOT_ENOUGH_ASSET } from "./errors"
+import { errAuctionPrizeCannotBeAlgo, errCreatorNotAuctionFactory, errNotEnoughAsset } from "./errors"
 
 // CONTRACT IMPORTS
 import { BaseAuction } from "../../../auction/base"
-import { Auction } from "../../../auction/contract.algo"
+import type { Auction } from "../../../auction/contract.algo"
 import type { AuctionFactory } from "../../../auction/factory.algo"
 import type { PrizeBox } from "../../../prize-box/contract.algo"
-import { AkitaBaseContract } from "../../../utils/base-contracts/base"
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable"
 
-
+/**
+ * AuctionPlugin v3 (principal resolution, docs/principal-resolution/PHASE-0-SPEC.md §6.6, §6.11).
+ * Plugin ABI unchanged from v2. Requires the Phase 2 AuctionFactory (hinted `newAuction`).
+ * - creation passes `windowHint(wallet)` to the factory, which stores the seller's verified referrer
+ * - gated bids on children with `seller_referrer` (principal ABI) send `Gate.mustCheckFor` with the
+ *   window's verified context and hint the window; older children get the legacy `gatedBid` with the
+ *   subject they assert (registry origin of the spending account)
+ *
+ * v2 (audit 2026-10, AR-12 / AR-14):
+ * - creation cost is quoted by the factory (`newAuctionCost`) instead of re-derived here
+ * - bid MBR is read from the target auction (`mbr()`), so child MBR constant changes never desync
+ * - weights clearing targets the auction; delete / cancel route through the factory
+ * - every spend uses the controlled spending account (must be rekeyed to this plugin)
+ */
 export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
@@ -35,12 +48,64 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     this.akitaDAO.value = Application(akitaDAO)
   }
 
+  // PRIVATE METHODS ------------------------------------------------------------------------------
+
+  private assertAuction(appId: Application): void {
+    loggedAssert(appId.creator === this.factory.value.address, errCreatorNotAuctionFactory)
+  }
+
+  /** children created with `seller_referrer` take the principal ABI (hinted gated bids) */
+  private hasPrincipalAbi(appId: Application): boolean {
+    return op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySellerReferrer))[1]
+  }
+
+  /**
+   * `appArgs(0..1)` of a gated bid's gate txn. Principal-ABI child: `Gate.mustCheckFor` with the
+   * verified context of this window (the child asserts it with `gateCheckCtx`). Older child:
+   * `Gate.mustCheck` with the registry origin of the spending account, the subject it asserts.
+   */
+  private gateSelector(principalAbi: boolean): bytes {
+    return principalAbi ? methodSelector(GateMustCheckForAbiMethod) : methodSelector(GateMustCheckAbiMethod)
+  }
+
+  private gateSubject(wallet: Application, sender: Account, principalAbi: boolean): bytes {
+    if (principalAbi) {
+      return encodeArc4(gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet)))
+    }
+    return legacyOriginOr(legacyWalletOf(this.akitaDAO.value, sender), sender).bytes
+  }
+
+  /** opt the factory into `asset` (paid by the wallet) if it isn't already; no-op for ALGO */
+  private ensureFactoryOptedIn(sender: Account, asset: uint64): void {
+    if (asset === 0 || this.factory.value.address.isOptedIn(Asset(asset))) {
+      return
+    }
+
+    const cost = abiCall<typeof AuctionFactory.prototype.optInCost>({
+      appId: this.factory.value,
+      args: [Asset(asset)],
+    }).returnValue
+
+    abiCall<typeof AuctionFactory.prototype.optIn>({
+      sender,
+      appId: this.factory.value,
+      args: [
+        itxn.payment({
+          sender,
+          receiver: this.factory.value.address,
+          amount: cost
+        }),
+        Asset(asset),
+      ]
+    })
+  }
+
   // AUCTION PLUGIN METHODS -----------------------------------------------------------------------
 
   new(
     wallet: Application,
     rekeyBack: boolean,
-    prizeID: uint64, // 0 | Asset | Application
+    prizeID: uint64, // Asset
     prizeAmount: uint64,
     name: string,
     proof: Proof,
@@ -54,64 +119,24 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     marketplace: Account,
     weightsListCount: uint64,
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(prizeID !== 0, ERR_AUCTION_PRIZE_CANNOT_BE_ALGO)
+    loggedAssert(prizeID !== 0, errAuctionPrizeCannotBeAlgo)
     const senderPrizeBalance = AssetHolding.assetBalance(sender, prizeID)[0]
-    loggedAssert(senderPrizeBalance >= prizeAmount, ERR_NOT_ENOUGH_ASSET)
+    loggedAssert(senderPrizeBalance >= prizeAmount, errNotEnoughAsset)
 
-    if (!this.factory.value.address.isOptedIn(Asset(prizeID))) {
-      abiCall<typeof AuctionFactory.prototype.optIn>({
-        sender,
-        appId: this.factory.value,
-        args: [
-          itxn.payment({
-            sender,
-            receiver: this.factory.value.address,
-            amount: Global.assetOptInMinBalance
-          }),
-          Asset(prizeID),
-        ]
-      })
-    }
+    this.ensureFactoryOptedIn(sender, prizeID)
+    this.ensureFactoryOptedIn(sender, bidAssetID)
 
-    if (!this.factory.value.address.isOptedIn(Asset(bidAssetID))) {
-      abiCall<typeof AuctionFactory.prototype.optIn>({
-        sender,
-        appId: this.factory.value,
-        args: [
-          itxn.payment({
-            sender,
-            receiver: this.factory.value.address,
-            amount: Global.assetOptInMinBalance
-          }),
-          Asset(bidAssetID),
-        ]
-      })
-    }
-
-    const isAlgoBid = bidAssetID === 0
-    const optinMBR: uint64 = isAlgoBid
-      ? Global.assetOptInMinBalance
-      : Global.assetOptInMinBalance * 2
-
-    const costs = this.mbr()
-
-    const auction = compileArc4(Auction)
-
-    const childContractMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
-      Global.minBalance +
-      optinMBR +
-      (weightsListCount * costs.weights)
-    )
+    const cost = abiCall<typeof AuctionFactory.prototype.newAuctionCost>({
+      appId: this.factory.value,
+      args: [false, bidAssetID, prizeID, weightsListCount],
+    }).returnValue
 
     const mbrTxn = itxn.payment({
       sender,
       receiver: this.factory.value.address,
-      amount: childContractMBR
+      amount: cost
     })
 
     const prizeTxn = itxn.assetTransfer({
@@ -121,7 +146,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
       xferAsset: Asset(prizeID)
     })
 
-    const newAuction = abiCall<typeof AuctionFactory.prototype.newAuction>({
+    return abiCall<typeof AuctionFactory.prototype.newAuction>({
       sender,
       appId: this.factory.value,
       args: [
@@ -137,12 +162,11 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
         endtimestamp,
         gateID,
         marketplace,
-        weightsListCount
+        weightsListCount,
+        windowHint(wallet)
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     }).returnValue
-
-    return newAuction
   }
 
   listPrizeBox(
@@ -159,9 +183,16 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     marketplace: Account,
     weightsListCount: uint64,
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, errNotPrizeBoxOwner)
+
+    this.ensureFactoryOptedIn(sender, bidAssetID)
+
+    const cost = abiCall<typeof AuctionFactory.prototype.newAuctionCost>({
+      appId: this.factory.value,
+      args: [true, bidAssetID, 0, weightsListCount],
+    }).returnValue
 
     const prizeBoxTransferTxn = itxn.applicationCall({
       sender,
@@ -173,33 +204,6 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
       ],
     })
 
-    if (bidAssetID !== 0 && !this.factory.value.address.isOptedIn(Asset(bidAssetID))) {
-      abiCall<typeof AuctionFactory.prototype.optIn>({
-        sender,
-        appId: this.factory.value,
-        args: [
-          itxn.payment({
-            sender,
-            receiver: this.factory.value.address,
-            amount: Global.assetOptInMinBalance,
-          }),
-          Asset(bidAssetID),
-        ],
-      })
-    }
-
-    const isAlgoBid = bidAssetID === 0
-    const bidOptinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
-    const costs = this.mbr()
-    const auction = compileArc4(Auction)
-    const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
-      (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
-      bidOptinMBR +
-      (weightsListCount * costs.weights)
-    )
-
     return abiCall<typeof AuctionFactory.prototype.newPrizeBoxAuction>({
       sender,
       appId: this.factory.value,
@@ -208,7 +212,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
         itxn.payment({
           sender,
           receiver: this.factory.value.address,
-          amount: totalMBR,
+          amount: cost,
         }),
         bidAssetID,
         bidFee,
@@ -219,6 +223,7 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
         gateID,
         marketplace,
         weightsListCount,
+        windowHint(wallet),
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
     }).returnValue
@@ -230,12 +235,12 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     auctionAppID: uint64,
     iterationAmount: uint64
   ): void {
-    loggedAssert(Application(auctionAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
-    const sender = getSpendingAccount(wallet)
+    this.assertAuction(Application(auctionAppID))
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Auction.prototype.clearWeightsBoxes>({
       sender,
-      appId: this.factory.value,
+      appId: Application(auctionAppID),
       args: [iterationAmount],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
@@ -246,9 +251,8 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
 
     abiCall<typeof AuctionFactory.prototype.deleteAuctionApp>({
       sender,
@@ -266,16 +270,19 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     args: GateArgs,
     marketplace: Account
   ): void {
-    const { origin, sender } = getAccounts(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    this.assertAuction(appId)
 
-    const { bids, bidsByAddress, locations } = this.mbr()
+    // AR-12: MBR is quoted by the auction itself
+    const { bids, bidsByAddress, locations } = abiCall<typeof BaseAuction.prototype.mbr>({
+      appId,
+    }).returnValue
+
     let mbr = bids
     const bidFee = op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyBidFee))[0]
     const hasBid = abiCall<typeof Auction.prototype.hasBid>({
-      sender,
-      appId: appId,
+      appId,
       args: [sender]
     }).returnValue
 
@@ -296,28 +303,33 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
       })
 
       if (args.length > 0) {
-        const gate = getAkitaAppList(this.akitaDAO.value).gate
-        const gateID = op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyGateID))[0]
-
-        abiCall<typeof Auction.prototype.gatedBid>({
+        const principalAbi = this.hasPrincipalAbi(appId)
+        const gateTxn = itxn.applicationCall({
           sender,
-          appId,
-          args: [
-            mbrPayment,
-            itxn.applicationCall({
-              sender,
-              appId: gate,
-              appArgs: [
-                methodSelector(GateMustCheckAbiMethod),
-                origin,
-                gateID,
-                encodeArc4(args)
-              ]
-            }),
-            marketplace,
-          ],
-          rekeyTo: rekeyAddress(rekeyBack, wallet)
+          appId: getAkitaAppList(this.akitaDAO.value).gate,
+          appArgs: [
+            this.gateSelector(principalAbi),
+            this.gateSubject(wallet, sender, principalAbi),
+            op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyGateID))[0],
+            encodeArc4(args)
+          ]
         })
+
+        if (principalAbi) {
+          abiCall<typeof Auction.prototype.gatedBid>({
+            sender,
+            appId,
+            args: [mbrPayment, gateTxn, marketplace, windowHint(wallet)],
+            rekeyTo: rekeyAddress(rekeyBack, wallet)
+          })
+        } else {
+          abiCall<typeof Auction.prototype.legacyGatedBid>({
+            sender,
+            appId,
+            args: [mbrPayment, gateTxn, marketplace],
+            rekeyTo: rekeyAddress(rekeyBack, wallet)
+          })
+        }
       } else {
         abiCall<typeof Auction.prototype.bid>({
           sender,
@@ -344,29 +356,33 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
       })
 
       if (args.length > 0) {
-        const gate = getAkitaAppList(this.akitaDAO.value).gate
-        const gateID = op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyGateID))[0]
-
-        abiCall<typeof Auction.prototype.gatedBidAsa>({
+        const principalAbi = this.hasPrincipalAbi(appId)
+        const gateTxn = itxn.applicationCall({
           sender,
-          appId,
-          args: [
-            mbrTxn,
-            xferTxn,
-            itxn.applicationCall({
-              sender,
-              appId: gate,
-              appArgs: [
-                methodSelector(GateMustCheckAbiMethod),
-                origin,
-                gateID,
-                encodeArc4(args)
-              ]
-            }),
-            marketplace,
-          ],
-          rekeyTo: rekeyAddress(rekeyBack, wallet)
+          appId: getAkitaAppList(this.akitaDAO.value).gate,
+          appArgs: [
+            this.gateSelector(principalAbi),
+            this.gateSubject(wallet, sender, principalAbi),
+            op.AppGlobal.getExUint64(appId, Bytes(AuctionGlobalStateKeyGateID))[0],
+            encodeArc4(args)
+          ]
         })
+
+        if (principalAbi) {
+          abiCall<typeof Auction.prototype.gatedBidAsa>({
+            sender,
+            appId,
+            args: [mbrTxn, xferTxn, gateTxn, marketplace, windowHint(wallet)],
+            rekeyTo: rekeyAddress(rekeyBack, wallet)
+          })
+        } else {
+          abiCall<typeof Auction.prototype.legacyGatedBidAsa>({
+            sender,
+            appId,
+            args: [mbrTxn, xferTxn, gateTxn, marketplace],
+            rekeyTo: rekeyAddress(rekeyBack, wallet)
+          })
+        }
       } else {
         abiCall<typeof Auction.prototype.bidAsa>({
           sender,
@@ -388,9 +404,8 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     appId: Application,
     id: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
 
     abiCall<typeof Auction.prototype.refundBid>({
       sender,
@@ -400,14 +415,30 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
+  refundMBR(
+    wallet: Application,
+    rekeyBack: boolean,
+    appId: Application,
+    iterationAmount: uint64
+  ): void {
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
+
+    abiCall<typeof Auction.prototype.refundMBR>({
+      sender,
+      appId,
+      args: [iterationAmount],
+      rekeyTo: rekeyAddress(rekeyBack, wallet)
+    })
+  }
+
   claimPrize(
     wallet: Application,
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
 
     abiCall<typeof Auction.prototype.claimPrize>({
       sender,
@@ -421,9 +452,8 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
 
     abiCall<typeof Auction.prototype.claimRafflePrize>({
       sender,
@@ -437,8 +467,8 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     rekeyBack: boolean,
     appId: Application
   ): void {
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
-    const sender = getSpendingAccount(wallet)
+    this.assertAuction(appId)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof Auction.prototype.raffle>({
       sender,
@@ -453,9 +483,8 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     auctionAppID: uint64,
     iterationAmount: uint64
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(Application(auctionAppID).creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(Application(auctionAppID))
 
     abiCall<typeof Auction.prototype.findWinner>({
       sender,
@@ -465,34 +494,32 @@ export class AuctionPlugin extends classes(BaseAuction, AkitaBaseContract) {
     })
   }
 
-  deleteApplication(
+  /**
+   * kept for ABI compatibility with v1 method restrictions; routes through the factory.
+   * NoOp only: under its conventional name this would be the plugin's own DeleteApplication handler
+   */
+  @abimethod({ name: 'deleteApplication', allowActions: 'NoOp' })
+  legacyDeleteApplication(
     wallet: Application,
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
-
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
-
-    abiCall<typeof Auction.prototype.deleteApplication>({
-      sender,
-      appId,
-      rekeyTo: rekeyAddress(rekeyBack, wallet)
-    })
+    this.deleteAuctionApp(wallet, rekeyBack, appId)
   }
 
+  /** cancels an auction before it starts (through the factory, which refunds the funder) */
   cancel(
     wallet: Application,
     rekeyBack: boolean,
     appId: Application
   ): void {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
+    this.assertAuction(appId)
 
-    loggedAssert(appId.creator === this.factory.value.address, ERR_CREATOR_NOT_AUCTION_FACTORY)
-
-    abiCall<typeof Auction.prototype.cancel>({
+    abiCall<typeof AuctionFactory.prototype.cancelAuction>({
       sender,
-      appId,
+      appId: this.factory.value,
+      args: [appId],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
   }

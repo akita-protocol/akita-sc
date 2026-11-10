@@ -34,6 +34,9 @@ export type RaffleState = {
   vrfFailureCount: uint64
   entryID: uint64
   refundMBRCursor: uint64
+  minEntries: uint64
+  failed: boolean
+  raffleRound: uint64
 }
 
 export type RaffleMBRData = {

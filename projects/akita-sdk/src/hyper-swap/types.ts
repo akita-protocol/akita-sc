@@ -11,8 +11,12 @@ export type OfferParams = MaybeSigner & Omit<
   'payment'
 >;
 
+/**
+ * `terms` is the offer-terms commitment computed by the participant from the full leaf and
+ * participant lists (see `validateOffer` / `computeOfferTerms`); never copy it from the chain.
+ */
 export type AcceptParams = MaybeSigner & Omit<
-  ContractArgs['accept(pay,uint64,byte[32][])void'],
+  ContractArgs['accept(pay,uint64,byte[32][],byte[32])void'],
   'mbrPayment'
 >;
 
@@ -41,6 +45,25 @@ export type EscrowParams = BaseEscrowParams & (
 );
 
 export type DisburseParams = MaybeSigner & ContractArgs['disburse(uint64,uint64,address,uint64,uint64)void'];
+
+/** Permissionless disbursal of any escrowed leaf once the offer is DISBURSING. */
+export type DisburseFromParams = MaybeSigner & ContractArgs['disburseFrom(uint64,address,uint64,address,uint64,uint64)void'];
+
+/** One trade leaf: `from` sends `amount` of `asset` (0 = ALGO) to `receiver`. */
+export type HyperSwapLeaf = {
+  from: string;
+  receiver: string;
+  asset: bigint | number;
+  amount: bigint | number;
+  /** The receiver's ARC-58 wallet app ID when it must be opted in through the wallet (default 0). */
+  receiverWallet?: bigint | number;
+};
+
+export type DisburseAllParams = MaybeSigner & {
+  id: bigint | number;
+  /** Every still-escrowed leaf to release, at most 16 per atomic group. */
+  leaves: HyperSwapLeaf[];
+};
 
 export type CancelParams = MaybeSigner & ContractArgs['cancel(uint64,byte[32][])void'];
 

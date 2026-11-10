@@ -47,7 +47,7 @@ describe('Sunset lifecycle (DAO upgrade → SunsetContract → delete)', () => {
 
     // --- Setup: fund the sender so there's headroom for proposal + upgrade fees.
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, algo(50));
+    await algorand.account.ensureFunded(sender, dispenser.addr, algo(50));
 
     // --- Phase 1: compile SunsetContract with SUNSET_CALLER pinned to the
     //             test sender. After the upgrade, the sender can directly act
@@ -100,6 +100,8 @@ describe('Sunset lifecycle (DAO upgrade → SunsetContract → delete)', () => {
           appId: targetAppId,
           version: '1.0.0-sunset',
           data: compiledSunset.approvalProgram,
+          // ACCT-1: SunsetContract is AVM 13; the AVM 11 target takes its matching clear program.
+          clearProgram: compiledSunset.clearStateProgram,
         }),
       ],
     });
@@ -144,6 +146,17 @@ describe('Sunset lifecycle (DAO upgrade → SunsetContract → delete)', () => {
     // exactly what the production teardown plan calls for: `deleteBoxes`
     // the residual state, then `delete` to drain the app account.
     const residualBoxes = await algorand.app.getBoxNames(targetAppId);
+
+    // F6: a third party cannot delete the sunsetted app's boxes.
+    const stranger = await fixture.context.generateAccount({ initialFunds: microAlgo(1_000_000) });
+    await expect(sunsettedTarget.send.deleteBoxes({
+      sender: stranger.addr,
+      signer: stranger.signer,
+      args: { boxes: residualBoxes.slice(0, 1).map((b) => b.nameRaw) },
+      populateAppCallResources: true,
+    })).rejects.toThrow(/errNdao/);
+    expect((await algorand.app.getBoxNames(targetAppId)).length).toBe(residualBoxes.length);
+
     if (residualBoxes.length > 0) {
       await sunsettedTarget.send.deleteBoxes({
         sender,

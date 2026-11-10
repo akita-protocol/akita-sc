@@ -1,13 +1,13 @@
 import { Account, Application, Asset, bytes, Global, itxn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall, abimethod } from "@algorandfoundation/algorand-typescript/arc4"
 import { classes } from 'polytype'
-import { getAkitaAppList, getSpendingAccount, rekeyAddress } from "../../../utils/functions"
+import { getAkitaAppList, getControlledSpendingAccount, rekeyAddress } from "../../../utils/functions"
 import { Proof } from "../../../utils/types/merkles"
 
 // CONTRACT IMPORTS
 import { BaseHyperSwap } from "../../../hyper-swap/base"
 import type { HyperSwap } from "../../../hyper-swap/contract.algo"
-import { AkitaBaseContract } from "../../../utils/base-contracts/base"
+import { AkitaBaseContract } from "../../../utils/base-contracts/upgradeable"
 
 export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
 
@@ -28,7 +28,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     participantLeaves: uint64,
     expiration: uint64
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const costs = this.mbr()
     const metaMerklesCost: uint64 = costs.mm.root + costs.mm.data
@@ -58,9 +58,10 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     wallet: Application,
     rekeyBack: boolean,
     id: uint64,
-    proof: Proof
+    proof: Proof,
+    terms: bytes<32>
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     const appId = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
 
@@ -75,6 +76,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
         }),
         id,
         proof,
+        terms,
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet)
     })
@@ -89,7 +91,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     amount: uint64,
     proof: Proof
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
     const hyperSwapApp = Application(getAkitaAppList(this.akitaDAO.value).hyperSwap)
 
     if (asset === 0) {
@@ -119,9 +121,13 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
         mbrAmount += Global.assetOptInMinBalance
       }
 
-      // collect opt-in MBR if HyperSwap contract needs to opt in
+      // Opt in before submitting the transfer; a later opt-in cannot rescue an earlier axfer.
       if (!hyperSwapApp.address.isOptedIn(Asset(asset))) {
-        mbrAmount += Global.assetOptInMinBalance
+        abiCall<typeof HyperSwap.prototype.optIn>({
+          sender,
+          appId: hyperSwapApp,
+          args: [itxn.payment({ sender, receiver: hyperSwapApp.address, amount: Global.assetOptInMinBalance }), Asset(asset)],
+        })
       }
 
       abiCall<typeof HyperSwap.prototype.escrowAsa>({
@@ -159,7 +165,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     asset: uint64,
     amount: uint64
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof HyperSwap.prototype.disburse>({
       sender,
@@ -181,7 +187,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     id: uint64,
     proof: Proof
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof HyperSwap.prototype.cancel>({
       sender,
@@ -200,7 +206,7 @@ export class HyperSwapPlugin extends classes(BaseHyperSwap, AkitaBaseContract) {
     amount: uint64,
     proof: Proof
   ) {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
     abiCall<typeof HyperSwap.prototype.withdraw>({
       sender,

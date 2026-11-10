@@ -10,17 +10,17 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the PrizeBox contracts
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const PRIZE_BOX_ERROR_MESSAGES: Record<string, string> = {
+export const PRIZE_BOX_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- PrizeBox ownership / lifecycle -------------------------------------
   NOWN: 'Only the owner can perform this action',
   NEMT: 'Cannot delete application with prizes',
-}
+})
 
 /**
  * Translates a short PrizeBox error code (or raw ARC-65 log entry) into a

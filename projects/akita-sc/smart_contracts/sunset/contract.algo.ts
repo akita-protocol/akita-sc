@@ -1,19 +1,22 @@
-import { abimethod, Account, Application, Asset, bytes, clone, Contract, Global, itxn, loggedAssert, op, TemplateVar, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
+import { abimethod, Account, Application, Asset, bytes, clone, contract, Contract, Global, itxn, loggedAssert, op, TemplateVar, Txn, uint64 } from "@algorandfoundation/algorand-typescript"
 import { abiCall } from "@algorandfoundation/algorand-typescript/arc4"
 import { AbstractedAccount } from "../arc58/account/contract.algo"
 import { EscrowReclaim } from "../arc58/account/types"
 import { EscrowFactory } from "../escrow/factory.algo"
-import { ERR_NOT_AKITA_DAO } from "../errors"
+import { errNotAkitaDao } from "../errors"
 import { AssetCloseParams, WalletEscrowReclaim } from "./types"
 
 const sunsetCaller = TemplateVar<Account>('SUNSET_CALLER')
 
+// ACCT-1: a wallet on the AVM 13 program refuses any lower-version update, so the sunset program
+// pushed into wallets must be AVM 13 as well.
+@contract({ avmVersion: 13 })
 export class SunsetContract extends Contract {
 
   private auth(): void {
     loggedAssert(
       (Txn.sender === Global.creatorAddress || Txn.sender === sunsetCaller),
-      ERR_NOT_AKITA_DAO
+      errNotAkitaDao
     )
   }
 
@@ -24,6 +27,7 @@ export class SunsetContract extends Contract {
   }
 
   deleteBoxes(boxes: bytes[]): void {
+    this.auth()
     for (let i: uint64 = 0; i < boxes.length; i++) {
       op.Box.delete(boxes[i])
     }

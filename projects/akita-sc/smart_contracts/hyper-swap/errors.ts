@@ -5,43 +5,45 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/hyper-swap/errors.ts` —
- * keep the two files in sync when adding or changing a code. Constant NAMES
- * are preserved from the pre-ARC-65 layout so call sites don't change.
+ * keep the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  */
 
 // Mirror common codes used by hyper-swap so domain call sites keep their
 // previous names but share the wire format with the top-level `errors.ts`.
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values.
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_TRANSFER = 'IXFR'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidTransfer = 'errIxfr'
 
 // --- Offer validation -------------------------------------------------------
 
-export const ERR_BAD_ROOTS = 'BROT'
-export const ERR_OFFER_EXPIRED = 'OFEX'
-export const ERR_OFFER_NOT_FOUND = 'NOFR'
+export const errBadRoots = 'errBrot'
+export const errOfferExpired = 'errOfex'
+export const errOfferNotFound = 'errNofr'
+export const errOfferTooLong = 'errOtlg'
+export const errTermsMismatch = 'errTmis'
 
 // --- Participants -----------------------------------------------------------
 
-export const ERR_NOT_A_PARTICIPANT = 'NPRT'
-export const ERR_ALREADY_ACCEPTED = 'EACC'
-export const ERR_PARTICIPANT_NOT_FOUND = 'NPFD'
-export const ERR_PARTICIPANTS_NOT_CLEANED = 'PNCL'
+export const errNotAParticipant = 'errNprt'
+export const errAlreadyAccepted = 'errEacc'
+export const errParticipantNotFound = 'errNpfd'
+export const errParticipantsNotCleaned = 'errPncl'
 
 // --- State machine ----------------------------------------------------------
 
-export const ERR_INVALID_STATE = 'ISTE'
-export const ERR_NOT_ACCEPTED = 'NACP'
+export const errInvalidState = 'errIste'
+export const errNotAccepted = 'errNacp'
 
 // --- Escrow / leaves --------------------------------------------------------
 
-export const ERR_CANT_VERIFY_LEAF = 'CVLF'
-export const ERR_LEAF_ALREADY_ESCROWED = 'LAES'
-export const ERR_LEAF_NOT_ESCROWED = 'LNES'
-export const ERR_NOTHING_TO_WITHDRAW = 'NTWD'
+export const errCantVerifyLeaf = 'errCvlf'
+export const errLeafAlreadyEscrowed = 'errLaes'
+export const errLeafNotEscrowed = 'errLnes'
+export const errNothingToWithdraw = 'errNtwd'
 
 // --- Disbursal --------------------------------------------------------------
 
-export const ERR_RECEIVER_NOT_OPTED_IN = 'RNOI'
-export const ERR_RECEIVER_WALLET_MISMATCH = 'RWMM'
+export const errReceiverNotOptedIn = 'errRnoi'
+export const errReceiverWalletMismatch = 'errRwmm'

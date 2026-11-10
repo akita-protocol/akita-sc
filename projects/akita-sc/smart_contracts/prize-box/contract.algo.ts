@@ -1,7 +1,8 @@
 import {
   abimethod,
   Account,
-  Contract,
+  Asset,
+  clone,
   Global,
   GlobalState,
   gtxn,
@@ -13,9 +14,18 @@ import {
 import { AssetHolding } from '@algorandfoundation/algorand-typescript/op'
 import { AssetInfo } from '../utils/types/asset'
 import { PrizeBoxGlobalStateKeyOptinCount, PrizeBoxGlobalStateKeyOwner } from './constants'
-import { ERR_INVALID_ASSET, ERR_INVALID_PAYMENT, ERR_NOT_EMPTY, ERR_NOT_OWNER } from './errors'
+import { errAlreadyOptedIn, errClawbackAsset, errInvalidAsset, errInvalidPayment, errMustBeCalledFromFactory, errNotEmpty, errNotOwner } from './errors'
+import { FunderInfo } from '../utils/types/mbr'
 
-export class PrizeBox extends Contract {
+// CONTRACT IMPORTS
+import { ChildContract } from '../utils/base-contracts/child'
+
+/**
+ * A transferable bundle of ASAs/ALGO. `funder` (from `ChildContract`) records who paid the
+ * app-creation MBR; the factory refunds it to them on deletion. Everything held in the box
+ * account (its min balance, opt-in MBR, any ALGO) belongs to the current owner.
+ */
+export class PrizeBox extends ChildContract {
 
   // GLOBAL STATE ---------------------------------------------------------------------------------
 
@@ -27,15 +37,21 @@ export class PrizeBox extends Contract {
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 
   @abimethod({ onCreate: 'require' })
-  create(owner: Account): void {
+  create(owner: Account, funder: FunderInfo): void {
     this.owner.value = owner
     this.optinCount.value = 0
+    this.funder.value = clone(funder)
   }
 
+  /**
+   * Deleted only through `PrizeBoxFactory.deletePrizeBox` so the creation MBR the factory
+   * releases can be refunded to the minter; the box account closes to the owner.
+   */
   @abimethod({ allowActions: 'DeleteApplication' })
-  deleteApplication(): void {
-    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
-    loggedAssert(this.optinCount.value === 0, ERR_NOT_EMPTY)
+  deleteApplication(caller: Account): void {
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(caller === this.owner.value, errNotOwner)
+    loggedAssert(this.optinCount.value === 0, errNotEmpty)
     itxn
       .payment({ closeRemainderTo: this.owner.value })
       .submit()
@@ -49,9 +65,13 @@ export class PrizeBox extends Contract {
    * @param asset The asset to be opted into
    */
   optin(payment: gtxn.PaymentTxn, asset: uint64): void {
-    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === Global.assetOptInMinBalance, ERR_INVALID_PAYMENT)
+    loggedAssert(Txn.sender === this.owner.value, errNotOwner)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === Global.assetOptInMinBalance, errInvalidPayment)
+    // a repeat opt-in would inflate optinCount and make the box undeletable
+    loggedAssert(!Global.currentApplicationAddress.isOptedIn(Asset(asset)), errAlreadyOptedIn)
+    // a clawback-enabled asset could be seized out of the box after it is sold
+    loggedAssert(Asset(asset).clawback === Global.zeroAddress, errClawbackAsset)
 
     itxn
       .assetTransfer({
@@ -65,12 +85,12 @@ export class PrizeBox extends Contract {
   }
 
   transfer(newOwner: Account): void {
-    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(Txn.sender === this.owner.value, errNotOwner)
     this.owner.value = newOwner
   }
 
   withdraw(assets: AssetInfo[]): void {
-    loggedAssert(Txn.sender === this.owner.value, ERR_NOT_OWNER)
+    loggedAssert(Txn.sender === this.owner.value, errNotOwner)
 
     for (let i: uint64 = 0; i < assets.length; i += 1) {
       if (assets[i].asset !== 0) {
@@ -78,7 +98,7 @@ export class PrizeBox extends Contract {
           Global.currentApplicationAddress,
           assets[i].asset
         )
-        loggedAssert(optedIn, ERR_INVALID_ASSET)
+        loggedAssert(optedIn, errInvalidAsset)
 
         const closeOut = assetHolding === assets[i].amount
         if (closeOut) {

@@ -17,16 +17,21 @@ import {
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, methodSelector, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, Uint64 } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
-import { calcPercent, createInstantDisbursement, gateCall, gateCheck, getNFTFees, getOtherAppList, getUserImpact, getWalletIDUsingAkitaDAO, impactRange, originOrTxnSender, sendReferralPayment } from '../utils/functions'
+import { assertSafeAssetTransfer, assertSafePayment, calcPercent, createInstantDisbursement, gateCheck, gateCheckCtx, getNFTFees, getOtherAppList, getUserImpact, legacyWalletOf, impactRange, legacyOriginOrTxnSender, principalOf, sendReferralPaymentTo } from '../utils/functions'
+import { gateCtx } from '../utils/principal'
 import { pcg64Init, pcg64Random } from '../utils/types/lib_pcg/pcg64.algo'
 import { FunderInfo } from '../utils/types/mbr'
 import { RandomnessBeacon } from '../utils/types/randomness-beacon'
 import { RoyaltyAmounts } from '../utils/types/royalties'
 import {
+  BEACON_LAG_ROUNDS,
+  BEACON_MAX_WAIT_ROUNDS,
+  BEACON_ROUND_INTERVAL,
   ChunkSize,
+  DRAW_DELAY_ROUNDS,
   RaffleBoxPrefixEntries,
   RaffleBoxPrefixEntriesByAddress,
   RaffleBoxPrefixWeights,
@@ -35,12 +40,14 @@ import {
   RaffleGlobalStateKeyEndTimestamp,
   RaffleGlobalStateKeyEntryCount,
   RaffleGlobalStateKeyEntryID,
+  RaffleGlobalStateKeyFailed,
   RaffleGlobalStateKeyFindWinnersCursor,
   RaffleGlobalStateKeyGateID,
   RaffleGlobalStateKeyIsPrizeBox,
   RaffleGlobalStateKeyMarketplace,
   RaffleGlobalStateKeyMarketplaceRoyalties,
   RaffleGlobalStateKeyMaxTickets,
+  RaffleGlobalStateKeyMinEntries,
   RaffleGlobalStateKeyMinTickets,
   RaffleGlobalStateKeyPrize,
   RaffleGlobalStateKeyPrizeClaimed,
@@ -48,6 +55,7 @@ import {
   RaffleGlobalStateKeyRefundMBRCursor,
   RaffleGlobalStateKeySalt,
   RaffleGlobalStateKeySeller,
+  RaffleGlobalStateKeySellerReferrer,
   RaffleGlobalStateKeyStartTimestamp,
   RaffleGlobalStateKeyTicketAsset,
   RaffleGlobalStateKeyTicketCount,
@@ -58,31 +66,35 @@ import {
   RaffleGlobalStateKeyWinningTicket,
 } from './constants'
 import {
-  ERR_ALL_REFUNDS_COMPLETE,
-  ERR_ALREADY_ENTERED,
-  ERR_ENTRY_DOES_NOT_EXIST,
-  ERR_FAILED_GATE,
-  ERR_INVALID_ASSET,
-  ERR_INVALID_ENDING_ROUND,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_TRANSFER,
-  ERR_MUST_ALLOCATE_AT_LEAST_FOUR_HIGHEST_BIDS_CHUNKS,
-  ERR_MUST_ALLOCATE_AT_MOST_FIFTEEN_HIGHEST_BIDS_CHUNKS,
-  ERR_MUST_BE_CALLED_FROM_FACTORY,
-  ERR_NO_WINNING_TICKET_YET,
-  ERR_NOT_ENOUGH_TIME,
-  ERR_NOT_LIVE,
-  ERR_PRIZE_ALREADY_CLAIMED,
-  ERR_PRIZE_NOT_CLAIMED,
-  ERR_RAFFLE_HAS_NOT_ENDED,
-  ERR_STILL_HAS_WEIGHTS_BOXES,
-  ERR_TICKET_ASSET_ALGO,
-  ERR_TICKET_ASSET_NOT_ALGO,
-  ERR_WINNER_ALREADY_DRAWN,
-  ERR_WINNER_ALREADY_FOUND,
-  ERR_REFUNDS_NOT_COMPLETE,
-  ERR_WINNER_NOT_FOUND,
-  ERR_BAD_METHOD_GATE_NEEDED,
+  errAllRefundsComplete,
+  errAlreadyEntered,
+  errEntryDoesNotExist,
+  errFailedGate,
+  errInvalidAsset,
+  errInvalidEndingRound,
+  errInvalidPayment,
+  errInvalidTransfer,
+  errMustAllocateAtLeastFourHighestBidsChunks,
+  errMustAllocateAtMostFifteenHighestBidsChunks,
+  errMustBeCalledFromFactory,
+  errNoWinningTicketYet,
+  errNotEnoughTime,
+  errNotLive,
+  errPrizeAlreadyClaimed,
+  errPrizeNotClaimed,
+  errRaffleHasNotEnded,
+  errStillHasWeightsBoxes,
+  errTicketAssetAlgo,
+  errTicketAssetNotAlgo,
+  errWinnerAlreadyDrawn,
+  errWinnerAlreadyFound,
+  errRefundsNotComplete,
+  errWinnerNotFound,
+  errBadMethodGateNeeded,
+  errInvalidTicketBounds,
+  errPrizeIsTicketAsset,
+  errNotSeller,
+  errBeaconNotReady,
 } from './errors'
 import { EntryData, FindWinnerCursors, RaffleState } from './types'
 
@@ -160,8 +172,21 @@ export class Raffle extends classes(
   refundMBRCursor = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyRefundMBRCursor })
   /** the transaction id of the create application call for salting our VRF call */
   salt = GlobalState<bytes>({ key: RaffleGlobalStateKeySalt })
-  /** the round captured when raffle() is first called, used for VRF */
+  /** the future round committed to by the first post-end raffle() call, used for VRF (AR-01) */
   raffleRound = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyRaffleRound })
+  /** AR-C: minimum number of entries for the raffle to be drawn (below it the raffle fails) */
+  minEntries = GlobalState<uint64>({ initialValue: 0, key: RaffleGlobalStateKeyMinEntries })
+  /**
+   * AR-07 / AR-C: the raffle did not reach minimum participation (or sold no tickets).
+   * The prize returns to the seller and every entrant is refunded their tickets.
+   */
+  failed = GlobalState<boolean>({ initialValue: false, key: RaffleGlobalStateKeyFailed })
+  /**
+   * Referrer of the seller's verified wallet, resolved once by the factory at creation (zero if
+   * none) and paid at settlement (spec §6.8). Plugins read its EXISTENCE as the marker of this
+   * child's principal ABI; children created before it keep their own semantics until they settle.
+   */
+  sellerReferrer = GlobalState<Account>({ key: RaffleGlobalStateKeySellerReferrer })
 
   // BOXES ----------------------------------------------------------------------------------------
 
@@ -174,14 +199,18 @@ export class Raffle extends classes(
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
+  /**
+   * AR-08: skip whole weights boxes only while the cursor sits on a box boundary,
+   * using the totals of the box the cursor is actually in.
+   */
   private getWinnerWeightBoxInfo(): [uint64, uint64] {
     let startingIndex = this.findWinnerCursors.value.index
     let currentRangeStart = this.findWinnerCursors.value.amountIndex
 
-    for (let i: uint64 = 0; i < this.weightsBoxCount.value; i += 1) {
-      const boxStake = this.weightTotals.value[i].asUint64()
+    while (startingIndex % ChunkSize === 0 && startingIndex / ChunkSize < this.weightsBoxCount.value) {
+      const boxStake = this.weightTotals.value[startingIndex / ChunkSize].asUint64()
       if (this.winningTicket.value < currentRangeStart + boxStake) {
-        return [startingIndex, currentRangeStart]
+        break
       }
 
       startingIndex += ChunkSize
@@ -189,6 +218,107 @@ export class Raffle extends classes(
     }
 
     return [startingIndex, currentRangeStart]
+  }
+
+  /** LEGACY shims only: origin of a (DAO-authenticated) registry wallet sender, else the sender itself (AR-E) */
+  private gateSubject(): Account {
+    return legacyOriginOrTxnSender(legacyWalletOf(this.akitaDAO.value, Txn.sender))
+  }
+
+  /**
+   * Gate check of every gated entry point. `legacy` (old-ABI shims): `Gate.mustCheck` with the
+   * registry subject (`gateSubject`), exactly as before. Otherwise (spec §6.8): `Gate.mustCheckFor`
+   * pinned to the verified context of the caller's `wallet` hint (`gateCheckCtx`); invalid hints revert.
+   */
+  private assertGate(gateTxn: gtxn.ApplicationCallTxn, legacy: boolean, wallet: uint64): void {
+    let passed = false
+    if (legacy) {
+      passed = gateCheck(gateTxn, this.akitaDAO.value, this.gateSubject(), this.gateID.value)
+    } else {
+      passed = gateCheckCtx(gateTxn, this.akitaDAO.value, gateCtx(principalOf(this.akitaDAO.value, wallet)), this.gateID.value)
+    }
+    loggedAssert(passed, errFailedGate)
+  }
+
+  /** tickets held by entry `loc` */
+  private ticketsOf(loc: uint64): uint64 {
+    return this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64()
+  }
+
+  /** sends `amount` of the ticket asset, skipping zero amounts */
+  private sendTickets(receiver: Account, amount: uint64): void {
+    if (amount === 0) {
+      return
+    }
+
+    if (this.ticketAsset.value.id === 0) {
+      itxn.payment({ receiver, amount }).submit()
+    } else {
+      itxn
+        .assetTransfer({
+          assetReceiver: receiver,
+          assetAmount: amount,
+          xferAsset: this.ticketAsset.value,
+        })
+        .submit()
+    }
+  }
+
+  /**
+   * pays `amount` of the ticket asset directly when `receiver` can hold it, otherwise through a
+   * rewards disbursement; returns the disbursement's MBR cost (0 for a direct payment)
+   */
+  private sendTicketsOrDisburse(receiver: Account, amount: uint64): uint64 {
+    if (amount === 0) {
+      return 0
+    }
+
+    if (this.ticketAsset.value.id === 0 || receiver.isOptedIn(this.ticketAsset.value)) {
+      this.sendTickets(receiver, amount)
+      return 0
+    }
+    return createInstantDisbursement(
+      this.akitaDAO.value,
+      this.ticketAsset.value.id,
+      0,
+      MAX_UINT64,
+      [{ address: receiver, amount }],
+      amount,
+      false,
+      Global.zeroAddress
+    ).cost
+  }
+
+  private transferPrize(receiver: Account): void {
+    if (this.isPrizeBox.value) {
+      abiCall<typeof PrizeBox.prototype.transfer>({
+        appId: this.prize.value,
+        args: [receiver],
+      })
+      return
+    }
+
+    const prizeAmount = op.AssetHolding.assetBalance(Global.currentApplicationAddress, this.prize.value)[0]
+
+    if (receiver.isOptedIn(Asset(this.prize.value))) {
+      itxn
+        .assetTransfer({
+          assetCloseTo: receiver,
+          xferAsset: this.prize.value,
+        })
+        .submit()
+    } else {
+      createInstantDisbursement(
+        this.akitaDAO.value,
+        this.prize.value,
+        0,
+        MAX_UINT64,
+        [{ address: receiver, amount: prizeAmount }],
+        prizeAmount,
+        true,
+        Global.zeroAddress
+      )
+    }
   }
 
   private getAmounts(amount: uint64, isPrizeBox: boolean): RoyaltyAmounts {
@@ -217,6 +347,14 @@ export class Raffle extends classes(
       }
     }
 
+    // tiny totals: the 1-unit minimums can exceed the amount (seller underflow would block
+    // settlement forever), so fall back to plain proportional amounts
+    if (creatorAmount + akitaAmount + (2 * marketplaceAmount) > amount) {
+      creatorAmount = (!isPrizeBox && this.creatorRoyalty.value > 0) ? calcPercent(amount, this.creatorRoyalty.value) : 0
+      akitaAmount = calcPercent(amount, this.akitaRoyalty.value)
+      marketplaceAmount = calcPercent(amount, this.marketplaceRoyalties.value)
+    }
+
     const sellerAmount: uint64 = amount - (creatorAmount + akitaAmount + (2 * marketplaceAmount))
 
     return {
@@ -241,31 +379,40 @@ export class Raffle extends classes(
     creatorRoyalty: uint64,
     minTickets: uint64,
     maxTickets: uint64,
+    minEntries: uint64,
     gateID: uint64,
     marketplace: Account,
     akitaDAO: Application,
     akitaDAOEscrow: EscrowConfig,
+    sellerReferrer: Account,
   ): void {
-    loggedAssert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(Global.callerApplicationId !== 0, errMustBeCalledFromFactory)
 
     this.prize.value = prize
     this.isPrizeBox.value = isPrizeBox
     // ticketAsset 0 represents ALGO tickets, only validate actual ASA
     if (ticketAsset !== 0) {
-      loggedAssert(Asset(ticketAsset).total > 0, ERR_INVALID_ASSET)
+      loggedAssert(Asset(ticketAsset).total > 0, errInvalidAsset)
     }
     this.ticketAsset.value = Asset(ticketAsset)
     this.startTimestamp.value = startTimestamp
-    loggedAssert(endTimestamp > startTimestamp && endTimestamp > Global.latestTimestamp, ERR_INVALID_ENDING_ROUND)
+    loggedAssert(endTimestamp > startTimestamp && endTimestamp > Global.latestTimestamp, errInvalidEndingRound)
     this.endTimestamp.value = endTimestamp
     this.seller.value = seller
     this.funder.value = clone(funder)
     this.creatorRoyalty.value = creatorRoyalty
+    // AR-07: entries must be able to buy at least one ticket
+    loggedAssert(maxTickets > 0 && maxTickets >= minTickets, errInvalidTicketBounds)
+    // AR-11: the prize can't be the ticket asset (the prize close-out would sweep every ticket)
+    loggedAssert(isPrizeBox || prize !== ticketAsset, errPrizeIsTicketAsset)
     this.minTickets.value = minTickets
     this.maxTickets.value = maxTickets
+    this.minEntries.value = minEntries
     this.winner.value = Global.zeroAddress
     this.gateID.value = gateID
     this.marketplace.value = marketplace
+    // forwarded by the factory, which verified the seller's wallet hint (or read the legacy registry)
+    this.sellerReferrer.value = sellerReferrer
     this.akitaDAO.value = akitaDAO
     this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
 
@@ -282,16 +429,16 @@ export class Raffle extends classes(
   }
 
   init(payment: gtxn.PaymentTxn, weightListLength: uint64) {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(weightListLength >= 4, ERR_MUST_ALLOCATE_AT_LEAST_FOUR_HIGHEST_BIDS_CHUNKS)
-    loggedAssert(weightListLength < 16, ERR_MUST_ALLOCATE_AT_MOST_FIFTEEN_HIGHEST_BIDS_CHUNKS)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(weightListLength >= 4, errMustAllocateAtLeastFourHighestBidsChunks)
+    loggedAssert(weightListLength < 16, errMustAllocateAtMostFifteenHighestBidsChunks)
 
     // Base MBR and asset opt-in MBR are handled by factory before this call
     // This init only expects the weights MBR
     const weightsMBR: uint64 = (weightListLength * this.mbr().weights)
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === weightsMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === weightsMBR, errInvalidPayment)
 
     this.weightsBoxCount.value = weightListLength
     for (let i: uint64 = 0; i < weightListLength; i += 1) {
@@ -299,13 +446,25 @@ export class Raffle extends classes(
     }
   }
 
+  /**
+   * AR-C: the seller sets the minimum number of entries needed for the raffle to be drawn.
+   * Only before anyone has entered, and before the end. Below the minimum the raffle fails:
+   * the prize returns to the seller and every entrant is refunded.
+   */
+  setMinEntries(minEntries: uint64): void {
+    loggedAssert(Txn.sender === this.seller.value, errNotSeller)
+    loggedAssert(this.entryCount.value === 0, errAlreadyEntered)
+    loggedAssert(Global.latestTimestamp <= this.endTimestamp.value, errNotLive)
+    this.minEntries.value = minEntries
+  }
+
   refundMBR(iterationAmount: uint64): void {
     /** make sure the prize has been claimed before refunding MBR */
-    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
+    loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
     /** make sure we've already found the winner of the raffle */
-    loggedAssert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
+    loggedAssert(this.winner.value !== Global.zeroAddress, errWinnerNotFound)
     /** make sure we haven't already refunded all MBR */
-    loggedAssert(this.entryCount.value !== this.refundMBRCursor.value, ERR_ALL_REFUNDS_COMPLETE)
+    loggedAssert(this.entryCount.value !== this.refundMBRCursor.value, errAllRefundsComplete)
 
     const startingIndex = this.refundMBRCursor.value
     const remainder: uint64 = this.entryCount.value - this.refundMBRCursor.value
@@ -319,21 +478,31 @@ export class Raffle extends classes(
 
     for (let i = startingIndex; i < startingIndex + iterationAmount; i += 1) {
       const { account } = this.entries(i).value
+      // AR-C: a failed raffle refunds every entrant's tickets with their MBR
+      let disbursementCost: uint64 = 0
+      if (this.failed.value) {
+        disbursementCost = this.sendTicketsOrDisburse(account, this.ticketsOf(i))
+      }
       this.entries(i).delete()
       this.entriesByAddress(account).delete()
-      itxn
-        .payment({
-          amount: entryTotalMBR,
-          receiver: account,
-        })
-        .submit()
+      // TRADE-5: an entrant who left the ticket asset pays its refund disbursement out of its released MBR
+      if (entryTotalMBR > disbursementCost) {
+        itxn
+          .payment({
+            amount: entryTotalMBR - disbursementCost,
+            receiver: account,
+          })
+          .submit()
+      }
     }
 
     this.refundMBRCursor.value += iterationAmount
   }
 
   clearWeightsBoxes(): uint64 {
-    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
+    loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
+    // ticket refunds of a failed raffle read the weights boxes
+    loggedAssert(this.entryCount.value === this.refundMBRCursor.value, errRefundsNotComplete)
 
     for (let i: uint64 = 0; i < this.weightsBoxCount.value; i += 1) {
       const ri: uint64 = (this.weightsBoxCount.value - 1) - i
@@ -342,9 +511,11 @@ export class Raffle extends classes(
 
     const returnAmount: uint64 = this.weightsBoxCount.value * this.mbr().weights
 
+    // AR-09: the weights MBR goes straight back to whoever funded the raffle
+    // (the factory refunds only what the deletion itself releases)
     itxn
       .payment({
-        receiver: Global.creatorAddress,
+        receiver: this.funder.value.account,
         amount: returnAmount,
       })
       .submit()
@@ -355,39 +526,93 @@ export class Raffle extends classes(
 
   @abimethod({ allowActions: 'DeleteApplication' })
   deleteApplication(): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(this.prizeClaimed.value, ERR_PRIZE_NOT_CLAIMED)
-    loggedAssert(this.entryCount.value === this.refundMBRCursor.value, ERR_REFUNDS_NOT_COMPLETE)
-    loggedAssert(this.weightsBoxCount.value === 0, ERR_STILL_HAS_WEIGHTS_BOXES)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(this.prizeClaimed.value, errPrizeNotClaimed)
+    loggedAssert(this.entryCount.value === this.refundMBRCursor.value, errRefundsNotComplete)
+    loggedAssert(this.weightsBoxCount.value === 0, errStillHasWeightsBoxes)
+
+    // AR-09: close every holding back to the factory so nothing is stranded in the deleted app
+    if (this.ticketAsset.value.id !== 0 && Global.currentApplicationAddress.isOptedIn(this.ticketAsset.value)) {
+      const ticketCloseTo = Global.creatorAddress.isOptedIn(this.ticketAsset.value)
+        ? Global.creatorAddress
+        : this.ticketAsset.value.creator
+      itxn
+        .assetTransfer({
+          assetCloseTo: ticketCloseTo,
+          xferAsset: this.ticketAsset.value,
+        })
+        .submit()
+    }
+
+    if (!this.isPrizeBox.value && Global.currentApplicationAddress.isOptedIn(Asset(this.prize.value))) {
+      itxn
+        .assetTransfer({
+          assetCloseTo: Asset(this.prize.value).creator,
+          xferAsset: this.prize.value,
+        })
+        .submit()
+    }
+
+    itxn
+      .payment({
+        closeRemainderTo: Global.creatorAddress,
+      })
+      .submit()
   }
 
   // RAFFLE METHODS -------------------------------------------------------------------------------
 
-  gatedEnter(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, marketplace: Account): void {
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    this.enter(payment, marketplace)
+  /**
+   * Gated entry (principal ABI, spec §6.8): the gate subject is the verified context of the
+   * entrant's `wallet` hint (0 = acting as itself). A plugin passes `windowHint(wallet)`.
+   * Entries stay keyed by `Txn.sender`.
+   */
+  gatedEnter(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, marketplace: Account, wallet: uint64): void {
+    this.assertGate(gateTxn, false, wallet)
+    this.enterImpl(payment, marketplace, true)
+  }
+
+  /** LEGACY shim of `gatedEnter(appl,pay,address)void` (registry gate subject; delete in Phase 4). */
+  @abimethod({ name: 'gatedEnter' })
+  legacyGatedEnter(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, marketplace: Account): void {
+    this.assertGate(gateTxn, true, 0)
+    this.enterImpl(payment, marketplace, true)
   }
 
   enter(
     payment: gtxn.PaymentTxn,
     marketplace: Account
   ): void {
-    loggedAssert(this.isLive(), ERR_NOT_LIVE)
-    loggedAssert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
+    this.enterImpl(payment, marketplace, false)
+  }
 
-    if (this.gateID.value !== 0) {
-      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnter>(), ERR_BAD_METHOD_GATE_NEEDED)
+  /**
+   * `gated`: reached through a gated entry point that already checked the gate. The ungated entry
+   * point requires an ungated raffle (`errBadMethodGateNeeded`). This replaces the outer-selector
+   * compare, which would reject the legacy shims (spec §6 conventions, P2-RAF-01).
+   */
+  private enterImpl(
+    payment: gtxn.PaymentTxn,
+    marketplace: Account,
+    gated: boolean
+  ): void {
+    loggedAssert(this.isLive(), errNotLive)
+    loggedAssert(this.ticketAsset.value.id === 0, errTicketAssetNotAlgo)
+
+    if (!gated) {
+      loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
     }
 
-    loggedAssert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
+    loggedAssert(!this.entriesByAddress(Txn.sender).exists, errAlreadyEntered)
 
     const costs = this.mbr()
     const mbr: uint64 = costs.entries + costs.entriesByAddress
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
+    assertSafePayment(payment, Txn.sender)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
     loggedAssert(
       payment.amount >= (this.minTickets.value + mbr) && payment.amount <= (this.maxTickets.value + mbr),
-      ERR_INVALID_PAYMENT
+      errInvalidPayment
     )
 
     const loc = this.entryCount.value
@@ -407,9 +632,17 @@ export class Raffle extends classes(
     this.ticketCount.value += amount
   }
 
-  gatedEnterAsa(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, marketplace: Account): void {
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    this.enterAsa(payment, assetXfer, marketplace)
+  /** ASA twin of `gatedEnter` (principal ABI, spec §6.8). */
+  gatedEnterAsa(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, marketplace: Account, wallet: uint64): void {
+    this.assertGate(gateTxn, false, wallet)
+    this.enterAsaImpl(payment, assetXfer, marketplace, true)
+  }
+
+  /** LEGACY shim of `gatedEnterAsa(appl,pay,axfer,address)void` (registry gate subject; delete in Phase 4). */
+  @abimethod({ name: 'gatedEnterAsa' })
+  legacyGatedEnterAsa(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, assetXfer: gtxn.AssetTransferTxn, marketplace: Account): void {
+    this.assertGate(gateTxn, true, 0)
+    this.enterAsaImpl(payment, assetXfer, marketplace, true)
   }
 
   enterAsa(
@@ -417,26 +650,38 @@ export class Raffle extends classes(
     assetXfer: gtxn.AssetTransferTxn,
     marketplace: Account
   ): void {
-    loggedAssert(this.isLive(), ERR_NOT_LIVE)
-    loggedAssert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
+    this.enterAsaImpl(payment, assetXfer, marketplace, false)
+  }
 
-    if (this.gateID.value !== 0) {
-      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedEnterAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
+  /** see `enterImpl` */
+  private enterAsaImpl(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    marketplace: Account,
+    gated: boolean
+  ): void {
+    loggedAssert(this.isLive(), errNotLive)
+    loggedAssert(this.ticketAsset.value.id !== 0, errTicketAssetAlgo)
+
+    if (!gated) {
+      loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
     }
 
-    loggedAssert(!this.entriesByAddress(Txn.sender).exists, ERR_ALREADY_ENTERED)
+    loggedAssert(!this.entriesByAddress(Txn.sender).exists, errAlreadyEntered)
 
     const costs = this.mbr()
     const entryTotalMBR: uint64 = costs.entries + costs.entriesByAddress
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === entryTotalMBR, ERR_INVALID_PAYMENT)
+    assertSafePayment(payment, Txn.sender)
+    assertSafeAssetTransfer(assetXfer, Txn.sender)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === entryTotalMBR, errInvalidPayment)
 
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, errInvalidTransfer)
     loggedAssert(
       assetXfer.assetAmount >= this.minTickets.value && assetXfer.assetAmount <= this.maxTickets.value,
-      ERR_INVALID_TRANSFER
+      errInvalidTransfer
     )
 
     const loc = this.entryCount.value
@@ -455,27 +700,41 @@ export class Raffle extends classes(
     this.ticketCount.value += amount
   }
 
-  gatedAdd(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn): void {
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    this.add(payment)
+  /** Gated ticket top-up (principal ABI, spec §6.8). */
+  gatedAdd(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn, wallet: uint64): void {
+    this.assertGate(gateTxn, false, wallet)
+    this.addImpl(payment, true)
+  }
+
+  /** LEGACY shim of `gatedAdd(appl,pay)void` (registry gate subject; delete in Phase 4). */
+  @abimethod({ name: 'gatedAdd' })
+  legacyGatedAdd(gateTxn: gtxn.ApplicationCallTxn, payment: gtxn.PaymentTxn): void {
+    this.assertGate(gateTxn, true, 0)
+    this.addImpl(payment, true)
   }
 
   add(payment: gtxn.PaymentTxn): void {
-    loggedAssert(this.isLive(), ERR_NOT_LIVE)
-    loggedAssert(this.ticketAsset.value.id === 0, ERR_TICKET_ASSET_NOT_ALGO)
+    this.addImpl(payment, false)
+  }
 
-    // if our gate is enabled, this method must be triggered from the gated method instead of directly
-    if (this.gateID.value !== 0) {
-      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAdd>(), ERR_BAD_METHOD_GATE_NEEDED)
+  /** see `enterImpl` */
+  private addImpl(payment: gtxn.PaymentTxn, gated: boolean): void {
+    loggedAssert(this.isLive(), errNotLive)
+    loggedAssert(this.ticketAsset.value.id === 0, errTicketAssetNotAlgo)
+
+    // if our gate is enabled, this method must be reached through a gated entry point
+    if (!gated) {
+      loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
     }
 
-    loggedAssert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
+    loggedAssert(this.entriesByAddress(Txn.sender).exists, errEntryDoesNotExist)
 
     const loc = this.entriesByAddress(Txn.sender).value
     const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount <= (this.maxTickets.value - amount.asUint64()), ERR_INVALID_PAYMENT)
+    assertSafePayment(payment, Txn.sender)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount <= (this.maxTickets.value - amount.asUint64()), errInvalidPayment)
 
     const newWeights = new Uint64(
       this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + payment.amount
@@ -486,28 +745,42 @@ export class Raffle extends classes(
     this.ticketCount.value += payment.amount
   }
 
-  gatedAddAsa(gateTxn: gtxn.ApplicationCallTxn, assetXfer: gtxn.AssetTransferTxn): void {
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    this.addAsa(assetXfer)
+  /** ASA twin of `gatedAdd` (principal ABI, spec §6.8). */
+  gatedAddAsa(gateTxn: gtxn.ApplicationCallTxn, assetXfer: gtxn.AssetTransferTxn, wallet: uint64): void {
+    this.assertGate(gateTxn, false, wallet)
+    this.addAsaImpl(assetXfer, true)
+  }
+
+  /** LEGACY shim of `gatedAddAsa(appl,axfer)void` (registry gate subject; delete in Phase 4). */
+  @abimethod({ name: 'gatedAddAsa' })
+  legacyGatedAddAsa(gateTxn: gtxn.ApplicationCallTxn, assetXfer: gtxn.AssetTransferTxn): void {
+    this.assertGate(gateTxn, true, 0)
+    this.addAsaImpl(assetXfer, true)
   }
 
   addAsa(assetXfer: gtxn.AssetTransferTxn): void {
-    loggedAssert(this.isLive(), ERR_NOT_LIVE)
-    loggedAssert(this.ticketAsset.value.id !== 0, ERR_TICKET_ASSET_ALGO)
+    this.addAsaImpl(assetXfer, false)
+  }
 
-    // if our gate is enabled, this method must be triggered from the gated method instead of directly
-    if (this.gateID.value !== 0) {
-      loggedAssert(Txn.applicationArgs(0) === methodSelector<typeof Raffle.prototype.gatedAddAsa>(), ERR_BAD_METHOD_GATE_NEEDED)
+  /** see `enterImpl` */
+  private addAsaImpl(assetXfer: gtxn.AssetTransferTxn, gated: boolean): void {
+    loggedAssert(this.isLive(), errNotLive)
+    loggedAssert(this.ticketAsset.value.id !== 0, errTicketAssetAlgo)
+
+    // if our gate is enabled, this method must be reached through a gated entry point
+    if (!gated) {
+      loggedAssert(this.gateID.value === 0, errBadMethodGateNeeded)
     }
 
-    loggedAssert(this.entriesByAddress(Txn.sender).exists, ERR_ENTRY_DOES_NOT_EXIST)
+    loggedAssert(this.entriesByAddress(Txn.sender).exists, errEntryDoesNotExist)
 
     const loc = this.entriesByAddress(Txn.sender).value
     const amount = this.weights(loc / ChunkSize).value[loc % ChunkSize]
 
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetAmount <= (this.maxTickets.value - amount.asUint64()), ERR_INVALID_TRANSFER)
+    assertSafeAssetTransfer(assetXfer, Txn.sender)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+    loggedAssert(assetXfer.xferAsset === this.ticketAsset.value, errInvalidTransfer)
+    loggedAssert(assetXfer.assetAmount <= (this.maxTickets.value - amount.asUint64()), errInvalidTransfer)
 
     const newWeights = new Uint64(
       this.weights(loc / ChunkSize).value[loc % ChunkSize].asUint64() + assetXfer.assetAmount
@@ -518,24 +791,54 @@ export class Raffle extends classes(
     this.ticketCount.value += assetXfer.assetAmount
   }
 
+  /** commits the draw to the first beacon-stored round at least DRAW_DELAY_ROUNDS ahead */
+  private commitDrawRound(): void {
+    this.raffleRound.value = (Global.round + DRAW_DELAY_ROUNDS + BEACON_ROUND_INTERVAL - 1) / BEACON_ROUND_INTERVAL * BEACON_ROUND_INTERVAL
+  }
+
+  /**
+   * Draw, commit-reveal (AR-01):
+   * - first call after the end settles degenerate raffles (AR-07 / AR-C) or commits to a
+   *   beacon-stored round at least DRAW_DELAY_ROUNDS ahead, whose output nobody can know yet
+   * - a later call (BEACON_LAG_ROUNDS after that round) draws the ticket
+   * - an empty beacon read reverts, so nobody can move the commitment (TRADE-3); only after
+   *   BEACON_MAX_WAIT_ROUNDS does it re-commit forward, never to an already-public round
+   */
   raffle(): void {
-    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
-    loggedAssert(this.winningTicket.value === 0, ERR_WINNER_ALREADY_DRAWN)
+    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, errRaffleHasNotEnded)
+    loggedAssert(this.winningTicket.value === 0, errWinnerAlreadyDrawn)
+    loggedAssert(this.winner.value === Global.zeroAddress, errWinnerAlreadyFound)
 
     if (this.raffleRound.value === 0) {
-      this.raffleRound.value = Global.round - 8
+      // AR-C / AR-07: not enough participation (or nothing sold): prize back to seller, tickets refunded
+      const minEntries: uint64 = this.minEntries.value > 0 ? this.minEntries.value : 1
+      if (this.entryCount.value < minEntries || this.ticketCount.value === 0) {
+        this.failed.value = true
+        this.winner.value = this.seller.value
+        return
+      }
+
+      // pcg64Random needs a range of at least two values
+      if (this.ticketCount.value === 1) {
+        this.winningTicket.value = 1
+        return
+      }
+
+      this.commitDrawRound()
+      return
     }
 
-    const roundToUse: uint64 = this.raffleRound.value + (4 * this.vrfFailureCount.value)
-    loggedAssert(Global.round >= roundToUse + 8, ERR_NOT_ENOUGH_TIME)
+    loggedAssert(Global.round >= this.raffleRound.value + BEACON_LAG_ROUNDS, errNotEnoughTime)
 
     const seed = abiCall<typeof RandomnessBeacon.prototype.get>({
       appId: getOtherAppList(this.akitaDAO.value).vrfBeacon,
-      args: [roundToUse, this.salt.value],
+      args: [this.raffleRound.value, this.salt.value],
     }).returnValue
 
     if (seed.length === 0) {
+      loggedAssert(Global.round >= this.raffleRound.value + BEACON_MAX_WAIT_ROUNDS, errBeaconNotReady)
       this.vrfFailureCount.value += 1
+      this.commitDrawRound()
       return
     }
 
@@ -544,7 +847,7 @@ export class Raffle extends classes(
     // make upper bounds inclusive if we can
     let upperBound = this.ticketCount.value
     if (upperBound < MAX_UINT64) {
-      upperBound = upperBound += 1
+      upperBound += 1
     }
 
     const rngResult = pcg64Random(rngState, 1, upperBound, 1)
@@ -552,9 +855,9 @@ export class Raffle extends classes(
   }
 
   findWinner(iterationAmount: uint64): void {
-    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, ERR_RAFFLE_HAS_NOT_ENDED)
-    loggedAssert(this.winningTicket.value !== 0, ERR_NO_WINNING_TICKET_YET)
-    loggedAssert(this.winner.value === Global.zeroAddress, ERR_WINNER_ALREADY_FOUND)
+    loggedAssert(Global.latestTimestamp > this.endTimestamp.value, errRaffleHasNotEnded)
+    loggedAssert(this.winningTicket.value !== 0, errNoWinningTicketYet)
+    loggedAssert(this.winner.value === Global.zeroAddress, errWinnerAlreadyFound)
 
     const winningBoxInfo = this.getWinnerWeightBoxInfo()
 
@@ -563,6 +866,7 @@ export class Raffle extends classes(
     let currentRangeStart = winningBoxInfo[1]
     let currentRangeEnd: uint64 = 0
 
+    loggedAssert(startingIndex < this.entryCount.value, errWinnerNotFound)
     const remainder: uint64 = this.entryCount.value - startingIndex
     iterationAmount = remainder > iterationAmount ? iterationAmount : remainder
 
@@ -585,198 +889,52 @@ export class Raffle extends classes(
       currentRangeStart = currentRangeEnd
     }
 
-    this.findWinnerCursors.value.index += iterationAmount
-    this.findWinnerCursors.value.amountIndex = currentRangeStart
+    // AR-08: store the position this call actually iterated from
+    this.findWinnerCursors.value = { index: startingIndex + iterationAmount, amountIndex: currentRangeStart }
   }
 
   claimRafflePrize(): void {
-    loggedAssert(this.winner.value !== Global.zeroAddress, ERR_WINNER_NOT_FOUND)
-    loggedAssert(!this.prizeClaimed.value, ERR_PRIZE_ALREADY_CLAIMED)
+    loggedAssert(this.winner.value !== Global.zeroAddress, errWinnerNotFound)
+    loggedAssert(!this.prizeClaimed.value, errPrizeAlreadyClaimed)
+
+    // AR-07 / AR-C: a failed raffle returns the prize; ticket proceeds are refunded via refundMBR
+    if (this.failed.value) {
+      this.transferPrize(this.seller.value)
+      this.prizeClaimed.value = true
+      return
+    }
 
     // give the winner the prize
-    if (this.isPrizeBox.value) {
-      abiCall<typeof PrizeBox.prototype.transfer>({
-        appId: this.prize.value,
-        args: [this.winner.value],
-      })
-    } else {
-      const prizeAmount = op.AssetHolding.assetBalance(Global.currentApplicationAddress, this.prize.value)[0]
-
-      if (this.winner.value.isOptedIn(Asset(this.prize.value))) {
-        itxn
-          .assetTransfer({
-            assetCloseTo: this.winner.value,
-            xferAsset: this.prize.value,
-          })
-          .submit()
-      } else {
-        createInstantDisbursement(
-          this.akitaDAO.value,
-          this.prize.value,
-          0,
-          MAX_UINT64,
-          [{ address: this.winner.value, amount: prizeAmount }],
-          prizeAmount,
-          true
-        )
-      }
-    }
+    this.transferPrize(this.winner.value)
 
     const amounts = this.getAmounts(this.ticketCount.value, this.isPrizeBox.value)
 
     const loc = this.entriesByAddress(this.winner.value).value
     const marketplace = this.entries(loc).value.marketplace
 
-    if (this.ticketAsset.value.id === 0) {
+    // AR-10 / principal §6.8: the referral cut goes to the seller's creation-time verified referrer
+    let leftover: uint64 = amounts.akita
+    if (amounts.akita > 0) {
+      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, this.ticketAsset.value.id, amounts.akita, this.akitaDAOEscrow.value.app.address))
+    }
 
+    if (this.ticketAsset.value.id === 0) {
       if (amounts.creator > 0) {
         // pay the nft creator
-        itxn
-          .payment({
-            receiver: Asset(this.prize.value).creator,
-            amount: amounts.creator,
-          })
-          .submit()
+        this.sendTickets(Asset(this.prize.value).creator, amounts.creator)
       }
-
-      // pay akita fee (referral + escrow)
-      let leftover: uint64 = amounts.akita
-      if (amounts.akita > 0) {
-        ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, amounts.akita))
-      }
-
-      itxn
-        .payment({
-          receiver: this.akitaDAOEscrow.value.app.address,
-          amount: leftover,
-        })
-        .submit()
-
-      itxn
-        .payment({
-          receiver: this.marketplace.value,
-          amount: amounts.marketplace,
-        })
-        .submit()
-
-      itxn
-        .payment({
-          receiver: marketplace,
-          amount: amounts.marketplace,
-        })
-        .submit()
-
-      itxn
-        .payment({
-          receiver: this.seller.value,
-          amount: amounts.seller,
-        })
-        .submit()
-
+      this.sendToAkitaEscrow(this.ticketAsset.value, leftover)
+      this.sendTickets(this.marketplace.value, amounts.marketplace)
+      this.sendTickets(marketplace, amounts.marketplace)
+      this.sendTickets(this.seller.value, amounts.seller)
     } else {
-
       if (amounts.creator > 0) {
-        if (Asset(this.prize.value).creator.isOptedIn(this.ticketAsset.value)) {
-          itxn
-            .assetTransfer({
-              assetReceiver: Asset(this.prize.value).creator,
-              assetAmount: amounts.creator,
-              xferAsset: this.ticketAsset.value,
-            })
-            .submit()
-        } else {
-          createInstantDisbursement(
-            this.akitaDAO.value,
-            this.ticketAsset.value.id,
-            0,
-            MAX_UINT64,
-            [{ address: Asset(this.prize.value).creator, amount: amounts.creator }],
-            amounts.creator,
-            false
-          )
-        }
+        this.sendTicketsOrDisburse(Asset(this.prize.value).creator, amounts.creator)
       }
-
-      // pay akita fee (referral + escrow)
-      let leftover: uint64 = amounts.akita
-      if (amounts.akita > 0) {
-        ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.ticketAsset.value.id, amounts.akita))
-      }
-
-      if (this.akitaDAOEscrow.value.app.address.isOptedIn(this.ticketAsset.value)) {
-        itxn
-          .assetTransfer({
-            assetReceiver: this.akitaDAOEscrow.value.app.address,
-            assetAmount: leftover,
-            xferAsset: this.ticketAsset.value,
-          })
-          .submit()
-      } else {
-        this.optAkitaEscrowInAndSend(
-          this.ticketAsset.value,
-          leftover,
-        )
-      }
-
-      if (this.marketplace.value.isOptedIn(this.ticketAsset.value)) {
-        itxn
-          .assetTransfer({
-            assetReceiver: this.marketplace.value,
-            assetAmount: amounts.marketplace,
-            xferAsset: this.ticketAsset.value,
-          })
-          .submit()
-      } else {
-        createInstantDisbursement(
-          this.akitaDAO.value,
-          this.ticketAsset.value.id,
-          0,
-          MAX_UINT64,
-          [{ address: this.marketplace.value, amount: amounts.marketplace }],
-          amounts.marketplace,
-          false
-        )
-      }
-
-      if (marketplace.isOptedIn(this.ticketAsset.value)) {
-        itxn
-          .assetTransfer({
-            assetReceiver: marketplace,
-            assetAmount: amounts.marketplace,
-            xferAsset: this.ticketAsset.value,
-          })
-          .submit()
-      } else {
-        createInstantDisbursement(
-          this.akitaDAO.value,
-          this.ticketAsset.value.id,
-          0,
-          MAX_UINT64,
-          [{ address: marketplace, amount: amounts.marketplace }],
-          amounts.marketplace,
-          false
-        )
-      }
-
-      if (this.seller.value.isOptedIn(this.ticketAsset.value)) {
-        itxn
-          .assetTransfer({
-            assetReceiver: this.seller.value,
-            assetAmount: amounts.seller,
-            xferAsset: this.ticketAsset.value,
-          })
-          .submit()
-      } else {
-        createInstantDisbursement(
-          this.akitaDAO.value,
-          this.ticketAsset.value.id,
-          0,
-          MAX_UINT64,
-          [{ address: this.seller.value, amount: amounts.seller }],
-          amounts.seller,
-          false
-        )
-      }
+      this.sendToAkitaEscrow(this.ticketAsset.value, leftover)
+      this.sendTicketsOrDisburse(this.marketplace.value, amounts.marketplace)
+      this.sendTicketsOrDisburse(marketplace, amounts.marketplace)
+      this.sendTicketsOrDisburse(this.seller.value, amounts.seller)
     }
 
     this.prizeClaimed.value = true
@@ -811,6 +969,9 @@ export class Raffle extends classes(
       vrfFailureCount: this.vrfFailureCount.value,
       entryID: this.entryID.value,
       refundMBRCursor: this.refundMBRCursor.value,
+      minEntries: this.minEntries.value,
+      failed: this.failed.value,
+      raffleRound: this.raffleRound.value,
     }
   }
 }

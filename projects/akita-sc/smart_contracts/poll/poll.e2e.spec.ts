@@ -1,4 +1,4 @@
-import { Config, Address, microAlgos } from '@algorandfoundation/algokit-utils'
+import { Config, microAlgos } from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { beforeAll, describe, expect, test } from 'vitest'
 import { PollSDK, PollTypeEnum } from 'akita-sdk/poll'
@@ -6,7 +6,7 @@ import algosdk from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
-import { AddressWithSigners, AddressWithTransactionSigner } from '@algorandfoundation/algokit-utils/transact'
+import type { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
 
 Config.configure({ populateAppCallResources: true })
 
@@ -19,20 +19,20 @@ const ONE_DAY = 86_400
  * Get the current Algorand block timestamp
  */
 const getBlockTimestamp = async (algorand: import('@algorandfoundation/algokit-utils').AlgorandClient): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
 describe('Poll SDK', () => {
-  let deployer: Address & AddressWithSigners
-  let creator: Address & AddressWithSigners
-  let voter1: Address & AddressWithSigners
-  let voter2: Address & AddressWithSigners
+  let deployer: TransactionSignerAccount
+  let creator: TransactionSignerAccount
+  let voter1: TransactionSignerAccount
+  let voter2: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
   let pollSDK: PollSDK
   let timeWarp: TimeWarp
-  let dispenser: AddressWithTransactionSigner
+  let dispenser: TransactionSignerAccount
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
 
   beforeAll(async () => {
@@ -240,8 +240,76 @@ describe('Poll SDK', () => {
           appId: pollSDK.client.appId,
         })
 
-        await expect(algorand.client.algod.applicationById(Number(pollSDK.client.appId))).rejects.toThrow()
+        await expect(algorand.client.algod.getApplicationByID(Number(pollSDK.client.appId)).do()).rejects.toThrow()
       })
+    })
+  })
+
+  describe('Audit regressions (PL-01, PL-02, PL-04)', () => {
+    const spendable = async (address: string) => {
+      const info = await algorand.account.getInformation(address)
+      return info.balance.microAlgos - info.minBalance.microAlgos
+    }
+
+    const newShortPoll = async (type: PollTypeEnum = PollTypeEnum.SingleChoice, maxSelected = 1n) =>
+      akitaUniverse.pollFactory.new({
+        sender: creator.addr,
+        signer: creator.signer,
+        type,
+        endTime: (await getBlockTimestamp(algorand)) + 60n,
+        maxSelected,
+        question: 'Regression?',
+        options: ['Yes', 'No', 'Maybe'],
+        gateId: 0n,
+      })
+
+    test('PL-01: create/delete cycles leave the factory balance unchanged and close the poll account', async () => {
+      const factory = akitaUniverse.pollFactory.client.appAddress.toString()
+      for (const scenario of ['empty', 'voted', 'donated'] as const) {
+        const before = await spendable(factory)
+        const poll = await newShortPoll()
+        const pollAddress = poll.client.appAddress.toString()
+        if (scenario === 'voted') {
+          await poll.vote({ sender: voter1.addr, signer: voter1.signer, votes: [0n] })
+        }
+        if (scenario === 'donated') {
+          await algorand.send.payment({ sender: dispenser.addr, receiver: pollAddress, amount: (1).algo() })
+        }
+        await timeWarp.timeWarp(61n)
+        if (scenario === 'voted') {
+          await poll.deleteBoxes({ sender: creator.addr, signer: creator.signer, addresses: [voter1.addr.toString()] })
+        }
+        await akitaUniverse.pollFactory.deletePoll({ sender: creator.addr, signer: creator.signer, appId: poll.client.appId })
+        // The deleted poll's account is closed back to the factory; nothing is stranded.
+        expect((await algorand.account.getInformation(pollAddress)).balance.microAlgos).toBe(0n)
+        // The funder's refund is capped at its deposit, so the factory never pays out of its own balance.
+        expect(await spendable(factory) - before).toBe(scenario === 'donated' ? 1_000_000n : 0n)
+      }
+    })
+
+    test('PL-02: only the four poll types are accepted, including MultipleChoiceImpact', async () => {
+      for (const invalid of [0, 15, 25, 39, 41]) {
+        await expect(newShortPoll(invalid as PollTypeEnum, 2n)).rejects.toThrow(/errIpty/)
+      }
+      const poll = await newShortPoll(PollTypeEnum.MultipleChoiceImpact, 2n)
+      await poll.vote({ sender: voter2.addr, signer: voter2.signer, votes: [0n, 2n] })
+      const [yes, no, maybe] = await poll.getVoteCounts()
+      expect(yes).toBeGreaterThan(0n)
+      expect(maybe).toBe(yes)
+      expect(no).toBe(0n)
+    })
+
+    test('PL-04: the vote MBR must be paid by the voter', async () => {
+      const poll = await newShortPoll()
+      const sponsored = await algorand.createTransaction.payment({
+        sender: voter1.addr, receiver: poll.client.appAddress, amount: microAlgos(15_300),
+      })
+      await expect(poll.client.send.vote({
+        sender: voter2.addr,
+        signer: voter2.signer,
+        args: { mbrPayment: { txn: sponsored, signer: voter1.signer }, votes: [0n] },
+      })).rejects.toThrow(/errIpms/)
+      expect(await poll.hasVoted({ user: voter2.addr.toString() })).toBe(false)
     })
   })
 

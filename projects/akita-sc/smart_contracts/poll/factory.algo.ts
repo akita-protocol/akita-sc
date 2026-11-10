@@ -3,10 +3,11 @@ import { abimethod, compileArc4, decodeArc4 } from '@algorandfoundation/algorand
 import { GlobalStateKeyFunder } from '../constants'
 import { EscrowConfig } from '../utils/base-contracts/base'
 import { FactoryContract } from '../utils/base-contracts/factory'
-import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../utils/constants'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
+import { programPagesMbr } from '../utils/programs'
 import { FunderInfo } from '../utils/types/mbr'
 import { Poll } from './contract.algo'
-import { ERR_INVALID_PAYMENT, ERR_NOT_A_POLL } from './errors'
+import { errInvalidPayment, errNotAPoll } from './errors'
 import { PollType } from './types'
 
 @contract({
@@ -37,8 +38,8 @@ export class PollFactory extends FactoryContract {
 
     const poll = compileArc4(Poll)
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === this.newPollCost(), ERR_INVALID_PAYMENT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === this.newPollCost(), errInvalidPayment)
 
     const mint = poll.call
       .create({
@@ -67,24 +68,36 @@ export class PollFactory extends FactoryContract {
   }
 
   deletePoll(appId: Application): void {
-    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_POLL)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, errNotAPoll)
 
     const [funderBytes] = op.AppGlobal.getExBytes(appId, Bytes(GlobalStateKeyFunder))
     const { account: receiver, amount } = decodeArc4<FunderInfo>(funderBytes)
 
+    const balanceBefore = Global.currentApplicationAddress.balance
+    const minBefore = Global.currentApplicationAddress.minBalance
+
     const poll = compileArc4(Poll)
     poll.call.deleteApplication({ appId })
 
-    itxn
-      .payment({ amount, receiver })
-      .submit()
+    if (Global.currentApplicationAddress.balance === balanceBefore) {
+      // Legacy child (created before PL-01): it did not close its account back, so its
+      // forwarded min balance is stranded. The factory absorbs that one-time loss (H-E);
+      // no new child can be created with the legacy program.
+      itxn
+        .payment({ amount, receiver })
+        .submit()
+    } else {
+      // Refund only what this deletion returned or released, capped at the recorded deposit.
+      this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
+    }
   }
 
   @abimethod({ readonly: true })
   newPollCost(): uint64 {
     const poll = compileArc4(Poll)
     return (
-      MIN_PROGRAM_PAGES +
+      // Poll has outgrown one page; quote every page the create call allocates.
+      programPagesMbr(poll.extraProgramPages) +
       (GLOBAL_STATE_KEY_UINT_COST * poll.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * poll.globalBytes) +
       Global.minBalance

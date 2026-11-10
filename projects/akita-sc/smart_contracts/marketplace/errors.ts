@@ -5,35 +5,48 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/marketplace/errors.ts` —
- * keep the two files in sync when adding or changing a code. Constant NAMES
- * are preserved from the pre-ARC-65 layout so call sites don't change.
+ * keep the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  */
 
 // Mirror common codes used by marketplace so domain call sites keep their
 // previous names but share the wire format with the top-level `errors.ts`.
 // PuyaTs doesn't support `export { X } from` re-export syntax, so the
 // constants are redeclared here with identical values.
-export const ERR_NOT_AKITA_DAO = 'NDAO'
-export const ERR_MUST_BE_CALLED_FROM_FACTORY = 'MBFF'
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_INVALID_TRANSFER = 'IXFR'
-export const ERR_FAILED_GATE = 'FGTE'
+export const errNotAkitaDao = 'errNdao'
+export const errMustBeCalledFromFactory = 'errMbff'
+export const errInvalidPayment = 'errIpay'
+export const errInvalidTransfer = 'errIxfr'
+export const errFailedGate = 'errFgte'
 
 // --- Listing validation -----------------------------------------------------
 
-export const ERR_PRICE_TOO_LOW = 'PRLO'
-export const ERR_MARKETPLACE_NOT_OPTED_INTO_PAYMENT_ASSET = 'MNOP'
-export const ERR_NOT_A_LISTING = 'NALS'
-export const ERR_INVALID_EXPIRATION = 'IEXP'
-export const ERR_LISTING_EXPIRED = 'LEXP'
+export const errPriceTooLow = 'errPrlo'
+export const errMarketplaceNotOptedIntoPaymentAsset = 'errMnop'
+export const errNotAListing = 'errNals'
+export const errInvalidExpiration = 'errIexp'
+export const errListingExpired = 'errLexp'
 
 // --- Payment asset ----------------------------------------------------------
 
-export const ERR_PAYMENT_ASSET_MUST_BE_ALGO = 'PAMA'
-export const ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO = 'PANA'
+export const errPaymentAssetMustBeAlgo = 'errPama'
+export const errPaymentAssetMustNotBeAlgo = 'errPana'
 
 // --- Access / delist --------------------------------------------------------
 
-export const ERR_ONLY_SELLER_CAN_DELIST = 'OSCD'
-export const ERR_RESERVED_FOR_DIFFERENT_ADDRESS = 'RFDA'
-export const ERR_MUST_BE_SELLER = 'MBSL'
+export const errOnlySellerCanDelist = 'errOscd'
+export const errReservedForDifferentAddress = 'errRfda'
+export const errMustBeSeller = 'errMbsl'
+
+// --- Settlement safety (audit MKT-01/02/04/06) -------------------------------
+
+/** Legacy (pre-revision) listing: ASA settlement unsupported, seller must delist + relist */
+export const errLegacyListing = 'errLgcy'
+/** The listing's prize balance no longer matches the listed amount (clawback/partial removal) */
+export const errPrizeChanged = 'errPchg'
+/** The price changed within the purchase cooldown window */
+export const errPriceRecentlyChanged = 'errPrcd'
+/** The payment asset cannot be the prize asset */
+export const errPrizeIsPaymentAsset = 'errPbdl'
+/** A legacy-paid listing would take the factory's free balance below `LegacyFloatReserve` */
+export const errLegacyFloatReserve = 'errLflt'

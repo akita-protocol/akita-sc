@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { PrizeBoxSDK } from 'akita-sdk/prize-box'
 import algosdk from 'algosdk'
@@ -8,20 +9,21 @@ import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import {
     getAccountBalance,
 } from '../../tests/utils/balance'
+import { expectContractError } from '../../tests/utils/errors'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
 const fixture = algorandFixture()
 
 describe('Prize Box SDK', () => {
-    let deployer: Address & TransactionSignerAccount
-    let creator: Address & TransactionSignerAccount
-    let recipient: Address & TransactionSignerAccount
+    let deployer: TransactionSignerAccount
+    let creator: TransactionSignerAccount
+    let recipient: TransactionSignerAccount
     let akitaUniverse: AkitaUniverse
     let prizeBoxSDK: PrizeBoxSDK
     let testAssetId: bigint
     let testAssetId2: bigint
-    let dispenser: algosdk.Address & TransactionSignerAccount & {
+    let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
         account: SigningAccount;
     }
     let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
@@ -36,9 +38,9 @@ describe('Prize Box SDK', () => {
         creator = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
         recipient = await ctx.generateAccount({ initialFunds: algokit.microAlgos(100_000_000) })
 
-        await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-        await algorand.account.ensureFunded(creator.addr, dispenser, (500).algo())
-        await algorand.account.ensureFunded(recipient.addr, dispenser, (100).algo())
+        await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+        await algorand.account.ensureFunded(creator.addr, dispenser.addr, (500).algo())
+        await algorand.account.ensureFunded(recipient.addr, dispenser.addr, (100).algo())
 
         // Build the full Akita DAO universe (includes prizeBoxFactory)
         akitaUniverse = await buildAkitaUniverse({
@@ -57,7 +59,7 @@ describe('Prize Box SDK', () => {
             assetName: 'Prize Token 1',
             unitName: 'PT1',
         })
-        testAssetId = BigInt(assetCreate1.confirmation.assetId!)
+        testAssetId = BigInt(assetCreate1.confirmation.assetIndex!)
 
         const assetCreate2 = await algorand.send.assetCreate({
             sender: deployer.addr,
@@ -67,7 +69,7 @@ describe('Prize Box SDK', () => {
             assetName: 'Prize Token 2',
             unitName: 'PT2',
         })
-        testAssetId2 = BigInt(assetCreate2.confirmation.assetId!)
+        testAssetId2 = BigInt(assetCreate2.confirmation.assetIndex!)
 
         // Opt accounts into assets
         for (const account of [creator, recipient]) {
@@ -100,7 +102,7 @@ describe('Prize Box SDK', () => {
         })
 
         // Fund the prize box factory to cover MBR
-        await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser, (100).algo())
+        await algorand.account.ensureFunded(akitaUniverse.prizeBoxFactory.client.appAddress, dispenser.addr, (100).algo())
     })
 
     describe('PrizeBoxFactorySDK', () => {
@@ -108,7 +110,7 @@ describe('Prize Box SDK', () => {
             test('should return the cost to create a prize box', () => {
                 const cost = akitaUniverse.prizeBoxFactory.cost()
                 expect(cost).toBeGreaterThan(0n)
-                expect(cost).toBe(278_500n)
+                expect(cost).toBe(328_500n) // PB-02: + funder bytes slot (50_000)
             })
         })
 
@@ -262,6 +264,60 @@ describe('Prize Box SDK', () => {
             // The prize box factory should be registered in the DAO's akitaAppList
             const daoState = await akitaUniverse.dao.client.state.global.getAll()
             expect(daoState.akitaAppList?.prizeBox).toBe(akitaUniverse.prizeBoxFactory.client.appId)
+        })
+    })
+
+    describe('Audit regressions (PB-01, PB-02, M-3)', () => {
+        const freeBalance = async (address: string | Address): Promise<bigint> => {
+            const info = await algorand.client.algod.accountInformation(address.toString()).do()
+            return BigInt(info.amount) - BigInt(info.minBalance)
+        }
+
+        test('PB-01: opting into the same asset twice is rejected and the count stays exact', async () => {
+            const box = await akitaUniverse.prizeBoxFactory.mint({ sender: creator.addr, signer: creator.signer, owner: creator.addr.toString() })
+            await box.optIn({ sender: creator.addr, signer: creator.signer, asset: testAssetId })
+            await expectContractError(
+                box.optIn({ sender: creator.addr, signer: creator.signer, asset: testAssetId }),
+                'errAopt'
+            )
+            expect((await box.state()).optinCount).toBe(1n)
+        })
+
+        test('M-3: clawback-enabled assets cannot be put in a prize box', async () => {
+            const res = await algorand.send.assetCreate({
+                sender: deployer.addr, signer: deployer.signer, total: 100n, decimals: 0,
+                assetName: 'Clawable', unitName: 'CLAW', clawback: deployer.addr,
+            })
+            const claw = BigInt(res.confirmation.assetIndex!)
+            const box = await akitaUniverse.prizeBoxFactory.mint({ sender: creator.addr, signer: creator.signer, owner: creator.addr.toString() })
+            await expectContractError(
+                box.optIn({ sender: creator.addr, signer: creator.signer, asset: claw }),
+                'errClwa'
+            )
+        })
+
+        test('PB-02: deletion goes through the factory; minter gets the creation MBR, owner gets the box balance', async () => {
+            const factory = akitaUniverse.prizeBoxFactory.client.appAddress
+            const freeBefore = await freeBalance(factory)
+
+            // creator mints a box owned by recipient
+            const box = await akitaUniverse.prizeBoxFactory.mint({ sender: creator.addr, signer: creator.signer, owner: recipient.addr.toString() })
+            expect(akitaUniverse.prizeBoxFactory.cost()).toBe(await akitaUniverse.prizeBoxFactory.client.mintCost())
+
+            // the owner cannot bypass the factory any more
+            await expectContractError(
+                box.client.send.delete.deleteApplication({ sender: recipient.addr, signer: recipient.signer, args: { caller: recipient.addr.toString() } }),
+                'errMbff'
+            )
+
+            const minterBefore = await getAccountBalance(algorand, creator.addr.toString())
+            await box.delete({ sender: recipient.addr, signer: recipient.signer })
+            const minterAfter = await getAccountBalance(algorand, creator.addr.toString())
+
+            await expect(box.state()).rejects.toThrow()
+            // creation MBR = 1 page + 1 uint + 2 bytes = 228,500
+            expect(minterAfter - minterBefore).toBe(228_500n)
+            expect(await freeBalance(factory)).toBe(freeBefore)
         })
     })
 })

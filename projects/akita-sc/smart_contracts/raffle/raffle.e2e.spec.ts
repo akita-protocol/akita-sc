@@ -1,15 +1,16 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { RaffleSDK } from 'akita-sdk/raffle'
-import algosdk from 'algosdk'
+import algosdk, { ALGORAND_ZERO_ADDRESS_STRING } from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import {
   getAccountBalance,
 } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
-import { MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
+import { MockRandomnessBeaconClient, MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
@@ -23,24 +24,25 @@ const ONE_MINUTE = 60
  * Get the current Algorand block timestamp
  */
 const getBlockTimestamp = async (algorand: import('@algorandfoundation/algokit-utils').AlgorandClient): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
 describe('Raffle SDK', () => {
-  let deployer: Address & TransactionSignerAccount
-  let creator: Address & TransactionSignerAccount
-  let participant1: Address & TransactionSignerAccount
-  let participant2: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let creator: TransactionSignerAccount
+  let participant1: TransactionSignerAccount
+  let participant2: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
   let raffleSDK: RaffleSDK
   let testAssetId: bigint
   let timeWarp: TimeWarp
-  let dispenser: algosdk.Address & TransactionSignerAccount & {
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & {
     account: SigningAccount;
   }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
+  let mockBeacon: MockRandomnessBeaconClient
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -57,17 +59,17 @@ describe('Raffle SDK', () => {
     participant1 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
     participant2 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(creator.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(participant1.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(participant2.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(creator.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(participant1.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(participant2.addr, dispenser.addr, (500).algo())
 
     // Deploy mock VRF beacon for raffle testing
     const mockBeaconFactory = algorand.client.getTypedAppFactory(MockRandomnessBeaconFactory, {
       defaultSender: deployer.addr,
       defaultSigner: deployer.signer,
     })
-    const { appClient: mockBeacon } = await mockBeaconFactory.send.create.bare()
+    ;({ appClient: mockBeacon } = await mockBeaconFactory.send.create.bare())
 
     // Build the full Akita DAO universe (includes raffleFactory with escrow configured)
     akitaUniverse = await buildAkitaUniverse({
@@ -88,7 +90,7 @@ describe('Raffle SDK', () => {
       assetName: 'Raffle Prize NFT',
       unitName: 'RPNFT',
     })
-    testAssetId = BigInt(assetCreateTxn.confirmation.assetId!)
+    testAssetId = BigInt(assetCreateTxn.confirmation.assetIndex!)
 
     // Opt all accounts into the test asset
     for (const account of [creator, participant1, participant2]) {
@@ -109,7 +111,7 @@ describe('Raffle SDK', () => {
     })
 
     // Fund the raffle factory to cover raffle creation MBR
-    await algorand.account.ensureFunded(akitaUniverse.raffleFactory.client.appAddress, dispenser, (100).algo())
+    await algorand.account.ensureFunded(akitaUniverse.raffleFactory.client.appAddress, dispenser.addr, (100).algo())
 
     // Opt the raffle factory into the test asset so it can receive the prize during raffle creation.
     // optIn does the asset opt-in + (when escrow is configured) routes through the revenue manager
@@ -142,18 +144,20 @@ describe('Raffle SDK', () => {
 
   describe('RaffleFactorySDK', () => {
     describe('cost()', () => {
-      test('should return the cost to create a raffle', () => {
-        const cost = akitaUniverse.raffleFactory.cost({
+      // cost() is quoted on-chain by the factory (newRaffleCost), creation fee included
+      test('should return the cost to create a raffle', async () => {
+        const cost = await akitaUniverse.raffleFactory.cost({
           isPrizeBox: false,
-          isAlgoTicket: true,
+          prizeId: testAssetId,
+          ticketAsset: 0n,
           weightsListCount: 4n, // Minimum required by contract
         })
         expect(cost).toBeGreaterThan(0n)
       })
 
-      test('should return higher cost for ASA tickets', () => {
-        const algoCost = akitaUniverse.raffleFactory.cost({ isAlgoTicket: true })
-        const asaCost = akitaUniverse.raffleFactory.cost({ isAlgoTicket: false })
+      test('should return higher cost for ASA tickets', async () => {
+        const algoCost = await akitaUniverse.raffleFactory.cost({ prizeId: testAssetId, ticketAsset: 0n })
+        const asaCost = await akitaUniverse.raffleFactory.cost({ prizeId: testAssetId, ticketAsset: testAssetId })
         expect(asaCost).toBeGreaterThan(algoCost)
       })
     })
@@ -429,6 +433,343 @@ describe('Raffle SDK', () => {
       const escrowAddress = algosdk.getApplicationAddress(raffleEscrow.id).toString()
       const escrowBalance = await getAccountBalance(algorand, escrowAddress)
       expect(escrowBalance).toBeGreaterThanOrEqual(0n)
+    })
+  })
+
+  // ==========================================================================
+  // Audit 2026-10 regressions (AR-01, 07, 08, 09, 11, 15, C)
+  // ==========================================================================
+  describe('Audit 2026-10 regressions', () => {
+    const ZERO = ALGORAND_ZERO_ADDRESS_STRING
+    const factoryAddress = () => akitaUniverse.raffleFactory.client.appAddress.toString()
+
+    const newAccount = async (algo: number) => {
+      const account = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(algo * 1_000_000) })
+      await algorand.account.ensureFunded(account.addr, dispenser.addr, algo.algo())
+      return account
+    }
+
+    const optInTo = async (account: TransactionSignerAccount, assetId: bigint) => {
+      await algorand.send.assetOptIn({ sender: account.addr, signer: account.signer, assetId })
+    }
+
+    const newSeller = async () => {
+      const account = await newAccount(200)
+      await optInTo(account, testAssetId)
+      await algorand.send.assetTransfer({
+        sender: deployer.addr, signer: deployer.signer, assetId: testAssetId, amount: 1n, receiver: account.addr,
+      })
+      return account
+    }
+
+    const newEntrant = async () => {
+      const account = await newAccount(50)
+      await optInTo(account, testAssetId)
+      return account
+    }
+
+    const createRaffle = async (
+      owner: TransactionSignerAccount,
+      { minTickets = 1_000_000n, maxTickets = 100_000_000n, minEntries = 0n, ticketAsset = 0n, startIn = 60n, duration = 3_600n, prizeAsset = testAssetId }: {
+        minTickets?: bigint, maxTickets?: bigint, minEntries?: bigint, ticketAsset?: bigint, startIn?: bigint, duration?: bigint, prizeAsset?: bigint
+      } = {},
+    ) => {
+      const now = await getBlockTimestamp(algorand)
+      return akitaUniverse.raffleFactory.newRaffle({
+        sender: owner.addr,
+        signer: owner.signer,
+        prizeAsset,
+        prizeAmount: 1n,
+        ticketAsset,
+        startTimestamp: now + startIn,
+        endTimestamp: now + duration,
+        minTickets,
+        maxTickets,
+        minEntries,
+        gateId: 0n,
+        marketplace: owner.addr.toString(),
+        name: 'Regression Raffle',
+        proof: [],
+        weightsListCount: 4n,
+      })
+    }
+
+    const enter = (raffle: RaffleSDK, entrant: TransactionSignerAccount, amount: bigint) =>
+      raffle.enter({ sender: entrant.addr, signer: entrant.signer, amount, marketplace: entrant.addr.toString() })
+
+    const findWinner = async (raffle: RaffleSDK): Promise<string> => {
+      for (let i = 0; i < 10; i++) {
+        const { winner } = await raffle.state()
+        if (winner !== ZERO) return winner
+        await raffle.findWinner({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 16n })
+      }
+      throw new Error('raffle winner not found')
+    }
+
+    /** refund every entry, clear the weights boxes and delete through the factory */
+    const cleanupAndDelete = async (raffle: RaffleSDK) => {
+      const state = await raffle.state()
+      if (state.entryCount > state.refundMbrCursor) {
+        await raffle.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: state.entryCount })
+      }
+      await raffle.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer })
+      await akitaUniverse.raffleFactory.deleteRaffle({ sender: deployer.addr, signer: deployer.signer, appId: raffle.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(raffle.client.appId).do()).rejects.toThrow()
+    }
+
+    test('AR-01/08/09: commit-reveal draw, winner search, settlement and exact factory refund', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 5_000_000n)
+      await enter(raffle, p2, 10_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      // AR-01: the first call only commits to a future round
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const committed = await raffle.state()
+      const { lastRound } = await algorand.client.algod.status().do()
+      expect(committed.winningTicket).toBe(0n)
+      expect(committed.raffleRound).toBeGreaterThan(lastRound)
+      await expect(raffle.raffle({ sender: deployer.addr, signer: deployer.signer })).rejects.toThrow()
+
+      await timeWarp.roundWarp(await raffle.drawReadyRound())
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      expect((await raffle.state()).winningTicket).toBeGreaterThan(0n)
+
+      const winner = await findWinner(raffle)
+      expect([p1.addr.toString(), p2.addr.toString()]).toContain(winner)
+
+      const sellerBefore = await getAccountBalance(algorand, owner.addr.toString())
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(winner, testAssetId)).balance).toBe(1n)
+      expect(await getAccountBalance(algorand, owner.addr.toString())).toBeGreaterThan(sellerBefore)
+
+      await cleanupAndDelete(raffle)
+      // AR-09: refund = what the deletion released; the creation fee (sent to the escrow) is not refunded
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-07: a raffle with no entries returns the prize to the seller and can be deleted', async () => {
+      const owner = await newSeller()
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const state = await raffle.state()
+      expect(state.failed).toBeTruthy()
+      expect(state.winner).toBe(owner.addr.toString())
+
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+
+      await cleanupAndDelete(raffle)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-C: below the minimum entries the raffle fails, the prize returns and entrants are refunded', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const raffle = await createRaffle(owner, { minEntries: 3n })
+      expect((await raffle.state()).minEntries).toBe(3n)
+
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 2_000_000n)
+      await enter(raffle, p2, 3_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const state = await raffle.state()
+      expect(state.failed).toBeTruthy()
+      expect(state.winner).toBe(owner.addr.toString())
+
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+
+      const { entries, entriesByAddress } = await raffle.mbr()
+      const p1Before = await getAccountBalance(algorand, p1.addr.toString())
+      const p2Before = await getAccountBalance(algorand, p2.addr.toString())
+      await cleanupAndDelete(raffle)
+      expect(await getAccountBalance(algorand, p1.addr.toString()) - p1Before).toBe(2_000_000n + entries + entriesByAddress)
+      expect(await getAccountBalance(algorand, p2.addr.toString()) - p2Before).toBe(3_000_000n + entries + entriesByAddress)
+    })
+
+    test('AR-07: a single one-unit ticket wins without a beacon draw', async () => {
+      const owner = await newSeller()
+      const p1 = await newEntrant()
+      const raffle = await createRaffle(owner, { minTickets: 1n, maxTickets: 10n })
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 1n)
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const state = await raffle.state()
+      expect(state.winningTicket).toBe(1n)
+      expect(state.raffleRound).toBe(0n)
+      expect(await findWinner(raffle)).toBe(p1.addr.toString())
+
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await cleanupAndDelete(raffle)
+    })
+
+    test('AR-C: only the seller can set the minimum entries, and only before the first entry', async () => {
+      const owner = await newSeller()
+      const p1 = await newEntrant()
+      const raffle = await createRaffle(owner)
+
+      await expect(raffle.setMinEntries({ sender: p1.addr, signer: p1.signer, minEntries: 5n })).rejects.toThrow(/Nslr/)
+      await raffle.setMinEntries({ sender: owner.addr, signer: owner.signer, minEntries: 2n })
+      expect((await raffle.state()).minEntries).toBe(2n)
+
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 1_000_000n)
+      await expect(raffle.setMinEntries({ sender: owner.addr, signer: owner.signer, minEntries: 9n })).rejects.toThrow(/Aent/)
+    })
+
+    test('AR-07/11/15: the factory rejects incoherent configurations', async () => {
+      const owner = await newSeller()
+      await expect(createRaffle(owner, { minTickets: 10n, maxTickets: 5n })).rejects.toThrow(/Itbd/)
+      await expect(createRaffle(owner, { ticketAsset: testAssetId })).rejects.toThrow(/Pita/)
+
+      const { assetId: otherAsset } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000n, decimals: 0, assetName: 'Unlisted Ticket', unitName: 'UTK',
+      })
+      await expect(createRaffle(owner, { ticketAsset: otherAsset })).rejects.toThrow(/Nopt/)
+    })
+
+    const factoryOptIn = async (asset: bigint) => {
+      const cost = await akitaUniverse.raffleFactory.client.optInCost({ args: { asset } })
+      const payment = await algorand.createTransaction.payment({
+        sender: deployer.addr, receiver: akitaUniverse.raffleFactory.client.appAddress, amount: cost.microAlgo(),
+      })
+      const group = akitaUniverse.raffleFactory.client.newGroup()
+      group.optIn({ args: { payment, asset }, sender: deployer.addr, signer: deployer.signer, maxFee: (50_000).microAlgo() })
+      group.opUp({ args: {}, sender: deployer.addr, signer: deployer.signer, maxFee: (50_000).microAlgo() })
+      await group.send({ coverAppCallInnerTransactionFees: true })
+    }
+
+    test('TRADE-2: the factory rejects a prize ASA that has a clawback or freeze address', async () => {
+      const owner = await newSeller()
+      for (const role of ['clawback', 'freeze'] as const) {
+        const { assetId } = await algorand.send.assetCreate({
+          sender: owner.addr, signer: owner.signer, total: 1n, decimals: 0, assetName: `Seizable ${role}`, unitName: 'SZP', [role]: owner.addr,
+        })
+        await factoryOptIn(BigInt(assetId))
+        await expect(createRaffle(owner, { prizeAsset: BigInt(assetId) }).then(() => 'created')).rejects.toThrow(/Pszb/)
+      }
+    })
+
+    test('TRADE-3: the draw commits to a stored beacon round, completes at the first allowed reveal, and an early empty read changes nothing', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 5_000_000n)
+      await enter(raffle, p2, 10_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      // MainNet beacon timing: one value per multiple of 8, submitted 2 rounds later
+      await mockBeacon.send.setSubmitLag({ args: { lag: 2n } })
+      try {
+        // commit in a round ≡ 1 (mod 8), the residue whose reveal used to read empty forever
+        const { lastRound } = await algorand.client.algod.status().do()
+        const next = lastRound + 1n
+        await timeWarp.roundWarp(next + ((9n - (next % 8n)) % 8n) - 1n)
+        await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const committed = await raffle.state()
+        expect(committed.raffleRound % 8n).toBe(0n)
+
+        // an empty read before BEACON_MAX_WAIT_ROUNDS reverts and keeps the commitment
+        await mockBeacon.send.setEmpty({ args: { empty: true } })
+        try {
+          await timeWarp.roundWarp(await raffle.drawReadyRound())
+          await expect(raffle.raffle({ sender: deployer.addr, signer: deployer.signer }).then(() => 'revealed')).rejects.toThrow(/Bnrd/)
+        } finally {
+          await mockBeacon.send.setEmpty({ args: { empty: false } })
+        }
+        const kept = await raffle.state()
+        expect(kept.raffleRound).toBe(committed.raffleRound)
+        expect(kept.winningTicket).toBe(0n)
+
+        await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const drawn = await raffle.state()
+        expect(drawn.winningTicket).toBeGreaterThan(0n)
+        expect(drawn.raffleRound).toBe(committed.raffleRound)
+      } finally {
+        await mockBeacon.send.setSubmitLag({ args: { lag: 0n } })
+      }
+    })
+
+    test('TRADE-3: with the MainNet beacon timing a reveal in the first allowed round succeeds', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const raffle = await createRaffle(owner)
+      await timeWarp.timeWarp(70n)
+      await enter(raffle, p1, 5_000_000n)
+      await enter(raffle, p2, 10_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      await mockBeacon.send.setSubmitLag({ args: { lag: 2n } })
+      try {
+        const { lastRound } = await algorand.client.algod.status().do()
+        const next = lastRound + 1n
+        await timeWarp.roundWarp(next + ((9n - (next % 8n)) % 8n) - 1n)
+        await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const committed = await raffle.state()
+
+        await timeWarp.roundWarp((await raffle.drawReadyRound()) - 1n)
+        await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const drawn = await raffle.state()
+        expect(drawn.winningTicket).toBeGreaterThan(0n)
+        expect(drawn.raffleRound).toBe(committed.raffleRound)
+      } finally {
+        await mockBeacon.send.setSubmitLag({ args: { lag: 0n } })
+      }
+    })
+
+    test('TRADE-5: in a failed ASA-ticket raffle an entrant that opted out of the ticket asset blocks neither refunds nor deletion', async () => {
+      const owner = await newSeller()
+      const [p1, p2] = [await newEntrant(), await newEntrant()]
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000_000n, decimals: 0, assetName: 'Opt-out Ticket', unitName: 'OOT',
+      })
+      const ticketAsset = BigInt(assetId)
+      for (const account of [p1, p2]) {
+        await optInTo(account, ticketAsset)
+        await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, assetId: ticketAsset, amount: 10_000_000n, receiver: account.addr })
+      }
+      await factoryOptIn(ticketAsset)
+
+      const raffle = await createRaffle(owner, { ticketAsset, minEntries: 3n })
+      await timeWarp.timeWarp(70n)
+      for (const [entrant, amount] of [[p1, 2_000_000n], [p2, 3_000_000n]] as const) {
+        await raffle.enter({ sender: entrant.addr, signer: entrant.signer, amount, marketplace: entrant.addr.toString(), isAsa: true, ticketAsset })
+      }
+      await algorand.send.assetOptOut({ sender: p1.addr, signer: p1.signer, assetId: ticketAsset, creator: deployer.addr, ensureZeroBalance: false })
+      await timeWarp.timeWarp(3_700n)
+
+      await raffle.raffle({ sender: deployer.addr, signer: deployer.signer })
+      expect((await raffle.state()).failed).toBeTruthy()
+      await raffle.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+
+      const rewardsAddress = algosdk.getApplicationAddress(akitaUniverse.rewards.appId)
+      const rewardsHolding = async () => {
+        const info = await algorand.account.getInformation(rewardsAddress)
+        return info.assets?.find((holding) => holding.assetId === ticketAsset)?.amount ?? 0n
+      }
+      const holding = async (address: string | algosdk.Address) =>
+        (await algorand.asset.getAccountInformation(address, ticketAsset)).balance
+      const rewardsBefore = await rewardsHolding()
+      const p2Before = await holding(p2.addr)
+      await cleanupAndDelete(raffle)
+
+      // p2 gets its tickets back directly; p1's wait for it as a Rewards disbursement
+      expect(await holding(p2.addr) - p2Before).toBe(3_000_000n)
+      expect(await rewardsHolding() - rewardsBefore).toBe(2_000_000n)
     })
   })
 })

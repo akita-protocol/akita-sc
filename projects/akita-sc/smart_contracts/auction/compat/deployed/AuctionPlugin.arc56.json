@@ -1,0 +1,619 @@
+{
+  "name": "AuctionPlugin",
+  "structs": {
+    "AuctionMBRData": [
+      {
+        "name": "bids",
+        "type": "uint64"
+      },
+      {
+        "name": "weights",
+        "type": "uint64"
+      },
+      {
+        "name": "bidsByAddress",
+        "type": "uint64"
+      },
+      {
+        "name": "locations",
+        "type": "uint64"
+      }
+    ]
+  },
+  "methods": [
+    {
+      "name": "create",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "uint64",
+          "name": "factory"
+        },
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [
+          "NoOp"
+        ],
+        "call": []
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "new",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeID"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeAmount"
+        },
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "byte[32][]",
+          "name": "proof"
+        },
+        {
+          "type": "uint64",
+          "name": "bidAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "bidFee"
+        },
+        {
+          "type": "uint64",
+          "name": "startingBid"
+        },
+        {
+          "type": "uint64",
+          "name": "bidMinimumIncrease"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endtimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "listPrizeBox",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeBox"
+        },
+        {
+          "type": "uint64",
+          "name": "bidAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "bidFee"
+        },
+        {
+          "type": "uint64",
+          "name": "startingBid"
+        },
+        {
+          "type": "uint64",
+          "name": "bidMinimumIncrease"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "clearWeightsBoxes",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "auctionAppID"
+        },
+        {
+          "type": "uint64",
+          "name": "iterationAmount"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteAuctionApp",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "bid",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        },
+        {
+          "type": "uint64",
+          "name": "amount"
+        },
+        {
+          "type": "byte[][]",
+          "name": "args"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "refundBid",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        },
+        {
+          "type": "uint64",
+          "name": "id"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "claimPrize",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "claimRafflePrize",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "raffle",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "findWinner",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "auctionAppID"
+        },
+        {
+          "type": "uint64",
+          "name": "iterationAmount"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteApplication",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "DeleteApplication"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "cancel",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAO",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "opUp",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "mbr",
+      "args": [],
+      "returns": {
+        "type": "(uint64,uint64,uint64,uint64)",
+        "struct": "AuctionMBRData"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    }
+  ],
+  "arcs": [
+    22,
+    28
+  ],
+  "networks": {},
+  "state": {
+    "schema": {
+      "global": {
+        "ints": 2,
+        "bytes": 1
+      },
+      "local": {
+        "ints": 0,
+        "bytes": 0
+      }
+    },
+    "keys": {
+      "global": {
+        "factory": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "YXVjdGlvbl9mYWN0b3J5"
+        },
+        "version": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "dmVyc2lvbg==",
+          "desc": "the current version of the contract"
+        },
+        "akitaDAO": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "YWtpdGFfZGFv",
+          "desc": "the app ID of the Akita DAO"
+        }
+      },
+      "local": {},
+      "box": {}
+    },
+    "maps": {
+      "global": {},
+      "local": {},
+      "box": {}
+    }
+  },
+  "bareActions": {
+    "create": [],
+    "call": []
+  },
+  "byteCode": {
+    "approval": "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",
+    "clear": "C4EBQw=="
+  },
+  "events": [],
+  "templateVariables": {}
+}

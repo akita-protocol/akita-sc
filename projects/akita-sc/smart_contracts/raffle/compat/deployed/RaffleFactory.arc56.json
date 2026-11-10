@@ -1,0 +1,488 @@
+{
+  "name": "RaffleFactory",
+  "structs": {
+    "RaffleMBRData": [
+      {
+        "name": "entries",
+        "type": "uint64"
+      },
+      {
+        "name": "weights",
+        "type": "uint64"
+      },
+      {
+        "name": "entriesByAddress",
+        "type": "uint64"
+      }
+    ],
+    "EscrowConfig": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "app",
+        "type": "uint64"
+      }
+    ]
+  },
+  "methods": [
+    {
+      "name": "create",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "string",
+          "name": "childVersion"
+        },
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        },
+        {
+          "type": "(string,uint64)",
+          "struct": "EscrowConfig",
+          "name": "akitaDAOEscrow"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [
+          "NoOp"
+        ],
+        "call": []
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newRaffle",
+      "args": [
+        {
+          "type": "pay",
+          "name": "payment"
+        },
+        {
+          "type": "axfer",
+          "name": "assetXfer"
+        },
+        {
+          "type": "uint64",
+          "name": "ticketAsset"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "minTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "maxTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "byte[32][]",
+          "name": "proof"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newPrizeBoxRaffle",
+      "args": [
+        {
+          "type": "appl",
+          "name": "prizeBoxTransferTxn"
+        },
+        {
+          "type": "pay",
+          "name": "payment"
+        },
+        {
+          "type": "uint64",
+          "name": "ticketAsset"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "minTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "maxTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteRaffle",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "initBoxedContract",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "uint64",
+          "name": "size"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "loadBoxedContract",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "offset"
+        },
+        {
+          "type": "byte[]",
+          "name": "data"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteBoxedContract",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "optIn",
+      "args": [
+        {
+          "type": "pay",
+          "name": "payment",
+          "desc": "The payment transaction covering MBR for all opt-ins"
+        },
+        {
+          "type": "uint64",
+          "name": "asset",
+          "desc": "The asset to opt into"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "desc": "optIn opts this contract into `asset`. When this contract has a\nnamed escrow configured (`akitaDAOEscrow.value.name !== ''`), it\nalso opts the escrow and every revenue-split recipient in through\nthe revenue-manager plugin — so downstream methods (subscribe,\nlist, etc.) can transfer to the escrow without doing the plugin-\nrekey dance mid-group.\n\nPayment must cover:\n  - this contract's own opt-in (1 × assetOptInMinBalance), plus\n  - each downstream opt-in the escrow still needs.\n`splitOptInCount` returns 0 once the escrow is already opted in, so\nthe charge collapses to just 1 × assetOptInMinBalance on repeat\ncalls and the escrow branch becomes a no-op.",
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "optInCost",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "asset"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAOEscrow",
+      "args": [
+        {
+          "type": "(string,uint64)",
+          "struct": "EscrowConfig",
+          "name": "config"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "update",
+      "args": [
+        {
+          "type": "string",
+          "name": "newVersion"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "UpdateApplication"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAO",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "opUp",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "mbr",
+      "args": [],
+      "returns": {
+        "type": "(uint64,uint64,uint64)",
+        "struct": "RaffleMBRData"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    }
+  ],
+  "arcs": [
+    22,
+    28
+  ],
+  "networks": {},
+  "state": {
+    "schema": {
+      "global": {
+        "ints": 8,
+        "bytes": 56
+      },
+      "local": {
+        "ints": 0,
+        "bytes": 0
+      }
+    },
+    "keys": {
+      "global": {
+        "childContractVersion": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "Y2hpbGRfY29udHJhY3RfdmVyc2lvbg==",
+          "desc": "the current version of the child contract"
+        },
+        "akitaDAOEscrow": {
+          "keyType": "AVMString",
+          "valueType": "EscrowConfig",
+          "key": "YWtpdGFfZXNjcm93",
+          "desc": "the named DAO escrow this contract routes fees to (name + app)"
+        },
+        "version": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "dmVyc2lvbg==",
+          "desc": "the current version of the contract"
+        },
+        "akitaDAO": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "YWtpdGFfZGFv",
+          "desc": "the app ID of the Akita DAO"
+        }
+      },
+      "local": {},
+      "box": {
+        "boxedContract": {
+          "keyType": "AVMString",
+          "valueType": "AVMBytes",
+          "key": "YmM="
+        }
+      }
+    },
+    "maps": {
+      "global": {},
+      "local": {},
+      "box": {}
+    }
+  },
+  "bareActions": {
+    "create": [],
+    "call": []
+  },
+  "byteCode": {
+    "approval": "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",
+    "clear": "C4EBQw=="
+  },
+  "events": [],
+  "templateVariables": {}
+}

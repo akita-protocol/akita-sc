@@ -2,23 +2,25 @@ import {
   abimethod,
   Account,
   Application,
+  Asset,
   clone,
   contract,
   Global,
   gtxn,
   itxn,
   loggedAssert,
+  OnCompleteAction,
   Txn,
   uint64
 } from '@algorandfoundation/algorand-typescript'
 import { abiCall, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
-import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
-import { disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, rewardsOptInCost, royalties } from '../utils/functions'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
+import { errBadMethodPrizeBoxTransferNeeded, errContractNotSet, errNotPrizeBoxOwner } from '../utils/errors'
+import { assertSafeAssetTransfer, disbursementCost, getFunder, getNFTFees, getPrizeBoxOwner, principalOf, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
 import { BaseRaffle } from './base'
-import { ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_A_RAFFLE } from './errors'
+import { errInvalidEndingRound, errInvalidPayment, errInvalidTicketBounds, errInvalidTransfer, errNotARaffle, errNotOptedIn, errPrizeIsTicketAsset, errPrizeSeizable } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
@@ -36,22 +38,11 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
-  private createChildApp(
-    isPrizeBox: boolean,
-    payment: gtxn.PaymentTxn,
-    prizeID: uint64, // Asset or Prize Box Application
-    ticketAsset: uint64,
-    startTimestamp: uint64,
-    endTimestamp: uint64,
-    creatorRoyalty: uint64,
-    minTickets: uint64,
-    maxTickets: uint64,
-    gateID: uint64,
-    marketplace: Account,
-    weightsListCount: uint64
-  ): Application {
-    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
-
+  /**
+   * Creation cost breakdown: [disbursementMBR, weightsMBR, totalMBR].
+   * totalMBR = creation fee + child pages/state + child base/opt-in/disbursement MBR + weights MBR.
+   */
+  private childCosts(isPrizeBox: boolean, prizeID: uint64, ticketAsset: uint64, weightsListCount: uint64): [uint64, uint64, uint64] {
     let optinMBR: uint64 = 0
 
     const isAlgoOrPrizeBox = prizeID === 0 || isPrizeBox
@@ -63,8 +54,6 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     if (!isAlgoTicket) {
       optinMBR += Global.assetOptInMinBalance
     }
-
-    const costs = this.mbr()
 
     // Worst-case disbursement MBR:
     // 1 for referral payment (in ticket asset)
@@ -86,22 +75,60 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     }
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR
-    const weightsMBR: uint64 = (weightsListCount * costs.weights)
+    const weightsMBR: uint64 = (weightsListCount * this.mbr().weights)
     const fees = getNFTFees(this.akitaDAO.value)
 
     const raffle = compileArc4(Raffle)
 
     const totalMBR: uint64 = (
       fees.raffleCreationFee +
-      MAX_PROGRAM_PAGES +
+      this.childPagesMbr(raffle.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * raffle.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * raffle.globalBytes) +
       childAppMBR +
       weightsMBR
     )
 
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
+    return [disbursementMBR, weightsMBR, totalMBR]
+  }
+
+  private createChildApp(
+    isPrizeBox: boolean,
+    payment: gtxn.PaymentTxn,
+    prizeID: uint64, // Asset or Prize Box Application
+    ticketAsset: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    creatorRoyalty: uint64,
+    minTickets: uint64,
+    maxTickets: uint64,
+    minEntries: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64,
+    sellerReferrer: Account
+  ): Application {
+    loggedAssert(this.boxedContract.exists, errContractNotSet)
+
+    // AR-07: coherent configuration
+    loggedAssert(endTimestamp > startTimestamp && endTimestamp > Global.latestTimestamp, errInvalidEndingRound)
+    loggedAssert(maxTickets > 0 && maxTickets >= minTickets, errInvalidTicketBounds)
+
+    // AR-15: the factory (and, through its optIn, the DAO escrow) must hold the ticket asset so
+    // settlement never pays unbudgeted escrow opt-in MBR and deletion can close the asset back here
+    const isAlgoTicket = ticketAsset === 0
+    loggedAssert(isAlgoTicket || Global.currentApplicationAddress.isOptedIn(Asset(ticketAsset)), errNotOptedIn)
+
+    const costs = this.childCosts(isPrizeBox, prizeID, ticketAsset, weightsListCount)
+    const disbursementMBR = costs[0]
+    const weightsMBR = costs[1]
+    const totalMBR = costs[2]
+    const fees = getNFTFees(this.akitaDAO.value)
+
+    const raffle = compileArc4(Raffle)
+
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === totalMBR, errInvalidPayment)
 
     itxn
       .payment({
@@ -109,11 +136,6 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
         amount: fees.raffleCreationFee,
       })
       .submit()
-
-    // Read approval program from box storage in chunks
-    const approvalSize = this.boxedContract.length
-    const chunk1 = this.boxedContract.extract(0, 4096)
-    const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
 
     const appId = raffle.call
       .create({
@@ -128,14 +150,22 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
           creatorRoyalty,
           minTickets,
           maxTickets,
+          minEntries,
           gateID,
           marketplace,
           this.akitaDAO.value,
           this.akitaDAOEscrow.value,
+          sellerReferrer,
         ],
-        approvalProgram: [chunk1, chunk2],
+        // Boxed approval program in up to four 4 KB chunks (AVM 13: up to 16 KB).
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
         clearStateProgram: raffle.clearStateProgram,
-        extraProgramPages: 3,
+        extraProgramPages: this.childExtraPages(raffle.clearStateProgram.length),
       })
       .itxn
       .createdApp
@@ -187,6 +217,16 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
 
   // RAFFLE FACTORY METHODS -----------------------------------------------------------------------
 
+  /**
+   * New ASA-prize raffle (principal ABI, spec §6.8). The seller stays `Txn.sender`; `wallet` is the
+   * seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
+   * (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, paid when
+   * the prize is claimed. The +50,000 µA global is part of `newRaffleCost`.
+   *
+   * The DEPLOYED creation selectors (MainNet 3569557743: no `minEntries`, no hint) are NOT routed
+   * (Kyle decision K6, 2026-10-04). Deployed-era callers hard-code the old child cost and are
+   * 107,000 µA short of the new child, so legacy shims could never succeed for them.
+   */
   newRaffle(
     payment: gtxn.PaymentTxn,
     assetXfer: gtxn.AssetTransferTxn,
@@ -195,16 +235,26 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     endTimestamp: uint64,
     minTickets: uint64,
     maxTickets: uint64,
+    minEntries: uint64,
     gateID: uint64,
     marketplace: Account,
     name: string,
     proof: Proof,
-    weightsListCount: uint64
+    weightsListCount: uint64,
+    wallet: uint64
   ): uint64 {
+    const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
 
     // make sure they actually sent the asset(s) they want to raffle
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
+    assertSafeAssetTransfer(assetXfer, Txn.sender)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+    loggedAssert(assetXfer.assetAmount > 0, errInvalidTransfer)
+    // AR-11: the prize can't be the ticket asset (the prize close-out would sweep every ticket)
+    loggedAssert(assetXfer.xferAsset.id !== ticketAsset, errPrizeIsTicketAsset)
+    loggedAssert(
+      assetXfer.xferAsset.clawback === Global.zeroAddress && assetXfer.xferAsset.freeze === Global.zeroAddress,
+      errPrizeSeizable
+    )
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
@@ -218,9 +268,11 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
       creatorRoyalty,
       minTickets,
       maxTickets,
+      minEntries,
       gateID,
       marketplace,
-      weightsListCount
+      weightsListCount,
+      sellerReferrer
     )
 
     const raffle = compileArc4(Raffle)
@@ -249,6 +301,7 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     return raffleApp.id
   }
 
+  /** New prize-box raffle (principal ABI, spec §6.8); see `newRaffle`. */
   newPrizeBoxRaffle(
     prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     payment: gtxn.PaymentTxn,
@@ -257,13 +310,19 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     endTimestamp: uint64,
     minTickets: uint64,
     maxTickets: uint64,
+    minEntries: uint64,
     gateID: uint64,
     marketplace: Account,
-    weightsListCount: uint64
+    weightsListCount: uint64,
+    wallet: uint64
   ): uint64 {
+    const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
 
-    loggedAssert(prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>(), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
-    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert((
+      prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
+      prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
+    ), errBadMethodPrizeBoxTransferNeeded)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, errNotPrizeBoxOwner)
 
     const raffleApp = this.createChildApp(
       true,
@@ -275,9 +334,11 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
       0,
       minTickets,
       maxTickets,
+      minEntries,
       gateID,
       marketplace,
-      weightsListCount
+      weightsListCount,
+      sellerReferrer
     )
 
     abiCall<typeof PrizeBox.prototype.transfer>({
@@ -289,7 +350,12 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
   }
 
   deleteRaffle(appId: Application): void {
-    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_A_RAFFLE)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, errNotARaffle)
+
+    // AR-09: refund exactly what the deletion released back to the factory
+    // (the creation fee went to the DAO escrow and is never refunded)
+    const balanceBefore: uint64 = Global.currentApplicationAddress.balance
+    const minBefore: uint64 = Global.currentApplicationAddress.minBalance
 
     // Get funder info BEFORE delete call (which deletes the app)
     const { account: receiver, amount } = getFunder(appId)
@@ -297,12 +363,14 @@ export class RaffleFactory extends classes(BaseRaffle, FactoryContract) {
     const raffle = compileArc4(Raffle)
     raffle.call.deleteApplication({ appId })
 
-    itxn
-      .payment({ amount, receiver })
-      .submit()
+    this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
   }
 
   // READ ONLY METHODS ----------------------------------------------------------------------------
 
-  // TODO: implement readonly listing methods
+  /** exact ALGO payment `newRaffle` / `newPrizeBoxRaffle` require */
+  @abimethod({ readonly: true })
+  newRaffleCost(isPrizeBox: boolean, prizeID: uint64, ticketAsset: uint64, weightsListCount: uint64): uint64 {
+    return this.childCosts(isPrizeBox, prizeID, ticketAsset, weightsListCount)[2]
+  }
 }

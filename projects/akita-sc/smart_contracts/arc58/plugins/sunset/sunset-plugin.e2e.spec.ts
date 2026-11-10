@@ -1,10 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import {
-  SigningAccount,
-  TransactionSignerAccount,
-  Address,
-} from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, WalletSDK, CallerType, SunsetPluginSDK } from 'akita-sdk/wallet';
 import algosdk from 'algosdk';
@@ -34,10 +31,10 @@ const fixture = algorandFixture();
  * works end-to-end: wallet → plugin → target.
  */
 describe('SunsetPlugin (via wallet)', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: ReturnType<typeof algokit.AlgorandClient.fromConfig>;
   let wallet: WalletSDK;
   let sunsetPluginSdk: SunsetPluginSDK;
@@ -58,8 +55,8 @@ describe('SunsetPlugin (via wallet)', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     akitaUniverse = await buildAkitaUniverse({
       fixture,
@@ -155,9 +152,8 @@ describe('SunsetPlugin (via wallet)', () => {
 
   describe('deleteBoxes', () => {
     test('plugin forwards an empty box batch', async () => {
-      // `deleteBoxes` is auth-free by design (it can only touch the target's
-      // own boxes via op.Box.delete), so this also verifies the plugin's
-      // args encoding + the wallet-plugin-target wiring even without auth.
+      // `deleteBoxes` is auth-gated (F6); the target pins SUNSET_CALLER to the
+      // wallet's spending account, so the plugin call passes the gate.
       const target = await freshTarget();
       const results = await wallet.usePlugin({
         callerType: CallerType.Global,

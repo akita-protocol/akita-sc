@@ -30,7 +30,7 @@ export class ListingSDK extends BaseSDK<ListingClient> {
 
     return {
       prize: state.prize ?? 0n,
-      isPrizeBox: state.isPrizeBox as unknown as boolean ?? false,
+      isPrizeBox: Boolean(state.isPrizeBox ?? 0n),
       price: state.price ?? 0n,
       paymentAsset: state.paymentAsset ?? 0n,
       expiration: state.expiration ?? 0n,
@@ -40,6 +40,9 @@ export class ListingSDK extends BaseSDK<ListingClient> {
       gateId: state.gateId ?? 0n,
       marketplace: state.marketplace?.toString() ?? '',
       marketplaceRoyalties: state.marketplaceRoyalties ?? 0n,
+      rev: state.rev ?? 0n,
+      sellerReferrer: state.sellerReferrer?.toString(),
+      factoryFloat: state.factoryFloat,
     };
   }
 

@@ -1,4 +1,4 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { HyperSwapPluginArgs, HyperSwapPluginClient, HyperSwapPluginFactory } from "../../generated/HyperSwapPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -16,7 +16,7 @@ type OfferArgs = (
 );
 
 type AcceptArgs = (
-  Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][])void'], 'wallet' | 'rekeyBack'>
+  Omit<ContractArgs['accept(uint64,bool,uint64,byte[32][],byte[32])void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );

@@ -1,6 +1,7 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest';
 import { deploySunsetContract } from '../../tests/fixtures/sunset';
 import { SunsetContractClient } from '../artifacts/sunset/SunsetContractClient';
@@ -15,7 +16,7 @@ const fixture = algorandFixture();
  *
  * The contract exposes four methods:
  *   - `delete(closeRemainderTo)`  (DeleteApplication OC, auth-gated)
- *   - `deleteBoxes(boxes)`        (NoOp, no auth — ops are self-scoped)
+ *   - `deleteBoxes(boxes)`        (NoOp, auth-gated)
  *   - `closeOut(closes)`          (NoOp, auth-gated)
  *   - `deleteAssets(assets)`      (NoOp, auth-gated)
  *
@@ -33,9 +34,9 @@ const fixture = algorandFixture();
  * expose.
  */
 describe('SunsetContract (direct)', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let sunsetCaller: Address & TransactionSignerAccount;
-  let stranger: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let sunsetCaller: TransactionSignerAccount;
+  let stranger: TransactionSignerAccount;
   let algorand: ReturnType<typeof algokit.AlgorandClient.fromConfig>;
 
   beforeAll(async () => {
@@ -48,9 +49,9 @@ describe('SunsetContract (direct)', () => {
     sunsetCaller = await ctx.generateAccount({ initialFunds: algokit.microAlgos(1_000_000_000) });
     stranger = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (1000).algo());
-    await algorand.account.ensureFunded(sunsetCaller.addr, dispenser, (1000).algo());
-    await algorand.account.ensureFunded(stranger.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (1000).algo());
+    await algorand.account.ensureFunded(sunsetCaller.addr, dispenser.addr, (1000).algo());
+    await algorand.account.ensureFunded(stranger.addr, dispenser.addr, (500).algo());
   });
 
   /**
@@ -131,19 +132,29 @@ describe('SunsetContract (direct)', () => {
   });
 
   describe('deleteBoxes', () => {
-    // `deleteBoxes` has no auth on purpose: `op.Box.delete` only acts on the
-    // contract's own boxes, and any MBR reclaimed sits in the app account
-    // until the auth-gated `delete` closes it out. That's what we exercise
-    // here — an empty-batch call is a safe smoke test that the method is
-    // wired up and accepts its args.
-    test('accepts an empty batch without error', async () => {
+    // F6: `deleteBoxes` is auth-gated like every other teardown entry point, so
+    // a third party cannot race the scripted teardown order by deleting state.
+    test('authorized callers accept an empty batch', async () => {
       const client = await freshSunset();
-      const result = await client.send.deleteBoxes({
-        sender: stranger.addr,
-        signer: stranger.signer,
-        args: { boxes: [] },
-      });
-      expect(result.confirmations?.[0]?.confirmedRound).toBeGreaterThan(0n);
+      for (const caller of [deployer, sunsetCaller]) {
+        const result = await client.send.deleteBoxes({
+          sender: caller.addr,
+          signer: caller.signer,
+          args: { boxes: [] },
+        });
+        expect(result.confirmations?.[0]?.confirmedRound).toBeGreaterThan(0n);
+      }
+    });
+
+    test('unauthorized sender is rejected even with an empty batch', async () => {
+      const client = await freshSunset();
+      await expect(
+        client.send.deleteBoxes({
+          sender: stranger.addr,
+          signer: stranger.signer,
+          args: { boxes: [] },
+        }),
+      ).rejects.toThrow(/errNdao/);
     });
 
     test('accepts a batch of non-existent box names as a no-op', async () => {

@@ -47,6 +47,7 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
     gateId,
     marketplace,
     weightsListCount,
+    wallet = 0n,
     ...rest
   }: NewAuctionParams): Promise<AuctionSDK> {
 
@@ -77,7 +78,8 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
         }
       })).transactions[0];
 
-      ({ return: appId } = await this.client.send.newPrizeBoxAuction({
+      // principal ABI (spec §6.6): the hinted overload; the factory stores the seller's verified referrer
+      ({ return: appId } = await this.client.send.newPrizeBoxAuctionApplPayUint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64({
         ...sendParams,
         args: {
           prizeBoxTransferTxn,
@@ -91,6 +93,7 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
           gateId,
           marketplace,
           weightsListCount,
+          wallet: BigInt(wallet),
         },
       }));
     } else {
@@ -103,7 +106,8 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
         receiver: this.client.appAddress,
       });
 
-      ({ return: appId } = await this.client.send.newAuction({
+      // principal ABI (spec §6.6): the hinted overload; the factory stores the seller's verified referrer
+      ({ return: appId } = await this.client.send.newAuctionPayAxferStringByte_32Uint64Uint64Uint64Uint64Uint64Uint64Uint64AddressUint64Uint64Uint64({
         ...sendParams,
         args: {
           payment,
@@ -119,6 +123,7 @@ export class AuctionFactorySDK extends BaseSDK<AuctionFactoryClient> {
           gateId,
           marketplace,
           weightsListCount,
+          wallet: BigInt(wallet),
         },
       }));
     }

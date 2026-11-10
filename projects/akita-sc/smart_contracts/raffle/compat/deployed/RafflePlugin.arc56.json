@@ -1,0 +1,487 @@
+{
+  "name": "RafflePlugin",
+  "structs": {
+    "RaffleMBRData": [
+      {
+        "name": "entries",
+        "type": "uint64"
+      },
+      {
+        "name": "weights",
+        "type": "uint64"
+      },
+      {
+        "name": "entriesByAddress",
+        "type": "uint64"
+      }
+    ]
+  },
+  "methods": [
+    {
+      "name": "create",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "uint64",
+          "name": "factory"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [
+          "NoOp"
+        ],
+        "call": []
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newRaffle",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeID"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeAmount"
+        },
+        {
+          "type": "uint64",
+          "name": "ticketAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "minTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "maxTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "byte[32][]",
+          "name": "proof"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newPrizeBoxRaffle",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeBox"
+        },
+        {
+          "type": "uint64",
+          "name": "ticketAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "minTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "maxTickets"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "enter",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        },
+        {
+          "type": "uint64",
+          "name": "amount"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "byte[][]",
+          "name": "args"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "add",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        },
+        {
+          "type": "uint64",
+          "name": "amount"
+        },
+        {
+          "type": "byte[][]",
+          "name": "args"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "raffle",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "findWinner",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        },
+        {
+          "type": "uint64",
+          "name": "iterationAmount"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "claimRafflePrize",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteRaffleApplication",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "wallet"
+        },
+        {
+          "type": "bool",
+          "name": "rekeyBack"
+        },
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAO",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "opUp",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "mbr",
+      "args": [],
+      "returns": {
+        "type": "(uint64,uint64,uint64)",
+        "struct": "RaffleMBRData"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    }
+  ],
+  "arcs": [
+    22,
+    28
+  ],
+  "networks": {},
+  "state": {
+    "schema": {
+      "global": {
+        "ints": 2,
+        "bytes": 1
+      },
+      "local": {
+        "ints": 0,
+        "bytes": 0
+      }
+    },
+    "keys": {
+      "global": {
+        "factory": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "cmFmZmxlX2ZhY3Rvcnk="
+        },
+        "version": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "dmVyc2lvbg==",
+          "desc": "the current version of the contract"
+        },
+        "akitaDAO": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "YWtpdGFfZGFv",
+          "desc": "the app ID of the Akita DAO"
+        }
+      },
+      "local": {},
+      "box": {}
+    },
+    "maps": {
+      "global": {},
+      "local": {},
+      "box": {}
+    }
+  },
+  "bareActions": {
+    "create": [],
+    "call": []
+  },
+  "byteCode": {
+    "approval": "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",
+    "clear": "C4EBQw=="
+  },
+  "events": [],
+  "templateVariables": {}
+}

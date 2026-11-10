@@ -1,3 +1,4 @@
+import { MetaClient, MetaFactory } from '../artifacts/meta/MetaClient';
 import { Config, microAlgo } from '@algorandfoundation/algokit-utils';
 import { registerDebugEventHandlers } from '@algorandfoundation/algokit-utils-debug';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
@@ -34,6 +35,7 @@ describe('HyperSwap', () => {
 
   /** The HyperSwap SDK */
   let hyperSwapSdk: HyperSwapSDK;
+  let meta: MetaClient;
   /** The HyperSwap Plugin SDK */
   let hyperSwapPluginSdk: HyperSwapPluginSDK;
   /** The wallet factory SDK */
@@ -62,14 +64,21 @@ describe('HyperSwap', () => {
     signer = testAccount.signer;
 
     const dispenser = await algorand.account.dispenserFromEnvironment();
-    await algorand.account.ensureFunded(sender, dispenser, (100).algos());
+    await algorand.account.ensureFunded(sender, dispenser.addr, (100).algos());
+
+    const registryDAO = await deployAkitaDAO({ fixture: localnet, sender, signer, apps: {} });
+    // Compare the shared quote with Meta's current root layout.
+    meta = (await algorand.client.getTypedAppFactory(MetaFactory, {
+      defaultSender: sender, defaultSigner: signer,
+    }).send.create.create({ args: { version: 'test', akitaDao: registryDAO.appId } })).appClient;
+    await meta.appClient.fundAppAccount({ amount: microAlgo(100_000) });
 
     // Deploy core infrastructure
     const dao = await deployAkitaDAO({
       fixture: localnet,
       sender,
       signer,
-      apps: {},
+      apps: { metaMerkles: meta.appId },
     });
 
     const escrowFactory = await deployEscrowFactory({
@@ -132,7 +141,7 @@ describe('HyperSwap', () => {
       assetName: 'Test Asset',
       unitName: 'TEST',
     });
-    testAsset = BigInt(assetResult.confirmation.assetId!);
+    testAsset = BigInt(assetResult.confirmation.assetIndex!);
   });
 
   // ==================================================================================
@@ -140,14 +149,21 @@ describe('HyperSwap', () => {
   // ==================================================================================
 
   describe('MBR', () => {
-    test('mbr() returns correct MBR data', async () => {
+    test('contract and plugin share the exact MBR quote without inner transactions', async () => {
       const mbr = await hyperSwapSdk.mbr();
 
-      expect(mbr.offers).toBeGreaterThan(0n);
-      expect(mbr.participants).toBeGreaterThan(0n);
-      expect(mbr.hashes).toBeGreaterThan(0n);
-      expect(mbr.mm.root).toBeGreaterThan(0n);
-      expect(mbr.mm.data).toBeGreaterThan(0n);
+      expect(mbr).toEqual({
+        offers: 79_500n, // offer + refund + pinned-registry boxes
+        participants: 34_900n,
+        hashes: 34_900n,
+        mm: { root: 35_300n, data: 0n },
+      });
+      expect(mbr.mm.root + mbr.mm.data).toBe(await meta.rootCosts({ args: { name: "123456789" } }));
+      for (const client of [hyperSwapSdk.client, hyperSwapPluginSdk.client]) {
+        const result = await client.send.mbr({ args: {}, staticFee: microAlgo(1000) });
+        expect(result.return).toEqual(mbr);
+        expect(result.confirmation.innerTxns ?? []).toHaveLength(0);
+      }
     });
   });
 
@@ -167,7 +183,7 @@ describe('HyperSwap', () => {
         assetName: 'Opt-In Test Asset',
         unitName: 'OPT',
       });
-      const newAsset = BigInt(assetResult.confirmation.assetId!);
+      const newAsset = BigInt(assetResult.confirmation.assetIndex!);
 
       // Opt in the HyperSwap contract
       await hyperSwapSdk.optIn({
@@ -187,13 +203,8 @@ describe('HyperSwap', () => {
   // Cleanup Tests (Unit Tests)
   // ==================================================================================
 
-  describe('Cleanup Methods', () => {
-    // These require setting up an offer through acceptance/completion to reach
-    // a cleanable state (STATE_COMPLETED / STATE_CANCEL_COMPLETED / expired).
-    // Previously stubbed with expect(true).toBe(true) which always passes.
-    test.todo('cleanupParticipant requires offer to be in cleanable state');
-    test.todo('cleanupOffer requires all participants cleaned first');
-  });
+  // Complete, cancelled, expired, and cleanup lifecycles are exercised against
+  // Meta in tests/meta-consumers.e2e.spec.ts.
 
   // ==================================================================================
   // Plugin Integration Tests
@@ -212,7 +223,7 @@ describe('HyperSwap', () => {
       const newSigner = testAccount.signer;
 
       const dispenser = await algorand.account.dispenserFromEnvironment();
-      await algorand.account.ensureFunded(newSender, dispenser, (100).algos());
+      await algorand.account.ensureFunded(newSender, dispenser.addr, (100).algos());
 
       // Create a wallet for plugin testing
       wallet = await newWallet({
@@ -246,4 +257,3 @@ describe('HyperSwap', () => {
     });
   });
 });
-

@@ -1,4 +1,5 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
+import { ABIMethod } from "algosdk";
 import { BaseSDK } from "../../base";
 import { MarketplacePluginArgs, MarketplacePluginClient, MarketplacePluginFactory } from "../../generated/MarketplacePluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
@@ -6,6 +7,26 @@ import { PluginHookParams, PluginSDKReturn } from "../../types";
 import { getTxns } from "../utils";
 
 type ContractArgs = MarketplacePluginArgs["obj"];
+
+/**
+ * `purchase` of every MarketplacePlugin deployed before audit MKT-02 added `maxPrice` (selector 0x269e4bb0).
+ * The working-tree plugin routes `purchase(uint64,bool,uint64,address,uint64,byte[][])void` (0x703f18ca)
+ * instead; its other five selectors are unchanged. Method-restricted grants and pinned keepers must list
+ * the new selector after the Phase 3 swap (PHASE-0-SPEC §7.3).
+ */
+export const MARKETPLACE_PLUGIN_LEGACY_PURCHASE = ABIMethod.fromSignature('purchase(uint64,bool,uint64,address,byte[][])void');
+
+/**
+ * MarketplacePlugin app ids that route only the legacy (no `maxPrice`) `purchase`: every generation in
+ * `networks.ts` so far. `MarketplacePluginSDK` builds the legacy call for these ids, so the current SDK
+ * can still buy through the live plugin until Phase 3.
+ */
+export const MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS: ReadonlySet<bigint> = new Set([
+  751968424n, // TestNet, December 2025
+  763128885n, // TestNet, May 2026
+  3368399474n, // MainNet, December 2025
+  3569561455n, // MainNet, May 2026
+]);
 
 type ListArgs = (
   Omit<ContractArgs['list(uint64,bool,uint64,uint64,uint64,uint64,uint64,address,uint64,address,string,byte[32][])uint64'], 'wallet' | 'rekeyBack'>
@@ -20,7 +41,9 @@ type ListPrizeBoxArgs = (
 );
 
 type PurchaseArgs = (
-  Omit<ContractArgs['purchase(uint64,bool,uint64,address,byte[][])void'], 'wallet' | 'rekeyBack'>
+  // `maxPrice`: the most the wallet will pay; the plugin reverts (errPamx) if the listing price is higher.
+  // Pass the price the user was shown, never a freshly read on-chain value.
+  Omit<ContractArgs['purchase(uint64,bool,uint64,address,uint64,byte[][])void'], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
@@ -39,8 +62,43 @@ type DelistArgs = (
 
 export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
 
-  constructor(params: NewContractSDKParams) {
+  /**
+   * Force the `purchase` ABI: `true` = legacy (no `maxPrice`), `false` = current. Unset = legacy only for
+   * the ids in `MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS` (e.g. set it for a deployed program reinstalled
+   * under a new id on LocalNet).
+   */
+  legacyPurchaseAbi?: boolean;
+
+  constructor({ legacyPurchaseAbi, ...params }: NewContractSDKParams & { legacyPurchaseAbi?: boolean }) {
     super({ factory: MarketplacePluginFactory, ...params });
+    this.legacyPurchaseAbi = legacyPurchaseAbi;
+  }
+
+  /** Whether this plugin app routes only the legacy `purchase(uint64,bool,uint64,address,byte[][])void`. */
+  usesLegacyPurchaseAbi(): boolean {
+    return this.legacyPurchaseAbi ?? MARKETPLACE_PLUGIN_LEGACY_PURCHASE_APP_IDS.has(BigInt(this.client.appId));
+  }
+
+  private purchaseSelector(): Uint8Array {
+    return this.usesLegacyPurchaseAbi()
+      ? MARKETPLACE_PLUGIN_LEGACY_PURCHASE.getSelector()
+      : this.client.appClient.getABIMethod('purchase').getSelector();
+  }
+
+  /**
+   * The legacy plugin has no on-chain price bound, so refuse here when the listing already costs more
+   * than `maxPrice`. This is a read before signing, not an atomic check. Rev-3 listings add the on-chain
+   * price-change cooldown (errPrcd), which covers the few rounds between this read and the purchase.
+   */
+  private async assertLegacyPriceWithin(listingAppId: bigint, maxPrice: bigint): Promise<void> {
+    const state = await this.algorand.app.getGlobalState(listingAppId);
+    const price = state.price?.value;
+    if (typeof price !== 'bigint') {
+      throw new Error(`Listing ${listingAppId} has no price`);
+    }
+    if (price > maxPrice) {
+      throw new Error(`errPamx: listing ${listingAppId} price ${price} is above maxPrice ${maxPrice} (checked by the SDK: this plugin version has no maxPrice)`);
+    }
   }
 
   list(): PluginSDKReturn;
@@ -114,11 +172,10 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
   purchase(): PluginSDKReturn;
   purchase(args: PurchaseArgs): PluginSDKReturn;
   purchase(args?: PurchaseArgs): PluginSDKReturn {
-    const methodName = 'purchase';
     if (args === undefined) {
       return (spendingAddress?: ReadableAddress) => ({
         appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+        selectors: [this.purchaseSelector()],
         getTxns
       });
     }
@@ -128,9 +185,21 @@ export class MarketplacePluginSDK extends BaseSDK<MarketplacePluginClient> {
 
     return (spendingAddress?: ReadableAddress) => ({
       appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+      selectors: [this.purchaseSelector()],
       getTxns: async ({ wallet }: PluginHookParams) => {
         const rekeyBack = args.rekeyBack ?? true;
+
+        if (this.usesLegacyPurchaseAbi()) {
+          // deployed plugin ABI: no maxPrice argument (MKT-02 shipped after it)
+          await this.assertLegacyPriceWithin(BigInt(args.appId), BigInt(args.maxPrice));
+          return [{
+            type: 'methodCall',
+            ...sendParams,
+            appId: this.client.appId,
+            method: MARKETPLACE_PLUGIN_LEGACY_PURCHASE,
+            args: [wallet, rekeyBack, args.appId, args.marketplace, args.args],
+          }];
+        }
 
         const params = await this.client.params.purchase({
           ...sendParams,

@@ -1,13 +1,15 @@
 import * as algokit from '@algorandfoundation/algokit-utils';
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing';
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account';
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, beforeEach, describe, expect, test } from 'vitest';
 import { newWallet, PollPluginSDK, WalletSDK, CallerType } from 'akita-sdk/wallet';
 import { PollSDK, PollTypeEnum } from 'akita-sdk/poll';
+import { GateSDK, LogicalOperator, Operator } from 'akita-sdk/gates';
 import algosdk from 'algosdk';
 import { AkitaUniverse, buildAkitaUniverse } from '../../../../tests/fixtures/dao';
 import { TimeWarp } from '../../../../tests/utils/time';
-import { ERR_CREATOR_NOT_POLL_FACTORY } from './errors';
+import { errCreatorNotPollFactory } from './errors';
 
 algokit.Config.configure({ populateAppCallResources: true });
 
@@ -17,16 +19,16 @@ const ONE_DAY = 86_400n;
 const getBlockTimestamp = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
 ): Promise<bigint> => {
-  const status = await algorand.client.algod.status();
-  const block = await algorand.client.algod.block(status.lastRound);
+  const status = await algorand.client.algod.status().do();
+  const block = await algorand.client.algod.block(status.lastRound).do();
   return BigInt(block.block.header.timestamp);
 };
 
 describe('Poll plugin contract', () => {
-  let deployer: Address & TransactionSignerAccount;
-  let user: Address & TransactionSignerAccount;
+  let deployer: TransactionSignerAccount;
+  let user: TransactionSignerAccount;
   let akitaUniverse: AkitaUniverse;
-  let dispenser: algosdk.Address & TransactionSignerAccount & { account: SigningAccount };
+  let dispenser: import('@algorandfoundation/algokit-utils/types/account').TransactionSignerAccount & { account: SigningAccount };
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient;
   let wallet: WalletSDK;
   let pollPluginSdk: PollPluginSDK;
@@ -43,8 +45,8 @@ describe('Poll plugin contract', () => {
     deployer = await ctx.generateAccount({ initialFunds: algokit.microAlgos(2_000_000_000) });
     user = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) });
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo());
-    await algorand.account.ensureFunded(user.addr, dispenser, (500).algo());
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo());
+    await algorand.account.ensureFunded(user.addr, dispenser.addr, (500).algo());
 
     // Build the full Akita DAO universe
     akitaUniverse = await buildAkitaUniverse({
@@ -168,7 +170,7 @@ describe('Poll plugin contract', () => {
         ],
       });
 
-      const controlledAddress = await wallet.client.state.global.controlledAddress();
+      const controlledAddress = (await wallet.client.state.global.controlledAddress())!;
       expect(await poll.hasVoted({ user: controlledAddress })).toBe(true);
       expect(await poll.getVoteCounts()).toEqual([0n, 1n, 0n]);
     });
@@ -190,7 +192,7 @@ describe('Poll plugin contract', () => {
 
       await timeWarp.timeWarp(ONE_DAY + 10n);
 
-      const controlledAddress = await wallet.client.state.global.controlledAddress();
+      const controlledAddress = (await wallet.client.state.global.controlledAddress())!;
       await wallet.usePlugin({
         callerType: CallerType.Global,
         calls: [
@@ -206,6 +208,64 @@ describe('Poll plugin contract', () => {
       expect(await poll.hasVoted({ user: controlledAddress })).toBe(false);
     });
 
+    test('a gated vote from an escrow-scoped grant gates the escrow that votes', async () => {
+      // Gate: social impact >= 1, which every address meets (the impact floor is 1).
+      const impactGate = akitaUniverse.subgates.socialImpactGate;
+      const gateSdk = new GateSDK({
+        algorand,
+        factoryParams: { appId: akitaUniverse.gate.appId, defaultSender: deployer.addr, defaultSigner: deployer.signer },
+        gateRegistry: { social_impact: impactGate.appId },
+      });
+      for (const address of [gateSdk.client.appAddress, impactGate.client.appAddress]) {
+        await algorand.send.payment({ sender: dispenser.addr, signer: dispenser.signer, receiver: address, amount: algokit.microAlgo(1_000_000n) });
+      }
+      // Encode OperatorAndValue (uint8 op, uint64 value) directly: GateSDK's social_impact register
+      // shape name does not resolve in this checkout (gates-family SDK issue, reported separately).
+      const filters: [bigint, bigint, bigint][] = [[0n, impactGate.appId, BigInt(LogicalOperator.None)]];
+      const gateArgs = [new Uint8Array([Operator.GreaterThanOrEqualTo, ...algosdk.encodeUint64(1n)])];
+      const registrationCost = await gateSdk.cost({ filters, args: gateArgs });
+      const { return: gateId } = await gateSdk.client.send.register({
+        coverAppCallInnerTransactionFees: true,
+        maxFee: algokit.microAlgo(50_000),
+        args: {
+          payment: algorand.createTransaction.payment({
+            sender: deployer.addr, receiver: gateSdk.client.appAddress, amount: algokit.microAlgo(registrationCost),
+          }),
+          filters,
+          args: gateArgs,
+        },
+      });
+      const poll = await akitaUniverse.pollFactory.new({
+        sender: deployer.addr,
+        signer: deployer.signer,
+        type: PollTypeEnum.SingleChoice,
+        endTime: await getBlockTimestamp(algorand) + ONE_DAY,
+        maxSelected: 1n,
+        question: 'Gated escrow vote?',
+        options: ['Yes', 'No'],
+        gateId: gateId!,
+      });
+
+      await fundWallet();
+      await wallet.addPlugin({
+        client: pollPluginSdk,
+        callerType: CallerType.Global,
+        escrow: 'voter',
+        allowances: [{ asset: 0n, type: 'flat', amount: 2_000_000n }],
+      });
+      await wallet.usePlugin({
+        callerType: CallerType.Global,
+        escrow: 'voter',
+        fundsRequest: [{ asset: 0n, amount: 1_000_000n }],
+        calls: [pollPluginSdk.vote({ pollAppId: poll.appId, votes: [0n], args: [new Uint8Array()] })],
+      });
+
+      // The vote is recorded and gated under the escrow (the spending account), not the controlled address.
+      const escrow = (await wallet.getEscrow('voter')).address;
+      expect(await poll.hasVoted({ user: escrow.toString() })).toBe(true);
+      expect(await poll.getVoteCounts()).toEqual([1n, 0n]);
+    });
+
     test('vote and deleteBoxes reject apps that were not created by the poll factory', async () => {
       await fundWallet();
 
@@ -218,7 +278,7 @@ describe('Poll plugin contract', () => {
             args: [],
           }),
         ],
-      })).rejects.toThrow(ERR_CREATOR_NOT_POLL_FACTORY);
+      })).rejects.toThrow(errCreatorNotPollFactory);
 
       await expect(wallet.usePlugin({
         callerType: CallerType.Global,
@@ -228,7 +288,7 @@ describe('Poll plugin contract', () => {
             addresses: [user.addr.toString()],
           }),
         ],
-      })).rejects.toThrow(ERR_CREATOR_NOT_POLL_FACTORY);
+      })).rejects.toThrow(errCreatorNotPollFactory);
     });
   });
 });

@@ -5,14 +5,26 @@ export const HyperSwapGlobalStateKeyOfferCursor = 'offer_cursor'
 export const HyperSwapGlobalStateKeySpendingAccountFactoryApp = 'spending_account_factory_app'
 
 export const HyperSwapBoxPrefixOffers = 'o'
+export const HyperSwapBoxPrefixOfferRefunds = 'f'
 export const HyperSwapBoxPrefixParticipants = 'p'
 export const HyperSwapBoxPrefixHashes = 'h'
+/** Meta registry app ID pinned when the offer was created (HS-04). */
+export const HyperSwapBoxPrefixOfferRegistry = 'r'
 
-export const OffersMBR: uint64 = 50_900
+// Offer: 9-byte box name + 105-byte value. Refund: 9-byte name + 40-byte value.
+export const OffersMBR: uint64 = 48_100
+export const OfferRefundsMBR: uint64 = 22_100
+// Pinned registry: 9-byte box name + 8-byte app ID.
+export const OfferRegistryMBR: uint64 = 9_300
 export const ParticipantsMBR: uint64 = 34_900
 export const HashesMBR: uint64 = 34_900
-export const MetaMerkleHyperSwapRootMBR: uint64 = 40_900
-export const MetaMerkleHyperSwapDataMBR: uint64 = 27_300
+// Meta root: 1-byte prefix + 32-byte owner + 9-byte name + (32-byte root, 8-byte type).
+export const MetaMerkleHyperSwapRootMBR: uint64 = 2_500 + 400 * (1 + 32 + 9 + 32 + 8)
+// Meta stores the type with the root; keep the legacy quote field for ABI compatibility.
+export const MetaMerkleHyperSwapDataMBR: uint64 = 0
+
+/** Longest an offer may stay open: 30 days (HS-02). */
+export const MaxOfferDuration: uint64 = 2_592_000
 
 export const META_MERKLE_ADDRESS_SCHEMA: uint64 = 1
 export const META_MERKLE_TRADE_SCHEMA: uint64 = 4

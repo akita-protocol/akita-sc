@@ -2,12 +2,12 @@ import { Account, Application, Asset, Bytes, clone, contract, Global, gtxn, itxn
 import { abiCall, abimethod, compileArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { Txn } from '@algorandfoundation/algorand-typescript/op'
 import { classes } from 'polytype'
-import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MAX_PROGRAM_PAGES } from '../utils/constants'
-import { ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED, ERR_CONTRACT_NOT_SET, ERR_NOT_PRIZE_BOX_OWNER } from '../utils/errors'
-import { disbursementCost, getFunder, getPrizeBoxOwner, rewardsOptInCost, royalties } from '../utils/functions'
+import { FactoryGlobalStateMaxBytes, FactoryGlobalStateMaxUints, GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST } from '../utils/constants'
+import { errBadMethodPrizeBoxTransferNeeded, errContractNotSet, errNotPrizeBoxOwner } from '../utils/errors'
+import { disbursementCost, getFunder, getPrizeBoxOwner, legacyWalletOf, principalOf, referrerOrZeroAddress, rewardsOptInCost, royalties } from '../utils/functions'
 import { Proof } from '../utils/types/merkles'
-import { AuctionGlobalStateKeySeller } from './constants'
-import { ERR_BIDS_MUST_ALWAYS_INCREASE, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_NOT_AN_AUCTION, ERR_NOT_OPTED_IN } from './errors'
+import { AuctionGlobalStateKeySeller, MaxWeightsBoxes } from './constants'
+import { errBidsMustAlwaysIncrease, errEndMustBeAtleastFiveMinutesAfterStart, errInvalidPayment, errInvalidTransfer, errNotAnAuction, errNotOptedIn, errPrizeIsBidAsset, errPrizeSeizable, errStartingBidRequired, errTooManyWeightsBoxes, errWeightsNeedBidFee } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
@@ -35,9 +35,33 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
   }
 
+  // PRIVATE METHODS ------------------------------------------------------------------------------
+
+  /**
+   * AR-02: fee auctions need a positive starting bid (every bid then carries raffle weight)
+   * and at most MaxWeightsBoxes weights boxes (size of the child's weightTotals array).
+   */
+  private validateRaffleConfig(bidFee: uint64, startingBid: uint64, weightsListCount: uint64): void {
+    if (bidFee > 0) {
+      loggedAssert(startingBid > 0, errStartingBidRequired)
+      loggedAssert(weightsListCount <= MaxWeightsBoxes, errTooManyWeightsBoxes)
+    } else {
+      // only fee auctions send the weights MBR to the child; a zero-fee auction would strand it here
+      loggedAssert(weightsListCount === 0, errWeightsNeedBidFee)
+    }
+  }
+
   // AUCTION FACTORY METHODS ----------------------------------------------------------------------
 
-  newAuction(
+  /**
+   * Creation-time referrer for a LEGACY (old-ABI) creation: today's registry referral of the seller
+   * (`Txn.sender`), resolved at creation instead of at settlement (spec §6.6). Delete in Phase 4.
+   */
+  private legacySellerReferrer(): Account {
+    return referrerOrZeroAddress(legacyWalletOf(this.akitaDAO.value, Txn.sender))
+  }
+
+  private newAuctionImpl(
     payment: gtxn.PaymentTxn,
     assetXfer: gtxn.AssetTransferTxn,
     name: string,
@@ -50,15 +74,17 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     endTimestamp: uint64,
     gateID: uint64,
     marketplace: Account,
-    weightsListCount: uint64
+    weightsListCount: uint64,
+    sellerReferrer: Account
   ): uint64 {
-    loggedAssert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
-    loggedAssert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
-    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    loggedAssert(bidMinimumIncrease > 0, errBidsMustAlwaysIncrease)
+    loggedAssert(endTimestamp > startTimestamp + 300, errEndMustBeAtleastFiveMinutesAfterStart)
+    loggedAssert(this.boxedContract.exists, errContractNotSet)
+    this.validateRaffleConfig(bidFee, startingBid, weightsListCount)
 
     const isAlgoBid = bidAssetID === 0
 
-    loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), ERR_NOT_OPTED_IN)
+    loggedAssert(isAlgoBid || Global.currentApplicationAddress.isOptedIn(Asset(bidAssetID)), errNotOptedIn)
 
     const optinMBR: uint64 = Global.assetOptInMinBalance * (isAlgoBid ? 1 : 2)
 
@@ -79,27 +105,29 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
       childAppMBR
     )
 
     // ensure they paid enough to cover the contract mint + mbr costs
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === totalMBR, errInvalidPayment)
 
     // make sure they actually sent the asset they want to auction
-    loggedAssert(assetXfer.sender === Txn.sender, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetAmount > 0, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.sender === Txn.sender, errInvalidTransfer)
+    // AR-11: the prize can't be the bid asset (the prize close-out would sweep every bid)
+    loggedAssert(assetXfer.xferAsset.id !== bidAssetID, errPrizeIsBidAsset)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+    loggedAssert(assetXfer.assetAmount > 0, errInvalidTransfer)
+    loggedAssert(
+      assetXfer.xferAsset.clawback === Global.zeroAddress && assetXfer.xferAsset.freeze === Global.zeroAddress,
+      errPrizeSeizable
+    )
 
     const creatorRoyalty = royalties(this.akitaDAO.value, assetXfer.xferAsset, name, proof)
 
-    // Read approval program from box storage in chunks
-    const approvalSize = this.boxedContract.length
-    const chunk1 = this.boxedContract.extract(0, 4096)
-    const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
 
     const auctionApp = auction.call
       .create({
@@ -119,10 +147,17 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
           marketplace,
           this.childContractVersion.value,
           { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
+          sellerReferrer,
         ],
-        approvalProgram: [chunk1, chunk2],
+        // Boxed approval program in up to four 4 KB chunks (AVM 13: up to 16 KB).
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
         clearStateProgram: auction.clearStateProgram,
-        extraProgramPages: 3
+        extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
       })
       .itxn
       .createdApp
@@ -189,7 +224,86 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     return auctionApp.id
   }
 
+  /**
+   * New ASA-prize auction (principal ABI, spec §6.6). The seller stays `Txn.sender`; `wallet` is the
+   * seller's wallet hint (0 = acting as itself; a plugin passes `windowHint(wallet)`), verified here
+   * (invalid hints revert), and its referrer is stored in the child as `seller_referrer`, which the
+   * child pays at settlement. The +50,000 µA global is part of `newAuctionCost`.
+   */
+  newAuction(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    name: string,
+    proof: Proof,
+    bidAssetID: uint64, // 0 | Asset
+    bidFee: uint64,
+    startingBid: uint64,
+    bidMinimumIncrease: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64,
+    wallet: uint64
+  ): uint64 {
+    const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
+    return this.newAuctionImpl(
+      payment, assetXfer, name, proof, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
+      startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, sellerReferrer
+    )
+  }
+
+  /**
+   * LEGACY shim (spec §7.2; delete in Phase 4): the pre-principal `newAuction(...)uint64` selector.
+   * The child gets `seller_referrer` = the seller's registry referrer, resolved at creation.
+   */
+  @abimethod({ name: 'newAuction' })
+  legacyNewAuction(
+    payment: gtxn.PaymentTxn,
+    assetXfer: gtxn.AssetTransferTxn,
+    name: string,
+    proof: Proof,
+    bidAssetID: uint64, // 0 | Asset
+    bidFee: uint64,
+    startingBid: uint64,
+    bidMinimumIncrease: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64
+  ): uint64 {
+    return this.newAuctionImpl(
+      payment, assetXfer, name, proof, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
+      startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
+    )
+  }
+
+  /** New prize-box auction (principal ABI, spec §6.6); see `newAuction`. */
   newPrizeBoxAuction(
+    prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
+    payment: gtxn.PaymentTxn,
+    bidAssetID: uint64, // 0 | Asset
+    bidFee: uint64,
+    startingBid: uint64,
+    bidMinimumIncrease: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64,
+    wallet: uint64
+  ): uint64 {
+    const sellerReferrer = principalOf(this.akitaDAO.value, wallet).referrer
+    return this.newPrizeBoxAuctionImpl(
+      prizeBoxTransferTxn, payment, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
+      startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, sellerReferrer
+    )
+  }
+
+  /** LEGACY shim of the pre-principal `newPrizeBoxAuction(...)uint64` (registry referrer at creation). */
+  @abimethod({ name: 'newPrizeBoxAuction' })
+  legacyNewPrizeBoxAuction(
     prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
     payment: gtxn.PaymentTxn,
     bidAssetID: uint64, // 0 | Asset
@@ -202,15 +316,36 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
     marketplace: Account,
     weightsListCount: uint64
   ): uint64 {
+    return this.newPrizeBoxAuctionImpl(
+      prizeBoxTransferTxn, payment, bidAssetID, bidFee, startingBid, bidMinimumIncrease,
+      startTimestamp, endTimestamp, gateID, marketplace, weightsListCount, this.legacySellerReferrer()
+    )
+  }
+
+  private newPrizeBoxAuctionImpl(
+    prizeBoxTransferTxn: gtxn.ApplicationCallTxn,
+    payment: gtxn.PaymentTxn,
+    bidAssetID: uint64, // 0 | Asset
+    bidFee: uint64,
+    startingBid: uint64,
+    bidMinimumIncrease: uint64,
+    startTimestamp: uint64,
+    endTimestamp: uint64,
+    gateID: uint64,
+    marketplace: Account,
+    weightsListCount: uint64,
+    sellerReferrer: Account
+  ): uint64 {
     
     loggedAssert((
       prizeBoxTransferTxn.appArgs(0) === methodSelector<typeof PrizeBox.prototype.transfer>() &&
       prizeBoxTransferTxn.onCompletion === OnCompleteAction.NoOp
-    ), ERR_BAD_METHOD_PRIZE_BOX_TRANSFER_NEEDED)
-    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, ERR_NOT_PRIZE_BOX_OWNER)
-    loggedAssert(bidMinimumIncrease > 0, ERR_BIDS_MUST_ALWAYS_INCREASE)
-    loggedAssert(endTimestamp > startTimestamp + 300, ERR_END_MUST_BE_ATLEAST_FIVE_MINUTES_AFTER_START)
-    loggedAssert(this.boxedContract.exists, ERR_CONTRACT_NOT_SET)
+    ), errBadMethodPrizeBoxTransferNeeded)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBoxTransferTxn.appId) === Global.currentApplicationAddress, errNotPrizeBoxOwner)
+    loggedAssert(bidMinimumIncrease > 0, errBidsMustAlwaysIncrease)
+    loggedAssert(endTimestamp > startTimestamp + 300, errEndMustBeAtleastFiveMinutesAfterStart)
+    loggedAssert(this.boxedContract.exists, errContractNotSet)
+    this.validateRaffleConfig(bidFee, startingBid, weightsListCount)
 
     const isAlgoBid = bidAssetID === 0
     const optinMBR: uint64 = isAlgoBid ? 0 : Global.assetOptInMinBalance
@@ -232,22 +367,18 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
       childAppMBR
     )
 
     // ensure they paid enough to cover the contract mint + mbr costs
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === totalMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === totalMBR, errInvalidPayment)
 
     const creatorRoyalty = royalties(this.akitaDAO.value, Asset(0), '', [])
 
-    // Read approval program from box storage in chunks
-    const approvalSize = this.boxedContract.length
-    const chunk1 = this.boxedContract.extract(0, 4096)
-    const chunk2 = this.boxedContract.extract(4096, approvalSize - 4096)
 
     const auctionApp = auction.call
       .create({
@@ -267,10 +398,17 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
           marketplace,
           this.childContractVersion.value,
           { akitaDAO: this.akitaDAO.value, akitaDAOEscrow: this.akitaDAOEscrow.value },
+          sellerReferrer,
         ],
-        approvalProgram: [chunk1, chunk2],
+        // Boxed approval program in up to four 4 KB chunks (AVM 13: up to 16 KB).
+        approvalProgram: [
+          this.childApprovalChunk(0),
+          this.childApprovalChunk(1),
+          this.childApprovalChunk(2),
+          this.childApprovalChunk(3),
+        ],
         clearStateProgram: auction.clearStateProgram,
-        extraProgramPages: 3
+        extraProgramPages: this.childExtraPages(auction.clearStateProgram.length)
       })
       .itxn
       .createdApp
@@ -321,35 +459,37 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
   }
 
   deleteAuctionApp(appId: Application): void {
-    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, errNotAnAuction)
     const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
-    loggedAssert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(seller === Txn.sender, errNotPrizeBoxOwner)
 
+    // AR-13: refund exactly what the deletion released back to the factory
+    const balanceBefore: uint64 = Global.currentApplicationAddress.balance
+    const minBefore: uint64 = Global.currentApplicationAddress.minBalance
     const { account: receiver, amount } = getFunder(appId)
 
     const auction = compileArc4(Auction)
-    
+
     auction.call.deleteApplication({ appId })
 
-    itxn
-      .payment({ amount, receiver })
-      .submit()
+    this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
   }
 
   cancelAuction(appId: Application): void {
-    loggedAssert(appId.creator === Global.currentApplicationAddress, ERR_NOT_AN_AUCTION)
+    loggedAssert(appId.creator === Global.currentApplicationAddress, errNotAnAuction)
     const seller = Account(op.AppGlobal.getExBytes(appId, Bytes(AuctionGlobalStateKeySeller))[0])
-    loggedAssert(seller === Txn.sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(seller === Txn.sender, errNotPrizeBoxOwner)
 
+    // AR-13: refund exactly what the cancellation released back to the factory
+    const balanceBefore: uint64 = Global.currentApplicationAddress.balance
+    const minBefore: uint64 = Global.currentApplicationAddress.minBalance
     const { account: receiver, amount } = getFunder(appId)
 
     const auction = compileArc4(Auction)
 
     auction.call.cancel({ appId })
 
-    itxn
-      .payment({ amount, receiver })
-      .submit()
+    this.refundReleased(receiver, amount, balanceBefore, minBefore, 0)
   }
 
   @abimethod({ readonly: true })
@@ -379,7 +519,7 @@ export class AuctionFactory extends classes(BaseAuction, FactoryContract) {
 
     const childAppMBR: uint64 = Global.minBalance + optinMBR + (weightsListCount * costs.weights) + disbursementMBR
     const totalMBR: uint64 = (
-      MAX_PROGRAM_PAGES +
+      this.childPagesMbr(auction.clearStateProgram.length) +
       (GLOBAL_STATE_KEY_UINT_COST * auction.globalUints) +
       (GLOBAL_STATE_KEY_BYTES_COST * auction.globalBytes) +
       childAppMBR

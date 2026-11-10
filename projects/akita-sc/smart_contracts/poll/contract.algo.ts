@@ -13,9 +13,9 @@ import {
 import { abimethod, Uint8 } from '@algorandfoundation/algorand-typescript/arc4'
 import { Global, Txn } from '@algorandfoundation/algorand-typescript/op'
 import { GlobalStateKeyFunder } from '../constants'
-import { ERR_HAS_GATE } from '../social/errors'
-import { AkitaBaseContract } from '../utils/base-contracts/base'
-import { gateCheck, getUserImpact } from '../utils/functions'
+import { errHasGate } from '../social/errors'
+import { AkitaBaseContract } from '../utils/base-contracts/upgradeable'
+import { assertSafePayment, gateCheck, getUserImpact } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import {
   PollGlobalStateKeyBoxCount,
@@ -38,22 +38,22 @@ import {
   votesMBR,
 } from './constants'
 import {
-  ERR_ALREADY_VOTED,
-  ERR_BAD_DEPLOYER,
-  ERR_FAILED_GATE,
-  ERR_INVALID_END_TIME,
-  ERR_INVALID_MAX_SELECTION,
-  ERR_INVALID_OPTION_COUNT,
-  ERR_INVALID_PAYMENT,
-  ERR_INVALID_POLL_TYPE,
-  ERR_INVALID_VOTE,
-  ERR_INVALID_VOTE_COUNT,
-  ERR_INVALID_VOTE_OPTION,
-  ERR_MUST_BE_CALLED_FROM_FACTORY,
-  ERR_NOT_VOTED,
-  ERR_POLL_ACTIVE,
-  ERR_POLL_ENDED,
-  ERR_STILL_HAS_VOTE_BOXES,
+  errAlreadyVoted,
+  errBadDeployer,
+  errFailedGate,
+  errInvalidEndTime,
+  errInvalidMaxSelection,
+  errInvalidOptionCount,
+  errInvalidPayment,
+  errInvalidPollType,
+  errInvalidVote,
+  errInvalidVoteCount,
+  errInvalidVoteOption,
+  errMustBeCalledFromFactory,
+  errNotVoted,
+  errPollActive,
+  errPollEnded,
+  errStillHasVoteBoxes,
 } from './errors'
 import { MultipleChoice, MultipleChoiceImpact, PollType, SingleChoice, SingleChoiceImpact } from './types'
 
@@ -97,6 +97,15 @@ export class Poll extends AkitaBaseContract {
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
+  /**
+   * Records a vote. Impact polls weight it by `getUserImpact(Txn.sender)` evaluated now.
+   *
+   * Known limitation (documented, not enforced): parts of the impact score, such as held AKTA,
+   * come from transferable balances, and each address (including each ARC-58 escrow) votes
+   * separately. The same AKTA can therefore be moved between addresses to vote with the same
+   * weight more than once. Impact polls are advisory; do not use their totals for decisions
+   * that move funds.
+   */
   private createVote(votes: uint64[]): void {
     let impact: uint64 = 1
     if (this.type.value === SingleChoiceImpact || this.type.value === MultipleChoiceImpact) {
@@ -104,8 +113,8 @@ export class Poll extends AkitaBaseContract {
     }
 
     if (this.type.value === SingleChoice || this.type.value === SingleChoiceImpact) {
-      loggedAssert(votes.length === 1, ERR_INVALID_VOTE_COUNT)
-      loggedAssert(votes[0] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
+      loggedAssert(votes.length === 1, errInvalidVoteCount)
+      loggedAssert(votes[0] <= this.optionCount.value - 1, errInvalidVoteOption)
 
       if (votes[0] === 0) {
         this.votesOne.value += impact
@@ -119,12 +128,12 @@ export class Poll extends AkitaBaseContract {
         this.votesFive.value += impact
       }
     } else {
-      loggedAssert(votes.length <= this.maxSelected.value, ERR_INVALID_VOTE_COUNT)
+      loggedAssert(votes.length <= this.maxSelected.value, errInvalidVoteCount)
 
       for (let i: uint64 = 0; i < votes.length; i += 1) {
-        loggedAssert(votes[i] <= this.optionCount.value - 1, ERR_INVALID_VOTE_OPTION)
+        loggedAssert(votes[i] <= this.optionCount.value - 1, errInvalidVoteOption)
         for (let j: uint64 = i + 1; j < votes.length; j += 1) {
-          loggedAssert(votes[i] !== votes[j], ERR_INVALID_VOTE_OPTION)
+          loggedAssert(votes[i] !== votes[j], errInvalidVoteOption)
         }
 
         if (votes[i] === 0) {
@@ -158,9 +167,12 @@ export class Poll extends AkitaBaseContract {
     options: string[],
     gateID: uint64
   ): void {
-    loggedAssert(Global.callerApplicationId !== 0, ERR_BAD_DEPLOYER)
-    loggedAssert(Global.latestTimestamp < endTime, ERR_INVALID_END_TIME)
-    loggedAssert(type.asUint64() < MultipleChoiceImpact.asUint64(), ERR_INVALID_POLL_TYPE)
+    loggedAssert(Global.callerApplicationId !== 0, errBadDeployer)
+    loggedAssert(Global.latestTimestamp < endTime, errInvalidEndTime)
+    loggedAssert(
+      type === SingleChoice || type === MultipleChoice || type === SingleChoiceImpact || type === MultipleChoiceImpact,
+      errInvalidPollType
+    )
 
     this.akitaDAO.value = Application(akitaDAO)
     this.type.value = type
@@ -169,10 +181,10 @@ export class Poll extends AkitaBaseContract {
     this.funder.value = clone(funder)
     this.question.value = question
 
-    loggedAssert(options.length >= 2 && options.length <= 5, ERR_INVALID_OPTION_COUNT)
+    loggedAssert(options.length >= 2 && options.length <= 5, errInvalidOptionCount)
 
     if (type === MultipleChoice || type === MultipleChoiceImpact) {
-      loggedAssert(maxSelected >= 2 && maxSelected <= options.length - 1, ERR_INVALID_MAX_SELECTION)
+      loggedAssert(maxSelected >= 2 && maxSelected <= options.length - 1, errInvalidMaxSelection)
       this.maxSelected.value = maxSelected
     }
 
@@ -196,11 +208,11 @@ export class Poll extends AkitaBaseContract {
   }
 
   deleteBoxes(addresses: Account[]): void {
-    loggedAssert(Global.latestTimestamp > this.endTime.value, ERR_POLL_ACTIVE)
+    loggedAssert(Global.latestTimestamp > this.endTime.value, errPollActive)
 
     for (let i: uint64 = 0; i < addresses.length; i += 1) {
 
-      loggedAssert(this.votes(addresses[i]).exists, ERR_NOT_VOTED)
+      loggedAssert(this.votes(addresses[i]).exists, errNotVoted)
       this.votes(addresses[i]).delete()
 
       itxn
@@ -217,9 +229,14 @@ export class Poll extends AkitaBaseContract {
 
   @abimethod({ allowActions: 'DeleteApplication' })
   deleteApplication(): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(Global.latestTimestamp > this.endTime.value, ERR_POLL_ACTIVE)
-    loggedAssert(this.boxCount.value === 0, ERR_STILL_HAS_VOTE_BOXES)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(Global.latestTimestamp > this.endTime.value, errPollActive)
+    loggedAssert(this.boxCount.value === 0, errStillHasVoteBoxes)
+    // Return the whole account (the factory-forwarded min balance and any surplus) to the factory,
+    // which refunds the funder; nothing is stranded in the deleted app's account.
+    itxn
+      .payment({ closeRemainderTo: Global.creatorAddress })
+      .submit()
   }
 
   // POLL METHODS --------------------------------------------------------------------------------
@@ -229,23 +246,27 @@ export class Poll extends AkitaBaseContract {
     gateTxn: gtxn.ApplicationCallTxn,
     votes: uint64[]
   ): void {
-    loggedAssert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
-    loggedAssert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
-    loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), ERR_FAILED_GATE)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(Global.latestTimestamp <= this.endTime.value, errPollEnded)
+    loggedAssert(!this.votes(Txn.sender).exists, errAlreadyVoted)
+    loggedAssert(votes.length <= 5 && votes.length >= 1, errInvalidVote)
+    loggedAssert(gateCheck(gateTxn, this.akitaDAO.value, Txn.sender, this.gateID.value), errFailedGate)
+    // the voter funds its own vote box, so the refund in `deleteBoxes` reaches the payer
+    assertSafePayment(mbrPayment, Txn.sender)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === votesMBR, errInvalidPayment)
 
     this.createVote(votes)
   }
 
   vote(mbrPayment: gtxn.PaymentTxn, votes: uint64[]): void {
-    loggedAssert(Global.latestTimestamp <= this.endTime.value, ERR_POLL_ENDED)
-    loggedAssert(!this.votes(Txn.sender).exists, ERR_ALREADY_VOTED)
-    loggedAssert(votes.length <= 5 && votes.length >= 1, ERR_INVALID_VOTE)
-    loggedAssert(this.gateID.value === 0, ERR_HAS_GATE)
-    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(mbrPayment.amount === votesMBR, ERR_INVALID_PAYMENT)
+    loggedAssert(Global.latestTimestamp <= this.endTime.value, errPollEnded)
+    loggedAssert(!this.votes(Txn.sender).exists, errAlreadyVoted)
+    loggedAssert(votes.length <= 5 && votes.length >= 1, errInvalidVote)
+    loggedAssert(this.gateID.value === 0, errHasGate)
+    // the voter funds its own vote box, so the refund in `deleteBoxes` reaches the payer
+    assertSafePayment(mbrPayment, Txn.sender)
+    loggedAssert(mbrPayment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(mbrPayment.amount === votesMBR, errInvalidPayment)
 
     this.createVote(votes)
   }

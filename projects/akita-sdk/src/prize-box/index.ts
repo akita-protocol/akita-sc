@@ -1,5 +1,7 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
+import algosdk from "algosdk";
 import { BaseSDK } from "../base";
+import { ENV_VAR_NAMES } from "../config";
 import {
   PrizeBoxClient,
   PrizeBoxFactory,
@@ -27,8 +29,12 @@ export * from "./types";
  */
 export class PrizeBoxSDK extends BaseSDK<PrizeBoxClient> {
 
-  constructor(params: NewContractSDKParams) {
+  /** The PrizeBoxFactory that created this box (set by PrizeBoxFactorySDK.get / mint). */
+  public factoryAppId?: bigint;
+
+  constructor(params: NewContractSDKParams & { factoryAppId?: bigint }) {
     super({ factory: PrizeBoxFactory, ...params });
+    this.factoryAppId = params.factoryAppId;
   }
 
   // ========== Read Methods ==========
@@ -107,16 +113,39 @@ export class PrizeBoxSDK extends BaseSDK<PrizeBoxClient> {
   }
 
   /**
-   * Deletes the prize box and returns MBR to owner.
-   * Can only be called when the box is empty (optinCount === 0).
+   * Deletes the prize box. Can only be called by the owner when the box is empty
+   * (optinCount === 0). The box account (min balance) closes to the owner and the
+   * creation MBR is refunded to the minter.
+   *
+   * Current boxes are deleted through `PrizeBoxFactory.deletePrizeBox`; legacy boxes
+   * (minted before funder tracking, no `funder` state) still use their own
+   * owner-callable `deleteApplication()`.
    */
-  async delete(params?: MaybeSigner): Promise<void> {
+  async delete(params?: MaybeSigner & { factoryAppId?: bigint }): Promise<void> {
     const sendParams = this.getSendParams(params);
 
-    await this.client.send.delete.deleteApplication({
-      ...sendParams,
-      args: {},
+    const state = await this.client.state.global.getAll();
+    if (state.funder === undefined) {
+      await this.client.algorand.send.appDeleteMethodCall({
+        ...sendParams,
+        sender: sendParams.sender!,
+        appId: this.client.appId,
+        method: algosdk.ABIMethod.fromSignature('deleteApplication()void'),
+        args: [],
+      });
+      return;
+    }
+
+    const factoryAppId = params?.factoryAppId ?? this.factoryAppId;
+    if (factoryAppId === undefined) {
+      throw new Error('PrizeBoxSDK.delete: factoryAppId is required (use PrizeBoxFactorySDK.deletePrizeBox)');
+    }
+
+    const factory = new PrizeBoxFactorySDK({
+      algorand: this.algorand,
+      factoryParams: { appId: factoryAppId, defaultSender: sendParams.sender, defaultSigner: sendParams.signer },
     });
+    await factory.deletePrizeBox({ ...sendParams, appId: this.client.appId });
   }
 }
 
@@ -129,7 +158,9 @@ export type PrizeBoxFactoryContractArgs = PrizeBoxFactoryArgs["obj"];
 export class PrizeBoxFactorySDK extends BaseSDK<PrizeBoxFactoryClient> {
 
   constructor(params: NewContractSDKParams) {
-    super({ factory: PrizeBoxFactoryFactory, ...params });
+    // The env var name also selects the baked-in network id. Without it, `new PrizeBoxFactorySDK({ factoryParams: {} })`
+    // (the Raffle/Auction/Marketplace prize-box creation paths) threw "No app ID provided" on every network.
+    super({ factory: PrizeBoxFactoryFactory, ...params }, ENV_VAR_NAMES.PRIZE_BOX_FACTORY_APP_ID);
   }
 
   /**
@@ -162,11 +193,25 @@ export class PrizeBoxFactorySDK extends BaseSDK<PrizeBoxFactoryClient> {
 
     return new PrizeBoxSDK({
       algorand: this.algorand,
+      factoryAppId: this.client.appId,
       factoryParams: {
         appId,
         defaultSender: sendParams.sender,
         defaultSigner: sendParams.signer,
       },
+    });
+  }
+
+  /**
+   * Deletes an empty prize box owned by `sender`: the box account closes to the owner and
+   * the creation MBR is refunded to the minter.
+   */
+  async deletePrizeBox({ sender, signer, appId }: MaybeSigner & { appId: bigint }): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    await this.client.send.deletePrizeBox({
+      ...sendParams,
+      args: { appId },
     });
   }
 
@@ -178,6 +223,7 @@ export class PrizeBoxFactorySDK extends BaseSDK<PrizeBoxFactoryClient> {
   get({ appId }: { appId: bigint }): PrizeBoxSDK {
     return new PrizeBoxSDK({
       algorand: this.algorand,
+      factoryAppId: this.client.appId,
       factoryParams: {
         appId,
         defaultSender: this.sendParams.sender,
@@ -191,8 +237,9 @@ export class PrizeBoxFactorySDK extends BaseSDK<PrizeBoxFactoryClient> {
    * Based on: MIN_PROGRAM_PAGES + (GLOBAL_STATE_KEY_UINT_COST * globalUints) + (GLOBAL_STATE_KEY_BYTES_COST * globalBytes) + Global.minBalance
    */
   cost(): bigint {
-    // Base cost from compiled contract: 178,500 + minBalance (100,000)
-    return 278_500n;
+    // PrizeBox schema: 1 uint (optinCount) + 2 bytes (owner, funder)
+    // 100,000 (1 page) + 28,500 + 2 * 50,000 = 228,500 creation MBR + minBalance (100,000)
+    return 328_500n;
   }
 }
 

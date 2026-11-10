@@ -10,13 +10,13 @@
  * message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Poll contracts
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const POLL_ERROR_MESSAGES: Record<string, string> = {
+export const POLL_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Poll configuration -------------------------------------------------
   IETM: 'End time must be in the future',
   IPTY: 'Invalid poll type',
@@ -39,7 +39,7 @@ export const POLL_ERROR_MESSAGES: Record<string, string> = {
 
   // --- Poll plugin --------------------------------------------------------
   NPLF: 'Creator is not the poll factory',
-}
+})
 
 /**
  * Translates a short Poll error code (or raw ARC-65 log entry) into a

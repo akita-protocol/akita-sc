@@ -5,38 +5,38 @@
  * (format: `ERR:{code}`). They are intentionally short to minimize bytecode.
  *
  * The human-readable mapping lives in `akita-sdk/src/poll/errors.ts` — keep
- * the two files in sync when adding or changing a code. Constant NAMES are
- * preserved from the pre-ARC-65 layout so call sites don't change.
+ * the two files in sync when adding or changing a code. Constant names and values use
+ * camelCase. Logged values use an `err` prefix to avoid 8-byte ARC-65 messages.
  */
 
 // Mirror common codes used by poll so domain call sites keep their previous
 // names but share the wire format with the top-level `errors.ts`. PuyaTs
 // doesn't support `export { X } from` re-export syntax, so the constants are
 // redeclared here with identical values.
-export const ERR_BAD_DEPLOYER = 'BDEP'
-export const ERR_INVALID_PAYMENT = 'IPAY'
-export const ERR_PLUGIN_NOT_AUTH_ADDR = 'NATH'
-export const ERR_FAILED_GATE = 'FGTE'
+export const errBadDeployer = 'errBdep'
+export const errInvalidPayment = 'errIpay'
+export const errPluginNotAuthAddr = 'errNath'
+export const errFailedGate = 'errFgte'
 
 // --- Poll configuration -----------------------------------------------------
 
-export const ERR_INVALID_END_TIME = 'IETM'
-export const ERR_INVALID_POLL_TYPE = 'IPTY'
-export const ERR_INVALID_OPTION_COUNT = 'IOPC'
-export const ERR_INVALID_MAX_SELECTION = 'IMXS'
+export const errInvalidEndTime = 'errIetm'
+export const errInvalidPollType = 'errIpty'
+export const errInvalidOptionCount = 'errIopc'
+export const errInvalidMaxSelection = 'errImxs'
 
 // --- Poll lifecycle ---------------------------------------------------------
 
-export const ERR_POLL_ENDED = 'PEND'
-export const ERR_POLL_ACTIVE = 'PACT'
-export const ERR_NOT_A_POLL = 'NAPL'
-export const ERR_STILL_HAS_VOTE_BOXES = 'SHVB'
-export const ERR_MUST_BE_CALLED_FROM_FACTORY = 'MCFF'
+export const errPollEnded = 'errPend'
+export const errPollActive = 'errPact'
+export const errNotAPoll = 'errNapl'
+export const errStillHasVoteBoxes = 'errShvb'
+export const errMustBeCalledFromFactory = 'errMcff'
 
 // --- Voting -----------------------------------------------------------------
 
-export const ERR_ALREADY_VOTED = 'AVOT'
-export const ERR_INVALID_VOTE = 'IVOT'
-export const ERR_INVALID_VOTE_COUNT = 'IVCT'
-export const ERR_INVALID_VOTE_OPTION = 'IVOP'
-export const ERR_NOT_VOTED = 'NVOT'
+export const errAlreadyVoted = 'errAvot'
+export const errInvalidVote = 'errIvot'
+export const errInvalidVoteCount = 'errIvct'
+export const errInvalidVoteOption = 'errIvop'
+export const errNotVoted = 'errNvot'

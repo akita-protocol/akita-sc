@@ -10,13 +10,13 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Auction contracts
  * can emit. Ordered roughly the same way as the contract-side file.
  */
-export const AUCTION_ERROR_MESSAGES: Record<string, string> = {
+export const AUCTION_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Factory setup validation -------------------------------------------
   BINC: 'Bids must always increase',
   MNOP: 'Marketplace must be opted into payment asset',
@@ -68,7 +68,16 @@ export const AUCTION_ERROR_MESSAGES: Record<string, string> = {
   NENA: 'Not enough of the asset',
   PCBA: 'Auction prize cannot be ALGO',
   CNAF: 'Creator is not the auction factory',
-}
+
+  // --- Audit 2026-10 fixes ------------------------------------------------
+  COBS: 'The current highest bidder cannot outbid itself',
+  SBRQ: 'Auctions with a bid fee need a starting bid above zero',
+  TMWB: 'Too many weights boxes (maximum 15)',
+  PIBA: 'The prize cannot be the bid asset',
+  PSZB: 'The prize asset has a clawback or freeze address',
+  WNBF: 'Only auctions with a bid fee can have weights boxes',
+  BNRD: 'The beacon value for the committed round is not available yet',
+})
 
 /**
  * Translates a short Auction error code (or raw ARC-65 log entry) into a

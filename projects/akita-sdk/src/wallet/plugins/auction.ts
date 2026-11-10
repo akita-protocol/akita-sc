@@ -1,74 +1,61 @@
-import { ReadableAddress } from "@algorandfoundation/algokit-utils/common";
+type ReadableAddress = string | import('algosdk').Address;
 import { BaseSDK } from "../../base";
 import { AuctionPluginArgs, AuctionPluginClient, AuctionPluginFactory } from "../../generated/AuctionPluginClient";
 import { NewContractSDKParams, MaybeSigner } from "../../types";
 import { PluginHookParams, PluginSDKReturn } from "../../types";
-import { Address } from "algosdk";
-import { microAlgo } from "@algorandfoundation/algokit-utils";
 import { getTxns } from "../utils";
 
 type ContractArgs = AuctionPluginArgs["obj"];
 
-type NewAuctionArgs = (
-  Omit<ContractArgs['new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'], 'wallet' | 'rekeyBack'>
+type HookArgs<K extends keyof ContractArgs> = (
+  Omit<ContractArgs[K], 'wallet' | 'rekeyBack'>
   & MaybeSigner
   & { rekeyBack?: boolean }
 );
 
-type BidArgs = (
-  Omit<ContractArgs['bid(uint64,bool,uint64,uint64,byte[][],address)void'], 'wallet' | 'rekeyBack'>
-  & MaybeSigner
-  & { rekeyBack?: boolean }
-);
+type NewAuctionArgs = HookArgs<'new(uint64,bool,uint64,uint64,string,byte[32][],uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'>;
+type ListPrizeBoxArgs = HookArgs<'listPrizeBox(uint64,bool,uint64,uint64,uint64,uint64,uint64,uint64,uint64,uint64,address,uint64)uint64'>;
+type BidArgs = HookArgs<'bid(uint64,bool,uint64,uint64,byte[][],address)void'>;
+type ClaimPrizeArgs = HookArgs<'claimPrize(uint64,bool,uint64)void'>;
+type ClaimRafflePrizeArgs = HookArgs<'claimRafflePrize(uint64,bool,uint64)void'>;
+type RefundBidArgs = HookArgs<'refundBid(uint64,bool,uint64,uint64)void'>;
+type RefundMBRArgs = HookArgs<'refundMBR(uint64,bool,uint64,uint64)void'>;
+type RaffleArgs = HookArgs<'raffle(uint64,bool,uint64)void'>;
+type FindWinnerArgs = HookArgs<'findWinner(uint64,bool,uint64,uint64)void'>;
+type ClearWeightsBoxesArgs = HookArgs<'clearWeightsBoxes(uint64,bool,uint64,uint64)void'>;
+type DeleteAuctionAppArgs = HookArgs<'deleteAuctionApp(uint64,bool,uint64)void'>;
+type CancelArgs = HookArgs<'cancel(uint64,bool,uint64)void'>;
 
-type ClaimPrizeArgs = (
-  Omit<ContractArgs['claimPrize(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
-  & MaybeSigner
-  & { rekeyBack?: boolean }
-);
-
-type RefundBidArgs = (
-  Omit<ContractArgs['refundBid(uint64,bool,uint64,uint64)void'], 'wallet' | 'rekeyBack'>
-  & MaybeSigner
-  & { rekeyBack?: boolean }
-);
-
-type CancelArgs = (
-  Omit<ContractArgs['cancel(uint64,bool,uint64)void'], 'wallet' | 'rekeyBack'>
-  & MaybeSigner
-  & { rekeyBack?: boolean }
-);
-
+/**
+ * SDK hooks for AuctionPlugin v2. Every method returns a plugin hook; called without
+ * arguments it only yields the method selector (for installing method restrictions).
+ */
 export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
 
   constructor(params: NewContractSDKParams) {
     super({ factory: AuctionPluginFactory, ...params });
   }
 
-  new(): PluginSDKReturn;
-  new(args: NewAuctionArgs): PluginSDKReturn;
-  new(args?: NewAuctionArgs): PluginSDKReturn {
-    const methodName = 'new';
+  private makeHook<A extends MaybeSigner & { rekeyBack?: boolean }>(methodName: string, args?: A): PluginSDKReturn {
+    const appId = this.client.appId;
+    const selectors = [this.client.appClient.getABIMethod(methodName).getSelector()];
+
     if (args === undefined) {
-      return (spendingAddress?: ReadableAddress) => ({
-        appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
-      });
+      return (_spendingAddress?: ReadableAddress) => ({ appId, selectors, getTxns });
     }
 
-    const { sender, signer } = args;
+    const { sender, signer, rekeyBack: rekeyBackArg, ...rest } = args;
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
-    return (spendingAddress?: ReadableAddress) => ({
-      appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
+    return (_spendingAddress?: ReadableAddress) => ({
+      appId,
+      selectors,
       getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
-
-        const params = await this.client.params.new({
+        const rekeyBack = rekeyBackArg ?? true;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const params = await (this.client.params as any)[methodName]({
           ...sendParams,
-          args: { wallet, rekeyBack, ...args },
+          args: { wallet, rekeyBack, ...rest },
         });
 
         return [{
@@ -77,141 +64,78 @@ export class AuctionPluginSDK extends BaseSDK<AuctionPluginClient> {
         }];
       }
     });
+  }
+
+  new(): PluginSDKReturn;
+  new(args: NewAuctionArgs): PluginSDKReturn;
+  new(args?: NewAuctionArgs): PluginSDKReturn {
+    return this.makeHook('new', args);
+  }
+
+  listPrizeBox(): PluginSDKReturn;
+  listPrizeBox(args: ListPrizeBoxArgs): PluginSDKReturn;
+  listPrizeBox(args?: ListPrizeBoxArgs): PluginSDKReturn {
+    return this.makeHook('listPrizeBox', args);
   }
 
   bid(): PluginSDKReturn;
   bid(args: BidArgs): PluginSDKReturn;
   bid(args?: BidArgs): PluginSDKReturn {
-    const methodName = 'bid';
-    if (args === undefined) {
-      return (spendingAddress?: ReadableAddress) => ({
-        appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
-      });
-    }
-
-    const { sender, signer,  } = args;
-    const sendParams = this.getRequiredSendParams({ sender, signer });
-
-    return (spendingAddress?: ReadableAddress) => ({
-      appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
-
-        const params = await this.client.params.bid({
-          ...sendParams,
-          args: { wallet, rekeyBack, ...args },
-        });
-
-        return [{
-          type: 'methodCall',
-          ...params
-        }];
-      }
-    });
+    return this.makeHook('bid', args);
   }
 
   claimPrize(): PluginSDKReturn;
   claimPrize(args: ClaimPrizeArgs): PluginSDKReturn;
   claimPrize(args?: ClaimPrizeArgs): PluginSDKReturn {
-    const methodName = 'claimPrize';
-    if (args === undefined) {
-      return (spendingAddress?: ReadableAddress) => ({
-        appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
-      });
-    }
+    return this.makeHook('claimPrize', args);
+  }
 
-    const { sender, signer } = args;
-    const sendParams = this.getRequiredSendParams({ sender, signer });
-
-    return (spendingAddress?: ReadableAddress) => ({
-      appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
-
-        const params = await this.client.params.claimPrize({
-          ...sendParams,
-          args: { wallet, rekeyBack, ...args },
-        });
-
-        return [{
-          type: 'methodCall',
-          ...params
-        }];
-      }
-    });
+  claimRafflePrize(): PluginSDKReturn;
+  claimRafflePrize(args: ClaimRafflePrizeArgs): PluginSDKReturn;
+  claimRafflePrize(args?: ClaimRafflePrizeArgs): PluginSDKReturn {
+    return this.makeHook('claimRafflePrize', args);
   }
 
   refundBid(): PluginSDKReturn;
   refundBid(args: RefundBidArgs): PluginSDKReturn;
   refundBid(args?: RefundBidArgs): PluginSDKReturn {
-    const methodName = 'refundBid';
-    if (args === undefined) {
-      return (spendingAddress?: ReadableAddress) => ({
-        appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
-      });
-    }
+    return this.makeHook('refundBid', args);
+  }
 
-    const { sender, signer } = args;
-    const sendParams = this.getRequiredSendParams({ sender, signer });
+  refundMBR(): PluginSDKReturn;
+  refundMBR(args: RefundMBRArgs): PluginSDKReturn;
+  refundMBR(args?: RefundMBRArgs): PluginSDKReturn {
+    return this.makeHook('refundMBR', args);
+  }
 
-    return (spendingAddress?: ReadableAddress) => ({
-      appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
+  /** two-phase draw: first call (after the end) commits to a future round, a later call draws */
+  raffle(): PluginSDKReturn;
+  raffle(args: RaffleArgs): PluginSDKReturn;
+  raffle(args?: RaffleArgs): PluginSDKReturn {
+    return this.makeHook('raffle', args);
+  }
 
-        const params = await this.client.params.refundBid({
-          ...sendParams,
-          args: { wallet, rekeyBack, ...args },
-        });
+  findWinner(): PluginSDKReturn;
+  findWinner(args: FindWinnerArgs): PluginSDKReturn;
+  findWinner(args?: FindWinnerArgs): PluginSDKReturn {
+    return this.makeHook('findWinner', args);
+  }
 
-        return [{
-          type: 'methodCall',
-          ...params
-        }];
-      }
-    });
+  clearWeightsBoxes(): PluginSDKReturn;
+  clearWeightsBoxes(args: ClearWeightsBoxesArgs): PluginSDKReturn;
+  clearWeightsBoxes(args?: ClearWeightsBoxesArgs): PluginSDKReturn {
+    return this.makeHook('clearWeightsBoxes', args);
+  }
+
+  deleteAuctionApp(): PluginSDKReturn;
+  deleteAuctionApp(args: DeleteAuctionAppArgs): PluginSDKReturn;
+  deleteAuctionApp(args?: DeleteAuctionAppArgs): PluginSDKReturn {
+    return this.makeHook('deleteAuctionApp', args);
   }
 
   cancel(): PluginSDKReturn;
   cancel(args: CancelArgs): PluginSDKReturn;
   cancel(args?: CancelArgs): PluginSDKReturn {
-    const methodName = 'cancel';
-    if (args === undefined) {
-      return (spendingAddress?: ReadableAddress) => ({
-        appId: this.client.appId,
-        selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-        getTxns
-      });
-    }
-
-    const { sender, signer } = args;
-    const sendParams = this.getRequiredSendParams({ sender, signer });
-
-    return (spendingAddress?: ReadableAddress) => ({
-      appId: this.client.appId,
-      selectors: [this.client.appClient.getABIMethod(methodName).getSelector()],
-      getTxns: async ({ wallet }: PluginHookParams) => {
-        const rekeyBack = args.rekeyBack ?? true;
-
-        const params = await this.client.params.cancel({
-          ...sendParams,
-          args: { wallet, rekeyBack, ...args },
-        });
-
-        return [{
-          type: 'methodCall',
-          ...params
-        }];
-      }
-    });
+    return this.makeHook('cancel', args);
   }
 }

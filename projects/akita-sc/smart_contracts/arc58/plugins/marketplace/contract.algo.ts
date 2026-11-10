@@ -1,21 +1,20 @@
 import { Account, Application, Asset, Bytes, GlobalState, itxn, loggedAssert, OnCompleteAction, op, uint64 } from '@algorandfoundation/algorand-typescript'
-import { abiCall, abimethod, compileArc4, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
+import { abiCall, abimethod, encodeArc4, methodSelector } from '@algorandfoundation/algorand-typescript/arc4'
 import { AssetHolding, Global } from '@algorandfoundation/algorand-typescript/op'
-import { GateMustCheckAbiMethod } from '../../../gates/constants'
 import { GateArgs } from '../../../gates/types'
 import { ListingGlobalStateKeyGateID, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice } from '../../../marketplace/constants'
-import { GLOBAL_STATE_KEY_BYTES_COST, GLOBAL_STATE_KEY_UINT_COST, MIN_PROGRAM_PAGES } from '../../../utils/constants'
-import { disbursementCost, getAccounts, getAkitaAppList, getPrizeBoxOwner, getSpendingAccount, rekeyAddress, rewardsOptInCost, splitOptInCount } from '../../../utils/functions'
+import { GateMustCheckForAbiMethod, getAkitaAppList, getControlledSpendingAccount, getPrizeBoxOwner, getSpendingAccount, pluginPrincipalOf, rekeyAddress } from '../../../utils/functions'
+import { gateCtx, windowHint } from '../../../utils/principal'
 import { Proof } from '../../../utils/types/merkles'
 import { MarketplacePluginGlobalStateKeyFactory } from './constants'
-import { ERR_NOT_PRIZE_BOX_OWNER } from '../../../utils/errors'
-import { ERR_LISTING_CREATOR_NOT_MARKETPLACE, ERR_NOT_ENOUGH_ASSET } from './errors'
+import { errNotPrizeBoxOwner } from '../../../utils/errors'
+import { errListingCreatorNotMarketplace, errNotEnoughAsset, errPriceAboveMax } from './errors'
 
 // CONTRACT IMPORTS
-import { Listing } from '../../../marketplace/listing.algo'
+import type { Listing } from '../../../marketplace/listing.algo'
 import type { Marketplace } from '../../../marketplace/marketplace.algo'
 import type { PrizeBox } from '../../../prize-box/contract.algo'
-import { AkitaBaseContract } from '../../../utils/base-contracts/base'
+import { AkitaBaseContract } from '../../../utils/base-contracts/upgradeable'
 
 
 export class MarketplacePlugin extends AkitaBaseContract {
@@ -49,9 +48,9 @@ export class MarketplacePlugin extends AkitaBaseContract {
     name: string,
     proof: Proof,
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, ERR_NOT_ENOUGH_ASSET)
+    loggedAssert(AssetHolding.assetBalance(sender, asset)[0] >= assetAmount, errNotEnoughAsset)
 
     if (!this.factory.value.address.isOptedIn(Asset(asset))) {
       const optinMBR = abiCall<typeof Marketplace.prototype.optInCost>({
@@ -95,29 +94,12 @@ export class MarketplacePlugin extends AkitaBaseContract {
       })
     }
 
-    const isAlgoPayment = paymentAsset === 0
-    const optinMBR: uint64 = isAlgoPayment ? Global.assetOptInMinBalance : Global.assetOptInMinBalance * 2
-
-    const listing = compileArc4(Listing)
-
-    let disbursementMBR: uint64 = disbursementCost(1) + rewardsOptInCost(this.akitaDAO.value, asset)
-    if (isAlgoPayment) {
-      disbursementMBR += disbursementCost(1)
-    } else {
-      disbursementMBR += disbursementCost(5) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
-    }
-
-    const escrowOptInCost: uint64 = isAlgoPayment
-      ? 0
-      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.factory.value.address, Asset(paymentAsset))
-
-    const childAppMBR: uint64 = Global.minBalance + optinMBR + disbursementMBR + escrowOptInCost
-    const childContractMBR: uint64 = (
-      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
-      (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
-      childAppMBR
-    )
+    // the factory quotes its own exact cost (after any opt-ins above have landed)
+    const childContractMBR = abiCall<typeof Marketplace.prototype.listCost>({
+      sender,
+      appId: this.factory.value,
+      args: [asset, paymentAsset, false]
+    }).returnValue
 
     return abiCall<typeof Marketplace.prototype.list>({
       sender,
@@ -142,6 +124,8 @@ export class MarketplacePlugin extends AkitaBaseContract {
         marketplace,
         name,
         proof,
+        // principal resolution invariant 6: hint exactly the wallet whose window this call serves
+        windowHint(wallet),
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
       fee: 0,
@@ -159,9 +143,9 @@ export class MarketplacePlugin extends AkitaBaseContract {
     gateID: uint64,
     marketplace: Account
   ): uint64 {
-    const sender = getSpendingAccount(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, ERR_NOT_PRIZE_BOX_OWNER)
+    loggedAssert(getPrizeBoxOwner(this.akitaDAO.value, prizeBox) === sender, errNotPrizeBoxOwner)
 
     const prizeBoxTransferTxn = itxn.applicationCall({
       sender,
@@ -194,29 +178,11 @@ export class MarketplacePlugin extends AkitaBaseContract {
       })
     }
 
-    const isAlgoPayment = paymentAsset === 0
-    const optinMBR: uint64 = isAlgoPayment ? 0 : Global.assetOptInMinBalance
-    const listing = compileArc4(Listing)
-    let disbursementMBR: uint64 = 0
-    if (isAlgoPayment) {
-      disbursementMBR = disbursementCost(1)
-    } else {
-      disbursementMBR = disbursementCost(4) + rewardsOptInCost(this.akitaDAO.value, paymentAsset)
-    }
-
-    const escrowOptInCost: uint64 = isAlgoPayment
-      ? 0
-      : Global.assetOptInMinBalance * splitOptInCount(this.akitaDAO.value, this.factory.value.address, Asset(paymentAsset))
-
-    const childContractMBR: uint64 = (
-      MIN_PROGRAM_PAGES * (1 + listing.extraProgramPages) +
-      (GLOBAL_STATE_KEY_UINT_COST * listing.globalUints) +
-      (GLOBAL_STATE_KEY_BYTES_COST * listing.globalBytes) +
-      Global.minBalance +
-      optinMBR +
-      disbursementMBR +
-      escrowOptInCost
-    )
+    const childContractMBR = abiCall<typeof Marketplace.prototype.listCost>({
+      sender,
+      appId: this.factory.value,
+      args: [0, paymentAsset, true]
+    }).returnValue
 
     return abiCall<typeof Marketplace.prototype.listPrizeBox>({
       sender,
@@ -234,6 +200,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
         reservedFor,
         gateID,
         marketplace,
+        windowHint(wallet),
       ],
       rekeyTo: rekeyAddress(rekeyBack, wallet),
       fee: 0,
@@ -245,13 +212,16 @@ export class MarketplacePlugin extends AkitaBaseContract {
     rekeyBack: boolean,
     appId: Application,
     marketplace: Account,
+    maxPrice: uint64,
     args: GateArgs
   ): void {
-    const { origin, sender } = getAccounts(wallet)
+    const sender = getControlledSpendingAccount(wallet)
 
-    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, errListingCreatorNotMarketplace)
 
+    // the price is read on-chain at execution: bound it by what the buyer agreed to pay
     const price = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyPrice))[0]
+    loggedAssert(price <= maxPrice, errPriceAboveMax)
     const paymentAsset = Asset(op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyPaymentAsset))[0])
 
     if (paymentAsset.id === 0) {
@@ -259,11 +229,13 @@ export class MarketplacePlugin extends AkitaBaseContract {
         const { gate } = getAkitaAppList(this.akitaDAO.value)
         const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
 
+        // the buyer's verified context, exactly what the target recomputes for windowHint(wallet)
+        const ctx = gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet))
         const gateTxn = itxn.applicationCall({
           appId: gate,
           appArgs: [
-            methodSelector(GateMustCheckAbiMethod),
-            origin,
+            methodSelector(GateMustCheckForAbiMethod),
+            encodeArc4(ctx),
             gateID,
             encodeArc4(args)
           ],
@@ -281,6 +253,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
             gateTxn,
             appId,
             marketplace,
+            windowHint(wallet),
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet)
         })
@@ -305,11 +278,13 @@ export class MarketplacePlugin extends AkitaBaseContract {
         const { gate } = getAkitaAppList(this.akitaDAO.value)
         const gateID = op.AppGlobal.getExUint64(appId, Bytes(ListingGlobalStateKeyGateID))[0]
 
+        // the buyer's verified context, exactly what the target recomputes for windowHint(wallet)
+        const ctx = gateCtx(pluginPrincipalOf(this.akitaDAO.value, wallet))
         const gateTxn = itxn.applicationCall({
           appId: gate,
           appArgs: [
-            methodSelector(GateMustCheckAbiMethod),
-            origin,
+            methodSelector(GateMustCheckForAbiMethod),
+            encodeArc4(ctx),
             gateID,
             encodeArc4(args)
           ],
@@ -327,7 +302,8 @@ export class MarketplacePlugin extends AkitaBaseContract {
             }),
             gateTxn,
             appId,
-            marketplace
+            marketplace,
+            windowHint(wallet),
           ],
           rekeyTo: rekeyAddress(rekeyBack, wallet)
         })
@@ -359,7 +335,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, errListingCreatorNotMarketplace)
 
     abiCall<typeof Listing.prototype.changePrice>({
       sender,
@@ -376,7 +352,7 @@ export class MarketplacePlugin extends AkitaBaseContract {
   ): void {
     const sender = getSpendingAccount(wallet)
 
-    loggedAssert(appId.creator === this.factory.value.address, ERR_LISTING_CREATOR_NOT_MARKETPLACE)
+    loggedAssert(appId.creator === this.factory.value.address, errListingCreatorNotMarketplace)
 
     abiCall<typeof Marketplace.prototype.delist>({
       sender,

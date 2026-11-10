@@ -1,13 +1,14 @@
 import * as algokit from '@algorandfoundation/algokit-utils'
 import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
-import { SigningAccount, TransactionSignerAccount, Address } from '@algorandfoundation/algokit-utils/types/account'
+import { SigningAccount, TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account';
+import { Address } from 'algosdk';
 import { beforeAll, describe, expect, test } from 'vitest'
 import { AuctionSDK } from 'akita-sdk/auction'
 import algosdk, { ALGORAND_ZERO_ADDRESS_STRING, getApplicationAddress } from 'algosdk'
 import { AkitaUniverse, buildAkitaUniverse } from '../../tests/fixtures/dao'
 import { getAccountBalance } from '../../tests/utils/balance'
 import { TimeWarp } from '../../tests/utils/time'
-import { MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
+import { MockRandomnessBeaconClient, MockRandomnessBeaconFactory } from '../artifacts/utils/types/MockRandomnessBeaconClient'
 
 algokit.Config.configure({ populateAppCallResources: true })
 
@@ -23,8 +24,8 @@ const ONE_MINUTE = 60
 const getBlockTimestamp = async (
   algorand: import('@algorandfoundation/algokit-utils').AlgorandClient,
 ): Promise<bigint> => {
-  const status = await algorand.client.algod.status()
-  const block = await algorand.client.algod.block(status.lastRound)
+  const status = await algorand.client.algod.status().do()
+  const block = await algorand.client.algod.block(status.lastRound).do()
   return BigInt(block.block.header.timestamp)
 }
 
@@ -32,10 +33,10 @@ const getBlockTimestamp = async (
 // needs per-auction state owns its own beforeAll, so tests inside a describe
 // can run in any order without depending on earlier sibling tests.
 describe('Auction SDK', () => {
-  let deployer: Address & TransactionSignerAccount
-  let seller: Address & TransactionSignerAccount
-  let bidder1: Address & TransactionSignerAccount
-  let bidder2: Address & TransactionSignerAccount
+  let deployer: TransactionSignerAccount
+  let seller: TransactionSignerAccount
+  let bidder1: TransactionSignerAccount
+  let bidder2: TransactionSignerAccount
   let akitaUniverse: AkitaUniverse
   let testAssetId: bigint
   let timeWarp: TimeWarp
@@ -44,6 +45,7 @@ describe('Auction SDK', () => {
       account: SigningAccount
     }
   let algorand: import('@algorandfoundation/algokit-utils').AlgorandClient
+  let mockBeacon: MockRandomnessBeaconClient
 
   beforeAll(async () => {
     await fixture.newScope()
@@ -60,17 +62,17 @@ describe('Auction SDK', () => {
     bidder1 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
     bidder2 = await ctx.generateAccount({ initialFunds: algokit.microAlgos(500_000_000) })
 
-    await algorand.account.ensureFunded(deployer.addr, dispenser, (2000).algo())
-    await algorand.account.ensureFunded(seller.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(bidder1.addr, dispenser, (500).algo())
-    await algorand.account.ensureFunded(bidder2.addr, dispenser, (500).algo())
+    await algorand.account.ensureFunded(deployer.addr, dispenser.addr, (2000).algo())
+    await algorand.account.ensureFunded(seller.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(bidder1.addr, dispenser.addr, (500).algo())
+    await algorand.account.ensureFunded(bidder2.addr, dispenser.addr, (500).algo())
 
     // Deploy mock VRF beacon for raffle testing
     const mockBeaconFactory = algorand.client.getTypedAppFactory(MockRandomnessBeaconFactory, {
       defaultSender: deployer.addr,
       defaultSigner: deployer.signer,
     })
-    const { appClient: mockBeacon } = await mockBeaconFactory.send.create.bare()
+    ;({ appClient: mockBeacon } = await mockBeaconFactory.send.create.bare())
 
     // Build the full Akita DAO universe (includes auctionFactory with escrow configured)
     akitaUniverse = await buildAkitaUniverse({
@@ -91,7 +93,7 @@ describe('Auction SDK', () => {
       assetName: 'Test NFT',
       unitName: 'TNFT',
     })
-    testAssetId = BigInt(assetCreateTxn.confirmation.assetId!)
+    testAssetId = BigInt(assetCreateTxn.confirmation.assetIndex!)
 
     // Opt all accounts into the test asset
     for (const account of [seller, bidder1, bidder2]) {
@@ -114,7 +116,7 @@ describe('Auction SDK', () => {
     // Fund the auction factory to cover auction creation MBR
     await algorand.account.ensureFunded(
       akitaUniverse.auctionFactory.client.appAddress,
-      dispenser,
+      dispenser.addr,
       (100).algo(),
     )
 
@@ -309,7 +311,7 @@ describe('Auction SDK', () => {
   // ==========================================================================
   describe('Raffle Auction (bidFee > 0)', () => {
     let raffleAuction: AuctionSDK
-    let raffleBidders: Address & TransactionSignerAccount[] = []
+    let raffleBidders: TransactionSignerAccount[] = []
     const NUM_BIDDERS = 40 // Enough to require multiple findWinner iterations even with max iterationAmount
     const BID_FEE = 1000n // 10% fee (in hundredths: 1000 = 10.00%)
     let raffleAssetId: bigint
@@ -323,7 +325,7 @@ describe('Auction SDK', () => {
         const bidder = await fixture.context.generateAccount({
           initialFunds: algokit.microAlgos(100_000_000),
         })
-        await algorand.account.ensureFunded(bidder.addr, dispenser, (100).algo())
+        await algorand.account.ensureFunded(bidder.addr, dispenser.addr, (100).algo())
         raffleBidders.push(bidder)
       }
 
@@ -336,7 +338,7 @@ describe('Auction SDK', () => {
         assetName: 'Raffle NFT',
         unitName: 'RNFT',
       })
-      raffleAssetId = BigInt(assetCreateTxn.confirmation.assetId!)
+      raffleAssetId = BigInt(assetCreateTxn.confirmation.assetIndex!)
 
       // Transfer to seller
       await algorand.send.assetOptIn({
@@ -424,15 +426,26 @@ describe('Auction SDK', () => {
       // Time warp to after auction ends
       await timeWarp.timeWarp(BigInt(ONE_DAY + 100))
 
-      // Raffle call - sets raffleRound to (current round - 8) and draws winning ticket
-      // The mock VRF beacon returns deterministic random data
+      // AR-01 commit-reveal: the first call commits to a future round (no ticket yet)
+      await raffleAuction.raffle({
+        sender: deployer.addr,
+        signer: deployer.signer,
+      })
+
+      const committed = await raffleAuction.state()
+      expect(committed.raffleRound).toBeGreaterThan(0n)
+      expect(committed.winningTicket).toBe(0n)
+
+      // advance past the committed round's beacon availability, then draw
+      const ready = await raffleAuction.drawReadyRound()
+      await timeWarp.roundWarp(ready)
       await raffleAuction.raffle({
         sender: deployer.addr,
         signer: deployer.signer,
       })
 
       const state = await raffleAuction.state()
-      expect(state.raffleRound).toBeGreaterThan(0n)
+      expect(state.raffleRound).toBe(committed.raffleRound)
       expect(state.winningTicket).toBeGreaterThan(0n)
     })
 
@@ -476,7 +489,10 @@ describe('Auction SDK', () => {
       // Should have required multiple transaction groups to test cursor iteration
       // With 39 participants and 16 per iteration, we need at least 2-3 calls
       // This tests both: maximum iterationAmount per group (16) AND multiple groups
-      expect(attempts).toBeGreaterThanOrEqual(2)
+      // With the winner's weight excluded (AR-02) the ticket can land in the first window,
+      // so a single call may already find the winner; the search must finish within the
+      // ceil(39 / 16) = 3 windows either way.
+      expect(attempts).toBeGreaterThanOrEqual(1)
       expect(attempts).toBeLessThanOrEqual(3)
     })
 
@@ -537,6 +553,418 @@ describe('Auction SDK', () => {
       // Non-participant should show as not having bid
       const hasBid = await raffleAuction.hasBid({ address: deployer.addr.toString() })
       expect(hasBid).toBe(false)
+    })
+  })
+
+  // ==========================================================================
+  // Audit 2026-10 regressions (AR-01 … AR-13)
+  // ==========================================================================
+  describe('Audit 2026-10 regressions', () => {
+    const ZERO = ALGORAND_ZERO_ADDRESS_STRING
+    const BID_FEE = 1_000n // 1%
+    const BEACON_MAX_WAIT_ROUNDS = 1_000n
+
+    const factoryAddress = () => akitaUniverse.auctionFactory.client.appAddress.toString()
+
+    const newAccount = async (algo: number) => {
+      const account = await fixture.context.generateAccount({ initialFunds: algokit.microAlgos(algo * 1_000_000) })
+      await algorand.account.ensureFunded(account.addr, dispenser.addr, algo.algo())
+      return account
+    }
+
+    const optInTo = async (account: TransactionSignerAccount, assetId: bigint) => {
+      await algorand.send.assetOptIn({ sender: account.addr, signer: account.signer, assetId })
+    }
+
+    const newSeller = async () => {
+      const account = await newAccount(200)
+      await optInTo(account, testAssetId)
+      await algorand.send.assetTransfer({
+        sender: deployer.addr, signer: deployer.signer, assetId: testAssetId, amount: 1n, receiver: account.addr,
+      })
+      return account
+    }
+
+    const newBidder = async () => {
+      const account = await newAccount(50)
+      await optInTo(account, testAssetId)
+      return account
+    }
+
+    const createAuction = async (
+      owner: TransactionSignerAccount,
+      { bidFee = BID_FEE, startIn = 60n, duration = 3_600n, bidAssetId = 0n, startingBid = 1_000_000n, prizeAsset = testAssetId, weightsListCount = bidFee > 0n ? 3n : 0n }: {
+        bidFee?: bigint, startIn?: bigint, duration?: bigint, bidAssetId?: bigint, startingBid?: bigint, prizeAsset?: bigint, weightsListCount?: bigint
+      } = {},
+    ) => {
+      const now = await getBlockTimestamp(algorand)
+      return akitaUniverse.auctionFactory.newAuction({
+        sender: owner.addr,
+        signer: owner.signer,
+        isPrizeBox: false,
+        prizeAsset,
+        prizeAmount: 1n,
+        name: 'Regression Auction',
+        proof: [],
+        bidAssetId,
+        bidFee,
+        startingBid,
+        bidMinimumIncrease: 100_000n,
+        startTimestamp: now + startIn,
+        endTimestamp: now + duration,
+        gateId: 0n,
+        marketplace: owner.addr.toString(),
+        weightsListCount,
+      })
+    }
+
+    const bid = (auction: AuctionSDK, bidder: TransactionSignerAccount, amount: bigint) =>
+      auction.bid({ sender: bidder.addr, signer: bidder.signer, amount, marketplace: bidder.addr.toString() })
+
+    /** commit-reveal draw (AR-01): commit, wait for the beacon round, draw */
+    const draw = async (auction: AuctionSDK) => {
+      await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const state = await auction.state()
+      if (state.winningTicket === 0n && !state.rafflePrizeClaimed && state.raffleRound > 0n) {
+        await timeWarp.roundWarp(await auction.drawReadyRound())
+        await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+      }
+    }
+
+    const findWinner = async (auction: AuctionSDK): Promise<string> => {
+      for (let i = 0; i < 10; i++) {
+        const { raffleWinner } = await auction.state()
+        if (raffleWinner !== ZERO) return raffleWinner
+        await auction.findWinner({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 16n })
+      }
+      throw new Error('raffle winner not found')
+    }
+
+    /** refund every bid's MBR, clear the weights boxes and delete through the factory */
+    const cleanupAndDelete = async (auction: AuctionSDK, owner: TransactionSignerAccount) => {
+      const state = await auction.state()
+      if (state.bidID > 1n) {
+        await auction.refundMBR({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 16n })
+      }
+      if (state.weightsBoxCount > 0n) {
+        await auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: state.weightsBoxCount })
+      }
+      await akitaUniverse.auctionFactory.deleteAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
+    }
+
+    test('AR-01/02/03/05/13: commit-reveal draw, winner weight excluded, raffle prize claimed before refunds stays solvent, exact factory refund', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+      await bid(auction, a, 1_000_000n)
+      await bid(auction, b, 1_100_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      // AR-01: the first call only commits to a future round
+      await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const committed = await auction.state()
+      const { lastRound } = await algorand.client.algod.status().do()
+      expect(committed.winningTicket).toBe(0n)
+      expect(committed.raffleRound).toBeGreaterThan(lastRound)
+      // AR-02: the auction winner's weight was removed at commit
+      expect(committed.weightedBidTotal).toBe(1_000_000n)
+
+      // the committed round's beacon value is not available yet
+      await expect(auction.raffle({ sender: deployer.addr, signer: deployer.signer })).rejects.toThrow()
+
+      // TRADE-3: an empty beacon read before BEACON_MAX_WAIT_ROUNDS reverts and keeps the commitment
+      await mockBeacon.send.setEmpty({ args: { empty: true } })
+      try {
+        await timeWarp.roundWarp(await auction.drawReadyRound())
+        await expect(auction.raffle({ sender: deployer.addr, signer: deployer.signer }).then(() => 'revealed')).rejects.toThrow(/Bnrd/)
+        const kept = await auction.state()
+        expect(kept.raffleRound).toBe(committed.raffleRound)
+        expect(kept.vrfFailureCount).toBe(0n)
+
+        // after BEACON_MAX_WAIT_ROUNDS an empty read re-commits forward, never to an already-public round
+        await timeWarp.roundWarp(committed.raffleRound + BEACON_MAX_WAIT_ROUNDS)
+        await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const recommitted = await auction.state()
+        const status = await algorand.client.algod.status().do()
+        expect(recommitted.vrfFailureCount).toBe(1n)
+        expect(recommitted.winningTicket).toBe(0n)
+        expect(recommitted.raffleRound % 8n).toBe(0n)
+        expect(recommitted.raffleRound).toBeGreaterThan(status.lastRound)
+      } finally {
+        await mockBeacon.send.setEmpty({ args: { empty: false } })
+      }
+
+      await timeWarp.roundWarp(await auction.drawReadyRound())
+      await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+      expect((await auction.state()).winningTicket).toBeGreaterThan(0n)
+
+      // AR-02: only the losing bidder can win, whatever the ticket
+      expect(await findWinner(auction)).toBe(a.addr.toString())
+
+      // AR-03: claim the raffle prize before anyone is refunded; every refund must still succeed
+      const aBefore = await getAccountBalance(algorand, a.addr.toString())
+      await auction.claimRafflePrize({ sender: deployer.addr, signer: deployer.signer })
+      const aAfter = await getAccountBalance(algorand, a.addr.toString())
+      const losingFee = 10_000n // 1% of A's losing 1 ALGO bid; B's winning fee is not part of the pool
+      expect(aAfter - aBefore).toBeGreaterThan(0n)
+      expect(aAfter - aBefore).toBeLessThanOrEqual(losingFee)
+
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      const refundBefore = await getAccountBalance(algorand, a.addr.toString())
+      await cleanupAndDelete(auction, owner)
+      const refundAfter = await getAccountBalance(algorand, a.addr.toString())
+      // A gets the losing bid back minus the retained fee, plus its bid/address/location MBR
+      expect(refundAfter - refundBefore).toBeGreaterThanOrEqual(1_000_000n - losingFee)
+
+      // AR-13: the factory refunded exactly what it released (pooled balance untouched)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-02: a single-bidder fee auction settles without a raffle and can be deleted', async () => {
+      const owner = await newSeller()
+      const a = await newBidder()
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+      await bid(auction, a, 1_000_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+      const state = await auction.state()
+      expect(state.rafflePrizeClaimed).toBeTruthy()
+      expect(state.winningTicket).toBe(0n)
+      expect(state.raffleRound).toBe(0n)
+
+      await cleanupAndDelete(auction, owner)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-02: the current highest bidder cannot outbid itself in a fee auction', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+
+      await bid(auction, a, 1_000_000n)
+      await expect(bid(auction, a, 1_100_000n)).rejects.toThrow(/Cobs/)
+      // A may bid again once someone else is highest
+      await bid(auction, b, 1_100_000n)
+      await bid(auction, a, 1_200_000n)
+      expect((await auction.state()).highestBid).toBe(1_200_000n)
+    })
+
+    test('AR-02: fee auctions need a positive starting bid', async () => {
+      const owner = await newSeller()
+      await expect(createAuction(owner, { startingBid: 0n })).rejects.toThrow(/Sbrq/)
+    })
+
+    test('AR-04: an auction with no bids returns the prize to the seller and can be deleted', async () => {
+      const owner = await newSeller()
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(3_700n)
+
+      const prizeBefore = (await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      const prizeAfter = (await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance
+      expect(prizeAfter - prizeBefore).toBe(1n)
+
+      const state = await auction.state()
+      expect(state.prizeClaimed).toBeTruthy()
+      expect(state.rafflePrizeClaimed).toBeTruthy()
+
+      await cleanupAndDelete(auction, owner)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-04: the seller can cancel a fee auction before it starts (others cannot clear its weights)', async () => {
+      const owner = await newSeller()
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+      const auction = await createAuction(owner, { startIn: 7_200n, duration: 14_400n })
+
+      await expect(
+        auction.clearWeightsBoxes({ sender: deployer.addr, signer: deployer.signer, iterationAmount: 3n })
+      ).rejects.toThrow()
+
+      const sellerBefore = await getAccountBalance(algorand, owner.addr.toString())
+      const returned = await auction.clearWeightsBoxes({ sender: owner.addr, signer: owner.signer, iterationAmount: 3n })
+      expect(returned).toBe(3n * (await auction.mbr()).weights)
+      // AR-13: the weights MBR goes straight back to the funder
+      expect(await getAccountBalance(algorand, owner.addr.toString())).toBeGreaterThan(sellerBefore)
+
+      await akitaUniverse.auctionFactory.cancelAuction({ sender: owner.addr, signer: owner.signer, appId: auction.client.appId })
+      await expect(algorand.client.algod.getApplicationByID(auction.client.appId).do()).rejects.toThrow()
+      expect((await algorand.asset.getAccountInformation(owner.addr, testAssetId)).balance).toBe(1n)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-05/13: a claimed zero-fee ASA-prize auction can be deleted with an exact refund', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const factoryBefore = await getAccountBalance(algorand, factoryAddress())
+
+      const auction = await createAuction(owner, { bidFee: 0n })
+      await timeWarp.timeWarp(70n)
+      await bid(auction, a, 1_000_000n)
+      await bid(auction, b, 1_100_000n)
+      await timeWarp.timeWarp(3_700n)
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      expect((await algorand.asset.getAccountInformation(b.addr, testAssetId)).balance).toBe(1n)
+
+      await cleanupAndDelete(auction, owner)
+      expect(await getAccountBalance(algorand, factoryAddress())).toBe(factoryBefore)
+    })
+
+    test('AR-06: an ASA-bid auction settles and its protocol fee lands in the DAO revenue escrow', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+
+      const { assetId: bidAssetId } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000_000n, decimals: 0, assetName: 'Bid Token', unitName: 'BID',
+      })
+      for (const account of [owner, a, b]) await optInTo(account, bidAssetId)
+      for (const account of [a, b]) {
+        await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, assetId: bidAssetId, amount: 10_000_000n, receiver: account.addr })
+      }
+      await akitaUniverse.auctionFactory.optIn({ sender: deployer.addr, signer: deployer.signer, asset: bidAssetId })
+
+      const escrow = await akitaUniverse.dao.wallet.getEscrow('rev_auction')
+      const escrowAddress = getApplicationAddress(escrow.id)
+      const escrowBefore = (await algorand.asset.getAccountInformation(escrowAddress, bidAssetId)).balance
+
+      const auction = await createAuction(owner, { bidFee: 0n, bidAssetId })
+      await timeWarp.timeWarp(70n)
+      await auction.bid({ sender: a.addr, signer: a.signer, amount: 1_000_000n, marketplace: owner.addr.toString(), isAsa: true, bidAsset: bidAssetId })
+      await auction.bid({ sender: b.addr, signer: b.signer, amount: 2_000_000n, marketplace: owner.addr.toString(), isAsa: true, bidAsset: bidAssetId })
+      await timeWarp.timeWarp(3_700n)
+
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      const escrowAfter = (await algorand.asset.getAccountInformation(escrowAddress, bidAssetId)).balance
+      expect(escrowAfter).toBeGreaterThan(escrowBefore)
+      // the DAO app account never holds the bid asset
+      await expect(
+        algorand.asset.getAccountInformation(getApplicationAddress(akitaUniverse.dao.appId), bidAssetId)
+      ).rejects.toThrow()
+
+      await cleanupAndDelete(auction, owner)
+    })
+
+    test('AR-11: the prize cannot be the bid asset', async () => {
+      const owner = await newSeller()
+      await expect(createAuction(owner, { bidFee: 0n, bidAssetId: testAssetId })).rejects.toThrow(/Piba/)
+    })
+
+    test('AR-12: quoted bid MBR equals the actual min-balance increase', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+
+      const { bids, bidsByAddress, locations } = await auction.mbr()
+      const minBalance = async () =>
+        BigInt((await algorand.client.algod.accountInformation(auction.client.appAddress).do()).minBalance)
+
+      const before = await minBalance()
+      await bid(auction, a, 1_000_000n)
+      const afterFirst = await minBalance()
+      expect(afterFirst - before).toBe(bids + bidsByAddress + locations)
+
+      await bid(auction, b, 1_100_000n)
+      await bid(auction, a, 1_200_000n)
+      const afterRepeat = await minBalance()
+      // b: first bid (3 boxes); a's second bid: only a new bid box
+      expect(afterRepeat - afterFirst).toBe(bids + bidsByAddress + locations + bids)
+    })
+
+    test('TRADE-2: the factory rejects a prize ASA that has a clawback or freeze address', async () => {
+      const owner = await newSeller()
+      for (const role of ['clawback', 'freeze'] as const) {
+        const { assetId } = await algorand.send.assetCreate({
+          sender: owner.addr, signer: owner.signer, total: 1n, decimals: 0, assetName: `Seizable ${role}`, unitName: 'SZP', [role]: owner.addr,
+        })
+        await akitaUniverse.auctionFactory.optIn({ sender: deployer.addr, signer: deployer.signer, asset: BigInt(assetId) })
+        await expect(createAuction(owner, { prizeAsset: BigInt(assetId) }).then(() => 'created')).rejects.toThrow(/Pszb/)
+      }
+    })
+
+    test('TRADE-3: the draw commits to a stored beacon round and completes at the first allowed reveal', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const auction = await createAuction(owner)
+      await timeWarp.timeWarp(70n)
+      await bid(auction, a, 1_000_000n)
+      await bid(auction, b, 1_100_000n)
+      await timeWarp.timeWarp(3_700n)
+
+      // MainNet beacon timing: one value per multiple of 8, submitted 2 rounds later
+      await mockBeacon.send.setSubmitLag({ args: { lag: 2n } })
+      try {
+        // commit in a round ≡ 1 (mod 8), the residue whose reveal used to read empty forever
+        const { lastRound } = await algorand.client.algod.status().do()
+        const next = lastRound + 1n
+        await timeWarp.roundWarp(next + ((9n - (next % 8n)) % 8n) - 1n)
+        await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const committed = await auction.state()
+        expect(committed.raffleRound % 8n).toBe(0n)
+
+        // the reveal lands exactly in the first allowed round
+        await timeWarp.roundWarp((await auction.drawReadyRound()) - 1n)
+        await auction.raffle({ sender: deployer.addr, signer: deployer.signer })
+        const drawn = await auction.state()
+        expect(drawn.winningTicket).toBeGreaterThan(0n)
+        expect(drawn.raffleRound).toBe(committed.raffleRound)
+        expect(drawn.vrfFailureCount).toBe(0n)
+      } finally {
+        await mockBeacon.send.setSubmitLag({ args: { lag: 0n } })
+      }
+    })
+
+    test('TRADE-4: a zero-fee auction cannot be charged for weights boxes', async () => {
+      const owner = await newSeller()
+      await expect(createAuction(owner, { bidFee: 0n, weightsListCount: 3n }).then(() => 'created')).rejects.toThrow(/Wnbf/)
+    })
+
+    test('TRADE-5: a bidder that opted out of the bid asset blocks neither refunds, the raffle prize nor deletion', async () => {
+      const owner = await newSeller()
+      const [a, b] = [await newBidder(), await newBidder()]
+      const { assetId } = await algorand.send.assetCreate({
+        sender: deployer.addr, signer: deployer.signer, total: 1_000_000_000n, decimals: 0, assetName: 'Opt-out Bid', unitName: 'OOB',
+      })
+      const bidAssetId = BigInt(assetId)
+      for (const account of [owner, a, b]) await optInTo(account, bidAssetId)
+      for (const account of [a, b]) {
+        await algorand.send.assetTransfer({ sender: deployer.addr, signer: deployer.signer, assetId: bidAssetId, amount: 10_000_000n, receiver: account.addr })
+      }
+      await akitaUniverse.auctionFactory.optIn({ sender: deployer.addr, signer: deployer.signer, asset: bidAssetId })
+
+      const auction = await createAuction(owner, { bidAssetId })
+      await timeWarp.timeWarp(70n)
+      await auction.bid({ sender: a.addr, signer: a.signer, amount: 1_000_000n, marketplace: owner.addr.toString(), isAsa: true, bidAsset: bidAssetId })
+      await auction.bid({ sender: b.addr, signer: b.signer, amount: 2_000_000n, marketplace: owner.addr.toString(), isAsa: true, bidAsset: bidAssetId })
+      await algorand.send.assetOptOut({ sender: a.addr, signer: a.signer, assetId: bidAssetId, creator: deployer.addr, ensureZeroBalance: false })
+      await timeWarp.timeWarp(3_700n)
+
+      await auction.claimPrize({ sender: deployer.addr, signer: deployer.signer })
+      await draw(auction)
+      expect(await findWinner(auction)).toBe(a.addr.toString())
+
+      const rewardsAddress = getApplicationAddress(akitaUniverse.rewards.appId)
+      const rewardsHolding = async () => {
+        const info = await algorand.account.getInformation(rewardsAddress)
+        return info.assets?.find((holding) => holding.assetId === bidAssetId)?.amount ?? 0n
+      }
+      const rewardsBefore = await rewardsHolding()
+      await auction.claimRafflePrize({ sender: deployer.addr, signer: deployer.signer })
+      await cleanupAndDelete(auction, owner)
+
+      // A's losing bid (minus its 1% fee) and its raffle prize wait for A as Rewards disbursements
+      expect(await rewardsHolding() - rewardsBefore).toBeGreaterThan(990_000n)
     })
   })
 })

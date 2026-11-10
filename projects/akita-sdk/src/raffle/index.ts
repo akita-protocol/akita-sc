@@ -1,4 +1,5 @@
 import { microAlgo } from "@algorandfoundation/algokit-utils";
+import algosdk from "algosdk";
 import { BaseSDK } from "../base";
 import {
   RaffleClient,
@@ -7,6 +8,7 @@ import {
   EntryData,
 } from '../generated/RaffleClient';
 import { MaybeSigner, NewContractSDKParams } from "../types";
+import type { GateCtx } from "../principal";
 import {
   EnterParams,
   AddParams,
@@ -19,10 +21,43 @@ import {
   GetEntryWithTicketsByAddressParams,
   RaffleMbrData,
   EntryWithTickets,
+  SetMinEntriesParams,
 } from "./types";
+
+/** rounds between the commit round and the round its beacon value can be read */
+export const RAFFLE_BEACON_LAG_ROUNDS = 4n;
 
 /** The number of entries stored in each weights box */
 const CHUNK_SIZE = 4096n;
+
+/** Global key whose existence marks a raffle child with the principal ABI (spec §6.8). */
+export const RAFFLE_SELLER_REFERRER_KEY = 'seller_referrer';
+
+/**
+ * `getState` of raffles created before principal resolution (no `seller_referrer`; every live MainNet
+ * raffle). The audit ride-along appended `minEntries`, `failed` and `raffleRound` to the return tuple,
+ * so the selector changed and old children do not route the new one (compat finding 2).
+ */
+export const RAFFLE_LEGACY_GET_STATE = 'getState()(uint64,uint64,uint64,address,uint64,uint64,uint64,uint64,uint64,address,uint64,bool,uint64,uint64,uint64,uint64)';
+
+const LEGACY_RAFFLE_STATE_FIELDS = [
+  'ticketAsset', 'startTimestamp', 'endTimestamp', 'seller', 'minTickets', 'maxTickets', 'entryCount', 'ticketCount',
+  'winningTicket', 'winner', 'prize', 'prizeClaimed', 'gateId', 'vrfFailureCount', 'entryId', 'refundMbrCursor',
+] as const;
+
+/**
+ * `RaffleSDK.state()` result. `legacyAbi` is true for a pre-principal raffle: it has no `minEntries`,
+ * `failed` or `raffleRound`, so those read `0n` / `false` / `0n` (it settles with at least one entry).
+ */
+export type RaffleSdkState = RaffleState & { legacyAbi: boolean };
+
+/**
+ * The gate context a hinted raffle method verifies for a DIRECT (top-level) caller, who can only
+ * hint 0: `{ principal: sender, wallet: 0, spender: sender }`. Pass it to `GateSDK.build.mustCheckFor`.
+ */
+export function raffleDirectGateCtx(sender: string): GateCtx {
+  return { principal: sender, wallet: 0n, spender: sender };
+}
 
 export * from "./errors";
 export * from "./factory";
@@ -43,14 +78,62 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
   /**
    * Gets the current state of the raffle.
    */
-  async state(): Promise<RaffleState> {
+  async state(): Promise<RaffleSdkState> {
+    if (!(await this.usesPrincipalAbi())) {
+      return this.legacyState();
+    }
+
     const { return: state } = await this.client.send.getState({ args: {} });
 
     if (state === undefined) {
       throw new Error('Failed to get raffle state');
     }
 
-    return state;
+    return { ...state, legacyAbi: false };
+  }
+
+  /** Reads a pre-principal raffle through its deployed `getState` selector (simulated, not sent). */
+  private async legacyState(): Promise<RaffleSdkState> {
+    const reader = this.getReaderSendParams();
+    const result = await this.client.algorand.newGroup()
+      .addAppCallMethodCall({
+        ...reader,
+        sender: reader.sender!,
+        appId: this.client.appId,
+        method: algosdk.ABIMethod.fromSignature(RAFFLE_LEGACY_GET_STATE),
+        args: [],
+      })
+      .simulate({ allowUnnamedResources: true, skipSignatures: true });
+    const returns = result.returns ?? [];
+    const tuple = returns[returns.length - 1]?.returnValue;
+    if (!Array.isArray(tuple) || tuple.length !== LEGACY_RAFFLE_STATE_FIELDS.length) {
+      throw new Error('Failed to get raffle state');
+    }
+    const state = Object.fromEntries(LEGACY_RAFFLE_STATE_FIELDS.map((field, i) => [field, tuple[i]]));
+    return { ...(state as Omit<RaffleState, 'minEntries' | 'failed' | 'raffleRound'>), minEntries: 0n, failed: false, raffleRound: 0n, legacyAbi: true };
+  }
+
+  /**
+   * Whether this raffle has the principal ABI (created by the Phase 2 factory: it holds
+   * `seller_referrer`). Gated calls then take the hinted overloads and a `Gate.mustCheckFor` gate txn;
+   * older raffles keep the pre-principal gated methods and `Gate.mustCheck` (subject: the sender).
+   */
+  async usesPrincipalAbi(): Promise<boolean> {
+    const state = await this.client.appClient.getGlobalState();
+    return state[RAFFLE_SELLER_REFERRER_KEY] !== undefined;
+  }
+
+  /**
+   * Creation-time referrer of the seller's verified wallet, paid when the prize is claimed
+   * ('' on raffles created before the principal ABI).
+   */
+  async sellerReferrer(): Promise<string> {
+    const state = await this.client.appClient.getGlobalState();
+    const value = state[RAFFLE_SELLER_REFERRER_KEY];
+    if (value === undefined || !('valueRaw' in value)) {
+      return '';
+    }
+    return algosdk.encodeAddress(value.valueRaw);
   }
 
   /**
@@ -240,6 +323,7 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     marketplace,
     isAsa = false,
     gateTxn,
+    wallet = 0n,
     ...rest
   }: EnterParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
@@ -249,6 +333,9 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     const mbrCost = mbrData.entries + mbrData.entriesByAddress;
 
     const group = this.client.newGroup();
+    // hinted overloads only on principal-ABI raffles, and only for a non-`mustCheck` gate txn (callers
+    // that still build Gate.mustCheck keep the registry semantics through the legacy shims)
+    const principalAbi = gateTxn !== undefined && gateTxn.method.name !== 'mustCheck' && await this.usesPrincipalAbi();
 
     if (isAsa) {
       const { ticketAsset } = rest as Extract<EnterParams, { isAsa: true }>;
@@ -266,8 +353,14 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedEnterAsa({
+      if (gateTxn && principalAbi) {
+        group.gatedEnterAsaApplPayAxferAddressUint64Void({
+          ...sendParams,
+          args: { gateTxn, payment, assetXfer, marketplace, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI
+        group.gatedEnterAsaApplPayAxferAddressVoid({
           ...sendParams,
           args: { gateTxn, payment, assetXfer, marketplace },
         });
@@ -284,8 +377,14 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedEnter({
+      if (gateTxn && principalAbi) {
+        group.gatedEnterApplPayAddressUint64Void({
+          ...sendParams,
+          args: { gateTxn, payment, marketplace, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI
+        group.gatedEnterApplPayAddressVoid({
           ...sendParams,
           args: { gateTxn, payment, marketplace },
         });
@@ -310,11 +409,15 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
     amount,
     isAsa = false,
     gateTxn,
+    wallet = 0n,
     ...rest
   }: AddParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     const group = this.client.newGroup();
+    // hinted overloads only on principal-ABI raffles, and only for a non-`mustCheck` gate txn (callers
+    // that still build Gate.mustCheck keep the registry semantics through the legacy shims)
+    const principalAbi = gateTxn !== undefined && gateTxn.method.name !== 'mustCheck' && await this.usesPrincipalAbi();
 
     if (isAsa) {
       const { ticketAsset } = rest as Extract<AddParams, { isAsa: true }>;
@@ -326,8 +429,14 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedAddAsa({
+      if (gateTxn && principalAbi) {
+        group.gatedAddAsaApplAxferUint64Void({
+          ...sendParams,
+          args: { gateTxn, assetXfer, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI
+        group.gatedAddAsaApplAxferVoid({
           ...sendParams,
           args: { gateTxn, assetXfer },
         });
@@ -344,8 +453,14 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
         receiver: this.client.appAddress,
       });
 
-      if (gateTxn) {
-        group.gatedAdd({
+      if (gateTxn && principalAbi) {
+        group.gatedAddApplPayUint64Void({
+          ...sendParams,
+          args: { gateTxn, payment, wallet: BigInt(wallet) },
+        });
+      } else if (gateTxn) {
+        // legacy child (no seller_referrer) or a Gate.mustCheck gate txn: pre-principal ABI
+        group.gatedAddApplPayVoid({
           ...sendParams,
           args: { gateTxn, payment },
         });
@@ -361,8 +476,31 @@ export class RaffleSDK extends BaseSDK<RaffleClient> {
   }
 
   /**
-   * Triggers the raffle to draw the winning ticket number.
-   * Can only be called after the raffle has ended.
+   * Sets the minimum number of entries needed for the raffle to be drawn.
+   * Seller only, before anyone has entered.
+   */
+  async setMinEntries({ sender, signer, minEntries }: SetMinEntriesParams): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    await this.client.send.setMinEntries({
+      ...sendParams,
+      args: { minEntries },
+    });
+  }
+
+  /**
+   * Round from which the committed draw can be completed (`raffleRound + 4`), or 0n if nothing has
+   * been committed yet. `raffleRound` is a multiple of 8, the rounds the beacon stores.
+   */
+  async drawReadyRound(): Promise<bigint> {
+    const { raffleRound } = await this.state();
+    return raffleRound === 0n ? 0n : raffleRound + RAFFLE_BEACON_LAG_ROUNDS;
+  }
+
+  /**
+   * Two-phase draw (commit-reveal). After the end, the first call either settles the raffle
+   * (below minimum participation: prize back to the seller; one ticket: that ticket wins) or
+   * commits to a future round. Call again once the chain reaches `drawReadyRound()` to draw.
    */
   async raffle(params?: MaybeSigner): Promise<void> {
     const sendParams = this.getSendParams(params);

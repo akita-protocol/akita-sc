@@ -12,6 +12,8 @@ import {
   AcceptParams,
   EscrowParams,
   DisburseParams,
+  DisburseFromParams,
+  DisburseAllParams,
   CancelParams,
   WithdrawParams,
   OptInParams,
@@ -22,6 +24,8 @@ import {
 
 export * from "./errors";
 export * from "./types";
+export * from "./roots";
+export * from "./terms";
 
 export type HyperSwapContractArgs = HyperSwapArgs["obj"];
 
@@ -74,6 +78,15 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
       acceptances: offer.acceptances,
       expiration: offer.expiration,
     };
+  }
+
+  /**
+   * The terms commitment the contract expects for an offer. Use it only to cross-check:
+   * participants must derive `terms` themselves with `validateOffer`.
+   */
+  async offerTerms({ id }: GetOfferParams): Promise<Uint8Array> {
+    const result = await this.client.offerTerms({ args: { id } });
+    return new Uint8Array(result);
   }
 
   // ========== Write Methods ==========
@@ -137,9 +150,10 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
   }
 
   /**
-   * Accepts an offer as a participant.
+   * Accepts an offer as a participant. `terms` must come from `validateOffer`, computed against
+   * the full leaf and participant lists, so an offer that under-declares its leaves is refused.
    */
-  async accept({ sender, signer, id, proof }: AcceptParams): Promise<void> {
+  async accept({ sender, signer, id, proof, terms }: AcceptParams): Promise<void> {
     const sendParams = this.getRequiredSendParams({ sender, signer });
 
     const mbrData = await this.mbr();
@@ -156,6 +170,7 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
         mbrPayment,
         id,
         proof,
+        terms,
       },
     });
   }
@@ -181,10 +196,24 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
     if (isAsa) {
       const { asset } = rest as Extract<EscrowParams, { isAsa: true }>;
 
-      // MBR includes potential arc59 costs if receiver not opted in
+      const group = this.client.newGroup();
+      const holdings = await this.client.algorand.account.getInformation(this.client.appAddress);
+      if (!holdings.assets?.some((holding) => holding.assetId === BigInt(asset))) {
+        group.optIn({
+          ...sendParams,
+          args: {
+            payment: this.client.algorand.createTransaction.payment({
+              ...sendParams, receiver: this.client.appAddress, amount: microAlgo(100_000),
+            }),
+            asset,
+          },
+        });
+      }
+      const recipient = await this.client.algorand.account.getInformation(receiver);
+      const recipientOptIn = recipient.assets?.some((holding) => holding.assetId === BigInt(asset)) ? 0n : 100_000n;
       const mbrPayment = await this.client.algorand.createTransaction.payment({
         ...sendParams,
-        amount: microAlgo(mbrData.hashes + 200_000n), // Extra for potential arc59
+        amount: microAlgo(mbrData.hashes + recipientOptIn),
         receiver: this.client.appAddress,
       });
 
@@ -195,7 +224,7 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
         receiver: this.client.appAddress,
       });
 
-      await this.client.send.escrowAsa({
+      group.escrowAsa({
         ...sendParams,
         args: {
           mbrPayment,
@@ -207,6 +236,7 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
           proof,
         },
       });
+      await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
     } else {
       const payment = await this.client.algorand.createTransaction.payment({
         ...sendParams,
@@ -247,6 +277,37 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
   }
 
   /**
+   * Disburses any escrowed leaf. Anyone may call this once the offer is DISBURSING.
+   */
+  async disburseFrom({ sender, signer, id, from, receiverWallet, receiver, asset, amount }: DisburseFromParams): Promise<void> {
+    const sendParams = this.getSendParams({ sender, signer });
+
+    await this.client.send.disburseFrom({
+      ...sendParams,
+      args: { id, from, receiverWallet, receiver, asset, amount },
+    });
+  }
+
+  /**
+   * Disburses every given leaf in one atomic group (at most 16), so either the whole swap
+   * settles or nothing moves and a stuck leaf leaves the offer cancellable.
+   */
+  async disburseAll({ sender, signer, id, leaves }: DisburseAllParams): Promise<void> {
+    if (leaves.length === 0) return;
+    if (leaves.length > 16) throw new Error('disburseAll supports at most 16 leaves per atomic group');
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const group = this.client.newGroup();
+    for (const { from, receiver, asset, amount, receiverWallet } of leaves) {
+      group.disburseFrom({
+        ...sendParams,
+        args: { id, from, receiverWallet: receiverWallet ?? 0n, receiver, asset, amount },
+      });
+    }
+    await group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true });
+  }
+
+  /**
    * Cancels an offer.
    */
   async cancel({ sender, signer, id, proof }: CancelParams): Promise<void> {
@@ -279,4 +340,3 @@ export class HyperSwapSDK extends BaseSDK<HyperSwapClient> {
     });
   }
 }
-

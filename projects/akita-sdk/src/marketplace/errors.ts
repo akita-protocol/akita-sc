@@ -10,14 +10,14 @@
  * human-readable message for display in a UI or log.
  */
 
-import { makeErrorTranslator } from '../errors'
+import { makeErrorTranslator, withErrorCodeAliases } from '../errors'
 
 /**
  * Short code → human-readable message for every error the Marketplace and
  * Listing contracts can emit. Ordered roughly the same way as the
  * contract-side file.
  */
-export const MARKETPLACE_ERROR_MESSAGES: Record<string, string> = {
+export const MARKETPLACE_ERROR_MESSAGES: Record<string, string> = withErrorCodeAliases({
   // --- Listing validation -------------------------------------------------
   PRLO: 'Lowest price is 4 units for divisibility',
   MNOP: 'Marketplace must be opted into payment asset',
@@ -34,10 +34,14 @@ export const MARKETPLACE_ERROR_MESSAGES: Record<string, string> = {
   RFDA: 'Reserved for a different address',
   MBSL: 'Must be the seller',
 
+  // --- Legacy-payment float (principal resolution) -------------------------
+  LFLT: 'Marketplace float reserve too low for a legacy-paid listing; pay the full listCost',
+
   // --- Marketplace plugin -------------------------------------------------
   NENA: 'Not enough of the asset',
   LCNM: 'Listing creator is not the marketplace',
-}
+  PAMX: 'Listing price is above the buyer maxPrice',
+})
 
 /**
  * Translates a short Marketplace error code (or raw ARC-65 log entry) into a

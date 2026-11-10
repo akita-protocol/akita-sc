@@ -1,0 +1,554 @@
+{
+  "name": "AuctionFactory",
+  "structs": {
+    "AuctionMBRData": [
+      {
+        "name": "bids",
+        "type": "uint64"
+      },
+      {
+        "name": "weights",
+        "type": "uint64"
+      },
+      {
+        "name": "bidsByAddress",
+        "type": "uint64"
+      },
+      {
+        "name": "locations",
+        "type": "uint64"
+      }
+    ],
+    "EscrowConfig": [
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "app",
+        "type": "uint64"
+      }
+    ]
+  },
+  "methods": [
+    {
+      "name": "create",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "string",
+          "name": "childVersion"
+        },
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        },
+        {
+          "type": "(string,uint64)",
+          "struct": "EscrowConfig",
+          "name": "akitaDAOEscrow"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [
+          "NoOp"
+        ],
+        "call": []
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newAuction",
+      "args": [
+        {
+          "type": "pay",
+          "name": "payment"
+        },
+        {
+          "type": "axfer",
+          "name": "assetXfer"
+        },
+        {
+          "type": "string",
+          "name": "name"
+        },
+        {
+          "type": "byte[32][]",
+          "name": "proof"
+        },
+        {
+          "type": "uint64",
+          "name": "bidAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "bidFee"
+        },
+        {
+          "type": "uint64",
+          "name": "startingBid"
+        },
+        {
+          "type": "uint64",
+          "name": "bidMinimumIncrease"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newPrizeBoxAuction",
+      "args": [
+        {
+          "type": "appl",
+          "name": "prizeBoxTransferTxn"
+        },
+        {
+          "type": "pay",
+          "name": "payment"
+        },
+        {
+          "type": "uint64",
+          "name": "bidAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "bidFee"
+        },
+        {
+          "type": "uint64",
+          "name": "startingBid"
+        },
+        {
+          "type": "uint64",
+          "name": "bidMinimumIncrease"
+        },
+        {
+          "type": "uint64",
+          "name": "startTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "endTimestamp"
+        },
+        {
+          "type": "uint64",
+          "name": "gateID"
+        },
+        {
+          "type": "address",
+          "name": "marketplace"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteAuctionApp",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "cancelAuction",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "appId"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "newAuctionCost",
+      "args": [
+        {
+          "type": "bool",
+          "name": "isPrizeBox"
+        },
+        {
+          "type": "uint64",
+          "name": "bidAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "prizeAssetID"
+        },
+        {
+          "type": "uint64",
+          "name": "weightsListCount"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "initBoxedContract",
+      "args": [
+        {
+          "type": "string",
+          "name": "version"
+        },
+        {
+          "type": "uint64",
+          "name": "size"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "loadBoxedContract",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "offset"
+        },
+        {
+          "type": "byte[]",
+          "name": "data"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "deleteBoxedContract",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "optIn",
+      "args": [
+        {
+          "type": "pay",
+          "name": "payment",
+          "desc": "The payment transaction covering MBR for all opt-ins"
+        },
+        {
+          "type": "uint64",
+          "name": "asset",
+          "desc": "The asset to opt into"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "desc": "optIn opts this contract into `asset`. When this contract has a\nnamed escrow configured (`akitaDAOEscrow.value.name !== ''`), it\nalso opts the escrow and every revenue-split recipient in through\nthe revenue-manager plugin — so downstream methods (subscribe,\nlist, etc.) can transfer to the escrow without doing the plugin-\nrekey dance mid-group.\n\nPayment must cover:\n  - this contract's own opt-in (1 × assetOptInMinBalance), plus\n  - each downstream opt-in the escrow still needs.\n`splitOptInCount` returns 0 once the escrow is already opted in, so\nthe charge collapses to just 1 × assetOptInMinBalance on repeat\ncalls and the escrow branch becomes a no-op.",
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "optInCost",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "asset"
+        }
+      ],
+      "returns": {
+        "type": "uint64"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAOEscrow",
+      "args": [
+        {
+          "type": "(string,uint64)",
+          "struct": "EscrowConfig",
+          "name": "config"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "update",
+      "args": [
+        {
+          "type": "string",
+          "name": "newVersion"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "UpdateApplication"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "updateAkitaDAO",
+      "args": [
+        {
+          "type": "uint64",
+          "name": "akitaDAO"
+        }
+      ],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "opUp",
+      "args": [],
+      "returns": {
+        "type": "void"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": false,
+      "events": [],
+      "recommendations": {}
+    },
+    {
+      "name": "mbr",
+      "args": [],
+      "returns": {
+        "type": "(uint64,uint64,uint64,uint64)",
+        "struct": "AuctionMBRData"
+      },
+      "actions": {
+        "create": [],
+        "call": [
+          "NoOp"
+        ]
+      },
+      "readonly": true,
+      "events": [],
+      "recommendations": {}
+    }
+  ],
+  "arcs": [
+    22,
+    28
+  ],
+  "networks": {},
+  "state": {
+    "schema": {
+      "global": {
+        "ints": 8,
+        "bytes": 56
+      },
+      "local": {
+        "ints": 0,
+        "bytes": 0
+      }
+    },
+    "keys": {
+      "global": {
+        "childContractVersion": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "Y2hpbGRfY29udHJhY3RfdmVyc2lvbg==",
+          "desc": "the current version of the child contract"
+        },
+        "akitaDAOEscrow": {
+          "keyType": "AVMString",
+          "valueType": "EscrowConfig",
+          "key": "YWtpdGFfZXNjcm93",
+          "desc": "the named DAO escrow this contract routes fees to (name + app)"
+        },
+        "version": {
+          "keyType": "AVMString",
+          "valueType": "AVMString",
+          "key": "dmVyc2lvbg==",
+          "desc": "the current version of the contract"
+        },
+        "akitaDAO": {
+          "keyType": "AVMString",
+          "valueType": "AVMUint64",
+          "key": "YWtpdGFfZGFv",
+          "desc": "the app ID of the Akita DAO"
+        }
+      },
+      "local": {},
+      "box": {
+        "boxedContract": {
+          "keyType": "AVMString",
+          "valueType": "AVMBytes",
+          "key": "YmM="
+        }
+      }
+    },
+    "maps": {
+      "global": {},
+      "local": {},
+      "box": {}
+    }
+  },
+  "bareActions": {
+    "create": [],
+    "call": []
+  },
+  "byteCode": {
+    "approval": "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",
+    "clear": "C4EBQw=="
+  },
+  "events": [],
+  "templateVariables": {}
+}

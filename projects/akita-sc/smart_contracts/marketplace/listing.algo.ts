@@ -2,15 +2,16 @@ import { Account, Application, Asset, clone, Global, GlobalState, gtxn, itxn, lo
 import { abiCall, abimethod } from '@algorandfoundation/algorand-typescript/arc4'
 import { classes } from 'polytype'
 import { MAX_UINT64 } from '../utils/constants'
-import { calcPercent, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPayment } from '../utils/functions'
+import { calcPercent, createInstantDisbursement, getNFTFees, getUserImpact, impactRange, sendReferralPaymentTo } from '../utils/functions'
 import { FunderInfo } from '../utils/types/mbr'
 import { RoyaltyAmounts } from '../utils/types/royalties'
-import { ListingGlobalStateKeyAkitaDAOEscrow, ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeySeller } from './constants'
-import { ERR_INVALID_EXPIRATION, ERR_INVALID_PAYMENT, ERR_INVALID_TRANSFER, ERR_LISTING_EXPIRED, ERR_MUST_BE_CALLED_FROM_FACTORY, ERR_MUST_BE_SELLER, ERR_ONLY_SELLER_CAN_DELIST, ERR_PAYMENT_ASSET_MUST_BE_ALGO, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO, ERR_RESERVED_FOR_DIFFERENT_ADDRESS } from './errors'
+import { ListingGlobalStateKeyAkitaDAOEscrow, ListingGlobalStateKeyCreatorRoyalty, ListingGlobalStateKeyExpiration, ListingGlobalStateKeyFactoryFloat, ListingGlobalStateKeyGateID, ListingGlobalStateKeyIsPrizeBox, ListingGlobalStateKeyMarketplace, ListingGlobalStateKeyMarketplaceRoyalties, ListingGlobalStateKeyPaymentAsset, ListingGlobalStateKeyPrice, ListingGlobalStateKeyPrize, ListingGlobalStateKeyPriceRound, ListingGlobalStateKeyPrizeAmount, ListingGlobalStateKeyReservedFor, ListingGlobalStateKeyRevision, ListingGlobalStateKeySeller, ListingGlobalStateKeySellerReferrer, ListingMinimumPrice, ListingPriceChangeCooldownRounds, ListingRevision } from './constants'
+import { errInvalidExpiration, errInvalidPayment, errInvalidTransfer, errListingExpired, errMustBeCalledFromFactory, errMustBeSeller, errOnlySellerCanDelist, errPaymentAssetMustBeAlgo, errPaymentAssetMustNotBeAlgo, errPriceRecentlyChanged, errPriceTooLow, errPrizeChanged, errReservedForDifferentAddress } from './errors'
 
 // CONTRACT IMPORTS
 import type { PrizeBox } from '../prize-box/contract.algo'
-import { AkitaBaseContract, EscrowConfig } from '../utils/base-contracts/base'
+import { AkitaBaseContract,  } from '../utils/base-contracts/upgradeable'
+import { EscrowConfig } from '../utils/base-contracts/base'
 import { ChildContract } from '../utils/base-contracts/child'
 import { ContractWithCreatorOnlyOptIn } from '../utils/base-contracts/optin'
 
@@ -55,6 +56,24 @@ export class Listing extends classes(
   marketplaceRoyalties = GlobalState<uint64>({ key: ListingGlobalStateKeyMarketplaceRoyalties })
   /** the app ID for the akita DAO escrow */
   akitaDAOEscrow = GlobalState<EscrowConfig>({ key: ListingGlobalStateKeyAkitaDAOEscrow })
+  /** the amount of the prize asset escrowed at listing time (0 for prize boxes) */
+  prizeAmount = GlobalState<uint64>({ key: ListingGlobalStateKeyPrizeAmount })
+  /** the round of the last price change (0 = never changed); purchases wait out a cooldown after it */
+  lastPriceRound = GlobalState<uint64>({ key: ListingGlobalStateKeyPriceRound })
+  /** program revision; absent on legacy listings so the factory can tell them apart */
+  rev = GlobalState<uint64>({ key: ListingGlobalStateKeyRevision })
+  /**
+   * the seller's referrer, fixed by the factory at creation (rev 3+): the verified principal's referrer
+   * on the hinted `list`, the registry referrer on the legacy shim. Settlement pays the referral cut
+   * here with no registry read. Zero address = no referral. (Rev-absent deployed listings never paid a
+   * seller referral: their registry lookup keyed on `Txn.sender`, which is always the factory.)
+   */
+  sellerReferrer = GlobalState<Account>({ key: ListingGlobalStateKeySellerReferrer })
+  /**
+   * rev 3+: the creation MBR the factory advanced for a legacy-paid listing (0 otherwise). The factory
+   * reads it before deletion and recovers it ahead of the funder refund; the Listing only stores it.
+   */
+  factoryFloat = GlobalState<uint64>({ key: ListingGlobalStateKeyFactoryFloat })
 
   // PRIVATE METHODS ------------------------------------------------------------------------------
 
@@ -88,6 +107,14 @@ export class Listing extends classes(
     }
   }
 
+  /** purchases must land strictly after the cooldown that follows a price change */
+  private assertPriceSettled(): void {
+    const last = this.lastPriceRound.value
+    if (last > 0) {
+      loggedAssert(Global.round > last + ListingPriceChangeCooldownRounds, errPriceRecentlyChanged)
+    }
+  }
+
   private transferPurchaseToBuyer(buyer: Account): void {
     if (this.isPrizeBox.value) {
       abiCall<typeof PrizeBox.prototype.transfer>({
@@ -98,6 +125,9 @@ export class Listing extends classes(
     }
 
     const prizeAsset = Asset(this.prize.value)
+    // the escrowed prize must be intact (e.g. not clawed back after listing); a donation on top
+    // goes to the buyer with the close-out (TRADE-6)
+    loggedAssert(prizeAsset.balance(Global.currentApplicationAddress) >= this.prizeAmount.value, errPrizeChanged)
 
     if (buyer.isOptedIn(prizeAsset)) {
       // transfer the purchase to the caller & opt out of the asset
@@ -113,7 +143,8 @@ export class Listing extends classes(
         MAX_UINT64,
         [{ address: buyer, amount: prizeAsset.balance(Global.currentApplicationAddress) }],
         prizeAsset.balance(Global.currentApplicationAddress),
-        true
+        true,
+        Global.zeroAddress
       )
     }
   }
@@ -125,7 +156,7 @@ export class Listing extends classes(
     // pay akita fee (referral + escrow)
     let leftover: uint64 = amounts.akita
     if (amounts.akita > 0) {
-      ({ leftover } = sendReferralPayment(this.akitaDAO.value, 0, amounts.akita))
+      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, 0, amounts.akita, this.akitaDAOEscrow.value.app.address))
     }
 
     itxn
@@ -188,7 +219,7 @@ export class Listing extends classes(
     // pay akita fee (referral + escrow)
     let leftover: uint64 = amounts.akita
     if (amounts.akita > 0) {
-      ({ leftover } = sendReferralPayment(this.akitaDAO.value, this.paymentAsset.value.id, amounts.akita))
+      ({ leftover } = sendReferralPaymentTo(this.akitaDAO.value, this.sellerReferrer.value, this.paymentAsset.value.id, amounts.akita, this.akitaDAOEscrow.value.app.address))
     }
 
     itxn
@@ -219,7 +250,8 @@ export class Listing extends classes(
           MAX_UINT64,
           [{ address: assetPrize.creator, amount: amounts.creator }],
           amounts.creator,
-          false
+          false,
+          Global.zeroAddress
         )
       }
     }
@@ -241,7 +273,8 @@ export class Listing extends classes(
         MAX_UINT64,
         [{ address: this.marketplace.value, amount: amounts.marketplace }],
         amounts.marketplace,
-        false
+        false,
+        Global.zeroAddress
       )
     }
 
@@ -262,7 +295,8 @@ export class Listing extends classes(
         MAX_UINT64,
         [{ address: marketplace, amount: amounts.marketplace }],
         amounts.marketplace,
-        false
+        false,
+        Global.zeroAddress
       )
     }
 
@@ -275,14 +309,17 @@ export class Listing extends classes(
         })
         .submit()
     } else {
+      // close the payment asset out into the seller's inbox so the listing can be deleted
+      const remaining = this.paymentAsset.value.balance(Global.currentApplicationAddress)
       createInstantDisbursement(
         this.akitaDAO.value,
         this.paymentAsset.value.id,
         0,
         MAX_UINT64,
-        [{ address: this.seller.value, amount: amounts.seller }],
-        amounts.seller,
-        false
+        [{ address: this.seller.value, amount: remaining }],
+        remaining,
+        true,
+        Global.zeroAddress
       )
     }
   }
@@ -305,15 +342,18 @@ export class Listing extends classes(
     marketplace: Account,
     version: string,
     akitaDAO: Application,
-    akitaDAOEscrow: EscrowConfig
+    akitaDAOEscrow: EscrowConfig,
+    prizeAmount: uint64,
+    sellerReferrer: Account,
+    factoryFloat: uint64
   ): void {
-    loggedAssert(Global.callerApplicationId !== 0, ERR_MUST_BE_CALLED_FROM_FACTORY)
+    loggedAssert(Global.callerApplicationId !== 0, errMustBeCalledFromFactory)
 
     this.prize.value = prize
     this.isPrizeBox.value = isPrizeBox
     this.price.value = price
     this.paymentAsset.value = Asset(paymentAsset)
-    loggedAssert(expiration === 0 || expiration > Global.latestTimestamp, ERR_INVALID_EXPIRATION)
+    loggedAssert(expiration === 0 || expiration > Global.latestTimestamp, errInvalidExpiration)
     this.expiration.value = expiration
     this.seller.value = seller
     this.funder.value = clone(funder)
@@ -324,6 +364,11 @@ export class Listing extends classes(
     this.version.value = version
     this.akitaDAO.value = akitaDAO
     this.akitaDAOEscrow.value = clone(akitaDAOEscrow)
+    this.prizeAmount.value = prizeAmount
+    this.lastPriceRound.value = 0
+    this.rev.value = ListingRevision
+    this.sellerReferrer.value = sellerReferrer
+    this.factoryFloat.value = factoryFloat
 
     // internal variables
     this.marketplaceRoyalties.value = getNFTFees(this.akitaDAO.value).marketplaceComposablePercentage
@@ -346,17 +391,18 @@ export class Listing extends classes(
     buyer: Account,
     marketplace: Account
   ): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(this.paymentAsset.value.id === 0, ERR_PAYMENT_ASSET_MUST_BE_ALGO)
-    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(this.paymentAsset.value.id === 0, errPaymentAssetMustBeAlgo)
+    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, errListingExpired)
+    this.assertPriceSettled()
 
     if (this.reservedFor.value !== Global.zeroAddress) {
-      loggedAssert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
+      loggedAssert(buyer === this.reservedFor.value, errReservedForDifferentAddress)
     }
 
-    loggedAssert(payment.sender === Global.creatorAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.receiver === Global.currentApplicationAddress, ERR_INVALID_PAYMENT)
-    loggedAssert(payment.amount === this.price.value, ERR_INVALID_PAYMENT)
+    loggedAssert(payment.sender === Global.creatorAddress, errInvalidPayment)
+    loggedAssert(payment.receiver === Global.currentApplicationAddress, errInvalidPayment)
+    loggedAssert(payment.amount === this.price.value, errInvalidPayment)
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAlgoPayments(marketplace)
@@ -372,23 +418,24 @@ export class Listing extends classes(
    * @throws {Error} - if the caller is not the reserved address
    * @throws {Error} - if the payment is not correct
    */
-  // @ts-ignore
-  @abimethod({ OnCompleteAction: 'DeleteApplication' })
+  @abimethod({ allowActions: 'DeleteApplication' })
   purchaseAsa(
     assetXfer: gtxn.AssetTransferTxn,
     buyer: Account,
     marketplace: Account
   ): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(this.paymentAsset.value.id !== 0, ERR_PAYMENT_ASSET_MUST_NOT_BE_ALGO)
-    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, ERR_LISTING_EXPIRED)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(this.paymentAsset.value.id !== 0, errPaymentAssetMustNotBeAlgo)
+    loggedAssert(this.expiration.value === 0 || this.expiration.value > Global.latestTimestamp, errListingExpired)
+    this.assertPriceSettled()
 
     if (this.reservedFor.value !== Global.zeroAddress) {
-      loggedAssert(buyer === this.reservedFor.value, ERR_RESERVED_FOR_DIFFERENT_ADDRESS)
+      loggedAssert(buyer === this.reservedFor.value, errReservedForDifferentAddress)
     }
 
-    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, ERR_INVALID_TRANSFER)
-    loggedAssert(assetXfer.assetAmount === this.price.value, ERR_INVALID_TRANSFER)
+    loggedAssert(assetXfer.xferAsset.id === this.paymentAsset.value.id, errInvalidTransfer)
+    loggedAssert(assetXfer.assetReceiver === Global.currentApplicationAddress, errInvalidTransfer)
+    loggedAssert(assetXfer.assetAmount === this.price.value, errInvalidTransfer)
 
     this.transferPurchaseToBuyer(buyer)
     this.completeAsaPayments(marketplace)
@@ -400,8 +447,8 @@ export class Listing extends classes(
   /** Deletes the app and returns the asset/mbr to the seller */
   @abimethod({ allowActions: 'DeleteApplication' })
   delist(caller: Account): void {
-    loggedAssert(Txn.sender === Global.creatorAddress, ERR_MUST_BE_CALLED_FROM_FACTORY)
-    loggedAssert(this.seller.value === caller, ERR_ONLY_SELLER_CAN_DELIST)
+    loggedAssert(Txn.sender === Global.creatorAddress, errMustBeCalledFromFactory)
+    loggedAssert(this.seller.value === caller, errOnlySellerCanDelist)
 
     const assetTransfer = itxn.assetTransfer({
       assetCloseTo: this.seller.value,
@@ -442,7 +489,9 @@ export class Listing extends classes(
   }
 
   changePrice(price: uint64): void {
-    loggedAssert(Txn.sender === this.seller.value, ERR_MUST_BE_SELLER)
+    loggedAssert(Txn.sender === this.seller.value, errMustBeSeller)
+    loggedAssert(price >= ListingMinimumPrice, errPriceTooLow)
     this.price.value = price
+    this.lastPriceRound.value = Global.round
   }
 }
