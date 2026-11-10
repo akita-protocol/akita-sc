@@ -1,0 +1,3528 @@
+{
+  "kind": "offline-planning-inventory",
+  "generatedAt": "2026-09-13T00:32:19.654Z",
+  "head": "e7f174eeb0a4be2e200aca32eb7bd5cced62fadd",
+  "targetNetwork": null,
+  "liveStateVerified": false,
+  "rebuildVerification": "Not performed by this inventory command; see runbook validation record.",
+  "scriptsExecutionVerified": false,
+  "limitations": [
+    "Working-tree artifacts only; HEAD is not deployed bytecode.",
+    "An update handler in candidate code does not prove the live contract can update.",
+    "Execution paths describe existing entry points, not approved or verified runnable commands.",
+    "Missing paths are intentional release blockers; this tool never deploys."
+  ],
+  "counts": {
+    "artifacts": 84,
+    "withUpdateHandler": 22,
+    "withoutUpdateHandler": 62,
+    "changedFromHead": 71,
+    "noHeadBaseline": 10,
+    "unreviewed": 0
+  },
+  "scriptsWithConditionalDryRun": [],
+  "logicSignatures": [
+    {
+      "file": "projects/akita-sc/smart_contracts/artifacts/arc58/keys/Ed25519Passkey.teal",
+      "sourceSha256": "512b7b9a6df3a270a41b276391463a4964e763e8d73527dfa2c6921aabd5cbd1",
+      "action": "Recompile and compare program/address; inventory delegation, wallet registrations and passkey integrations before rotation."
+    },
+    {
+      "file": "projects/akita-sc/smart_contracts/artifacts/arc58/keys/Secp256r1Passkey.teal",
+      "sourceSha256": "79eebc697d7a62af3cc072afa0228072f42653770ffe1a13e2c942a079fb4784",
+      "action": "Recompile and compare program/address; inventory delegation, wallet registrations and passkey integrations before rotation."
+    }
+  ],
+  "contracts": [
+    {
+      "name": "AbstractedAccount",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/account/AbstractedAccount.arc56.json",
+      "artifactSha256": "0386ab5f289c17021229c6f13656a658fa59f158a773b18f28b38d1aebbbd540",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7738,
+      "clearBytes": 4,
+      "totalBytes": 7742,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "6cf66b55d30ca5823370783248eb80a9695749b3b48a4188c031939c2dd2f66c",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 12,
+          "bytes": 30
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:wallet-factory; update:dao-wallet; update:automatic-wallets",
+      "notes": "bc upload only affects future wallets; inventory existing wallets and update policy separately.",
+      "reviewed": true
+    },
+    {
+      "name": "AbstractedAccountBalanceReader",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/account/AbstractedAccountBalanceReader.arc56.json",
+      "artifactSha256": "030f4667e14120a36b195f87c2015d334fc12d9dab1572cdf550594e87aa70d7",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 284,
+      "clearBytes": 4,
+      "totalBytes": 288,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "972c35dcfb69c9587ad5474f58d886a6e3e5b71bc35d8d9450fbb483091a1e06",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract AbstractedAccountBalanceReader",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "AbstractedAccountFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/account/AbstractedAccountFactory.arc56.json",
+      "artifactSha256": "53fe0e701fe03dde7e7b2a89f2f0b5d8c76e17042f70552d4289addb3a2404e5",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 3199,
+      "clearBytes": 4,
+      "totalBytes": 3203,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "c7246429e5a3cc53cbb452f15ccaa4380d006104e9039a41db1fe537735094d9",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:account-factory OR update:wallet-factory --update-factory",
+      "notes": "",
+      "reviewed": true
+    },
+    {
+      "name": "AbstractedAccountMBR",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/account/AbstractedAccountMBR.arc56.json",
+      "artifactSha256": "cf990ac5ce795c16d8f132c89c34135df2fb8bd068adb5f7b281a0c56a6a9fa9",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 304,
+      "clearBytes": 4,
+      "totalBytes": 308,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "fbccc9f99dede3bdd1ff6eedece06be74dba66dee56612ea6cfbe7a34f5e5c38",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": false,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:wallet-mbr",
+      "notes": "Missing automatic SDK walletMbr registration.",
+      "reviewed": true
+    },
+    {
+      "name": "AbstractedAccountUpdateStub",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/sunset/AbstractedAccountUpdateStub.arc56.json",
+      "artifactSha256": "2e4b786c944d3e38eb0ea7d4fd53796a641b9f8490b08950ffd3f4c5caf8150f",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 55,
+      "clearBytes": 4,
+      "totalBytes": 59,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d3fd6153a2536767172daa472573feb2d1a99ec758c4c2748f8111f7040ca964",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": false,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "not a routine deployment",
+      "notes": "ABI helper, temporary bootstrap, or terminal cleanup program; not part of the normal rollout.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaDAO",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/dao/AkitaDAO.arc56.json",
+      "artifactSha256": "f1f68babef51fe27153305d8f26824072319eb0e02c9710215901c2ef2fe600b",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7282,
+      "clearBytes": 4,
+      "totalBytes": 7286,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "fda97cbfce5ee5ea34f40d9086fd7bbc3b770d5a6d60875d5bfa4c39d866e164",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 5,
+          "bytes": 59
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:dao",
+      "notes": "Validator cutover and DAO upgrade must be compatible with the CURRENT wallet/DAO ABI.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaDAOPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/dao/AkitaDAOPlugin.arc56.json",
+      "artifactSha256": "4294e1fa4315efda5670f1e3681181b201a85cef9e1ce3b6f8a78f8fb23f80fd",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1348,
+      "clearBytes": 4,
+      "totalBytes": 1352,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "46fde1b25d7ebe922a9bee1b92f45f4f97ce3acd14a219913d05f954ae84f71c",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract AkitaDAOPlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaDAOProposalValidator",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/dao/AkitaDAOProposalValidator.arc56.json",
+      "artifactSha256": "85954cdfd054de5ed4e507ff3bf2520339c02a9677c654ed05cc4dfda499085a",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 3289,
+      "clearBytes": 4,
+      "totalBytes": 3293,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d63c7e1b046d84555c5d7f31169d6048239ab1de30ae10028e6d793f2c8d9be0",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:dao --validator-app-id",
+      "notes": "Fresh deployment in update:dao; persist ID before changing oal.daoProposalValidator.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaDAOTypes",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/dao/AkitaDAOTypes.arc56.json",
+      "artifactSha256": "ed7c340afec258814355d259a8c4fd52819c2dcd0e4e20abe8906cfb78eb1594",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 839,
+      "clearBytes": 4,
+      "totalBytes": 843,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "5340aa0892b6d45d15f9ea0e25eef808c073a3cd65a535374608ce5a748fdcb9",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": false,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "not a routine deployment",
+      "notes": "ABI helper, temporary bootstrap, or terminal cleanup program; not part of the normal rollout.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaReferrerGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/akita-referrer/AkitaReferrerGate.arc56.json",
+      "artifactSha256": "48be4d6e8a26daa6a262a4ef0d086f0d33623a15eae757742a4ee472bb0da2ea",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 623,
+      "clearBytes": 4,
+      "totalBytes": 627,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "517c00d4b5d614679a5af26345817b6c45df31968a0ea49b172d173467178fec",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract AkitaReferrerGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaSocial",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/social/AkitaSocial.arc56.json",
+      "artifactSha256": "94f3361a08ec9e1e311f485ca7a322efd8c9d93ff446fcc101e917bd68bfb599",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7849,
+      "clearBytes": 4,
+      "totalBytes": 7853,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "0993f5401259b3a506c5f6bc879bf2ab7a51556913834da9e5e2231423f518be",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:social --contracts social,socialGraph,socialImpact,socialModeration",
+      "notes": "Default command updates only social.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaSocialGraph",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/social/AkitaSocialGraph.arc56.json",
+      "artifactSha256": "665f1a5b13d7e1c401c2b6823ab0a5987b27f9bffb0561e5320c002ecbf2e2dd",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 1783,
+      "clearBytes": 4,
+      "totalBytes": 1787,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "31b50909b7304f824ce9a0bc4bede5c1abc8af348d9bd127937c460dbb47a245",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:social --contracts social,socialGraph,socialImpact,socialModeration",
+      "notes": "Default command updates only social.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaSocialImpact",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/social/AkitaSocialImpact.arc56.json",
+      "artifactSha256": "9a81ad77956bb0a272a146fd176843c24e7bd6bf790804cad7c66a6c08333ef5",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 2836,
+      "clearBytes": 4,
+      "totalBytes": 2840,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "78130b7e89e29808952f0f77ea2f7dfea0ca8a7c86f43f29c7fd717c32ec8737",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:social --contracts social,socialGraph,socialImpact,socialModeration",
+      "notes": "Default command updates only social.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaSocialModeration",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/social/AkitaSocialModeration.arc56.json",
+      "artifactSha256": "244a109878557bdbd14fe4085281d44cbca44a9d6eac4912153b80a1439ef79c",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 1066,
+      "clearBytes": 4,
+      "totalBytes": 1070,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "57eb020fb75317b3463f4023bedc5479f813bd02d7def63dc63c12a06fcf45b9",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:social --contracts social,socialGraph,socialImpact,socialModeration",
+      "notes": "Default command updates only social.",
+      "reviewed": true
+    },
+    {
+      "name": "AkitaSocialPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/social/AkitaSocialPlugin.arc56.json",
+      "artifactSha256": "695261b01720fa464a4ebcfa7f33c2f75319d50ae0b03d68356319be0ab95a2c",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 7118,
+      "clearBytes": 4,
+      "totalBytes": 7122,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "63b5ce1f5d2ce7062c9c2858fa66e8470a4d88f3df58d52bab31eccf31d4aee3",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:social-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "AsaManagerPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/asa-manager/AsaManagerPlugin.arc56.json",
+      "artifactSha256": "db8287db57506d0856d69ccc3a6f4cd83153f86a7078be9bffff687c0602157b",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 712,
+      "clearBytes": 4,
+      "totalBytes": 716,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "ed676d48d6b0c6c5c3fa12745e1486d455bbfcb9517172028174ae0228e79ec6",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:asa-manager-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "AssetGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/asset/AssetGate.arc56.json",
+      "artifactSha256": "0ff315a1fa01817de1a7216f457737dc60848da8bd4932119af30f742cdf6e17",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 632,
+      "clearBytes": 4,
+      "totalBytes": 636,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "29d4a603830b81e55121ddbfa88db8e26acac39a48f76e724f5a7592c5c4d13d",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract AssetGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "AssetInboxPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/asset-inbox/AssetInboxPlugin.arc56.json",
+      "artifactSha256": "97a8ba037bc214e42f0e01f1c1c0f9d0746c4184bc681cadad4cadbcb10925f6",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 356,
+      "clearBytes": 4,
+      "totalBytes": 360,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "be6e9803dd7534092747ca7de6bc6542a212769f11aba13e2c489e5ff60c46f6",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract AssetInboxPlugin",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "Auction",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/auction/Auction.arc56.json",
+      "artifactSha256": "3064e0a83e67a9f48dc847320fb2ce45b71bb623a4c5262b19f4213d6945c531",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7070,
+      "clearBytes": 4,
+      "totalBytes": 7074,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "4e48f3f930346cc7b912b7382544d3760ccd6f2fb6ff05ef516472b3d478d594",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 25,
+          "bytes": 10
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:children --kind <auction|raffle|staking-pool> --factory-id ID --app-ids IDS",
+      "notes": "Factory template updates do not update existing children. Paginated --all, creator/DAO/schema preflight and post-update verification.",
+      "reviewed": true
+    },
+    {
+      "name": "AuctionFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/auction/AuctionFactory.arc56.json",
+      "artifactSha256": "442e7bcaca19b28e1068e9004e4e4b638e9a2ec47f1ae276b15fb85a473b2975",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 3387,
+      "clearBytes": 4,
+      "totalBytes": 3391,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "3b2bb3f13f4a247249720e61fe940d7b4bc30f8a71b069065bc6174342624a74",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:auction",
+      "notes": "Updates app and boxed Auction approval. update:auction-factory updates only the app.",
+      "reviewed": true
+    },
+    {
+      "name": "AuctionPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/auction/AuctionPlugin.arc56.json",
+      "artifactSha256": "4ca01946df05fbe62668e2e10ccfea178d6b35699fee76e27fd55bf58d725801",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2903,
+      "clearBytes": 4,
+      "totalBytes": 2907,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "5dec6824f3a909bfd72268599fa01a7fccd2f682c495dd603f45816cd1c4d98a",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:auction-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "DualStakePlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/dual-stake/DualStakePlugin.arc56.json",
+      "artifactSha256": "a0feb963d4a43110252fba2324406b0e81e32047f28ad49a8163b1daa6657e18",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 570,
+      "clearBytes": 4,
+      "totalBytes": 574,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "92e7e2ddf0e94f64400b709efbaa1ec670febc8a978833d180b757ddaba61252",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:dual-stake-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "Escrow",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/escrow/Escrow.arc56.json",
+      "artifactSha256": "3719a4a772a4d1de54d4f3cb4757a62e7a797b232fca3c05a7ba9846292aa75b",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 179,
+      "clearBytes": 4,
+      "totalBytes": 183,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d88acaf73e022e2923bb03f9394b33109a41142fb0057ffbb4451d337a37f5dd",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "parent factory for future instances",
+      "notes": "Immutable existing instances stay available for settlement/use; never replace identities blindly.",
+      "reviewed": true
+    },
+    {
+      "name": "EscrowFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/escrow/EscrowFactory.arc56.json",
+      "artifactSha256": "42abcaefe66e05e482507b053059f0d44ba685824f05a61602cee5b1596e1618",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1271,
+      "clearBytes": 4,
+      "totalBytes": 1275,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "660ba8e3e684a65f8d54f6133d30a2ea516d8c01f76be2328a648bb15fd480a5",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "retain existing deployment",
+      "notes": "Retain the separate EscrowFactory and existing children. Registry merge withdrawn; preserve DAO oal.escrow and existing addresses.",
+      "reviewed": true
+    },
+    {
+      "name": "FixedSignerGuildConsensus",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus.arc56.json",
+      "artifactSha256": "728074815c4e4d8781225aae9c57eb849a48703de497cb39275c61936f13a596",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 5010,
+      "clearBytes": 4,
+      "totalBytes": 5014,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "13346fd545c0d57f270554ee1c012ff5fc60149441892bcfb0cdd899291b7cab",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 2,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 12,
+          "bytes": 8
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory (templates)",
+      "notes": "Fresh templates and future factory-created instances; no existing consensus migration.",
+      "reviewed": true
+    },
+    {
+      "name": "Gate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/Gate.arc56.json",
+      "artifactSha256": "560cb851d8c0b67dfad4ab1e140a7b1029b9fda4193ef60cdc165d659985c42a",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1955,
+      "clearBytes": 4,
+      "totalBytes": 1959,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "c53b9407f266de90fd038be452dec368dd890944430958958aa4143f3b03eb19",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:gates --contracts gate",
+      "notes": "Unused per owner. All 16 subgates now covered; --register guards DAO pointer and publishes SDK IDs.",
+      "reviewed": true
+    },
+    {
+      "name": "GatePlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/gate/GatePlugin.arc56.json",
+      "artifactSha256": "76da3d151e08637c80030fff207ebbfadc8b2f65a6bb5e046cecbcd432740cde",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 347,
+      "clearBytes": 4,
+      "totalBytes": 351,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "a7ff4cb5dae1a60695a9fff7d05cf0595c97dc83a44f694aab45dc75bc4d35fd",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract GatePlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "Guild",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/core/Guild.arc56.json",
+      "artifactSha256": "559d7950e59f11d7f98092f1cee76f263e62e7fb1e5747f575f85db846f4328f",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 8044,
+      "clearBytes": 4,
+      "totalBytes": 8048,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "fd2805122d2f5e9ce110aa0e9e5540f86814016ecd6a9ee06439c06700b3fa6c",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 16,
+          "bytes": 48
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory (template)",
+      "notes": "No existing Guild deployments in scope.",
+      "reviewed": true
+    },
+    {
+      "name": "GuildConsensusFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/consensus/GuildConsensusFactory.arc56.json",
+      "artifactSha256": "bb2188c418a17fade26038947b366c62257d1e58ef3c037bc4c83bc05bcd7849",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 1380,
+      "clearBytes": 4,
+      "totalBytes": 1384,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "95bea803b8a0a279430462150d5d94afa175cbaccbc4cfd76432faf83ab7a415",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory",
+      "notes": "Not yet deployed per owner; fresh pair only, no existing migration.",
+      "reviewed": true
+    },
+    {
+      "name": "GuildFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/factory/GuildFactory.arc56.json",
+      "artifactSha256": "91af775d0679b8f5dbb0a2bd55c4b2943431a698c34e370015ff7055301348ab",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 1944,
+      "clearBytes": 4,
+      "totalBytes": 1948,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "e843d5d6f7e5df7fc4a6e99b7936f3c8efdacfa7dd185e6c63c540ea885e252e",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory",
+      "notes": "Not yet deployed per owner; fresh pair only, no existing migration.",
+      "reviewed": true
+    },
+    {
+      "name": "GuildPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/guild/GuildPlugin.arc56.json",
+      "artifactSha256": "afa4e62900667dae120d9010bf929ed383d5c5ac491ea2409b629eb5701791f1",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2842,
+      "clearBytes": 4,
+      "totalBytes": 2846,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "ae318896b9d5537d1f2b1ee48754cbe401289b7e5a1f1fa1e1d3de92e95aadc2",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract GuildPlugin",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "HaystackRouterPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/haystack-router/HaystackRouterPlugin.arc56.json",
+      "artifactSha256": "4f1df0b953d172e376e2d59d4c5f824c1e2b6d9f24dbf7ca4556b4371660bf70",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 793,
+      "clearBytes": 4,
+      "totalBytes": 797,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "79811c044fe07714f605f88b18bcffd179e3caf9b882e20a78a07239da95e5f9",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 2
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:haystack-router-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "HyperSwap",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/hyper-swap/HyperSwap.arc56.json",
+      "artifactSha256": "92f3430ae9724aec7b9d9ba769157653ed2fee06d722570af98a5af887f103fa",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 3767,
+      "clearBytes": 4,
+      "totalBytes": 3771,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "0bc03155526a1defc1157c560a24dc25e83269e701d746beb64c3da574798e6c",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:hyper-swap",
+      "notes": "Update in place when the deployed program permits it; preserve outstanding swaps.",
+      "reviewed": true
+    },
+    {
+      "name": "HyperSwapPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/hyper-swap/HyperSwapPlugin.arc56.json",
+      "artifactSha256": "ebfe58bec2121f68ba752ba74b861a084da665d53122478efb4c5bf39829e1f1",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1271,
+      "clearBytes": 4,
+      "totalBytes": 1275,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "4bb46be552e14f6265134b50c416e84d18032a1d7a944ba8d0d4e320a2fba2ff",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract HyperSwapPlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "Listing",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/marketplace/Listing.arc56.json",
+      "artifactSha256": "1080ecc5a9d8c073827982f75684422a81a93b5e084ba44b209598228341877c",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2947,
+      "clearBytes": 4,
+      "totalBytes": 2951,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "a7a220af296a4987fe3003a498be746a6a289bd41c260061a9a712d1eea4e66f",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 9,
+          "bytes": 6
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "parent factory for future instances",
+      "notes": "Immutable existing instances stay available for settlement/use; never replace identities blindly.",
+      "reviewed": true
+    },
+    {
+      "name": "LockedTokenGuildConsensus",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/consensus/locked-token/LockedTokenGuildConsensus.arc56.json",
+      "artifactSha256": "21e863da5a077d90bd58dcafa01f8c263fcb3389281e58476402eda19baab7fd",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2597,
+      "clearBytes": 4,
+      "totalBytes": 2601,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "c18cb8dc28ec4e8f152087f4871a7d541106e44d791abce0f25cb97a70a8c2f6",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 12,
+          "bytes": 8
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory (templates)",
+      "notes": "Fresh templates and future factory-created instances; no existing consensus migration.",
+      "reviewed": true
+    },
+    {
+      "name": "Marketplace",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/marketplace/Marketplace.arc56.json",
+      "artifactSha256": "9ef621855836514d5fb81ede6381ee74aadeec2f32ed0f6718e3792e87dd3827",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 3810,
+      "clearBytes": 4,
+      "totalBytes": 3814,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "21867002100b4f9c18d022c516a1abd1d191586af4ea196281c22c3022f5b15a",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:marketplace",
+      "notes": "Updates app and boxed Listing approval.",
+      "reviewed": true
+    },
+    {
+      "name": "MarketplacePlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/marketplace/MarketplacePlugin.arc56.json",
+      "artifactSha256": "65f0576849797472a68b9a713a772b633bed9daa4fd5d97967aba8b7b1484663",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2287,
+      "clearBytes": 4,
+      "totalBytes": 2291,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "45aa511ba8a9e14d5a615319c2a4a3ce2e4103cd9134de453f8a0a8595b4c13f",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:marketplace-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "MerkleAddressGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/merkle-address/MerkleAddressGate.arc56.json",
+      "artifactSha256": "8f08ac3b4dcced00ecc456de322ca01b683e7d5468ccda785dd2c880c4db7b8c",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 688,
+      "clearBytes": 4,
+      "totalBytes": 692,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "9966299fdbf72887aee1f29591fecbc54e7bbac80a9d1ef264ce95fd8b7e46c4",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract MerkleAddressGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "MerkleAssetGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/merkle-asset/MerkleAssetGate.arc56.json",
+      "artifactSha256": "3de4f8f1d63bda0de7ff9d31fcbca6b45e205d7ea9530dd720b2b507a302ecf0",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 760,
+      "clearBytes": 4,
+      "totalBytes": 764,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d683390978fcd24aa63956e29199be0aabc7e96a146eacb7cb2edfa598c5d12c",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract MerkleAssetGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "Meta",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/meta/Meta.arc56.json",
+      "artifactSha256": "91c53339a8575694b85cb78140965eded308197bb94887ae3a6cc71e334b2011",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 4708,
+      "clearBytes": 4,
+      "totalBytes": 4712,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "c8fe39f0193f9a638ec084ba6b10ff719add675f987ade03c420060e526f73c8",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 2,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract Meta",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "MetaPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/meta/MetaPlugin.arc56.json",
+      "artifactSha256": "5143177691ea00e36bcbf6c07ae64b25408eab793fb88e6a011ba300a1ea6a4a",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2801,
+      "clearBytes": 4,
+      "totalBytes": 2805,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "1b1a5b120ffea4ef1e625bd0755c17a0a7f2babccc68d83d676f5aeee548ba43",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 2
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract MetaPlugin",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "NFDGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/nfd/NFDGate.arc56.json",
+      "artifactSha256": "c95c8f0b0ba0aa7708935c06be65d9e21829ec6d09905683d03f3d368a87ad8e",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 683,
+      "clearBytes": 4,
+      "totalBytes": 687,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "7635567d5a4bd6c7609dd0517d8e48196e8f12cce508462b6e73c9609e23f9b9",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract NFDGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "NFDPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/nfd/NFDPlugin.arc56.json",
+      "artifactSha256": "a9a66c3e18f9d41c7e30cfe79739fc7cc7e638a162f472d242c6a1da2c52bc34",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2765,
+      "clearBytes": 4,
+      "totalBytes": 2769,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "244c9efde8b5458ea3265d93b65c21a5329770ea09158e3fb35b547c3b1eb87c",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:nfd-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "NFDRootGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/nfd-root/NFDRootGate.arc56.json",
+      "artifactSha256": "02d09b903094d021c19f81f3d13d7e94d8b586d81adbe3c178ca74e083c876c0",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 797,
+      "clearBytes": 4,
+      "totalBytes": 801,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "8fafd78a412b107bc13d23a34029c57e1298a3ba693f32258bd39e3ae9453d6a",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract NFDRootGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "OptInPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/optin/OptInPlugin.arc56.json",
+      "artifactSha256": "50d57351c2f364f3326034ed162495971490ffff280ff8efcf18b68938acba62",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 258,
+      "clearBytes": 4,
+      "totalBytes": 262,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "b13299931a28f084978014eb231d3066f9db752c181e63cae2582f1586579d6e",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:optin-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "PayPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/pay/PayPlugin.arc56.json",
+      "artifactSha256": "3f0d473205a4ad5670739f5d169b9c5897f5500174e1a07ded86a8ba3800c0b8",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 273,
+      "clearBytes": 4,
+      "totalBytes": 277,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "995178f237deb2887231c4198540b58d1d2c3f8a9e9a550e9ed4a87b7ea95c65",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PayPlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "PaySiloFactoryPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/pay-silo/PaySiloFactoryPlugin.arc56.json",
+      "artifactSha256": "37f40f709c3aa8641ef90309947482652f869bab8bf171b0074331cf150d04de",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 483,
+      "clearBytes": 4,
+      "totalBytes": 487,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "73d5d26e30892b7b078a6d67ec6d26b1be8efbd3ddf3ee4373b940754a23f185",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PaySiloFactoryPlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "PaySiloPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/pay-silo/PaySiloPlugin.arc56.json",
+      "artifactSha256": "dba01efc10b69b2b7c4b2eb6af81f330dc24401281b79090076ac898370aefaf",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 305,
+      "clearBytes": 4,
+      "totalBytes": 309,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "b151ed56d718a4ea07b2e4d9f97f68c4588c83f5f3f57b21d6efc0cc488761be",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PaySiloPlugin",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "PluginDex",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/plugin-dex/PluginDex.arc56.json",
+      "artifactSha256": "d3f27ed927161e91645fb47dd2d998ad916b81709de94b7c3e802552a43814dc",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1546,
+      "clearBytes": 4,
+      "totalBytes": 1550,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "4104119ad845ca95804e86f490419fffae85060f7c4a9ace70acba3685821d7d",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 2
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PluginDex",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "Poll",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/poll/Poll.arc56.json",
+      "artifactSha256": "5f4727dc62a115114c7bed37473e3bd31124de7c043ea0afc645a0acbe3fb1c1",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1971,
+      "clearBytes": 4,
+      "totalBytes": 1975,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "f420841ca99896dc6f5a6af27d813f7291e5d3b7c26f7dbbbc1e4a08f8bd7541",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 11,
+          "bytes": 9
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "parent factory for future instances",
+      "notes": "Immutable existing instances stay available for settlement/use; never replace identities blindly.",
+      "reviewed": true
+    },
+    {
+      "name": "PollFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/poll/PollFactory.arc56.json",
+      "artifactSha256": "0476117c1b0e4a5f3bb3aa99ac5a3502cfd5b8854ed21fb4ed0a9faee9179768",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 3622,
+      "clearBytes": 4,
+      "totalBytes": 3626,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "6e3f42c98c1d4fb7cf29306a127f2d8e1b6cfdaef40f3a1a57fe3f247834376d",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:poll",
+      "notes": "Poll child is embedded; no bc upload needed.",
+      "reviewed": true
+    },
+    {
+      "name": "PollGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/poll/PollGate.arc56.json",
+      "artifactSha256": "a6ec83761b2b33675f4aab3a19ad8666deeff455465cc723406b4ec1b2856a66",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 547,
+      "clearBytes": 4,
+      "totalBytes": 551,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "5c17957216fc4f8defa7fab10e7708996a177d59f857b5f753124eb039db9399",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PollGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "PollPluginContract",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/poll/PollPluginContract.arc56.json",
+      "artifactSha256": "4fe5e58a34001998b18365cb7c5c1be1564454c4a544f799d5bd7342d1c305e7",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 992,
+      "clearBytes": 4,
+      "totalBytes": 996,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "1905767cf07f869b3a5c13839f32292b96396549f1a9c48742486a5fcf96d4cf",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract PollPluginContract",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "PrizeBox",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/prize-box/PrizeBox.arc56.json",
+      "artifactSha256": "877596d948959b6347679e46a5ca13bbf1cb29e35af16fa80e981a94d1d360ac",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 482,
+      "clearBytes": 4,
+      "totalBytes": 486,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "332c1528017e44fa0d677ad28fa64170d13cbe49e6cef1e9ecd03288dfe671fc",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "parent factory for future instances",
+      "notes": "Immutable existing instances stay available for settlement/use; never replace identities blindly.",
+      "reviewed": true
+    },
+    {
+      "name": "PrizeBoxFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/prize-box/PrizeBoxFactory.arc56.json",
+      "artifactSha256": "f16458d06377b75cc35fc0d44d80be1846b1c927284df53e6207746187072ad9",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 1811,
+      "clearBytes": 4,
+      "totalBytes": 1815,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "48f7dbefc7178b7e7c5b693c972b74888e7d851cfd2b89d05b7e21e252e6a040",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:prize-box",
+      "notes": "PrizeBox child is embedded; no bc upload needed.",
+      "reviewed": true
+    },
+    {
+      "name": "Raffle",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/raffle/Raffle.arc56.json",
+      "artifactSha256": "9eb9de5a703234b6d844abe2fbdd390bfa9a46dd8f81aa6d27f72310eac40576",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 6397,
+      "clearBytes": 4,
+      "totalBytes": 6401,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "91a769726128bf4ac7b73367f29b36d801e8de4ea1d24aaecc9016183b20125b",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 21,
+          "bytes": 9
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:children --kind <auction|raffle|staking-pool> --factory-id ID --app-ids IDS",
+      "notes": "Factory template updates do not update existing children. Paginated --all, creator/DAO/schema preflight and post-update verification.",
+      "reviewed": true
+    },
+    {
+      "name": "RaffleFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/raffle/RaffleFactory.arc56.json",
+      "artifactSha256": "af3a15a6ba90891be7a1c4f90065a167e5ead8b42534288e3314b7f4a4a52cc1",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 2636,
+      "clearBytes": 4,
+      "totalBytes": 2640,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d229ca657a4c0b0c5643ec0ccb5689ff5dfe845d08693cdb2133a5755855af33",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:raffle",
+      "notes": "Updates app and boxed Raffle approval.",
+      "reviewed": true
+    },
+    {
+      "name": "RafflePlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/raffle/RafflePlugin.arc56.json",
+      "artifactSha256": "029998162802b6e78eb3c34f30a365ffb8741fdc2a911ff1e350cc3c7213970c",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2208,
+      "clearBytes": 4,
+      "totalBytes": 2212,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "c6cb55b1eb974c7e82def3ddb4df9a2952e47472cfaecb025b86f9d69ec050e1",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:raffle-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "RevenueManagerPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/revenue-manager/RevenueManagerPlugin.arc56.json",
+      "artifactSha256": "50878856a093388d1046170e5a92616cc80a838112a3356210be761a9d50fcfd",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 4405,
+      "clearBytes": 4,
+      "totalBytes": 4409,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "8bbbed7eb9bcc4728bce0453292d9669981024777a58697c974d39d514896150",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 2,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:revenue-manager-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "Rewards",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/rewards/Rewards.arc56.json",
+      "artifactSha256": "6658cd596a80aa0773ab94b1279599ad32278ad3b6e1424286ab633bb55d0bf1",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 3671,
+      "clearBytes": 4,
+      "totalBytes": 3675,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "09c6a01de5b5959ac1160395bb109b45be644eefa8a723d38a86531b92613b98",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:rewards",
+      "notes": "Keep legacy rewards available; dual-read clients before --register changes aal.rewards.",
+      "reviewed": true
+    },
+    {
+      "name": "RewardsPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/rewards/RewardsPlugin.arc56.json",
+      "artifactSha256": "3a7b01bb3b4982a67b34d13d65f7ca6fd9e1d0ea727a77b4af6c46e98cedab4d",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1573,
+      "clearBytes": 4,
+      "totalBytes": 1577,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "a34b3671f28ab3ad3bff75fc083384792fcbc717d84970dccbed897082199828",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:rewards-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "SelfOptInPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/self-optin/SelfOptInPlugin.arc56.json",
+      "artifactSha256": "83afdb85d2375f3248bf5fa459d77024bc4b3e5db506bae87a7d8a9b2a697471",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 390,
+      "clearBytes": 4,
+      "totalBytes": 394,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "a26704915ab7e3b192bbf3020ff27e413ebaf5ebce6de15ad74c39e4d040ccc4",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:self-optin-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "SocialActivityGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/social-activity/SocialActivityGate.arc56.json",
+      "artifactSha256": "72911360e650dac533cd1e36992a5c9b970ed5b09dbd8c08060f46f786c13187",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 695,
+      "clearBytes": 4,
+      "totalBytes": 699,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "974197c4dc7dcda6ae35027f119d634000e86d12e8a68f65a7af23329c5b2d7c",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SocialActivityGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SocialFollowerCountGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/social-follower-count/SocialFollowerCountGate.arc56.json",
+      "artifactSha256": "121d532c010fd565bd23b8ff7de7cddbc946e30014edb03052c19abe73f18d2d",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 677,
+      "clearBytes": 4,
+      "totalBytes": 681,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "7365f84f12f870f555aa78263d80d5b02e960336a19fef3714890cb321a119ac",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SocialFollowerCountGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SocialFollowerIndexGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/social-follower-index/SocialFollowerIndexGate.arc56.json",
+      "artifactSha256": "75f0dc25ddded2dc51d806c3ae930d9d7f91e8747a04f2a7abdbd87ab351f61b",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 730,
+      "clearBytes": 4,
+      "totalBytes": 734,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "addc62f3749e029891e4a61d1bbaf028e5b631680ee9f090b0c34138cd857044",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SocialFollowerIndexGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SocialImpactGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/social-impact/SocialImpactGate.arc56.json",
+      "artifactSha256": "d2e05041c1e15a222fc220744cae27661ed518a4eb39e41d85fed607b933e096",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 661,
+      "clearBytes": 4,
+      "totalBytes": 665,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "b5e7391a77d355fe0acfb375c166e945146065d155ae14878b29c0dd05846780",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SocialImpactGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SocialModeratorGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/social-moderator/SocialModeratorGate.arc56.json",
+      "artifactSha256": "46d5d76f0794e93d435a418114cf2fcf9babe9066141b23dae15301bc8a184b3",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 709,
+      "clearBytes": 4,
+      "totalBytes": 713,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "4bcb156cfbe2226e87b3a7c6f25d5490169a622275ce6e92444a3630d95a7716",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SocialModeratorGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "Staking",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/staking/Staking.arc56.json",
+      "artifactSha256": "bbf63056d043f363f6d553c3fb2d1d79a422a4ffb38e22c077acf74c2962daa6",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 6288,
+      "clearBytes": 4,
+      "totalBytes": 6292,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "1d8b123cbd6bad4044cdd205cd3be9fa714749dea43763eda1a8fdab35185170",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 2
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:staking",
+      "notes": "Preserve staking state; deploy:staking is a separate state migration.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingAmountGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/staking-amount/StakingAmountGate.arc56.json",
+      "artifactSha256": "8604cedc9190494891253989c299010d35619b14a62f73f2d1434a15d9cabe9f",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 805,
+      "clearBytes": 4,
+      "totalBytes": 809,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "d740dec9ecc4315745ccdbe2a6d297380991d6eaf14323a025818afe0826123e",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract StakingAmountGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/staking/StakingPlugin.arc56.json",
+      "artifactSha256": "457626f7a484e4425ee18ca69d197d9e103be5796895a9dea24a52c00b80cdf1",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1423,
+      "clearBytes": 4,
+      "totalBytes": 1427,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "4d9adde8083ffd39477a1da72175f42ee891f7e3b7553e984d275dd0dec6ef3b",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:staking-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingPool",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/staking-pool/StakingPool.arc56.json",
+      "artifactSha256": "e14c107e39144af2ab90aca2afbeeb2daaa93c1d61f568d9890ffeba15890d54",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7947,
+      "clearBytes": 4,
+      "totalBytes": 7951,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "fbd92bbd754330d9c6f6d0142e60b063082eaad239af6fa7eb583f35f49981e1",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 12,
+          "bytes": 10
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:children --kind <auction|raffle|staking-pool> --factory-id ID --app-ids IDS",
+      "notes": "Factory template updates do not update existing children. Paginated --all, creator/DAO/schema preflight and post-update verification.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingPoolFactory",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/staking-pool/StakingPoolFactory.arc56.json",
+      "artifactSha256": "8b70b06c713daca2482a3e7731602a36541daae8250407f7c2cfac8ec8a68c52",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 2423,
+      "clearBytes": 4,
+      "totalBytes": 2427,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "f2f76db401c8e713eee8f69133379ed14abeda3257f67f9486d1e4f4528b84de",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:staking-pool",
+      "notes": "Updates app and boxed StakingPool approval; includes box-growth funding.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingPoolPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/staking-pool/StakingPoolPlugin.arc56.json",
+      "artifactSha256": "c034bf69e5f1a5977c4dc2729ee6bf40fc587b9b085331cb57671614abfc992d",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1718,
+      "clearBytes": 4,
+      "totalBytes": 1722,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "73deb272d4654b3477d08562273c992779beb5715c9723a9b1a0056dfec80c76",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:staking-pool-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "StakingPowerGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/staking-power/StakingPowerGate.arc56.json",
+      "artifactSha256": "8e77c181a911055415238ec38ab14e7b0c746e49d4072c90b76aa6e7bf1e689e",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 850,
+      "clearBytes": 4,
+      "totalBytes": 854,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "7e0df130434ae6f7343bd521683b3cefcb9a7c56999fe5c8d57869741a7b15fe",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract StakingPowerGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SubscriptionGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/subscription/SubscriptionGate.arc56.json",
+      "artifactSha256": "6121433eeafd59cfd14dbb1132a65f1c18176795baf63e4d05907ca8eacd2683",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 639,
+      "clearBytes": 4,
+      "totalBytes": 643,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "b490bbb206412ece37d4a9d0977e5a0307383e75cb9ba2b2b37ef165559591ed",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SubscriptionGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SubscriptionGuildConsensus",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/guilds/consensus/subscriptions/SubscriptionGuildConsensus.arc56.json",
+      "artifactSha256": "7319acf382c916f74f9e9eb45470d4699b2ceae34cf97cf25e334a97f086a905",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 2928,
+      "clearBytes": 4,
+      "totalBytes": 2932,
+      "approvalVersion": 13,
+      "clearVersion": 13,
+      "approvalSha256": "0fd4f730817003f3f16599cf569651b65d09494567d675de6d6ccdb75df3c4a6",
+      "clearSha256": "ebf590a0e4e35bf753f533eb6e5a8d40f36b895fea7c7d489a3a0045c011de33",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": null,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 12,
+          "bytes": 8
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:guild-factory (templates)",
+      "notes": "Fresh templates and future factory-created instances; no existing consensus migration.",
+      "reviewed": true
+    },
+    {
+      "name": "Subscriptions",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/subscriptions/Subscriptions.arc56.json",
+      "artifactSha256": "49e6790d74d43b56d2b0c54969a62a84896cf822033dcccf14b3a5398f703c57",
+      "sourceLifecycle": "update-handler-present",
+      "updateMethods": [
+        "update"
+      ],
+      "bareUpdate": false,
+      "approvalBytes": 7940,
+      "clearBytes": 4,
+      "totalBytes": 7944,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "3b096f4c916342f6390352ff516a9dbc29a5007d8a7fde6975381bdd3be73b32",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 3,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 8,
+          "bytes": 56
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "update:subscriptions",
+      "notes": "",
+      "reviewed": true
+    },
+    {
+      "name": "SubscriptionsPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/subscriptions/SubscriptionsPlugin.arc56.json",
+      "artifactSha256": "09140610c46cafb6116852720f59c7451863b5a2517307576d05835952136c82",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 4021,
+      "clearBytes": 4,
+      "totalBytes": 4025,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "9292b0d9711dffd81ae0c08620f06b79568f20feb831fe36c549a33c8128c50f",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 1,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:subscriptions-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "SubscriptionStreakGate",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/gates/sub-gates/subscription-streak/SubscriptionStreakGate.arc56.json",
+      "artifactSha256": "6d99180f6f1ad37705cc560244ca1d6eaaa13ebccc4827e90c1c2d89242dd69c",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 763,
+      "clearBytes": 4,
+      "totalBytes": 767,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "dcc88d52349e9efce7a3e53ecaef5d61b5394325c25cd4ae44b7ababe8056288",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 2,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SubscriptionStreakGate",
+      "notes": "Durable deployment receipt, funding and optional --register for SDK history/pointers; wallet grants are separate.",
+      "reviewed": true
+    },
+    {
+      "name": "SunsetContract",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/sunset/SunsetContract.arc56.json",
+      "artifactSha256": "270481cfbce6f940232a9c99c902b14a77c65cff923cd477e350181772090539",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 706,
+      "clearBytes": 4,
+      "totalBytes": 710,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "0481e7c624d6ac02fd7015ae95522c509fb606e2ddd05a9aa0bb824b21838804",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [
+        "SUNSET_CALLER"
+      ],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "not a routine deployment",
+      "notes": "ABI helper, temporary bootstrap, or terminal cleanup program; not part of the normal rollout.",
+      "reviewed": true
+    },
+    {
+      "name": "SunsetPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/sunset/SunsetPlugin.arc56.json",
+      "artifactSha256": "d47403ed0c2cc628e6f060d55ac15fb0ab6234d515d47320360d29426ed4c002",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 496,
+      "clearBytes": 4,
+      "totalBytes": 500,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "2c81abbb173236405a315936d46fe79181b43b3e23a4b0ff9124ddecdd432f01",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 0
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:immutable --contract SunsetPlugin",
+      "notes": "Durable receipt and funding; consumers require explicit ID configuration (no canonical SDK key).",
+      "reviewed": true
+    },
+    {
+      "name": "UpdateAkitaDAOPlugin",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/arc58/plugins/update-akita-dao/UpdateAkitaDAOPlugin.arc56.json",
+      "artifactSha256": "0acb532a65cc3928836889253d7f1883d1e9763fcfc611447d413089d33f85d6",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 1672,
+      "clearBytes": 4,
+      "totalBytes": 1676,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "595b41950104b34627810d23398cc83ec54dc4f3823c50dd6fcd411787974466",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 1,
+          "bytes": 3
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "deploy:update-plugin",
+      "notes": "Fresh ID; registry history and wallet grants are separate. See runbook for PAL and special rotation requirements.",
+      "reviewed": true
+    },
+    {
+      "name": "WalletFactorySunsetContract",
+      "artifact": "projects/akita-sc/smart_contracts/artifacts/sunset/WalletFactorySunsetContract.arc56.json",
+      "artifactSha256": "f3da820095c911c3506ef31fa78a9ee5750556a1e15d63d642b298f2db5f15ab",
+      "sourceLifecycle": "no-update-handler",
+      "updateMethods": [],
+      "bareUpdate": false,
+      "approvalBytes": 829,
+      "clearBytes": 4,
+      "totalBytes": 833,
+      "approvalVersion": 11,
+      "clearVersion": 11,
+      "approvalSha256": "37e4ca1edf5ed15d655cecb56ecee67ce087fbd197fb8c4749311a5046372b21",
+      "clearSha256": "ed90f0d2da1f1d1abd773c45230651a292a90edbc12a7bf859a493a12a640ce7",
+      "extraPagesNeeded": 0,
+      "exceedsLegacyProgramLimit": false,
+      "exceedsV42ProgramLimit": false,
+      "bytecodeChangedFromHead": true,
+      "templateVariables": [],
+      "schema": {
+        "global": {
+          "ints": 0,
+          "bytes": 1
+        },
+        "local": {
+          "ints": 0,
+          "bytes": 0
+        }
+      },
+      "compiler": {
+        "compiler": "puya",
+        "compilerVersion": {
+          "major": 5,
+          "minor": 10,
+          "patch": 1
+        }
+      },
+      "executionPath": "not a routine deployment",
+      "notes": "ABI helper, temporary bootstrap, or terminal cleanup program; not part of the normal rollout.",
+      "reviewed": true
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "name": "@akta/sdk",
-  "version": "1.4.12",
+  "version": "1.5.0",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
   "types": "dist/index.d.ts",
@@ -30,6 +30,11 @@
       "require": "./dist/gates/index.js",
       "import": "./dist/gates/index.mjs"
     },
+    "./guild": {
+      "types": "./dist/guild/index.d.ts",
+      "require": "./dist/guild/index.js",
+      "import": "./dist/guild/index.mjs"
+    },
     "./hyper-swap": {
       "types": "./dist/hyper-swap/index.d.ts",
       "require": "./dist/hyper-swap/index.js",
@@ -44,6 +49,17 @@
       "types": "./dist/meta-merkles/index.d.ts",
       "require": "./dist/meta-merkles/index.js",
       "import": "./dist/meta-merkles/index.mjs"
+    },
+    "./meta": {
+      "types": "./dist/meta/index.d.ts",
+      "require": "./dist/meta/index.js",
+      "import": "./dist/meta/index.mjs"
+    },
+    "./meta/schemas/*": "./schemas/*",
+    "./plugin-dex": {
+      "types": "./dist/plugin-dex/index.d.ts",
+      "require": "./dist/plugin-dex/index.js",
+      "import": "./dist/plugin-dex/index.mjs"
     },
     "./poll": {
       "types": "./dist/poll/index.d.ts",
@@ -99,6 +115,11 @@
       "types": "./dist/types.d.ts",
       "require": "./dist/types.js",
       "import": "./dist/types.mjs"
+    },
+    "./principal": {
+      "types": "./dist/principal.d.ts",
+      "require": "./dist/principal.js",
+      "import": "./dist/principal.mjs"
     }
   },
   "typesVersions": {
@@ -115,6 +136,9 @@
       "gates": [
         "./dist/gates/index.d.ts"
       ],
+      "guild": [
+        "./dist/guild/index.d.ts"
+      ],
       "hyper-swap": [
         "./dist/hyper-swap/index.d.ts"
       ],
@@ -123,6 +147,12 @@
       ],
       "meta-merkles": [
         "./dist/meta-merkles/index.d.ts"
+      ],
+      "meta": [
+        "./dist/meta/index.d.ts"
+      ],
+      "plugin-dex": [
+        "./dist/plugin-dex/index.d.ts"
       ],
       "poll": [
         "./dist/poll/index.d.ts"
@@ -156,6 +186,9 @@
       ],
       "types": [
         "./dist/types.d.ts"
+      ],
+      "principal": [
+        "./dist/principal.d.ts"
       ]
     }
   },
@@ -163,12 +196,14 @@
     "access": "public"
   },
   "files": [
-    "dist/"
+    "dist/",
+    "schemas/",
+    "docs/meta.md"
   ],
   "scripts": {
     "clean": "rm -rf dist/ src/generated/",
-    "prebuild": "npm run clean && npm run generate",
-    "generate": "algokit generate client ../akita-sc/smart_contracts/artifacts -v 7.0.0-beta.3 -o src/generated/{contract_name}Client.ts",
+    "prebuild": "npm run generate",
+    "generate": "node ../akita-sc/scripts/generate-clients.mjs",
     "build": "tsup && tsc -p tsconfig.esm.json --emitDeclarationOnly --outDir dist",
     "publish:canary": "npm publish --tag canary",
     "test": "vitest run",
@@ -182,8 +217,8 @@
     "@noble/hashes": "^2.2.0"
   },
   "peerDependencies": {
-    "@algorandfoundation/algokit-utils": "10.0.0-beta.1",
-    "algosdk": "^3.6.0"
+    "@algorandfoundation/algokit-utils": "^9.2.2",
+    "algosdk": "^3.7.0"
   },
   "devDependencies": {
     "@types/node": "^24.1.0",

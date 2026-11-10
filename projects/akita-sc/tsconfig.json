@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "declaration": true,
-    "declarationMap": true,
+    "lib": ["ES2022"],
     "sourceMap": true,
     "strict": true,
     "noImplicitReturns": true,
@@ -12,12 +11,18 @@
     "forceConsistentCasingInFileNames": true,
     "allowJs": false,
     "allowSyntheticDefaultImports": true,
-    "module": "CommonJS",
-    "moduleResolution": "Node",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true
   },
-  "include": ["smart_contracts/**/*.ts"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "NodeNext",
+      "moduleResolution": "NodeNext"
+    }
+  },
+  "include": ["smart_contracts/**/*.ts", "scripts/**/*.ts", "tests/**/*.ts"],
   "exclude": ["node_modules", "dist", "coverage"]
 }

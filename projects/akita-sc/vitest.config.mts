@@ -25,6 +25,7 @@ export default defineConfig({
     ],
     // Setup file for log suppression
     setupFiles: ['./tests/setup.ts'],
+    globalSetup: ['./tests/global-setup.ts'],
     coverage: {
       provider: 'v8',
     },

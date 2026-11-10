@@ -15,7 +15,9 @@ dist/
 downloads/
 eggs/
 .eggs/
-lib/
+# Anchored to the repo root: an unanchored `lib/` hid TypeScript sources such as
+# projects/akita-sc/scripts/lib/ (deployment tooling and the immutable catalog).
+/lib/
 lib64/
 parts/
 sdist/
