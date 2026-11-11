@@ -16,17 +16,25 @@ The tree is no longer the frozen 2026-10-05 tree. Since this runbook was generat
 
 - The readiness audit fixes C1 to C7 and C10 to C17 are in, each batch as its own commit. AkitaRouterPlugin, VenueRegistry and TinymanV2Adapter are removed; swap and swapRoute are back on PluginDexPlugin.
 - The build uses stock puya-ts 1.3.1 (puya 5.10.1) from the lockfile. A clean install and whole-tree build on Linux reproduces every committed artifact and generated client byte for byte (A1).
-- `projects/akita-sc/release/manifest.json` pins all 185 programs. It replaces the spec §9.8 table and `manifest.py` (A1, A2).
-- The work is committed locally on `feat/plugin-dex-v2`. It is not pushed and not tagged (DEC-5).
-- Steps the fixes changed: G2 (the seven plugins once listed as compiler-only), H1 (Meta revenue escrow), H4 (two-step admin handover, now with PluginDexAdminPlugin as the 14th contract) and H7 (SocialClaim, new).
+- `projects/akita-sc/release/manifest.json` pinned all 185 programs on this date (155 since the Plugin DEX was parked, see the next update). It replaces the spec §9.8 table and `manifest.py` (A1, A2).
+- The work was committed locally on `feat/plugin-dex-v2`. It is not pushed and not tagged (DEC-5).
+- Steps the fixes changed: G2 (the seven plugins once listed as compiler-only), H1 (Meta revenue escrow), H4 (two-step admin handover, now with PluginDexAdminPlugin as the 14th contract; parked 2026-11-11) and H7 (SocialClaim, new).
 - Program sizes below were updated from the manifest where they changed. No sponsorship amount changed (B1 dry run on MainNet, 2026-11-10).
 - `deploy:immutable --config` takes the path of a JSON file. Where H1, H2 and H6 show the JSON inline, write it to a file and pass the path; an inline value fails before anything is sent.
 
-## Update 2026-11-11: this branch is parked
+## Update 2026-11-11
 
-Kyle put the Plugin DEX on hold on 2026-11-11. The rollout continues from branch `release/mainnet-rollout`, which is this tree without the Plugin DEX, and that branch's copy of this runbook is the current one. The DEX steps here (H4, DEC-2, DEC-6, gap G15) wait until the DEX is taken up again.
+Kyle's decisions of 2026-11-11 change the plan in four places:
 
-State of this branch when it was parked: whole-tree build reproduced, `release/manifest.json` pins 185 programs, and the full suite passed on LocalNet in six shards (167 files, 2,627 tests: 2,620 passed, none failed, 2 skipped, 5 todo). PluginDexAdminPlugin is built and tested but has had no review.
+- **The Plugin DEX is parked.** PluginDex v2 and everything that belongs to it (the Vault, BinEngine, the hooks, LaunchManager, PluginDexPlugin, GatedFeePassPlugin, PluginDexAdminPlugin, the SDK module, the deploy and handover scripts, the tests, the docs and the DEX-only audit files) stays on branch `feat/plugin-dex-v2` and is not in this tree. Step H4, DEC-2, the DEX part of DEC-6, gap G15 and the `rev_dexchange` escrow are parked with it. This tree cannot deploy any part of it: the immutable catalog has no DEX entry (`tests/migration-dry-run.test.ts`). To bring it back, revert the two commits that parked it ("Park the Plugin DEX" and its build output) on a branch of this one.
+- **Deploy first, push after (DEC-5).** The rollout runs from the local commits on `release/mainnet-rollout`. The push and the tag follow the deployment, together with the SDK changes that point at the new apps and ABI methods (step I2).
+- **Every live plugin rotates (audit R9).** The rule is: rotate a plugin whenever its code changed. All 23 live plugin programs differ from this build, so all 23 rotate (table in G2). The apps prompt each wallet to update.
+- **SocialClaim referrer (audit C5).** Whoever pays to create a recipient's wallet is its referrer. The contract already works this way, and `social-claim.e2e.spec.ts` now asserts it. H7 is held only for the attestor and manager keys.
+
+Also changed:
+
+- `release/manifest.json` pins 155 programs (86 deployable, 69 test-only). Taking the DEX out removed 30 programs and changed none: every remaining approval and clear hash equals the one in the 185-program manifest.
+- The LocalNet mock Haystack router (`smart_contracts/mocks/haystack-router-localnet`) routes over Tinyman v2 pools only. It no longer needs a relay key or a Vault.
 
 ## Live state (read 2026-10-10)
 
@@ -40,7 +48,7 @@ Re-read 2026-11-10 at round 66,834,699 (read-only):
 
 - The DAO is still in Draft (version 0.0.3). `rollout:status` shows no step done on MainNet or on TestNet.
 - All 40 programs in `tests/compat/fixtures` are unchanged on MainNet: 35 apps and the 5 child programs held in factory boxes.
-- MainNet, TestNet and LocalNet run the same consensus protocol on go-algorand 5.0.5, so a program that can be created on LocalNet (PluginDex: 14,467 B, 7 extra pages) can be created on MainNet.
+- MainNet, TestNet and LocalNet run the same consensus protocol on go-algorand 5.0.5, so a program that can be created on LocalNet can be created on MainNet.
 - DAO wallet 3569559153 still has 43.37 ALGO free. The B1 dry run reports 6,956,000 µA of Phase 2 sponsorship (AkitaSocial 3,528,000 and Subscriptions 3,428,000) and no shortfall.
 - AkitaSocial has 7.54 ALGO free (K4). AkitaSocialModeration, PrizeBoxFactory and HyperSwap still hold 0 µA.
 - Not re-read: the wallet, Listing, Poll and escrow counts, and whether TestNet programs still match MainNet.
@@ -55,10 +63,7 @@ Background: v1 holds 22 open disbursements and 179 allocations (16,000 AKTA + 17
 
 ### DEC-2. PluginDex #14a (bins per-position floor)
 
-Blocks: H4. Still open in plugin-dex/research/OPEN-DECISIONS.md. It fixes BinEngine bytecode, and BinEngine is immutable. The built default holds; DEXCORE-8 (Oct 5 review) recommends keeping it. #25 is open but only SDK guidance; #18a does not exist.
-
-- Keep the built default (recommended).
-- Change the floor before deploy (rebuild + rerun the PluginDex suites).
+**Parked 2026-11-11 with the Plugin DEX.** It only concerns BinEngine, which is not in this tree. The question and its options are on branch `feat/plugin-dex-v2`.
 
 ### DEC-3. Meta data and the aal.metaMerkles pointer
 
@@ -74,21 +79,22 @@ Blocks: C1. 8 sub-gates changed behavior (AkitaReferrer, Asset, NFD, NFDRoot, So
 - Redeploy the 8 changed, allowlist the 8 live ones on Gate v2 (recommended, matches the plugin policy).
 - Redeploy all 16 for uniform versions.
 
-### DEC-5. Commit and tag the release tree
+### DEC-5. Commit, deploy, then push and tag
 
-Blocks: A2 (the tag). Every MainNet push must come from one pinned, whole-tree build.
+Every MainNet push must come from one pinned, whole-tree build.
 
-**Committed locally 2026-11-10 (Kyle chose local commits first).** 22 commits on `feat/plugin-dex-v2`: sources by area, then the two audit-fix batches, then build output. Nothing is pushed or tagged. The repo is public, so a push also publishes `audits/`, including findings accepted as risks; decide that before pushing.
+**Decided 2026-11-11 (Kyle): deploy first, push after.** The contracts are deployed and updated from the local commits. The push and the tag come afterwards, so that the same push carries the SDK changes that point at the new app ids and ABI methods (step I2).
 
-- Push and tag the release before stage B (recommended).
-- Deploy from a local tarball with recorded hashes (weaker audit trail).
+What this order needs, because nothing is on GitHub while the rollout runs:
+
+- Deploy from one recorded commit of `release/mainnet-rollout`. Write its hash into the first receipt, and run `npm run release:manifest:check` before each stage: it proves the bytes about to be pushed are the bytes the manifest pins.
+- CI has not run on this tree (the workflow only runs on a push). A1 is the same set of steps run by hand; repeat it on the deploy commit.
+- Until the push the only copy of the release is one laptop. Keep a second copy before stage B, for example `git bundle create akita-release.bundle --all` stored somewhere else.
+- The repo is public, so the push also publishes `audits/`, including findings accepted as risks. Decide that before I2.
 
 ### DEC-6. Independent audit of the immutable new contracts
 
-Blocks: none. PluginDex v2 (Vault, BinEngine, hooks, the wallet plugins), Gate v2, Rewards v2 and the Phase 2a Update plugin cannot be patched after deploy. Upgradeable apps can be fixed later through the DAO.
-
-- Audit PluginDex v2 before H4; ship B–G on the internal reviews (recommended).
-- Audit everything before stage B.
+**Parked 2026-11-11 with the Plugin DEX.** The independent audit was recommended for PluginDex v2, before H4. Stages B to H ship on the internal reviews and the 2026-11-09 readiness audit. The contracts in this rollout that cannot be patched after deploy are Gate v2 and the sub-gates, Rewards v2, the Phase 2a Update plugin, SocialClaim and every rotated or new plugin. Upgradeable apps can be fixed later through the DAO.
 
 ## Sequence
 
@@ -96,12 +102,13 @@ Blocks: none. PluginDex v2 (Vault, BinEngine, hooks, the wallet plugins), Gate v
 
 Off-chain. Nothing is sent.
 
-#### A1. Re-verify the release tree (done on the local commits; repeat on the tag)
+#### A1. Re-verify the release tree (done on the local commits; repeat on the deploy commit and on the tag)
 
 - **What:** Install from the lockfile, rebuild the whole tree, check that the build output and the release manifest did not change, and run the full suite on LocalNet.
 - **Why here:** Every later step pushes these exact bytes. A single-file build changes router order, so only a whole-tree build counts (spec §9.3).
 - **Requires:** none. **Script:** ready: `release:manifest:check` compares every program under `smart_contracts/artifacts` with `release/manifest.json`. The CI workflow (`.github/workflows/akita-sc-ci.yaml`) runs the same steps on every push.
 - Done 2026-11-10 on a clean clone of the committed tree (Linux, Node 24): after `npm ci` and both builds, every artifact, generated client and SDK bundle was unchanged. The full suite then passed on LocalNet in six shards: 163 files, 2,596 tests, 2,589 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
+- Repeated 2026-11-11 on the tree without the Plugin DEX: the whole-tree build changed no remaining program, the SDK unit tests passed (49 files, 495 tests), and the full suite passed on LocalNet in six shards: 141 files, 2,224 tests, 2,217 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
 - Use Node 24 (`nvm use` reads `.nvmrc`). A shell that defaults to an older Node fails the engine check.
 - Only `projects/akita-sdk/dist/*.map` may differ after a rebuild: tsup writes the absolute build path into each source map.
 
@@ -113,23 +120,24 @@ npm run release:manifest:check (projects/akita-sc)
 npm test (projects/akita-sc)
 ```
 
-#### A2. Commit, tag, and pin hashes
+#### A2. Commit and pin hashes (the tag follows the deployment)
 
-- **What:** Commit the tree, tag the release, and record approval hashes for every app the rollout touches, including the ride-along apps (Staking, HyperSwap, PollFactory, PrizeBoxFactory, Impact, Moderation, validator, Rewards v2, Meta).
-- **Why here:** A tag makes a later diff against MainNet meaningful.
-- **Requires:** A1. **Script:** ready: `npm run release:manifest` writes `release/manifest.json`; `tests/release-manifest.test.ts` fails when the artifacts drift from it. The push and the tag are manual (DEC-5).
-- Committed locally 2026-11-10. The manifest pins the approval and clear hash, the size and the extra pages of all 185 programs (100 deployable, 85 test-only), so the ride-along apps are pinned too.
+- **What:** Commit the tree and record approval hashes for every app the rollout touches, including the ride-along apps (Staking, HyperSwap, PollFactory, PrizeBoxFactory, Impact, Moderation, validator, Rewards v2, Meta).
+- **Why here:** Pinned hashes make a later diff against MainNet meaningful. The tag is made in I2, after the deployment (DEC-5).
+- **Requires:** A1. **Script:** ready: `npm run release:manifest` writes `release/manifest.json`; `tests/release-manifest.test.ts` fails when the artifacts drift from it. The push and the tag are manual and come after the deployment (DEC-5, I2).
+- Committed locally 2026-11-10; the Plugin DEX was taken out on 2026-11-11. The manifest pins the approval and clear hash, the size and the extra pages of all 155 programs (86 deployable, 69 test-only), so the ride-along apps are pinned too.
 - After an intended rebuild, regenerate the manifest and commit it with the artifacts. Its diff is the list of programs whose bytes changed.
-- Still to do: push, tag, then repeat A1 on a clean checkout of the tag.
+- Still to do before stage B: record the commit the rollout deploys from and keep a second copy of the repository (DEC-5).
 
 ```bash
 npm run release:manifest (projects/akita-sc)
-git tag -s <release tag>
+git rev-parse HEAD
+git bundle create akita-release.bundle --all
 ```
 
 #### A3. Close the blocking decisions
 
-- **What:** Answer DEC-1 (v1 Rewards claims) and DEC-4 (sub-gate set) before their stages. DEC-2, DEC-3 and DEC-6 gate only stage H.
+- **What:** Answer DEC-1 (v1 Rewards claims) and DEC-4 (sub-gate set) before their stages. DEC-3 gates only stage H. DEC-2 and DEC-6 are parked with the Plugin DEX.
 - **Why here:** DEC-1 blocks the aal.rewards repoint, and that blocks the StakingPoolFactory upgrade (ROLLOUT-1).
 - **Requires:** none. **Script:** manual.
 
@@ -465,16 +473,45 @@ npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n mainnet --dr
 … -n mainnet -m $M -v 2.0.0 --manifest-dir receipts/phase3 --swap --add-method socialPlugin:setMetaWallet --register --confirm
 ```
 
-#### G2. Other behavior-changed plugins
+#### G2. Every other live plugin
 
-- **What:** Rotate StakingPlugin (after D1), RewardsPlugin (after D2; pins legacyRewards), GatePlugin (after C4), AkitaDAOPlugin (after B2), NFDPlugin (MISC-1 price caps), HaystackRouterPlugin (MISC-2).
-- **Why here:** Each fixes a live issue or calls a method only the new service has.
+- **What:** Rotate StakingPlugin (after D1), RewardsPlugin (after D2; pins legacyRewards), GatePlugin (after C4), AkitaDAOPlugin (after B2), NFDPlugin (MISC-1 price caps), HaystackRouterPlugin (MISC-2), and the seven whose only source change is the C1 and C2 fix: OptInPlugin, PayPlugin, PaySiloPlugin, PaySiloFactoryPlugin, SelfOptInPlugin, AsaManagerPlugin and DualStakePlugin.
+- **Why here:** Each fixes a live issue or calls a method only the new service has. The rule (Kyle, 2026-11-11, closing audit R9) is to rotate every plugin whose code changed at all; the apps prompt each wallet to move to the new version.
 - **Requires:** D1, D2, C4, B2. **Script:** ready: Legacy deploy-*-plugin scripts lack receipts (G11); prefer deploy:immutable.
 - **Tracked by rollout:status as** `plugin:stakingPlugin`.
 - RewardsPlugin: create it with `legacyRewards` = v1 (3569556095). It adds `claimLegacyRewards` and `reclaimLegacyRewards` (DEC-1). When its DAO and backend grants on the `stickers` escrow move to the new plugin, add `reclaimRewards`, `claimLegacyRewards` and `reclaimLegacyRewards` to their method lists; method-restricted grants do not pick up new methods on their own.
 - RewardsPlugin grants on the `stickers`, `rec_mod` and `rec_gov` escrows must list the new 8-arg `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64,address)uint64` (0x2946dd1d), which passes `reclaimTo` (2026-10-11). The 7-arg selector (0x3aae182b) records no reclaim target. `RewardsPluginSDK.createDisbursement()` with no args, and the plugin migration of the old 0x08c25eff grant, list both.
-- OptIn (pal.optin, 67 wallets), Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager and DualStake were compiler-only changes when this runbook was written. The audit fix for C1 and C2 (2026-11-09) changes their behavior: each now refuses a wallet whose spending account it does not control. The live versions keep C2: what is exposed is the plugin account's spare ALGO and a reclaim nuisance.
-- Open decision (audit R9): deploy the fixed copies for new grants and move wallets over time, or accept the live ones. Either way, leave pal.optin where it is until the 67 wallets that grant it have moved.
+- OptIn, Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager and DualStake were compiler-only changes when this runbook was first written. The audit fix for C1 and C2 (2026-11-09) changed their behavior: each now refuses a wallet whose spending account it does not control. The live versions keep C2 (what is exposed is the plugin account's spare ALGO and a reclaim nuisance) until each wallet has moved.
+- OptInPlugin is also `pal.optin`, which 67 wallets granted (count read 2026-10-10). Deploy and record the new version so the apps prompt for it, and repoint `pal.optin` only after those wallets have moved; read the count again first.
+- A rotation is a new app id. `--register` appends it to the plugin's history in `networks.ts` (`MAINNET_PLUGIN_DEPLOYMENTS`), which is what the apps read to offer the update. The old app stays on chain and keeps working for wallets that have not moved.
+
+All 23 live plugins and the step that rotates each. Every one differs from this build (MainNet programs read 2026-11-11, compared with the compiled approval program of each artifact):
+
+| Plugin (SDK key) | Live app | Rotated in |
+|---|---|---|
+| `updatePlugin` | 3569559689 | B1 |
+| `pollPlugin` | 3569561749 | E6 (before the PollFactory upgrade) |
+| `hyperSwapPlugin` | 3569561068 | E6 (right after the HyperSwap upgrade) |
+| `socialPlugin` | 3643581007 | G1 |
+| `subscriptionsPlugin` | 3569561107 | G1 |
+| `stakingPoolPlugin` | 3642438287 | G1 |
+| `auctionPlugin` | 3569561141 | G1 |
+| `rafflePlugin` | 3569561863 | G1 |
+| `marketplacePlugin` | 3569561455 | G1 |
+| `stakingPlugin` | 3642392585 | G2 |
+| `rewardsPlugin` | 3569561963 | G2 |
+| `gatePlugin` | 3569561367 | G2 |
+| `daoPlugin` | 3569561215 | G2 (in the B2 window, see B2) |
+| `nfdPlugin` | 3572944055 | G2 |
+| `haystackRouterPlugin` | 3579545659 | G2 |
+| `optinPlugin` | 3569560490 | G2 |
+| `payPlugin` | 3569560828 | G2 |
+| `paySiloPlugin` | 3569561570 | G2 |
+| `paySiloFactoryPlugin` | 3569561636 | G2 |
+| `selfOptinPlugin` | 3644027143 | G2 |
+| `asaManagerPlugin` | 3605315701 | G2 |
+| `dualStakePlugin` | 3569561317 | G2 |
+| `revenueManagerPlugin` | 3642325118 | G3 |
 
 ```bash
 npm run deploy:immutable -- -n mainnet -m $M --contract <Name> --manifest receipts/<name>.json --register
@@ -498,7 +535,7 @@ npm run deploy:revenue-manager-plugin -- -n mainnet -m $M -v 0.0.4
 - **What:** Register each revenue escrow the RevenueManager does not know yet as a receive escrow whose splits reference the DAO's `revenue_splits` (`newReceiveEscrowWithRef`, through the RevenueManager's execution-key grant, one DAO proposal each). Then give each escrow the same global grant as the other 9 (optIn, start, process, finalize, with optIn at method offset 0).
   - `rev_nfd`: holds 553.40 ALGO of NFD sale proceeds (read 2026-10-11). Register right after G3, so the split keeper splits it.
   - `rev_guilds`: created in H2 (renamed from `guild_revenue`, Kyle 2026-10-12). Register right after H2.
-  - Akita Dexchange (PluginDex) revenue escrow `rev_dexchange` (named 2026-10-12). Create it, point the PluginDex and LaunchManager `treasury` at it (H4), then register it.
+  - The Akita Dexchange revenue escrow `rev_dexchange` (named 2026-10-12) is parked with the Plugin DEX. Do not create it in this rollout.
 - **Why here:** An escrow that is not registered is never split, so its fees never reach the buckets. The keeper only cycles registered escrows.
 - **Requires:** G3 (the new RevenueManager and its grants). **Script:** gap: no script registers a receive escrow on MainNet yet (the SDK's `revenue-manager.ts` supports the call).
 
@@ -560,27 +597,9 @@ npm run deploy:guild-plugin -- -n mainnet -m $M --config '{"factory":"<guildFact
 part of G1, or npm run deploy:immutable -- --contract WelcomePlugin
 ```
 
-#### H4. PluginDex v2 stack
+#### H4. PluginDex v2 stack (parked)
 
-- **What:** Deploy in order: PluginDex → BinEngine → 8 hooks → PluginDexPlugin → LaunchManager → GatedFeePassPlugin → PluginDexAdminPlugin (14 contracts), with admin = deployer; approve hooks and the curve, set LaunchManager fees/hooks and setDevBuy to Rewards v2, then hand the admin role to the DAO wallet in two steps: the deployer calls proposeAdmin(DAO wallet), and the DAO wallet calls acceptAdmin itself through PluginDexAdminPlugin.
-- **Why here:** Hook gate slots need Gate v2; LaunchManager pays into Rewards v2. Deploy GatedFeePassPlugin before approving GatedFeeHook so no pool installs the hook first.
-- **Requires:** C4, D2. **Script:** ready: activation sends the admin calls (G4 closed); each deploy:immutable `--register` records the contract's SDK key (G8 closed).
-- **Activate:** `npm run activate:plugin-dex` reads the 14 receipts and sends the admin calls as the deployer, the proposeAdmin calls last. It skips calls already on chain, verifies each call, and refuses (printing the DAO-proposal calls) once the admin is the DAO wallet.
-- **Handover (audit C10):** setAdmin is gone. Four apps have an admin: PluginDex, LaunchManager, BackrunArbHook and ConsensusKeyregHook. The script proposes the DAO wallet on each and lists each acceptAdmin as awaiting the DAO wallet. The deployer stays admin until the DAO wallet accepts, so a wrong address can never end up as admin.
-- **Accept (gap G15, built 2026-11-10):** `npm run accept:plugin-dex-admin -- -n <network> --receipts <dir>` finishes the handover from the DAO wallet. It runs three creator-approved proposals before initialize(): AddPlugin (a PluginDexAdminPlugin grant limited to acceptAdminOf, with an execution key), ExecutePlugin (one group that accepts on all four apps) and RemovePlugin. It reads each admin back, clears the used bootstrap key, and refuses with nothing sent if an app has not proposed the DAO wallet or the plugin does not run the tree artifact. Rerun activate afterwards: it must report every call done.
-- **PluginDexAdminPlugin is new and unreviewed.** It was written on 2026-11-10 to close G15 and has had no review besides its own tests (`plugin-dex-admin.e2e.spec.ts`, `tests/plugin-dex-admin-handover.e2e.spec.ts`). It has no authority of its own: every call is sent as the wallet and the target app checks its admin; it reaches only the five apps pinned at create (the four above and GatedFeeHook); it has no update method. Put it in the scope of the audit (DEC-6) and review the design before H4.
-- **GatedFeeHook has no handover.** Its admin is the DAO wallet from creation (read from the DAO on every call), so its four settings (gate slots, pass lifetime, daily discounted-swap cap, default schedule) were never the deployer's and cannot be set before the DAO wallet can act. They go through the same plugin (`gatedSet…`). The gate-slot and default-schedule boxes are paid from the hook's own balance: send the hook account ALGO first (about 0.1 on top of its minimum balance covers both at their largest). SwapTaxHook's `owner` is not a DAO role: it is the address in the deploy config and cannot be changed, so check that value before H4.
-- **After the handover** every admin action (pause a pool, approvals, fees, pool keys, gated-hook settings) is one plugin method, so the DAO grants one action at a time: AddPlugin limited to that method, ExecutePlugin for the group, RemovePlugin. Decide before H4 whether pausing a pool should need a proposal each time or whether a guardian key gets a standing grant limited to vaultSetPoolPaused. No script drives the per-action proposals yet; the handover test shows the sequence.
-- Until the DAO wallet has accepted on all four apps the deployer key is the DEX admin: keep it offline. The LaunchManager policy (launch fee, bounty, treasury, gated funding, dev-buy bounds) has no decided values yet. Run `--dry-run` first.
-- Blocked by DEC-2 (#14a); audit first per DEC-6, with PluginDexAdminPlugin in scope.
-- PluginDex is 14,467 B and needs 7 extra pages, the most a program can have (it was 14,092 B and 6 before the audit fixes). `smart_contracts/plugin-dex/size.test.ts` holds it under 15,000 B.
-
-```bash
-npm run deploy:plugin-dex -- -n mainnet -m $M --manifest receipts/dex/PluginDex.json
-npm run deploy:immutable -- --contract <each> --manifest receipts/dex/<each>.json
-npm run activate:plugin-dex -- -n mainnet -m $M --receipts receipts/dex --policy dex-policy.json --dry-run
-npm run activate:plugin-dex -- -n mainnet -m $M --receipts receipts/dex --policy dex-policy.json
-```
+**Parked 2026-11-11 (Kyle).** The Plugin DEX is not part of this rollout and not in this tree. The step, its scripts (`deploy:plugin-dex`, `activate:plugin-dex`, `accept:plugin-dex-admin`), the admin handover notes and the open questions that belong to it (DEC-2, the independent audit, pausing by proposal or through a guardian grant, the LaunchManager policy) are on branch `feat/plugin-dex-v2`. The step number is kept so the other steps keep theirs.
 
 #### H5. AssetInboxPlugin and BalanceReader
 
@@ -609,9 +628,8 @@ npm run deploy:pay-silo-plugin -- -n mainnet -m $M --config '{"recipient":"<Akit
 - **What:** Deploy SocialClaim, the admin of send-to-anyone wallets until a platform identity claims them. Constructor: the WelcomePlugin app id, the PayPlugin app id, the attestor public key (32 bytes) and the manager address.
 - **Why here:** It creates wallets through WelcomePlugin, so it needs E7 and H3. It is immutable: the two plugin ids are fixed at create.
 - **Requires:** H3. **Script:** ready since 2026-11-10: SocialClaim is in the immutable catalog, `--register` records the `socialClaim` SDK key and fills its README row (audit R7). Test: `tests/release-deployments.test.ts`.
-- **Held until two things are decided:**
-  - Audit C5, open part: whether binding a handle first should make the binder the referrer of the recipient's wallet. The answer can change the program, and the program cannot be changed after deploy.
-  - Who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
+- **Referrer (audit C5, decided 2026-11-11):** the sender who pays to create a recipient's wallet is that wallet's referrer, and stays so after later gifts from other senders and after the claim. That is the incentive to send first. Nothing in the program changed. Test: `social-claim.e2e.spec.ts`.
+- **Held until one thing is decided:** who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
 - The deploy tooling does not verify the two plugin ids on chain. Check each against its receipt first.
 
 ```bash
@@ -637,6 +655,22 @@ No script supports a voting DAO end to end, so everything above runs first.
 npx ts-node --transpile-only scripts/revoke-dao-bootstrap-grants.ts --network mainnet --dry-run
 … --confirm-revoke
 DAO.initialize()
+```
+
+#### I2. Push and tag the release
+
+- **What:** Once the contracts are deployed and updated: check that `networks.ts` and the README carry every new app id (`--register` wrote them as each step ran), rebuild the SDK, commit, push `release/mainnet-rollout`, and tag the release.
+- **Why here:** DEC-5: the push comes after the deployment so it carries the SDK that points at the new apps and ABI methods. The apps are rebuilt against that SDK.
+- **Requires:** stages B to H as far as they are run. **Script:** manual.
+- Decide first whether `audits/` is published with the push (the repo is public).
+- The contract CI workflow runs for the first time on this push. Repeat A1 on a clean checkout of the tag.
+- Publish the SDK only after the tag, so the published package and the tag are the same tree.
+
+```bash
+npm run release:manifest:check (projects/akita-sc)
+npm run build (projects/akita-sdk)
+git push -u origin release/mainnet-rollout
+git tag -s <release tag> && git push origin <release tag>
 ```
 
 ### Stage J: After launch
@@ -679,14 +713,14 @@ Also sweep a disbursement whose referrer already claimed: the sweep closes it an
 ## Open script gaps
 
 - **G3.** No script drives a voting DAO end to end (no finalizeProposal). Moot if every stage finishes before initialize().
-- **G4.** Closed: `activate:plugin-dex` sends the PluginDex v2 admin calls; SDK keys closed with G8.
+- **G4.** Parked with the Plugin DEX (it was closed there by `activate:plugin-dex`).
 - **G6.** Closed: deploy:meta writes a resumable receipt and records `meta` on `--register`.
 - **G7.** Closed: deploy:guild-factory has a resumable receipt, the K2 and guild_fees pre-flight refusals, and a read-back of every consensus name before the ids are recorded.
-- **G8.** Closed: networks.ts has 25 optional keys (0n until `--register` records them; LocalNet ids come from .env.localnet), including `rewardsV1`. The new plugins are plain app keys, not plugin-history entries, so getPluginUpdate does not track them until a second version ships.
+- **G8.** Closed: networks.ts has 11 optional keys (25 before the Plugin DEX keys were parked; 0n until `--register` records them; LocalNet ids come from .env.localnet), including `rewardsV1`. The new plugins are plain app keys, not plugin-history entries, so getPluginUpdate does not track them until a second version ships.
 - **G9.** Phase 3 --add-new-methods covers only socialPlugin:setMetaWallet; restricted raffle/auction grants need manual --add-method.
 - **G13.** K4/K8 balance monitors and the SDK flag flips are manual.
 - **HB.** Closed: `staking:set-heartbeat-manager` (see D1).
 - **G14.** No script sends `updateAkitaDaoEscrowForApp` on a public network, so pointing Meta at `rev_meta` (H1) is a hand-built proposal today. The same call serves any fee generator whose escrow changes.
-- **G15.** Built, not yet reviewed: PluginDexAdminPlugin and `accept:plugin-dex-admin` let the DAO wallet finish the two-step handover in H4 and act as admin afterwards. Open: an independent review of the plugin, the choice between per-proposal pausing and a guardian grant, and a script for the per-action proposals after the handover.
-- **G16.** `npm run check-types` reports 13 errors, all in test files and one example script; CI does not gate on it yet. The contract CI workflow was rewritten on 2026-11-10 and has not run on GitHub yet, because nothing has been pushed.
+- **G15.** Parked with the Plugin DEX: PluginDexAdminPlugin and `accept:plugin-dex-admin` are on branch `feat/plugin-dex-v2`, built and tested but not reviewed.
+- **G16.** `npm run check-types` reports 11 errors, all in test files; CI does not gate on it yet. The contract CI workflow was rewritten on 2026-11-10 and has not run on GitHub yet, because nothing has been pushed (it first runs in I2).
 

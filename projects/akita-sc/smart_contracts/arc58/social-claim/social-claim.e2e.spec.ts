@@ -149,6 +149,7 @@ describe('SocialClaim', () => {
     return (await algod().block(lastRound).do()).block.header.timestamp
   }
   const adminOf = async (id: bigint) => (await factory.get({ appId: id })).client.state.global.admin()
+  const referrerOf = async (id: bigint) => (await factory.get({ appId: id })).client.state.global.referrer()
   const boxNames = async () => (await socialClaim.client.appClient.getBoxNames()).map((b) => Buffer.from(b.nameRaw).toString('hex')).sort()
   const giftArgs = async (sponsor = wallet, asset = 0n, amount = GIFT) => ({
     nickname: 'Gift', asset, amount, maxCost: await welcome.cost({ payer: controlled(sponsor), asset, amount }),
@@ -250,9 +251,13 @@ describe('SocialClaim', () => {
   test('a top-up from a different sender lands in the same wallet in its own gift box', async () => {
     const other = await newSponsor('Other')
     const { wallet: id } = await gift(subjectA)
+    // whoever pays to create the wallet is its referrer (readiness audit C5, decided 2026-11-11)
+    expect(await referrerOf(id)).toBe(controlled(wallet))
     const walletBefore = await balance(giftAddress(id))
     const appBefore = await mbr()
     await topUp(subjectA, { sponsor: other })
+    // a later sender only adds funds: the first sender stays the referrer
+    expect(await referrerOf(id)).toBe(controlled(wallet))
     expect(await socialClaim.getPending(subjectA)).toBe(id)
     expect(await balance(giftAddress(id)) - walletBefore).toBe(TOP_UP)
     expect(await mbr() - appBefore).toBe(GIFT_MBR)
@@ -395,6 +400,8 @@ describe('SocialClaim', () => {
     // outer call + inner changeAdmin + 3 opup inner calls for ed25519verifyBare
     expect(claimed.transactions[0].fee).toBe(5_000n)
     expect(await adminOf(id)).toBe(recipient.sender)
+    // the claim changes the admin only: the sender who created the wallet stays its referrer
+    expect(await referrerOf(id)).toBe(controlled(wallet))
     expect(await socialClaim.getPending(subjectA)).toBeUndefined()
     expect(await socialClaim.getDirectory(subjectA)).toBe(id)
     expect(await socialClaim.listGifts(subjectA)).toHaveLength(1)

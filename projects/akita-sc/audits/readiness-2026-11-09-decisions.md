@@ -5,6 +5,26 @@ Owner decisions on the code findings of the 2026-11-09 readiness audit: C1 to C9
 weighed and are not to be fixed in the contracts; reviewers should not report them again unless the
 facts below change.
 
+## Decisions of 2026-11-11
+
+The owner's answers to the six questions left open after the fixes:
+
+1. **Push and tag:** after the contracts are deployed and updated, so the same push carries the SDK
+   changes that point at the new apps and ABI methods. Until then the work stays in local commits.
+2. **Plugin DEX:** on hold. PluginDex v2 and everything that belongs to it moved to its own branch
+   (`feat/plugin-dex-v2`) and is not in this tree. The rows below for C10, C15 and C16 concern code
+   that lives on that branch; their fixes went with it.
+3. **Pausing a pool by proposal or through a guardian grant:** parked with the Plugin DEX.
+4. **SocialClaim referrer (C5, third part):** yes, by design. Whoever pays to create a recipient's
+   wallet is that wallet's referrer; that is the incentive to send first. The contract already
+   works this way (`WelcomePlugin.sendToAnyone` names the sender as referrer) and nothing changed
+   in the program. `social-claim.e2e.spec.ts` asserts that the first sender is the referrer and
+   stays so after a later sender's gift and after the claim.
+5. **Independent audit:** parked with the Plugin DEX, which is what it was recommended for.
+6. **Live plugins (R9):** rotate every plugin whose code changed at all; the apps prompt each
+   wallet to update. All 23 live MainNet plugin programs differ from this build (read
+   2026-11-11), so all 23 rotate. The list is in `docs/rollout/MAINNET-ROLLOUT.md`, step G2.
+
 ## Fixed
 
 | ID | Finding | What changed |
@@ -75,7 +95,8 @@ facts below change.
 ## Still open from the same audit
 
 C5's third part (whether binding a handle first should make the binder the referrer of the
-recipient's wallet) has no decision yet. For C13 the owner chose, on 2026-11-10, the stricter of
+recipient's wallet) was decided on 2026-11-11: it should, see above. Who holds the SocialClaim
+attestor key and who its manager is remains to be decided before SocialClaim is deployed. For C13 the owner chose, on 2026-11-10, the stricter of
 the two rules the audit offered (one full paid interval before the ballot opened) over the looser
 one (any subscription that started before the ballot opened). C10's remaining part, that launch
 pools have no emergency exit, was accepted earlier as A-L1 and is unchanged.
