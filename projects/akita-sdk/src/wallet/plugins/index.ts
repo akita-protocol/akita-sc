@@ -14,6 +14,7 @@ export * from './gate';
 export * from './guild';
 export * from './haystack-router';
 export * from './plugin-dex';
+export * from './plugin-dex-admin';
 export * from './hyper-swap';
 export * from './marketplace';
 export * from './nfd';

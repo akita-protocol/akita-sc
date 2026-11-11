@@ -10,6 +10,24 @@ npm run rollout:status -- --network mainnet
 
 Every MainNet write needs explicit approval of network, sender and action. Run each command with `--dry-run` first.
 
+## Update 2026-11-10
+
+The tree is no longer the frozen 2026-10-05 tree. Since this runbook was generated:
+
+- The readiness audit fixes C1 to C7 and C10 to C17 are in, each batch as its own commit. AkitaRouterPlugin, VenueRegistry and TinymanV2Adapter are removed; swap and swapRoute are back on PluginDexPlugin.
+- The build uses stock puya-ts 1.3.1 (puya 5.10.1) from the lockfile. A clean install and whole-tree build on Linux reproduces every committed artifact and generated client byte for byte (A1).
+- `projects/akita-sc/release/manifest.json` pins all 185 programs. It replaces the spec §9.8 table and `manifest.py` (A1, A2).
+- The work is committed locally on `feat/plugin-dex-v2`. It is not pushed and not tagged (DEC-5).
+- Steps the fixes changed: G2 (the seven plugins once listed as compiler-only), H1 (Meta revenue escrow), H4 (two-step admin handover, now with PluginDexAdminPlugin as the 14th contract) and H7 (SocialClaim, new).
+- Program sizes below were updated from the manifest where they changed. No sponsorship amount changed (B1 dry run on MainNet, 2026-11-10).
+- `deploy:immutable --config` takes the path of a JSON file. Where H1, H2 and H6 show the JSON inline, write it to a file and pass the path; an inline value fails before anything is sent.
+
+## Update 2026-11-11: this branch is parked
+
+Kyle put the Plugin DEX on hold on 2026-11-11. The rollout continues from branch `release/mainnet-rollout`, which is this tree without the Plugin DEX, and that branch's copy of this runbook is the current one. The DEX steps here (H4, DEC-2, DEC-6, gap G15) wait until the DEX is taken up again.
+
+State of this branch when it was parked: whole-tree build reproduced, `release/manifest.json` pins 185 programs, and the full suite passed on LocalNet in six shards (167 files, 2,627 tests: 2,620 passed, none failed, 2 skipped, 5 todo). PluginDexAdminPlugin is built and tested but has had no review.
+
 ## Live state (read 2026-10-10)
 
 - MainNet DAO 3569556034 is in Draft (initialized = 0, version 0.0.3). Only the creator proposes; proposals store as Approved and execute immediately.
@@ -17,6 +35,15 @@ Every MainNet write needs explicit approval of network, sender and action. Run e
 - Every aal / sal / pal / oal pointer equals networks.ts. TestNet programs match MainNet for every rollout target, so a TestNet rehearsal is valid.
 - DAO wallet 3569559153 has 43.37 ALGO free; page-growth sponsorship needs 10.55 ALGO (DAO 3.59, Subscriptions 3.43, AkitaSocial 3.53).
 - 73 live wallets (incl. the DAO wallet), all on program f59520de, all automatic-update. 2 Listings, 6 Polls, 37 escrows. 0 Auctions, Raffles, Pools, PrizeBoxes.
+
+Re-read 2026-11-10 at round 66,834,699 (read-only):
+
+- The DAO is still in Draft (version 0.0.3). `rollout:status` shows no step done on MainNet or on TestNet.
+- All 40 programs in `tests/compat/fixtures` are unchanged on MainNet: 35 apps and the 5 child programs held in factory boxes.
+- MainNet, TestNet and LocalNet run the same consensus protocol on go-algorand 5.0.5, so a program that can be created on LocalNet (PluginDex: 14,467 B, 7 extra pages) can be created on MainNet.
+- DAO wallet 3569559153 still has 43.37 ALGO free. The B1 dry run reports 6,956,000 µA of Phase 2 sponsorship (AkitaSocial 3,528,000 and Subscriptions 3,428,000) and no shortfall.
+- AkitaSocial has 7.54 ALGO free (K4). AkitaSocialModeration, PrizeBoxFactory and HyperSwap still hold 0 µA.
+- Not re-read: the wallet, Listing, Poll and escrow counts, and whether TestNet programs still match MainNet.
 
 ## Decisions to close first
 
@@ -49,14 +76,16 @@ Blocks: C1. 8 sub-gates changed behavior (AkitaReferrer, Asset, NFD, NFDRoot, So
 
 ### DEC-5. Commit and tag the release tree
 
-Blocks: A2. About 1,830 paths are uncommitted and the repo is public. Every MainNet push must come from one pinned, whole-tree build. Earlier you asked not to commit yet.
+Blocks: A2 (the tag). Every MainNet push must come from one pinned, whole-tree build.
 
-- Commit in reviewable pieces and tag the release before stage B (recommended).
+**Committed locally 2026-11-10 (Kyle chose local commits first).** 22 commits on `feat/plugin-dex-v2`: sources by area, then the two audit-fix batches, then build output. Nothing is pushed or tagged. The repo is public, so a push also publishes `audits/`, including findings accepted as risks; decide that before pushing.
+
+- Push and tag the release before stage B (recommended).
 - Deploy from a local tarball with recorded hashes (weaker audit trail).
 
 ### DEC-6. Independent audit of the immutable new contracts
 
-Blocks: none. PluginDex v2 (Vault, BinEngine, hooks, router), Gate v2, Rewards v2 and the Phase 2a Update plugin cannot be patched after deploy. Upgradeable apps can be fixed later through the DAO.
+Blocks: none. PluginDex v2 (Vault, BinEngine, hooks, the wallet plugins), Gate v2, Rewards v2 and the Phase 2a Update plugin cannot be patched after deploy. Upgradeable apps can be fixed later through the DAO.
 
 - Audit PluginDex v2 before H4; ship B–G on the internal reviews (recommended).
 - Audit everything before stage B.
@@ -67,27 +96,35 @@ Blocks: none. PluginDex v2 (Vault, BinEngine, hooks, router), Gate v2, Rewards v
 
 Off-chain. Nothing is sent.
 
-#### A1. Re-verify the frozen tree (done)
+#### A1. Re-verify the release tree (done on the local commits; repeat on the tag)
 
-- **What:** Rebuild the whole tree, compare every artifact with the manifest, and run the full suite on LocalNet.
+- **What:** Install from the lockfile, rebuild the whole tree, check that the build output and the release manifest did not change, and run the full suite on LocalNet.
 - **Why here:** Every later step pushes these exact bytes. A single-file build changes router order, so only a whole-tree build counts (spec §9.3).
-- **Requires:** none. **Script:** ready.
-- Done in this session; see the verification panel.
+- **Requires:** none. **Script:** ready: `release:manifest:check` compares every program under `smart_contracts/artifacts` with `release/manifest.json`. The CI workflow (`.github/workflows/akita-sc-ci.yaml`) runs the same steps on every push.
+- Done 2026-11-10 on a clean clone of the committed tree (Linux, Node 24): after `npm ci` and both builds, every artifact, generated client and SDK bundle was unchanged. The full suite then passed on LocalNet in six shards: 163 files, 2,596 tests, 2,589 passed, none failed (2 skipped, 5 todo), and it left the tree unchanged.
+- Use Node 24 (`nvm use` reads `.nvmrc`). A shell that defaults to an older Node fails the engine check.
+- Only `projects/akita-sdk/dist/*.map` may differ after a rebuild: tsup writes the absolute build path into each source map.
 
 ```bash
+nvm use && npm ci
 npm run build (projects/akita-sc), then npm run build (projects/akita-sdk)
-python3 projects/akita-sc/audits/review-2026-10-05/manifest.py
+git status --short
+npm run release:manifest:check (projects/akita-sc)
 npm test (projects/akita-sc)
 ```
 
 #### A2. Commit, tag, and pin hashes
 
 - **What:** Commit the tree, tag the release, and record approval hashes for every app the rollout touches, including the ride-along apps (Staking, HyperSwap, PollFactory, PrizeBoxFactory, Impact, Moderation, validator, Rewards v2, Meta).
-- **Why here:** Ride-along artifacts are pinned nowhere today (review ROLLOUT, artifact consistency). A tag makes a later diff against MainNet meaningful.
-- **Requires:** A1. **Script:** manual: decision DEC-5.
+- **Why here:** A tag makes a later diff against MainNet meaningful.
+- **Requires:** A1. **Script:** ready: `npm run release:manifest` writes `release/manifest.json`; `tests/release-manifest.test.ts` fails when the artifacts drift from it. The push and the tag are manual (DEC-5).
+- Committed locally 2026-11-10. The manifest pins the approval and clear hash, the size and the extra pages of all 185 programs (100 deployable, 85 test-only), so the ride-along apps are pinned too.
+- After an intended rebuild, regenerate the manifest and commit it with the artifacts. Its diff is the list of programs whose bytes changed.
+- Still to do: push, tag, then repeat A1 on a clean checkout of the tag.
 
 ```bash
-git tag akita-2026-10-release
+npm run release:manifest (projects/akita-sc)
+git tag -s <release tag>
 ```
 
 #### A3. Close the blocking decisions
@@ -125,7 +162,7 @@ The new Update plugin first; then the DAO upgrades itself through it.
 #### B1. Phase 2a: install the new UpdateAkitaDAOPlugin
 
 - **What:** Deploy the page-growing Update plugin and run ONE proposal: UpdateFields pal (update = new; optin and revenueManager unchanged), AddPlugin new (global, execution key), RemovePlugin old 3569559689. Then record the id and rebuild the SDK.
-- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,344 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
+- **Why here:** The live plugin pushes at most 3 chunks and never grows pages, so it can push neither the DAO (10,421 B) nor AkitaSocial or Subscriptions. Every target accepts updates only from pal.update, so role and grant move together.
 - **Requires:** A2. **Script:** ready.
 - **Tracked by rollout:status as** `phase2a`.
 - The pal write replaces the whole struct: it must carry optin 3569560490 and revenueManager 3642325118.
@@ -336,7 +373,8 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 - **Tracked by rollout:status as** `p2:AuctionFactory`.
 - K6 lockstep: ship the SDK release the same day; the HEAD SDK cannot create raffles on the new factory.
 - The old AuctionPlugin underpays bids on new children by 800 µA; rotate it in G1 soon after.
-- Auction child is 8,229 B: +0.1 ALGO MBR per auction.
+- Auction child is 8,354 B: +0.1 ALGO MBR per auction.
+- Raffle child is 8,106 B, one upload chunk more than before the audit fixes, so the RaffleFactory group is 14 transactions (the limit is 16).
 
 ```bash
 … --target AuctionFactory --target RaffleFactory --confirm
@@ -344,7 +382,7 @@ npm run update:social -- -n mainnet -m $M --contracts socialImpact,socialModerat
 
 #### E5. StakingPoolFactory + StakingPool
 
-- **What:** Phase 2 StakingPoolFactory with the 12,763 B child (exactly 16 txns).
+- **What:** Phase 2 StakingPoolFactory with the 12,969 B child (exactly 16 txns).
 - **Why here:** The runner refuses this target until Staking, Rewards v2 and Gate v2 are live; all three are hard callee dependencies.
 - **Requires:** D1, D2, C4, B1. **Script:** fixed: Gate dependency added today; the Rewards dependency now also covers the referral reclaim overloads.
 - **Tracked by rollout:status as** `p2:StakingPoolFactory`.
@@ -404,7 +442,7 @@ npm run update:dao-wallet -- -n mainnet -m $M
 - **What:** Push the tree wallet into every automatic-update wallet.
 - **Why here:** R-STALE (the stale escrow registry) closes per wallet only when it runs the new program.
 - **Requires:** E7. **Script:** ready.
-- Resumable with --skip-current. Wallet stays at 4 pages (8,178 B), so no growth cost.
+- Resumable with --skip-current. Wallet stays at 4 pages (approval 8,139 B, 49 B of headroom), so no growth cost.
 
 ```bash
 npm run update:automatic-wallets -- -n mainnet -m $M --skip-current
@@ -435,7 +473,8 @@ npx ts-node --transpile-only scripts/principal-phase3-plugins.ts -n mainnet --dr
 - **Tracked by rollout:status as** `plugin:stakingPlugin`.
 - RewardsPlugin: create it with `legacyRewards` = v1 (3569556095). It adds `claimLegacyRewards` and `reclaimLegacyRewards` (DEC-1). When its DAO and backend grants on the `stickers` escrow move to the new plugin, add `reclaimRewards`, `claimLegacyRewards` and `reclaimLegacyRewards` to their method lists; method-restricted grants do not pick up new methods on their own.
 - RewardsPlugin grants on the `stickers`, `rec_mod` and `rec_gov` escrows must list the new 8-arg `createDisbursement(uint64,bool,string,uint64,uint64,string,uint64,address)uint64` (0x2946dd1d), which passes `reclaimTo` (2026-10-11). The 7-arg selector (0x3aae182b) records no reclaim target. `RewardsPluginSDK.createDisbursement()` with no args, and the plugin migration of the old 0x08c25eff grant, list both.
-- Do NOT rotate OptIn (pal.optin, 67 wallets), Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager, DualStake: compiler-only changes.
+- OptIn (pal.optin, 67 wallets), Pay, PaySilo, PaySiloFactory, SelfOptIn, AsaManager and DualStake were compiler-only changes when this runbook was written. The audit fix for C1 and C2 (2026-11-09) changes their behavior: each now refuses a wallet whose spending account it does not control. The live versions keep C2: what is exposed is the plugin account's spare ALGO and a reclaim nuisance.
+- Open decision (audit R9): deploy the fixed copies for new grants and move wallets over time, or accept the live ones. Either way, leave pal.optin where it is until the 67 wallets that grant it have moved.
 
 ```bash
 npm run deploy:immutable -- -n mainnet -m $M --contract <Name> --manifest receipts/<name>.json --register
@@ -484,10 +523,16 @@ Independent of each other; each after its prerequisites.
 - **What:** Deploy Meta and MetaPlugin with receipts. Leave aal.metaMerkles alone until the roots are migrated (DEC-3).
 - **Why here:** MetaMerkles has no update route; repointing early drops every stored root.
 - **Requires:** B2. **Script:** ready: deploy:meta writes a resumable receipt and `--register` records the `meta` SDK key (G6 closed); deploy:meta-plugin records `metaPlugin`. Neither touches aal.metaMerkles. update:meta requires --meta-app-id and refuses MetaMerkles (ROLLOUT-6).
+- **Revenue escrow (audit C7):** Meta keeps each type fee, less the storage it pays for, as owed to the DAO. `collectTypeFees()` sends what is owed to the DAO escrow Meta is pointed at; anyone can call it, and it fails with errEscrowDoesNotExist until the escrow is set. After the deploy:
+  1. Create the escrow `rev_meta` on the DAO wallet.
+  2. One DAO proposal: the Update plugin's `updateAkitaDaoEscrowForApp(meta, { name: rev_meta, app: <escrow app id> })`. No script sends it on a public network yet (gap G14); the SDK call is `updatePlugin.updateAkitaDaoEscrowForApp` and `smart_contracts/meta/type-fees.e2e.spec.ts` runs the whole path.
+  3. Register `rev_meta` with the RevenueManager like the other unsplit escrows (G3a).
+- Until step 2, type fees wait in the Meta app. Nothing is lost, and nothing else in Meta depends on the escrow.
 
 ```bash
 npm run deploy:meta -- -n mainnet -m $M --manifest receipts/meta.json --register
 npm run deploy:meta-plugin -- -n mainnet -m $M --config '{"registry":"<metaId>",…}' --manifest receipts/meta-plugin.json --register
+npm run create:dao-escrow -- -n mainnet -m $M --escrow rev_meta --execute
 ```
 
 #### H2. Guilds
@@ -517,11 +562,18 @@ part of G1, or npm run deploy:immutable -- --contract WelcomePlugin
 
 #### H4. PluginDex v2 stack
 
-- **What:** Deploy in order: PluginDex → BinEngine → 8 hooks → PluginDexPlugin → LaunchManager → GatedFeePassPlugin, with admin = deployer; approve hooks and the curve, set LaunchManager fees/hooks and setDevBuy to Rewards v2, then setAdmin(DAO wallet).
+- **What:** Deploy in order: PluginDex → BinEngine → 8 hooks → PluginDexPlugin → LaunchManager → GatedFeePassPlugin → PluginDexAdminPlugin (14 contracts), with admin = deployer; approve hooks and the curve, set LaunchManager fees/hooks and setDevBuy to Rewards v2, then hand the admin role to the DAO wallet in two steps: the deployer calls proposeAdmin(DAO wallet), and the DAO wallet calls acceptAdmin itself through PluginDexAdminPlugin.
 - **Why here:** Hook gate slots need Gate v2; LaunchManager pays into Rewards v2. Deploy GatedFeePassPlugin before approving GatedFeeHook so no pool installs the hook first.
 - **Requires:** C4, D2. **Script:** ready: activation sends the admin calls (G4 closed); each deploy:immutable `--register` records the contract's SDK key (G8 closed).
-- **Activate:** `npm run activate:plugin-dex` reads the 13 receipts and sends the admin calls as the deployer, admin handoff last. It skips calls already on chain, verifies each call, and refuses (printing the DAO-proposal calls) once the admin is the DAO wallet. The LaunchManager policy (launch fee, bounty, treasury, gated funding, dev-buy bounds) has no decided values yet. Run `--dry-run` first.
-- Blocked by DEC-2 (#14a); audit first per DEC-6.
+- **Activate:** `npm run activate:plugin-dex` reads the 14 receipts and sends the admin calls as the deployer, the proposeAdmin calls last. It skips calls already on chain, verifies each call, and refuses (printing the DAO-proposal calls) once the admin is the DAO wallet.
+- **Handover (audit C10):** setAdmin is gone. Four apps have an admin: PluginDex, LaunchManager, BackrunArbHook and ConsensusKeyregHook. The script proposes the DAO wallet on each and lists each acceptAdmin as awaiting the DAO wallet. The deployer stays admin until the DAO wallet accepts, so a wrong address can never end up as admin.
+- **Accept (gap G15, built 2026-11-10):** `npm run accept:plugin-dex-admin -- -n <network> --receipts <dir>` finishes the handover from the DAO wallet. It runs three creator-approved proposals before initialize(): AddPlugin (a PluginDexAdminPlugin grant limited to acceptAdminOf, with an execution key), ExecutePlugin (one group that accepts on all four apps) and RemovePlugin. It reads each admin back, clears the used bootstrap key, and refuses with nothing sent if an app has not proposed the DAO wallet or the plugin does not run the tree artifact. Rerun activate afterwards: it must report every call done.
+- **PluginDexAdminPlugin is new and unreviewed.** It was written on 2026-11-10 to close G15 and has had no review besides its own tests (`plugin-dex-admin.e2e.spec.ts`, `tests/plugin-dex-admin-handover.e2e.spec.ts`). It has no authority of its own: every call is sent as the wallet and the target app checks its admin; it reaches only the five apps pinned at create (the four above and GatedFeeHook); it has no update method. Put it in the scope of the audit (DEC-6) and review the design before H4.
+- **GatedFeeHook has no handover.** Its admin is the DAO wallet from creation (read from the DAO on every call), so its four settings (gate slots, pass lifetime, daily discounted-swap cap, default schedule) were never the deployer's and cannot be set before the DAO wallet can act. They go through the same plugin (`gatedSet…`). The gate-slot and default-schedule boxes are paid from the hook's own balance: send the hook account ALGO first (about 0.1 on top of its minimum balance covers both at their largest). SwapTaxHook's `owner` is not a DAO role: it is the address in the deploy config and cannot be changed, so check that value before H4.
+- **After the handover** every admin action (pause a pool, approvals, fees, pool keys, gated-hook settings) is one plugin method, so the DAO grants one action at a time: AddPlugin limited to that method, ExecutePlugin for the group, RemovePlugin. Decide before H4 whether pausing a pool should need a proposal each time or whether a guardian key gets a standing grant limited to vaultSetPoolPaused. No script drives the per-action proposals yet; the handover test shows the sequence.
+- Until the DAO wallet has accepted on all four apps the deployer key is the DEX admin: keep it offline. The LaunchManager policy (launch fee, bounty, treasury, gated funding, dev-buy bounds) has no decided values yet. Run `--dry-run` first.
+- Blocked by DEC-2 (#14a); audit first per DEC-6, with PluginDexAdminPlugin in scope.
+- PluginDex is 14,467 B and needs 7 extra pages, the most a program can have (it was 14,092 B and 6 before the audit fixes). `smart_contracts/plugin-dex/size.test.ts` holds it under 15,000 B.
 
 ```bash
 npm run deploy:plugin-dex -- -n mainnet -m $M --manifest receipts/dex/PluginDex.json
@@ -550,6 +602,22 @@ npm run deploy:wallet-balance-reader -- -n mainnet -m $M --manifest …
 
 ```bash
 npm run deploy:pay-silo-plugin -- -n mainnet -m $M --config '{"recipient":"<Akita Labs LLC address>"}' --manifest receipts/pay-silo-labs.json
+```
+
+#### H7. SocialClaim (held)
+
+- **What:** Deploy SocialClaim, the admin of send-to-anyone wallets until a platform identity claims them. Constructor: the WelcomePlugin app id, the PayPlugin app id, the attestor public key (32 bytes) and the manager address.
+- **Why here:** It creates wallets through WelcomePlugin, so it needs E7 and H3. It is immutable: the two plugin ids are fixed at create.
+- **Requires:** H3. **Script:** ready since 2026-11-10: SocialClaim is in the immutable catalog, `--register` records the `socialClaim` SDK key and fills its README row (audit R7). Test: `tests/release-deployments.test.ts`.
+- **Held until two things are decided:**
+  - Audit C5, open part: whether binding a handle first should make the binder the referrer of the recipient's wallet. The answer can change the program, and the program cannot be changed after deploy.
+  - Who holds the attestor key and who the manager is. The attestor can bind any handle to any wallet, and the manager can replace the attestor. The manager should not be a hot key.
+- The deploy tooling does not verify the two plugin ids on chain. Check each against its receipt first.
+
+```bash
+social-claim.json: {"welcome":"<welcomePluginId>","pay":"<payPluginId>","attestor":[<32 numbers>],"manager":"<address>"}
+npm run deploy:immutable -- -n mainnet -m $M --contract SocialClaim --config social-claim.json --dry-run
+… --manifest receipts/social-claim.json --register
 ```
 
 ### Stage I: Launch the DAO
@@ -614,8 +682,11 @@ Also sweep a disbursement whose referrer already claimed: the sweep closes it an
 - **G4.** Closed: `activate:plugin-dex` sends the PluginDex v2 admin calls; SDK keys closed with G8.
 - **G6.** Closed: deploy:meta writes a resumable receipt and records `meta` on `--register`.
 - **G7.** Closed: deploy:guild-factory has a resumable receipt, the K2 and guild_fees pre-flight refusals, and a read-back of every consensus name before the ids are recorded.
-- **G8.** Closed: networks.ts has 24 optional keys (0n until `--register` records them; LocalNet ids come from .env.localnet), including `rewardsV1`. The new plugins are plain app keys, not plugin-history entries, so getPluginUpdate does not track them until a second version ships.
+- **G8.** Closed: networks.ts has 25 optional keys (0n until `--register` records them; LocalNet ids come from .env.localnet), including `rewardsV1`. The new plugins are plain app keys, not plugin-history entries, so getPluginUpdate does not track them until a second version ships.
 - **G9.** Phase 3 --add-new-methods covers only socialPlugin:setMetaWallet; restricted raffle/auction grants need manual --add-method.
 - **G13.** K4/K8 balance monitors and the SDK flag flips are manual.
 - **HB.** Closed: `staking:set-heartbeat-manager` (see D1).
+- **G14.** No script sends `updateAkitaDaoEscrowForApp` on a public network, so pointing Meta at `rev_meta` (H1) is a hand-built proposal today. The same call serves any fee generator whose escrow changes.
+- **G15.** Built, not yet reviewed: PluginDexAdminPlugin and `accept:plugin-dex-admin` let the DAO wallet finish the two-step handover in H4 and act as admin afterwards. Open: an independent review of the plugin, the choice between per-proposal pausing and a guardian grant, and a script for the per-action proposals after the handover.
+- **G16.** `npm run check-types` reports 13 errors, all in test files and one example script; CI does not gate on it yet. The contract CI workflow was rewritten on 2026-11-10 and has not run on GitHub yet, because nothing has been pushed.
 

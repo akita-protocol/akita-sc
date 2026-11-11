@@ -7,7 +7,7 @@ runScript(async () => {
   const args = process.argv.slice(2)
   const value = (key: string) => { const i = args.indexOf(key); return i < 0 ? undefined : args[i + 1] }
   const options = parseBaseArgs('activate-plugin-dex.ts', `
-  --receipts <dir>    Required: the deploy-immutable receipts of all 13 PluginDex v2 contracts,
+  --receipts <dir>    Required: the deploy-immutable receipts of all 14 PluginDex v2 contracts,
                       one <Contract>.json each (e.g. receipts/dex)
   --policy <json>     Required: LaunchManager policy file
                       {"launchFee": "0", "bounty": "0", "treasury": "<address>", "gatedFunding": "30100",
@@ -20,8 +20,10 @@ wallet) on every app with an admin. Calls whose state already matches are skippe
 verified on chain.
 
 The handover is two steps. This script only proposes. The DAO wallet must then call acceptAdmin() on
-each app itself; those calls are listed as awaiting and printed. The deployer stays admin until the
-DAO wallet has accepted, so nothing is locked if the DAO wallet cannot make the call yet.
+each app itself; those calls are listed as awaiting and printed. It sends them through
+PluginDexAdminPlugin (the 14th contract of the stack): npm run accept:plugin-dex-admin. The deployer
+stays admin until the DAO wallet has accepted, so nothing is locked if the DAO wallet cannot make the
+call yet.
 If a pending call's admin is already the DAO wallet, nothing is sent and the calls for a DAO proposal
 are printed.`)
   if (!args.includes('--network') && !args.includes('-n')) throw new Error('An explicit --network is required')

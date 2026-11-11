@@ -3,6 +3,15 @@
 What the Vault admin (the DAO wallet after activation) does when a pool stops working normally. On
 MainNet every admin call below is a DAO proposal action.
 
+The DAO wallet makes admin calls through **PluginDexAdminPlugin**, the last contract of the stack. Each app
+checks that the sender is its admin, and a wallet's address is only a sender inside a plugin window. The
+plugin has one method per admin action (`vaultSetPoolPaused`, `vaultSetHookApproval`, `vaultSetProtocolFee`,
+`launchSetFees`, `backrunSetPaused`, `keyregSetPoolKeys` and so on), so the DAO can grant one action at a
+time: an AddPlugin proposal limited to that method with an execution key, then an ExecutePlugin proposal
+for the exact group, then the group is sent. `tests/plugin-dex-admin-handover.e2e.spec.ts` shows the
+sequence with the backrun kill switch. Decide before launch whether pausing should need a full proposal
+each time or whether a guardian key gets a standing grant limited to `vaultSetPoolPaused`.
+
 ## Deploy checklist (TestNet first, then MainNet)
 
 Run every step with `--dry-run` first and read the plan. Each real step needs explicit approval for that
@@ -23,19 +32,30 @@ network and sender. These scripts have no extra MainNet guard: check `-n` before
    Order (dependencies are read from the earlier receipts and checked on chain): PluginDex (`admin` = the
    deployer for now), BinEngine, ImpactFeeHook, SwapTaxHook, VolatilityFeeHook, BackrunArbHook (`tinyman`),
    GatedFeeHook, AntiSnipeFeeHook, LaunchTaxHook, ConsensusKeyregHook, PluginDexPlugin, LaunchManager,
-   GatedFeePassPlugin. A failed step is resumed by rerunning it with the same `--manifest`.
+   GatedFeePassPlugin, PluginDexAdminPlugin (14 contracts). The admin plugin is pinned to the Vault,
+   LaunchManager, BackrunArbHook, ConsensusKeyregHook and GatedFeeHook; the deploy refuses an id that is
+   not that contract. A failed step is resumed by rerunning it with the same `--manifest`.
 4. **Activate.** `scripts/activate-plugin-dex.ts -n <network> --receipts receipts/dex-<network> --policy
    <policy.json>` makes the curve and hook approvals, configures LaunchManager, then sends
    `proposeAdmin(DAO wallet)` to every app with an admin. Rerunning skips what is done. The handover is two
    steps: the script only proposes, and lists each `acceptAdmin()` as awaiting the DAO wallet. The deployer
    stays admin, and can still correct the configuration, until the DAO wallet has accepted.
 5. **Finish the handover.** The DAO wallet calls `acceptAdmin()` on PluginDex, LaunchManager,
-   BackrunArbHook and ConsensusKeyregHook (the script prints the app ids). The DAO wallet acts only through
-   its plugins, so this needs a plugin that can make these calls, installed by proposal. Do it on TestNet
-   first: an accepted handover is the proof that the DAO can also pause a pool and change approvals later.
-   Rerun the activation script afterwards; it reports every call done. Once the DAO wallet is admin, any
-   later call is printed for a DAO proposal instead of sent. Keep the deployer key safe until then: it is
-   still the admin.
+   BackrunArbHook and ConsensusKeyregHook through PluginDexAdminPlugin:
+   `scripts/accept-plugin-dex-admin.ts -n <network> --receipts receipts/dex-<network>` (`--dry-run` first).
+   Before DAO `initialize()` it runs three creator-approved proposals: AddPlugin (a grant limited to
+   `acceptAdminOf`, with an execution key), ExecutePlugin (the one group that accepts on all four apps),
+   RemovePlugin. It reads every admin back and refuses, sending nothing, if an app has not proposed the DAO
+   wallet. Do it on TestNet first: an accepted handover is the proof that the DAO can also pause a pool and
+   change approvals later. Rerun the activation script afterwards; it reports every call done. Once the DAO
+   wallet is admin, any later call is printed for a DAO proposal instead of sent. Keep the deployer key
+   safe until then: it is still the admin.
+
+   GatedFeeHook has no handover. Its admin is the DAO wallet from the moment it is created (it reads the
+   wallet from the DAO on every call), so its four settings (`setGateSlots`, `setPassTtl`,
+   `setMaxDiscountedSwapsPerDay`, `setDefaultSchedule`) were never the deployer's to make. They go through
+   the same plugin (`gatedSet…`) under a DAO proposal. SwapTaxHook's `owner` is not a DAO role: it is
+   whatever address the deploy config names, and it cannot be changed afterwards.
 6. **Verify on chain.** Every receipt's program hash matches the build; `getHookApproval` and the curve
    approval are set; every app's admin is the DAO wallet and no app has a `pending_admin`.
 7. **Publish the IDs.** Rerun step 3 with `--register` (or edit `akita-sdk/src/networks.ts`) so `pluginDex`,

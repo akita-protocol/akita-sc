@@ -79,7 +79,7 @@ export function parseActivationPolicy(raw: any): ActivationPolicy {
 const artifactSpec = (name: DexContract) =>
   fs.readFileSync(path.resolve(__dirname, '../../smart_contracts/artifacts', immutableCatalog[name].artifact), 'utf8')
 
-function dexClients(ctx: ScriptContext, stack: DexStack) {
+export function dexClients(ctx: ScriptContext, stack: DexStack) {
   const clients = new Map<DexContract, AppClient>()
   return (name: DexContract) => {
     if (!clients.has(name)) clients.set(name, new AppClient({ appId: stack[name], appSpec: artifactSpec(name), algorand: ctx.algorand,
@@ -89,7 +89,14 @@ function dexClients(ctx: ScriptContext, stack: DexStack) {
 }
 
 /**
- * Reads `<dir>/<Contract>.json` for all 13 contracts. Each receipt must belong to this network and a
+ * The contracts of the stack that have an admin (a `proposeAdmin` method), in deploy order. The admin
+ * plugin is not one of them: its handover methods are named `proposeAdminOf` / `acceptAdminOf`.
+ */
+export const handoverApps = (client: ReturnType<typeof dexClients>) =>
+  pluginDexDeployOrder.filter(name => client(name).appSpec.methods.some(m => m.name === 'proposeAdmin'))
+
+/**
+ * Reads `<dir>/<Contract>.json` for every contract in `pluginDexDeployOrder`. Each receipt must belong to this network and a
  * finished deployment whose live programs match it, and each dependency arg stored on chain must name
  * the app in its dependency's receipt, so receipts from two different stacks cannot be mixed.
  */
@@ -193,7 +200,7 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
   steps.push(launchManager('setDevBuy', [rewards, maxBps, minVestSeconds, maxVestSeconds],
     { rewards, devBuyMaxBps: maxBps, devVestMin: minVestSeconds, devVestMax: maxVestSeconds }))
 
-  const handover = pluginDexDeployOrder.filter(name => client(name).appSpec.methods.some(m => m.name === 'proposeAdmin'))
+  const handover = handoverApps(client)
   for (const name of handover) {
     steps.push({ label: `${name}.proposeAdmin(${finalAdmin})`, app: name, method: 'proposeAdmin', args: [finalAdmin], admin: true,
       isDone: async () => { const state = await globals(name); return state.admin === finalAdmin || state.pendingAdmin === finalAdmin } })
@@ -211,8 +218,9 @@ export function planActivation(ctx: ScriptContext, stack: DexStack, policy: Acti
  * a DAO proposal must make. A dry run reports the plan and sends nothing.
  *
  * The run ends with the handover proposed, not finished: each `acceptAdmin()` is reported as `awaiting`
- * the DAO wallet and printed with its app id, because only the DAO wallet can send it. Rerun after the
- * DAO has accepted to confirm every admin.
+ * the DAO wallet and printed with its app id, because only the DAO wallet can send it. The DAO wallet
+ * accepts through PluginDexAdminPlugin (`accept-plugin-dex-admin`, scripts/lib/plugin-dex-admin-handover.ts).
+ * Rerun after the DAO has accepted to confirm every admin.
  *
  * `overrides.finalAdmin` replaces the DAO wallet as the account the admin is handed to. It exists for
  * tests and LocalNet rehearsals, where a plain account can stand in and accept; the CLI never sets it.
@@ -243,6 +251,7 @@ export async function activatePluginDex(ctx: ScriptContext, receiptsDir: string,
     if (!awaiting.length) return
     console.log(`\nThe admin handover is proposed, not finished. ${finalAdmin} must send these calls itself; until it does, the current admin stays in charge:`)
     for (const s of awaiting) console.log(`  ${json({ appId: stack[s.app], app: s.app, method: signatureOf(s), args: s.args, signer: s.onlyFrom })}`)
+    if (!overrides.finalAdmin) console.log(`The DAO wallet sends them through PluginDexAdminPlugin: npm run accept:plugin-dex-admin -- -n ${ctx.options.network} --receipts ${receiptsDir}`)
   }
   const pending = steps.filter((_, i) => report[i].status === 'pending')
   if (ctx.options.dryRun || !pending.length) { printAwaiting(); return report }

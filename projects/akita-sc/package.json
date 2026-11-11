@@ -187,11 +187,14 @@
     "deploy:meta": "ts-node --transpile-only scripts/deploy-meta.ts",
     "deploy:plugin-dex": "ts-node --transpile-only scripts/deploy-immutable.ts --contract PluginDex",
     "activate:plugin-dex": "ts-node --transpile-only scripts/activate-plugin-dex.ts",
+    "accept:plugin-dex-admin": "ts-node --transpile-only scripts/accept-plugin-dex-admin.ts",
     "deploy:wallet-balance-reader": "ts-node --transpile-only scripts/deploy-immutable.ts --contract AbstractedAccountBalanceReader",
     "update:auction-children": "ts-node --transpile-only scripts/update-children.ts --kind auction",
     "update:raffle-children": "ts-node --transpile-only scripts/update-children.ts --kind raffle",
     "update:staking-pool-children": "ts-node --transpile-only scripts/update-children.ts --kind staking-pool",
     "rollout:status": "ts-node --transpile-only scripts/rollout-status.ts",
+    "release:manifest": "node scripts/release-manifest.mjs",
+    "release:manifest:check": "node scripts/release-manifest.mjs --check",
     "seal:gate-imports": "ts-node --transpile-only scripts/seal-gate-imports.ts"
   },
   "engines": {

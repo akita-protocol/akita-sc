@@ -36,7 +36,10 @@ describe('migration deployment and update scripts', () => {
       factory: boot.walletFactory!.appId.toString(), guild: '0', recipient: ctx.sender,
       registry: ctx.dao.appId.toString(), namespace: 'migration', keys: ['status'],
       // Gate v2: v1 gate_cursor at migration time; 1 = fresh network, no legacy imports
-      legacyCutoff: '1' }
+      legacyCutoff: '1',
+      // SocialClaim: the WelcomePlugin and PayPlugin deployed above, a 32-byte attestor key and its manager
+      welcome: deployed.WelcomePlugin?.toString() ?? '', pay: deployed.PayPlugin?.toString() ?? '',
+      attestor: Array.from({ length: 32 }, (_, i) => i + 1) as unknown as string[], manager: ctx.sender }
     // Only supply fields declared by this contract; argument spelling comes from ARC-56.
     const catalog = await import('../scripts/lib/immutable-catalog.json')
     const entry = catalog.default[name as keyof typeof catalog.default]

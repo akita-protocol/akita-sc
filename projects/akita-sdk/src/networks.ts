@@ -126,6 +126,8 @@ export interface NetworkAppIds {
   consensusKeyregHook?: bigint;
   /** PluginDexPlugin: the ARC-58 plugin wallets trade and provide liquidity through */
   pluginDexPlugin?: bigint;
+  /** PluginDexAdminPlugin: the ARC-58 plugin the admin wallet (the DAO wallet) holds the Plugin DEX admin role through */
+  pluginDexAdminPlugin?: bigint;
   launchManager?: bigint;
   gatedFeePassPlugin?: bigint;
   /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */
@@ -496,6 +498,7 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   launchTaxHook: 0n,
   consensusKeyregHook: 0n,
   pluginDexPlugin: 0n,
+  pluginDexAdminPlugin: 0n,
   launchManager: 0n,
   gatedFeePassPlugin: 0n,
   rewardsV1: 763128244n,
@@ -613,6 +616,7 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   launchTaxHook: 0n,
   consensusKeyregHook: 0n,
   pluginDexPlugin: 0n,
+  pluginDexAdminPlugin: 0n,
   launchManager: 0n,
   gatedFeePassPlugin: 0n,
   rewardsV1: 3569556095n,
@@ -963,6 +967,7 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   LAUNCH_TAX_HOOK_APP_ID: 'launchTaxHook',
   CONSENSUS_KEYREG_HOOK_APP_ID: 'consensusKeyregHook',
   PLUGIN_DEX_PLUGIN_APP_ID: 'pluginDexPlugin',
+  PLUGIN_DEX_ADMIN_PLUGIN_APP_ID: 'pluginDexAdminPlugin',
   LAUNCH_MANAGER_APP_ID: 'launchManager',
   GATED_FEE_PASS_PLUGIN_APP_ID: 'gatedFeePassPlugin',
   REWARDS_V1_APP_ID: 'rewardsV1',

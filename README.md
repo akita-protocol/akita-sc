@@ -12,20 +12,28 @@ verification strategy, and migration notes, see
 
 ## Toolchain and checks
 
-Use Node.js 24 or newer. PuyaTs and Algorand TypeScript are pinned together to
-`1.2.0-beta.28` for the AVM 13 contracts in this project. The application SDK
+Use Node.js 24 or newer (`nvm use` reads `.nvmrc`) and npm; the lockfile is
+`package-lock.json`. PuyaTs and Algorand TypeScript are pinned together to
+`1.3.1` (puya 5.10.1) for the AVM 13 contracts in this project. The application SDK
 uses AlgoKit Utils 9.2.2 and algosdk 3.7.0; PuyaTs retains its own nested
 AlgoKit Utils 10 dependency. `@akta/plugin` depends on the contract type
 definitions directly; it does not install its own compiler.
 
 ```bash
-npm install
+npm ci
 vibekit localnet start
 npm run build --workspace smart_contracts
 npm run build --workspace @akta/sdk
+npm run release:manifest:check --workspace smart_contracts
 npm run check-types --workspace smart_contracts
 npm test --workspaces --if-present
 ```
+
+The build output is committed. `projects/akita-sc/release/manifest.json` pins the
+hash and size of every program under `smart_contracts/artifacts`; after an intended
+rebuild run `npm run release:manifest --workspace smart_contracts` and commit the
+manifest with the artifacts. CI rebuilds from the lockfile on every push and fails
+when the committed output or the manifest differs.
 
 The contract workspace type check includes deployment scripts and test helpers.
 The legacy escrow migration script uses the wallet's admin-only `migrateEscrow`
@@ -249,6 +257,7 @@ A dash means not deployed on that network yet. Each deployment script's receipt
 | `guildConsensusFactory` | — | — |
 | `guildPlugin` | — | — |
 | `welcomePlugin` | — | — |
+| `socialClaim` | — | — |
 | `assetInboxPlugin` | — | — |
 | `walletBalanceReader` | — | — |
 | `pluginDex` | — | — |
@@ -262,6 +271,7 @@ A dash means not deployed on that network yet. Each deployment script's receipt
 | `launchTaxHook` | — | — |
 | `consensusKeyregHook` | — | — |
 | `pluginDexPlugin` | — | — |
+| `pluginDexAdminPlugin` | — | — |
 | `launchManager` | — | — |
 | `gatedFeePassPlugin` | — | — |
 | `governanceParticipationGate` | — | — |

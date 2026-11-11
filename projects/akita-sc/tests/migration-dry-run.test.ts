@@ -52,7 +52,7 @@ describe('migration dry runs', () => {
     const ctx = await setupContext({ network: 'localnet', version: 'release', daoAppId: 1n, dryRun: true })
     expect(pluginDexDeployOrder).toEqual(['PluginDex', 'BinEngine', 'ImpactFeeHook', 'SwapTaxHook', 'VolatilityFeeHook',
       'BackrunArbHook', 'GatedFeeHook', 'AntiSnipeFeeHook', 'LaunchTaxHook', 'ConsensusKeyregHook',
-      'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin'])
+      'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin', 'PluginDexAdminPlugin'])
     for (const name of pluginDexDeployOrder) expect(immutableContracts).toContain(name)
     expect(immutableCatalog.PluginDex.plugin).toBe(false)
     // the swap, pool and liquidity wallet plugin deploys with the stack, pinned to the Vault
@@ -62,6 +62,16 @@ describe('migration dry runs', () => {
     expect(immutableCatalog.GatedFeePassPlugin.plugin).toBe(true)
     expect(immutableCatalog.GatedFeePassPlugin.dependencies).toEqual({ hook: 'GatedFeeHook' })
     expect(prepareImmutable(ctx, 'GatedFeePassPlugin', { hook: '9' }).args).toEqual(['release', 9n])
+    // the admin plugin ships last, pinned to the five apps that have an admin (readiness audit C10)
+    expect(immutableCatalog.PluginDexAdminPlugin.plugin).toBe(true)
+    expect(immutableCatalog.PluginDexAdminPlugin.dependencies).toEqual({ vault: 'PluginDex', launchManager: 'LaunchManager',
+      backrunArbHook: 'BackrunArbHook', consensusKeyregHook: 'ConsensusKeyregHook', gatedFeeHook: 'GatedFeeHook' })
+    expect(prepareImmutable(ctx, 'PluginDexAdminPlugin',
+      { vault: '5', launchManager: '6', backrunArbHook: '7', consensusKeyregHook: '8', gatedFeeHook: '9' }).args).toEqual(['release', 5n, 6n, 7n, 8n, 9n])
+    expect(() => prepareImmutable(ctx, 'PluginDexAdminPlugin', { vault: '5', launchManager: '6', backrunArbHook: '7', consensusKeyregHook: '8' }))
+      .toThrow('requires gatedFeeHook: the app ID of GatedFeeHook')
+    expect(() => validateDeployOrder(['PluginDex', 'BackrunArbHook', 'ConsensusKeyregHook', 'PluginDexAdminPlugin', 'LaunchManager']))
+      .toThrow('PluginDexAdminPlugin must be deployed after LaunchManager')
     expect(() => validateDeployOrder(['PluginDex', 'GatedFeePassPlugin', 'GatedFeeHook'])).toThrow('GatedFeePassPlugin must be deployed after GatedFeeHook')
     expect(() => validateDeployOrder()).not.toThrow()
     expect(() => validateDeployOrder(['PluginDexPlugin', 'PluginDex'])).toThrow('PluginDexPlugin must be deployed after PluginDex')

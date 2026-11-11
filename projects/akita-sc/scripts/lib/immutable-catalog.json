@@ -452,6 +452,23 @@
       "Phase 3 gate: deploy this before any pool installs GatedFeeHook, and ship its id with the PluginDex launch; without it no wallet user can hold a pass."
     ]
   },
+  "PluginDexAdminPlugin": {
+    "artifact": "arc58/plugins/plugin-dex-admin/PluginDexAdminPlugin.arc56.json",
+    "registryKey": "pluginDexAdminPlugin",
+    "plugin": true,
+    "daoField": null,
+    "dependencies": {
+      "vault": "PluginDex",
+      "launchManager": "LaunchManager",
+      "backrunArbHook": "BackrunArbHook",
+      "consensusKeyregHook": "ConsensusKeyregHook",
+      "gatedFeeHook": "GatedFeeHook"
+    },
+    "notes": [
+      "ARC-58 wallet plugin that lets a wallet hold the admin role of this Plugin DEX deployment: acceptAdminOf and proposeAdminOf for the handover, and one method per admin action of the Vault, LaunchManager, BackrunArbHook, ConsensusKeyregHook and GatedFeeHook. Adminless and immutable, pinned to these five apps at create; it has no authority of its own (each app still checks that the wallet is its admin).",
+      "Deploy it before activate-plugin-dex proposes the DAO wallet as admin: the DAO wallet can only accept (accept-plugin-dex-admin) and later act as admin through this plugin."
+    ]
+  },
   "Rewards": {
     "artifact": "rewards/Rewards.arc56.json",
     "registryKey": "rewards",
@@ -539,6 +556,16 @@
     "daoField": null,
     "notes": [
       "Principal resolution (docs/principal-resolution/PHASE-0-SPEC.md §7.1) Phase 3: constructor factory = the wallet factory (AbstractedAccountFactory) app id."
+    ]
+  },
+  "SocialClaim": {
+    "artifact": "arc58/social-claim/SocialClaim.arc56.json",
+    "registryKey": "socialClaim",
+    "plugin": false,
+    "daoField": null,
+    "notes": [
+      "Constructor: welcome = the WelcomePlugin app id and pay = the PayPlugin app id (both fixed for the life of the app; check each id against its receipt before deploying, this tooling does not verify them), attestor = the 32-byte ed25519 public key that signs platform attestations (a JSON array of 32 numbers), manager = the address that may replace the attestor or the manager.",
+      "Whoever holds the attestor key can bind any handle to any wallet, and the manager can replace the attestor. Decide who holds each before deploying: the manager should not be a hot key."
     ]
   }
 }

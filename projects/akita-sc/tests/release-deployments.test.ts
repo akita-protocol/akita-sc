@@ -143,6 +143,21 @@ describe('SDK keys for the 2026-10 release', () => {
     expect(recordPluginDeployment).toHaveBeenCalledWith('mainnet', 'payPlugin', 12n, 'release')
   })
 
+  test('SocialClaim deploys through the catalog with its attestor key and manager', async () => {
+    const ctx = await setupContext({ network: 'mainnet', version: 'release', daoAppId: 1n, dryRun: true })
+    const attestor = Array.from({ length: 32 }, (_, i) => i + 1) as unknown as string[]
+    const manager = algosdk.encodeAddress(new Uint8Array(32).fill(9))
+    const prepared = prepareImmutable(ctx, 'SocialClaim', { welcome: '7', pay: '8', attestor, manager })
+    expect(prepared.args).toEqual([7n, 8n, attestor, manager])
+    // a short key, a zero app ID and a missing manager are refused before anything is sent
+    expect(() => prepareImmutable(ctx, 'SocialClaim', { welcome: '7', pay: '8', attestor: attestor.slice(1), manager })).toThrow()
+    expect(() => prepareImmutable(ctx, 'SocialClaim', { welcome: '0', pay: '8', attestor, manager })).toThrow('positive integer app ID')
+    expect(() => prepareImmutable(ctx, 'SocialClaim', { welcome: '7', pay: '8', attestor })).toThrow('requires constructor config manager')
+    await recordSdkKey(ctx, 'SocialClaim', prepared, 30n)
+    expect(recordNetworkAppDeployment).toHaveBeenCalledWith('mainnet', 'socialClaim', 30n)
+    expect(recordPluginDeployment).not.toHaveBeenCalled()
+  })
+
   test('keeps the replaced Rewards app as rewardsV1 only while that key is unset', async () => {
     const ctx = await setupContext({ network: 'mainnet', version: 'release', daoAppId: 1n, dryRun: true })
     const rewards = prepareImmutable(ctx, 'Rewards')

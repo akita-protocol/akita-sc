@@ -37,7 +37,10 @@ export const immutableContracts = Object.keys(catalog)
  * PluginDex v2 stack (FINAL-SPEC §7 Q1, OPEN-DECISIONS #2 option a): v2 replaces v1 under the
  * `PluginDex` key and is never deployed beside it. Deploy in this order:
  *   Vault (PluginDex) → BinEngine and the hooks (then the Vault admin approves them) → PluginDexPlugin
- *   → LaunchManager → GatedFeePassPlugin (pinned to the GatedFeeHook; a Phase 3 gate before any pool installs that hook).
+ *   → LaunchManager → GatedFeePassPlugin (pinned to the GatedFeeHook; a Phase 3 gate before any pool installs that hook)
+ *   → PluginDexAdminPlugin (pinned to the four apps with a stored admin and to GatedFeeHook, whose admin is
+ *     the DAO wallet; the DAO wallet accepts and uses the admin role through it, so it is deployed before
+ *     the handover is proposed).
  * Every dependency arg must name an app deployed earlier; `deployImmutable` checks on chain that it
  * runs the dependency's compiled program. The admin calls are not sent by this tooling (on MainNet
  * the admin is the DAO wallet); each deployment prints its `postDeploy` checklist instead.
@@ -46,7 +49,7 @@ export const pluginDexDeployOrder = [
   'PluginDex', 'BinEngine',
   'ImpactFeeHook', 'SwapTaxHook', 'VolatilityFeeHook', 'BackrunArbHook', 'GatedFeeHook', 'AntiSnipeFeeHook',
   'LaunchTaxHook', 'ConsensusKeyregHook',
-  'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin',
+  'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin', 'PluginDexAdminPlugin',
 ] as const
 
 /** Throws when a dependency is unknown or not deployed before its dependent in `pluginDexDeployOrder`. */
