@@ -107,6 +107,8 @@ export interface NetworkAppIds {
     consensusKeyregHook?: bigint;
     /** PluginDexPlugin: the ARC-58 plugin wallets trade and provide liquidity through */
     pluginDexPlugin?: bigint;
+    /** PluginDexAdminPlugin: the ARC-58 plugin the admin wallet (the DAO wallet) holds the Plugin DEX admin role through */
+    pluginDexAdminPlugin?: bigint;
     launchManager?: bigint;
     gatedFeePassPlugin?: bigint;
     /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */

@@ -1,0 +1,2337 @@
+#pragma version 13
+#pragma typetrack false
+#pragma autosalt false
+
+// @algorandfoundation/algorand-typescript/arc4/index.d.ts::Contract.approvalProgram() -> uint64:
+main:
+    intcblock 0 8 1 6
+    bytecblock "vault" "backrun_hook" "launch_manager" "keyreg_hook" "gated_hook" "admin" 0x21f1ddff
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:37-38
+    // @contract({ avmVersion: 13 })
+    // export class PluginDexAdminPlugin extends Contract {
+    txn OnCompletion
+    !
+    assert
+    txn ApplicationID
+    bz main_create_NoOp@27
+    pushbytess 0x854dede0 0x5c462026 0x474e8b55 0xb8b91457 0x846f9df9 0xe00b931e 0x8c24b775 0x9d5eaf1c 0xa87e1df2 0xc6ac4a20 0x5c074143 0xb4d00ab5 0x054db29c 0x3d230fda 0x780ac60f 0x15d22b0e 0x305bdf9c 0x716a07ba 0xd3195daf 0xd6afadeb 0x0cee9e70 0x704537ff 0xf84d4966 // method "opUp()void", method "acceptAdminOf(uint64,bool,uint64)void", method "proposeAdminOf(uint64,bool,uint64,address)void", method "vaultSetProtocolFee(uint64,bool,uint64,address)void", method "vaultSetHookApproval(uint64,bool,uint64,uint64)void", method "vaultSetCurveApproval(uint64,bool,uint64,uint64,bool)void", method "vaultSetValuatorApproval(uint64,bool,uint64,bool)void", method "vaultSetPoolPaused(uint64,bool,uint64,bool)void", method "vaultWriteDownExternal(uint64,bool,uint64,uint64)void", method "launchSetFees(uint64,bool,uint64,uint64,address)void", method "launchSetHooks(uint64,bool,uint64,uint64,uint64,uint64)void", method "launchSetDevBuy(uint64,bool,uint64,uint64,uint64,uint64)void", method "backrunSetPaused(uint64,bool,bool)void", method "backrunRegisterPool(uint64,bool,uint64,uint64,uint64,uint64)void", method "backrunSetPoolEnabled(uint64,bool,uint64,bool)void", method "backrunWithdraw(uint64,bool,uint64)void", method "keyregSetPoolKeys(uint64,bool,uint64,(address,byte[32],byte[32],byte[64],uint64,uint64,uint64))void", method "keyregDeletePoolKeys(uint64,bool,uint64)void", method "keyregWithdraw(uint64,bool,uint64)void", method "gatedSetGateSlots(uint64,bool,uint64[])void", method "gatedSetPassTtl(uint64,bool,uint64)void", method "gatedSetMaxDiscountedSwapsPerDay(uint64,bool,uint64)void", method "gatedSetDefaultSchedule(uint64,bool,(uint64,uint64,uint64,(uint64,uint64,uint64,uint64)[]))void"
+    txna ApplicationArgs 0
+    match main_opUp_route@3 acceptAdminOf proposeAdminOf vaultSetProtocolFee vaultSetHookApproval vaultSetCurveApproval vaultSetValuatorApproval vaultSetPoolPaused vaultWriteDownExternal launchSetFees launchSetHooks launchSetDevBuy backrunSetPaused backrunRegisterPool backrunSetPoolEnabled backrunWithdraw keyregSetPoolKeys keyregDeletePoolKeys keyregWithdraw gatedSetGateSlots gatedSetPassTtl gatedSetMaxDiscountedSwapsPerDay gatedSetDefaultSchedule
+    err
+
+main_opUp_route@3:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:79
+    // opUp(): void {}
+    intc_2 // 1
+    return
+
+main_create_NoOp@27:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:37-38
+    // @contract({ avmVersion: 13 })
+    // export class PluginDexAdminPlugin extends Contract {
+    pushbytes 0x7ed2957f // method "create(string,uint64,uint64,uint64,uint64,uint64)void"
+    txna ApplicationArgs 0
+    match create
+    err
+
+
+// smart_contracts/utils/functions.ts::getControlledSpendingAccount(wallet: uint64) -> bytes:
+getControlledSpendingAccount:
+    // smart_contracts/utils/functions.ts:398
+    // export function getControlledSpendingAccount(wallet: Application): Account {
+    proto 1 1
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    frame_dig -1
+    // smart_contracts/utils/functions.ts:387
+    // Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    pushbytes "spending_address"
+    // smart_contracts/utils/functions.ts:385-388
+    // const [spendingAddressBytes] = op.AppGlobal.getExBytes(
+    //   wallet,
+    //   Bytes(AbstractAccountGlobalStateKeysSpendingAddress)
+    // )
+    app_global_get_ex
+    pop
+    dup
+    // smart_contracts/utils/functions.ts:400
+    // loggedAssert(sender.authAddress === Global.currentApplicationAddress, errPluginNotAuthAddr)
+    acct_params_get AcctAuthAddr
+    assert // account funded
+    global CurrentApplicationAddress
+    ==
+    bnz getControlledSpendingAccount_after_assert@2
+    pushbytes "ERR:errNath"
+    log
+    err // ERR:errNath
+
+getControlledSpendingAccount_after_assert@2:
+    // smart_contracts/utils/functions.ts:401
+    // return sender
+    retsub
+
+
+// smart_contracts/utils/functions.ts::rekeyAddress(rekeyBack: uint64, wallet: uint64) -> bytes:
+rekeyAddress:
+    // smart_contracts/utils/functions.ts:452
+    // export function rekeyAddress(rekeyBack: boolean, wallet: Application): Account {
+    proto 2 1
+    // smart_contracts/utils/functions.ts:453
+    // if (!rekeyBack) {
+    frame_dig -2
+    bnz rekeyAddress_after_if_else@2
+    // smart_contracts/utils/functions.ts:454
+    // return Global.zeroAddress
+    global ZeroAddress
+    retsub
+
+rekeyAddress_after_if_else@2:
+    // smart_contracts/utils/functions.ts:457
+    // return wallet.address
+    frame_dig -1
+    app_params_get AppAddress
+    assert // application exists
+    retsub
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.create[routing]() -> void:
+create:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:51
+    // @abimethod({ onCreate: 'require' })
+    txna ApplicationArgs 1
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<arc4.uint8>
+    extract 2 0
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    dup
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    swap
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:393
+    // if (app.id === 0) {
+    bnz create_after_if_else@29
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:394
+    // return false
+    intc_0 // 0
+
+create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@30:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63-64
+    // this.hasAdmin(vault) &&
+    //   this.hasAdmin(launchManager) &&
+    bz create_bool_false@7
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:393
+    // if (app.id === 0) {
+    dig 3
+    bnz create_after_if_else@25
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:394
+    // return false
+    intc_0 // 0
+
+create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@26:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63-64
+    // this.hasAdmin(vault) &&
+    //   this.hasAdmin(launchManager) &&
+    bz create_bool_false@7
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:393
+    // if (app.id === 0) {
+    dig 2
+    bnz create_after_if_else@21
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:394
+    // return false
+    intc_0 // 0
+
+create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@22:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63-65
+    // this.hasAdmin(vault) &&
+    //   this.hasAdmin(launchManager) &&
+    //   this.hasAdmin(backrunArbHook) &&
+    bz create_bool_false@7
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:393
+    // if (app.id === 0) {
+    dig 1
+    bnz create_after_if_else@17
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:394
+    // return false
+    intc_0 // 0
+
+create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@18:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63-66
+    // this.hasAdmin(vault) &&
+    //   this.hasAdmin(launchManager) &&
+    //   this.hasAdmin(backrunArbHook) &&
+    //   this.hasAdmin(consensusKeyregHook) &&
+    bz create_bool_false@7
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:402
+    // if (app.id === 0) {
+    dup
+    bnz create_after_if_else@13
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:403
+    // return false
+    intc_0 // 0
+
+create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasDao@14:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63-67
+    // this.hasAdmin(vault) &&
+    //   this.hasAdmin(launchManager) &&
+    //   this.hasAdmin(backrunArbHook) &&
+    //   this.hasAdmin(consensusKeyregHook) &&
+    //   this.hasDao(gatedFeeHook),
+    bz create_bool_false@7
+    intc_2 // 1
+
+create_bool_merge@8:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:62-69
+    // loggedAssert(
+    //   this.hasAdmin(vault) &&
+    //     this.hasAdmin(launchManager) &&
+    //     this.hasAdmin(backrunArbHook) &&
+    //     this.hasAdmin(consensusKeyregHook) &&
+    //     this.hasDao(gatedFeeHook),
+    //   errDaCreate,
+    // )
+    bnz create_after_assert@10
+    pushbytes "ERR:errDaCr"
+    log
+    err // ERR:errDaCr
+
+create_after_assert@10:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:39
+    // version = GlobalState<string>({ key: 'version' })
+    pushbytes "version"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:70
+    // this.version.value = version
+    uncover 6
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:71
+    // this.vault.value = vault
+    uncover 5
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:43
+    // launchManager = GlobalState<Application>({ key: 'launch_manager' })
+    bytec_2 // "launch_manager"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:72
+    // this.launchManager.value = launchManager
+    uncover 4
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:73
+    // this.backrunArbHook.value = backrunArbHook
+    uncover 3
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:47
+    // consensusKeyregHook = GlobalState<Application>({ key: 'keyreg_hook' })
+    bytec_3 // "keyreg_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:74
+    // this.consensusKeyregHook.value = consensusKeyregHook
+    uncover 2
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:49
+    // gatedFeeHook = GlobalState<Application>({ key: 'gated_hook' })
+    bytec 4 // "gated_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:75
+    // this.gatedFeeHook.value = gatedFeeHook
+    swap
+    app_global_put
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:51
+    // @abimethod({ onCreate: 'require' })
+    intc_2 // 1
+    return
+
+create_bool_false@7:
+    intc_0 // 0
+    b create_bool_merge@8
+
+create_after_if_else@13:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:405
+    // const [, exists] = op.AppGlobal.getExUint64(app, Bytes('akita_dao'))
+    dup
+    pushbytes "akita_dao"
+    app_global_get_ex
+    bury 1
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:67
+    // this.hasDao(gatedFeeHook),
+    b create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasDao@14
+
+create_after_if_else@17:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:396
+    // const [, exists] = op.AppGlobal.getExBytes(app, Bytes('admin'))
+    dig 1
+    bytec 5 // "admin"
+    app_global_get_ex
+    bury 1
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:66
+    // this.hasAdmin(consensusKeyregHook) &&
+    b create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@18
+
+create_after_if_else@21:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:396
+    // const [, exists] = op.AppGlobal.getExBytes(app, Bytes('admin'))
+    dig 2
+    bytec 5 // "admin"
+    app_global_get_ex
+    bury 1
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:65
+    // this.hasAdmin(backrunArbHook) &&
+    b create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@22
+
+create_after_if_else@25:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:396
+    // const [, exists] = op.AppGlobal.getExBytes(app, Bytes('admin'))
+    dig 3
+    bytec 5 // "admin"
+    app_global_get_ex
+    bury 1
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:64
+    // this.hasAdmin(launchManager) &&
+    b create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@26
+
+create_after_if_else@29:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:396
+    // const [, exists] = op.AppGlobal.getExBytes(app, Bytes('admin'))
+    dig 4
+    bytec 5 // "admin"
+    app_global_get_ex
+    bury 1
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:63
+    // this.hasAdmin(vault) &&
+    b create_after_inlined_smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.hasAdmin@30
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.acceptAdminOf[routing]() -> void:
+acceptAdminOf:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:87
+    // acceptAdminOf(wallet: Application, rekeyBack: boolean, app: Application): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:88
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:89
+    // this.requireTarget(app)
+    dig 1
+    callsub requireTarget
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:92-97
+    // abiCall<typeof PluginDex.prototype.acceptAdmin>({
+    //   sender,
+    //   appId: app,
+    //   args: [],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:96
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 2
+    uncover 3
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field Sender
+    itxn_field ApplicationID
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:92-97
+    // abiCall<typeof PluginDex.prototype.acceptAdmin>({
+    //   sender,
+    //   appId: app,
+    //   args: [],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x45b0a525 // method "acceptAdmin()void"
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:87
+    // acceptAdminOf(wallet: Application, rekeyBack: boolean, app: Application): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.proposeAdminOf[routing]() -> void:
+proposeAdminOf:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:104
+    // proposeAdminOf(wallet: Application, rekeyBack: boolean, app: Application, admin: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:105
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:106
+    // this.requireTarget(app)
+    dig 2
+    callsub requireTarget
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:109-114
+    // abiCall<typeof PluginDex.prototype.proposeAdmin>({
+    //   sender,
+    //   appId: app,
+    //   args: [admin],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:113
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    uncover 2
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:109-114
+    // abiCall<typeof PluginDex.prototype.proposeAdmin>({
+    //   sender,
+    //   appId: app,
+    //   args: [admin],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x79a7b2dc // method "proposeAdmin(address)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:104
+    // proposeAdminOf(wallet: Application, rekeyBack: boolean, app: Application, admin: Account): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultSetProtocolFee[routing]() -> void:
+vaultSetProtocolFee:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:120
+    // vaultSetProtocolFee(wallet: Application, rekeyBack: boolean, protocolFeeBps: uint64, treasury: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:121
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:123-128
+    // abiCall<typeof PluginDex.prototype.setProtocolFee>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [protocolFeeBps, treasury],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:125
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:125
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:127
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:123-128
+    // abiCall<typeof PluginDex.prototype.setProtocolFee>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [protocolFeeBps, treasury],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xd304648e // method "setProtocolFee(uint64,address)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:120
+    // vaultSetProtocolFee(wallet: Application, rekeyBack: boolean, protocolFeeBps: uint64, treasury: Account): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultSetHookApproval[routing]() -> void:
+vaultSetHookApproval:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:132
+    // vaultSetHookApproval(wallet: Application, rekeyBack: boolean, hook: uint64, perms: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:133
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:135-140
+    // abiCall<typeof PluginDex.prototype.setHookApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [hook, perms],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:137
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:137
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:139
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:135-140
+    // abiCall<typeof PluginDex.prototype.setHookApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [hook, perms],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x19378a18 // method "setHookApproval(uint64,uint64)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:132
+    // vaultSetHookApproval(wallet: Application, rekeyBack: boolean, hook: uint64, perms: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultSetCurveApproval[routing]() -> void:
+vaultSetCurveApproval:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:144
+    // vaultSetCurveApproval(wallet: Application, rekeyBack: boolean, curve: uint64, lpMode: uint64, approved: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:145
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 4
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:147-152
+    // abiCall<typeof PluginDex.prototype.setCurveApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [curve, lpMode, approved],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:149
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:149
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:151
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 5
+    uncover 6
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:147-152
+    // abiCall<typeof PluginDex.prototype.setCurveApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [curve, lpMode, approved],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x07585ec1 // method "setCurveApproval(uint64,uint64,bool)void"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:144
+    // vaultSetCurveApproval(wallet: Application, rekeyBack: boolean, curve: uint64, lpMode: uint64, approved: boolean): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultSetValuatorApproval[routing]() -> void:
+vaultSetValuatorApproval:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:156
+    // vaultSetValuatorApproval(wallet: Application, rekeyBack: boolean, valuator: uint64, approved: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:157
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:159-164
+    // abiCall<typeof PluginDex.prototype.setValuatorApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [valuator, approved],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:161
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:161
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:163
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:159-164
+    // abiCall<typeof PluginDex.prototype.setValuatorApproval>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [valuator, approved],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xb0ded6f8 // method "setValuatorApproval(uint64,bool)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:156
+    // vaultSetValuatorApproval(wallet: Application, rekeyBack: boolean, valuator: uint64, approved: boolean): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultSetPoolPaused[routing]() -> void:
+vaultSetPoolPaused:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:168
+    // vaultSetPoolPaused(wallet: Application, rekeyBack: boolean, poolId: uint64, paused: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:169
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:171-176
+    // abiCall<typeof PluginDex.prototype.setPoolPaused>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [poolId, paused],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:173
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:173
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:175
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:171-176
+    // abiCall<typeof PluginDex.prototype.setPoolPaused>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [poolId, paused],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x117a3f97 // method "setPoolPaused(uint64,bool)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:168
+    // vaultSetPoolPaused(wallet: Application, rekeyBack: boolean, poolId: uint64, paused: boolean): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.vaultWriteDownExternal[routing]() -> void:
+vaultWriteDownExternal:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:180
+    // vaultWriteDownExternal(wallet: Application, rekeyBack: boolean, poolId: uint64, slot: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:181
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:183-188
+    // abiCall<typeof PluginDex.prototype.writeDownExternal>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [poolId, slot],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:185
+    // appId: this.vault.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:185
+    // appId: this.vault.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:187
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:183-188
+    // abiCall<typeof PluginDex.prototype.writeDownExternal>({
+    //   sender,
+    //   appId: this.vault.value,
+    //   args: [poolId, slot],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x0a2fdc2b // method "writeDownExternal(uint64,uint64)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:180
+    // vaultWriteDownExternal(wallet: Application, rekeyBack: boolean, poolId: uint64, slot: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.launchSetFees[routing]() -> void:
+launchSetFees:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:194
+    // launchSetFees(wallet: Application, rekeyBack: boolean, launchFee: uint64, bounty: uint64, treasury: Account): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    len
+    pushint 32
+    ==
+    assert // invalid number of bytes for arc4.static_array<arc4.uint8, 32>
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:195
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 4
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:197-202
+    // abiCall<typeof LaunchManager.prototype.setFees>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [launchFee, bounty, treasury],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:199
+    // appId: this.launchManager.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:43
+    // launchManager = GlobalState<Application>({ key: 'launch_manager' })
+    bytec_2 // "launch_manager"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:199
+    // appId: this.launchManager.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:201
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 5
+    uncover 6
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:197-202
+    // abiCall<typeof LaunchManager.prototype.setFees>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [launchFee, bounty, treasury],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xc7b7734d // method "setFees(uint64,uint64,address)void"
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:194
+    // launchSetFees(wallet: Application, rekeyBack: boolean, launchFee: uint64, bounty: uint64, treasury: Account): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.launchSetHooks[routing]() -> void:
+launchSetHooks:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:206-213
+    // launchSetHooks(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   antiSnipeHook: uint64,
+    //   launchTaxHook: uint64,
+    //   gatedHook: uint64,
+    //   gatedFunding: uint64,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:214
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 5
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:216-221
+    // abiCall<typeof LaunchManager.prototype.setHooks>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [antiSnipeHook, launchTaxHook, gatedHook, gatedFunding],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:218
+    // appId: this.launchManager.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:43
+    // launchManager = GlobalState<Application>({ key: 'launch_manager' })
+    bytec_2 // "launch_manager"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:218
+    // appId: this.launchManager.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:220
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 6
+    uncover 7
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:216-221
+    // abiCall<typeof LaunchManager.prototype.setHooks>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [antiSnipeHook, launchTaxHook, gatedHook, gatedFunding],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x3f03c85c // method "setHooks(uint64,uint64,uint64,uint64)void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:206-213
+    // launchSetHooks(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   antiSnipeHook: uint64,
+    //   launchTaxHook: uint64,
+    //   gatedHook: uint64,
+    //   gatedFunding: uint64,
+    // ): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.launchSetDevBuy[routing]() -> void:
+launchSetDevBuy:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:225-232
+    // launchSetDevBuy(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   rewards: uint64,
+    //   maxBps: uint64,
+    //   minVestSeconds: uint64,
+    //   maxVestSeconds: uint64,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:233
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 5
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:235-240
+    // abiCall<typeof LaunchManager.prototype.setDevBuy>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [rewards, maxBps, minVestSeconds, maxVestSeconds],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:237
+    // appId: this.launchManager.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:43
+    // launchManager = GlobalState<Application>({ key: 'launch_manager' })
+    bytec_2 // "launch_manager"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:237
+    // appId: this.launchManager.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:239
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 6
+    uncover 7
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:235-240
+    // abiCall<typeof LaunchManager.prototype.setDevBuy>({
+    //   sender,
+    //   appId: this.launchManager.value,
+    //   args: [rewards, maxBps, minVestSeconds, maxVestSeconds],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x714258a1 // method "setDevBuy(uint64,uint64,uint64,uint64)void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:225-232
+    // launchSetDevBuy(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   rewards: uint64,
+    //   maxBps: uint64,
+    //   minVestSeconds: uint64,
+    //   maxVestSeconds: uint64,
+    // ): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.backrunSetPaused[routing]() -> void:
+backrunSetPaused:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:246
+    // backrunSetPaused(wallet: Application, rekeyBack: boolean, paused: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:247
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:249-254
+    // abiCall<typeof BackrunArbHook.prototype.setPaused>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [paused],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:251
+    // appId: this.backrunArbHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:251
+    // appId: this.backrunArbHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:253
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:249-254
+    // abiCall<typeof BackrunArbHook.prototype.setPaused>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [paused],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x4e37efbd // method "setPaused(bool)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:246
+    // backrunSetPaused(wallet: Application, rekeyBack: boolean, paused: boolean): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.backrunRegisterPool[routing]() -> void:
+backrunRegisterPool:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:258-265
+    // backrunRegisterPool(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   poolId: uint64,
+    //   minSurplusA: uint64,
+    //   minSurplusB: uint64,
+    //   maxTradeBps: uint64,
+    // ): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 5
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 6
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:266
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 5
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:268-273
+    // abiCall<typeof BackrunArbHook.prototype.registerPool>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [poolId, minSurplusA, minSurplusB, maxTradeBps],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:270
+    // appId: this.backrunArbHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:270
+    // appId: this.backrunArbHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:272
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 6
+    uncover 7
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:268-273
+    // abiCall<typeof BackrunArbHook.prototype.registerPool>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [poolId, minSurplusA, minSurplusB, maxTradeBps],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0xcbcbbe37 // method "registerPool(uint64,uint64,uint64,uint64)void"
+    itxn_field ApplicationArgs
+    uncover 3
+    itxn_field ApplicationArgs
+    uncover 2
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:258-265
+    // backrunRegisterPool(
+    //   wallet: Application,
+    //   rekeyBack: boolean,
+    //   poolId: uint64,
+    //   minSurplusA: uint64,
+    //   minSurplusB: uint64,
+    //   maxTradeBps: uint64,
+    // ): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.backrunSetPoolEnabled[routing]() -> void:
+backrunSetPoolEnabled:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:277
+    // backrunSetPoolEnabled(wallet: Application, rekeyBack: boolean, poolId: uint64, enabled: boolean): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:278
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:280-285
+    // abiCall<typeof BackrunArbHook.prototype.setPoolEnabled>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [poolId, enabled],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:282
+    // appId: this.backrunArbHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:282
+    // appId: this.backrunArbHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:284
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:280-285
+    // abiCall<typeof BackrunArbHook.prototype.setPoolEnabled>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [poolId, enabled],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x47b2bf18 // method "setPoolEnabled(uint64,bool)void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:277
+    // backrunSetPoolEnabled(wallet: Application, rekeyBack: boolean, poolId: uint64, enabled: boolean): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.backrunWithdraw[routing]() -> void:
+backrunWithdraw:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:289
+    // backrunWithdraw(wallet: Application, rekeyBack: boolean, amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:290
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:292-297
+    // abiCall<typeof BackrunArbHook.prototype.withdraw>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [amount],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:294
+    // appId: this.backrunArbHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:294
+    // appId: this.backrunArbHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:296
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:292-297
+    // abiCall<typeof BackrunArbHook.prototype.withdraw>({
+    //   sender,
+    //   appId: this.backrunArbHook.value,
+    //   args: [amount],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    bytec 6 // method "withdraw(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:289
+    // backrunWithdraw(wallet: Application, rekeyBack: boolean, amount: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.keyregSetPoolKeys[routing]() -> void:
+keyregSetPoolKeys:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:303
+    // keyregSetPoolKeys(wallet: Application, rekeyBack: boolean, poolId: uint64, keys: PoolKeys): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    txna ApplicationArgs 4
+    dup
+    len
+    pushint 184
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/consensus-keyreg.algo.ts::PoolKeys
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:304
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 3
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:306-311
+    // abiCall<typeof ConsensusKeyregHook.prototype.setPoolKeys>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [poolId, keys],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:308
+    // appId: this.consensusKeyregHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:47
+    // consensusKeyregHook = GlobalState<Application>({ key: 'keyreg_hook' })
+    bytec_3 // "keyreg_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:308
+    // appId: this.consensusKeyregHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:310
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 4
+    uncover 5
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:306-311
+    // abiCall<typeof ConsensusKeyregHook.prototype.setPoolKeys>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [poolId, keys],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x4c4058da // method "setPoolKeys(uint64,(address,byte[32],byte[32],byte[64],uint64,uint64,uint64))void"
+    itxn_field ApplicationArgs
+    swap
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:303
+    // keyregSetPoolKeys(wallet: Application, rekeyBack: boolean, poolId: uint64, keys: PoolKeys): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.keyregDeletePoolKeys[routing]() -> void:
+keyregDeletePoolKeys:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:315
+    // keyregDeletePoolKeys(wallet: Application, rekeyBack: boolean, poolId: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:316
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:318-323
+    // abiCall<typeof ConsensusKeyregHook.prototype.deletePoolKeys>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [poolId],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:320
+    // appId: this.consensusKeyregHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:47
+    // consensusKeyregHook = GlobalState<Application>({ key: 'keyreg_hook' })
+    bytec_3 // "keyreg_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:320
+    // appId: this.consensusKeyregHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:322
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:318-323
+    // abiCall<typeof ConsensusKeyregHook.prototype.deletePoolKeys>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [poolId],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x27ce7b67 // method "deletePoolKeys(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:315
+    // keyregDeletePoolKeys(wallet: Application, rekeyBack: boolean, poolId: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.keyregWithdraw[routing]() -> void:
+keyregWithdraw:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:327
+    // keyregWithdraw(wallet: Application, rekeyBack: boolean, amount: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:328
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:330-335
+    // abiCall<typeof ConsensusKeyregHook.prototype.withdraw>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [amount],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:332
+    // appId: this.consensusKeyregHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:47
+    // consensusKeyregHook = GlobalState<Application>({ key: 'keyreg_hook' })
+    bytec_3 // "keyreg_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:332
+    // appId: this.consensusKeyregHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:334
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:330-335
+    // abiCall<typeof ConsensusKeyregHook.prototype.withdraw>({
+    //   sender,
+    //   appId: this.consensusKeyregHook.value,
+    //   args: [amount],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    bytec 6 // method "withdraw(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:327
+    // keyregWithdraw(wallet: Application, rekeyBack: boolean, amount: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.gatedSetGateSlots[routing]() -> void:
+gatedSetGateSlots:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:342
+    // gatedSetGateSlots(wallet: Application, rekeyBack: boolean, slots: uint64[]): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    intc_1 // 8
+    *
+    pushint 2
+    +
+    dig 1
+    len
+    ==
+    assert // invalid number of bytes for arc4.dynamic_array<uint64>
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:343
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:345-350
+    // abiCall<typeof GatedFeeHook.prototype.setGateSlots>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [slots],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:347
+    // appId: this.gatedFeeHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:49
+    // gatedFeeHook = GlobalState<Application>({ key: 'gated_hook' })
+    bytec 4 // "gated_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:347
+    // appId: this.gatedFeeHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:349
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:345-350
+    // abiCall<typeof GatedFeeHook.prototype.setGateSlots>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [slots],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x67b7704d // method "setGateSlots(uint64[])void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:342
+    // gatedSetGateSlots(wallet: Application, rekeyBack: boolean, slots: uint64[]): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.gatedSetPassTtl[routing]() -> void:
+gatedSetPassTtl:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:354
+    // gatedSetPassTtl(wallet: Application, rekeyBack: boolean, ttl: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:355
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:357-362
+    // abiCall<typeof GatedFeeHook.prototype.setPassTtl>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [ttl],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:359
+    // appId: this.gatedFeeHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:49
+    // gatedFeeHook = GlobalState<Application>({ key: 'gated_hook' })
+    bytec 4 // "gated_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:359
+    // appId: this.gatedFeeHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:361
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:357-362
+    // abiCall<typeof GatedFeeHook.prototype.setPassTtl>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [ttl],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x123fd613 // method "setPassTtl(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:354
+    // gatedSetPassTtl(wallet: Application, rekeyBack: boolean, ttl: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.gatedSetMaxDiscountedSwapsPerDay[routing]() -> void:
+gatedSetMaxDiscountedSwapsPerDay:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:366
+    // gatedSetMaxDiscountedSwapsPerDay(wallet: Application, rekeyBack: boolean, cap: uint64): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:367
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:369-374
+    // abiCall<typeof GatedFeeHook.prototype.setMaxDiscountedSwapsPerDay>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [cap],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:371
+    // appId: this.gatedFeeHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:49
+    // gatedFeeHook = GlobalState<Application>({ key: 'gated_hook' })
+    bytec 4 // "gated_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:371
+    // appId: this.gatedFeeHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:373
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:369-374
+    // abiCall<typeof GatedFeeHook.prototype.setMaxDiscountedSwapsPerDay>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [cap],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x7a4833ff // method "setMaxDiscountedSwapsPerDay(uint64)void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:366
+    // gatedSetMaxDiscountedSwapsPerDay(wallet: Application, rekeyBack: boolean, cap: uint64): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.gatedSetDefaultSchedule[routing]() -> void:
+gatedSetDefaultSchedule:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:378
+    // gatedSetDefaultSchedule(wallet: Application, rekeyBack: boolean, schedule: FeeSchedule): void {
+    txna ApplicationArgs 1
+    dup
+    len
+    intc_1 // 8
+    ==
+    assert // invalid number of bytes for arc4.uint64
+    btoi
+    txna ApplicationArgs 2
+    dup
+    len
+    intc_2 // 1
+    ==
+    assert // invalid number of bytes for arc4.bool
+    intc_0 // 0
+    getbit
+    txna ApplicationArgs 3
+    dup
+    len
+    dig 1
+    pushint 24
+    extract_uint16 // on error: invalid tuple encoding
+    dup
+    pushint 26
+    ==
+    assert // invalid tail pointer at index 3 of (uint64,uint64,uint64,(len+(uint64,uint64,uint64,uint64)[]))
+    dig 2
+    swap
+    dig 2
+    substring3
+    intc_0 // 0
+    extract_uint16 // on error: invalid array length header
+    pushint 32
+    *
+    pushint 28
+    +
+    ==
+    assert // invalid number of bytes for smart_contracts/plugin-dex/hooks/gated-fee.algo.ts::FeeSchedule
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:379
+    // const sender = getControlledSpendingAccount(wallet)
+    dig 2
+    callsub getControlledSpendingAccount
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:381-386
+    // abiCall<typeof GatedFeeHook.prototype.setDefaultSchedule>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [schedule],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    itxn_begin
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:383
+    // appId: this.gatedFeeHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:49
+    // gatedFeeHook = GlobalState<Application>({ key: 'gated_hook' })
+    bytec 4 // "gated_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:383
+    // appId: this.gatedFeeHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:385
+    // rekeyTo: rekeyAddress(rekeyBack, wallet),
+    uncover 3
+    uncover 4
+    callsub rekeyAddress
+    itxn_field RekeyTo
+    itxn_field ApplicationID
+    itxn_field Sender
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:381-386
+    // abiCall<typeof GatedFeeHook.prototype.setDefaultSchedule>({
+    //   sender,
+    //   appId: this.gatedFeeHook.value,
+    //   args: [schedule],
+    //   rekeyTo: rekeyAddress(rekeyBack, wallet),
+    // })
+    pushbytes 0x1e421103 // method "setDefaultSchedule((uint64,uint64,uint64,(uint64,uint64,uint64,uint64)[]))void"
+    itxn_field ApplicationArgs
+    itxn_field ApplicationArgs
+    intc_3 // appl
+    itxn_field TypeEnum
+    intc_0 // 0
+    itxn_field Fee
+    itxn_submit
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:378
+    // gatedSetDefaultSchedule(wallet: Application, rekeyBack: boolean, schedule: FeeSchedule): void {
+    intc_2 // 1
+    return
+
+
+// smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts::PluginDexAdminPlugin.requireTarget(app: uint64) -> void:
+requireTarget:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:410
+    // private requireTarget(app: Application): void {
+    proto 1 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412
+    // app === this.vault.value ||
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:41
+    // vault = GlobalState<Application>({ key: 'vault' })
+    bytec_0 // "vault"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412
+    // app === this.vault.value ||
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -1
+    ==
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412-413
+    // app === this.vault.value ||
+    //   app === this.launchManager.value ||
+    bnz requireTarget_bool_true@4
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:413
+    // app === this.launchManager.value ||
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:43
+    // launchManager = GlobalState<Application>({ key: 'launch_manager' })
+    bytec_2 // "launch_manager"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:413
+    // app === this.launchManager.value ||
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -1
+    ==
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412-413
+    // app === this.vault.value ||
+    //   app === this.launchManager.value ||
+    bnz requireTarget_bool_true@4
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:414
+    // app === this.backrunArbHook.value ||
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:45
+    // backrunArbHook = GlobalState<Application>({ key: 'backrun_hook' })
+    bytec_1 // "backrun_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:414
+    // app === this.backrunArbHook.value ||
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -1
+    ==
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412-414
+    // app === this.vault.value ||
+    //   app === this.launchManager.value ||
+    //   app === this.backrunArbHook.value ||
+    bnz requireTarget_bool_true@4
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:415
+    // app === this.consensusKeyregHook.value,
+    intc_0 // 0
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:47
+    // consensusKeyregHook = GlobalState<Application>({ key: 'keyreg_hook' })
+    bytec_3 // "keyreg_hook"
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:415
+    // app === this.consensusKeyregHook.value,
+    app_global_get_ex
+    assert // check GlobalState exists
+    frame_dig -1
+    ==
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:412-415
+    // app === this.vault.value ||
+    //   app === this.launchManager.value ||
+    //   app === this.backrunArbHook.value ||
+    //   app === this.consensusKeyregHook.value,
+    bz requireTarget_bool_false@5
+
+requireTarget_bool_true@4:
+    intc_2 // 1
+
+requireTarget_bool_merge@6:
+    // smart_contracts/arc58/plugins/plugin-dex-admin/contract.algo.ts:411-417
+    // loggedAssert(
+    //   app === this.vault.value ||
+    //     app === this.launchManager.value ||
+    //     app === this.backrunArbHook.value ||
+    //     app === this.consensusKeyregHook.value,
+    //   errDaTarget,
+    // )
+    bnz requireTarget_after_assert@8
+    pushbytes "ERR:errDaTg"
+    log
+    err // ERR:errDaTg
+
+requireTarget_after_assert@8:
+    retsub
+
+requireTarget_bool_false@5:
+    intc_0 // 0
+    b requireTarget_bool_merge@6
