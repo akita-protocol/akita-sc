@@ -1,46 +1,46 @@
 import {
-  SocialSDK
-} from "./chunk-Y2X4IEKK.mjs";
-import {
   StakingSDK
-} from "./chunk-HV3MNELK.mjs";
+} from "./chunk-FRTPGOPG.mjs";
 import {
   StakingPoolFactorySDK,
   StakingPoolSDK
-} from "./chunk-3QGXNBMS.mjs";
+} from "./chunk-WIHSDTQC.mjs";
 import {
   HighlightMessage,
   ServiceStatus,
   SubscriptionsSDK,
   bytesToHexColor,
   hexColorToBytes
-} from "./chunk-FHIVIVLI.mjs";
+} from "./chunk-WPHDICPN.mjs";
 import {
   ListingSDK,
   MarketplaceSDK
-} from "./chunk-NBEZ2SIO.mjs";
+} from "./chunk-EQ3BVKUO.mjs";
 import {
   MetaMerklesSDK
-} from "./chunk-NELF3LRP.mjs";
+} from "./chunk-T4WQMKI5.mjs";
 import {
   PollFactorySDK,
   PollSDK
-} from "./chunk-IBMLAVV7.mjs";
+} from "./chunk-HCQXOQAM.mjs";
 import {
   RaffleFactorySDK,
   RaffleSDK
-} from "./chunk-VK3M63GE.mjs";
+} from "./chunk-S5DSU357.mjs";
 import {
   RewardsSDK
-} from "./chunk-TVSYN2KP.mjs";
+} from "./chunk-7BXILSW5.mjs";
+import {
+  SocialSDK
+} from "./chunk-ROUHVNZ6.mjs";
 import {
   AuctionFactorySDK,
   AuctionSDK
-} from "./chunk-EFWAYT3L.mjs";
+} from "./chunk-7OJGRN4R.mjs";
 import {
   PrizeBoxFactorySDK,
   PrizeBoxSDK
-} from "./chunk-R6CTIKNR.mjs";
+} from "./chunk-4VDG22F5.mjs";
 import {
   authenticateConnectMessage,
   compileP256PasskeyLogicSig,
@@ -67,14 +67,13 @@ import {
 } from "./chunk-BGTKWMIA.mjs";
 import {
   AkitaDaoSDK
-} from "./chunk-33FK26ZG.mjs";
-import "./chunk-YCLGNRHI.mjs";
+} from "./chunk-HTZ4JE7Y.mjs";
 import {
   WalletFactorySDK,
   WalletSDK,
   prepareGroup,
   sendPrepared
-} from "./chunk-O2CC2EZF.mjs";
+} from "./chunk-TBYQT5OL.mjs";
 import "./chunk-55IOSZE5.mjs";
 import {
   principal_exports
@@ -113,20 +112,15 @@ import {
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize
-} from "./chunk-IELXD7OO.mjs";
-import {
-  HOOK_CATALOGUE,
-  PluginDexSDK,
-  defaultPoolConfig,
-  validateHookStack
-} from "./chunk-ACFA2B3Y.mjs";
+} from "./chunk-U3ZTUXCF.mjs";
+import "./chunk-YCLGNRHI.mjs";
 import {
   EscrowFactorySDK,
   EscrowSDK
-} from "./chunk-DIELVCQO.mjs";
+} from "./chunk-FT4ZDCWF.mjs";
 import {
   GateSDK
-} from "./chunk-ZLHQUNYU.mjs";
+} from "./chunk-E2RM6UUT.mjs";
 import "./chunk-XN5GRW52.mjs";
 import {
   FIXED_SIGNER_MEMBER_MBR,
@@ -142,13 +136,13 @@ import {
   removeFixedSignerMemberAction,
   setFixedSignerMemberWeightAction,
   subscriptionVotingOpensAt
-} from "./chunk-GPVAJPOW.mjs";
+} from "./chunk-YUZOF573.mjs";
 import "./chunk-NBCCOE5T.mjs";
 import {
   HyperSwapSDK,
   hyperSwapRootBoxName,
   hyperSwapRootName
-} from "./chunk-OVPGSLD2.mjs";
+} from "./chunk-RZ6O2YDM.mjs";
 import {
   HYPER_SWAP_MAX_OFFER_DURATION,
   computeOfferTerms,
@@ -172,7 +166,7 @@ import {
   registerAccessListResourceCarrier,
   seedAccessResources,
   seededAccessResources
-} from "./chunk-6GNFHGHN.mjs";
+} from "./chunk-7FJUH3WF.mjs";
 import {
   DAO_ESCROW_ACTION_V2_ROUNDS,
   ENV_TO_NETWORK_KEY,
@@ -209,7 +203,7 @@ import {
   setCurrentNetwork,
   shouldWriteRegistry,
   socialHintedTargets
-} from "./chunk-4QUVIZBD.mjs";
+} from "./chunk-VONME6S7.mjs";
 import {
   hasSenderSigner,
   isPluginSDKReturn,
@@ -236,7 +230,6 @@ export {
   GuildActionType,
   GuildFactorySDK,
   GuildSDK,
-  HOOK_CATALOGUE,
   HYPER_SWAP_MAX_OFFER_DURATION,
   HighlightMessage,
   HyperSwapSDK,
@@ -261,7 +254,6 @@ export {
   NETWORK_PLUGIN_DEPLOYMENTS,
   PLUGIN_APP_ID_KEYS,
   PLUGIN_DEFINITIONS,
-  PluginDexSDK,
   PollFactorySDK,
   PollSDK,
   PrizeBoxFactorySDK,
@@ -297,7 +289,6 @@ export {
   decodeConnectUri,
   decodeMetadataBoxName,
   decodeMetadataRecord,
-  defaultPoolConfig,
   detectNetworkFromClient,
   encodeAccountImageReference,
   encodeConnectUri,
@@ -365,7 +356,6 @@ export {
   subscriptionVotingOpensAt,
   translateCommonError,
   validateConnectPayload,
-  validateHookStack,
   validateMetadataName,
   validateMetadataRecordKey,
   validateMetadataValueSize,

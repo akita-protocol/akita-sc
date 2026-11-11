@@ -4,7 +4,7 @@
 
 // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts::MockHaystackRouterLocalNet.clearStateProgram() -> uint64:
 main:
-    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:57
+    // smart_contracts/mocks/haystack-router-localnet/contract.algo.ts:55
     // return true
     pushint 1
     return
