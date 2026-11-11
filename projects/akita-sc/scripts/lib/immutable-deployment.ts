@@ -34,26 +34,16 @@ export const immutableCatalog = catalog as unknown as Record<string, CatalogEntr
 export const immutableContracts = Object.keys(catalog)
 
 /**
- * PluginDex v2 stack (FINAL-SPEC §7 Q1, OPEN-DECISIONS #2 option a): v2 replaces v1 under the
- * `PluginDex` key and is never deployed beside it. Deploy in this order:
- *   Vault (PluginDex) → BinEngine and the hooks (then the Vault admin approves them) → PluginDexPlugin
- *   → LaunchManager → GatedFeePassPlugin (pinned to the GatedFeeHook; a Phase 3 gate before any pool installs that hook)
- *   → PluginDexAdminPlugin (pinned to the four apps with a stored admin and to GatedFeeHook, whose admin is
- *     the DAO wallet; the DAO wallet accepts and uses the admin role through it, so it is deployed before
- *     the handover is proposed).
- * Every dependency arg must name an app deployed earlier; `deployImmutable` checks on chain that it
- * runs the dependency's compiled program. The admin calls are not sent by this tooling (on MainNet
- * the admin is the DAO wallet); each deployment prints its `postDeploy` checklist instead.
+ * Deploy order for catalog contracts whose constructor takes the app ID of another catalog contract
+ * (`dependencies`) or that must follow one (`after`). No catalog contract has either at present, so the
+ * order is empty. Every dependency arg must name an app deployed earlier; `deployImmutable` checks on
+ * chain that it runs the dependency's compiled program. Admin calls are not sent by this tooling (on
+ * MainNet the admin is the DAO wallet); each deployment prints its `postDeploy` checklist instead.
  */
-export const pluginDexDeployOrder = [
-  'PluginDex', 'BinEngine',
-  'ImpactFeeHook', 'SwapTaxHook', 'VolatilityFeeHook', 'BackrunArbHook', 'GatedFeeHook', 'AntiSnipeFeeHook',
-  'LaunchTaxHook', 'ConsensusKeyregHook',
-  'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin', 'PluginDexAdminPlugin',
-] as const
+export const dependencyDeployOrder: readonly string[] = []
 
-/** Throws when a dependency is unknown or not deployed before its dependent in `pluginDexDeployOrder`. */
-export function validateDeployOrder(order: readonly string[] = pluginDexDeployOrder, entries = immutableCatalog) {
+/** Throws when a dependency is unknown or not deployed before its dependent in `dependencyDeployOrder`. */
+export function validateDeployOrder(order: readonly string[] = dependencyDeployOrder, entries = immutableCatalog) {
   order.forEach((name, i) => {
     const entry = entries[name]
     if (!entry) throw new Error(`Deploy order names unknown contract ${name}`)
@@ -69,9 +59,9 @@ export function validateDeployOrder(order: readonly string[] = pluginDexDeployOr
 }
 validateDeployOrder()
 
-/** Human-readable deploy order for --help and errors. */
+/** Human-readable deploy order for --help and errors; empty when no contract depends on another. */
 export function describeDeployOrder() {
-  return pluginDexDeployOrder.map((name, i) => {
+  return dependencyDeployOrder.map((name, i) => {
     const deps = Object.entries(immutableCatalog[name].dependencies ?? {}).map(([arg, dep]) => `${arg}=${dep}`)
     const approvals = (immutableCatalog[name].postDeploy ?? []).map(s => `${s.app}.${s.method}(${
       Object.entries(s.args).map(([k, v]) => `${k}=${v === '$self' ? 'id' : JSON.stringify(v)}`).join(', ')})`)
@@ -125,7 +115,8 @@ export function prepareImmutable(ctx: ScriptContext, name: string, config: Const
     const value = config[arg.name!] ?? defaults[arg.name!]
     const dependency = entry.dependencies?.[arg.name!]
     if (value === undefined && dependency) {
-      throw new Error(`${name} requires ${arg.name}: the app ID of ${dependency}. Deploy ${dependency} first; order:\n${describeDeployOrder()}`)
+      const order = describeDeployOrder()
+      throw new Error(`${name} requires ${arg.name}: the app ID of ${dependency}. Deploy ${dependency} first${order ? `; order:\n${order}` : ''}`)
     }
     if (value === undefined) throw new Error(`${name} requires constructor config ${arg.name} (${arg.type})`)
     if (arg.type === 'uint64') {
@@ -167,7 +158,7 @@ export function approvalHashOf(name: string) {
 
 /**
  * Before any write: every dependency arg must be a live app running the dependency's compiled
- * approval program, so a mistyped or swapped ID (e.g. the registry passed as `dex`) cannot be baked
+ * approval program, so a mistyped or swapped ID (e.g. one plugin's ID passed for another) cannot be baked
  * into an immutable app. `allowMismatch` accepts a dependency deployed from another build.
  */
 export async function verifyDependencies(ctx: ScriptContext, name: string, dependencies: { arg: string; contract: string; appId: bigint }[], allowMismatch = false) {

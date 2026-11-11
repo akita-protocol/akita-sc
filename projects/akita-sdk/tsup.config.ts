@@ -13,7 +13,6 @@ export default defineConfig({
     'marketplace/index': 'src/marketplace/index.ts',
     'meta-merkles/index': 'src/meta-merkles/index.ts',
     'meta/index': 'src/meta/index.ts',
-    'plugin-dex/index': 'src/plugin-dex/index.ts',
     'poll/index': 'src/poll/index.ts',
     'prize-box/index': 'src/prize-box/index.ts',
     'raffle/index': 'src/raffle/index.ts',

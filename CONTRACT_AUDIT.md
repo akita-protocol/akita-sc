@@ -322,6 +322,9 @@ release gates.
 
 ### Plugin DEX and sunset contracts
 
+> **Parked (2026-11-11):** the Plugin DEX is on hold. Its code is on branch `feat/plugin-dex-v2` and is not in
+> this tree, so the paths named below do not exist here.
+
 `PluginDex` creates named pools, stores ordered hooks, enables/disables hooks,
 and lets only the pool administrator run configured hook calls or change pool
 state. Pool/hook boxes are paid exactly and IDs cannot be confused across

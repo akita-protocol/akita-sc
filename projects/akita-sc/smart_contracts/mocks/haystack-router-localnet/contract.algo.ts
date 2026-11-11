@@ -15,9 +15,7 @@ import {
   Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
-import { abiCall } from '@algorandfoundation/algorand-typescript/arc4'
-import type { PluginDex } from '../../plugin-dex/contract.algo'
-import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/hooks/shared/tinyman-v2'
+import { tmHolding, tmPoolAddress, tmSwapAs } from './tinyman-v2'
 
 /**
  * MOCK, LocalNet only. This is not Haystack's code and has none of it.
@@ -31,8 +29,8 @@ import { tmHolding, tmPoolAddress, tmSwapAs } from '../../plugin-dex/hooks/share
  *     arg 2  uint16 length, 32-byte addresses (unused here)
  *     arg 3  the route (the mock's own encoding, after a uint16 length): legs, each
  *            `itob(amountIn) ‖ itob(hopCount) ‖ hops`; each hop is `itob(venue) ‖ itob(app) ‖ itob(pool) ‖
- *            itob(escrow) ‖ itob(assetOut)`; venue 0 = Plugin DEX (app = Vault, pool = pool id, escrow = pool
- *            escrow app), venue 1 = Tinyman v2 (app = AMM app; the pool address is derived from the pair)
+ *            itob(escrow) ‖ itob(assetOut)`; the only venue is 1 = Tinyman v2 (app = AMM app; the pool address
+ *            is derived from the pair; pool and escrow are 0 and unused)
  *     arg 4  93 bytes: minAmountOut at 2, expected output at 10, beneficiary at 29, referrer at 61
  *     arg 5  39 bytes (unused here)        arg 6  uint16 length, tag (unused here)
  *
@@ -60,7 +58,6 @@ export class MockHaystackRouterLocalNet extends BaseContract {
 
 const FinalizeSelector = Bytes.fromHex('871a0354')
 const OptInSelector = Bytes('opt_in')
-const VenuePluginDex: uint64 = 0
 const VenueTinyman: uint64 = 1
 const HopSize: uint64 = 40
 
@@ -118,17 +115,11 @@ function finalize(): void {
     for (let i: uint64 = 0; i < hops; i++) {
       const venue = word(route, offset)
       const app = Application(word(route, offset + 8))
-      const pool = word(route, offset + 16)
-      const escrow = Application(word(route, offset + 24))
       const next = word(route, offset + 32)
       offset += HopSize
       optInIfNeeded(next)
-      if (venue === VenuePluginDex) {
-        amount = swapPluginDex(app, pool, escrow.address, asset, amount, next)
-      } else {
-        loggedAssert(venue === VenueTinyman, 'mockHsVenue')
-        amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
-      }
+      loggedAssert(venue === VenueTinyman, 'mockHsVenue')
+      amount = tmSwapAs(self, app, tmPoolAddress(app, asset, next), asset, amount, next, 1, self)
       asset = next
     }
     loggedAssert(asset === assetOut, 'mockHsRoute')
@@ -143,33 +134,6 @@ function finalize(): void {
   } else {
     itxn.assetTransfer({ xferAsset: assetOut, assetReceiver: beneficiary, assetAmount: amountOut, fee: 0 }).submit()
   }
-}
-
-/** One Plugin DEX pool: [deposit → escrow, Vault.swap] paying this app; returns the measured output */
-function swapPluginDex(vault: Application, pool: uint64, escrow: Account, assetIn: uint64, amountIn: uint64, assetOut: uint64): uint64 {
-  const self = Global.currentApplicationAddress
-  const before = tmHolding(self, assetOut)
-  if (assetIn === 0) {
-    abiCall<typeof PluginDex.prototype.swap>({
-      appId: vault,
-      args: [itxn.payment({ receiver: escrow, amount: amountIn, fee: 0 }), pool, 1, self, Bytes(''), 0],
-      fee: 0,
-    })
-  } else {
-    abiCall<typeof PluginDex.prototype.swap>({
-      appId: vault,
-      args: [
-        itxn.assetTransfer({ assetReceiver: escrow, xferAsset: assetIn, assetAmount: amountIn, fee: 0 }),
-        pool,
-        1,
-        self,
-        Bytes(''),
-        0,
-      ],
-      fee: 0,
-    })
-  }
-  return tmHolding(self, assetOut) - before
 }
 
 function optInIfNeeded(asset: uint64): void {

@@ -6,7 +6,7 @@
  * from the upstream repo at a pinned commit, checks its sha256, and caches it under the git-ignored
  * `tests/fixtures/external/.cache/`. See `tests/fixtures/external/README.md`.
  *
- * Steps follow `smart_contracts/plugin-dex/research/venues.md` §2.2 (verified on LocalNet).
+ * The deploy, bootstrap and liquidity steps were verified on LocalNet against that bytecode.
  */
 import { AlgorandClient, microAlgo } from '@algorandfoundation/algokit-utils'
 import { Address, LogicSigAccount, OnApplicationComplete, getApplicationAddress } from 'algosdk'

@@ -57,7 +57,6 @@ The test close-out and test proxy-rekey plugins are LocalNet-only helpers.
 - Akita Social Moderation
 - Gate
 - MetaMerkles
-- Plugin DEX
 - HyperSwap
 - Marketplace and Listing
 - Auction and Auction Factory

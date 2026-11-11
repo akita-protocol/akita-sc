@@ -164,5 +164,5 @@ runScript(async () => {
     if (r.status === 'blocked') console.log(`      blocked by: ${r.missing.join(', ')}`)
     else if (r.status === 'ready') console.log(`      run: ${r.run}`)
   }
-  console.log('\nNot tracked here (no SDK key; check their receipts): Meta, Guild factories, PluginDex stack, WelcomePlugin, GatedFeePassPlugin, MetaPlugin.')
+  console.log('\nNot tracked here (no SDK key; check their receipts): Meta, Guild factories, WelcomePlugin, MetaPlugin.')
 })

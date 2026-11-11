@@ -6,8 +6,9 @@
  *   POST /api/fetchExecuteSwapTxns  {address, txnPayloadJSON, slippage}
  *
  * Point `RouterClient({ apiBaseUrl: 'http://localhost:8787/api', algodUri: 'http://localhost', algodPort: 4001,
- * algodToken: 'a'.repeat(64) })` at it. Only fixed-input quotes. Reads its IDs and relay key from .env.localnet
- * (`npm run deploy:mock-haystack` writes them).
+ * algodToken: 'a'.repeat(64) })` at it. Only fixed-input quotes. Reads its IDs from .env.localnet
+ * (`npm run deploy:mock-haystack` writes them). Routes use ALGO, AKTA and USDC, plus any asset ids listed in
+ * MOCK_HAYSTACK_ASSETS (comma separated).
  *
  * Usage: npm run mock-haystack
  */
@@ -19,6 +20,13 @@ import { decodePayload, MockHaystack, minOutForSlippage, quoteResponse } from '.
 
 /** Used when the client sends no referrerAddress; the router only needs some account at arg 8 */
 const DEFAULT_REFERRER = algosdk.ALGORAND_ZERO_ADDRESS_STRING
+
+/** ALGO, AKTA and USDC from the env file, plus MOCK_HAYSTACK_ASSETS (comma separated asset ids) */
+export function routeAssets(env: Record<string, string | undefined>): bigint[] {
+  const listed = [env.AKTA_ASSET_ID, env.USDC_ASSET_ID, ...(env.MOCK_HAYSTACK_ASSETS ?? '').split(',')]
+  const ids = listed.map((value) => (value ?? '').trim()).filter((value) => /^\d+$/.test(value)).map(BigInt)
+  return [...new Set([0n, ...ids])]
+}
 
 export function createMockHaystackServer(mock: MockHaystack) {
   return http.createServer(async (req, res) => {
@@ -69,14 +77,13 @@ export function createMockHaystackServer(mock: MockHaystack) {
 async function main() {
   const env = readEnv()
   if (env.ALGORAND_NETWORK !== 'localnet') throw new Error('the mock Haystack runs on LocalNet only')
-  for (const key of ['MOCK_HAYSTACK_ROUTER_APP_ID', 'MOCK_HAYSTACK_RELAY_MNEMONIC', 'PLUGIN_DEX_APP_ID']) {
+  for (const key of ['MOCK_HAYSTACK_ROUTER_APP_ID', 'MOCK_TINYMAN_APP_ID']) {
     if (!env[key]) throw new Error(`${key} missing from .env.localnet: run npm run deploy:mock-haystack`)
   }
   const mock = new MockHaystack(AlgorandClient.defaultLocalNet(), {
     routerAppId: BigInt(env.MOCK_HAYSTACK_ROUTER_APP_ID),
-    vaultAppId: BigInt(env.PLUGIN_DEX_APP_ID),
-    tinymanAppId: BigInt(env.MOCK_TINYMAN_APP_ID ?? '0'),
-    relay: algosdk.mnemonicToSecretKey(env.MOCK_HAYSTACK_RELAY_MNEMONIC),
+    tinymanAppId: BigInt(env.MOCK_TINYMAN_APP_ID),
+    assets: routeAssets(env),
   })
   const port = Number(process.env.MOCK_HAYSTACK_PORT ?? MOCK_HAYSTACK_PORT)
   createMockHaystackServer(mock).listen(port, () => console.log(`🧪 MOCK Haystack Router API on http://localhost:${port}/api`))

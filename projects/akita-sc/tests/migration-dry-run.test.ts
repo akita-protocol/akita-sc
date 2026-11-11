@@ -4,7 +4,7 @@ import path from 'node:path'
 import { execFileSync } from 'node:child_process'
 import { describe, expect, test, vi } from 'vitest'
 import { setupContext, verifyUpdatePlugin } from '../scripts/script-base'
-import { deployImmutable, immutableCatalog, immutableContracts, pluginDexDeployOrder, postDeploySteps, prepareImmutable,
+import { type CatalogEntry, dependencyDeployOrder, deployImmutable, immutableCatalog, immutableContracts, prepareImmutable,
   validateDeployOrder } from '../scripts/lib/immutable-deployment'
 import { discoverChildren } from '../scripts/lib/child-updates'
 
@@ -46,66 +46,36 @@ describe('migration dry runs', () => {
     expect(() => prepareImmutable(ctx, 'Rewards', { akitaDAO: '2' })).toThrow('conflicts')
   })
 
-  // OPEN-DECISIONS #2 (a): v2 replaces v1 under the PluginDex key; the rest of the stack is catalogued with its
-  // constructor wiring and a dependency order the tooling validates.
-  test('catalogs the PluginDex v2 stack with its dependency order and constructor wiring', async () => {
-    const ctx = await setupContext({ network: 'localnet', version: 'release', daoAppId: 1n, dryRun: true })
-    expect(pluginDexDeployOrder).toEqual(['PluginDex', 'BinEngine', 'ImpactFeeHook', 'SwapTaxHook', 'VolatilityFeeHook',
-      'BackrunArbHook', 'GatedFeeHook', 'AntiSnipeFeeHook', 'LaunchTaxHook', 'ConsensusKeyregHook',
-      'PluginDexPlugin', 'LaunchManager', 'GatedFeePassPlugin', 'PluginDexAdminPlugin'])
-    for (const name of pluginDexDeployOrder) expect(immutableContracts).toContain(name)
-    expect(immutableCatalog.PluginDex.plugin).toBe(false)
-    // the swap, pool and liquidity wallet plugin deploys with the stack, pinned to the Vault
-    expect(immutableCatalog.PluginDexPlugin.plugin).toBe(true)
-    expect(immutableCatalog.PluginDexPlugin.dependencies).toEqual({ dex: 'PluginDex' })
-    // the production GatedFeeHook pass plugin ships with the stack, pinned to the hook (plugin-dex review fix)
-    expect(immutableCatalog.GatedFeePassPlugin.plugin).toBe(true)
-    expect(immutableCatalog.GatedFeePassPlugin.dependencies).toEqual({ hook: 'GatedFeeHook' })
-    expect(prepareImmutable(ctx, 'GatedFeePassPlugin', { hook: '9' }).args).toEqual(['release', 9n])
-    // the admin plugin ships last, pinned to the five apps that have an admin (readiness audit C10)
-    expect(immutableCatalog.PluginDexAdminPlugin.plugin).toBe(true)
-    expect(immutableCatalog.PluginDexAdminPlugin.dependencies).toEqual({ vault: 'PluginDex', launchManager: 'LaunchManager',
-      backrunArbHook: 'BackrunArbHook', consensusKeyregHook: 'ConsensusKeyregHook', gatedFeeHook: 'GatedFeeHook' })
-    expect(prepareImmutable(ctx, 'PluginDexAdminPlugin',
-      { vault: '5', launchManager: '6', backrunArbHook: '7', consensusKeyregHook: '8', gatedFeeHook: '9' }).args).toEqual(['release', 5n, 6n, 7n, 8n, 9n])
-    expect(() => prepareImmutable(ctx, 'PluginDexAdminPlugin', { vault: '5', launchManager: '6', backrunArbHook: '7', consensusKeyregHook: '8' }))
-      .toThrow('requires gatedFeeHook: the app ID of GatedFeeHook')
-    expect(() => validateDeployOrder(['PluginDex', 'BackrunArbHook', 'ConsensusKeyregHook', 'PluginDexAdminPlugin', 'LaunchManager']))
-      .toThrow('PluginDexAdminPlugin must be deployed after LaunchManager')
-    expect(() => validateDeployOrder(['PluginDex', 'GatedFeePassPlugin', 'GatedFeeHook'])).toThrow('GatedFeePassPlugin must be deployed after GatedFeeHook')
+  // The dependency tooling stays although no catalog contract depends on another at present.
+  test('validates a deploy order against the dependencies of the entries it is given', () => {
+    const entry = (extra: Partial<CatalogEntry> = {}): CatalogEntry => ({ artifact: 'x', registryKey: null, plugin: false, daoField: null, ...extra })
+    const entries = { Base: entry(), Child: entry({ dependencies: { base: 'Base' } }), Late: entry({ after: ['Child'] }) }
+    expect(() => validateDeployOrder(['Base', 'Child', 'Late'], entries)).not.toThrow()
+    expect(() => validateDeployOrder(['Child', 'Base', 'Late'], entries)).toThrow('Child must be deployed after Base')
+    expect(() => validateDeployOrder(['Base', 'Late', 'Child'], entries)).toThrow('Late must be deployed after Child')
+    expect(() => validateDeployOrder(['Base', 'Child'], entries)).toThrow('Late has dependencies but no deploy order')
+    expect(() => validateDeployOrder(['Base', 'Other'], entries)).toThrow('Deploy order names unknown contract Other')
+    expect(() => validateDeployOrder(['Ghost'], { Ghost: entry({ dependencies: { base: 'Missing' } }) })).toThrow('Ghost depends on unknown contract Missing')
+    expect(dependencyDeployOrder).toEqual([])
+    expect(Object.values(immutableCatalog).some(e => e.dependencies || e.after)).toBe(false)
     expect(() => validateDeployOrder()).not.toThrow()
-    expect(() => validateDeployOrder(['PluginDexPlugin', 'PluginDex'])).toThrow('PluginDexPlugin must be deployed after PluginDex')
-    expect(() => validateDeployOrder(['PluginDex', 'AntiSnipeFeeHook', 'LaunchManager', 'LaunchTaxHook'])).toThrow('after LaunchTaxHook')
-
-    // The Vault takes version + admin from the context; it is above 8 KB, so creation carries write budget.
-    const vault = prepareImmutable(ctx, 'PluginDex')
-    expect(vault.args).toEqual(['release', ctx.sender])
-    expect(vault.approval.length + vault.clear.length).toBeGreaterThan(8_192)
-    // Missing dependency IDs name the contract to deploy first.
-    expect(() => prepareImmutable(ctx, 'PluginDexPlugin')).toThrow('requires dex: the app ID of PluginDex')
-    expect(() => prepareImmutable(ctx, 'BinEngine')).toThrow('requires vault: the app ID of PluginDex')
-    expect(() => prepareImmutable(ctx, 'LaunchManager', { vault: '5', antiSnipeHook: '6' })).toThrow('the app ID of LaunchTaxHook')
-    const launch = prepareImmutable(ctx, 'LaunchManager', { vault: '5', antiSnipeHook: '6', launchTaxHook: '7' })
-    expect(launch.dependencies).toEqual([
-      { arg: 'vault', contract: 'PluginDex', appId: 5n },
-      { arg: 'antiSnipeHook', contract: 'AntiSnipeFeeHook', appId: 6n },
-      { arg: 'launchTaxHook', contract: 'LaunchTaxHook', appId: 7n },
-    ])
-    // Plain uint64 parameters accept 0; app-ID arguments do not.
-    expect(prepareImmutable(ctx, 'ImpactFeeHook', { dex: '5', minFeeBps: '0', maxFeeBps: '100', slopeBps: 0 }).args).toEqual([5n, 0n, 100n, 0n])
-    expect(() => prepareImmutable(ctx, 'ImpactFeeHook', { dex: '0', minFeeBps: '0', maxFeeBps: '1', slopeBps: '0' })).toThrow('positive integer app ID')
-    expect(() => prepareImmutable(ctx, 'SwapTaxHook', { dex: '5', owner: ctx.sender, taxBps: '-1' })).toThrow('non-negative integer')
-    // GatedFeeHook: akitaDAO from the context, passTtl 0 = contract default (1 day).
-    expect(prepareImmutable(ctx, 'GatedFeeHook', { dex: '5' }).args).toEqual([5n, 1n, 0n])
-    expect(postDeploySteps('LaunchTaxHook', 9n)).toEqual([{ app: 'PluginDex', method: 'setHookApproval', args: { hook: 9n, perms: 12 }, note: 'max perms HookFee | HookFeeOut' }])
   })
 
-  test('deploy-immutable --help documents the PluginDex v2 deploy order', () => {
+  // The Plugin DEX is parked on its own branch: this tree must not be able to deploy any part of it.
+  test('the catalog offers no Plugin DEX contract', async () => {
+    const parked = /Dex|BinEngine|LaunchManager|GatedFee|Hook$/
+    expect(immutableContracts.filter(name => parked.test(name))).toEqual([])
+    expect(Object.values(immutableCatalog).filter(e => e.artifact.includes('plugin-dex') || e.artifact.includes('gated-fee'))).toEqual([])
+    const ctx = await setupContext({ network: 'localnet', version: 'release', daoAppId: 1n, dryRun: true })
+    expect(() => prepareImmutable(ctx, 'PluginDex')).toThrow('Unknown immutable contract PluginDex')
+  })
+
+  test('deploy-immutable --help lists the contracts and the dependency flag', () => {
     const output = execFileSync(process.execPath, ['-r', 'ts-node/register/transpile-only', 'scripts/deploy-immutable.ts', '--help'],
       { cwd: path.resolve(__dirname, '..'), encoding: 'utf8', timeout: 20_000 })
-    expect(output).toContain('11. PluginDexPlugin (dex=PluginDex)')
-    expect(output).toContain('PluginDex.setHookApproval(hook=id, perms=12)')
     expect(output).toContain('--allow-dependency-mismatch')
+    for (const name of immutableContracts) expect(output).toContain(name)
+    expect(output).not.toMatch(/PluginDex|BinEngine|LaunchManager/)
   }, 30_000)
 
   test('rejects a mismatched update plugin before inspecting grants', async () => {

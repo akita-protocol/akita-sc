@@ -4,6 +4,7 @@ import { parseBaseArgs, runScript, setupContext } from './script-base'
 import { deployImmutable, describeDeployOrder, immutableContracts } from './lib/immutable-deployment'
 
 runScript(async () => {
+  const order = describeDeployOrder()
   const args = process.argv.slice(2)
   const value = (key: string) => { const i = args.indexOf(key); return i < 0 ? undefined : args[i + 1] }
   const options = parseBaseArgs('deploy-immutable.ts', `
@@ -12,15 +13,14 @@ runScript(async () => {
   --manifest <json>   Durable receipt; reuse it to resume funding/registration without redeploying
   --register          Update supported SDK metadata and DAO rewards/gate pointers after deployment
   --allow-dependency-mismatch
-                      Accept a dependency app (e.g. --config dex) whose program differs from its
-                      current artifact, i.e. one deployed from another build
+                      Accept a dependency app whose program differs from its current artifact,
+                      i.e. one deployed from another build${order ? `
 
-PluginDex v2 stack (v2 replaces v1 under the PluginDex key). Deploy in this order; each
-dependency arg (name=Contract) takes the app ID from that contract's receipt and is checked
-on chain before anything is written. Admin calls after "→" are printed after deployment and
-must be executed by the admin (the DAO wallet on MainNet) before use:
-${describeDeployOrder()}
-  BackrunArbHook.tinyman: the Tinyman v2 validator app ID.`)
+Contracts that depend on each other deploy in this order; each dependency arg (name=Contract)
+takes the app ID from that contract's receipt and is checked on chain before anything is
+written. Admin calls after "→" are printed after deployment and must be executed by the admin
+(the DAO wallet on MainNet) before use:
+${order}` : ''}`)
   const name = value('--contract')
   if (!name) throw new Error('--contract is required')
   if (!args.includes('--network') && !args.includes('-n')) throw new Error('An explicit --network is required')

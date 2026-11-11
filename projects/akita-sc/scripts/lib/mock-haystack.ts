@@ -4,10 +4,9 @@
  * Haystack Router API (`GET /fetchQuote`, `POST /fetchExecuteSwapTxns`) in the response shapes of
  * `@txnlab/haystack-router` v2 (MIT), so the apps' Haystack swap path runs unchanged against LocalNet.
  *
- * Venues: every live Plugin DEX pool (quoted with the Vault's read-only `tryQuoteRoute`, swapper = the router
- * app, as INTEGRATION.md tells aggregators) and every Tinyman v2 pool on the vendored fixture between the
- * assets those pools use (exact off-chain Tinyman math). Routes have up to 3 hops and at most 2 split legs
- * that share no pool, so each leg's quote is independent and the quote equals the execution within a block.
+ * Venues: every Tinyman v2 pool on the vendored fixture between the configured assets, quoted with exact
+ * off-chain Tinyman math. Routes have up to 3 hops and at most 2 split legs that share no pool, so each leg's
+ * quote is independent and the quote equals the execution within a block.
  *
  * Execution, in the shape of Haystack's live routes (ORDER_ROUTER v4): [prefix calls…, input (user), finalize], the
  * prefix and finalize calls sent by a fresh per-swap account whose key goes out as a `secret_key` signature, and
@@ -18,16 +17,14 @@
 import fs from 'node:fs'
 import path from 'node:path'
 import { AlgorandClient, microAlgo, prepareGroupForSending } from '@algorandfoundation/algokit-utils'
-import type { Arc56Contract } from '@algorandfoundation/algokit-utils/types/app-arc56'
 import algosdk from 'algosdk'
 import { deriveTinymanPool, readPoolState, tinymanFixedInputOut, type TinymanPoolState } from '../../tests/fixtures/external/tinyman-v2'
 
 /** Haystack's ORDER_ROUTER v4 route call (finalize) and prefix selectors, as the live API's routes use them */
 export const FINALIZE_SELECTOR = Uint8Array.from([0x87, 0x1a, 0x03, 0x54])
 export const PREFIX_SELECTOR = Uint8Array.from([0xa8, 0x31, 0x87, 0xea])
-export const VENUE_PLUGIN_DEX = 0n
 export const VENUE_TINYMAN = 1n
-export const PROTOCOL_NAME = { [VENUE_PLUGIN_DEX.toString()]: 'PluginDex', [VENUE_TINYMAN.toString()]: 'TinymanV2' } as Record<string, string>
+export const PROTOCOL_NAME = { [VENUE_TINYMAN.toString()]: 'TinymanV2' } as Record<string, string>
 const MAX_HOPS = 3
 const MAX_PATHS_FOR_SPLIT = 4
 const SPLIT_STEPS = [10n, 20n, 30n, 40n, 50n, 60n, 70n, 80n, 90n]
@@ -35,25 +32,17 @@ const SPLIT_STEPS = [10n, 20n, 30n, 40n, 50n, 60n, 70n, 80n, 90n]
 const CARRIERS = 4
 
 const ARTIFACTS = path.resolve(__dirname, '../../smart_contracts/artifacts')
-const vaultSpec = () =>
-  JSON.parse(fs.readFileSync(path.join(ARTIFACTS, 'plugin-dex/PluginDex.arc56.json'), 'utf8')) as Arc56Contract
 
 export type MockHaystackConfig = {
   routerAppId: bigint
-  vaultAppId: bigint
-  /** 0 = no Tinyman venue */
   tinymanAppId: bigint
-  /** sender of the read-only quote simulations */
-  relay: algosdk.Account
+  /** the assets routes may use (0 = ALGO); every Tinyman pool between two of them is a venue */
+  assets: bigint[]
 }
 
 export type Hop = {
   venue: bigint
   app: bigint
-  /** Plugin DEX pool id; 0 for Tinyman */
-  pool: bigint
-  /** Plugin DEX pool escrow app; 0 for Tinyman */
-  escrow: bigint
   assetIn: bigint
   assetOut: bigint
   /** unique per venue pool, so split legs can be checked for overlap */
@@ -76,57 +65,31 @@ export class MockHaystack {
   /** Every live venue pool as an undirected edge */
   async venues(): Promise<Edge[]> {
     const edges: Edge[] = []
-    const spec = vaultSpec()
-    const poolType = algosdk.ABIType.from(`(${spec.structs.PoolInfo.map((f) => f.type).join(',')})`)
-    const state = await this.algorand.app.getGlobalState(this.config.vaultAppId)
-    const cursor = BigInt(state.pool_cursor?.value ?? 0)
-    const assets = new Set<bigint>()
-    for (let id = 0n; id < cursor; id++) {
-      const name = new Uint8Array([...Buffer.from('p'), ...algosdk.encodeUint64(id)])
-      const box = await this.algorand.app.getBoxValue(this.config.vaultAppId, name).catch(() => undefined)
-      if (!box) continue
-      const values = poolType.decode(box) as unknown[]
-      const pool = Object.fromEntries(spec.structs.PoolInfo.map((f, i) => [f.name, values[i]])) as Record<string, unknown>
-      if (pool.paused || pool.closed) continue
-      const pair: [bigint, bigint] = [BigInt(pool.assetA as bigint), BigInt(pool.assetB as bigint)]
-      pair.forEach((a) => assets.add(a))
-      edges.push({ venue: VENUE_PLUGIN_DEX, app: this.config.vaultAppId, pool: id, escrow: BigInt(pool.escrow as bigint), assets: pair, key: `pd:${id}` })
-    }
-    if (this.config.tinymanAppId !== 0n) {
-      const list = [...assets].sort((a, b) => (a < b ? -1 : 1))
-      const tm = { algorand: this.algorand, appId: this.config.tinymanAppId, appAddress: '', admin: '' }
-      for (let i = 0; i < list.length; i++) {
-        for (let j = i + 1; j < list.length; j++) {
-          const pool = deriveTinymanPool(this.config.tinymanAppId, list[i], list[j])
-          const tinyman = await readPoolState(tm, pool.address)
-          if (!tinyman || tinyman.issued === 0n) continue
-          edges.push({ venue: VENUE_TINYMAN, app: this.config.tinymanAppId, pool: 0n, escrow: 0n, assets: [list[i], list[j]], key: `tm:${pool.address}`, tinyman })
-        }
+    if (this.config.tinymanAppId === 0n) return edges
+    const list = [...new Set(this.config.assets)].sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
+    const tm = { algorand: this.algorand, appId: this.config.tinymanAppId, appAddress: '', admin: '' }
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        const pool = deriveTinymanPool(this.config.tinymanAppId, list[i], list[j])
+        const tinyman = await readPoolState(tm, pool.address)
+        if (!tinyman || tinyman.issued === 0n) continue
+        edges.push({ venue: VENUE_TINYMAN, app: this.config.tinymanAppId, assets: [list[i], list[j]], key: `tm:${pool.address}`, tinyman })
       }
     }
     return edges
   }
 
   /** Output of one hop for `amountIn`; 0 when the venue cannot fill it */
-  async quoteHop(edge: Edge, assetIn: bigint, amountIn: bigint): Promise<bigint> {
+  quoteHop(edge: Edge, assetIn: bigint, amountIn: bigint): bigint {
     if (amountIn <= 0n) return 0n
-    if (edge.venue === VENUE_TINYMAN) return tinymanFixedInputOut(edge.tinyman, assetIn, amountIn)
-    const client = this.algorand.client.getAppClientById({ appSpec: vaultSpec(), appId: this.config.vaultAppId, defaultSender: this.config.relay.addr })
-    const result = await client.send.call({
-      method: 'tryQuoteRoute',
-      args: [[edge.pool], assetIn, amountIn, this.routerAddress, new Uint8Array(), 0n],
-      coverAppCallInnerTransactionFees: true,
-      maxFee: microAlgo(200_000),
-      populateAppCallResources: true,
-    })
-    return result.return as bigint
+    return tinymanFixedInputOut(edge.tinyman, assetIn, amountIn)
   }
 
   /** Chain the hops of one path; 0 when any hop cannot fill */
-  async quotePath(path: Hop[], edges: Map<string, Edge>, amountIn: bigint): Promise<bigint> {
+  quotePath(path: Hop[], edges: Map<string, Edge>, amountIn: bigint): bigint {
     let amount = amountIn
     for (const hop of path) {
-      amount = await this.quoteHop(edges.get(hop.key)!, hop.assetIn, amount)
+      amount = this.quoteHop(edges.get(hop.key)!, hop.assetIn, amount)
       if (amount === 0n) return 0n
     }
     return amount
@@ -145,13 +108,14 @@ export class MockHaystack {
         if (!e.assets.includes(asset) || hops.some((h) => h.key === e.key)) continue
         const next = e.assets[0] === asset ? e.assets[1] : e.assets[0]
         if (seen.has(next)) continue
-        const hop: Hop = { venue: e.venue, app: e.app, pool: e.pool, escrow: e.escrow, key: e.key, assetIn: asset, assetOut: next }
+        const hop: Hop = { venue: e.venue, app: e.app, key: e.key, assetIn: asset, assetOut: next }
         walk(next, [...hops, hop], new Set([...seen, next]))
       }
     }
     walk(assetIn, [], new Set([assetIn]))
 
-    const scored = (await Promise.all(paths.map(async (p) => ({ path: p, out: await this.quotePath(p, byKey, amountIn) }))))
+    const scored = paths
+      .map((p) => ({ path: p, out: this.quotePath(p, byKey, amountIn) }))
       .filter((s) => s.out > 0n)
       .sort((a, b) => (b.out > a.out ? 1 : b.out < a.out ? -1 : a.path.length - b.path.length))
     if (scored.length === 0) return undefined
@@ -166,7 +130,8 @@ export class MockHaystack {
         for (const pct of SPLIT_STEPS) {
           const inA = (amountIn * pct) / 100n
           const inB = amountIn - inA
-          const [outA, outB] = await Promise.all([this.quotePath(a, byKey, inA), this.quotePath(b, byKey, inB)])
+          const outA = this.quotePath(a, byKey, inA)
+          const outB = this.quotePath(b, byKey, inB)
           if (outA === 0n || outB === 0n || outA + outB <= best.amountOut) continue
           best = {
             assetIn,
@@ -258,7 +223,8 @@ export function finalizeArgs(route: MockRoute, minAmountOut: bigint, beneficiary
   const words: bigint[] = []
   for (const leg of route.legs) {
     words.push(leg.amountIn, BigInt(leg.hops.length))
-    for (const h of leg.hops) words.push(h.venue, h.app, h.pool, h.escrow, h.assetOut)
+    // words 3 and 4 of a hop (a venue's pool id and escrow app) are unused by Tinyman, which derives its pool
+    for (const h of leg.hops) words.push(h.venue, h.app, 0n, 0n, h.assetOut)
   }
   const uint16 = (n: number) => Uint8Array.from([n >> 8, n & 0xff])
   const withLength = (count: number, body: Uint8Array) => Uint8Array.from([...uint16(count), ...body])

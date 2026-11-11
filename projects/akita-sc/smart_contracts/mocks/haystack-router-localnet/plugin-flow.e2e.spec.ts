@@ -7,14 +7,12 @@ import algosdk from 'algosdk'
 import { prepareGroup, sendPrepared } from 'akita-sdk'
 import { CallerType, HaystackRouterPluginSDK, newWallet, OptInPluginSDK, WalletFactorySDK, WalletSDK } from 'akita-sdk/wallet'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { PluginDexClient } from '../../artifacts/plugin-dex/PluginDexClient'
 import { AbstractedAccountMbrFactory } from '../../artifacts/arc58/account/AbstractedAccountMBRClient'
 import { deployAbstractedAccountFactory } from '../../../tests/fixtures/abstracted-account'
 import { deployAkitaDAO } from '../../../tests/fixtures/dao'
 import { deployEscrowFactory } from '../../../tests/fixtures/escrow'
 import { deployHaystackRouterPlugin } from '../../../tests/fixtures/plugins/haystack-router'
 import { deployOptInPlugin } from '../../../tests/fixtures/plugins/optin'
-import { addLiquidity, createPool, deployVault, poolConfig } from '../../../tests/fixtures/plugin-dex'
 import { addInitialLiquidity, bootstrapPool, deployTinymanV2 } from '../../../tests/fixtures/external/tinyman-v2'
 import { compileRouter, FINALIZE_SELECTOR, MockHaystack, quoteResponse, type SwapTxn } from '../../../scripts/lib/mock-haystack'
 import { createMockHaystackServer } from '../../../scripts/mock-haystack-server'
@@ -44,7 +42,6 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
   let wallet: WalletSDK
   let plugin: HaystackRouterPluginSDK
   let optInPlugin: OptInPluginSDK
-  let dex: PluginDexClient
   let server: Server
   let api: string
   let tka: bigint
@@ -161,21 +158,15 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
       if (name === 'TKA') tka = assetId
       else tkb = assetId
     }
-    // Plugin DEX ALGO/TKA and TKA/TKB at 1:1; Tinyman ALGO/TKB 1:1 and TKA/TKB 1:1.05 (as mock-haystack.e2e.spec.ts)
-    dex = await deployVault({ algorand, sender: admin })
-    const algoTka = await createPool({ algorand, dex, sender: admin, assetA: 0n, assetB: tka, config: poolConfig(30n) })
-    await addLiquidity(algorand, dex, admin, algoTka.poolId, 1_000n * UNIT, 1_000n * UNIT)
-    const tkaTkb = await createPool({ algorand, dex, sender: admin, assetA: tka, assetB: tkb, config: poolConfig(30n) })
-    await addLiquidity(algorand, dex, admin, tkaTkb.poolId, 1_000n * UNIT, 1_000n * UNIT)
+    // Tinyman ALGO/TKA 1:1, ALGO/TKB 1:1 and TKA/TKB 1:1.05 (as mock-haystack.e2e.spec.ts)
     const tm = await deployTinymanV2(algorand, admin.addr)
+    await addInitialLiquidity(tm, await bootstrapPool(tm, admin.addr, 0n, tka), admin.addr, 0n, 1_000n * UNIT, 1_000n * UNIT)
     await addInitialLiquidity(tm, await bootstrapPool(tm, admin.addr, 0n, tkb), admin.addr, 0n, 1_000n * UNIT, 1_000n * UNIT)
     await addInitialLiquidity(tm, await bootstrapPool(tm, admin.addr, tka, tkb), admin.addr, tka, 1_000n * UNIT, 1_050n * UNIT)
 
     const { approval, clear } = await compileRouter(algorand)
     const routerAppId = (await algorand.send.appCreate({ sender, approvalProgram: approval, clearStateProgram: clear })).appId
     await algorand.send.payment({ sender, receiver: algosdk.getApplicationAddress(routerAppId), amount: (2).algo() })
-    const relay = algosdk.generateAccount()
-    await algorand.send.payment({ sender, receiver: relay.addr, amount: (1).algo() })
     plugin = await deployHaystackRouterPlugin({ fixture, sender, signer, args: {
       router: routerAppId, routerMethod: FINALIZE_SELECTOR, referrer, referrerTreasury: routerAppId,
     } })
@@ -187,7 +178,7 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     await wallet.usePlugin({ callerType: CallerType.Global, calls: [optInPlugin.optIn({ assets: [tka, tkb] })] })
     await algorand.send.assetTransfer({ sender, receiver: wallet.client.appAddress, assetId: tka, amount: 10_000n * UNIT })
 
-    const mock = new MockHaystack(algorand, { routerAppId, vaultAppId: dex.appId, tinymanAppId: tm.appId, relay })
+    const mock = new MockHaystack(algorand, { routerAppId, tinymanAppId: tm.appId, assets: [0n, tka, tkb] })
     server = createMockHaystackServer(mock).listen(0)
     await new Promise((resolve) => server.once('listening', resolve))
     api = `http://localhost:${(server.address() as AddressInfo).port}/api`
@@ -210,9 +201,10 @@ describe('MOCK Haystack Router through the HaystackRouterPlugin (LocalNet)', () 
     expect(algosdk.encodeAddress(terms.slice(61, 93))).toBe(referrer)
   })
 
-  test('ALGO → TKB across Plugin DEX and Tinyman: the wallet receives exactly the quote', async () => {
+  test('ALGO → TKB over two Tinyman pools: the wallet receives exactly the quote', async () => {
     const { quote: q, received } = await swapThroughPlugin(0n, tkb, 10n * UNIT)
-    expect(Object.keys(q.flattenedRoute).sort()).toEqual(['PluginDex', 'TinymanV2'])
+    expect(q.route.map((leg) => leg.path.map((hop) => BigInt(hop.out.id)))).toEqual([[tka, tkb]])
+    expect(q.flattenedRoute).toEqual({ TinymanV2: 100 })
     expect(received).toBe(BigInt(q.quote))
   })
 

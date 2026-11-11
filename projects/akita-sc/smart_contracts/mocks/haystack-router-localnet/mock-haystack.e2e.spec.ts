@@ -5,20 +5,17 @@ import { algorandFixture } from '@algorandfoundation/algokit-utils/testing'
 import { TransactionSignerAccount } from '@algorandfoundation/algokit-utils/types/account'
 import algosdk from 'algosdk'
 import { afterAll, beforeAll, describe, expect, test } from 'vitest'
-import { PluginDexClient } from '../../artifacts/plugin-dex/PluginDexClient'
-import { addLiquidity, createPool, deployVault, poolConfig } from '../../../tests/fixtures/plugin-dex'
 import { addInitialLiquidity, bootstrapPool, deployTinymanV2 } from '../../../tests/fixtures/external/tinyman-v2'
 import { compileRouter, finalizeArgs, MockHaystack, quoteResponse, type MockRoute, type SwapTxn } from '../../../scripts/lib/mock-haystack'
 import { createMockHaystackServer } from '../../../scripts/mock-haystack-server'
 
-// The LocalNet mock Haystack Router end to end: the HTTP API quotes routes over Plugin DEX and Tinyman v2
-// pools, returns the swap group in Haystack's response shape, and the mock router app executes it. Every swap
-// is sent the way @txnlab/haystack-router does it (regroup, the user signs the input, the per-swap account's
-// `secret_key` signs the rest), and the received amount must equal the quote.
+// The LocalNet mock Haystack Router end to end: the HTTP API quotes routes over Tinyman v2 pools, returns the
+// swap group in Haystack's response shape, and the mock router app executes it. Every swap is sent the way
+// @txnlab/haystack-router does it (regroup, the user signs the input, the per-swap account's `secret_key` signs
+// the rest), and the received amount must equal the quote.
 //
-// Prices (1 unit = 10^6): Plugin DEX ALGO/TKA 1:1 and TKA/TKB 1:1; Tinyman ALGO/TKB 1:1 and TKA/TKB 1:1.05.
-// So ALGO→TKA is best on Plugin DEX alone, ALGO→TKB is best as Plugin DEX ALGO→TKA then Tinyman TKA→TKB, and a
-// large ALGO→TKB splits that path with Tinyman's direct pool.
+// Three Tinyman pools (1 unit = 10^6): ALGO/TKA 1:1, ALGO/TKB 1:1 and TKA/TKB 1:1.05. So ALGO→TKB is best as
+// ALGO→TKA then TKA→TKB, and a large ALGO→TKB splits that path with the direct ALGO/TKB pool.
 
 const UNIT = 1_000_000n
 
@@ -29,12 +26,10 @@ describe('MOCK Haystack Router (LocalNet)', () => {
   let algorand: AlgorandClient
   let admin: TransactionSignerAccount
   let user: TransactionSignerAccount
-  let dex: PluginDexClient
   let mock: MockHaystack
   let routerAppId: bigint
   let server: Server
   let api: string
-  let relay: algosdk.Account
   let tka: bigint
   let tkb: bigint
 
@@ -110,25 +105,19 @@ describe('MOCK Haystack Router (LocalNet)', () => {
       else tkb = assetId
     }
 
-    dex = await deployVault({ algorand, sender: admin })
-    const algoTka = await createPool({ algorand, dex, sender: admin, assetA: 0n, assetB: tka, config: poolConfig(30n) })
-    await addLiquidity(algorand, dex, admin, algoTka.poolId, 1_000n * UNIT, 1_000n * UNIT)
-    const tkaTkb = await createPool({ algorand, dex, sender: admin, assetA: tka, assetB: tkb, config: poolConfig(30n) })
-    await addLiquidity(algorand, dex, admin, tkaTkb.poolId, 1_000n * UNIT, 1_000n * UNIT)
-
     const tm = await deployTinymanV2(algorand, admin.addr)
+    const algoTka = await bootstrapPool(tm, admin.addr, 0n, tka)
+    await addInitialLiquidity(tm, algoTka, admin.addr, 0n, 1_000n * UNIT, 1_000n * UNIT)
     const algoTkb = await bootstrapPool(tm, admin.addr, 0n, tkb)
     await addInitialLiquidity(tm, algoTkb, admin.addr, 0n, 1_000n * UNIT, 1_000n * UNIT)
-    const tmTkaTkb = await bootstrapPool(tm, admin.addr, tka, tkb)
-    await addInitialLiquidity(tm, tmTkaTkb, admin.addr, tka, 1_000n * UNIT, 1_050n * UNIT)
+    const tkaTkb = await bootstrapPool(tm, admin.addr, tka, tkb)
+    await addInitialLiquidity(tm, tkaTkb, admin.addr, tka, 1_000n * UNIT, 1_050n * UNIT)
 
     const { approval, clear } = await compileRouter(algorand)
     routerAppId = (await algorand.send.appCreate({ sender: admin.addr, approvalProgram: approval, clearStateProgram: clear })).appId
     await algorand.send.payment({ sender: admin.addr, receiver: algosdk.getApplicationAddress(routerAppId), amount: (2).algo() })
-    relay = algosdk.generateAccount()
-    await algorand.send.payment({ sender: admin.addr, receiver: relay.addr, amount: (1).algo() })
 
-    mock = new MockHaystack(algorand, { routerAppId, vaultAppId: dex.appId, tinymanAppId: tm.appId, relay })
+    mock = new MockHaystack(algorand, { routerAppId, tinymanAppId: tm.appId, assets: [0n, tka, tkb] })
     server = createMockHaystackServer(mock).listen(0)
     await new Promise((resolve) => server.once('listening', resolve))
     api = `http://localhost:${(server.address() as AddressInfo).port}/api`
@@ -136,28 +125,49 @@ describe('MOCK Haystack Router (LocalNet)', () => {
 
   afterAll(() => server?.close())
 
-  test('a Plugin DEX route: ALGO → TKA with one hop fills on the Vault pool, received = quote', async () => {
+  test('a one-hop route: ALGO → TKA fills on the ALGO/TKA pool, received = quote', async () => {
     const quote = await swapAndCheck(0n, tka, 10n * UNIT, 1)
-    expect(venuesOf(quote)).toEqual([['PluginDex']])
-    expect(quote.flattenedRoute).toEqual({ PluginDex: 100 })
+    expect(venuesOf(quote)).toEqual([['TinymanV2']])
+    expect(quote.flattenedRoute).toEqual({ TinymanV2: 100 })
+    expect(quote.route[0].path.map((hop) => BigInt(hop.out.id))).toEqual([tka])
   })
 
-  test('a Tinyman route: ALGO → TKB with one hop fills on Tinyman, received = quote', async () => {
+  test('maxDepth 1 keeps ALGO → TKB on the direct pool, received = quote', async () => {
     const quote = await swapAndCheck(0n, tkb, 10n * UNIT, 1)
     expect(venuesOf(quote)).toEqual([['TinymanV2']])
+    expect(quote.route[0].path.map((hop) => BigInt(hop.out.id))).toEqual([tkb])
   })
 
-  test('a multi-hop route across venues: ALGO → TKA on Plugin DEX, then TKA → TKB on Tinyman', async () => {
+  test('a multi-hop route: ALGO → TKA, then TKA → TKB, beats the direct pool', async () => {
+    const direct = await fetchQuote(0n, tkb, 10n * UNIT, 1)
     const quote = await swapAndCheck(0n, tkb, 10n * UNIT)
-    expect(venuesOf(quote)).toEqual([['PluginDex', 'TinymanV2']])
+    expect(venuesOf(quote)).toEqual([['TinymanV2', 'TinymanV2']])
     expect(quote.route[0].path.map((hop) => BigInt(hop.out.id))).toEqual([tka, tkb])
+    expect(BigInt(quote.quote)).toBeGreaterThan(BigInt(direct.quote))
   })
 
   test('a split: a large ALGO → TKB order is split over two pool-disjoint paths, received = quote', async () => {
     const quote = await swapAndCheck(0n, tkb, 300n * UNIT)
     expect(quote.route).toHaveLength(2)
     expect(quote.route.reduce((sum, leg) => sum + leg.percentage, 0)).toBe(100)
-    expect(venuesOf(quote).flat().sort()).toEqual(['PluginDex', 'TinymanV2', 'TinymanV2'])
+    expect(venuesOf(quote).map((leg) => leg.length).sort()).toEqual([1, 2])
+    expect(venuesOf(quote).flat()).toEqual(['TinymanV2', 'TinymanV2', 'TinymanV2'])
+  })
+
+  test('a venue other than Tinyman is refused by the router', async () => {
+    const route = (await mock.route(0n, tka, UNIT, 1))!
+    const other = { ...route, legs: [{ ...route.legs[0], hops: [{ ...route.legs[0].hops[0], venue: 0n }] }] }
+    const group = algorand.newGroup()
+    group.addPayment({ sender: user.addr, receiver: algosdk.getApplicationAddress(routerAppId), amount: microAlgo(UNIT) })
+    group.addAppCall({
+      sender: user.addr,
+      appId: routerAppId,
+      args: finalizeArgs(other, 0n, user.addr.toString(), user.addr.toString()),
+      accountReferences: [user.addr],
+      assetReferences: [tka],
+      maxFee: microAlgo(100_000),
+    })
+    await expect(group.send({ populateAppCallResources: true, coverAppCallInnerTransactionFees: true })).rejects.toThrow(/mockHsVenue/)
   })
 
   test('an ASA → ALGO route pays ALGO to the beneficiary, received = quote', async () => {

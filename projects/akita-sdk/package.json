@@ -56,11 +56,6 @@
       "import": "./dist/meta/index.mjs"
     },
     "./meta/schemas/*": "./schemas/*",
-    "./plugin-dex": {
-      "types": "./dist/plugin-dex/index.d.ts",
-      "require": "./dist/plugin-dex/index.js",
-      "import": "./dist/plugin-dex/index.mjs"
-    },
     "./poll": {
       "types": "./dist/poll/index.d.ts",
       "require": "./dist/poll/index.js",
@@ -150,9 +145,6 @@
       ],
       "meta": [
         "./dist/meta/index.d.ts"
-      ],
-      "plugin-dex": [
-        "./dist/plugin-dex/index.d.ts"
       ],
       "poll": [
         "./dist/poll/index.d.ts"

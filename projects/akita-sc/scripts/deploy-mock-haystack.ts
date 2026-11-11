@@ -2,14 +2,14 @@
 /**
  * LocalNet only: deploy the MOCK Haystack Router (not Haystack's code; see scripts/lib/mock-haystack.ts).
  *
- *   - Tinyman v2 from the vendored fixture (official bytecode, downloaded and hash-checked) with an ALGO/USDC and
- *     an AKTA/USDC pool, priced a little apart from the Plugin DEX demo pools so routes mix venues
- *   - the mock router app (smart_contracts/mocks/haystack-router-localnet) and the relay account that sends the
- *     API's read-only quote simulations (each swap's route comes from a fresh per-swap account, as Haystack's do)
+ *   - Tinyman v2 from the vendored fixture (official bytecode, downloaded and hash-checked) with ALGO/USDC,
+ *     AKTA/USDC and ALGO/AKTA pools, priced a little apart so routes can take two hops or split
+ *   - the mock router app (smart_contracts/mocks/haystack-router-localnet); each swap's route comes from a fresh
+ *     per-swap account, as Haystack's do
  *
  * Writes MOCK_TINYMAN_APP_ID, MOCK_HAYSTACK_ROUTER_APP_ID and MOCK_HAYSTACK_API_URL to `.env.localnet` here and in
- * akita-rn (the apps use the mock only when these are set), and MOCK_HAYSTACK_RELAY_MNEMONIC here only. IDs already
- * in the env file are reused. Run the API with `npm run mock-haystack`.
+ * akita-rn (the apps use the mock only when these are set). IDs already in the env file are reused. Run the API
+ * with `npm run mock-haystack`.
  *
  * Usage: npm run deploy:mock-haystack   (also run at the end of deploy:localnet-v2)
  */
@@ -42,7 +42,7 @@ export async function deployMockHaystack(algorand: AlgorandClient, sender: strin
   const record = (key: string, value: bigint | string) => {
     env[key] = value.toString()
     added.push([key, value.toString()])
-    console.log(`   ${key}=${key.endsWith("MNEMONIC") ? "(generated)" : value}`)
+    console.log(`   ${key}=${value}`)
   }
   const fund = (receiver: string, amount: bigint) => algorand.send.payment({ sender, receiver, amount: microAlgo(amount) })
 
@@ -56,10 +56,11 @@ export async function deployMockHaystack(algorand: AlgorandClient, sender: strin
     record('MOCK_TINYMAN_APP_ID', tm.appId)
   }
   const tm = { algorand, appId: id('MOCK_TINYMAN_APP_ID'), appAddress: algosdk.getApplicationAddress(id('MOCK_TINYMAN_APP_ID')).toString(), admin: sender }
-  // ALGO/USDC at 1 : 1.02 (the Plugin DEX bins pool is 1 : 1); AKTA/USDC at 100 : 1
+  // ALGO/USDC at 1 : 1.02, AKTA/USDC at 100 : 1 and ALGO/AKTA at 1 : 100, so the two-hop price differs a little
   for (const [a, b, amountA, amountB] of [
     [0n, usdc, 1_000_000_000n, 1_020_000_000n],
     [akta, usdc, 100_000_000_000n, 1_000_000_000n],
+    [0n, akta, 1_000_000_000n, 100_000_000_000n],
   ] as const) {
     const derived = deriveTinymanPool(tm.appId, a, b)
     let state = await readPoolState(tm, derived.address)
@@ -76,24 +77,17 @@ export async function deployMockHaystack(algorand: AlgorandClient, sender: strin
     await fund(algosdk.getApplicationAddress(appId).toString(), 2_000_000n)
     record('MOCK_HAYSTACK_ROUTER_APP_ID', appId)
   }
-  if (!env.MOCK_HAYSTACK_RELAY_MNEMONIC) {
-    const relay = algosdk.generateAccount()
-    await fund(relay.addr.toString(), 1_000_000n)
-    record('MOCK_HAYSTACK_RELAY_MNEMONIC', `"${algosdk.secretKeyToMnemonic(relay.sk)}"`)
-  }
   if (env.MOCK_HAYSTACK_API_URL !== MOCK_HAYSTACK_API_URL) record('MOCK_HAYSTACK_API_URL', MOCK_HAYSTACK_API_URL)
   return added
 }
 
-/** Append the new keys; the relay key stays in akita-sc */
+/** Append the new keys here and, when it exists, to akita-rn's env file */
 export function appendMockHaystackEnv(added: [string, string][]) {
   if (added.length === 0) return
   const header = `# MOCK Haystack Router, LocalNet only (deploy-mock-haystack, ${new Date().toISOString()})`
-  fs.appendFileSync(ENV_FILE, ['', header, ...added.map(([k, v]) => `${k}=${v}`), ''].join('\n'))
-  const forApps = added.filter(([k]) => k !== 'MOCK_HAYSTACK_RELAY_MNEMONIC')
-  if (forApps.length > 0 && fs.existsSync(RN_ENV_FILE)) {
-    fs.appendFileSync(RN_ENV_FILE, ['', header, ...forApps.map(([k, v]) => `${k}=${v}`), ''].join('\n'))
-  }
+  const block = ['', header, ...added.map(([k, v]) => `${k}=${v}`), ''].join('\n')
+  fs.appendFileSync(ENV_FILE, block)
+  if (fs.existsSync(RN_ENV_FILE)) fs.appendFileSync(RN_ENV_FILE, block)
 }
 
 async function main() {

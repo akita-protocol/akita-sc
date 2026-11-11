@@ -4,11 +4,8 @@
  * Principal resolution, Phase 3 (docs/principal-resolution/PHASE-0-SPEC.md §7.1, §7.3): plugins.
  *
  * Deploys the new plugin versions from the immutable catalog (AkitaSocialPlugin, SubscriptionsPlugin,
- * StakingPoolPlugin, AuctionPlugin, MarketplacePlugin, RafflePlugin, WelcomePlugin; the PluginDexPlugin and the
- * GatedFeePassPlugin ship with the PluginDex stack through deploy-immutable.ts. Phase 3 gate: the
- * GatedFeePassPlugin must be deployed, pinned to the GatedFeeHook, before any pool installs that hook,
- * or no wallet user can hold a pass), then replaces the DAO wallet's grants of the
- * old versions with grants of the new ones, keeping every grant's policy. Phase 2 must have landed:
+ * StakingPoolPlugin, AuctionPlugin, MarketplacePlugin, RafflePlugin, WelcomePlugin), then replaces the DAO
+ * wallet's grants of the old versions with grants of the new ones, keeping every grant's policy. Phase 2 must have landed:
  * the new plugins call hinted selectors that revert on un-upgraded targets. Before any deploy or swap the
  * script checks every method each new plugin calls against the live singleton, the child program its
  * factory stages, and the DAO's Gate, and refuses on a gap (--allow-unupgraded-targets overrides).

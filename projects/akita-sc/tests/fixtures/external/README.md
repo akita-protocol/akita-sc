@@ -35,7 +35,6 @@ shasum -a 256 tests/fixtures/external/.cache/tinyman-v2/3de3a35e1ce0ca96576d18c2
 CI can restore that directory from its own cache. A file with the wrong hash is rejected.
 
 **API.** `deployTinymanV2`, `deriveTinymanPool`, `bootstrapPool`, `addInitialLiquidity`, `setFee`,
-`swapDirect`, `readPoolState`, and the reference formula `tinymanFixedInputOut`. The steps and
-gotchas are in `smart_contracts/plugin-dex/research/venues.md` §2. Tinyman calls use explicit
-reference arrays (`populateAppCallResources: false`), because the v7 AMM gets no group resource
-sharing.
+`swapDirect`, `readPoolState`, and the reference formula `tinymanFixedInputOut`. Tinyman calls use
+explicit reference arrays (`populateAppCallResources: false`), because the v7 AMM gets no group
+resource sharing.

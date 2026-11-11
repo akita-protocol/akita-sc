@@ -113,23 +113,6 @@ export interface NetworkAppIds {
   socialClaim?: bigint;
   /** AbstractedAccountBalanceReader */
   walletBalanceReader?: bigint;
-  /** PluginDex v2 Vault */
-  pluginDex?: bigint;
-  binEngine?: bigint;
-  impactFeeHook?: bigint;
-  swapTaxHook?: bigint;
-  volatilityFeeHook?: bigint;
-  backrunArbHook?: bigint;
-  gatedFeeHook?: bigint;
-  antiSnipeFeeHook?: bigint;
-  launchTaxHook?: bigint;
-  consensusKeyregHook?: bigint;
-  /** PluginDexPlugin: the ARC-58 plugin wallets trade and provide liquidity through */
-  pluginDexPlugin?: bigint;
-  /** PluginDexAdminPlugin: the ARC-58 plugin the admin wallet (the DAO wallet) holds the Plugin DEX admin role through */
-  pluginDexAdminPlugin?: bigint;
-  launchManager?: bigint;
-  gatedFeePassPlugin?: bigint;
   /** Rewards v1, kept after aal.rewards moves to v2 so v1 allocations and MBR credits stay reachable */
   rewardsV1?: bigint;
   /** ModeratorActivityGate (context-aware sub-gate over AkitaSocialModeration.moderatorActivity) */
@@ -487,20 +470,6 @@ export const TESTNET_APP_IDS: NetworkAppIds = {
   welcomePlugin: 0n,
   socialClaim: 0n,
   walletBalanceReader: 0n,
-  pluginDex: 0n,
-  binEngine: 0n,
-  impactFeeHook: 0n,
-  swapTaxHook: 0n,
-  volatilityFeeHook: 0n,
-  backrunArbHook: 0n,
-  gatedFeeHook: 0n,
-  antiSnipeFeeHook: 0n,
-  launchTaxHook: 0n,
-  consensusKeyregHook: 0n,
-  pluginDexPlugin: 0n,
-  pluginDexAdminPlugin: 0n,
-  launchManager: 0n,
-  gatedFeePassPlugin: 0n,
   rewardsV1: 763128244n,
   governanceParticipationGate: 0n,
   moderatorActivityGate: 0n,
@@ -605,20 +574,6 @@ export const MAINNET_APP_IDS: NetworkAppIds = {
   welcomePlugin: 0n,
   socialClaim: 0n,
   walletBalanceReader: 0n,
-  pluginDex: 0n,
-  binEngine: 0n,
-  impactFeeHook: 0n,
-  swapTaxHook: 0n,
-  volatilityFeeHook: 0n,
-  backrunArbHook: 0n,
-  gatedFeeHook: 0n,
-  antiSnipeFeeHook: 0n,
-  launchTaxHook: 0n,
-  consensusKeyregHook: 0n,
-  pluginDexPlugin: 0n,
-  pluginDexAdminPlugin: 0n,
-  launchManager: 0n,
-  gatedFeePassPlugin: 0n,
   rewardsV1: 3569556095n,
   governanceParticipationGate: 0n,
   moderatorActivityGate: 0n,
@@ -956,20 +911,6 @@ export const ENV_TO_NETWORK_KEY: Record<string, keyof NetworkAppIds> = {
   WELCOME_PLUGIN_APP_ID: 'welcomePlugin',
   SOCIAL_CLAIM_APP_ID: 'socialClaim',
   WALLET_BALANCE_READER_APP_ID: 'walletBalanceReader',
-  PLUGIN_DEX_APP_ID: 'pluginDex',
-  BIN_ENGINE_APP_ID: 'binEngine',
-  IMPACT_FEE_HOOK_APP_ID: 'impactFeeHook',
-  SWAP_TAX_HOOK_APP_ID: 'swapTaxHook',
-  VOLATILITY_FEE_HOOK_APP_ID: 'volatilityFeeHook',
-  BACKRUN_ARB_HOOK_APP_ID: 'backrunArbHook',
-  GATED_FEE_HOOK_APP_ID: 'gatedFeeHook',
-  ANTI_SNIPE_FEE_HOOK_APP_ID: 'antiSnipeFeeHook',
-  LAUNCH_TAX_HOOK_APP_ID: 'launchTaxHook',
-  CONSENSUS_KEYREG_HOOK_APP_ID: 'consensusKeyregHook',
-  PLUGIN_DEX_PLUGIN_APP_ID: 'pluginDexPlugin',
-  PLUGIN_DEX_ADMIN_PLUGIN_APP_ID: 'pluginDexAdminPlugin',
-  LAUNCH_MANAGER_APP_ID: 'launchManager',
-  GATED_FEE_PASS_PLUGIN_APP_ID: 'gatedFeePassPlugin',
   REWARDS_V1_APP_ID: 'rewardsV1',
 };
 

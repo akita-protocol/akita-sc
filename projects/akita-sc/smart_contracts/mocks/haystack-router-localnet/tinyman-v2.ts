@@ -3,12 +3,10 @@ import { Account, Application, Bytes, bytes, itxn, loggedAssert, op, uint64 } fr
 /**
  * Tinyman v2 AMM library (inlined PuyaTs helpers, not a contract).
  *
- * Used by the BackrunArbHook and the LocalNet mock Haystack router, so a
- * caller that already controls an account (a rekeyed account or a pool
- * escrow) can swap on Tinyman without an extra app hop.
+ * Used by the LocalNet mock Haystack router, so a caller that already
+ * controls an account can swap on Tinyman without an extra app hop.
  *
- * Facts (research/venues.md §1, verified on LocalNet against the official
- * bytecode):
+ * Facts (verified on LocalNet against the official bytecode):
  * - every pool is a logicsig account rekeyed to the AMM app; its address is
  *   sha512_256("Program" ‖ template(appId, asset1, asset2)) with asset1 > asset2,
  *   so ALGO (0) is always asset2;

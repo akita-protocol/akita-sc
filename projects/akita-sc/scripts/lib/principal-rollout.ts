@@ -633,7 +633,7 @@ const dep = {
   gate: GATE_DEPENDENCY,
 } as const satisfies Record<string, Phase3Dependency>
 
-/** The plugin versions Phase 3 deploys (spec §6.11, §7.1). The router ships with the PluginDex stack. */
+/** The plugin versions Phase 3 deploys (spec §6.11, §7.1). */
 export const PHASE3_PLUGINS: readonly Phase3Plugin[] = [
   { catalog: 'AkitaSocialPlugin', artifact: 'arc58/plugins/social/AkitaSocialPlugin.arc56.json', registryKey: 'socialPlugin', dependencies: [dep.social, dep.graph, dep.gate] },
   { catalog: 'SubscriptionsPlugin', artifact: 'arc58/plugins/subscriptions/SubscriptionsPlugin.arc56.json', registryKey: 'subscriptionsPlugin', dependencies: [dep.subscriptions] },

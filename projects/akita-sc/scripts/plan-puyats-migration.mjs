@@ -40,7 +40,6 @@ route("Rewards", "deploy:rewards", "Keep old deployment for remaining rewards; d
 route("EscrowFactory", "retain existing deployment", "Retain the separate EscrowFactory and existing children. Registry merge withdrawn; preserve DAO oal.escrow and existing addresses.")
 route("Gate", "deploy:gates --contracts gate", "Unused per owner; no existing gate-definition migration. --register guards DAO pointer and records SDK ID.")
 route("Meta", "deploy:meta", "Explicit receipt ID; no automatic legacy metaMerkles pointer replacement.")
-route("PluginDex", "deploy:plugin-dex", "Record receipt; configure admin/consumers explicitly.")
 route("GuildFactory,GuildConsensusFactory", "deploy:guild-factory", "Not yet deployed per owner; fresh pair only, no existing migration.")
 route("Guild", "deploy:guild-factory (template)", "No existing Guild deployments in scope.")
 route("FixedSignerGuildConsensus,LockedTokenGuildConsensus,SubscriptionGuildConsensus", "deploy:guild-factory (templates)", "Fresh templates and future factory-created instances; no existing consensus migration.")

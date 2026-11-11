@@ -644,6 +644,9 @@ Boxes: `escrows[wallet,name]`, `receiveAssets[escrowAddress,asset]`, `managedAss
 
 ## PluginDex
 
+> **Parked (2026-11-11):** the Plugin DEX is on hold. Its code is on branch `feat/plugin-dex-v2` and is not in
+> this tree, so the paths named below do not exist here.
+
 > **Superseded (2026-10-03): this section describes PluginDex v1, which was rewritten as PluginDex v2 before
 > any deployment.** v2's resource shape, measured on LocalNet:
 > - **Boxes:** `p:` pool, `h:` hook stack, `e:` external slots, `x:` pair index, and `a:`/`t:`/`v:` hook,

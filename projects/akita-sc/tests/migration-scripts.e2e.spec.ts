@@ -2,13 +2,9 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import { beforeAll, afterAll, describe, expect, test, vi } from 'vitest'
-import algosdk from 'algosdk'
 import { getNetworkAppIds } from 'akita-sdk'
-import { microAlgo } from '@algorandfoundation/algokit-utils'
-import { AppClient } from '@algorandfoundation/algokit-utils/types/app-client'
 import { bootstrapDaoTestContext, type DaoTestContext } from '../smart_contracts/arc58/dao/tests/utils'
-import { deployImmutable, immutableCatalog, immutableContracts, pluginDexDeployOrder, postDeploySteps, prepareImmutable,
-  registerDaoApp } from '../scripts/lib/immutable-deployment'
+import { deployImmutable, immutableContracts, prepareImmutable, registerDaoApp, verifyDependencies } from '../scripts/lib/immutable-deployment'
 import { type ScriptContext } from '../scripts/script-base'
 import { discoverChildren, updateChildren } from '../scripts/lib/child-updates'
 import { StakingPoolStakingType } from 'akita-sdk/staking-pool'
@@ -29,9 +25,7 @@ describe('migration deployment and update scripts', () => {
   })
   afterAll(() => fs.rmSync(dir, { recursive: true, force: true }))
 
-  const dexStack = new Set<string>(pluginDexDeployOrder)
-  const ordered = immutableContracts.filter(name => !dexStack.has(name))
-  for (const name of ordered) test(`deploys ${name} and verifies a receipt`, async () => {
+  for (const name of immutableContracts) test(`deploys ${name} and verifies a receipt`, async () => {
     const allConfig = { router: ctx.dao.appId.toString(), gateAppID: ctx.appIds.gate.toString(),
       factory: boot.walletFactory!.appId.toString(), guild: '0', recipient: ctx.sender,
       registry: ctx.dao.appId.toString(), namespace: 'migration', keys: ['status'],
@@ -61,62 +55,15 @@ describe('migration deployment and update scripts', () => {
     }
   })
 
-  // OPEN-DECISIONS #2 (a): the PluginDex v2 stack deploys in dependency order, each dependency arg taken from an
-  // earlier receipt. Non-ID parameters are deployment choices; the values here are the hook e2e suites' values.
-  const artifactSpec = (name: string) => fs.readFileSync(path.join(__dirname, '../smart_contracts/artifacts', immutableCatalog[name].artifact), 'utf8')
-  const appClient = (name: string, appId: bigint) => new AppClient({ appId, appSpec: artifactSpec(name), algorand: ctx.algorand,
-    defaultSender: ctx.sender, defaultSigner: ctx.signer })
-  const stackParams = (name: string): Record<string, string> => {
-    // Tinyman is external and only stored at create; any live app ID stands in on LocalNet.
-    const tinyman = ctx.dao.appId.toString()
-    return ({
-      ImpactFeeHook: { minFeeBps: '30', maxFeeBps: '100', slopeBps: '10' },
-      SwapTaxHook: { owner: ctx.sender, taxBps: '100' },
-      VolatilityFeeHook: { filter: '30', decay: '600', reduction: '5000', control: '40000', maxVol: '1000', maxFee: '500' },
-      BackrunArbHook: { tinyman },
-    } as Record<string, Record<string, string>>)[name] ?? {}
-  }
-  for (const name of pluginDexDeployOrder) test(`deploys PluginDex v2 stack: ${name} in dependency order`, async () => {
-    const dependencies = Object.entries(immutableCatalog[name].dependencies ?? {})
-    for (const [, dep] of [...dependencies, ...(immutableCatalog[name].after ?? []).map(d => ['', d])]) {
-      expect(deployed[dep], `${dep} must be deployed before ${name}`).toBeDefined()
-    }
-    const config = { ...stackParams(name), ...Object.fromEntries(dependencies.map(([arg, dep]) => [arg, deployed[dep].toString()])) }
-    const receipt = path.join(dir, `${name}.json`)
-    const id = await deployImmutable(ctx, name, config, receipt, true)
-    expect(id).toBeGreaterThan(0n)
-    deployed[name] = id!
-    expect(JSON.parse(fs.readFileSync(receipt, 'utf8')).status).toBe('registered')
-    // The created app stores each dependency it was wired to.
-    const state = await appClient(name, id!).state.global.getAll()
-    for (const [arg, dep] of dependencies) expect(state[arg], `${name}.${arg}`).toBe(deployed[dep])
-    if (name === 'PluginDex') expect(state).toMatchObject({ version: 'migration-test', admin: ctx.sender })
-    if (name === 'PluginDexPlugin') expect(state.version).toBe('migration-test')
-  })
-
-  test('rejects a missing, nonexistent or wrong-contract dependency before writing a receipt', async () => {
-    const receipt = path.join(dir, 'plugin-bad-dependency.json')
-    expect(() => prepareImmutable(ctx, 'PluginDexPlugin')).toThrow('the app ID of PluginDex')
-    await expect(deployImmutable(ctx, 'PluginDexPlugin', { dex: deployed.BinEngine.toString() }, receipt))
-      .rejects.toThrow(`PluginDexPlugin.dex: app ${deployed.BinEngine} is not PluginDex`)
-    await expect(deployImmutable(ctx, 'BinEngine', { vault: '999999999' }, receipt)).rejects.toThrow('does not exist; deploy PluginDex first')
-    expect(fs.existsSync(receipt)).toBe(false)
-  })
-
-  test('the printed post-deploy admin checklist is accepted by the deployed Vault', async () => {
-    // Approval boxes are paid from the Vault account (setHookApproval doc comment).
-    await ctx.algorand.send.payment({ sender: ctx.sender, signer: ctx.signer, receiver: algosdk.getApplicationAddress(deployed.PluginDex), amount: microAlgo(1_000_000) })
-    for (const name of pluginDexDeployOrder) for (const step of postDeploySteps(name, deployed[name])) {
-      const target = appClient(step.app, deployed[step.app])
-      const method = target.appSpec.methods.find(m => m.name === step.method)!
-      const toAbi = (v: unknown): unknown => typeof v === 'number' ? BigInt(v) : Array.isArray(v) ? v.map(toAbi) : v
-      await target.send.call({ method: step.method, args: method.args.map(a => toAbi(step.args[a.name!])) as any, populateAppCallResources: true })
-    }
-    const vault = appClient('PluginDex', deployed.PluginDex)
-    for (const name of pluginDexDeployOrder) for (const step of immutableCatalog[name].postDeploy ?? []) {
-      if (step.method === 'setHookApproval') expect((await vault.state.box.getMapValue('approvedHooks', deployed[name]) as any).perms).toBe(BigInt(step.args.perms as number))
-      if (step.method === 'setCurveApproval') expect((await vault.state.box.getMapValue('approvedCurves', deployed[name]) as any).lpMode).toBe(1n)
-    }
+  // No catalog contract names another as a constructor dependency at present, so the check is exercised
+  // directly: a dependency arg must be a live app running the named contract's compiled program.
+  test('rejects a nonexistent or wrong-contract dependency', async () => {
+    const dependency = (appId: bigint) => [{ arg: 'pay', contract: 'PayPlugin', appId }]
+    await expect(verifyDependencies(ctx, 'Example', dependency(deployed.PayPlugin))).resolves.toBeUndefined()
+    await expect(verifyDependencies(ctx, 'Example', dependency(deployed.WelcomePlugin)))
+      .rejects.toThrow(`Example.pay: app ${deployed.WelcomePlugin} is not PayPlugin`)
+    await expect(verifyDependencies(ctx, 'Example', dependency(999_999_999n))).rejects.toThrow('does not exist; deploy PayPlugin first')
+    await expect(verifyDependencies(ctx, 'Example', dependency(deployed.WelcomePlugin), true)).resolves.toBeUndefined()
   })
 
   test('rejects a stale DAO pointer and unresolved deployment', async () => {
