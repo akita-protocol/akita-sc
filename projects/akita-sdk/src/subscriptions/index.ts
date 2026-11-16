@@ -9,7 +9,8 @@ import { ValueMap } from "../wallet/utils";
 import { NewServiceArgs, PaidUpCheckOptions, Service, SubscribeArgs, SubscriptionGateCtx, SubscriptionGateTxn, SubscriptionInfoWithDetails, SubscriptionStatus, SubscriptionTimestampUnit } from "./types";
 import { bytesToHexColor, hexColorToBytes, validateHexColor } from "./utils";
 import { convertToUnixTimestamp } from "../utils";
-import { MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH, SUBSCRIPTION_PRINCIPAL_MBR } from "./constants";
+import { FEATURED_SERVICE_MBR, HighlightMessage, MAX_DESCRIPTION_CHUNK_SIZE, MAX_DESCRIPTION_LENGTH, SUBSCRIPTION_PRINCIPAL_MBR } from "./constants";
+import { PAYER_RECORD_MBR } from "../constants";
 
 // Re-export key types from generated client
 export { ServicesKey } from '../generated/SubscriptionsClient';
@@ -479,6 +480,66 @@ export class SubscriptionsSDK extends BaseSDK<SubscriptionsClient> {
     await this.client.send.updateServiceTitle({
       ...sendParams,
       args: { id, title }
+    });
+  }
+
+  /** Change the highlight label and colour (`#rrggbb`) of one of the sender's services. */
+  async updateServiceHighlight({ sender, signer, id, highlightMessage, highlightColor }: MaybeSigner & { id: bigint | number; highlightMessage: HighlightMessage | number; highlightColor: string }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    validateHexColor(highlightColor);
+
+    await this.client.send.updateServiceHighlight({
+      ...sendParams,
+      args: { id, highlightMessage: Number(highlightMessage), highlightColor: hexColorToBytes(highlightColor) }
+    });
+  }
+
+  /** The creator's featured (front and center) service id, or 0n when none is set. */
+  async getFeaturedService({ sender, address }: { sender?: string } & { address: string }): Promise<bigint> {
+    const sendParams = this.getReaderSendParams({ sender });
+    return (await this.client.getFeaturedService({ ...sendParams, args: { address } }))
+  }
+
+  /**
+   * What `setFeaturedService` costs: 0 once the creator has a featured box, otherwise its MBR
+   * (plus the payer record when `payer` is not the creator).
+   */
+  async featuredServiceCost({ sender, creator, payer }: { sender?: string, creator: string, payer?: string }): Promise<bigint> {
+    const current = await this.getFeaturedService({ sender, address: creator });
+    if (current !== 0n) {
+      return 0n;
+    }
+    return FEATURED_SERVICE_MBR + (payer !== undefined && payer !== creator ? PAYER_RECORD_MBR : 0n);
+  }
+
+  /** Pick which of the sender's services apps show front and center. */
+  async setFeaturedService({ sender, signer, id }: MaybeSigner & { id: bigint | number }): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    const amount = await this.featuredServiceCost({ sender: sendParams.sender.toString(), creator: sendParams.sender.toString() });
+
+    const payment = this.client.algorand.createTransaction.payment({
+      ...sendParams,
+      amount: microAlgo(amount),
+      receiver: this.client.appAddress.toString(),
+    })
+
+    await this.client.send.setFeaturedService({
+      ...sendParams,
+      args: { payment, id }
+    });
+  }
+
+  /** Remove the sender's featured service; the storage goes back to whoever paid it. */
+  async clearFeaturedService({ sender, signer }: MaybeSigner = {}): Promise<void> {
+    const sendParams = this.getRequiredSendParams({ sender, signer });
+
+    await this.client.send.clearFeaturedService({
+      ...sendParams,
+      args: [],
+      populateAppCallResources: true,
+      coverAppCallInnerTransactionFees: true,
     });
   }
 

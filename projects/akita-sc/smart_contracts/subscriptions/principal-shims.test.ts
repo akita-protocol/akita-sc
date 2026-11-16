@@ -122,8 +122,12 @@ describe('New Subscriptions plugin version (§6.11)', () => {
     const deployed = approval(programs.apps['3569561107'].approval)
     for (const m of plugin.methods) {
       const sig = signature(m)
-      // methods added after the May 2026 deployment (deposit/withdraw/unsubscribe) are not in it
-      if (['deposit', 'withdraw', 'unsubscribe'].includes(m.name)) continue
+      // methods added after the May 2026 deployment are not in it: deposit/withdraw/unsubscribe, and the
+      // creator-editable highlight and featured service (2026-11-16)
+      if ([
+        'deposit', 'withdraw', 'unsubscribe',
+        'updateServiceHighlight', 'setFeaturedService', 'clearFeaturedService',
+      ].includes(m.name)) continue
       expect(contains(deployed, sig), sig).toBe(true)
     }
   })

@@ -62,6 +62,13 @@ export const errNoLegacyWallet = 'errNlwl'
 /** adoptPrincipal: the subscription has no gate, so it never needs a principal */
 export const errNotGated = 'errNgtd'
 
+// --- Featured service -------------------------------------------------------
+
+/** clearFeaturedService: the creator has no featured service */
+export const errNoFeaturedService = 'errNfsv'
+/** setFeaturedService: a shut down service cannot be featured */
+export const errFeaturedShutdown = 'errFshd'
+
 // --- Blocking ---------------------------------------------------------------
 
 export const errUserAlreadyBlocked = 'errUabl'

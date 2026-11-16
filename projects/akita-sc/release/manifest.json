@@ -582,8 +582,8 @@
     "arc58/plugins/subscriptions/SubscriptionsPlugin": {
       "name": "SubscriptionsPlugin",
       "approval": {
-        "bytes": 4461,
-        "sha256": "35cc3e8ad496df95c3653fd891e27ed7fdd243d143ee687d4d62f0582b18ac72"
+        "bytes": 4794,
+        "sha256": "61a7f1c3f501e7439678786a5be91c0eb5941f26c4d07fac8a38bfc9827c9619"
       },
       "clear": {
         "bytes": 4,
@@ -1875,8 +1875,8 @@
     "subscriptions/Subscriptions": {
       "name": "Subscriptions",
       "approval": {
-        "bytes": 10468,
-        "sha256": "e9acfa9ffe5633e89c68bcafc3617cb817bc1a9e0b9bb7c332cb83f2c0fc67b2"
+        "bytes": 10801,
+        "sha256": "5dbf842425e80db46aa497ff314bc2fbe3fa702f7649bdafb15655017866381b"
       },
       "clear": {
         "bytes": 4,

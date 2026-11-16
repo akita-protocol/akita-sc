@@ -32,3 +32,8 @@ export declare const MAX_LOAD_DESCRIPTION_CHUNK_SIZE = 2026;
  * `newSubscriptionCost(..., wallet)` and refunded by `unsubscribe`; `adoptPrincipal` pays exactly this.
  */
 export declare const SUBSCRIPTION_PRINCIPAL_MBR = 34900n;
+/**
+ * MBR of a creator's featured service box ('f'): 2_500 + 400 * (33 + 8). Paid by the first
+ * `setFeaturedService` (later calls pay 0) and refunded by `clearFeaturedService`.
+ */
+export declare const FEATURED_SERVICE_MBR = 18900n;
