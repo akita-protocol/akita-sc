@@ -182,6 +182,13 @@ export type FixedSignerGuildConsensusArgs = {
             evidence: Uint8Array;
             requiredThrough: bigint | number;
         };
+        'usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': {
+            plugin: bigint | number;
+            escrow: string;
+            methodOffsets: bigint[] | number[];
+            fundsRequest: [bigint | number, bigint | number][];
+            calls: Uint8Array[][];
+        };
         'create(byte[])void': {
             governanceConfig: Uint8Array;
         };
@@ -228,6 +235,7 @@ export type FixedSignerGuildConsensusArgs = {
         'resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)': [proposalId: bigint | number];
         'vote(pay,address,uint64,uint8,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, voter: string, proposalId: bigint | number, vote: bigint | number, evidence: Uint8Array];
         'proposalPower(address,byte[],uint64)uint64': [account: string, evidence: Uint8Array, requiredThrough: bigint | number];
+        'usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': [plugin: bigint | number, escrow: string, methodOffsets: bigint[] | number[], fundsRequest: [bigint | number, bigint | number][], calls: Uint8Array[][]];
         'create(byte[])void': [governanceConfig: Uint8Array];
         'configurationMbr(byte[])uint64': [config: Uint8Array];
         'configure(pay,byte[])void': [mbrPayment: AppMethodCallTransactionArgument, config: Uint8Array];
@@ -255,6 +263,7 @@ export type FixedSignerGuildConsensusReturns = {
     'resolveProposal(uint64)(bool,uint64,uint64,uint64,uint64)': GuildConsensusResult;
     'vote(pay,address,uint64,uint8,byte[])void': void;
     'proposalPower(address,byte[],uint64)uint64': bigint;
+    'usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': void;
     'create(byte[])void': void;
     'configurationMbr(byte[])uint64': bigint;
     'configure(pay,byte[])void': void;
@@ -317,6 +326,10 @@ export type FixedSignerGuildConsensusTypes = {
         argsObj: FixedSignerGuildConsensusArgs['obj']['proposalPower(address,byte[],uint64)uint64'];
         argsTuple: FixedSignerGuildConsensusArgs['tuple']['proposalPower(address,byte[],uint64)uint64'];
         returns: FixedSignerGuildConsensusReturns['proposalPower(address,byte[],uint64)uint64'];
+    }> & Record<'usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void' | 'usePlugin', {
+        argsObj: FixedSignerGuildConsensusArgs['obj']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
+        argsTuple: FixedSignerGuildConsensusArgs['tuple']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
+        returns: FixedSignerGuildConsensusReturns['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
     }> & Record<'create(byte[])void' | 'create', {
         argsObj: FixedSignerGuildConsensusArgs['obj']['create(byte[])void'];
         argsTuple: FixedSignerGuildConsensusArgs['tuple']['create(byte[])void'];
@@ -611,6 +624,28 @@ export declare abstract class FixedSignerGuildConsensusParamsFactory {
      * @returns An `AppClientMethodCallParams` object for the call
      */
     static proposalPower(params: CallParams<FixedSignerGuildConsensusArgs['obj']['proposalPower(address,byte[],uint64)uint64'] | FixedSignerGuildConsensusArgs['tuple']['proposalPower(address,byte[],uint64)uint64']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void ABI method
+     *
+    * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+    own power meets the threshold: the one case in which a ballot could only record that signer's
+    approval.
+  
+    The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+    the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+    them here exactly as for any other named caller. Only the signer threshold is consulted, against
+    the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+  
+    One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+    and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+    of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+    arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static usePlugin(params: CallParams<FixedSignerGuildConsensusArgs['obj']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | FixedSignerGuildConsensusArgs['tuple']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
      * Constructs a no op call for the configurationMbr(byte[])uint64 ABI method
      *
@@ -1163,6 +1198,30 @@ export declare class FixedSignerGuildConsensusClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
+         * Makes a call to the FixedSignerGuildConsensus smart contract using the `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
+         *
+        * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+        own power meets the threshold: the one case in which a ballot could only record that signer's
+        approval.
+    
+        The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+        the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+        them here exactly as for any other named caller. Only the signer threshold is consulted, against
+        the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+    
+        One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+        and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+        of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        usePlugin: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | FixedSignerGuildConsensusArgs["tuple"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
          * Makes a call to the FixedSignerGuildConsensus smart contract using the `configurationMbr(byte[])uint64` ABI method.
          *
          * This method is a readonly method; calling it with onComplete of NoOp will result in a simulated transaction rather than a real transaction.
@@ -1426,6 +1485,34 @@ export declare class FixedSignerGuildConsensusClient {
          * @returns The call transaction
          */
         proposalPower: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["proposalPower(address,byte[],uint64)uint64"] | FixedSignerGuildConsensusArgs["tuple"]["proposalPower(address,byte[],uint64)uint64"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the FixedSignerGuildConsensus smart contract using the `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
+         *
+        * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+        own power meets the threshold: the one case in which a ballot could only record that signer's
+        approval.
+    
+        The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+        the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+        them here exactly as for any other named caller. Only the signer threshold is consulted, against
+        the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+    
+        One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+        and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+        of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        usePlugin: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | FixedSignerGuildConsensusArgs["tuple"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             transactions: Transaction[];
@@ -1785,6 +1872,39 @@ export declare class FixedSignerGuildConsensusClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<{
             return: (undefined | FixedSignerGuildConsensusReturns["proposalPower(address,byte[],uint64)uint64"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the FixedSignerGuildConsensus smart contract using the `usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
+         *
+        * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+        own power meets the threshold: the one case in which a ballot could only record that signer's
+        approval.
+    
+        The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+        the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+        them here exactly as for any other named caller. Only the signer threshold is consulted, against
+        the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+    
+        One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+        and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+        of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+        arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        usePlugin: (params: CallParams<FixedSignerGuildConsensusArgs["obj"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | FixedSignerGuildConsensusArgs["tuple"]["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | FixedSignerGuildConsensusReturns["usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]);
             groupId: string;
             txIds: string[];
             returns?: ABIReturn[] | undefined | undefined;
@@ -2311,6 +2431,29 @@ export type FixedSignerGuildConsensusComposer<TReturns extends [...any[]] = []> 
      * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
      */
     proposalPower(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['proposalPower(address,byte[],uint64)uint64'] | FixedSignerGuildConsensusArgs['tuple']['proposalPower(address,byte[],uint64)uint64']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['proposalPower(address,byte[],uint64)uint64'] | undefined]>;
+    /**
+     * Calls the usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void ABI method.
+     *
+    * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+    own power meets the threshold: the one case in which a ballot could only record that signer's
+    approval.
+  
+    The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+    the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+    them here exactly as for any other named caller. Only the signer threshold is consulted, against
+    the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+  
+    One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+    and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+    of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+    arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    usePlugin(params?: CallParams<FixedSignerGuildConsensusArgs['obj']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | FixedSignerGuildConsensusArgs['tuple']['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void']>): FixedSignerGuildConsensusComposer<[...TReturns, FixedSignerGuildConsensusReturns['usePlugin(uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | undefined]>;
     /**
      * Calls the configurationMbr(byte[])uint64 ABI method.
      *

@@ -129,8 +129,8 @@
     "arc58/guilds/consensus/fixed-signers/FixedSignerGuildConsensus": {
       "name": "FixedSignerGuildConsensus",
       "approval": {
-        "bytes": 4886,
-        "sha256": "b3eb7137c9d5d059ac286a9441a221215ad145ec73add963dfcf3ab4ed961c43"
+        "bytes": 5368,
+        "sha256": "1ecb3bbfcff96e28e1b33fab2efc3106c4a95e02b7e09cdc9d45256416d03a7e"
       },
       "clear": {
         "bytes": 4,
@@ -340,8 +340,8 @@
     "arc58/plugins/guild/GuildPlugin": {
       "name": "GuildPlugin",
       "approval": {
-        "bytes": 5247,
-        "sha256": "c15ea7739b65eae10dac56af38a27173dc7233e7b1b914daa6ac7d84c3974b78"
+        "bytes": 5564,
+        "sha256": "20afbfb9f0e6c8077702d3a4879314093a7ea4b94e43ba3bcdfa4633d268e001"
       },
       "clear": {
         "bytes": 4,

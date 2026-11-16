@@ -1,23 +1,30 @@
 import {
   Account,
+  Application,
   BoxMap,
   Box,
   ensureBudget,
   OpUpFeeSource,
   op,
   bytes,
+  Bytes,
   clone,
   contract,
   Global,
   GlobalState,
   gtxn,
   itxn,
+  itxnCompose,
   loggedAssert,
   loggedErr,
   match,
+  TransactionType,
+  Txn,
   uint64,
 } from '@algorandfoundation/algorand-typescript'
 import { abimethod, decodeArc4 } from '@algorandfoundation/algorand-typescript/arc4'
+import { CallerTypeOther } from '../../../account/types'
+import type { FundsRequest } from '../../../account/types'
 import {
   MAX_FIXED_SIGNER_MEMBERS,
   FixedSignerMemberMBR,
@@ -40,8 +47,10 @@ import {
   GuildConsensusBoxPrefixMemberSnapshots,
   GuildConsensusNumGlobalBytes,
   GuildConsensusNumGlobalUints,
+  GuildGlobalStateKeyWallet,
 } from '../../core/constants'
 import {
+  errGuildInvalidAction,
   errGuildInvalidConsensusAction,
   errGuildInvalidMember,
   errGuildInvalidPayment,
@@ -52,7 +61,10 @@ import {
   errGuildMemberExists,
   errGuildMemberMissing,
   errGuildMembershipLocked,
+  errGuildNoGovernancePower,
+  errGuildNotActive,
   errGuildTooManyMembers,
+  errGuildWalletRequired,
 } from '../../core/errors'
 import type {
   FixedSignerActionAddMembers,
@@ -79,6 +91,7 @@ import {
 } from './constants'
 
 // CONTRACT IMPORTS
+import type { AbstractedAccount } from '../../../account/contract.algo'
 import type { GuildConsensusFactoryCreateInterface, GuildConsensusGuildInterface } from '../../interfaces'
 import { GuildConsensusBase } from '../base'
 
@@ -504,6 +517,51 @@ export class FixedSignerGuildConsensus extends GuildConsensusBase
     return this.memberPower(account)
   }
   /* eslint-enable @typescript-eslint/no-unused-vars */
+
+  // DIRECT PLUGIN USE ----------------------------------------------------------------------------
+
+  /**
+   * Use a plugin the Guild's wallet granted to this consensus app, with no proposal, for a signer whose
+   * own power meets the threshold: the one case in which a ballot could only record that signer's
+   * approval.
+   *
+   * The Guild opts a plugin in by granting it to this app's address, by proposal, with whatever limits
+   * the grant carries (methods, cooldown, expiry, escrow allowances). The wallet enforces every one of
+   * them here exactly as for any other named caller. Only the signer threshold is consulted, against
+   * the membership as it stands now; a Guild's percentage settings govern proposals, not this route.
+   *
+   * One inner group: the wallet opens its plugin window for this app, the listed calls run inside it,
+   * and the wallet closes and verifies the window. Each entry of `calls` is the application arguments
+   * of one call to `plugin`: the method selector, then the wallet's ID, then the rest of that method's
+   * arguments. The calls are sent by this app, so a plugin method that pays its caller pays this app.
+   */
+  usePlugin(plugin: uint64, escrow: string, methodOffsets: uint64[], fundsRequest: FundsRequest[], calls: bytes[][]): void {
+    loggedAssert(this.activated.value, errGuildNotActive)
+    loggedAssert(this.memberPower(Txn.sender) >= this.threshold.value, errGuildNoGovernancePower)
+    const [walletID, hasWallet] = op.AppGlobal.getExUint64(this.guild.value, Bytes(GuildGlobalStateKeyWallet))
+    loggedAssert(hasWallet, errGuildWalletRequired)
+    const uses = clone(calls)
+    loggedAssert(uses.length > 0, errGuildInvalidAction)
+
+    const wallet = Application(walletID)
+    itxnCompose.begin<typeof AbstractedAccount.prototype.arc58_rekeyToPlugin>({
+      appId: wallet,
+      args: [plugin, CallerTypeOther, escrow, methodOffsets, fundsRequest],
+      fee: 0,
+    })
+    for (let i: uint64 = 0; i < uses.length; i += 1) {
+      const args = clone(uses[i])
+      op.ITxnCreate.next()
+      op.ITxnCreate.setTypeEnum(TransactionType.ApplicationCall)
+      op.ITxnCreate.setApplicationId(plugin)
+      op.ITxnCreate.setFee(0)
+      for (let j: uint64 = 0; j < args.length; j += 1) {
+        op.ITxnCreate.setApplicationArgs(args[j])
+      }
+    }
+    itxnCompose.next<typeof AbstractedAccount.prototype.arc58_verifyAuthAddress>({ appId: wallet, fee: 0 })
+    itxnCompose.submit()
+  }
 
   // LIFE CYCLE METHODS ---------------------------------------------------------------------------
 

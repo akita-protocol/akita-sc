@@ -56,6 +56,13 @@ type FinalizeProposalArgs = WalletPluginArgs<ContractMethodArgs<"finalizeProposa
 type CancelProposalArgs = WalletPluginArgs<ContractMethodArgs<"cancelProposal">>;
 type CleanupProposalConsensusArgs = WalletPluginArgs<ContractMethodArgs<"cleanupProposalConsensus">>;
 type ExecuteProposalArgs = WalletPluginArgs<ContractMethodArgs<"executeProposal">>;
+type UsePluginAsSignerArgs = WalletPluginArgs<
+  Omit<ContractMethodArgs<"usePluginAsSigner">, "escrow" | "methodOffsets" | "fundsRequest"> & {
+    escrow?: string;
+    methodOffsets?: bigint[] | number[];
+    fundsRequest?: [bigint | number, bigint | number][];
+  }
+>;
 type OpUpArgs = WalletPluginArgs<ContractMethodArgs<"opUp">>;
 
 type ParamsBuilder = (params: Record<string, unknown>) => Promise<Record<string, unknown>>;
@@ -382,6 +389,19 @@ export class GuildPluginSDK extends BaseSDK<GuildPluginClient> {
   executeProposal(args: ExecuteProposalArgs): PluginSDKReturn;
   executeProposal(args?: ExecuteProposalArgs): PluginSDKReturn {
     return this.hook("executeProposal", args);
+  }
+
+  /**
+   * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+   * meets the threshold. No proposal is involved, so this is the whole action in one send. Each entry of
+   * `calls` is the application arguments of one call to `plugin`: the method selector, then the Guild
+   * wallet's ID as a uint64, then the rest of that method's arguments; only the last call hands the Guild
+   * wallet back.
+   */
+  usePluginAsSigner(): PluginSDKReturn;
+  usePluginAsSigner(args: UsePluginAsSignerArgs): PluginSDKReturn;
+  usePluginAsSigner(args?: UsePluginAsSignerArgs): PluginSDKReturn {
+    return this.hook("usePluginAsSigner", args && { escrow: "", methodOffsets: [], fundsRequest: [], ...args });
   }
 
   sweep(): PluginSDKReturn;

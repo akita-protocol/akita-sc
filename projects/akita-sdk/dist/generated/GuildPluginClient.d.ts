@@ -263,6 +263,16 @@ export type GuildPluginArgs = {
             guild: bigint | number;
             proposalId: bigint | number;
         };
+        'usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': {
+            wallet: bigint | number;
+            rekeyBack: boolean;
+            guild: bigint | number;
+            plugin: bigint | number;
+            escrow: string;
+            methodOffsets: bigint[] | number[];
+            fundsRequest: [bigint | number, bigint | number][];
+            calls: Uint8Array[][];
+        };
         'sweep(uint64,bool,uint64)uint64': {
             wallet: bigint | number;
             rekeyBack: boolean;
@@ -301,6 +311,7 @@ export type GuildPluginArgs = {
         'cleanupProposalConsensus(uint64,bool,uint64,uint64,address[])uint64': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number, voters: string[]];
         'cancelProposal(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number];
         'executeProposal(uint64,bool,uint64,uint64)void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, proposalId: bigint | number];
+        'usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number, plugin: bigint | number, escrow: string, methodOffsets: bigint[] | number[], fundsRequest: [bigint | number, bigint | number][], calls: Uint8Array[][]];
         'sweep(uint64,bool,uint64)uint64': [wallet: bigint | number, rekeyBack: boolean, guild: bigint | number];
         'opUp(uint64,bool,uint64)void': [wallet: bigint | number, rekeyBack: boolean, nonce: bigint | number];
     };
@@ -332,6 +343,7 @@ export type GuildPluginReturns = {
     'cleanupProposalConsensus(uint64,bool,uint64,uint64,address[])uint64': bigint;
     'cancelProposal(uint64,bool,uint64,uint64)void': void;
     'executeProposal(uint64,bool,uint64,uint64)void': void;
+    'usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void': void;
     'sweep(uint64,bool,uint64)uint64': bigint;
     'opUp(uint64,bool,uint64)void': void;
 };
@@ -434,6 +446,10 @@ export type GuildPluginTypes = {
         argsObj: GuildPluginArgs['obj']['executeProposal(uint64,bool,uint64,uint64)void'];
         argsTuple: GuildPluginArgs['tuple']['executeProposal(uint64,bool,uint64,uint64)void'];
         returns: GuildPluginReturns['executeProposal(uint64,bool,uint64,uint64)void'];
+    }> & Record<'usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void' | 'usePluginAsSigner', {
+        argsObj: GuildPluginArgs['obj']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
+        argsTuple: GuildPluginArgs['tuple']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
+        returns: GuildPluginReturns['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'];
     }> & Record<'sweep(uint64,bool,uint64)uint64' | 'sweep', {
         argsObj: GuildPluginArgs['obj']['sweep(uint64,bool,uint64)uint64'];
         argsTuple: GuildPluginArgs['tuple']['sweep(uint64,bool,uint64)uint64'];
@@ -730,9 +746,19 @@ export declare abstract class GuildPluginParamsFactory {
      */
     static executeProposal(params: CallParams<GuildPluginArgs['obj']['executeProposal(uint64,bool,uint64,uint64)void'] | GuildPluginArgs['tuple']['executeProposal(uint64,bool,uint64,uint64)void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
     /**
-     * Constructs a no op call for the sweep(uint64,bool,uint64)uint64 ABI method
+     * Constructs a no op call for the usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void ABI method
      *
-     * Forward unreserved Guild balance to its treasury wallet.
+    * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+    meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+    use itself. A Guild with any other consensus has no such route, and the call fails.
+  
+     *
+     * @param params Parameters for the call
+     * @returns An `AppClientMethodCallParams` object for the call
+     */
+    static usePluginAsSigner(params: CallParams<GuildPluginArgs['obj']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | GuildPluginArgs['tuple']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void']> & CallOnComplete): AppClientMethodCallParams & CallOnComplete;
+    /**
+     * Constructs a no op call for the sweep(uint64,bool,uint64)uint64 ABI method
      *
      * @param params Parameters for the call
      * @returns An `AppClientMethodCallParams` object for the call
@@ -1333,9 +1359,21 @@ export declare class GuildPluginClient {
             onComplete?: OnApplicationComplete.NoOpOC;
         }) => Promise<AppCallMethodCall>;
         /**
-         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
+         * Makes a call to the GuildPlugin smart contract using the `usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
          *
-         * Forward unreserved Guild balance to its treasury wallet.
+        * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+        meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+        use itself. A Guild with any other consensus has no such route, and the call fails.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call params
+         */
+        usePluginAsSigner: (params: CallParams<GuildPluginArgs["obj"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | GuildPluginArgs["tuple"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<AppCallMethodCall>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call params
@@ -1675,9 +1713,25 @@ export declare class GuildPluginClient {
             signers: Map<number, TransactionSigner>;
         }>;
         /**
-         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
+         * Makes a call to the GuildPlugin smart contract using the `usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
          *
-         * Forward unreserved Guild balance to its treasury wallet.
+        * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+        meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+        use itself. A Guild with any other consensus has no such route, and the call fails.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call transaction
+         */
+        usePluginAsSigner: (params: CallParams<GuildPluginArgs["obj"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | GuildPluginArgs["tuple"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            transactions: Transaction[];
+            methodCalls: Map<number, import("algosdk").ABIMethod>;
+            signers: Map<number, TransactionSigner>;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call transaction
@@ -2135,9 +2189,30 @@ export declare class GuildPluginClient {
             transaction: Transaction;
         }>;
         /**
-         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
+         * Makes a call to the GuildPlugin smart contract using the `usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void` ABI method.
          *
-         * Forward unreserved Guild balance to its treasury wallet.
+        * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+        meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+        use itself. A Guild with any other consensus has no such route, and the call fails.
+    
+         *
+         * @param params The params for the smart contract call
+         * @returns The call result
+         */
+        usePluginAsSigner: (params: CallParams<GuildPluginArgs["obj"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"] | GuildPluginArgs["tuple"]["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]> & SendParams & {
+            onComplete?: OnApplicationComplete.NoOpOC;
+        }) => Promise<{
+            return: (undefined | GuildPluginReturns["usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void"]);
+            groupId: string;
+            txIds: string[];
+            returns?: ABIReturn[] | undefined | undefined;
+            confirmations: modelsv2.PendingTransactionResponse[];
+            transactions: Transaction[];
+            confirmation: modelsv2.PendingTransactionResponse;
+            transaction: Transaction;
+        }>;
+        /**
+         * Makes a call to the GuildPlugin smart contract using the `sweep(uint64,bool,uint64)uint64` ABI method.
          *
          * @param params The params for the smart contract call
          * @returns The call result
@@ -2406,9 +2481,20 @@ export type GuildPluginComposer<TReturns extends [...any[]] = []> = {
      */
     executeProposal(params?: CallParams<GuildPluginArgs['obj']['executeProposal(uint64,bool,uint64,uint64)void'] | GuildPluginArgs['tuple']['executeProposal(uint64,bool,uint64,uint64)void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['executeProposal(uint64,bool,uint64,uint64)void'] | undefined]>;
     /**
-     * Calls the sweep(uint64,bool,uint64)uint64 ABI method.
+     * Calls the usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void ABI method.
      *
-     * Forward unreserved Guild balance to its treasury wallet.
+    * Use a plugin the Guild's wallet granted to its fixed-signer consensus, as a signer whose own power
+    meets the threshold. No proposal is involved: the consensus checks the signer and sends the plugin
+    use itself. A Guild with any other consensus has no such route, and the call fails.
+  
+     *
+     * @param args The arguments for the contract call
+     * @param params Any additional parameters for the call
+     * @returns The typed transaction composer so you can fluently chain multiple calls or call execute to execute all queued up transactions
+     */
+    usePluginAsSigner(params?: CallParams<GuildPluginArgs['obj']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | GuildPluginArgs['tuple']['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void']>): GuildPluginComposer<[...TReturns, GuildPluginReturns['usePluginAsSigner(uint64,bool,uint64,uint64,string,uint64[],(uint64,uint64)[],byte[][][])void'] | undefined]>;
+    /**
+     * Calls the sweep(uint64,bool,uint64)uint64 ABI method.
      *
      * @param args The arguments for the contract call
      * @param params Any additional parameters for the call
